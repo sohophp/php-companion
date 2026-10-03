@@ -1,12 +1,66 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { semanticFacts } from '@php-companion/semantic-provider';
-import { SemanticWorkspace, type ExtractMethodInfo, type SemanticCallableImplementationState } from '../src/index.js';
+import { SemanticWorkspace, type ExtractMethodInfo, type SemanticCallableImplementationState, type SemanticLocation } from '../src/index.js';
 
 describe('conservative semantic workspace', () => {
   let parser: PhpSyntaxParser; let workspace: SemanticWorkspace;
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); workspace = new SemanticWorkspace(parser); });
   afterAll(() => parser.dispose());
+  it('classifies declaration names without mistaking references and expressions for declarations', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///src/OrderService.php';
+    const names: Array<[string, string, string]> = [
+      ['<?php namespace App', 'namespace', 'namespace'],
+      ['<?php namespace App\\Sub', 'namespace', 'namespace'],
+      ['<?php class Ord', 'type', 'class'],
+      ['<?php interface Ord', 'type', 'interface'],
+      ['<?php trait Ord', 'type', 'trait'],
+      ['<?php enum Ord', 'type', 'enum'],
+      ['<?php final readonly class Ord', 'type', 'class'],
+      ['<?php function run', 'function', 'function'],
+      ['<?php const LIMIT', 'constant', 'const'],
+      ['<?php enum State { case Ready', 'enum-case', 'case'],
+      ['<?php class Host { public function run', 'function', 'function'],
+      ['<?php class Host { public const LIMIT', 'constant', 'const'],
+      ['<?php class Host { private string $value', 'property', 'property'],
+      ['<?php function run(string $value', 'parameter', 'parameter'],
+      ['<?php class Host { public function run(string $value', 'parameter', 'parameter'],
+    ];
+    for (const [source, kind, declaration] of names) {
+      project.update(uri, source);
+      expect(project.completionContext(uri, source.length), source).toMatchObject({
+        kind: 'declaration-name', declaration: { kind, declaration },
+      });
+    }
+    for (const source of [
+      '<?php use function Vendor\\run', '<?php use const Vendor\\LIMIT',
+      '<?php namespace\\Helper',
+      '<?php class Child extends Base', '<?php class Child implements Contract',
+      '<?php $value = new Service', '<?php Foo::class C',
+      '<?php switch ($value) { case Ready', '<?php function run($value = factory()',
+      '<?php class Host { public function run() { $value',
+      '<?php // class Ord', "<?php $text = 'enum Ord'",
+    ]) {
+      project.update(uri, source);
+      expect(project.completionContext(uri, source.length).kind, source).not.toBe('declaration-name');
+    }
+    for (const source of [
+      '<?php $text = <<<TXT\nclass Imaginary\nTXT;\nclass Ord',
+      '<?php $text = <<<\'TXT\'\nfunction imaginary\nTXT;\nenum Ord',
+      `<?php\n${'// ordinary preceding code\n'.repeat(6_000)}class Ord`,
+    ]) {
+      project.update(uri, source);
+      expect(project.completionContext(uri, source.length), 'declaration after heredoc or a long file')
+        .toMatchObject({ kind: 'declaration-name', declaration: { kind: 'type', prefix: 'Ord' } });
+    }
+    const insideHeredoc = '<?php $text = <<<TXT\nclass Ord\nTXT;';
+    project.update(uri, insideHeredoc);
+    expect(project.completionContext(uri, insideHeredoc.indexOf('class Ord') + 'class Ord'.length).kind)
+      .not.toBe('declaration-name');
+    project.update(uri, '<?php class OrderService {}');
+    expect(project.declarationTypeNameAvailable(uri, 12, 'OrderService')).toBe(false);
+  });
   it('navigates PHPDoc type positions without treating descriptions or shape keys as classes', () => {
     const project = new SemanticWorkspace(parser);
     const typeUri = 'file:///vendor/acme/src/Widget.php';
@@ -120,6 +174,7 @@ function second(string $customer): void { $customerName = $customer; $cust; $cus
 function captured(string $outer): void { $nearby = 1; $arrow = fn (string $inner) => $out + $inn + $near; $closure = function () use ($outer) { $out; $near; }; }
 function iterate(array $rows): void { foreach ($rows as $entryKey => $entryValue) { $entryK; $entryV; } }
 function unpack(array $tuple): void { [$firstPart, $secondPart] = $tuple; $firstP; list($legacyPart) = $tuple; $legacyP; ['id' => $idPart, [$nestedPart]] = $tuple; $nestedP; }
+function unrelatedUnpack(array $tuple): void { [$firstPhantom] = $tuple; }
 function declaredLocals(): void { global $sharedThing; static $cachedThing = []; $shar; $cach; }
 function unrelatedLocals(): void { $shar; }
 class Example {
@@ -151,6 +206,7 @@ class Example {
       expect(project.completeVariables(uri, source.indexOf('$entryK;') + '$entryK'.length)?.names).toContain('$entryKey');
       expect(project.completeVariables(uri, source.indexOf('$entryV;') + '$entryV'.length)?.names).toContain('$entryValue');
       expect(project.completeVariables(uri, source.indexOf('$firstP;') + '$firstP'.length)?.names).toContain('$firstPart');
+      expect(project.completeVariables(uri, source.indexOf('$firstP;') + '$firstP'.length)?.names).not.toContain('$firstPhantom');
       expect(project.completeVariables(uri, source.indexOf('$legacyP;') + '$legacyP'.length)?.names).toContain('$legacyPart');
       expect(project.completeVariables(uri, source.indexOf('$nestedP;') + '$nestedP'.length)?.names).toContain('$nestedPart');
       expect(project.completeVariables(uri, source.indexOf('$shar;') + '$shar'.length)?.names).toContain('$sharedThing');
@@ -605,6 +661,18 @@ TXT;
       }
     } finally { project.dispose(); }
   });
+  it('checks untyped documented arguments while keeping local-only diagnostics bounded to built-ins', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///DocumentedArgumentUse.php';
+    try {
+      project.update('file:///ExternalDocumented.php', '<?php /** @param object $value */ function externalDocumented($value): void {}');
+      project.update('php-companion-builtin:/common-core.php', '<?php /** @param object $value */ function builtinDocumented($value): void {}');
+      project.update(uri, "<?php externalDocumented('bad'); builtinDocumented('bad');");
+      expect(project.incompatibleArguments(uri).map((item) => [item.callable, item.actualType, item.expectedType]))
+        .toEqual([['externalDocumented', 'string', 'object'], ['builtinDocumented', 'string', 'object']]);
+      expect(project.incompatibleArguments(uri, true).map((item) => item.callable)).toEqual(['builtinDocumented']);
+    } finally { project.dispose(); }
+  });
   it('identifies an exact direct call with a native scalar return', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///NativeReturnUse.php';
@@ -1042,6 +1110,25 @@ TXT;
     expect(restored.definition(uri, source.indexOf('CacheRoundTrip') + 1)).toEqual(workspace.definition(uri, source.indexOf('CacheRoundTrip') + 1));
     restored.dispose();
   });
+  it('rejects legacy candidate snapshots that omit the abstract class flag', () => {
+    const uri = 'file:///LegacyCandidate.php';
+    const source = '<?php abstract class LegacyCandidate {} final class ConcreteCandidate {}';
+    workspace.update(uri, source);
+    const full = structuredClone(workspace.snapshot(uri)!);
+    const declarationOnly = structuredClone(workspace.sourceDeclarationSnapshot(uri)!);
+    delete (full.declaration.declarations[0] as { abstractClass?: boolean }).abstractClass;
+    delete (declarationOnly.declaration.declarations[0] as { abstractClass?: boolean }).abstractClass;
+    const restored = new SemanticWorkspace(parser);
+    try {
+      expect(restored.restore(full, uri)).toBe(false);
+      expect(restored.restoreDeclaration(full, uri)).toBe(false);
+      expect(restored.restoreSourceDeclaration(declarationOnly, uri)).toBe(false);
+      restored.update(uri, source);
+      expect(restored.workspaceTypes().map((type) => [type.fqcn, type.abstract])).toEqual([
+        ['LegacyCandidate', true], ['ConcreteCandidate', false],
+      ]);
+    } finally { restored.dispose(); }
+  });
   it.each(['structured-clone', 'json'] as const)('matches ordered workspace facts after %s transport', (transport) => {
     const transfer = <T>(value: T): T => transport === 'json' ? JSON.parse(JSON.stringify(value)) as T : structuredClone(value);
     const eager = new SemanticWorkspace(parser); const prepared = new SemanticWorkspace(parser);
@@ -1292,6 +1379,27 @@ TXT;
     expect(workspace.definition('file:///CompositeUse.php', source.indexOf('branchShared();') + 2)).toHaveLength(2);
     expect(workspace.unresolvedMembers('file:///CompositeUse.php').map((item) => item.name)).toEqual(['fromA', 'fromB', 'fromB', 'fromB']);
     expect(workspace.nullableMemberAccesses('file:///CompositeUse.php').map((item) => item.name)).toEqual(['common', 'common', 'common']);
+  });
+  it('narrows a call result with a false branch before member completion and definition', () => {
+    const uri = 'file:///FalseableCall.php';
+    const source = `<?php
+class OpenedFile { public function file(): string { return ''; } }
+function openFile(): OpenedFile|false { return new OpenedFile(); }
+$opened = openFile();
+$opened->fi;
+if ($opened !== false) { $opened->fi; $opened->file(); }
+if ($opened === false) { $opened->fi; }
+$opened = 123;
+if ($opened !== false) { $opened->fi; }`;
+    workspace.update(uri, source);
+    const positions = [...source.matchAll(/\$opened->fi;/g)].map((match) => match.index! + '$opened->fi'.length);
+    expect(positions).toHaveLength(4);
+    expect(workspace.completeMembers(uri, positions[0]!).map((item) => item.name)).not.toContain('file');
+    expect(workspace.completeMembers(uri, positions[1]!).map((item) => item.name)).toContain('file');
+    expect(workspace.completeMembers(uri, positions[2]!).map((item) => item.name)).not.toContain('file');
+    expect(workspace.completeMembers(uri, positions[3]!).map((item) => item.name)).not.toContain('file');
+    expect(workspace.definition(uri, source.indexOf('$opened->file();') + '$opened->fi'.length))
+      .toMatchObject([{ uri, name: 'file' }]);
   });
   it('keeps PHPDoc list union alternatives through foreach member queries', () => {
     const uri = 'file:///DocListUnion.php';
@@ -1611,6 +1719,768 @@ TXT;
       { text: '$arrowMissing', scopeId: expect.stringMatching(/^arrow@/) },
     ]);
   });
+  it('reports a missing constructor argument at file scope', () => {
+    const uri = 'file:///TopLevelUndefinedArgument.php';
+    const source = `<?php
+final class Bootstrap { public function __construct(string $projectDir) {} }
+$app = new Bootstrap(projectDir: $a);
+$ready = 'root';
+$other = new Bootstrap(projectDir: $ready);`;
+    workspace.update(uri, source);
+    expect(workspace.undefinedVariables(uri).map((item) => source.slice(item.start, item.end))).toEqual(['$a']);
+  });
+  it('keeps independent variable feedback during a standalone partial word but suppresses uncertain syntax', () => {
+    const uri = 'file:///TopLevelPartialWord.php';
+    const partial = `<?php
+func
+final class Bootstrap { public function __construct(string $projectDir) {} }
+$app = new Bootstrap(projectDir: $a);`;
+    workspace.update(uri, partial);
+    expect(workspace.undefinedVariables(uri).map((item) => partial.slice(item.start, item.end))).toEqual(['$a']);
+    const defined = partial.replace('$app =', "$a = 'root';\n$app =");
+    workspace.update(uri, defined);
+    expect(workspace.undefinedVariables(uri)).toEqual([]);
+    const uncertain = partial.replace('func', 'function unfinished(');
+    workspace.update(uri, uncertain);
+    expect(workspace.undefinedVariables(uri)).toEqual([]);
+  });
+  it('withdraws local variable suggestions and reports a direct read after unset until reassignment', () => {
+    const uri = 'file:///UnsetLocal.php';
+    const source = `<?php
+function inspect(): void {
+    $state = 'ready';
+    unset($state);
+    echo $sta;
+    echo $state;
+    $state = 'restored';
+    echo $sta;
+    echo $state;
+    $items = ['one'];
+    unset($items[0]);
+    echo $items;
+}`;
+    try {
+      workspace.update(uri, source, true);
+      const firstSuggestion = source.indexOf('$sta;');
+      const secondSuggestion = source.indexOf('$sta;', firstSuggestion + 1);
+      expect(workspace.completeVariables(uri, firstSuggestion + '$sta'.length)?.names).not.toContain('$state');
+      expect(workspace.completeVariables(uri, secondSuggestion + '$sta'.length)?.names).toContain('$state');
+      expect(workspace.undefinedVariables(uri).filter((item) => item.name === 'state').map((item) => item.start))
+        .toEqual([source.indexOf('echo $state;') + 'echo '.length]);
+      expect(workspace.undefinedVariables(uri).some((item) => item.name === 'items')).toBe(false);
+    } finally { workspace.remove(uri); }
+  });
+  it('keeps unset facts local to straight-line code and preserves other variables', () => {
+    const uri = 'file:///UnsetBoundaries.php';
+    const source = `<?php
+function inspect(bool $flag, string $fromParameter): void {
+    $left = 'left'; $right = 'right';
+    unset($left, $right);
+    echo $left, $right;
+    if ($flag) { unset($fromParameter); }
+    echo $fromParameter;
+    $state = 'ready';
+    unset($state);
+    maybeRestoreState();
+    echo $state;
+}`;
+    try {
+      workspace.update(uri, source, true);
+      const errors = workspace.undefinedVariables(uri);
+      expect(errors.filter((item) => item.name === 'left' || item.name === 'right').map((item) => item.name)).toEqual(['left', 'right']);
+      expect(errors.some((item) => item.name === 'fromParameter' || item.name === 'state')).toBe(false);
+      const afterCall = source.lastIndexOf('echo $state;') + 'echo $sta'.length;
+      expect(workspace.completeVariables(uri, afterCall)?.names).toContain('$state');
+    } finally { workspace.remove(uri); }
+  });
+  it('suggests locals initialized by proven by-reference output parameters', () => {
+    const uri = 'file:///ByReferenceOutput.php';
+    const source = `<?php
+function fill(string &$message): void { $message = 'ready'; }
+function consume(string $message): void {}
+function inspect(): void {
+    fill($result);
+    echo $res;
+    fill(message: $namedResult);
+    echo $named;
+    unknownOutput($uncertain);
+    echo $unce;
+    consume($ordinary);
+    echo $ordi;
+    fill($removed);
+    unset($removed);
+    echo $remo;
+    fill($restored);
+    unset($restored);
+    fill($restored);
+    echo $resto;
+}`;
+    try {
+      workspace.update(uri, source, true);
+      const at = (marker: string): number => source.indexOf(marker) + marker.length - 1;
+      expect(workspace.completeVariables(uri, at('$res;'))?.names).toContain('$result');
+      expect(workspace.completeVariables(uri, at('$named;'))?.names).toContain('$namedResult');
+      expect(workspace.completeVariables(uri, at('$unce;'))?.names).not.toContain('$uncertain');
+      expect(workspace.completeVariables(uri, at('$ordi;'))?.names).not.toContain('$ordinary');
+      expect(workspace.completeVariables(uri, at('$remo;'))?.names).not.toContain('$removed');
+      expect(workspace.completeVariables(uri, at('$resto;'))?.names).toContain('$restored');
+      expect(workspace.undefinedVariables(uri).some((item) => item.name === 'result' || item.name === 'namedResult')).toBe(false);
+    } finally { workspace.remove(uri); }
+  });
+  it('keeps local completion available while a function body is unfinished', () => {
+    const uri = 'file:///UnfinishedFunctionCompletion.php';
+    const source = '<?php function inspect(): void { $state = 1; echo $sta';
+    try {
+      workspace.update(uri, source, true);
+      expect(workspace.completeVariables(uri, source.length)?.names).toContain('$state');
+      const referenceSource = '<?php function fill(string &$value): void {} function inspect(): void { fill($result); echo $res';
+      workspace.update(uri, referenceSource, true);
+      expect(workspace.completeVariables(uri, referenceSource.length)?.names).toContain('$result');
+    } finally { workspace.remove(uri); }
+  });
+  it('suggests by-reference outputs from resolved instance and static methods', () => {
+    const uri = 'file:///MethodReferenceOutput.php';
+    const source = `<?php
+final class OutputSink {
+    public function fill(string &$value): void { $value = 'ready'; }
+    public static function fillStatic(string &$value): void { $value = 'ready'; }
+}
+function inspect(OutputSink $sink, ?OutputSink $optional): void {
+    $sink->fill($instanceResult);
+    echo $instance;
+    OutputSink::fillStatic($staticResult);
+    echo $static;
+    $optional?->fill($conditionalResult);
+    echo $conditional;
+}`;
+    try {
+      workspace.update(uri, source, true);
+      const after = (needle: string): number => source.indexOf(needle) + needle.length - 1;
+      expect(workspace.completeVariables(uri, after('$instance;'))?.names).toContain('$instanceResult');
+      expect(workspace.completeVariables(uri, after('$static;'))?.names).toContain('$staticResult');
+      expect(workspace.completeVariables(uri, after('$conditional;'))?.names).not.toContain('$conditionalResult');
+    } finally { workspace.remove(uri); }
+  });
+  it('reports $this only where the current scope has no bound instance', () => {
+    const source = `<?php
+$this;
+function outside(): void { echo $this; }
+class Context {
+  public function instance(): void {
+    echo $this;
+    $bound = function () { echo $this; };
+    $arrow = fn () => $this;
+    $staticClosure = static function () { echo $this; };
+    $staticArrow = static fn () => $this;
+  }
+  public static function staticMethod(): void {
+    echo $this;
+    $closure = function () { echo $this; };
+    $arrow = fn () => $this;
+  }
+}`;
+    const uri = 'file:///InvalidThisScopes.php';
+    workspace.update(uri, source);
+    const occurrences = [...source.matchAll(/\$this/gu)].map((match) => match.index!);
+    expect(workspace.undefinedVariables(uri).filter((item) => item.name === 'this')
+      .map((item) => ({ start: item.start, reason: item.reason })).sort((left, right) => left.start - right.start))
+      .toEqual([0, 1, 5, 6, 7, 8, 9].map((index) => ({ start: occurrences[index], reason: 'unbound-this' })));
+  });
+  it('does not resolve instance members through an unbound $this', () => {
+    const source = `<?php class BoundMembers {
+      public function ready(): void {}
+      public static function staticMethod(): void { $this->ready(); $this->rea; }
+      public function instanceMethod(): void { $this->ready(); $this->rea; }
+      public function closures(): void {
+        $static = static fn () => $this->ready();
+        $bound = fn () => $this->ready();
+      }
+    }`;
+    const uri = 'file:///BoundMembers.php';
+    workspace.update(uri, source);
+    const calls = [...source.matchAll(/\$this->ready\(\)/gu)].map((match) => match.index! + '$this->'.length + 2);
+    const partials = [...source.matchAll(/\$this->rea;/gu)].map((match) => match.index! + '$this->rea'.length);
+    expect(workspace.completeMembers(uri, partials[0]!).map((member) => member.name)).toEqual([]);
+    expect(workspace.definition(uri, calls[0]!)).toEqual([]);
+    expect(workspace.completeMembers(uri, partials[1]!).map((member) => member.name)).toContain('ready');
+    expect(workspace.definition(uri, calls[1]!)).toMatchObject([{ fqcn: 'BoundMembers::ready' }]);
+    expect(workspace.definition(uri, calls[2]!)).toEqual([]);
+    expect(workspace.definition(uri, calls[3]!)).toMatchObject([{ fqcn: 'BoundMembers::ready' }]);
+  });
+  it('reports missing top-level variables without treating callable locals or dynamic imports as definitions', () => {
+    const source = `<?php
+      $dotenv = new stdClass();
+      $app = new ApplicationBootstrap(projectDir: $a);
+      $known = 1; echo $known;
+      isset($safe); echo $fallback ?? 'default';
+      function independent(): void { $inside = 1; }
+      echo $insideMissing;
+      require 'bootstrap.php'; echo $injectedByRequire;
+    `;
+    const uri = 'file:///Config/app.php';
+    workspace.update(uri, source);
+    expect(workspace.undefinedVariables(uri).map((item) => ({
+      text: source.slice(item.start, item.end), scopeId: item.scopeId,
+    }))).toEqual([
+      { text: '$a', scopeId: '@global' },
+      { text: '$insideMissing', scopeId: '@global' },
+    ]);
+  });
+  it('classifies PHP keyword completion by code position', () => {
+    const cases = [
+      { source: '<?php\nfunc', prefix: 'func', kind: 'top-level', inCallable: false },
+      { source: '<?php\nfunction asdf() {\n    retu\n}', prefix: 'retu', kind: 'statement', inCallable: true },
+      { source: '<?php\nfunction asdf() { echo retu\n}', prefix: 'retu', kind: 'expression', inCallable: true },
+      { source: '<?php\nclass Example { public func\n}', prefix: 'func', kind: 'class-member', inCallable: false },
+      { source: '<?php\n$app = n', prefix: 'n', kind: 'expression', inCallable: false },
+      { source: '<?php\nfunction asdf() {\n    retu', prefix: 'retu', kind: 'statement', inCallable: true },
+      { source: '<?php\nfunction asdf() { echo retu', prefix: 'retu', kind: 'expression', inCallable: true },
+      { source: '<?php\nclass Example { public func', prefix: 'func', kind: 'class-member', inCallable: false },
+      { source: '<?php\nfunction asdf() { $value = matc', prefix: 'matc', kind: 'expression', inCallable: true },
+    ];
+    for (const [index, item] of cases.entries()) {
+      const uri = `file:///KeywordContext-${index}.php`;
+      const offset = item.source.lastIndexOf(item.prefix) + item.prefix.length;
+      workspace.update(uri, item.source);
+      expect(workspace.phpKeywordCompletionContext(uri, offset), item.source)
+        .toMatchObject({ kind: item.kind, inCallable: item.inCallable });
+    }
+    for (const [index, source] of ['<?php\n// retu', '<?php\n"retu"', '<?php\n$object->retu'].entries()) {
+      const uri = `file:///KeywordExcluded-${index}.php`;
+      workspace.update(uri, source);
+      expect(workspace.phpKeywordCompletionContext(uri, source.length), source).toBeUndefined();
+    }
+  });
+  it('classifies mutually exclusive completion positions before collecting candidates', () => {
+    const uri = 'file:///CompletionContexts.php';
+    const cases = [
+      { marked: '<?php /** @param array{owner: string} $input */ function send(array $input): void {} send(["ow|"]);', kind: 'shape-key' },
+      { marked: '<?php function send(string $first): void {} send(fi|);', kind: 'named-argument' },
+      { marked: '<?php class Host { public function render(): void {} } function run(Host $host): void { $host->ren|; }', kind: 'member' },
+      { marked: '<?php class Host { public function render(): string { return "a"; } } function send(string $value): void {} function run(Host $host): void { send($host->ren|); }', kind: 'member' },
+      { marked: '<?php function run(string $name): void { $na|; }', kind: 'variable' },
+      { marked: '<?php use function Domain\\cre|;', kind: 'symbol-import' },
+      { marked: '<?php func|', kind: 'general' },
+      { marked: '<?php class Service {} new Ser|;', kind: 'general' },
+      { marked: '<?php namespace App\\C1; /** @template TNext of\n * C1DocTa|\n */ function documented(): void {}', kind: 'general' },
+    ] as const;
+    for (const item of cases) {
+      const offset = item.marked.indexOf('|');
+      const source = item.marked.replace('|', '');
+      workspace.update(uri, source);
+      const context = workspace.completionContext(uri, offset);
+      expect(context.kind, item.marked).toBe(item.kind);
+      if (item.marked.includes('func|')) expect(context.kind === 'general' && context.keywordContext?.kind).toBe('top-level');
+      if (item.marked.includes('Ser|')) expect(context.kind === 'general' && context.typeContext?.prefix).toBe('Ser');
+      if (item.marked.includes('C1DocTa|')) expect(context.kind === 'general' && context.typeContext?.prefix).toBe('C1DocTa');
+    }
+  });
+  it('prioritizes compatible local variables at a proven positional argument', () => {
+    const uri = 'file:///CompletionArgumentTypes.php';
+    const source = '<?php function completionSendString(string $message): void {} function run(string $name, int $count): void { completionSendString($); }';
+    workspace.update(uri, source);
+    const offset = source.indexOf('completionSendString($') + 'completionSendString($'.length;
+    const names = workspace.completeVariables(uri, offset)?.names ?? [];
+    expect(names).toContain('$name');
+    expect(names).toContain('$count');
+    expect(names.indexOf('$name')).toBeLessThan(names.indexOf('$count'));
+  });
+  it('specializes generic argument completion from other arguments without using the current value', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///GenericExpected.php';
+    const declarations = `<?php class Base {} class Alpha extends Base {} class Beta extends Base {}
+      /** @template T of Base
+       * @param class-string<T> $type
+       * @param T $value */ function genericTake($type, $value): void {}
+      class GenericHost {
+        /** @template T of Base
+         * @param class-string<T> $type
+         * @param T $value */ public function take($type, $value): void {}
+      }`;
+    for (const expression of ['genericTake(Alpha::class, $)', 'genericTake(type: Alpha::class, value: $)',
+      'genericTake(Alpha::class, $v)', 'genericTake(Alpha::class, )', '$host->take(Alpha::class, $v)']) {
+      const source = `${declarations} function run(Beta $valueBeta, Alpha $valueAlpha, $valueUnknown, GenericHost $host): void { ${expression}; }`;
+      const cursor = source.indexOf(expression) + expression.lastIndexOf(')'); project.update(uri, source);
+      const names = expression.endsWith(', )') ? project.completeBareExpressionVariables(uri, cursor)?.map(item => item.name)
+        : project.completeVariables(uri, cursor)?.names;
+      expect(names, expression).toBeDefined();
+      expect(names!.indexOf('$valueAlpha'), expression).toBeGreaterThanOrEqual(0);
+      expect(names!.indexOf('$valueAlpha'), expression).toBeLessThan(names!.indexOf('$valueUnknown'));
+      expect(names!.indexOf('$valueUnknown'), expression).toBeLessThan(names!.indexOf('$valueBeta'));
+    }
+    for (const expression of ['genericTake(Alpha::class, $v', 'genericTake(Alpha::class, $',
+      'genericTake(type: Alpha::class, value: $v']) {
+      const source = `${declarations} function run(Beta $valueBeta, Alpha $valueAlpha, $valueUnknown): void { ${expression}; }`;
+      const cursor = source.indexOf(expression) + expression.length; project.update(uri, source);
+      expect(project.completeVariables(uri, cursor)?.names.filter(name => name.startsWith('$value')), expression)
+        .toEqual(['$valueAlpha', '$valueUnknown', '$valueBeta']);
+    }
+    for (const expression of ['genericTake(Alpha::class +, $v', 'genericTake(...$missing, $v', 'genericTake($missing, $v']) {
+      const source = `${declarations} function run(Beta $valueBeta, Alpha $valueAlpha, $valueUnknown): void { ${expression}; }`;
+      const cursor = source.indexOf(expression) + expression.length; project.update(uri, source);
+      expect(project.completeVariables(uri, cursor)?.names.filter(name => name.startsWith('$value')), expression)
+        .toEqual(['$valueAlpha', '$valueBeta', '$valueUnknown']);
+    }
+    const marked = `${declarations} function run(Beta $valueBeta, Alpha $valueAlpha, $valueUnknown): void { genericTake(Alpha::class, $v); }`;
+    for (const type of ['Alpha', 'Beta', 'Alpha']) {
+      const source = marked.replace('genericTake(Alpha::class', `genericTake(${type}::class`); project.update(uri, source);
+      const names = project.completeVariables(uri, source.indexOf('$v);') + 2)?.names ?? [];
+      expect(names.slice(0, 3)).toEqual(type === 'Alpha'
+        ? ['$valueAlpha', '$valueUnknown', '$valueBeta'] : ['$valueBeta', '$valueUnknown', '$valueAlpha']);
+    }
+    for (const argument of ['$missing', 'stdClass::class']) {
+      const source = marked.replace('genericTake(Alpha::class', `genericTake(${argument}`); project.update(uri, source);
+      expect(project.completeVariables(uri, source.indexOf('$v);') + 2)?.names.slice(0, 3))
+        .toEqual(['$valueAlpha', '$valueBeta', '$valueUnknown']);
+    }
+    const conflict = marked.replace('@param T $value', '@param T $proof\n       * @param T $value')
+      .replace('function genericTake($type, $value)', 'function genericTake($type, $proof, $value)')
+      .replace('genericTake(Alpha::class, $v)', 'genericTake(Alpha::class, $valueBeta, $v)');
+    project.update(uri, conflict);
+    expect(project.completeVariables(uri, conflict.indexOf('$v);') + 2)?.names.slice(0, 3))
+      .toEqual(['$valueAlpha', '$valueBeta', '$valueUnknown']);
+    project.dispose();
+  });
+  it('ranks partial generic arguments without relaxing complete call validation', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///PartialGenericExpected.php';
+    const declarations = `<?php class PartialBase {} class PartialAlpha extends PartialBase { public function ready(): void {} }
+      class PartialBeta extends PartialBase {}
+      /** @template T of PartialBase
+       * @param class-string<T> $type
+       * @param T $value
+       * @return T */ function partialTake($type, $value, string $tail) {}`;
+    for (const expression of ['partialTake(PartialAlpha::class, $v)', 'partialTake(PartialAlpha::class, $v',
+      'partialTake(type: PartialAlpha::class, value: $v)', 'partialTake(value: $v, type: PartialAlpha::class)']) {
+      const source = `${declarations} function run(PartialBeta $valueBeta, PartialAlpha $valueAlpha, $valueUnknown): void { ${expression}; }`;
+      const cursor = source.indexOf(expression) + expression.indexOf('$v') + 2; project.update(uri, source);
+      expect(project.completeVariables(uri, cursor)?.names.filter(name => name.startsWith('$value')), expression)
+        .toEqual(['$valueAlpha', '$valueUnknown', '$valueBeta']);
+    }
+    for (const type of ['PartialAlpha', 'PartialBeta', 'PartialAlpha']) {
+      const source = `${declarations} function run(PartialBeta $valueBeta, PartialAlpha $valueAlpha, $valueUnknown): void { partialTake(${type}::class, $v); }`;
+      project.update(uri, source);
+      expect(project.completeVariables(uri, source.indexOf('$v);') + 2)?.names.filter(name => name.startsWith('$value')))
+        .toEqual(type === 'PartialAlpha' ? ['$valueAlpha', '$valueUnknown', '$valueBeta'] : ['$valueBeta', '$valueUnknown', '$valueAlpha']);
+    }
+    const incomplete = `${declarations} function run(PartialAlpha $value): void { $answer = partialTake(PartialAlpha::class, $value); $answer->; }`;
+    project.update(uri, incomplete);
+    expect(project.missingRequiredArguments(uri)).toMatchObject([{ callable: 'partialTake', parameters: ['tail'] }]);
+    expect(project.completeMembers(uri, incomplete.indexOf('$answer->;') + '$answer->'.length)).toEqual([]);
+    const complete = incomplete.replace('PartialAlpha::class, $value)', 'PartialAlpha::class, $value, "ok")');
+    project.update(uri, complete);
+    expect(project.missingRequiredArguments(uri)).toEqual([]);
+    expect(project.completeMembers(uri, complete.indexOf('$answer->;') + '$answer->'.length).map(item => item.name)).toContain('ready');
+    project.dispose();
+  });
+
+  it('uses an agreed overload parameter type without guessing conflicting or duplicate contracts', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///OverloadExpected.php';
+    const declarations = `<?php
+      /** @method int send(string $value, int $mode = 0)
+       * @method string send(string $value, string $mode = '')
+       * @method int flag(bool $value, int $mode = 0)
+       * @method string flag(bool $value, string $mode = '') */ class Client {}
+      function choiceInt(): int {} function choiceText(): string {} function choiceUnknown() {}`;
+    for (const expression of ['$client->send($)', '$client->send(value: $)', '$client->send()', '$client->send(choice)']) {
+      const source = `${declarations} function run(Client $client, int $number, string $text, $unknown): void { ${expression}; }`;
+      const cursor = source.indexOf(expression) + expression.indexOf(')');
+      project.update(uri, source);
+      expect(project.signatures(uri, cursor), expression).toHaveLength(2);
+      if (expression.includes('$)') || expression.includes(': $)')) {
+        const names = project.completeVariables(uri, cursor)?.names ?? [];
+        expect(names.indexOf('$text'), expression).toBeLessThan(names.indexOf('$unknown'));
+        expect(names.indexOf('$unknown'), expression).toBeLessThan(names.indexOf('$number'));
+      } else if (expression.endsWith('()')) {
+        expect(project.completeBareExpressionVariables(uri, cursor)?.map(item => item.name), expression)
+          .toEqual(['$text', '$unknown', '$client', '$number']);
+      } else {
+        expect(project.completeFunctions(uri, cursor).map(item => item.name), expression)
+          .toEqual(['choiceText', 'choiceUnknown', 'choiceInt']);
+      }
+    }
+    const flag = `${declarations} function run(Client $client): void { $client->flag(); }`;
+    project.update(uri, flag);
+    expect(project.completeExpectedValues(uri, flag.indexOf('flag()') + 'flag('.length).map(item => item.label)).toEqual(['false', 'true']);
+    project.update(uri, flag.replace('@method string flag(bool', '@method string flag(string'));
+    expect(project.completeExpectedValues(uri, flag.indexOf('flag()') + 'flag('.length)).toEqual([]);
+    project.update('php-companion-builtin:SharedOverload.php', '<?php function shared(bool $value, int $mode = 0): int {} function shared(bool $value, string $mode = ""): string {}');
+    const builtin = '<?php function run(): void { shared(); }'; project.update(uri, builtin);
+    expect(project.completeExpectedValues(uri, builtin.indexOf('shared()') + 'shared('.length).map(item => item.label)).toEqual(['false', 'true']);
+    const conflict = `${declarations} function run(Client $client, int $number, string $text): void { $client->send('', $); }`;
+    project.update(uri, conflict);
+    const cursor = conflict.indexOf('$);') + 1;
+    expect(project.signatures(uri, cursor)).toHaveLength(2);
+    const names = project.completeVariables(uri, cursor)?.names ?? [];
+    expect(names.indexOf('$number')).toBeLessThan(names.indexOf('$text'));
+    project.update('file:///DuplicateOverloadA.php', '<?php function duplicate(string $value): void {}');
+    project.update('file:///DuplicateOverloadB.php', '<?php function duplicate(string $value): void {}');
+    const duplicate = '<?php function run(int $number, string $text): void { duplicate($); }'; project.update(uri, duplicate);
+    const duplicateNames = project.completeVariables(uri, duplicate.indexOf('$);') + 1)?.names ?? [];
+    expect(duplicateNames.indexOf('$number')).toBeLessThan(duplicateNames.indexOf('$text'));
+    project.dispose();
+  });
+
+  it('offers visible local variables at blank typed expressions without leaking another scope', () => {
+    const uri = 'file:///CompletionBareArgumentVariables.php';
+    const cases = [
+      { marked: '<?php function take(string $value): void {} function other(string $hidden): void {} function run(string $name, int $number, $unknown): void { take(value: |); }',
+        expected: ['$name', '$unknown', '$number'] },
+      { marked: '<?php function take(string $value): void {} function other(string $hidden): void {} function run(string $name, int $number, $unknown): void { take(|); }',
+        expected: ['$name', '$unknown', '$number'] },
+      { marked: '<?php function take(string $value): void {} function run(string $name): void { take(value: $|); }', expected: [] },
+      { marked: '<?php function run(string $name): void { unknownCall(|); }', expected: [] },
+      { marked: '<?php function take(string $value): void {} function run(): void { take(value: |); }', expected: [], proven: true },
+      { marked: '<?php function run(string $name, int $number, $unknown): string { return |; }',
+        expected: ['$name', '$unknown', '$number'] },
+      { marked: '<?php function run(string $target, string $name, int $number, $unknown): void { $target = |; }',
+        expected: ['$name', '$target', '$unknown', '$number'] },
+    ];
+    for (const item of cases) {
+      const offset = item.marked.indexOf('|');
+      workspace.update(uri, item.marked.replace('|', ''));
+      const candidates = workspace.completeBareExpressionVariables(uri, offset);
+      expect(candidates?.map((candidate) => candidate.name) ?? [], item.marked).toEqual(item.expected);
+      expect(candidates?.some((candidate) => candidate.name === '$hidden')).not.toBe(true);
+      if (item.expected.length || 'proven' in item) expect(candidates).toBeDefined();
+      else expect(candidates).toBeUndefined();
+      if (item.expected.length) expect(candidates?.map((candidate) => candidate.compatibilityRank)).toEqual(
+        item.expected.length === 4 ? [0, 0, 1, 2] : [0, 1, 2]);
+    }
+  });
+  it('prioritizes compatible member results without dropping unknown member types', () => {
+    const uri = 'file:///CompletionMemberExpectedTypes.php';
+    const declarations = '<?php class CompletionBuilder { public function makeInt(): int { return 1; } public function makeUnknown() {} public function makeText(): string { return "a"; } } function completionTakeString(string $value): void {} ';
+    for (const suffix of [
+      'function completionRun(CompletionBuilder $builder): void { completionTakeString($builder->make); }',
+      'function completionRun(CompletionBuilder $builder): string { return $builder->make; }',
+      'function completionRun(CompletionBuilder $builder): void { $text = "a"; $text = $builder->make; }',
+    ]) {
+      const source = declarations + suffix;
+      workspace.update(uri, source);
+      const offset = source.lastIndexOf('$builder->make') + '$builder->make'.length;
+      expect(workspace.completeMembers(uri, offset).map((member) => member.name), suffix)
+        .toEqual(['makeText', 'makeUnknown', 'makeInt']);
+    }
+  });
+  it('prioritizes compatible locals at return and assignment expressions', () => {
+    const uri = 'file:///CompletionExpectedTypes.php';
+    const cases = [
+      '<?php function run(string $name, int $count): string { return $; }',
+      '<?php function run(string $name, int $count): void { $name = $; }',
+    ];
+    for (const source of cases) {
+      workspace.update(uri, source);
+      const offset = source.lastIndexOf('$;') + 1;
+      const names = workspace.completeVariables(uri, offset)?.names ?? [];
+      expect(names.indexOf('$name'), source).toBeGreaterThanOrEqual(0);
+      expect(names.indexOf('$count'), source).toBeGreaterThanOrEqual(0);
+      expect(names.indexOf('$name'), source).toBeLessThan(names.indexOf('$count'));
+    }
+  });
+  it('suggests only proven enum and scalar argument values', () => {
+    const uri = 'file:///CompletionExpectedValues.php';
+    const source = '<?php enum CompletionColor { case Red; case Blue; } function completionPaint(CompletionColor $color): void {} function completionFlag(bool $value): void {} completionPaint(); completionFlag();';
+    workspace.update(uri, source);
+    const enumOffset = source.indexOf('completionPaint()') + 'completionPaint('.length;
+    const boolOffset = source.indexOf('completionFlag()') + 'completionFlag('.length;
+    expect(workspace.completeExpectedValues(uri, enumOffset)?.map((item) => item.label))
+      .toEqual(['CompletionColor::Blue', 'CompletionColor::Red']);
+    expect(workspace.completeExpectedValues(uri, boolOffset)?.map((item) => item.label))
+      .toEqual(['false', 'true']);
+    const unknown = '<?php function completionAnything(mixed $value): void {} completionAnything();';
+    workspace.update(uri, unknown);
+    expect(workspace.completeExpectedValues(uri, unknown.indexOf('completionAnything()') + 'completionAnything('.length))
+      .toEqual([]);
+  });
+  it('keeps PHPDoc string literal unions through signatures and argument value completion', () => {
+    const uri = 'file:///CompletionLiteralValues.php';
+    const declaration = "<?php /** @param 'draft'|'final' $state */ function setState(string $state): void {} ";
+    for (const [call, prefix, expected] of [
+      ['setState(dra);', 'dra', ["'draft'"]],
+      ['setState(state: fin);', 'fin', ["'final'"]],
+      ['setState();', '', ["'draft'", "'final'"]],
+    ] as const) {
+      const source = declaration + call;
+      workspace.update(uri, source);
+      const offset = source.lastIndexOf(prefix || 'setState(') + (prefix || 'setState(').length;
+      expect(workspace.signature(uri, offset)?.parameters[0]?.type, call).toBe("'draft'|'final'");
+      expect(workspace.completeExpectedValues(uri, offset).map((item) => item.label), call).toEqual(expected);
+    }
+    for (const [call, prefix, expected, replacement] of [
+      ["setState('dra');", 'dra', "'draft'", "'draft'"],
+      ['setState("fin");', 'fin', '"final"', '"final"'],
+    ] as const) {
+      const source = declaration + call;
+      workspace.update(uri, source);
+      const offset = source.lastIndexOf(prefix) + prefix.length;
+      const [candidate] = workspace.completeExpectedValues(uri, offset);
+      expect(candidate, call).toMatchObject({ label: expected, insertText: replacement });
+      expect(source.slice(0, candidate!.start) + candidate!.insertText + source.slice(candidate!.end), call)
+        .toBe(declaration + `setState(${replacement});`);
+    }
+    const incomplete = declaration + "setState('dra";
+    workspace.update(uri, incomplete);
+    const incompleteValues = workspace.completeExpectedValues(uri, incomplete.length);
+    expect(incompleteValues.map((item) => item.label)).toEqual(["'draft'"]);
+    expect(incomplete.slice(0, incompleteValues[0]!.start) + incompleteValues[0]!.insertText
+      + incomplete.slice(incompleteValues[0]!.end)).toBe(declaration + "setState('draft'");
+    const afterQuote = declaration + "setState('draft');";
+    workspace.update(uri, afterQuote);
+    expect(workspace.completeExpectedValues(uri, afterQuote.lastIndexOf("'draft'") + "'draft'".length)).toEqual([]);
+    const comment = declaration + "// setState('dra";
+    workspace.update(uri, comment);
+    expect(workspace.completeExpectedValues(uri, comment.length)).toEqual([]);
+    const ordinary = '<?php function setState(string $state): void {} setState("dra");';
+    workspace.update(uri, ordinary);
+    expect(workspace.completeExpectedValues(uri, ordinary.lastIndexOf('dra') + 3)).toEqual([]);
+    const incompatible = "<?php /** @param 'draft'|'final' $state */ function setState(int $state): void {} setState(dra);";
+    workspace.update(uri, incompatible);
+    const offset = incompatible.lastIndexOf('dra') + 3;
+    expect(workspace.signature(uri, offset)?.parameters[0]?.type).toBe('int');
+    expect(workspace.completeExpectedValues(uri, offset)).toEqual([]);
+    const single = "<?php /** @param 'draft' $state */ function setState(string $state): void {} /** @return 'final' */ function currentState(): string { return 'final'; } setState(dra); currentState();";
+    workspace.update(uri, single);
+    const singleOffset = single.lastIndexOf('dra') + 3;
+    expect(workspace.signature(uri, singleOffset)?.parameters[0]?.type).toBe("'draft'");
+    expect(workspace.completeExpectedValues(uri, singleOffset).map((item) => item.label)).toEqual(["'draft'"]);
+    expect(workspace.signature(uri, single.lastIndexOf('currentState()') + 'currentState('.length)?.returnType).toBe("'final'");
+    const expressions = "<?php /** @return 'draft'|'final' */ function nextState(): string { return dra; } "
+      + "/** @param 'draft'|'final' $state */ function changeState(string $state): void { $state = fin; }";
+    workspace.update(uri, expressions);
+    expect(workspace.completeExpectedValues(uri, expressions.indexOf('return dra') + 'return dra'.length)
+      .map((item) => item.label)).toEqual(["'draft'"]);
+    expect(workspace.completeExpectedValues(uri, expressions.indexOf('$state = fin') + '$state = fin'.length)
+      .map((item) => item.label)).toEqual(["'final'"]);
+  });
+  it('ranks compatible callable return types before incompatible names', () => {
+    const uri = 'file:///CompletionCallableExpectedTypes.php';
+    const source = '<?php function completionGetValueAsInt(): int { return 1; } function completionGetValueAsString(): string { return "a"; } function completionSink(string $value): void {} completionSink(completionGetValueAs);';
+    workspace.update(uri, source);
+    const offset = source.lastIndexOf('completionGetValueAs') + 'completionGetValueAs'.length;
+    const names = workspace.completeFunctions(uri, offset).map((item) => item.name);
+    expect(names.indexOf('completionGetValueAsString')).toBeLessThan(names.indexOf('completionGetValueAsInt'));
+  });
+  it('uses declared property write types for assignment completion', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///PropertyExpectedCompletion.php';
+    const source = `<?php
+      function propertyValueInt(): int { return 1; }
+      function propertyValueText(): string { return 'value'; }
+      function propertyValueUnknown() {}
+      class PropertyExpected { public string $text; public bool $enabled; public static string $shared;
+        function edit(): void { $this->text = propertyValue; $this->enabled = tr; self::$shared = propertyValue; }
+      }`;
+    try {
+      project.update(uri, source);
+      for (const marker of ['$this->text = propertyValue', 'self::$shared = propertyValue']) {
+        const offset = source.indexOf(marker) + marker.length;
+        const names = project.completeFunctions(uri, offset).map(item => item.name);
+        expect(names).toEqual(['propertyValueText', 'propertyValueUnknown', 'propertyValueInt']);
+      }
+      expect(project.completeExpectedValues(uri, source.indexOf('$this->enabled = tr') + '$this->enabled = tr'.length)
+        .map(item => item.label)).toEqual(['true']);
+      const changed = source.replace('public string $text', 'public int $text'); project.update(uri, changed);
+      expect(project.completeFunctions(uri, changed.indexOf('$this->text = propertyValue') + '$this->text = propertyValue'.length)
+        .map(item => item.name)).toEqual(['propertyValueInt', 'propertyValueUnknown', 'propertyValueText']);
+    } finally { project.dispose(); }
+  });
+
+  it('keeps property assignment value proof scoped to a visible writable declaration', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///PropertyExpectedBoundaries.php';
+    const source = `<?php
+      function propertyRankInt(): int { return 1; } function propertyRankText(): string { return 'text'; }
+      class PropertyBase { public string $text; private string $hidden; public readonly string $locked;
+        /** @var 'draft'|'final' */ public string $state;
+      }
+      class PropertyChild extends PropertyBase {
+        function edit(PropertyBase $other, $unknown): void {
+          $other->text = propertyRank; $this->state = dra;
+          $other->hidden = propertyRank; $unknown->text = propertyRank; $this->locked = propertyRank;
+        }
+      }
+      class PropertyAlternative { /** @var 'other' */ public string $state; }
+      class PropertyHook {
+        /** @var int */ public int $value { get => 1; set(int|string $value) {} }
+        function edit(): void { $this->value = propertyRank; }
+      }
+      function unionProperty(PropertyBase|PropertyAlternative $receiver): void { $receiver->state = dra; }`;
+    try {
+      project.update(uri, source);
+      const offset = (marker: string): number => source.indexOf(marker) + marker.length;
+      expect(project.completeFunctions(uri, offset('$other->text = propertyRank')).map(item => item.name))
+        .toEqual(['propertyRankText', 'propertyRankInt']);
+      expect(project.completeExpectedValues(uri, offset('$this->state = dra')).map(item => item.label)).toEqual(["'draft'"]);
+      expect(project.completeExpectedValues(uri, offset('$receiver->state = dra'))).toEqual([]);
+      expect(project.completeFunctions(uri, offset('$this->value = propertyRank')).map(item => item.name))
+        .toEqual(['propertyRankInt', 'propertyRankText']);
+      for (const marker of ['$other->hidden = propertyRank', '$unknown->text = propertyRank', '$this->locked = propertyRank']) {
+        expect(project.completeFunctions(uri, offset(marker)).map(item => item.compatibilityRank), marker).toEqual([undefined, undefined]);
+      }
+    } finally { project.dispose(); }
+  });
+
+  it('ranks compatible constant values before incompatible names', () => {
+    const uri = 'file:///CompletionConstantExpectedTypes.php';
+    const source = "<?php const COMPLETION_VALUE_INT = 1; const COMPLETION_VALUE_TEXT = 'a'; function completionConstantSink(string $value): void {} completionConstantSink(COMPLETION_VALUE_);";
+    workspace.update(uri, source);
+    const offset = source.lastIndexOf('COMPLETION_VALUE_') + 'COMPLETION_VALUE_'.length;
+    const names = workspace.completeConstants(uri, offset).map((item) => item.name);
+    expect(names.indexOf('COMPLETION_VALUE_TEXT')).toBeLessThan(names.indexOf('COMPLETION_VALUE_INT'));
+  });
+  it('ranks constructible types by a proven argument interface', () => {
+    const uri = 'file:///CompletionConstructExpectedTypes.php';
+    const definitions = '<?php interface CompletionPort {} class AlphaUnrelated {} class AlphaWorker implements CompletionPort {} function completionUsePort(CompletionPort $port): void {} ';
+    for (const suffix of [
+      'completionUsePort(new Alpha);',
+      'function completionMakePort(): CompletionPort { return new Alpha; }',
+      'function completionSetPort(CompletionPort $port): void { $port = new Alpha; }',
+    ]) {
+      const source = definitions + suffix;
+      workspace.update(uri, source);
+      const offset = source.lastIndexOf('new Alpha') + 'new Alpha'.length;
+      const names = workspace.completeTypes(uri, offset).map((item) => item.name);
+      expect(names.indexOf('AlphaWorker'), source).toBeLessThan(names.indexOf('AlphaUnrelated'));
+    }
+  });
+  it('suggests only missing proven array-shape keys at an argument key position', () => {
+    const uri = 'file:///CompletionShapeKeys.php';
+    const prefix = '<?php /** @param array{owner: string, active?: bool, nested: array{id: int}} $input */ function completionShapeSend(array $input): void {} ';
+    const cases = [
+      { source: `${prefix}completionShapeSend(["ow"]);`, marker: 'ow', expected: ['owner'] },
+      { source: `${prefix}completionShapeSend(["owner" => "a", "ac"]);`, marker: 'ac', expected: ['active'] },
+      { source: `${prefix}completionShapeSend(["nested" => ["id"]]);`, marker: 'id', expected: ['id'] },
+      { source: `${prefix}completionShapeSend(["owner" => "a", "nested" => []]);`, marker: 'owner" => "a", "nested" => [', expected: ['id'] },
+    ];
+    for (const item of cases) {
+      workspace.update(uri, item.source);
+      const offset = item.source.lastIndexOf(item.marker) + item.marker.length;
+      expect(workspace.completeArrayShapeKeys(uri, offset)?.keys.map((key) => key.name), item.source).toEqual(item.expected);
+    }
+    const unknown = '<?php function completionShapeSend(array $input): void {} completionShapeSend(["ow"]);';
+    workspace.update(uri, unknown);
+    expect(workspace.completeArrayShapeKeys(uri, unknown.indexOf('ow') + 2)).toBeUndefined();
+    const simple = '<?php /** @param array{owner: string, active?: bool} $input */ function completionShapeSend(array $input): void {} completionShapeSend(["owner" => "a", "ac"]);';
+    workspace.update(uri, simple);
+    expect(workspace.completeArrayShapeKeys(uri, simple.lastIndexOf('ac') + 2)?.keys.map((key) => key.name)).toEqual(['active']);
+    const middle = '<?php /** @param array{owner: string, active?: bool} $input */ function completionShapeSend(array $input): void {} completionShapeSend(["owner" => "a", "active" => true]);';
+    workspace.update(uri, middle);
+    expect(workspace.completeArrayShapeKeys(uri, middle.lastIndexOf('"active"') + 1)?.keys.map((key) => key.name)).toEqual(['active']);
+  });
+  it('suggests proven array-shape keys in return and assignment expressions', () => {
+    const uri = 'file:///CompletionShapeReturnAndAssignment.php';
+    for (const source of [
+      '<?php /** @return array{owner: string} */ function config(): array { return ["ow"]; }',
+      '<?php /** @param array{owner: string} $config */ function update(array $config): void { $config = ["ow"]; }',
+      '<?php /** @return array{nested: array{owner: string}} */ function config(): array { return ["nested" => ["ow"]]; }',
+      '<?php /** @param array{nested: array{owner: string}} $config */ function update(array $config): void { $config = ["nested" => ["ow"]]; }',
+    ]) {
+      workspace.update(uri, source);
+      expect(workspace.completeArrayShapeKeys(uri, source.lastIndexOf('"ow"') + 3)?.keys.map((key) => key.name), source)
+        .toEqual(['owner']);
+    }
+    const unknown = '<?php function config(): array { return ["ow"]; }';
+    workspace.update(uri, unknown);
+    expect(workspace.completeArrayShapeKeys(uri, unknown.lastIndexOf('"ow"') + 3)).toBeUndefined();
+    const nestedCallable = '<?php /** @return array{nested: array{owner: string}} */ function config(): array'
+      + ' { return ["nested" => (function (): array { return ["ow"]; })()]; }';
+    workspace.update(uri, nestedCallable);
+    expect(workspace.completeArrayShapeKeys(uri, nestedCallable.lastIndexOf('"ow"') + 3)).toBeUndefined();
+    const nestedArgumentCallable = '<?php /** @param array{owner: string} $config */ function send(array $config): void {}'
+      + ' send(["nested" => (function (): array { return ["ow"]; })()]);';
+    workspace.update(uri, nestedArgumentCallable);
+    expect(workspace.completeArrayShapeKeys(uri, nestedArgumentCallable.lastIndexOf('"ow"') + 3)).toBeUndefined();
+    const unresolvedInnerCall = '<?php /** @param array{owner: string} $config */ function send(array $config): void {}'
+      + ' send(unknownFactory(["ow"]));';
+    workspace.update(uri, unresolvedInnerCall);
+    expect(workspace.completeArrayShapeKeys(uri, unresolvedInnerCall.lastIndexOf('"ow"') + 3)).toBeUndefined();
+  });
+  it('suggests proven array-shape values in return and assignment expressions', () => {
+    const uri = 'file:///CompletionShapeReturnAndAssignmentValues.php';
+    for (const source of [
+      '<?php /** @return array{active: bool} */ function config(): array { return ["active" => ]; }',
+      '<?php /** @param array{active: bool} $config */ function update(array $config): void { $config = ["active" => ]; }',
+      '<?php /** @return array{nested: array{active: bool}} */ function config(): array { return ["nested" => ["active" => ]]; }',
+    ]) {
+      workspace.update(uri, source);
+      expect(workspace.completeExpectedValues(uri, source.lastIndexOf('=> ') + 3).map((value) => value.label), source)
+        .toEqual(['false', 'true']);
+    }
+    const unknown = '<?php function config(): array { return ["active" => ]; }';
+    workspace.update(uri, unknown);
+    expect(workspace.completeExpectedValues(uri, unknown.lastIndexOf('=> ') + 3)).toEqual([]);
+    const nestedArgumentCallable = '<?php /** @param array{active: bool} $config */ function send(array $config): void {}'
+      + ' send(["nested" => (function (): array { return ["active" => ]; })()]);';
+    workspace.update(uri, nestedArgumentCallable);
+    expect(workspace.completeExpectedValues(uri, nestedArgumentCallable.lastIndexOf('=> ') + 3)).toEqual([]);
+  });
+  it('suggests values for proven array-shape fields including nested fields', () => {
+    const uri = 'file:///CompletionShapeValues.php';
+    const prefix = '<?php /** @param array{active: bool, nested: array{enabled: bool}} $input */ function completionShapeValues(array $input): void {} ';
+    for (const item of [
+      { source: `${prefix}completionShapeValues(["active" => ]);`, marker: '=> ', expected: ['false', 'true'] },
+      { source: `${prefix}completionShapeValues(["nested" => ["enabled" => t]]);`, marker: '=> t', expected: ['true'] },
+    ]) {
+      workspace.update(uri, item.source);
+      const offset = item.source.lastIndexOf(item.marker) + item.marker.length;
+      expect(workspace.completeExpectedValues(uri, offset).map((value) => value.label), item.source).toEqual(item.expected);
+    }
+    const ordinary = '<?php function completionArrayOnly(array $input): void {} completionArrayOnly(["active" => ]);';
+    workspace.update(uri, ordinary);
+    expect(workspace.completeExpectedValues(uri, ordinary.lastIndexOf('=> ') + 3)).toEqual([]);
+  });
+  it('completes quoted literal values in proven array-shape fields', () => {
+    const uri = 'file:///CompletionShapeLiteralValues.php';
+    const declaration = "<?php /** @param array{status: 'draft'|'final', nested: array{status: 'draft'|'final'}} $input */ function sendShape(array $input): void {} ";
+    for (const [call, marker, expected, result] of [
+      ['sendShape(["status" => dra]);', 'dra', "'draft'", 'sendShape(["status" => \'draft\']);'],
+      ['sendShape(["status" => \'dra\']);', 'dra', "'draft'", 'sendShape(["status" => \'draft\']);'],
+      ['sendShape(["nested" => ["status" => "fin"]]);', 'fin', '"final"', 'sendShape(["nested" => ["status" => "final"]]);'],
+      ["sendShape(['status' => 'dra", 'dra', "'draft'", "sendShape(['status' => 'draft'"],
+      ["sendShape(['nested' => ['status' => 'dra", 'dra', "'draft'", "sendShape(['nested' => ['status' => 'draft'"],
+    ] as const) {
+      const source = declaration + call;
+      workspace.update(uri, source);
+      const offset = source.lastIndexOf(marker) + marker.length;
+      const [candidate] = workspace.completeExpectedValues(uri, offset);
+      expect(candidate?.label, call).toBe(expected);
+      expect(source.slice(0, candidate!.start) + candidate!.insertText + source.slice(candidate!.end), call)
+        .toBe(declaration + result);
+    }
+    const unknown = '<?php function sendShape(array $input): void {} sendShape(["status" => "dra"]);';
+    workspace.update(uri, unknown);
+    expect(workspace.completeExpectedValues(uri, unknown.lastIndexOf('dra') + 3)).toEqual([]);
+    const wrongKey = declaration + 'sendShape(["other" => "dra"]);';
+    workspace.update(uri, wrongKey);
+    expect(workspace.completeExpectedValues(uri, wrongKey.lastIndexOf('dra') + 3)).toEqual([]);
+    const nestedCallable = declaration + 'sendShape(["status" => (function (): array { return ["status" => "dra"]; })()]);';
+    workspace.update(uri, nestedCallable);
+    expect(workspace.completeExpectedValues(uri, nestedCallable.lastIndexOf('dra') + 3)).toEqual([]);
+    const assignment = "<?php /** @param array{status: 'draft'|'final'} $config */ function update(array $config): void { $config = ['status' => 'dra']; }";
+    workspace.update(uri, assignment);
+    const [assignmentValue] = workspace.completeExpectedValues(uri, assignment.lastIndexOf('dra') + 3);
+    expect(assignmentValue?.label).toBe("'draft'");
+    for (const [source, label] of [
+      ["<?php /** @param array{status: 'draft'|'final'} $config */ function update(array $config): void { $config = ['status' => 'dra", "'draft'"],
+      ["<?php /** @return array{status: 'draft'|'final'} */ function config(): array { return ['status' => 'fin", "'final'"],
+      ["<?php /** @return array{nested: array{status: 'draft'|'final'}} */ function config(): array { return ['nested' => ['status' => 'dra", "'draft'"],
+      ["<?php class ConfigEditor { /** @param array{status: 'draft'|'final'} $config */ public function update(array $config): void { $config = ['status' => 'dra", "'draft'"],
+    ] as const) {
+      workspace.update(uri, source);
+      const [value] = workspace.completeExpectedValues(uri, source.length);
+      expect(value?.label, source).toBe(label);
+      expect(source.slice(0, value!.start) + value!.insertText + source.slice(value!.end), source)
+        .toBe(source.slice(0, source.lastIndexOf("'")) + label);
+    }
+    for (const source of [
+      "<?php function update(array $config): void { $config = ['status' => 'dra",
+      "<?php /** @param array{status: 'draft'|'final'} $config */ function update(array $config): void { $config = ['other' => 'dra",
+      "<?php /** @param array{status: 'draft'|'final'} $config */ function update(array $config): void { $config = unknownFactory(['status' => 'dra",
+      "<?php /** @param array{status: 'draft'|'final'} $config */ function update(array $config): void { $config = ['status' => (function (): array { return ['status' => 'dra",
+      "<?php /** @param array{status: 'draft'|'final'} $config */ function update(string $config): void { $config = ['status' => 'dra",
+      "<?php /** @return array{status: 'draft'|'final'} */ function config(): string { return ['status' => 'dra",
+    ]) {
+      workspace.update(uri, source);
+      expect(workspace.completeExpectedValues(uri, source.length), source).toEqual([]);
+    }
+  });
   it('provides documented magic properties and methods with signatures, return chains, and real-member precedence', () => {
     const definitions = `<?php namespace MagicMembers;
       class User { public string $name; }
@@ -1689,7 +2559,7 @@ TXT;
       ['model->payload', 'MagicMembers\\Other', 'MagicMembers\\User'],
     ]);
     const snapshot = workspace.snapshot('file:///MagicDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 82, declaration: { magicMembers: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 83, declaration: { magicMembers: expect.arrayContaining([
       expect.objectContaining({ kind: 'property', name: 'owner', returnType: 'User' }),
       expect.objectContaining({ kind: 'property', name: 'createdBy', returnType: 'User', readable: true, writable: false }),
       expect.objectContaining({ kind: 'property', name: 'payload', writeType: 'User', readable: false, writable: true }),
@@ -1753,7 +2623,7 @@ TXT;
     ]);
     expect(workspace.unresolvedMembers('file:///MixinUse.php').map((item) => item.name)).toEqual(['collision']);
     const snapshot = workspace.snapshot('file:///MixinDefinitions.php');
-    expect(snapshot).toMatchObject({ schema: 82, declaration: { mixins: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 83, declaration: { mixins: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'MixinMembers\\Proxy', targetName: 'FirstDelegate' }),
     ]) } });
     workspace.remove('file:///MixinDefinitions.php');
@@ -1814,7 +2684,7 @@ TXT;
       expect(workspace.completeMembers('file:///MixinGenericUse.php', source.indexOf(marker) + marker.length - 1), marker).toEqual([]);
     }
     const snapshot = workspace.snapshot(uri);
-    expect(snapshot).toMatchObject({ schema: 82, declaration: { mixins: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 83, declaration: { mixins: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'MixinGeneric\\ExactProxy', targetName: 'Delegate', arguments: ['Result'] }),
     ]) } });
     workspace.remove(uri);
@@ -2273,6 +3143,43 @@ TXT;
     ]);
     workspace.remove('file:///Deprecated.php');
   });
+  it('does not reparse declarations without attributes when reading completion deprecation', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///DeprecationWithoutAttributes.php';
+    project.update(uri, '<?php function ordinary() {} const ORDINARY = 1; /** @deprecated use ordinary */ function legacy() {}');
+    const symbols = [...project.workspaceFunctions(), ...project.workspaceConstants()];
+    const parseTree = vi.spyOn(parser, 'parseTree');
+    try {
+      for (const symbol of symbols) {
+        expect(Boolean(project.symbolDeprecation(symbol, '8.5'))).toBe(symbol.name === 'legacy');
+      }
+      expect(parseTree).not.toHaveBeenCalled();
+    } finally { parseTree.mockRestore(); project.dispose(); }
+  });
+  it('reads completion deprecation from declaration identity and current source with version gates', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///CompletionDeprecation.php';
+    const source = `<?php namespace CompletionDeprecation;
+      /** @deprecated use current() */ function oldDoc() {}
+      #[\\Deprecated] function oldAttribute() {}
+      /** @deprecated */ class OldType {}
+      #[\\Deprecated] class InvalidTypeAttribute {}
+      #[\\Deprecated] trait OldTrait {}
+      #[\\Deprecated] const OLD_ATTRIBUTE = 1;
+      /** @deprecated */ const OLD_DOC = 2;
+    `;
+    project.update(uri, source);
+    const symbol = (name: string): SemanticLocation => [...project.workspaceFunctions(), ...project.workspaceTypes(), ...project.workspaceConstants()].find((item) => item.name === name)!;
+    for (const version of ['7.2', '8.3', '8.4', '8.5']) {
+      expect(project.symbolDeprecation(symbol('oldDoc'), version)?.message).toBe('use current()');
+      expect(Boolean(project.symbolDeprecation(symbol('oldAttribute'), version))).toBe(['8.4', '8.5'].includes(version));
+      expect(Boolean(project.symbolDeprecation(symbol('OldTrait'), version))).toBe(version === '8.5');
+      expect(Boolean(project.symbolDeprecation(symbol('OLD_ATTRIBUTE'), version))).toBe(version === '8.5');
+      expect(Boolean(project.symbolDeprecation(symbol('OLD_DOC'), version))).toBe(true);
+      expect(Boolean(project.symbolDeprecation(symbol('OldType'), version))).toBe(true);
+      expect(project.symbolDeprecation(symbol('InvalidTypeAttribute'), version)).toBeUndefined();
+    }
+    project.update(uri, source.replace('/** @deprecated use current() */', ''));
+    expect(project.symbolDeprecation(symbol('oldDoc'), '8.5')).toBeUndefined();
+  });
   it('classifies exact native Deprecated targets and excludes custom namespaced attributes', () => {
     const source = `<?php namespace DeprecatedTargets;
       #[\\Deprecated] function validFunction(): void {}
@@ -2580,6 +3487,1268 @@ TXT;
       .toEqual([['onlyReady'], [], ['onlyReady'], [], ['onlyReady'], ['onlyReady'], [], ['onlyReady'], ['onlyReady'], []]);
     expect(workspace.incompatibleArguments('file:///BooleanBranchUse.php').map((item) => [item.actualType, item.expectedType]))
       .toEqual([['true', 'false'], ['false', 'true']]);
+  });
+  it('narrows object-or-false call results in truthy guards but not non-null guards', () => {
+    workspace.update('file:///TruthyFalseTypes.php', `<?php namespace TruthyFalse;
+      class Item { public function onlyItem(): void {} }
+      function maybeItem(): Item|false {}`);
+    const source = `<?php namespace TruthyFalse; function run(): void {
+      $direct = maybeItem(); if ($direct) { $direct->only; $direct->onlyItem(); }
+      $empty = maybeItem(); if (!empty($empty)) { $empty->only; }
+      $nullable = maybeItem(); if ($nullable !== null) { $nullable->only; }
+      $isset = maybeItem(); if (isset($isset)) { $isset->only; }
+      $failed = maybeItem(); if (!$failed) { $failed->only; }
+      $changed = maybeItem(); if ($changed) { $changed = false; $changed->only; }
+    }
+    function withParameter(Item|false $input): void {
+      if ($input) { $input->only; }
+      if ($input !== null) { $input->only; }
+    }`;
+    workspace.update('file:///TruthyFalseUse.php', source);
+    const positions = [...source.matchAll(/only;/g)].map((item) => item.index + 4);
+    expect(positions.map((position) => workspace.completeMembers('file:///TruthyFalseUse.php', position).map((item) => item.name)))
+      .toEqual([['onlyItem'], ['onlyItem'], [], [], [], [], ['onlyItem'], []]);
+    expect(workspace.definition('file:///TruthyFalseUse.php', source.indexOf('onlyItem();') + 2))
+      .toEqual([expect.objectContaining({ uri: 'file:///TruthyFalseTypes.php' })]);
+  });
+  it('carries a local object list through a templated array pointer result', () => {
+    workspace.update('file:///ArrayPointerTypes.php', `<?php
+      class PointerItem { public function onlyPointerItem(): void {} }
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue>|object $array
+       * @return TValue|false */
+      function current(object|array $array): mixed {}`);
+    const source = `<?php
+      $items = [new PointerItem()];
+      $item = current($items);
+      if ($item !== false) { $item->only; $item->onlyPointerItem(); }
+      $items = [];
+      $unknown = current($items);
+      if ($unknown !== false) { $unknown->only; }`;
+    workspace.update('file:///ArrayPointerUse.php', source);
+    const positions = [...source.matchAll(/->only;/g)].map((item) => item.index + '->only'.length);
+    expect(positions.map((position) => workspace.completeMembers('file:///ArrayPointerUse.php', position).map((item) => item.name)))
+      .toEqual([['onlyPointerItem'], []]);
+    expect(workspace.definition('file:///ArrayPointerUse.php', source.indexOf('onlyPointerItem();') + 2))
+      .toEqual([expect.objectContaining({ uri: 'file:///ArrayPointerTypes.php' })]);
+  });
+  it('preserves list element types across built-in pointer calls and unrelated local guards', () => {
+    workspace.update('php-companion-builtin:/array-pointers.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @return TValue|false */
+      function reset(array &$array): mixed {}
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @return TValue|false */
+      function next(array &$array): mixed {}
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @return TValue|false */
+      function end(array &$array): mixed {}`);
+    const source = `<?php class PointerValue { public function onlyPointerValue(): void {} }
+      function replace(array &$values): void { $values = []; }
+      function run(): void {
+        $items = [new PointerValue()];
+        $first = reset($items); if ($first !== false) { $first->only; }
+        $second = next($items); if ($second !== false) { $second->only; }
+        $third = end($items); if ($third !== false) { $third->only; }
+        replace($items);
+        $lost = next($items); if ($lost !== false) { $lost->only; }
+      }`;
+    workspace.update('file:///ArrayPointerFlow.php', source);
+    const positions = [...source.matchAll(/->only;/g)].map((item) => item.index + '->only'.length);
+    expect(positions.map((position) => workspace.completeMembers('file:///ArrayPointerFlow.php', position).map((item) => item.name)))
+      .toEqual([['onlyPointerValue'], ['onlyPointerValue'], ['onlyPointerValue'], []]);
+    const shadowed = `<?php namespace PointerShadow;
+      class Value { public function onlyValue(): void {} }
+      function reset(array &$values): void { $values = []; }
+      function run(): void {
+        $values = [new Value()]; reset($values);
+        $value = \\next($values); if ($value !== false) { $value->only; }
+      }`;
+    workspace.update('file:///PointerShadow.php', shadowed);
+    expect(workspace.completeMembers('file:///PointerShadow.php', shadowed.indexOf('->only') + '->only'.length))
+      .toEqual([]);
+    const dynamic = `<?php function runDynamic(bool $flag): void {
+      $values = [new PointerValue()];
+      if ($flag) { extract(['values' => []]); }
+      $value = next($values); if ($value !== false) { $value->only; }
+    }`;
+    workspace.update('file:///PointerDynamic.php', dynamic);
+    expect(workspace.completeMembers('file:///PointerDynamic.php', dynamic.indexOf('->only') + '->only'.length))
+      .toEqual([]);
+  });
+  it('retains fresh local array types across an unrelated object-array assignment', () => {
+    const project = new SemanticWorkspace(parser);
+    const source = `<?php class LocalLeft { public function onlyLeft(): void {} }
+      class LocalRight { public function onlyRight(): void {} }
+      function localArrays(): void {
+        $left = [new LocalLeft()];
+        $right = ['entry' => new LocalRight()];
+        foreach ($left as $item) { $item->only; }
+        foreach ($right as $item) { $item->only; }
+      }
+      function replace(array &$left): void { $left = [new LocalRight()]; }
+      function changedByCall(): void {
+        $left = [new LocalLeft()];
+        replace($left);
+        $right = [new LocalRight()];
+        foreach ($left as $item) { $item->only; }
+      }
+      function byReference(array &$left): void {
+        $left = [new LocalLeft()];
+        $right = [new LocalRight()];
+        foreach ($left as $item) { $item->only; }
+      }
+      function globalAlias(): void {
+        global $left;
+        $left = [new LocalLeft()];
+        $right = [new LocalRight()];
+        foreach ($left as $item) { $item->only; }
+      }`;
+    project.update('file:///UnrelatedObjectArrays.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///UnrelatedObjectArrays.php', position).map((item) => item.name)))
+      .toEqual([['onlyLeft'], ['onlyRight'], [], [], []]);
+  });
+  it('keeps local array values across constructors with literal arguments but not variable arguments', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///LiteralConstructorArrayFlow.php';
+      const source = `<?php class LiteralLeft { public function onlyLeft(): void {} }
+        class LiteralRight { public function __construct(int $id = 0, string $name = '') {} public function onlyRight(): void {} }
+        class MutatingRight { public function __construct(array &$items) { $items = []; } }
+        function literalArguments(): void {
+          $left = [new LiteralLeft()];
+          $right = ['first' => new LiteralRight(1, name: 'item'), 'second' => new LiteralRight(id: 2)];
+          foreach ($right as $item) { $item->only; }
+          foreach ($left as $item) { $item->only; }
+        }
+        function variableArgument(): void {
+          $left = [new LiteralLeft()];
+          $right = [new MutatingRight($left)];
+          foreach ($left as $item) { $item->only; }
+        }`;
+      project.update(uri, source);
+      const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+      expect(positions.map((position) => project.completeMembers(uri, position).map((item) => item.name)))
+        .toEqual([['onlyRight'], ['onlyLeft'], []]);
+    } finally { project.dispose(); }
+  });
+  it('infers appended and keyed object values constructed from literal arguments', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///LiteralConstructorArrayUpdates.php';
+      const source = `<?php class UpdatedItem { public function __construct(int $id = 0, string $name = '') {} public function onlyUpdated(): void {} }
+        class MutatingItem { public function __construct(array &$items) { $items = []; } }
+        function append(): void {
+          $items = [];
+          $items[] = new UpdatedItem(1);
+          foreach ($items as $item) { $item->only; }
+        }
+        function keyed(): void {
+          $items = [];
+          $items['first'] = new UpdatedItem(id: 2, name: 'a,b');
+          foreach ($items as $item) { $item->only; }
+        }
+        function referenceArgument(): void {
+          $items = [new UpdatedItem()];
+          $items[] = new MutatingItem($items);
+          foreach ($items as $item) { $item->only; }
+        }
+        function interpolatedArgument(string $name): void {
+          $items = [];
+          $items[] = new UpdatedItem(name: "$name");
+          foreach ($items as $item) { $item->only; }
+        }`;
+      project.update(uri, source);
+      const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+      expect(positions.map((position) => project.completeMembers(uri, position).map((item) => item.name)))
+        .toEqual([['onlyUpdated'], ['onlyUpdated'], [], []]);
+    } finally { project.dispose(); }
+  });
+  it('infers a templated array result when a callback accepts fewer passed parameters', () => {
+    workspace.update('php-companion-builtin:/array-find.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue, TKey):bool $callback
+       * @return TValue|null */
+      function array_find(array $array, callable $callback): mixed {}
+      /** @template TValue
+       * @param array<array-key, TValue> $array
+       * @return TValue|null */
+      function array_first(array $array): mixed {}`);
+    const source = `<?php class FindItem { public function onlyFindItem(): void {} public function accepted(): bool { return true; } }
+      function run(): void {
+        $items = [new FindItem()];
+        $one = array_find($items, fn($item) => true);
+        if ($one !== null) { $one->only; }
+        $first = array_first($items);
+        if ($first !== null) { $first->only; }
+        $body = array_find($items, fn($item) => $item->accepted());
+        if ($body !== null) { $body->only; }
+        $predicate = array_find($items, fn($item) => $item instanceof FindItem);
+        if ($predicate !== null) { $predicate->only; }
+        $zeroItems = [new FindItem()];
+        $zero = array_find($zeroItems, fn() => true);
+        if ($zero !== null) { $zero->only; }
+        $wrongItems = [new FindItem()];
+        $wrong = array_find($wrongItems, fn(string $item) => true);
+        if ($wrong !== null) { $wrong->only; }
+        $extraItems = [new FindItem()];
+        $extra = array_find($extraItems, fn($item, $key, $unused) => true);
+        if ($extra !== null) { $extra->only; }
+      }`;
+    workspace.update('file:///ArrayFindUse.php', source);
+    const positions = [...source.matchAll(/->only;/g)].map((item) => item.index + '->only'.length);
+    expect(positions.map((position) => workspace.completeMembers('file:///ArrayFindUse.php', position).map((item) => item.name)))
+      .toEqual([['onlyFindItem'], ['onlyFindItem'], ['onlyFindItem'], ['onlyFindItem'], ['onlyFindItem'], [], []]);
+    const callback = `<?php function inspectItems(): void {
+      $items = [new FindItem()];
+      array_find($items, fn($item) => $item->only);
+    }`;
+    workspace.update('file:///ArrayFindCallback.php', callback);
+    expect(workspace.completeMembers('file:///ArrayFindCallback.php', callback.indexOf('->only') + '->only'.length)
+      .map((item) => item.name)).toContain('onlyFindItem');
+    const capturedByReference = `<?php function replaceItems(): void {
+      $items = [new FindItem()];
+      array_find($items, function ($item) use (&$items): bool { $items = []; return true; });
+      $after = array_first($items);
+      if ($after !== null) { $after->only; }
+    }`;
+    workspace.update('file:///ArrayFindCaptured.php', capturedByReference);
+    expect(workspace.completeMembers('file:///ArrayFindCaptured.php', capturedByReference.indexOf('->only') + '->only'.length))
+      .toEqual([]);
+  });
+  it('infers array_find_key callback values from keyed object literals', () => {
+    workspace.update('php-companion-builtin:/array-find-key.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue, TKey):bool $callback
+       * @return TKey|null */
+      function array_find_key(array $array, callable $callback): mixed {}
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue, TKey):bool $callback */
+      function array_any(array $array, callable $callback): bool {}
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue, TKey):bool $callback */
+      function array_all(array $array, callable $callback): bool {}`);
+    const source = `<?php class KeyedItem { public function onlyKeyedItem(): void {} } class OtherKeyedItem {}
+      function needsItem(KeyedItem $item): void {}
+      function run(): void {
+        $items = ['first' => new KeyedItem()];
+        array_find_key($items, fn($item, $name): bool => $item->only);
+        $foundKey = array_find_key($items, fn($item, $name): bool => true);
+        if ($foundKey !== null) { needsItem($foundKey); }
+        needsItem('literal');
+      }
+      function numericCollision(): void {
+        $items = ['8' => new KeyedItem(), 8 => new OtherKeyedItem()];
+        array_find_key($items, fn($item, $key): bool => $item->only);
+      }
+      function numericReturn(): void {
+        $items = ['8' => new KeyedItem()];
+        $foundKey = array_find_key($items, fn($item, $key): bool => true);
+        if ($foundKey !== null) { needsItem($foundKey); }
+      }
+      function platformDependent(): void {
+        $items = ['2147483648' => new KeyedItem()];
+        array_find_key($items, fn($item, $key): bool => $item->only);
+      }
+      function dynamic(string $name): void {
+        $items = [$name => new KeyedItem()];
+        array_find_key($items, fn($item, $key): bool => $item->only);
+      }
+      function anyValue(): void {
+        $items = ['first' => new KeyedItem()];
+        array_any(callback: fn($item, $key): bool => $item->only, array: $items);
+      }
+      function allValue(): void {
+        $items = ['first' => new KeyedItem()];
+        array_all($items, fn($item, $key): bool => $item->only);
+      }
+      function mixedKeys(): void {
+        $items = ['first' => new KeyedItem(), new KeyedItem()];
+        array_any($items, fn($item, $key): bool => $item->only);
+      }
+      function mixedValues(): void {
+        $items = ['first' => new KeyedItem(), new OtherKeyedItem()];
+        array_all($items, fn($item, $key): bool => $item->only);
+      }
+      function nextNumericIndex(): void {
+        $items = [2 => new KeyedItem(), new KeyedItem()];
+        $items[3]->only;
+      }
+      function versionDependentNegativeIndex(): void {
+        $items = [-2 => new KeyedItem(), new KeyedItem()];
+        array_any($items, fn($item, $key): bool => $item->only);
+      }`;
+    workspace.update('file:///ArrayFindKeyUse.php', source);
+    const positions = [...source.matchAll(/->only/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => workspace.completeMembers('file:///ArrayFindKeyUse.php', position).map((item) => item.name)))
+      .toEqual([['onlyKeyedItem'], [], [], [], ['onlyKeyedItem'], ['onlyKeyedItem'], ['onlyKeyedItem'], [], ['onlyKeyedItem'], []]);
+    expect(workspace.incompatibleArguments('file:///ArrayFindKeyUse.php').map((item) => [item.actualType, item.expectedType]))
+      .toEqual([['string', 'KeyedItem'], ['string', 'KeyedItem'], ['int', 'KeyedItem']]);
+  });
+  it('retains keyed object values through array_values and array_map', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-keyed-transform.php', `<?php
+      /** @template TValue
+       * @param array<array-key, TValue> $array
+       * @return list<TValue> */
+      function array_values(array $array): array {}
+      /** @template TKey of array-key
+       * @template TValue
+       * @template TResult
+       * @param callable(TValue):TResult $callback
+       * @param array<TKey, TValue> $array
+       * @return array<TKey, TResult> */
+      function array_map(callable $callback, array $array): array {}`);
+    const source = `<?php class TransformItem { public function onlyTransformItem(): void {} }
+      function values(): void {
+        $items = ['first' => new TransformItem(), new TransformItem()];
+        $result = array_values($items);
+        foreach ($result as $item) { $item->only; }
+      }
+      function mapped(): void {
+        $items = ['first' => new TransformItem(), new TransformItem()];
+        $result = array_map(fn($item) => $item, $items);
+        foreach ($result as $item) { $item->only; }
+      }`;
+    project.update('file:///ArrayKeyedTransform.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayKeyedTransform.php', position).map((item) => item.name)))
+      .toEqual([['onlyTransformItem'], ['onlyTransformItem']]);
+  });
+  it('uses each proven array element type for multi-array array_map callback parameters', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-map-callbacks.php', `<?php
+      /** @template TFirst
+       * @template TSecond
+       * @template TResult
+       * @param callable(TFirst, TSecond):TResult $callback
+       * @param array<array-key, TFirst> $array
+       * @param array<array-key, TSecond> $arrays
+       * @return list<TResult> */
+      function array_map(callable $callback, array $array, array $arrays): array {}`);
+    const source = `<?php
+      class MapFirst { public function onlyFirst(): void {} }
+      class MapSecond { public function onlySecond(): void {} }
+      class MapThird { public function onlyThird(): void {} }
+      function paired(): void {
+        array_map(function ($first, $second) {
+          $first->only;
+          $second->only;
+        }, [new MapFirst()], [new MapSecond()]);
+        array_map(function ($first, $second, $third) {
+          $first->only;
+          $second->only;
+          $third->only;
+        }, [new MapFirst()], [new MapSecond()], [new MapThird()]);
+        array_map(function ($first, $second) {
+          $first->only;
+          $second->only;
+        }, [new MapFirst()], [new MapSecond(), new MapSecond()]);
+      }
+      function unknownLength(array $items): void {
+        array_map(function ($first, $second) {
+          $first->only;
+          $second->only;
+        }, [new MapFirst()], $items);
+      }`;
+    project.update('file:///ArrayMapCallbacks.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayMapCallbacks.php', position).map((item) => item.name)))
+      .toEqual([['onlyFirst'], ['onlySecond'], ['onlyFirst'], ['onlySecond'], ['onlyThird'],
+        [], ['onlySecond'], [], []]);
+    const local = `<?php namespace LocalMap;
+      function array_map(callable $callback, array $first, array $second, array $third): array { return []; }
+      class LocalFirst { public function onlyLocal(): void {} }
+      array_map(function ($item, $other, $last) { $item->only; }, [new LocalFirst()], [new LocalFirst()], [new LocalFirst()]);`;
+    project.update('file:///LocalArrayMap.php', local);
+    expect(project.completeMembers('file:///LocalArrayMap.php', local.indexOf('$item->only') + '$item->only'.length)).toEqual([]);
+  });
+  it('propagates proven method-array callback returns through array_map without changing ordinary arrays', async () => {
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    const project = new SemanticWorkspace(parser); const uri = 'file:///MethodMap.php';
+    project.update(builtinDocumentUri('8.5'), builtinPhpStub('8.5'));
+    const base = `<?php namespace MethodMap;
+      class Input { public function before(): void {} }
+      class Output { public function after(): void {} }
+      class Mapper {
+        public static function convert(Input $input): Output { return new Output(); }
+        public static function pair(Input $input, string $name): Output { return new Output(); }
+        public function instance(Input $input): Output { return new Output(); }
+        private static function hidden(Input $input): Output { return new Output(); }
+      }
+      /** @template TValue
+       * @template TResult
+       * @param callable(TValue):TResult $callback
+       * @param list<TValue> $items
+       * @return list<TResult> */
+      function mapCollection(callable $callback, array $items): array { return []; }
+      $mapper = new Mapper(); $callback = [Mapper::class, 'convert'];
+    `;
+    const expressions = [
+      "array_map([Mapper::class, 'convert'], [new Input()])",
+      "array_map([Mapper::class, 'convert'], ['first' => new Input()])",
+      "array_map(array(Mapper::class, 'convert'), [new Input()])",
+      "array_map([$mapper, 'instance'], [new Input()])",
+      'array_map($callback, [new Input()])',
+      "array_map([Mapper::class, 'pair'], [new Input()], ['name'])",
+      "array_map(callback: [Mapper::class, 'convert'], array: [new Input()])",
+      "mapCollection([Mapper::class, 'convert'], [new Input()])",
+    ];
+    for (const expression of expressions) {
+      const source = `${base} $result = ${expression}; foreach ($result as $item) { $item->aft; }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('$item->aft') + '$item->aft'.length).map((item) => item.name), expression).toEqual(['after']);
+    }
+    for (const expression of [
+      "array_map([Mapper::class, 'convert'], ['wrong'])",
+      "array_map([Mapper::class, 'hidden'], [new Input()])",
+      "array_map([Mapper::class, 'instance'], [new Input()])",
+      "array_map([Mapper::class, 'missing'], [new Input()])",
+      "array_map([Mapper::class, $unknown], [new Input()])",
+    ]) {
+      const source = `${base} $result = ${expression}; foreach ($result as $item) { $item->aft; }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('$item->aft') + '$item->aft'.length), expression).toEqual([]);
+    }
+    const mutated = `${base} $callback = []; $result = array_map($callback, [new Input()]); foreach ($result as $item) { $item->aft; }`;
+    project.update(uri, mutated);
+    expect(project.completeMembers(uri, mutated.indexOf('$item->aft') + '$item->aft'.length)).toEqual([]);
+    const ordinary = `${base} $pair = [new Input(), new Input()]; $pair[0]->bef;`;
+    project.update(uri, ordinary);
+    expect(project.completeMembers(uri, ordinary.indexOf('$pair[0]->bef') + '$pair[0]->bef'.length).map((item) => item.name)).toEqual(['before']);
+  }, 10_000);
+  it('checks every multi-array method callback column including null padding and variadic parameters', async () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///MultiMethodMap.php';
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    project.update(builtinDocumentUri('8.5'), builtinPhpStub('8.5'));
+    const base = `<?php namespace MultiMethodMap;
+      class Input {}
+      class Output { public function after(): void {} }
+      class Mapper {
+        public static function triple(Input $first, string $label, int $value): Output { return new Output(); }
+        public static function pair(Input $first, string $label): Output { return new Output(); }
+        public static function maybe(?Input $first, ?string $label, ?int $value): Output { return new Output(); }
+        public static function padded(?Input $first, string $label, int $value): Output { return new Output(); }
+        public static function variadic(Input $first, string ...$labels): Output { return new Output(); }
+        public static function single(Input $first): Output { return new Output(); }
+        public static function four(Input $first, string $label, int $value, int $required): Output { return new Output(); }
+        public function instance(Input $first, string $label, int $value): Output { return new Output(); }
+      }
+      $mapper = new Mapper(); $callback = [Mapper::class, 'triple'];
+    `;
+    for (const expression of [
+      "array_map([Mapper::class, 'triple'], [new Input()], ['one'], [1])",
+      "array_map([$mapper, 'instance'], [new Input()], ['one'], [1])",
+      "array_map($callback, [new Input()], ['one'], [1])",
+      "array_map([Mapper::class, 'padded'], [new Input()], ['one', 'two'], [1, 2])",
+      "array_map([Mapper::class, 'variadic'], [new Input()], ['one'], ['two'], ['three'])",
+      "array_map([Mapper::class, 'single'], [new Input()], ['one'], [1])",
+    ]) {
+      const source = `${base} $result = ${expression}; foreach ($result as $item) { $item->aft; }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('$item->aft') + '$item->aft'.length).map((item) => item.name), expression).toEqual(['after']);
+    }
+    for (const expression of [
+      "array_map([Mapper::class, 'triple'], [new Input()], ['one', 'two'], [1, 2])",
+      "array_map([Mapper::class, 'triple'], [new Input()], [new Input()], [1])",
+      "array_map([Mapper::class, 'variadic'], [new Input()], ['one'], [new Input()])",
+      "array_map([Mapper::class, 'four'], [new Input()], ['one'], [1])",
+      "array_map([Mapper::class, 'pair'], [new Input()], ['one', 'two'])",
+    ]) {
+      const source = `${base} $result = ${expression}; foreach ($result as $item) { $item->aft; }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('$item->aft') + '$item->aft'.length), expression).toEqual([]);
+    }
+    for (const [method, expected] of [['maybe', ['after']], ['triple', []]] as const) {
+      const source = `${base} /** @param list<Input> $first
+        * @param list<string> $labels
+        * @param list<int> $values */
+        function unknownLengths(array $first, array $labels, array $values): void {
+          $result = array_map([Mapper::class, '${method}'], $first, $labels, $values);
+          foreach ($result as $item) { $item->aft; }
+        }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('$item->aft') + '$item->aft'.length).map((item) => item.name), method).toEqual(expected);
+    }
+  }, 10_000);
+  it.each([false, true])('resolves top-level objects within each namespace segment (braced=%s)', (braced) => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///NamespaceSegments.php';
+    const segment = (namespace: string, member: string): string => `namespace ${namespace}${braced ? ' {' : ';'}
+      class Item { public function ${member}(): void {} }
+      $item = new Item(); $item->${member}; ${braced ? '}' : ''}`;
+    const source = '<?php ' + segment('FirstSegment', 'first') + segment('SecondSegment', 'second');
+    project.update(uri, source);
+    for (const member of ['first', 'second']) {
+      const text = `$item->${member}`;
+      expect(project.completeMembers(uri, source.indexOf(text) + text.length).map((item) => item.name)).toEqual([member]);
+    }
+  });
+  it('propagates literal callback names using runtime names rather than source imports or namespaces', async () => {
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    const project = new SemanticWorkspace(parser); const uri = 'file:///StringCallbacks.php';
+    project.update(builtinDocumentUri('8.5'), builtinPhpStub('8.5'));
+    const base = String.raw`<?php namespace {
+      function makeGlobal(\CallbackNames\Input $input): \CallbackNames\Output { return new \CallbackNames\Output(); }
+    } namespace CallbackNames {
+      use function makeGlobal as importedCallback;
+      class Input {}
+      class Output { public function after(): void {} }
+      function makeLocal(Input $input): Output { return new Output(); }
+      function triple(Input $input, string $label, int $value): Output { return new Output(); }
+      class Mapper {
+        public static function convert(Input $input): Output { return new Output(); }
+        private static function hidden(Input $input): Output { return new Output(); }
+        public function instance(Input $input): Output { return new Output(); }
+      }
+      /** @template TValue
+       * @template TResult
+       * @param callable(TValue):TResult $callback
+       * @param list<TValue> $items
+       * @return list<TResult> */
+      function mapCollection(callable $callback, array $items): array { return []; }
+    `;
+    const valid = [
+      "array_map('makeGlobal', [new Input()])",
+      String.raw`array_map('\makeGlobal', [new Input()])`,
+      String.raw`array_map('CallbackNames\makeLocal', [new Input()])`,
+      String.raw`array_map("CallbackNames\\makeLocal", [new Input()])`,
+      String.raw`array_map('CALLBACKNAMES\MAKELOCAL', [new Input()])`,
+      String.raw`array_map('CallbackNames\Mapper::convert', [new Input()])`,
+      String.raw`array_map('CallbackNames\triple', [new Input()], ['one'], [1])`,
+      "mapCollection('makeGlobal', [new Input()])",
+    ];
+    const invalid = [
+      "array_map('makeLocal', [new Input()])", // Source namespace is not implicit in strings.
+      "array_map('importedCallback', [new Input()])", // Nor is a source import alias.
+      "array_map('Mapper::convert', [new Input()])",
+      String.raw`array_map('CallbackNames\Mapper::hidden', [new Input()])`,
+      String.raw`array_map('CallbackNames\Mapper::instance', [new Input()])`,
+      "array_map('makeGlobal', ['wrong'])",
+      String.raw`array_map('CallbackNames\triple', [new Input()], ['one', 'two'], [1, 2])`,
+      String.raw`array_map("CallbackNames\makeLocal", [new Input()])`, // Unsupported double-quote escape.
+      "array_map('self::convert', [new Input()])",
+      "array_map('missingFunction', [new Input()])",
+    ];
+    const cases = [...valid.map((expression) => ({ expression, expected: ['after'] })),
+      ...invalid.map((expression) => ({ expression, expected: [] }))];
+    const source = base + cases.map(({ expression }, index) =>
+      `$result${index} = ${expression}; foreach ($result${index} as $item${index}) { $item${index}->aft; }`).join('\n') + '}';
+    project.update(uri, source);
+    for (const [{ expression, expected }, index] of cases.map((item, index) => [item, index] as const)) {
+      const text = `$item${index}->aft`;
+      expect(project.completeMembers(uri, source.indexOf(text) + text.length).map((item) => item.name), expression).toEqual(expected);
+    }
+    project.update('file:///DuplicateStringCallback.php', String.raw`<?php function makeGlobal(\CallbackNames\Input $input): \CallbackNames\Output {}`);
+    expect(project.completeMembers(uri, source.indexOf('$item0->aft') + '$item0->aft'.length)).toEqual([]);
+  }, 10_000);
+  it('follows local string callback snapshots and withdraws results after uncertain writes', async () => {
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    const project = new SemanticWorkspace(parser); const uri = 'file:///LocalStringCallbacks.php';
+    project.update(builtinDocumentUri('8.5'), builtinPhpStub('8.5'));
+    const base = String.raw`<?php namespace LocalCallback;
+      class Input {}
+      class Output { public function after(): void {} }
+      class Other { public function second(): void {} }
+      function convert(Input $input): Output { return new Output(); }
+      function other(Input $input): Other { return new Other(); }
+      function change(string &$name): void { $name = 'missing'; }
+      class Mapper { public static function convert(Input $input): Output { return new Output(); } }
+    `;
+    const assign = String.raw`$callback = 'LocalCallback\convert';`;
+    const other = String.raw`$callback = 'LocalCallback\other';`;
+    const cases: Array<{ setup: string; callback?: string; expected: string[] }> = [
+      { setup: assign, expected: ['after'] },
+      { setup: assign + '$copy = $callback;', callback: '$copy', expected: ['after'] },
+      { setup: assign + '$copy = $callback;' + other, callback: '$copy', expected: ['after'] },
+      { setup: assign + 'strlen($callback);', expected: ['after'] },
+      { setup: assign + '$earlier = array_map($callback, [new Input()]);', expected: ['after'] },
+      { setup: assign + other, expected: ['second'] },
+      { setup: assign + `if ($flag) { ${other} }` + assign, expected: ['after'] },
+      { setup: String.raw`$callback = 'LocalCallback\Mapper::convert';`, expected: ['after'] },
+      { setup: assign + `if ($flag) { ${other} }`, expected: [] },
+      { setup: assign + '$copy =& $callback;', expected: [] },
+      { setup: assign + '$callback .= "_suffix";', expected: [] },
+      { setup: assign + 'unset($callback);', expected: [] },
+      { setup: assign + '$callback[0] = "x";', expected: [] },
+      { setup: assign + 'change($callback);', expected: [] },
+      { setup: assign + 'change($callback);' + assign, expected: [] },
+      { setup: assign + 'unknownChange($callback);', expected: [] },
+      { setup: 'global $callback;' + assign, expected: [] },
+      { setup: 'static $callback;' + assign, expected: [] },
+      { setup: assign + '$mutator = function () use (&$callback) {};', expected: [] },
+      { setup: '$callback = "missing";', expected: [] },
+      { setup: assign + `eval('unset($callback);');`, expected: [] },
+      { setup: assign + `extract(['callback' => 'missing']);`, expected: [] },
+      { setup: assign + `parse_str('callback=missing');`, expected: [] },
+      { setup: assign + `require 'unknown-callback.php';`, expected: [] },
+    ];
+    const source = base + cases.map(({ setup, callback = '$callback' }, index) => `function sample${index}(bool $flag): void {
+      ${setup} $result = array_map(${callback}, [new Input()]); foreach ($result as $item${index}) { $item${index}->; }
+    }`).join('\n');
+    project.update(uri, source);
+    for (const [index, { setup, expected }] of cases.entries()) {
+      const marker = `$item${index}->`;
+      expect(project.completeMembers(uri, source.indexOf(marker) + marker.length).map((item) => item.name), setup).toEqual(expected);
+    }
+    const global = String.raw`<?php namespace GlobalCallback;
+      class Input {}
+      class Output { public function after(): void {} }
+      function convert(Input $input): Output { return new Output(); }
+      function changeGlobal(): void { global $callback; $callback = 'missing'; }
+      $callback = 'GlobalCallback\convert'; changeGlobal();
+      $result = array_map($callback, [new Input()]); foreach ($result as $item) { $item->aft; }`;
+    project.update('file:///GlobalStringCallback.php', global);
+    expect(project.completeMembers('file:///GlobalStringCallback.php', global.indexOf('$item->aft') + '$item->aft'.length)).toEqual([]);
+    const readOnly = global.replace('changeGlobal();', 'strlen($callback);');
+    project.update('file:///GlobalStringCallback.php', readOnly);
+    expect(project.completeMembers('file:///GlobalStringCallback.php', readOnly.indexOf('$item->aft') + '$item->aft'.length).map((item) => item.name)).toEqual(['after']);
+    const serialized = global.replace('changeGlobal();', 'serialize($object);');
+    project.update('file:///GlobalStringCallback.php', serialized);
+    expect(project.completeMembers('file:///GlobalStringCallback.php', serialized.indexOf('$item->aft') + '$item->aft'.length)).toEqual([]);
+  }, 15_000);
+  it('provides proven variable completion details at the current scope and position', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///VariableDetail.php';
+    const source = '<?php function run(string $input, int &$reference): void { $count = 123; $input = 456; $cou; } function other(): void { $secret = 1; }';
+    project.update(uri, source); const offset = source.indexOf('$cou;') + 4;
+    expect(project.completionVariableDetail(uri, offset, '$count')).toBe('$count: int');
+    expect(project.completionVariableDetail(uri, offset, '$input')).toBe('$input: int');
+    expect(project.completionVariableDetail(uri, offset, '$reference')).toBeUndefined();
+    expect(project.completionVariableDetail(uri, offset, '$secret')).toBeUndefined();
+    expect(project.completionVariableDetail(uri, offset, '$missing')).toBeUndefined();
+    const stable = '<?php function run(string $input): void { $inp; }';
+    project.update(uri, stable);
+    expect(project.completionVariableDetail(uri, stable.indexOf('$inp;') + 4, '$input')).toBe('$input: string');
+    for (const mutation of ['unknown($input);', 'eval($code);', 'unset($input);']) {
+      const unsafe = `<?php function run(string $input, string $code): void { ${mutation} $inp; }`;
+      project.update(uri, unsafe);
+      expect(project.completionVariableDetail(uri, unsafe.indexOf('$inp;') + 4, '$input'), mutation).toBeUndefined();
+    }
+    const loop = '<?php function run(): void { $parts = ["a"]; foreach ($parts as $part) { $par; } }';
+    project.update(uri, loop);
+    expect(project.completionVariableDetail(uri, loop.indexOf('$par;') + 4, '$part')).toBe('$part: string');
+  });
+  it.each(['7.2', '8.5'] as const)('selects preg_split element contracts from proven flag expressions at PHP %s', async (version) => {
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    const project = new SemanticWorkspace(parser); const uri = 'file:///PregSplit.php';
+    project.update(builtinDocumentUri(version), builtinPhpStub(version));
+    const strings = 'false|list<string>'; const offsets = 'false|list<array{0: string, 1: int}>';
+    for (const [argument, expected] of [
+      ['', strings], [', -1, 0', strings], [', -1, PREG_SPLIT_NO_EMPTY', strings],
+      [', -1, PREG_SPLIT_OFFSET_CAPTURE', offsets],
+      [', -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_OFFSET_CAPTURE', offsets],
+      [', -1, (PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE)', strings],
+      [', -1, 12', offsets], [', -1, -1', offsets],
+      [', -1, PREG_SPLIT_OFFSET_CAPTURE ^ PREG_SPLIT_OFFSET_CAPTURE', strings],
+      [', -1, 7 & 3', strings],
+    ]) {
+      const expression = `preg_split('/,/', $input${argument})`;
+      const source = `<?php function run(string $input): void { $parts = ${expression}; }`;
+      project.update(uri, source); const start = source.indexOf(expression);
+      expect(project.provenExpressionType(uri, start, start + expression.length), expression).toBe(expected);
+    }
+    const unknown = '<?php function run(string $input, int $flags): void { $parts = preg_split("/,/", $input, -1, $flags); }';
+    project.update(uri, unknown); const start = unknown.indexOf('preg_split(');
+    expect(project.provenExpressionType(uri, start, unknown.indexOf(');', start) + 1)).toBe('false|list<array{0: string, 1: int}|string>');
+    const shadow = '<?php namespace LocalSplit; const PREG_SPLIT_OFFSET_CAPTURE = 0; $parts = preg_split("/,/", "a,b", -1, PREG_SPLIT_OFFSET_CAPTURE);';
+    project.update(uri, shadow); const at = shadow.indexOf('preg_split(');
+    expect(project.provenExpressionType(uri, at, shadow.indexOf(');', at) + 1)).toBe(strings);
+    const aliased = '<?php namespace LocalSplit; use const PREG_SPLIT_OFFSET_CAPTURE as CAPTURE; $parts = preg_split("/,/", "a,b", -1, CAPTURE | 1);';
+    project.update(uri, aliased); const aliasStart = aliased.indexOf('preg_split(');
+    expect(project.provenExpressionType(uri, aliasStart, aliased.indexOf(');', aliasStart) + 1)).toBe(offsets);
+    if (version === '8.5') {
+      const named = '<?php $parts = preg_split(flags: PREG_SPLIT_OFFSET_CAPTURE, subject: "a,b", pattern: "/,/");';
+      project.update(uri, named); const namedStart = named.indexOf('preg_split(');
+      expect(project.provenExpressionType(uri, namedStart, named.indexOf(');', namedStart) + 1)).toBe(offsets);
+    }
+    const overridden = '<?php namespace LocalSplit; function preg_split(string $pattern, string $subject, int $limit = -1, int $flags = 0): int { return 1; } $parts = preg_split("/,/", "a,b", -1, 4);';
+    project.update(uri, overridden); const overrideStart = overridden.lastIndexOf('preg_split(');
+    expect(project.provenExpressionType(uri, overrideStart, overridden.indexOf(');', overrideStart) + 1)).toBe('int');
+    for (const [expression, expected] of [['$a | $b', 'int'], ['$a & $b', 'int'], ['$a ^ $b', 'int'], ['"a" | "b"', undefined], ['$unknown | $a', undefined]] as const) {
+      const text = `<?php function flags(int $a, int $b): void { $value = ${expression}; }`;
+      project.update(uri, text); const expressionStart = text.indexOf(expression);
+      expect(project.provenExpressionType(uri, expressionStart, expressionStart + expression.length), expression).toBe(expected);
+    }
+  }, 15_000);
+  it.each(['7.2', '8.5'] as const)('propagates string split list elements at PHP %s', async (version) => {
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    const project = new SemanticWorkspace(parser); const uri = 'file:///StringSplit.php';
+    project.update(builtinDocumentUri(version), builtinPhpStub(version));
+    for (const expression of ['explode(",", $input)', 'explode(",", $input, -1)', 'str_split($input)', 'str_split($input, 2)']) {
+      const source = `<?php function run(string $input): void { $parts = ${expression}; if ($parts === false) { return; } foreach ($parts as $part) { $part; } }`;
+      project.update(uri, source);
+      const start = source.indexOf(expression);
+      expect(project.provenExpressionType(uri, start, start + expression.length), expression)
+        .toBe(version === '7.2' ? 'false|list<string>' : 'list<string>');
+      expect(project.variableValueAt(uri, source.lastIndexOf('$part;') + 2)?.type, expression).toBe('string');
+    }
+    const local = '<?php namespace LocalSplit; function explode(string $separator, string $input): int { return 1; } $value = explode(",", "x");';
+    project.update(uri, local);
+    const start = local.lastIndexOf('explode(');
+    expect(project.provenExpressionType(uri, start, local.indexOf(');', start) + 1)).toBe('int');
+  }, 15_000);
+  it('preserves scalar literal and default conditions while widening weak conversions', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///ScalarConditions.php';
+    const base = `<?php namespace ScalarConditions;
+      class Upper {} class Lower {}
+      /** @return ($kind is 'UPPER' ? Upper : Lower) */ function text(string $kind = 'UPPER') {}
+      /** @return ($mode is -1 ? Upper : Lower) */ function numeric(int $mode = -1) {}
+      /** @return ($flag is true ? Upper : Lower) */ function boolean(bool $flag) {}
+    `;
+    for (const [expression, expected] of [['text()', 'Upper'], ["text('UPPER')", 'Upper'], ["text('upper')", 'Lower'],
+      ['numeric()', 'Upper'], ['numeric(-1)', 'Upper'], ['numeric(2)', 'Lower']] as const) {
+      const source = base + '$result = ' + expression + ';'; project.update(uri, source); const start = source.indexOf(expression, base.length);
+      expect(project.provenExpressionType(uri, start, start + expression.length), expression).toBe(`ScalarConditions\\${expected}`);
+    }
+    for (const expression of ['numeric("-1")', 'boolean("false")']) {
+      const source = base + '$result = ' + expression + ';'; project.update(uri, source); const start = source.indexOf(expression, base.length);
+      const type = project.provenExpressionType(uri, start, start + expression.length)!;
+      expect(type, expression).toContain('ScalarConditions\\Upper'); expect(type, expression).toContain('ScalarConditions\\Lower');
+    }
+  });
+  it('refreshes value-parameter reference proofs when a project function changes to a reference parameter', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///UrlProof.php'; const helperUri = 'file:///UrlHelper.php';
+    const source = '<?php namespace UrlProof; function run(string $url): void { inspect(url: $url); $url; }';
+    project.update(uri, source);
+    const start = source.lastIndexOf('$url;');
+    const read = (): string | undefined => project.provenExpressionType(uri, start, start + '$url'.length);
+    project.update(helperUri, '<?php namespace UrlProof; function inspect(string $url): void {}');
+    expect(read()).toBe('string');
+    project.update(helperUri, '<?php namespace UrlProof; function inspect(&$url): void {}');
+    expect(read()).toBeUndefined();
+    project.update(helperUri, '<?php namespace UrlProof; function inspect(string $url): void {}');
+    expect(read()).toBe('string');
+    project.update(helperUri, '<?php namespace UrlProof; function inspect(&...$url): void {}');
+    expect(read()).toBeUndefined();
+  });
+  it.each(['7.2', '8.5'] as const)('selects common builtin overloads and parse_url component contracts at PHP %s', async (version) => {
+    const { builtinPhpStub, builtinDocumentUri } = await import('@php-companion/language-spec');
+    const project = new SemanticWorkspace(parser); const uri = 'file:///BuiltinContracts.php';
+    project.update(builtinDocumentUri(version), builtinPhpStub(version));
+    const full = 'false|array{scheme?: string, host?: string, port?: int, user?: string, pass?: string, path?: string, query?: string, fragment?: string}';
+    const cases: Array<[string, string]> = [
+      ['min([1, 2])', version === '7.2' ? 'false|int' : 'int'],
+      ['max(1, 2)', 'int'], ['implode(["a"])', 'string'], ['implode(",", ["a"])', 'string'],
+      ['parse_url($url)', full], ['parse_url($url, -1)', full],
+      ['parse_url($url, PHP_URL_PORT)', 'false|int|null'],
+      ['parse_url($url, PHP_URL_HOST)', 'false|null|string'],
+      ['parse_url($url, 2)', 'false|int|null'],
+      ['parse_url($url, PORT)', 'false|int|null'],
+    ];
+    const base = '<?php namespace BuiltinContracts; use const PHP_URL_PORT as PORT; function run(string $url, int $component): void {';
+    const source = base + cases.map(([expression], index) => `$value${index} = ${expression};`).join('\n') + '}';
+    project.update(uri, source);
+    for (const [expression, expected] of cases) {
+      const start = source.indexOf(expression);
+      expect(project.provenExpressionType(uri, start, start + expression.length), expression).toBe(expected);
+    }
+    for (const expression of ['parse_url($url, $component)', 'parse_url($url, "2")']) {
+      const text = base + '$value = ' + expression + ';}'; project.update(uri, text);
+      const start = text.indexOf(expression); const inferred = project.provenExpressionType(uri, start, start + expression.length)!;
+      expect(inferred, expression).toContain('array{'); expect(inferred, expression).toContain('int');
+      expect(inferred, expression).toContain('string'); expect(inferred, expression).toContain('null');
+    }
+    const shadow = '<?php namespace BuiltinContracts; const PHP_URL_PORT = 1; function run(string $url): void { $value = parse_url($url, PHP_URL_PORT); }';
+    project.update(uri, shadow); const start = shadow.indexOf('parse_url(');
+    expect(project.provenExpressionType(uri, start, shadow.indexOf(');', start) + 1)).toBe('false|null|string');
+    const reads = '<?php namespace BuiltinContracts; function read(string $url): void { $parts = parse_url($url); $parts;'
+      + Array.from({ length: 10 }, (_, index) => `$value${index} = parse_url($url, PHP_URL_PORT);`).join('')
+      + '$parts; $value9; }';
+    project.update(uri, reads);
+    expect(project.variableValueAt(uri, reads.lastIndexOf('$parts;') + 2)?.type).toBe(full);
+    expect(project.variableValueAt(uri, reads.lastIndexOf('$value9;') + 2)?.type).toBe('false|int|null');
+    for (const mutation of ['$url = new Evil();', 'unknown($url);', 'mutate($url);', 'eval($code);']) {
+      const unsafe = '<?php namespace BuiltinContracts; class Evil { function __toString(): string { return ""; } }'
+        + 'function mutate(&$url) {} function unsafe(string $url, string $code): void { $parts = parse_url($url);'
+        + mutation + 'parse_url($url); $parts; }';
+      project.update(uri, unsafe);
+      // A constructor or a value-only call cannot rebind the independent,
+      // unescaped $parts local. Unknown/reference calls still stop the proof.
+      if (mutation === '$url = new Evil();')
+        expect(project.variableValueAt(uri, unsafe.lastIndexOf('$parts;') + 2)?.type, mutation).toBe(full);
+      else expect(project.variableValueAt(uri, unsafe.lastIndexOf('$parts;') + 2), mutation).toBeUndefined();
+    }
+    project.update(uri, reads);
+    project.update('file:///OverrideParseUrl.php', '<?php namespace BuiltinContracts; function parse_url(string $url, int $component = -1): string { return ""; }');
+    // A unique value-only replacement now preserves the independent local,
+    // but must use its own string contract instead of the builtin URL shape.
+    expect(project.variableValueAt(uri, reads.lastIndexOf('$parts;') + 2)?.type).toBe('string');
+    expect(project.variableValueAt(uri, reads.lastIndexOf('$value9;') + 2)?.type).toBe('string');
+    project.update('file:///OverrideParseUrl.php', '<?php namespace BuiltinContracts; function parse_url(string &$url, int $component = -1): string { return ""; }');
+    expect(project.variableValueAt(uri, reads.lastIndexOf('$parts;') + 2)).toBeUndefined();
+    project.remove('file:///OverrideParseUrl.php');
+    expect(project.variableValueAt(uri, reads.lastIndexOf('$parts;') + 2)?.type).toBe(full);
+
+  }, 15_000);
+  it('infers proven leaf values and keys for built-in array_walk_recursive callbacks', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-walk-recursive.php', `<?php
+      function array_walk_recursive(&$input, callable $funcname, $userdata = null): bool {}`);
+    const source = `<?php
+      class RecursiveLeaf { public function onlyRecursiveLeaf(): void {} }
+      class RecursiveOther { public function onlyRecursiveOther(): void {} }
+      function takesString(string $key): void {}
+      function nested(): void {
+        $items = ['group' => ['first' => new RecursiveLeaf()]];
+        array_walk_recursive($items, function (&$value, $key, $extra) { $number = 123; $value->only; $extra->only; takesString($key); }, new RecursiveOther());
+      }
+      function flat(): void {
+        $items = ['first' => new RecursiveLeaf()];
+        array_walk_recursive($items, fn($value, $key) => $value->only);
+      }
+      function unknown(array $items): void {
+        array_walk_recursive($items, fn($value, $key) => $value->only);
+      }
+      function unrelated(): void {
+        namespace_walk_recursive(['first' => new RecursiveLeaf()], fn($value) => $value->only);
+      }`;
+    project.update('file:///RecursiveWalk.php', source);
+    const positions = [...source.matchAll(/->only\b/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///RecursiveWalk.php', position).map((item) => item.name)))
+      .toEqual([['onlyRecursiveLeaf'], ['onlyRecursiveOther'], ['onlyRecursiveLeaf'], [], []]);
+    const keyPosition = source.indexOf('takesString($key)') + 'takesString($'.length;
+    const variables = project.completeVariables('file:///RecursiveWalk.php', keyPosition)?.names ?? [];
+    expect(variables).toContain('$key');
+    expect(variables).toContain('$number');
+    expect(variables.indexOf('$key')).toBeLessThan(variables.indexOf('$number'));
+  });
+  it('keeps object values through key-case conversion and same-type padding', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-transform-check.php', `<?php
+      /** @template TValue
+       * @param array<array-key, TValue> $array
+       * @return array<array-key, TValue> */
+      function array_change_key_case(array $array, int $case = CASE_LOWER): array {}
+      /** @template TValue
+       * @template TPad
+       * @param array<array-key, TValue> $array
+       * @param TPad $value
+       * @return array<array-key, TValue|TPad> */
+      function array_pad(array $array, int $length, mixed $value): array {}`);
+    const source = `<?php class PreservedItem { public function onlyPreserved(): void {} }
+      class OtherItem { public function onlyOther(): void {} }
+      function converted(): void {
+        $values = ['FIRST' => new PreservedItem()];
+        $converted = array_change_key_case($values);
+        foreach ($converted as $value) { $value->only; }
+      }
+      function padded(): void {
+        $values = [new PreservedItem()];
+        $padded = array_pad($values, 3, new PreservedItem());
+        foreach ($padded as $value) { $value->only; }
+      }
+      function mixedPadding(): void {
+        $values = [new PreservedItem()];
+        $padded = array_pad($values, 3, new OtherItem());
+        foreach ($padded as $value) { $value->only; }
+      }`;
+    project.update('file:///ArrayTransformCheck.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayTransformCheck.php', position).map((item) => item.name)))
+      .toEqual([['onlyPreserved'], ['onlyPreserved'], []]);
+  });
+  it('does not keep a replaced array element type when replacement values differ', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-replace-check.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param array<TKey, TValue> ...$replacements
+       * @return array<TKey, TValue> */
+      function array_replace(array $array, array ...$replacements): array {}`);
+    const source = `<?php class FirstValue { public function onlyFirst(): void {} }
+      class SecondValue { public function onlySecond(): void {} }
+      function same(): void {
+        $result = array_replace([new FirstValue()], [new FirstValue()]);
+        foreach ($result as $value) { $value->only; }
+      }
+      function different(): void {
+        $result = array_replace([new FirstValue()], [new SecondValue()]);
+        foreach ($result as $value) { $value->only; }
+      }`;
+    project.update('file:///ArrayReplaceCheck.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayReplaceCheck.php', position).map((item) => item.name)))
+      .toEqual([['onlyFirst'], []]);
+  });
+  it('retains the first array element type in the PHP 7 array_merge signature', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-merge-php7-check.php', `<?php
+      /** @template TValue
+       * @param array<array-key, TValue> $arr1
+       * @param array<array-key, TValue> ...$arrays
+       * @return array<array-key, TValue> */
+      function array_merge(array $arr1, array ...$arrays): array {}`);
+    const source = `<?php class MergedFirst { public function onlyFirst(): void {} }
+      class MergedSecond { public function onlySecond(): void {} }
+      function single(): void {
+        $result = array_merge([new MergedFirst()]);
+        foreach ($result as $value) { $value->only; }
+      }
+      function combined(): void {
+        $result = array_merge([new MergedFirst()], [new MergedSecond()]);
+        foreach ($result as $value) { $value->only; }
+      }`;
+    project.update('file:///ArrayMergePhp7Check.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayMergePhp7Check.php', position).map((item) => item.name)))
+      .toEqual([['onlyFirst'], []]);
+  });
+  it('keeps both proven element types in an array_map null zip result', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-map-zip.php', `<?php
+      /** @return list<list<mixed>> */ function array_map(?callable $callback, array $array, array $arrays): array {}`);
+    const source = `<?php class ZipLeft { public function onlyLeft(): void {} }
+      class ZipRight { public function onlyRight(): void {} }
+      function directZipPair(): void {
+        $pair = [0 => new ZipLeft(), 1 => new ZipRight()];
+        $pair[0]?->onlyLeft;
+      }
+      function zip(): void {
+        $pairs = array_map(null, [new ZipLeft()], [new ZipRight()]);
+        foreach ($pairs as $pair) {
+          $pair[0]?->onlyLeft; $pair[1]?->onlyRight;
+          $pair[0]?->onlyRight; $pair[1]?->onlyLeft;
+        }
+      }
+      /** @param list<ZipLeft> $left
+       * @param list<ZipRight> $right */
+      function zipParameters(array $left, array $right): void {
+        $pairs = array_map(null, $left, $right);
+        foreach ($pairs as $pair) { $pair[0]?->onlyLeft; $pair[1]?->onlyRight; }
+      }`;
+    project.update('file:///ArrayMapZip.php', source);
+    const positions = [...source.matchAll(/\?->only(?:Left|Right)/gu)].map((match) => match.index + match[0].length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayMapZip.php', position).map((item) => item.name)))
+      .toEqual([['onlyLeft'], ['onlyLeft'], ['onlyRight'], [], [], ['onlyLeft'], ['onlyRight']]);
+  });
+  it('retains known object values through array_merge of multiple arrays', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-merge.php', `<?php
+      /** @template TValue
+       * @param array<array-key, TValue> ...$arrays
+       * @return array<array-key, TValue> */
+      function array_merge(array ...$arrays): array {}`);
+    const source = `<?php class MergeItem { public function onlyMergeItem(): void {} }
+      class MergeOther { public function onlyMergeOther(): void {} }
+      function merged(): void {
+        $result = array_merge(['first' => new MergeItem()], [new MergeItem()]);
+        foreach ($result as $item) { $item->only; }
+      }
+      function mixedMerge(): void {
+        $result = array_merge([new MergeItem()], [new MergeOther()]);
+        foreach ($result as $item) { $item->only; }
+      }`;
+    project.update('file:///ArrayMerge.php', source);
+    const positions = [...source.matchAll(/\$item->only/gu)].map((match) => match.index + '$item->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayMerge.php', position).map((item) => item.name)))
+      .toEqual([['onlyMergeItem'], []]);
+  });
+  it('infers array_reduce callback values and carry from a keyed object array', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-keyed-reduce.php', `<?php
+      /** @template TValue
+       * @template TCarry
+       * @param array<array-key, TValue> $array
+       * @param callable(TCarry, TValue):TCarry $callback
+       * @param TCarry $initial
+       * @return TCarry */
+      function array_reduce(array $array, callable $callback, mixed $initial = null): mixed {}`);
+    const source = `<?php class ReduceItem { public function onlyReduceItem(): void {} }
+      class ReduceCarry { public function onlyReduceCarry(): void {} }
+      function run(): void {
+        $items = ['first' => new ReduceItem(), new ReduceItem()];
+        array_reduce($items, fn($carry, $item) => $item->only, new ReduceCarry());
+      }
+      function result(): void {
+        $items = ['first' => new ReduceItem(), new ReduceItem()];
+        $result = array_reduce($items, fn($carry, $item) => $carry, new ReduceCarry());
+        $result->only;
+      }
+      function withoutInitial(): void {
+        $items = ['first' => new ReduceItem(), new ReduceItem()];
+        $result = array_reduce($items, fn($carry, $item) => $item);
+        if ($result !== null) { $result->only; }
+      }
+      function namedWithoutInitial(): void {
+        $items = ['first' => new ReduceItem()];
+        $result = array_reduce(callback: fn($carry, $item) => $item, array: $items);
+        if ($result !== null) { $result->only; }
+      }
+      function explicitNull(): void {
+        $items = ['first' => new ReduceItem()];
+        $result = array_reduce($items, fn($carry, $item) => $item, null);
+        if ($result !== null) { $result->only; }
+      }
+      function namedNull(): void {
+        $items = ['first' => new ReduceItem()];
+        $result = array_reduce(initial: null, callback: fn($carry, $item) => $item, array: $items);
+        if ($result !== null) { $result->only; }
+      }
+      function withoutGuard(): void {
+        $items = ['first' => new ReduceItem()];
+        $result = array_reduce($items, fn($carry, $item) => $item);
+        $result->only;
+      }
+      function invalidCarry(): void {
+        $items = ['first' => new ReduceItem()];
+        $result = array_reduce($items, fn(ReduceCarry $carry, ReduceItem $item) => $item);
+        if ($result !== null) { $result->only; }
+      }`;
+    project.update('file:///ArrayKeyedReduce.php', source);
+    const positions = [...source.matchAll(/->only/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayKeyedReduce.php', position).map((item) => item.name)))
+      .toEqual([['onlyReduceItem'], ['onlyReduceCarry'], ['onlyReduceItem'], ['onlyReduceItem'],
+        ['onlyReduceItem'], ['onlyReduceItem'], [], []]);
+  });
+  it('extracts a proven object column from nested array shapes', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-column.php', `<?php
+      /** @return list<mixed> */ function array_column(array $array, int|string|null $column_key, int|string|null $index_key = null): array {}`);
+    const source = `<?php class ColumnItem { public function onlyColumnItem(): void {} }
+      class ColumnRow { public ColumnItem $entry; public function __construct() { $this->entry = new ColumnItem(); } }
+      class PrivateColumnRow { private ColumnItem $entry; public function __construct() { $this->entry = new ColumnItem(); } }
+      /** @property ColumnItem $entry */ class DocColumnRow {}
+      function direct(): void {
+        $rows = [['entry' => new ColumnItem()]];
+        $rows[0]['entry']->only;
+      }
+      function byPosition(): void {
+        $rows = [['entry' => new ColumnItem()], ['entry' => new ColumnItem()]];
+        $column = array_column($rows, 'entry');
+        foreach ($column as $item) { $item->only; }
+      }
+      function byName(): void {
+        $rows = [['entry' => new ColumnItem()]];
+        $column = array_column(column_key: 'entry', array: $rows);
+        foreach ($column as $item) { $item->only; }
+      }
+      function skippedRow(): void {
+        $rows = [['entry' => new ColumnItem()], ['other' => 1]];
+        $column = array_column($rows, 'entry');
+        foreach ($column as $item) { $item->only; }
+      }
+      function missing(): void {
+        $rows = [['entry' => new ColumnItem()]];
+        $column = array_column($rows, 'missing');
+        foreach ($column as $item) { $item->only; }
+      }
+      function dynamic(string $key): void {
+        $rows = [['entry' => new ColumnItem()]];
+        $column = array_column($rows, $key);
+        foreach ($column as $item) { $item->only; }
+      }
+      function directObjectRow(): void {
+        $rows = [new ColumnRow()];
+        $rows[0]->entry->only;
+      }
+      function objectRows(): void {
+        $rows = [new ColumnRow()];
+        $column = array_column($rows, 'entry');
+        foreach ($column as $item) { $item->only; }
+      }
+      function privateRows(): void {
+        $rows = [new PrivateColumnRow()];
+        $column = array_column($rows, 'entry');
+        foreach ($column as $item) { $item->only; }
+      }
+      function documentedRows(): void {
+        $rows = [new DocColumnRow()];
+        $column = array_column($rows, 'entry');
+        foreach ($column as $item) { $item->only; }
+      }
+      function completeArrayRows(): void {
+        $rows = [['entry' => new ColumnItem()]];
+        $column = array_column($rows, null);
+        foreach ($column as $row) { $row['entry']->only; }
+      }
+      function completeObjectRows(): void {
+        $rows = [new ColumnRow()];
+        $column = array_column(array: $rows, column_key: null);
+        foreach ($column as $row) { $row->entry->only; }
+      }
+      function numericColumn(): void {
+        $rows = [[0 => new ColumnItem(), 1 => 'other']];
+        $column = array_column($rows, 0);
+        foreach ($column as $item) { $item->only; }
+      }
+      function numericListColumn(): void {
+        $rows = [[new ColumnItem(), new ColumnItem()]];
+        $column = array_column($rows, 0);
+        foreach ($column as $item) { $item->only; }
+      }
+      function indexedValues(): void {
+        $rows = [['id' => 'first', 'entry' => new ColumnItem()]];
+        $column = array_column($rows, 'entry', 'id');
+        foreach ($column as $item) { $item->only; }
+      }
+      function indexedCompleteRows(): void {
+        $rows = [['id' => 'first', 'entry' => new ColumnItem()]];
+        $column = array_column($rows, null, 'id');
+        foreach ($column as $row) { $row['entry']->only; }
+      }
+      function dynamicIndexKey(string $key): void {
+        $rows = [['id' => 'first', 'entry' => new ColumnItem()]];
+        $column = array_column($rows, 'entry', $key);
+        foreach ($column as $item) { $item->only; }
+      }`;
+    project.update('file:///ArrayColumnUse.php', source);
+    const positions = [...source.matchAll(/->only;/gu)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayColumnUse.php', position).map((item) => item.name)))
+      .toEqual([['onlyColumnItem'], ['onlyColumnItem'], ['onlyColumnItem'], ['onlyColumnItem'], [], [],
+        ['onlyColumnItem'], ['onlyColumnItem'], [], [],
+        ['onlyColumnItem'], ['onlyColumnItem'], ['onlyColumnItem'], ['onlyColumnItem'],
+        ['onlyColumnItem'], ['onlyColumnItem'], ['onlyColumnItem']]);
+  });
+  it('retains array_filter value types when a proven mode passes keys to its callback', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-filter-mode.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue):bool|null $callback
+       * @return array<TKey, TValue> */
+      function array_filter(array $array, ?callable $callback = null, int $mode = 0): array {}`);
+    const source = `<?php class FilterItem { public function onlyFilterItem(): void {} }
+      function byValue(): void {
+        /** @var array<string, FilterItem> $items */
+        $items = ['one' => new FilterItem()];
+        $value = array_filter($items, fn(FilterItem $item): bool => true);
+        foreach ($value as $entry) { $entry->only; }
+      }
+      function byKey(): void {
+        /** @var array<string, FilterItem> $items */
+        $items = ['one' => new FilterItem()];
+        $key = array_filter($items, fn(string $name): bool => strlen($name) > 0, 2);
+        foreach ($key as $entry) { $entry->only; }
+      }
+      function byBoth(): void {
+        /** @var array<string, FilterItem> $items */
+        $items = ['one' => new FilterItem()];
+        $both = array_filter($items, fn(FilterItem $item, string $name): bool => true, 1);
+        foreach ($both as $entry) { $entry->only; }
+      }
+      function interleaved(): void {
+        /** @var array<string, FilterItem> $items */
+        $items = ['one' => new FilterItem()];
+        $value = array_filter($items, fn($item): bool => true);
+        foreach ($value as $entry) { $entry->only; }
+        $key = array_filter($items, fn($name): bool => true, 2);
+        foreach ($key as $entry) { $entry->only; }
+        $both = array_filter($items, fn($item, $name): bool => true, 1);
+        foreach ($both as $entry) { $entry->only; }
+      }
+      function invalidKey(): void {
+        /** @var array<string, FilterItem> $items */
+        $items = ['one' => new FilterItem()];
+        $wrong = array_filter($items, fn(int $name): bool => true, 2);
+        foreach ($wrong as $entry) { $entry->only; }
+      }`;
+    project.update('file:///ArrayFilterMode.php', source);
+    const positions = [...source.matchAll(/->only;/g)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayFilterMode.php', position).map((item) => item.name)))
+      .toEqual([['onlyFilterItem'], ['onlyFilterItem'], ['onlyFilterItem'],
+        ['onlyFilterItem'], ['onlyFilterItem'], ['onlyFilterItem'], []]);
+  });
+  it('keeps an array element type across a built-in filter without trusting a reference capture', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-filter-flow.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue):bool|null $callback
+       * @return array<TKey, TValue> */
+      function array_filter(array $array, ?callable $callback = null, int $mode = 0): array {}`);
+    const source = `<?php class FilterFlowItem { public function onlyFilterFlow(): void {} }
+      function safe(): void {
+        $items = [new FilterFlowItem()];
+        $first = array_filter($items, fn($item): bool => true);
+        $second = array_filter($items, fn($item): bool => true);
+        foreach ($second as $entry) { $entry->only; }
+      }
+      function safeNamed(): void {
+        $items = [new FilterFlowItem()];
+        $third = array_filter($items);
+        $named = array_filter(array: $items, callback: fn($key): bool => true, mode: 2);
+        foreach ($named as $entry) { $entry->only; }
+      }
+      function captured(): void {
+        $items = [new FilterFlowItem()];
+        array_filter($items, function ($item) use (&$items): bool { $items = []; return true; });
+        $later = array_filter($items, fn($item): bool => true);
+        foreach ($later as $entry) { $entry->only; }
+      }`;
+    project.update('file:///ArrayFilterFlow.php', source);
+    const positions = [...source.matchAll(/->only;/g)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayFilterFlow.php', position).map((item) => item.name)))
+      .toEqual([['onlyFilterFlow'], ['onlyFilterFlow'], []]);
+    const shadow = `<?php namespace Shadow;
+      function array_filter(array &$array, callable $callback): array { $array = []; return []; }
+      function run(): void {
+        $items = [new \\FilterFlowItem()];
+        array_filter($items, fn($item): bool => true);
+        foreach ($items as $entry) { $entry->only; }
+      }`;
+    project.update('file:///ArrayFilterShadow.php', shadow);
+    expect(project.completeMembers('file:///ArrayFilterShadow.php', shadow.indexOf('->only') + '->only'.length))
+      .toEqual([]);
+  });
+  it('withdraws an array element type after a by-reference foreach replaces its elements', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:/array-filter-reference-loop.php', `<?php
+      /** @template TKey of array-key
+       * @template TValue
+       * @param array<TKey, TValue> $array
+       * @param callable(TValue):bool|null $callback
+       * @return array<TKey, TValue> */
+      function array_filter(array $array, ?callable $callback = null, int $mode = 0): array {}`);
+    const source = `<?php class RefLoopItem { public function onlyRefLoop(): void {} } class RefLoopOther {}
+      function byValue(): void {
+        $items = [new RefLoopItem()];
+        foreach ($items as $entry) { $entry->onlyRefLoop(); }
+        $filtered = array_filter($items, fn($item): bool => true);
+        foreach ($filtered as $item) { $item->only; }
+      }
+      function byReference(): void {
+        $items = [new RefLoopItem()];
+        foreach ($items as &$entry) { $entry = new RefLoopOther(); }
+        $filtered = array_filter($items, fn($item): bool => true);
+        foreach ($filtered as $item) { $item->only; }
+      }
+      function unrelatedReference(): void {
+        $others = [new RefLoopOther()];
+        $items = [new RefLoopItem()];
+        foreach ($others as &$entry) { $entry = new RefLoopOther(); }
+        $filtered = array_filter($items, fn($item): bool => true);
+        foreach ($filtered as $item) { $item->only; }
+      }
+      function annotatedReference(): void {
+        /** @var list<RefLoopItem> $items */
+        $items = [new RefLoopItem()];
+        $items[0]->only;
+        foreach ($items as &$entry) { $entry = new RefLoopOther(); }
+        $filtered = array_filter($items, fn($item): bool => true);
+        foreach ($filtered as $item) { $item->only; }
+      }`;
+    project.update('file:///ArrayFilterReferenceLoop.php', source);
+    const positions = [...source.matchAll(/->only;/g)].map((match) => match.index + '->only'.length);
+    expect(positions.map((position) => project.completeMembers('file:///ArrayFilterReferenceLoop.php', position).map((item) => item.name)))
+      .toEqual([['onlyRefLoop'], [], ['onlyRefLoop'], ['onlyRefLoop'], []]);
   });
   it('propagates strict false exclusion from an array root into safe shape elements', () => {
     workspace.update('file:///BooleanShapeTypes.php', `<?php namespace BooleanShape;
@@ -4256,7 +6425,7 @@ TXT;
     workspace.update('file:///ContextualCallableUse.php', source);
     const positions = [...source.matchAll(/->na(?!m)/g)].map((match) => match.index + 4);
     expect(positions.map((position) => workspace.completeMembers('file:///ContextualCallableUse.php', position).map((item) => item.name)))
-      .toEqual([['name'], ['name'], [], [], [], []]);
+      .toEqual([['name'], ['name'], ['name'], [], [], []]);
     const incompatible = workspace.incompatibleArguments('file:///ContextualCallableUse.php')
       .map((item) => [item.actualType, item.expectedType]);
     expect(incompatible).toContainEqual(['ContextualCallable\\User', 'ContextualCallable\\Other']);
@@ -5011,7 +7180,7 @@ TXT;
       ['class Child implements C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
       ['class Child extends \\Domain\\C1InheritanceKindClass implements C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
       ['interface Child extends C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
-      ['interface Child extends \\Domain\\C1InheritanceKindInterface, C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
+      ['interface Child extends \\Domain\\C1InheritanceKindInterface, C1InheritanceKind', []],
       ['enum Child implements C1InheritanceKind', ['Domain\\C1InheritanceKindInterface']],
     ] as const;
     for (const [index, [fragment, expected]] of cases.entries()) {
@@ -5275,9 +7444,142 @@ use Attribute as Marker;
     expect(workspace.typeCompletionContext(uri, offset)?.importedTypes).toEqual([]);
     expect(workspace.completeTypes(uri, offset).find((item) => item.fqcn === 'Domain\\Billing\\Invoice'))
       .toMatchObject({ name: 'Invoice', importFqcn: 'Domain\\Billing\\Invoice' });
-    expect(workspace.typeImportCandidates(uri, offset, 'Invoice')).toEqual(expect.arrayContaining([
-      expect.objectContaining({ fqcn: 'Domain\\Billing\\Invoice', aliasRequired: false }),
+      expect(workspace.typeImportCandidates(uri, offset, 'Invoice')).toEqual(expect.arrayContaining([
+        expect.objectContaining({ fqcn: 'Domain\\Billing\\Invoice', aliasRequired: false }),
+      ]));
+  });
+  it('keeps local type-name collisions within the current namespace', () => {
+    workspace.update('file:///OtherNamespaceWidget.php', '<?php namespace Vendor; class Widget {}');
+    const uri = 'file:///OtherNamespaceImport.php';
+    const source = '<?php namespace First { class Widget {} } '
+      + 'namespace Second { function run(): void { new Widget(); } }';
+    workspace.update(uri, source);
+    const offset = source.indexOf('new Widget') + 'new '.length;
+    expect(workspace.typeImportCandidates(uri, offset, 'Widget')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ fqcn: 'Vendor\\Widget', aliasRequired: false }),
     ]));
+    const insertion = workspace.importInsertion(uri, offset, 'Vendor\\Widget');
+    expect(insertion).toBeDefined();
+    expect(insertion!.offset).toBeGreaterThan(source.indexOf('namespace Second {'));
+    expect(insertion!.text).toContain('use Vendor\\Widget;');
+
+    const sameNamespace = '<?php namespace First { class Widget {} } '
+      + 'namespace First { function run(): void { new Widget(); } }';
+    workspace.update(uri, sameNamespace);
+    const repeatedOffset = sameNamespace.indexOf('new Widget') + 'new '.length;
+    expect(workspace.typeImportCandidates(uri, repeatedOffset, 'Widget')).toEqual(expect.arrayContaining([
+      expect.objectContaining({ fqcn: 'Vendor\\Widget', aliasRequired: true }),
+    ]));
+    expect(workspace.importInsertion(uri, repeatedOffset, 'Vendor\\Widget')).toBeUndefined();
+  });
+  it('reuses namespace ranges for closed files and refreshes them after source edits', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///CachedNamespaceRanges.php';
+    const source = '<?php namespace App { use Vendor\\Item; new Item(); } namespace App { new Item(); }';
+    project.update('file:///CachedRangeVendor.php', '<?php namespace Vendor; class Item {}');
+    project.update('file:///CachedRangeLocal.php', '<?php namespace App; class Item {}');
+    project.update(uri, source);
+    const parseTree = vi.spyOn(parser, 'parseTree');
+    try {
+      for (let index = 0; index < 100; index += 1) {
+        expect(project.typeAt(uri, source.indexOf('new Item();') + 5)?.fqcn).toBe('Vendor\\Item');
+        expect(project.typeAt(uri, source.lastIndexOf('new Item();') + 5)?.fqcn).toBe('App\\Item');
+      }
+      expect(parseTree.mock.calls.filter(([text]) => text === source)).toHaveLength(0);
+      const edited = source.replace('use Vendor\\Item; ', ''); project.update(uri, edited); parseTree.mockClear();
+      expect(project.typeAt(uri, edited.indexOf('new Item();') + 5)?.fqcn).toBe('App\\Item');
+      project.remove(uri); project.update(uri, source); parseTree.mockClear();
+      expect(project.typeAt(uri, source.indexOf('new Item();') + 5)?.fqcn).toBe('Vendor\\Item');
+      expect(parseTree.mock.calls.filter(([text]) => text === source)).toHaveLength(0);
+      const prepared = structuredClone(parser.prepare(source, uri, false)); parseTree.mockClear();
+      project.updatePrepared(uri, source, prepared);
+      expect(project.typeAt(uri, source.indexOf('new Item();') + 5)?.fqcn).toBe('Vendor\\Item');
+      expect(project.typeAt(uri, source.lastIndexOf('new Item();') + 5)?.fqcn).toBe('App\\Item');
+      expect(parseTree.mock.calls.filter(([text]) => text === source)).toHaveLength(0);
+      delete prepared.namespaceScopes; parseTree.mockClear();
+      project.updatePrepared(uri, source, prepared);
+      expect(project.typeAt(uri, source.indexOf('new Item();') + 5)?.fqcn).toBe('Vendor\\Item');
+      expect(project.typeAt(uri, source.lastIndexOf('new Item();') + 5)?.fqcn).toBe('App\\Item');
+      expect(parseTree.mock.calls.filter(([text]) => text === source)).toHaveLength(1);
+    } finally { parseTree.mockRestore(); project.dispose(); }
+  });
+
+  it('resolves type references from their own repeated namespace block', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      project.update('file:///ScopedTypeVendor.php', '<?php namespace Vendor; class Item {}');
+      project.update('file:///ScopedTypeLocal.php', '<?php namespace App; class Item {}');
+      const uri = 'file:///ScopedTypeUses.php';
+      const source = '<?php namespace App { use Vendor\\Item; new Item(); } namespace App { new Item(); }';
+      project.update(uri, source);
+      const first = source.indexOf('new Item();') + 'new '.length + 2;
+      const second = source.lastIndexOf('new Item();') + 'new '.length + 2;
+      expect(project.typeAt(uri, first)?.fqcn).toBe('Vendor\\Item');
+      expect(project.typeAt(uri, second)?.fqcn).toBe('App\\Item');
+      const firstUses = project.references(uri, first).filter((item) => item.uri === uri).map((item) => item.start);
+      const secondUses = project.references(uri, second).filter((item) => item.uri === uri).map((item) => item.start);
+      expect(firstUses).toContain(first - 2);
+      expect(firstUses).not.toContain(second - 2);
+      expect(secondUses).toContain(second - 2);
+      expect(secondUses).not.toContain(first - 2);
+      const withoutImport = source.replace('use Vendor\\Item; ', '');
+      project.update(uri, withoutImport);
+      expect(project.typeAt(uri, withoutImport.indexOf('new Item();') + 'new '.length + 2)?.fqcn).toBe('App\\Item');
+      project.update('file:///ScopedTypeVendor.php',
+        '<?php namespace Vendor; class Item { public function vendorOnly(): void {} }');
+      project.update('file:///ScopedTypeLocal.php',
+        '<?php namespace App; class Item { public function localOnly(): void {} }');
+      const members = '<?php namespace App { use Vendor\\Item; function first(): void { $a = new Item(); $a->ven; } } '
+        + 'namespace App { function second(): void { $b = new Item(); $b->loc; } }';
+      project.update(uri, members);
+      expect(project.completeMembers(uri, members.indexOf('ven;') + 3).map((item) => item.name))
+        .toContain('vendorOnly');
+      expect(project.completeMembers(uri, members.indexOf('loc;') + 3).map((item) => item.name))
+        .toContain('localOnly');
+      const parameters = '<?php namespace App { use Vendor\\Item; function first(Item $a): void { $a->ven; } } '
+        + 'namespace App { function second(Item $b): void { $b->loc; } }';
+      project.update(uri, parameters);
+      expect(project.completeMembers(uri, parameters.indexOf('ven;') + 3).map((item) => item.name))
+        .toContain('vendorOnly');
+      expect(project.completeMembers(uri, parameters.indexOf('loc;') + 3).map((item) => item.name))
+        .toContain('localOnly');
+    } finally { project.dispose(); }
+  });
+  it('restores inherited imports from their own repeated namespace block', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///ScopedInheritedCache.php';
+      const source = '<?php namespace App { use Vendor\\First as ParentType; class One extends ParentType {} } '
+        + 'namespace App { use Other\\Second as ParentType; class Two extends ParentType {} }';
+      project.update(uri, source);
+      const snapshot = project.snapshot(uri)!;
+      expect(snapshot.layers.typeDependencies.nodes).toEqual([
+        { key: 'app\\one', dependencies: ['vendor\\first'] },
+        { key: 'app\\two', dependencies: ['other\\second'] },
+      ]);
+      project.remove(uri);
+      expect(project.restoreDeclaration(snapshot, uri)).toBe(true);
+      expect(project.workspaceTypes().filter((item) => item.uri === uri).map((item) => item.name)).toEqual(['One', 'Two']);
+      expect(project.implementationState(uri)).toBe('deferred');
+    } finally { project.dispose(); }
+  });
+  it('checks cached inherited imports in a single namespace and rejects stale dependency layers', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///SingleNamespaceInheritedCache.php';
+      const source = '<?php namespace App; use Vendor\\Base as ParentType; class Child extends ParentType {}';
+      project.update(uri, source);
+      const snapshot = project.snapshot(uri)!;
+      expect(snapshot.layers.typeDependencies.nodes).toEqual([
+        { key: 'app\\child', dependencies: ['vendor\\base'] },
+      ]);
+      project.remove(uri);
+      const stale = structuredClone(snapshot);
+      stale.layers.typeDependencies.nodes[0]!.dependencies = ['app\\parenttype'];
+      expect(project.restoreDeclaration(stale, uri)).toBe(false);
+      expect(project.restoreDeclaration(snapshot, uri)).toBe(true);
+      expect(project.implementationState(uri)).toBe('deferred');
+    } finally { project.dispose(); }
   });
   it('ranks visible and namespace-near type completions deterministically', () => {
     workspace.update('file:///LocalService.php', '<?php namespace App\\Controller\\Admin; class RankedLocal {}');
@@ -5403,6 +7705,50 @@ use Attribute as Marker;
     expect(workspace.completeConstants(uri, constantOffset).find((item) => item.fqcn === 'Domain\\Config\\BLOCK_ONLY_KEY'))
       .toMatchObject({ name: 'BLOCK_ONLY_KEY', importFqcn: 'Domain\\Config\\BLOCK_ONLY_KEY' });
   });
+  it('resolves function and constant references within their own repeated namespace block', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      project.update('file:///ScopedGlobalSymbols.php', '<?php function sharedTarget(): string { return "global"; } const SHARED_TARGET = 1;');
+      project.update('file:///ScopedVendorSymbols.php', '<?php namespace Vendor; function sharedTarget(): string { return "vendor"; } const SHARED_TARGET = 2;');
+      const uri = 'file:///ScopedReferenceBlocks.php';
+      const source = '<?php namespace App { use function Vendor\\sharedTarget; use const Vendor\\SHARED_TARGET; '
+        + 'sharedTarget(); echo SHARED_TARGET; } namespace App { sharedTarget(); echo SHARED_TARGET; }';
+      project.update(uri, source);
+      const firstFunction = source.indexOf('sharedTarget();') + 2;
+      const secondFunction = source.lastIndexOf('sharedTarget();') + 2;
+      const firstConstant = source.indexOf('echo SHARED_TARGET;') + 'echo '.length + 2;
+      const secondConstant = source.lastIndexOf('echo SHARED_TARGET;') + 'echo '.length + 2;
+      expect(project.functionAt(uri, firstFunction)?.fqcn).toBe('Vendor\\sharedTarget');
+      expect(project.functionAt(uri, secondFunction)?.fqcn).toBe('sharedTarget');
+      expect(project.constantAt(uri, firstConstant)?.fqcn).toBe('Vendor\\SHARED_TARGET');
+      expect(project.constantAt(uri, secondConstant)?.fqcn).toBe('SHARED_TARGET');
+      expect(project.signatures(uri, source.indexOf('sharedTarget();') + 'sharedTarget('.length)[0]?.fqcn)
+        .toBe('Vendor\\sharedTarget');
+      expect(project.signatures(uri, source.lastIndexOf('sharedTarget();') + 'sharedTarget('.length)[0]?.fqcn)
+        .toBe('sharedTarget');
+      for (const [first, second] of [[firstFunction, secondFunction], [firstConstant, secondConstant]]) {
+        const firstUses = project.references(uri, first).filter((item) => item.uri === uri).map((item) => item.start);
+        const secondUses = project.references(uri, second).filter((item) => item.uri === uri).map((item) => item.start);
+        expect(firstUses).toContain(first - 2);
+        expect(firstUses).not.toContain(second - 2);
+        expect(secondUses).toContain(second - 2);
+        expect(secondUses).not.toContain(first - 2);
+      }
+      const withoutImport = source.replace('use function Vendor\\sharedTarget; use const Vendor\\SHARED_TARGET; ', '');
+      project.update(uri, withoutImport);
+      expect(project.functionAt(uri, withoutImport.indexOf('sharedTarget();') + 2)?.fqcn).toBe('sharedTarget');
+      expect(project.constantAt(uri, withoutImport.indexOf('SHARED_TARGET;') + 2)?.fqcn).toBe('SHARED_TARGET');
+      project.update('file:///ScopedLocalTool.php', '<?php namespace App\\T; function run(): void {} const FLAG = 1;');
+      project.update('file:///ScopedVendorTool.php', '<?php namespace Vendor\\Tool; function run(): void {} const FLAG = 2;');
+      const qualified = '<?php namespace App { use Vendor\\Tool as T; T\\run(); echo T\\FLAG; } '
+        + 'namespace App { T\\run(); echo T\\FLAG; }';
+      project.update(uri, qualified);
+      expect(project.functionAt(uri, qualified.indexOf('T\\run();') + 3)?.fqcn).toBe('Vendor\\Tool\\run');
+      expect(project.functionAt(uri, qualified.lastIndexOf('T\\run();') + 3)?.fqcn).toBe('App\\T\\run');
+      expect(project.constantAt(uri, qualified.indexOf('T\\FLAG;') + 3)?.fqcn).toBe('Vendor\\Tool\\FLAG');
+      expect(project.constantAt(uri, qualified.lastIndexOf('T\\FLAG;') + 3)?.fqcn).toBe('App\\T\\FLAG');
+    } finally { project.dispose(); }
+  });
   it('keeps function and constant suggestions in PHP code rather than comments or string text', () => {
     const project = new SemanticWorkspace(parser);
     const uri = 'file:///LiteralCallableNames.php';
@@ -5521,6 +7867,32 @@ function useNames(): void {
     ]);
     expect(candidates.map((item) => Boolean(item.importFqfn))).toEqual([false, false, false, true, true, true]);
   });
+  it('hides shadowed global functions and constants, including after unsaved edits', () => {
+    const project = new SemanticWorkspace(parser);
+    try {
+      project.update('file:///CollisionGlobal.php', '<?php function duplicateHelper(): void {} const DUPLICATE_KEY = 1;');
+      project.update('file:///CollisionVendor.php', '<?php namespace Vendor; function importedHelper(): void {} const IMPORTED_KEY = 2;');
+      const localUri = 'file:///CollisionLocal.php';
+      project.update(localUri, '<?php namespace Collision; function duplicateHelper(): void {} const DUPLICATE_KEY = 3;');
+      const uri = 'file:///CollisionConsumer.php';
+      const source = '<?php namespace Collision; $function = duplicateH; $constant = DUPLICATE_K;';
+      project.update(uri, source);
+      const functions = (): string[] => project.completeFunctions(uri, source.indexOf('duplicateH;') + 'duplicateH'.length).map((item) => item.fqcn);
+      const constants = (): string[] => project.completeConstants(uri, source.indexOf('DUPLICATE_K;') + 'DUPLICATE_K'.length).map((item) => item.fqcn);
+      expect(functions()).toEqual(['Collision\\duplicateHelper']);
+      expect(constants()).toEqual(['Collision\\DUPLICATE_KEY']);
+      project.update(localUri, '<?php namespace Collision;');
+      expect(functions()).toEqual(['duplicateHelper']);
+      expect(constants()).toEqual(['DUPLICATE_KEY']);
+      const imported = '<?php namespace Collision; use function Vendor\\importedHelper as duplicateHelper; '
+        + 'use const Vendor\\IMPORTED_KEY as DUPLICATE_KEY; $function = duplicateH; $constant = DUPLICATE_K;';
+      project.update(uri, imported);
+      expect(project.completeFunctions(uri, imported.indexOf('duplicateH;') + 'duplicateH'.length).map((item) => item.fqcn))
+        .toEqual(['Vendor\\importedHelper']);
+      expect(project.completeConstants(uri, imported.indexOf('DUPLICATE_K;') + 'DUPLICATE_K'.length).map((item) => item.fqcn))
+        .toEqual(['Vendor\\IMPORTED_KEY']);
+    } finally { project.dispose(); }
+  });
   it('offers types in parameter, return, property and catch positions while requiring a real attribute class', () => {
     workspace.update('file:///RemoteType.php', '<?php namespace Domain; class Invoice {} #[\\Attribute] class InvoiceAttribute {}');
     for (const fragment of ['function run(Inv', 'function run(): Inv', 'class C { public Inv']) {
@@ -5537,6 +7909,27 @@ function useNames(): void {
     const expression = '<?php namespace App; function run(): void { echo Inv';
     workspace.update('file:///NotAType.php', expression);
     expect(workspace.completeTypes('file:///NotAType.php', expression.length)).toEqual([]);
+  });
+  it('offers class types in anonymous closure parameters without treating call arguments as types', () => {
+    workspace.update('file:///ClosureParameterType.php', '<?php namespace Domain; class Invoice {}');
+    const positive = [
+      'function (Inv',
+      'static function (Inv',
+      'function &(Inv',
+      'function & (Inv',
+      'function (int $count, Inv',
+      'consume(function (Inv',
+    ];
+    for (const [index, fragment] of positive.entries()) {
+      const uri = `file:///ClosureParameter-${index}.php`;
+      const source = `<?php namespace App; $callback = ${fragment}`;
+      workspace.update(uri, source);
+      expect(workspace.completeTypes(uri, source.length).map((item) => item.fqcn), fragment)
+        .toContain('Domain\\Invoice');
+    }
+    const call = '<?php namespace App; consume(Inv';
+    workspace.update('file:///ClosureCallArgument.php', call);
+    expect(workspace.completeTypes('file:///ClosureCallArgument.php', call.length)).toEqual([]);
   });
   it('keeps catch completion to Throwable types when the hierarchy is known', () => {
     workspace.update('php-companion-builtin:/catch-types.php', '<?php interface Throwable {} class Exception implements Throwable {} class Error implements Throwable {}');
@@ -5588,6 +7981,7 @@ function useNames(): void {
       'class C { public string|Inv',
       'function run(Countable&Inv',
       'function run(): Countable&Inv',
+      '$callback = function (int $value) use ($captured): Inv',
     ];
     for (const [index, fragment] of fragments.entries()) {
       const uri = `file:///CompositeContext-${index}.php`;
@@ -5599,6 +7993,42 @@ function useNames(): void {
     const expression = '<?php namespace App; function run(): void { echo string|Inv';
     workspace.update('file:///CompositeExpression.php', expression);
     expect(workspace.completeTypes('file:///CompositeExpression.php', expression.length)).toEqual([]);
+  });
+  it('offers types while writing parenthesized DNF declarations', () => {
+    workspace.update('file:///DnfRemoteType.php', '<?php namespace Domain; class Invoice {}');
+    const fragments = [
+      'function run(): (Countable&Throwable)|Inv',
+      'function run((Countable&Throwable)|Inv',
+      'function run(): (Countable&Inv',
+      'function run((Countable&Inv',
+      '$callback = function (): (Countable&Throwable)|Inv',
+      '$callback = function (int $value) use ($captured): (Countable&Throwable)|Inv',
+      '$callback = fn (): (Countable&Throwable)|Inv',
+    ];
+    for (const [index, fragment] of fragments.entries()) {
+      const uri = `file:///DnfContext-${index}.php`;
+      const source = `<?php namespace App; ${fragment}`;
+      workspace.update(uri, source);
+      expect(workspace.completeTypes(uri, source.length).map((item) => item.name), fragment).toContain('Invoice');
+    }
+    const expression = '<?php namespace App; $bits = (Countable&Throwable)|Inv';
+    workspace.update('file:///DnfExpression.php', expression);
+    expect(workspace.completeTypes('file:///DnfExpression.php', expression.length)).toEqual([]);
+    const closureBody = '<?php namespace App; $callback = function () use ($captured) { return Inv';
+    workspace.update('file:///DnfClosureBody.php', closureBody);
+    expect(workspace.completeTypes('file:///DnfClosureBody.php', closureBody.length)).toEqual([]);
+    const ternary = '<?php namespace App; function run(): void { $value = $choose ? make() : (Countable&Throwable)|Inv';
+    workspace.update('file:///DnfTernary.php', ternary);
+    expect(workspace.completeTypes('file:///DnfTernary.php', ternary.length)).toEqual([]);
+    const arrowTernary = '<?php namespace App; $callback = fn (): int => $choose ? make() : (Countable&Throwable)|Inv';
+    workspace.update('file:///DnfArrowTernary.php', arrowTernary);
+    expect(workspace.completeTypes('file:///DnfArrowTernary.php', arrowTernary.length)).toEqual([]);
+    const plainTernary = '<?php namespace App; function run(): void { $value = $choose ? make() : Inv';
+    workspace.update('file:///PlainTernaryType.php', plainTernary);
+    expect(workspace.completeTypes('file:///PlainTernaryType.php', plainTernary.length)).toEqual([]);
+    const unionTernary = '<?php namespace App; function run(): void { $value = $choose ? make() : Countable|Inv';
+    workspace.update('file:///UnionTernaryType.php', unionTernary);
+    expect(workspace.completeTypes('file:///UnionTernaryType.php', unionTernary.length)).toEqual([]);
   });
   it('offers types after parameter attributes in constructor and controller declarations', () => {
     workspace.update('file:///AttributedRemoteType.php', '<?php namespace Domain; class Invoice {}');
@@ -6352,6 +8782,29 @@ function useNames(): void {
     expect(rename?.locations).toContainEqual({ uri: consumerUri, start: docOffset, end: docOffset + 'LogsActivity'.length });
     const invalidOffset = consumer.indexOf('invalid-type<LogsActivity>') + 'invalid-type<'.length;
     expect(rename?.locations).not.toContainEqual({ uri: consumerUri, start: invalidOffset, end: invalidOffset + 'LogsActivity'.length });
+  });
+  it('keeps builtin declarations out of move consumer edits and preserves their collision checks', () => {
+    const project = new SemanticWorkspace(parser);
+    const builtinUri = 'php-companion-builtin:///move.php';
+    const oldUri = 'file:///src/Runner.php'; const newUri = 'file:///src/Sub/Runner.php';
+    project.update(builtinUri, '<?php function runtimeUse(Runner $value): void {}', false);
+    project.update(oldUri, '<?php class Runner {}');
+    project.update('file:///src/Consumer.php', '<?php class Consumer { public const TYPE = Runner::class; }');
+    const parseTree = vi.spyOn(parser, 'parseTree');
+    try {
+      const move = project.planTypeMoves([{ oldUri, newUri, newNamespace: 'Sub' }]);
+      expect(move.error).toBeUndefined();
+      expect(move.plan?.edits).toContainEqual(expect.objectContaining({ uri: 'file:///src/Consumer.php', newText: '\\Sub\\Runner' }));
+      expect(move.plan?.touchedSourceUris).not.toContain(builtinUri);
+      expect(parseTree.mock.calls.some(([source]) => source.includes('function runtimeUse'))).toBe(false);
+      const reconcile = project.planTypeMoveReconciliation([{ newUri: oldUri, newNamespace: 'Sub',
+        declarations: [{ oldFqcn: 'Runner', newFqcn: 'Sub\\Runner' }] }]);
+      expect(reconcile.error).toBeUndefined();
+      expect(reconcile.plan?.touchedSourceUris).not.toContain(builtinUri);
+      expect(parseTree.mock.calls.some(([source]) => source.includes('function runtimeUse'))).toBe(false);
+      project.update(builtinUri, '<?php namespace Sub; class Runner {}', false);
+      expect(project.planTypeMoves([{ oldUri, newUri, newNamespace: 'Sub' }]).error).toContain('already exists');
+    } finally { parseTree.mockRestore(); }
   });
   it('plans atomic type moves with namespace, import and proven reference edits', () => {
     const declaration = '<?php namespace MoveType\\Legacy; class Runner { public static function make(): Runner { return new \\MoveType\\Legacy\\Runner(); } }';
@@ -7765,6 +10218,446 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
     expect(workspace.incompatibleArguments(uri).map((item) => [item.actualType, item.expectedType]))
       .toEqual([['int|string', 'string']]);
   });
+  it('propagates shorthand ternary results without retaining falsy branches', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('file:///ElvisDefinitions.php', `<?php namespace ElvisValues;
+      class Repository { public function onlyRepository(): void {} }
+      class Other { public function other(): void {} }
+      /** @return Repository|false|null */ function maybe() {}
+      function unknown() {} function acceptRepository(Repository $value): void {}
+      function acceptString(string $value): void {}`);
+    const uri = 'file:///ElvisUse.php';
+    const source = `<?php declare(strict_types=1); namespace ElvisValues;
+      function run(bool $flag, Repository $certain, ?Repository $nullable): void {
+        $value = maybe() ?: new Repository(); $value->only;
+        $definition = $nullable ?: new Repository(); $definition->onlyRepository();
+        $certainResult = $certain ?: unknown(); $certainResult->only;
+        $parenthesized = ((false)) ?: new Repository(); $parenthesized->only;
+        $zero = 0 ?: new Repository(); $zero->only;
+        $zeroFloat = -0.0 ?: new Repository(); $zeroFloat->only;
+        $empty = '' ?: new Repository(); $empty->only;
+        $zeroString = "0" ?: new Repository(); $zeroString->only;
+        $emptyArray = [] ?: new Repository(); $emptyArray->only;
+        $unknown = maybe() ?: unknown(); $unknown->only;
+        $ambiguous = $flag ?: new Repository(); $ambiguous->only;
+        $different = maybe() ?: new Other(); $different->only;
+        $chain = null ?: false ?: new Repository(); $chain->only;
+        acceptRepository($value); acceptRepository($zeroString);
+        acceptString(1 ?: unknown()); acceptString(true ?: unknown());
+      }`;
+    project.update(uri, source);
+    const offsets = [...source.matchAll(/->only;/g)].map((item) => item.index + '->only'.length);
+    expect(offsets.map((offset) => project.completeMembers(uri, offset).map((item) => item.name)))
+      .toEqual([...Array.from({ length: 8 }, () => ['onlyRepository']), [], [], [], ['onlyRepository']]);
+    expect(project.definition(uri, source.indexOf('$definition->onlyRepository') + '$definition->'.length + 2))
+      .toMatchObject([{ uri: 'file:///ElvisDefinitions.php' }]);
+    expect(project.incompatibleArguments(uri).map((item) => [item.actualType, item.expectedType]))
+      .toEqual([['int', 'string'], ['true', 'string']]);
+    project.update('file:///ElvisDefinitions.php', `<?php namespace ElvisValues;
+      class Repository { public function replacement(): void {} }
+      class Other { public function other(): void {} }
+      /** @return Repository|false|null */ function maybe() {}
+      function unknown() {} function acceptRepository(Repository $value): void {}
+      function acceptString(string $value): void {}`);
+    expect(project.completeMembers(uri, offsets[0]!).map((item) => item.name)).toEqual([]);
+    project.dispose();
+  });
+
+  it('keeps shorthand ternary uncertainty for internal objects and incomplete contracts', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:ElvisSpecial.php', '<?php class ElvisInternal { public function internalOnly(): void {} }');
+    const uri = 'file:///ElvisBoundaries.php';
+    const source = `<?php declare(strict_types=1);
+      class ElvisSafe { public function safeOnly(): void {} }
+      class ElvisDerived extends ElvisInternal {}
+      interface ElvisContract { public function contractOnly(): void; }
+      function unknownElvis() {}
+      function acceptElvisSafe(ElvisSafe $value): void {}
+      function acceptElvisInt(int $value): void {}
+      /**
+       * @param '0'|''|false|null $empty
+       * @param non-empty-array<string, int> $nonEmpty
+       */
+      function run(ElvisInternal $internal, ElvisDerived $derived, ElvisContract $contract, $empty, array $nonEmpty): void {
+        $first = $internal ?: unknownElvis(); $first->internal;
+        $second = $derived ?: unknownElvis(); $second->internal;
+        $third = $contract ?: unknownElvis(); $third->contract;
+        $safe = $empty ?: new ElvisSafe(); $safe->safe;
+        $nonEmptyResult = $nonEmpty ?: unknownElvis(); acceptElvisSafe($nonEmptyResult);
+        $zeroFloat = false ?: 0.0; acceptElvisInt($zeroFloat);
+        $truthyString = 'false' ?: unknownElvis(); acceptElvisSafe($truthyString);
+        $invalid = $empty ?: ; $invalid->safe;
+      }`;
+    project.update(uri, source);
+    const offsets = [...source.matchAll(/->(?:internal|contract|safe);/g)].map((item) => item.index + item[0].length - 1);
+    expect(offsets.map(offset => project.completeMembers(uri, offset).map(item => item.name)))
+      .toEqual([[], [], [], ['safeOnly'], []]);
+    // The unfinished statement must not manufacture a type. Query a complete
+    // independent source for precise scalar/array diagnostics.
+    const complete = source.replace('$invalid = $empty ?: ; $invalid->safe;', '');
+    project.update(uri, complete);
+    expect(project.incompatibleArguments(uri).map(item => item.actualType)).toEqual([
+      'non-empty-array<string, int>', 'float', "'false'",
+    ]);
+    project.dispose();
+  });
+
+  it('preserves local value proofs across independent literal constructor assignments', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///IndependentConstructor.php';
+    const definitions = `<?php declare(strict_types=1);
+      class LocalRepo { public function ready(): void {} }
+      class LocalOther {}
+      /** @return LocalRepo|false|null */ function localMaybe() {}
+      function localAccept(LocalRepo $value): void {}`;
+    for (const construction of ['new LocalRepo()', "new LocalRepo(1, label: 'fixed')", '[new LocalRepo()]']) {
+      const source = `${definitions}
+        function run(): void {
+          $value = localMaybe() ?: new LocalOther();
+          $independent = ${construction};
+          localAccept($value);
+        }`;
+      project.update(uri, source);
+      expect(project.variableValueAt(uri, source.lastIndexOf('$value);') + 2)?.type, construction)
+        .toBe('LocalOther|LocalRepo');
+      expect(project.incompatibleArguments(uri).map(item => item.actualType), construction)
+        .toEqual(['LocalOther|LocalRepo']);
+    }
+    const source = `${definitions} function run(): void {
+      $value = null ?: new LocalRepo(); $independent = new LocalOther(); $value->rea;
+    }`;
+    project.update(uri, source);
+    expect(project.completeMembers(uri, source.indexOf('->rea') + '->rea'.length).map(item => item.name))
+      .toEqual(['ready']);
+    project.dispose();
+  });
+
+  it('does not preserve constructor-crossing proofs when a local can escape or arguments can execute code', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///UnsafeConstructor.php';
+    const definitions = `<?php declare(strict_types=1);
+      class LocalRepo {} class LocalOther {}
+      function localAccept(LocalRepo $value): void {} function localUnknown() {}`;
+    const body = (statement: string): string => `$value = null ?: new LocalOther(); ${statement} localAccept($value);`;
+    const cases = [
+      `function run(&$value): void { ${body('$other = new LocalRepo();')} }`,
+      `$value = null; $run = function () use (&$value): void { ${body('$other = new LocalRepo();')} };`,
+      `function run(): void { global $value; ${body('$other = new LocalRepo();')} }`,
+      `function run(): void { $alias =& $value; ${body('$other = new LocalRepo();')} }`,
+      `function run(): void { extract($GLOBALS, EXTR_REFS); ${body('$other = new LocalRepo();')} }`,
+      `use function extract as localExtract; function run(): void { localExtract($GLOBALS, EXTR_REFS); ${body('$other = new LocalRepo();')} }`,
+      `function run(): void { static $value; ${body('$other = new LocalRepo();')} }`,
+      body('$other = new LocalRepo();'),
+      `function run(): void { ${body('$other = new LocalRepo(localUnknown());')} }`,
+      `function run($argument): void { ${body('$other = new LocalRepo($argument);')} }`,
+      `function run($class): void { ${body('$other = new $class();')} }`,
+      `function run(): void { ${body('$other = new LocalRepo("{$value}");')} }`,
+      `function run(): void { ${body('missingLocal();')} }`,
+    ];
+    for (const fragment of cases) {
+      const source = `${definitions} ${fragment}`;
+      project.update(uri, source);
+      expect(project.variableValueAt(uri, source.lastIndexOf('$value);') + 2), fragment).toBeUndefined();
+      expect(project.incompatibleArguments(uri), fragment).toEqual([]);
+    }
+    project.dispose();
+  });
+
+  it('preserves local types across proven value-parameter calls and retracts them after a reference change', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///ValueCallUse.php'; const definitionsUri = 'file:///ValueCallDefinitions.php';
+    const definitions = `<?php namespace ValueCalls;
+      class Repo { public function ready(): void {} } class Other {}
+      /** @return Repo|false|null */ function maybe() {}
+      function observe($value, $label = 'fixed') {} function collect(...$values) {}
+      function accept(Repo $value): void {}`;
+    project.update(definitionsUri, definitions);
+    for (const call of ['observe($value)', "$other = observe($value, 'fixed')", "observe(label: 'fixed', value: $value)", 'collect($value, 1)']) {
+      const source = `<?php namespace ValueCalls; function run(): void {
+        $value = maybe() ?: new Other(); ${call}; accept($value);
+      }`;
+      project.update(uri, source);
+      expect(project.variableValueAt(uri, source.lastIndexOf('$value);') + 2)?.type, call).toBe('ValueCalls\\Other|ValueCalls\\Repo');
+      expect(project.incompatibleArguments(uri).map(item => item.actualType), call).toEqual(['ValueCalls\\Other|ValueCalls\\Repo']);
+    }
+    const source = `<?php namespace ValueCalls; function run(): void {
+      $value = null ?: new Repo(); observe($value); $value->rea;
+    }`;
+    project.update(uri, source);
+    const offset = source.indexOf('->rea') + '->rea'.length;
+    expect(project.completeMembers(uri, offset).map(item => item.name)).toEqual(['ready']);
+    project.update(definitionsUri, definitions.replace('function observe($value', 'function observe(&$value'));
+    expect(project.variableValueAt(uri, source.lastIndexOf('$value->') + 2)).toBeUndefined();
+    expect(project.completeMembers(uri, offset).map(item => item.name)).toEqual([]);
+    project.update(definitionsUri, definitions);
+    expect(project.completeMembers(uri, offset).map(item => item.name)).toEqual(['ready']);
+    project.update('file:///DuplicateValueCall.php', '<?php namespace ValueCalls; function observe($value) {}');
+    expect(project.completeMembers(uri, offset).map(item => item.name)).toEqual([]);
+    project.remove('file:///DuplicateValueCall.php');
+    expect(project.completeMembers(uri, offset).map(item => item.name)).toEqual(['ready']);
+    project.dispose();
+  });
+
+  it('preserves unescaped local types across methods with proven value parameters', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///MethodValueUse.php'; const ownerUri = 'file:///MethodValueOwner.php';
+    const definitions = `<?php class MethodValueRepo { public function ready(): void {} } class MethodValueOther {}
+      final class MethodValueObserver { public function observe($value, $label = 'ok'): void {} public static function collect(...$values): void {} }
+      class MethodValueFixed { final public function observe($value): void {} }
+      function methodValueAccept(MethodValueRepo $value): void {}`;
+    project.update(ownerUri, definitions);
+    for (const call of ['$observer->observe($value)', '$other = $observer->observe($value)',
+      '$observer->observe(label: "ok", value: $value)', '$observer?->observe($value)', 'MethodValueObserver::collect($value, 1)', '$fixed->observe($value)']) {
+      const source = `<?php function run(MethodValueObserver $observer, MethodValueFixed $fixed): void {
+        $value = null ?: new MethodValueRepo(); ${call}; $value->rea;
+      }`; project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('->rea') + '->rea'.length).map(item => item.name), call).toEqual(['ready']);
+    }
+    const privateSource = `<?php class MethodValuePrivate {
+      private function observe($value): void {}
+      public function run(): void { $value = null ?: new MethodValueRepo(); $this->observe($value); $value->rea; }
+    }`;
+    project.update(uri, privateSource);
+    expect(project.completeMembers(uri, privateSource.indexOf('->rea') + '->rea'.length).map(item => item.name)).toEqual(['ready']);
+    const source = '<?php function run(MethodValueObserver $observer): void { $value = null ?: new MethodValueRepo(); $observer->observe($value); $value->rea; }';
+    const cursor = source.indexOf('->rea') + '->rea'.length; project.update(uri, source);
+    project.update(ownerUri, definitions.replace('function observe($value', 'function observe(&$value'));
+    expect(project.completeMembers(uri, cursor)).toEqual([]);
+    project.update(ownerUri, definitions); expect(project.completeMembers(uri, cursor).map(item => item.name)).toEqual(['ready']);
+    project.update(ownerUri, definitions.replace('final class MethodValueObserver', 'class MethodValueObserver'));
+    expect(project.completeMembers(uri, cursor)).toEqual([]);
+    project.update(ownerUri, definitions);
+    for (const call of ['$observer->$method($value)', '$observer->missing($value)',
+      '$observer->observe(...$args)', '$observer->observe($value = null)',
+      '$alias =& $value; $observer->observe($value)', '$observer->observe($value); $observer->observe($value = null)']) {
+      const negative = `<?php function run(MethodValueObserver $observer, $method, $args): void {
+        $value = null ?: new MethodValueRepo(); ${call}; $value->rea;
+      }`; project.update(uri, negative);
+      expect(project.completeMembers(uri, negative.indexOf('->rea') + '->rea'.length), call).toEqual([]);
+    }
+    const diagnostic = `<?php function run(MethodValueObserver $observer): void {
+      $value = null ?: new MethodValueRepo(); $observer->observe($value); methodValueWrong($value);
+    }`;
+    project.update(ownerUri, definitions + ' function methodValueWrong(MethodValueOther $value): void {}');
+    project.update(uri, diagnostic);
+    expect(project.incompatibleArguments(uri).map(item => item.actualType)).toEqual(['MethodValueRepo']);
+    project.dispose();
+  });
+
+  it('proves value method dispatch from exact local construction without trusting declared base types', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///ExactMethodUse.php'; const ownerUri = 'file:///ExactMethodOwner.php';
+    const definitions = `<?php class ExactRepo { public function ready(): void {} }
+      class ExactObserver { public function observe($value): void {} }
+      class ExactChild extends ExactObserver {}
+      function exactFactory(): ExactObserver { return new ExactObserver(); }
+      function escapeExact(&$observer): void {}`;
+    project.update(ownerUri, definitions);
+    const check = (setup: string, expected: string[], parameter = '', call = '$observer->observe($value)'): void => {
+      const source = `<?php function run(${parameter}): void { ${setup}
+        $value = null ?: new ExactRepo(); ${call}; $value->rea;
+      }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('->rea') + 5).map(item => item.name), setup).toEqual(expected);
+    };
+    check('$observer = new ExactObserver();', ['ready']);
+    check('$observer = new ExactObserver(); $unrelated = 1;', ['ready']);
+    check('$observer = new ExactChild();', ['ready']);
+    check('$observer = new ExactObserver();', ['ready'], '', '$observer?->observe($value)');
+    check('$observer = new ExactObserver();', ['ready'], '', '$observer->observe($value); $observer->observe($value)');
+    check('', [], 'ExactObserver $observer');
+    check('$observer = exactFactory();', []);
+    check('if ($condition) { $observer = new ExactObserver(); }', [], '$condition');
+    check('$observer = new ExactObserver(); escapeExact($observer);', []);
+    check('$observer = new ExactObserver(); $alias =& $observer;', []);
+    check('$observer = new ExactObserver(); $observer = exactFactory();', []);
+    check('$observer = new static();', []);
+    check('$observer = new ExactObserver();', [], '', '$observer->observe($value = null)');
+    check('$observer = new ExactObserver();', [], '', '$alias =& $value; $observer->observe($value)');
+    const lateStatic = `<?php class ExactLateStatic extends ExactObserver {
+      public function run(): void { $observer = new static(); $value = null ?: new ExactRepo(); $observer->observe($value); $value->rea; }
+    }`;
+    project.update(uri, lateStatic);
+    expect(project.completeMembers(uri, lateStatic.indexOf('->rea') + 5)).toEqual([]);
+    check('$observer = new ExactObserver();', ['ready']);
+    project.update(ownerUri, definitions.replace('observe($value)', 'observe(&$value)'));
+    check('$observer = new ExactObserver();', []);
+    project.update(ownerUri, definitions);
+    check('$observer = new ExactObserver();', ['ready']);
+    project.dispose();
+  });
+
+  it('preserves local types across value calls with arrays while rejecting element reference and evaluation effects', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///ArrayValueUse.php'; const ownerUri = 'file:///ArrayValueOwner.php';
+    const definitions = `<?php class ArrayValueRepo { public function ready(): void {} }
+      class ArrayValueObserver { public function observe($value, $options): void {} }
+      function arrayValueObserve($value, $options): void {}
+      function arrayValueContainer($options): void {}`;
+    project.update(ownerUri, definitions);
+    const check = (call: string, expected: string[]): void => {
+      const source = `<?php function run($other, $key, $args): void { $observer = new ArrayValueObserver();
+        $value = null ?: new ArrayValueRepo(); ${call}; $value->rea;
+      }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('->rea') + 5).map(item => item.name), call).toEqual(expected);
+    };
+    for (const call of [
+      'arrayValueObserve($value, [])', 'arrayValueObserve($value, ["limit" => 10, "flags" => [true, false]])',
+      'arrayValueObserve($value, array("limit" => 10))', '$observer->observe($value, ["limit" => 10])',
+      'arrayValueObserve(options: ["limit" => 10], value: $value)', 'arrayValueContainer(["payload" => $value])',
+      'arrayValueObserve($value, [$key => $other, /* comment */ "enabled" => true])',
+    ]) check(call, ['ready']);
+    for (const call of [
+      'arrayValueObserve($value, [&$value])', 'arrayValueObserve($value, ["ref" => &$value])',
+      'arrayValueObserve($value, [[&$value]])', 'arrayValueObserve($value, [...$args])',
+      'arrayValueObserve($value, [$value = null])', 'arrayValueObserve($value, [missing($value)])',
+      'arrayValueObserve($value, ["{$other}"])', 'arrayValueObserve($value, [$other->options])',
+      `arrayValueObserve($value, ${'['.repeat(17)}1${']'.repeat(17)})`,
+      `arrayValueObserve($value, [${Array.from({ length: 257 }, () => '1').join(',')}])`,
+    ]) check(call, []);
+    project.update(ownerUri, definitions.replace('arrayValueObserve($value', 'arrayValueObserve(&$value'));
+    check('arrayValueObserve($value, ["limit" => 10])', []);
+    project.update(ownerUri, definitions);
+    check('arrayValueObserve($value, ["limit" => 10])', ['ready']);
+    project.dispose();
+  });
+
+  it('retains local types through value calls with constants and side-effect-free expression syntax', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///ExpressionValueUse.php'; const ownerUri = 'file:///ExpressionValueOwner.php';
+    const definitions = `<?php namespace { const EXPRESSION_FLAG = 1;
+      class ExpressionRepo { public function ready(): void {} }
+      class ExpressionFlags { const FAST = 1; const SAFE = 2; }
+      enum ExpressionMode { case Ready; }
+      class ExpressionObserver { public function observe($value, $options): void {} }
+      function expressionObserve($value, $options): void {}
+    } namespace ExpressionNamed { const FLAG = 1; class Flags { const FAST = 1; } }`;
+    project.update(ownerUri, definitions);
+    const check = (expression: string, expected: string[], method = false): void => {
+      const source = `<?php use const ExpressionNamed\\FLAG as FlagAlias; use ExpressionNamed\\Flags as FlagsAlias;
+        function run($other, $condition, $type): void { $observer = new ExpressionObserver();
+          $value = null ?: new ExpressionRepo(); ${method ? '$observer->observe' : 'expressionObserve'}($value, ${expression}); $value->rea;
+        }`;
+      project.update(uri, source);
+      expect(project.completeMembers(uri, source.indexOf('->rea') + 5).map(item => item.name), expression).toEqual(expected);
+    };
+    for (const expression of ['EXPRESSION_FLAG', '\\EXPRESSION_FLAG', 'ExpressionNamed\\FLAG', 'namespace\\EXPRESSION_FLAG',
+      'FlagAlias', 'ExpressionFlags::FAST', 'FlagsAlias::FAST', 'ExpressionMode::Ready', 'ExpressionRepo::class',
+      'ExpressionFlags::FAST | ExpressionFlags::SAFE', '($other + 1) * 2', '!$condition', '~EXPRESSION_FLAG',
+      '$condition ? ExpressionFlags::FAST : ExpressionFlags::SAFE', '$other ?? EXPRESSION_FLAG',
+      '$other ?: EXPRESSION_FLAG', '[ExpressionFlags::FAST => FlagAlias, "mode" => ExpressionMode::Ready]',
+    ]) { check(expression, ['ready']); check(expression, ['ready'], true); }
+    for (const expression of ['missing($value)', '$value = null', '($value = null)', '++$other', '$other++',
+      '(missing($value))::FAST', '($value = null)::FAST', '$type::FAST', '$condition ? missing($value) : 1',
+      'EXPRESSION_FLAG | missing($value)', '$other->flags', '[$value = null]', '[&$value]',
+    ]) check(expression, []);
+    project.update(ownerUri, definitions.replace('expressionObserve($value', 'expressionObserve(&$value'));
+    check('ExpressionFlags::FAST | ExpressionFlags::SAFE', []);
+    project.update(ownerUri, definitions); check('ExpressionFlags::FAST | ExpressionFlags::SAFE', ['ready']);
+    project.dispose();
+  });
+
+  it('rejects call-crossing proofs for aliases, dynamic arguments and reference escapes', () => {
+    const project = new SemanticWorkspace(parser);
+    project.update('php-companion-builtin:ValueCallDynamic.php', '<?php function extract($array, $flags = 0) {} function parse_str($text) {} function assert($assertion) {}');
+    const uri = 'file:///UnsafeValueCall.php';
+    const definitions = `<?php declare(strict_types=1);
+      class ValueRepo {} class ValueOther {}
+      function observe($value) {} function retain(&$value) {} function collect(&...$values) {}
+      function accept(ValueRepo $value): void {}`;
+    const body = (call: string): string => `$value = null ?: new ValueOther(); ${call}; accept($value);`;
+    for (const fragment of [
+      `function run(&$value): void { ${body('observe($value)')} }`,
+      `$value = null; $run = function () use (&$value): void { ${body('observe($value)')} };`,
+      `function run(): void { global $value; ${body('observe($value)')} }`,
+      `function run(): void { $alias =& $value; ${body('observe($value)')} }`,
+      `function run(): void { ${body('retain($value)')} }`,
+      `function run(): void { ${body('collect($value)')} }`,
+      `function run(): void { ${body('missing($value)')} }`,
+      `function run($callback): void { ${body('$callback($value)')} }`,
+      `function run($args): void { ${body('observe(...$args)')} }`,
+      `function run(): void { ${body('observe(retain($value))')} }`,
+      `function run(): void { ${body('observe($value = null)')} }`,
+      `function run(): void { ${body('observe(function () use (&$value) {})')} }`,
+      `function run(): void { ${body('retain($value); $other = new ValueRepo()')} }`,
+      `function run(): void { ${body('extract($GLOBALS)')} }`,
+      `function run($text): void { ${body('parse_str($text)')} }`,
+      `function run($text): void { ${body('assert($text)')} }`,
+      `use function extract as importValues; function run(): void { ${body('importValues($GLOBALS)')} }`,
+      body('observe($value)'),
+    ]) {
+      const source = `${definitions} ${fragment}`; project.update(uri, source);
+      expect(project.variableValueAt(uri, source.lastIndexOf('$value);') + 2), fragment).toBeUndefined();
+      expect(project.incompatibleArguments(uri), fragment).toEqual([]);
+    }
+    project.dispose();
+  });
+
+  it('rejects stale local types after binding a function or method reference return', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///ReferenceReturnEscape.php';
+    const definitions = `<?php namespace RefReturns;
+      class Repo { public function ready(): void {} } class Other {}
+      class Holder { public static $stored;
+        public static function &staticSlot() { return self::$stored; }
+        public function &instanceSlot() { return self::$stored; }
+      }
+      function &slot() { return Holder::$stored; }
+      function observe($value) { Holder::$stored = new Other(); }
+      class Effect { function __construct() { Holder::$stored = new Other(); } }
+      function acceptOther(Other $value): void {}`;
+    for (const binding of ['$value =&slot()', '$value = /* binding */ & /* return */ slot()', '$value = & \\RefReturns\\slot()',
+      '$value =&Holder::staticSlot()', '$value =&$holder->instanceSlot()']) {
+      for (const intervening of ['observe($value)', '$independent = new Effect()', '$independent = [new Effect()]']) {
+        const source = `${definitions} function run(Holder $holder): void {
+          ${binding}; $value = new Repo(); ${intervening}; acceptOther($value); $value->ready();
+        }`;
+        project.update(uri, source);
+        expect(project.variableValueAt(uri, source.lastIndexOf('$value->') + 2), `${binding}; ${intervening}`).toBeUndefined();
+        expect(project.completeMembers(uri, source.lastIndexOf('$value->rea') + '$value->rea'.length), binding).toEqual([]);
+        expect(project.incompatibleArguments(uri), binding).toEqual([]);
+      }
+    }
+    const copied = `${definitions} function run(): void {
+      $value = slot(); $value = new Repo(); observe($value); acceptOther($value);
+    }`;
+    project.update(uri, copied);
+    expect(project.variableValueAt(uri, copied.lastIndexOf('$value);') + 2)?.type).toBe('RefReturns\\Repo');
+    expect(project.incompatibleArguments(uri).map(item => item.actualType)).toEqual(['RefReturns\\Repo']);
+    const alias = copied.replace('$value = slot()', '$value =&slot()'); project.update(uri, alias);
+    expect(project.variableValueAt(uri, alias.lastIndexOf('$value);') + 2)).toBeUndefined();
+    expect(project.incompatibleArguments(uri)).toEqual([]);
+    project.update(uri, copied);
+    expect(project.variableValueAt(uri, copied.lastIndexOf('$value);') + 2)?.type).toBe('RefReturns\\Repo');
+    project.dispose();
+  });
+
+  it('retracts direct class assignments after possible reference calls while keeping value calls', () => {
+    const project = new SemanticWorkspace(parser); const uri = 'file:///DirectReferenceCall.php';
+    const definitions = `<?php namespace DirectReference;
+      class Repo { public function ready(): void {} } class Other {}
+      function change(&$value) { $value = new Other(); }
+      function collect(&...$values) {} function observe($value) {}
+      function acceptOther(Other $value): void {}`;
+    for (const call of ['change($value)', 'change(value: $value)', 'collect($value)', 'missing($value)', '$callback($value)']) {
+      const source = `${definitions} function run($callback): void {
+        $value = new Repo(); ${call}; acceptOther($value); $value->ready();
+      }`;
+      project.update(uri, source);
+      expect(project.variableValueAt(uri, source.lastIndexOf('$value->') + 2), call).toBeUndefined();
+      expect(project.completeMembers(uri, source.lastIndexOf('$value->rea') + '$value->rea'.length), call).toEqual([]);
+      expect(project.incompatibleArguments(uri), call).toEqual([]);
+    }
+    const source = `${definitions} function run(): void {
+      $value = new Repo(); observe($value); acceptOther($value); $value->ready();
+    }`;
+    project.update(uri, source);
+    expect(project.completeMembers(uri, source.lastIndexOf('$value->rea') + '$value->rea'.length).map(item => item.name)).toEqual(['ready']);
+    expect(project.incompatibleArguments(uri).map(item => item.actualType)).toEqual(['DirectReference\\Repo']);
+    project.update(uri, source.replace('observe($value); acceptOther', 'change($value); $value = new Repo(); acceptOther'));
+    expect(project.incompatibleArguments(uri).map(item => item.actualType)).toEqual(['DirectReference\\Repo']);
+    project.update(uri, source.replace('observe($value); acceptOther', 'change($value); $value = new Repo(); observe($value); acceptOther'));
+    expect(project.incompatibleArguments(uri)).toEqual([]);
+    project.dispose();
+  });
+
   it('merges every proven arm of a default-complete match expression', () => {
     workspace.update('file:///MatchValueDefinitions.php', `<?php namespace MatchValues;
       class SharedResult { public function shared(): void {} }
@@ -8032,7 +10925,7 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
     expect(workspace.incompatibleArguments('file:///VarianceUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['GenericVariance\\Box<GenericVariance\\ChildType>', 'GenericVariance\\Box<GenericVariance\\ParentType>'],
     ]);
-    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 82, declaration: { templates: expect.arrayContaining([
+    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 83, declaration: { templates: expect.arrayContaining([
       { ownerFqcn: 'GenericVariance\\Producer', name: 'T', variance: 'covariant' },
       { ownerFqcn: 'GenericVariance\\Consumer', name: 'T', variance: 'contravariant' },
       { ownerFqcn: 'GenericVariance\\Box', name: 'T', variance: 'invariant' },
@@ -8473,7 +11366,7 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
       expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf(marker) + marker.indexOf('(') + 1), marker).toEqual([]);
     }
     const snapshot = workspace.snapshot('file:///CallableArrayContracts.php')!;
-    expect(snapshot.schema).toBe(82);
+    expect(snapshot.schema).toBe(83);
     workspace.remove('file:///CallableArrayContracts.php');
     expect(workspace.restoreDeclaration(snapshot, 'file:///CallableArrayContracts.php')).toBe(true);
     expect(workspace.signatures('file:///CallableArrayContracts.php', source.indexOf('$callback(value:') + '$callback('.length)).toMatchObject([
@@ -9519,7 +12412,7 @@ function run(A $value): void { zeta($value, FLAG); }
 `;
     workspace.update('file:///OrganizeImports.php', source);
     expect(workspace.unusedImports('file:///OrganizeImports.php').map((item) => item.name)).toEqual(['Unused']);
-    expect(workspace.organizeImports('file:///OrganizeImports.php')).toMatchObject({ removed: ['Unused'], newText: `use Vendor\\Alpha as A;
+    expect(workspace.organizeImports('file:///OrganizeImports.php')?.[0]).toMatchObject({ removed: ['Unused'], newText: `use Vendor\\Alpha as A;
 use function Vendor\\zeta;
 use const Vendor\\FLAG;
 ` });
@@ -9533,7 +12426,7 @@ use const Vendor\\MIDDLE;
 function sorted(Zed $value): void { AlphaFn($value); echo MIDDLE; }
 `;
     workspace.update('file:///FqcnImports.php', fqcnSource);
-    expect(workspace.organizeImports('file:///FqcnImports.php', 'fqcn')?.newText).toBe(`use function Vendor\\AlphaFn;
+    expect(workspace.organizeImports('file:///FqcnImports.php', 'fqcn')?.[0]?.newText).toBe(`use function Vendor\\AlphaFn;
 use const Vendor\\MIDDLE;
 use Vendor\\Zed;
 `);
@@ -9544,7 +12437,7 @@ use Vendor\\{Unused, Zeta as Z, function beta, function alpha, const ZED, const 
 function run(Z $value): void { alpha($value); echo ACTIVE; }
 `;
     workspace.update('file:///GroupImports.php', source);
-    expect(workspace.organizeImports('file:///GroupImports.php')).toMatchObject({
+    expect(workspace.organizeImports('file:///GroupImports.php')?.[0]).toMatchObject({
       removed: ['Unused', 'beta', 'ZED'],
       newText: `use Vendor\\Zeta as Z;
 use function Vendor\\alpha;
@@ -9554,6 +12447,43 @@ use const Vendor\\ACTIVE;
     const commented = source.replace('Unused,', 'Unused, /* retain rationale */');
     workspace.update('file:///CommentedGroupImports.php', commented);
     expect(workspace.organizeImports('file:///CommentedGroupImports.php')).toBeUndefined();
+  });
+  it('organizes independent namespace import blocks without borrowing usage from another block', () => {
+    const uri = 'file:///MultipleImportBlocks.php';
+    const source = `<?php
+namespace First {
+    use Vendor\\Zed as Z;
+    use Vendor\\Unused as Shared;
+    use Vendor\\First as FirstType;
+    function first(FirstType $value, Z $other): void {}
+}
+namespace Second {
+    use Vendor\\Second as Shared;
+    use Vendor\\UnusedTwo;
+    function second(Shared $value): void {}
+}`;
+    try {
+      workspace.update(uri, source, true);
+      expect(workspace.unusedImports(uri).map((item) => item.name)).toEqual(['Shared', 'UnusedTwo']);
+      const edits = workspace.organizeImports(uri);
+      expect(edits).toHaveLength(2);
+      if (!edits) throw new Error('Missing namespace import edits.');
+      expect(edits.map((item) => item.removed)).toEqual([['Shared'], ['UnusedTwo']]);
+      let updated = source;
+      for (const edit of [...edits].sort((left, right) => right.start - left.start)) {
+        updated = updated.slice(0, edit.start) + edit.newText + updated.slice(edit.end);
+      }
+      expect(updated).toContain('namespace First {\n    use Vendor\\First as FirstType;\n    use Vendor\\Zed as Z;\n');
+      expect(updated).toContain('namespace Second {\n    use Vendor\\Second as Shared;\n');
+      expect(updated).not.toContain('Vendor\\Unused');
+      const repeated = source.replace('namespace Second {', 'namespace First {');
+      workspace.update(uri, repeated, false);
+      expect(workspace.unusedImports(uri).map((item) => item.name)).toEqual(['Shared', 'UnusedTwo']);
+      expect(workspace.organizeImports(uri)).toHaveLength(2);
+      const commented = source.replace('use Vendor\\Unused as Shared;', 'use Vendor\\Unused as Shared; // keep explanation');
+      workspace.update(uri, commented, true);
+      expect(workspace.organizeImports(uri)).toBeUndefined();
+    } finally { workspace.remove(uri); }
   });
   it('refuses local rename across closure capture, promoted properties, globals and superglobals', () => {
     const source = `<?php class C { function __construct(private string $name) {} function run($value): void { $fn = function () use ($value) { echo $value; }; global $shared; echo $shared; echo $_GET; } }`;
@@ -9722,7 +12652,7 @@ use const Vendor\\ACTIVE;
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.indexOf('wr;') + 2)).toEqual([]);
     expect(workspace.completeMembers('file:///InheritedGenericUse.php', source.lastIndexOf('na;') + 2).map((item) => item.name)).toEqual(['name']);
     const snapshot = workspace.snapshot(typesUri);
-    expect(snapshot).toMatchObject({ schema: 82, declaration: { genericParents: expect.arrayContaining([
+    expect(snapshot).toMatchObject({ schema: 83, declaration: { genericParents: expect.arrayContaining([
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserRepository', parentName: 'Repository', arguments: ['User'] }),
       expect.objectContaining({ ownerFqcn: 'InheritedGenerics\\UserProvider', kind: 'implements', arguments: ['User'] }),
     ]) } });
@@ -10368,7 +13298,9 @@ use const Vendor\\ACTIVE;
     expect(workspace.extractInterface(uri, orphan.indexOf('Orphan') + 1)).toBeUndefined();
     const lateType = '<?php namespace App; class Late { public function make(): static { return $this; } }';
     workspace.update(uri, lateType, true);
-    expect(workspace.extractInterface(uri, lateType.indexOf('Late') + 1)).toBeUndefined();
+    expect(workspace.extractInterface(uri, lateType.indexOf('Late') + 1)?.interfaceSource)
+      .toContain('public function make(): static;');
+    expect(workspace.extractInterface(uri, lateType.indexOf('Late') + 1, '7.2')).toBeUndefined();
     const imported = '<?php namespace App; use Vendor\\Item; class Imported { public function make(Item $item): void {} }';
     workspace.update(uri, imported, true);
     expect(workspace.extractInterface(uri, imported.indexOf('Imported') + 1)?.interfaceSource)
@@ -10396,7 +13328,32 @@ use const Vendor\\ACTIVE;
     workspace.remove('file:///src/InheritedInterface.php');
     workspace.remove(uri);
   });
-  it('plans inline-variable for immediate whole values or leftmost safe expressions', () => {
+  it('preserves late-bound static returns when extracting fluent interfaces and rejects other static contexts', () => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///src/Builder.php';
+    const source = `<?php namespace App;
+      abstract class Builder {
+        public function with(self $other, string $label = 'static'): static { return $this; }
+        abstract public function optional(): ?static;
+        public static function create(): static { return new static(); }
+        public function maybe(): static|false { return $this; }
+      }`;
+    project.update(uri, source, true);
+    const result = project.extractInterface(uri, source.indexOf('Builder') + 1, '8.0');
+    expect(result?.interfaceSource).toContain("public function with(\\App\\Builder $other, string $label = 'static'): static;");
+    expect(result?.interfaceSource).toContain('public function optional(): ?static;');
+    expect(result?.interfaceSource).toContain('public static function create(): static;');
+    expect(result?.interfaceSource).toContain('public function maybe(): static|false;');
+    expect(project.extractInterface(uri, source.indexOf('Builder') + 1, '7.4')).toBeUndefined();
+    expect(project.extractInterface(uri, source.indexOf('Builder') + 1, 'auto')).toBeUndefined();
+    for (const header of ['public function invalid(static $value): void',
+      'public function invalid($value = static::VALUE): void', 'public function invalid(): static&\\Countable']) {
+      const invalid = `<?php class Builder { public const VALUE = 1; ${header} {} }`;
+      project.update(uri, invalid, true);
+      expect(project.extractInterface(uri, invalid.indexOf('Builder') + 1, '8.5'), header).toBeUndefined();
+    }
+  });
+  it('plans inline-variable for immediate whole values or safe literal-adjacent expressions', () => {
     const uri = 'file:///InlineVariable.php';
     const source = `<?php function direct(): object {
       $temporary = buildObject();
@@ -10446,6 +13403,27 @@ use const Vendor\\ACTIVE;
     function precedence(): int {
       $sum = 1 + 2;
       return $sum * 3;
+    }
+    function literalBeforeUse(): int {
+      $right = 1 + 2;
+      return 3 * $right;
+    }
+    function literalBeforeAssignedUse(): int {
+      $rightAssigned = 4 + 5;
+      $result = 2 * $rightAssigned;
+      return $result;
+    }
+    function parenthesizedNegativeBeforeUse(): int {
+      $negativeRight = 8 + 9;
+      return (-3) * $negativeRight;
+    }
+    function variableBeforeUse(int $factor): int {
+      $variableRight = 8 + 9;
+      return $factor * $variableRight;
+    }
+    function conditionalRight(): bool {
+      $conditional = sideEffect();
+      return false && $conditional;
     }
     function laterOperand(): int {
       $later = sideEffect();
@@ -10504,6 +13482,20 @@ use const Vendor\\ACTIVE;
     expect(precedence).toMatchObject({ variable: 'sum', expression: '(1 + 2)' });
     expect(source.slice(0, precedence!.declarationStart) + source.slice(precedence!.declarationEnd, precedence!.useStart)
       + precedence!.expression + source.slice(precedence!.useEnd)).toContain('return (1 + 2) * 3;');
+    const right = workspace.inlineVariable(uri, source.indexOf('$right =') + 2);
+    expect(right).toMatchObject({ variable: 'right', expression: '(1 + 2)' });
+    expect(source.slice(0, right!.declarationStart) + source.slice(right!.declarationEnd, right!.useStart)
+      + right!.expression + source.slice(right!.useEnd)).toContain('return 3 * (1 + 2);');
+    const rightAssigned = workspace.inlineVariable(uri, source.indexOf('$rightAssigned =') + 2);
+    expect(rightAssigned).toMatchObject({ variable: 'rightAssigned', expression: '(4 + 5)' });
+    expect(source.slice(0, rightAssigned!.declarationStart) + source.slice(rightAssigned!.declarationEnd, rightAssigned!.useStart)
+      + rightAssigned!.expression + source.slice(rightAssigned!.useEnd)).toContain('$result = 2 * (4 + 5);');
+    const negativeRight = workspace.inlineVariable(uri, source.indexOf('$negativeRight =') + 2);
+    expect(negativeRight).toMatchObject({ variable: 'negativeRight', expression: '(8 + 9)' });
+    expect(source.slice(0, negativeRight!.declarationStart) + source.slice(negativeRight!.declarationEnd, negativeRight!.useStart)
+      + negativeRight!.expression + source.slice(negativeRight!.useEnd)).toContain('return (-3) * (8 + 9);');
+    expect(workspace.inlineVariable(uri, source.indexOf('$variableRight =') + 2)).toBeUndefined();
+    expect(workspace.inlineVariable(uri, source.indexOf('$conditional =') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.indexOf('$later') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.indexOf('$early') + 2)).toBeUndefined();
     expect(workspace.inlineVariable(uri, source.indexOf('$value') + 2)).toBeUndefined();
@@ -10593,6 +13585,89 @@ final class BranchExtract {
         workspace.update(uri, variant, true);
         expect(workspace.extractMethod(uri, variant.indexOf('if ('), variant.indexOf('\n        return $result;'))).toBeUndefined();
       }
+    } finally { workspace.remove(uri); }
+  });
+  it('extracts two definite outputs across complete branches without changing their types', () => {
+    const uri = 'file:///BranchPairExtract.php';
+    const source = `<?php
+final class BranchPairExtract {
+    public function run(bool $flag): string {
+        if ($flag) {
+            $name = 'yes';
+            $count = 1;
+        } else {
+            $name = 'no';
+            $count = 2;
+        }
+        return $name . $count;
+    }
+}`;
+    const planFor = (text: string): ExtractMethodInfo | undefined => {
+      workspace.update(uri, text, true);
+      return workspace.extractMethod(uri, text.indexOf('if ($flag)'), text.indexOf('\n        return $name', text.indexOf('if ($flag)')));
+    };
+    try {
+      const plan = planFor(source);
+      expect(plan).toMatchObject({ parameters: ['flag'],
+        callText: '        [$name, $count] = $this->extractedMethod($flag);\n' });
+      expect(plan?.methodText).toContain('/** @return array{0: string, 1: int} */');
+      expect(plan?.methodText).toContain('private function extractedMethod(bool $flag): array');
+      expect(plan?.methodText).toContain('return [$name, $count];');
+      if (!plan) throw new Error('Missing complete branch pair extraction plan.');
+      const extracted = source.slice(0, plan.selectionStart) + plan.callText
+        + source.slice(plan.selectionEnd, plan.insertOffset) + plan.methodText + source.slice(plan.insertOffset);
+      workspace.update(uri, extracted, true);
+      const use = extracted.indexOf('return $name . $count;');
+      expect(workspace.variableValueAt(uri, use + 'return $'.length + 1)?.type).toBe('string');
+      expect(workspace.variableValueAt(uri, use + 'return $name . $'.length + 1)?.type).toBe('int');
+      for (const unsafe of [
+        source.replace('} else {\n            $name = \'no\';\n            $count = 2;\n        }', '}'),
+        source.replace("$name = 'no';\n            $count = 2;", "$name = 'no';"),
+        source.replace("$name = 'no';\n            $count = 2;", "$count = 2;\n            $name = 'no';"),
+        source.replace('$count = 2;', "$count = 'two';"),
+        source.replace('$count = 2;', '$count = $name;'),
+        source.replace('if ($flag) {', "$name = 'earlier';\n        if ($flag) {"),
+      ]) expect(planFor(unsafe)).toBeUndefined();
+    } finally { workspace.remove(uri); }
+  });
+  it('extracts a scalar local updated by an incomplete if while preserving its prior value', () => {
+    const uri = 'file:///PartialBranchExtract.php';
+    const source = `<?php
+final class PartialBranchExtract {
+    public function run(bool $flag): string {
+        $result = 'base';
+        if ($flag) {
+            $result = 'changed';
+        }
+        return $result;
+    }
+}`;
+    const planFor = (text: string): ExtractMethodInfo | undefined => {
+      workspace.update(uri, text, true);
+      return workspace.extractMethod(uri, text.indexOf('if ($flag)'), text.indexOf('\n        return $result;', text.indexOf('if ($flag)')));
+    };
+    try {
+      const plan = planFor(source);
+      expect(plan).toMatchObject({ parameters: ['flag', 'result'], output: 'result',
+        callText: '        $result = $this->extractedMethod($flag, $result);\n' });
+      expect(plan?.methodText).toContain('private function extractedMethod(bool $flag, string $result): string');
+      expect(plan?.methodText).toContain('return $result;');
+      if (!plan) throw new Error('Missing partial branch extraction plan.');
+      const extracted = source.slice(0, plan.selectionStart) + plan.callText
+        + source.slice(plan.selectionEnd, plan.insertOffset) + plan.methodText + source.slice(plan.insertOffset);
+      workspace.update(uri, extracted, true);
+      const use = extracted.indexOf('return $result;');
+      expect(workspace.variableValueAt(uri, use + 'return $'.length + 1)?.type).toBe('string');
+      for (const unsafe of [
+        source.replace("$result = 'base';\n        ", ''),
+        source.replace("$result = 'base';", "$result = 'base';\n        $other = 1;"),
+        source.replace("$result = 'base';", '$result = 1;'),
+        source.replace("$result = 'changed';", '$result = $result . "changed";'),
+        source.replace("$result = 'changed';", '$result = externalValue();'),
+        source.replace("$result = 'changed';", "return 'changed';"),
+        source.replace("$result = 'changed';", "$result = 'changed';\n            $extra = 1;"),
+        source.replace('run(bool $flag)', 'run(string $flag)'),
+      ]) expect(planFor(unsafe)).toBeUndefined();
     } finally { workspace.remove(uri); }
   });
   it('extracts complete conditional returns while preserving the enclosing return', () => {
@@ -10686,6 +13761,161 @@ final class GuardReturnExtract {
         source.replace('return $this->second();', 'return 42;'),
         source.replace('if ($flag)', 'if ($flag === true)'),
         source.replace('if ($flag) {', 'if ($flag) {\n            // keep comment'),
+      ]) expect(planFor(unsafe)).toBeUndefined();
+    } finally { workspace.remove(uri); }
+  });
+  it('extracts a return of two proven scalar inputs without admitting object or nested expressions', () => {
+    const uri = 'file:///JoinedReturnExtract.php';
+    const source = `<?php
+final class JoinedReturnExtract {
+    public function label(string $first, int $second): string {
+        return $first . $second;
+    }
+}`;
+    const planFor = (text: string): ReturnType<typeof workspace.extractMethod> => {
+      workspace.update(uri, text, true);
+      const start = text.indexOf('return $first .');
+      return workspace.extractMethod(uri, start, text.indexOf(';', start) + 1);
+    };
+    try {
+      const plan = planFor(source);
+      expect(plan).toMatchObject({
+        parameters: ['first', 'second'], callText: '        return $this->extractedMethod($first, $second);\n',
+      });
+      expect(plan?.methodText).toContain('private function extractedMethod(string $first, int $second): string');
+      expect(plan?.methodText).toContain('return $first . $second;');
+      if (!plan) throw new Error('Missing scalar return extraction plan.');
+      const extracted = source.slice(0, plan.selectionStart) + plan.callText
+        + source.slice(plan.selectionEnd, plan.insertOffset) + plan.methodText + source.slice(plan.insertOffset);
+      workspace.update(uri, extracted, true);
+      expect(extracted).toContain('return $this->extractedMethod($first, $second);');
+      expect(workspace.variableValueAt(uri, extracted.indexOf('$second);') + 2)?.type).toBe('int');
+      expect(planFor(source.replace('int $second', 'object $second'))).toBeUndefined();
+      expect(planFor(source.replace('return $first . $second;', 'return $first . $second . $first;'))).toBeUndefined();
+      expect(planFor(source.replace('return $first . $second;', 'return $first . $this->suffix();'))).toBeUndefined();
+    } finally { workspace.remove(uri); }
+  });
+  it('extracts a whole numeric binary return from two proven native parameters', () => {
+    const uri = 'file:///NumericReturnExtract.php';
+    const source = `<?php
+final class NumericReturnExtract {
+    public function calculate(int $first, float $second): float {
+        return $first + $second;
+    }
+}`;
+    const planFor = (text: string): ReturnType<typeof workspace.extractMethod> => {
+      workspace.update(uri, text, true);
+      const start = text.indexOf('return $first');
+      return workspace.extractMethod(uri, start, text.indexOf(';', start) + 1);
+    };
+    try {
+      for (const operator of ['+', '-', '*']) {
+        const text = source.replace('$first + $second', `$first ${operator} $second`);
+        const plan = planFor(text);
+        expect(plan, operator).toMatchObject({ parameters: ['first', 'second'],
+          callText: '        return $this->extractedMethod($first, $second);\n' });
+        expect(plan?.methodText, operator).toContain('private function extractedMethod(int $first, float $second): float');
+        expect(plan?.methodText, operator).toContain(`return $first ${operator} $second;`);
+      }
+      for (const unsafe of [
+        source.replace('int $first', 'object $first'),
+        source.replace('float $second', 'mixed $second'),
+        source.replace('float $second', '?float $second'),
+        source.replace('$first + $second', '$first + $second + $first'),
+        source.replace('$first + $second', '$first + $this->next()'),
+      ]) expect(planFor(unsafe)).toBeUndefined();
+    } finally { workspace.remove(uri); }
+  });
+  it('extracts a strict identity return over two proven scalar parameters', () => {
+    const uri = 'file:///IdentityReturnExtract.php';
+    const source = `<?php
+final class IdentityReturnExtract {
+    public function same(string $first, string $second): bool {
+        return $first === $second;
+    }
+}`;
+    const planFor = (text: string): ReturnType<typeof workspace.extractMethod> => {
+      workspace.update(uri, text, true);
+      const start = text.indexOf('return $first');
+      return workspace.extractMethod(uri, start, text.indexOf(';', start) + 1);
+    };
+    try {
+      for (const operator of ['===', '!==']) {
+        const text = source.replace('$first === $second', `$first ${operator} $second`);
+        const plan = planFor(text);
+        expect(plan, operator).toMatchObject({ parameters: ['first', 'second'],
+          callText: '        return $this->extractedMethod($first, $second);\n' });
+        expect(plan?.methodText, operator).toContain('private function extractedMethod(string $first, string $second): bool');
+        expect(plan?.methodText, operator).toContain(`return $first ${operator} $second;`);
+        if (!plan) throw new Error('Missing strict identity extraction plan.');
+        const extracted = text.slice(0, plan.selectionStart) + plan.callText
+          + text.slice(plan.selectionEnd, plan.insertOffset) + plan.methodText + text.slice(plan.insertOffset);
+        const parsed = parser.parse(extracted);
+        try { expect(parsed.errors, operator).toEqual([]); } finally { parsed.tree.delete(); }
+      }
+      const untyped = source.replace('): bool {', ') {');
+      expect(planFor(untyped)?.methodText).toContain('private function extractedMethod(string $first, string $second)');
+      for (const unsafe of [
+        source.replace('string $first', 'object $first'),
+        source.replace('string $second', 'mixed $second'),
+        source.replace('): bool {', '): int {'),
+        source.replace('$first === $second', '$first == $second'),
+        source.replace('$first === $second', '$first === $second === $first'),
+        source.replace('$first === $second', '$first === $this->next()'),
+      ]) expect(planFor(unsafe)).toBeUndefined();
+    } finally { workspace.remove(uri); }
+  });
+  it('extracts pure scalar coalescing and ternary returns with their input types', () => {
+    const uri = 'file:///ScalarChoiceExtract.php';
+    const source = `<?php
+final class ScalarChoiceExtract {
+    public function label(?string $value, string $fallback, bool $flag, string $left, string $right): string {
+        return $value ?? $fallback;
+    }
+}`;
+    const planFor = (text: string): ReturnType<typeof workspace.extractMethod> => {
+      workspace.update(uri, text, true);
+      const start = text.indexOf('return ');
+      return workspace.extractMethod(uri, start, text.indexOf(';', start) + 1);
+    };
+    try {
+      const coalesced = planFor(source);
+      expect(coalesced).toMatchObject({ parameters: ['value', 'fallback'],
+        callText: '        return $this->extractedMethod($value, $fallback);\n' });
+      expect(coalesced?.methodText).toContain('private function extractedMethod(?string $value, string $fallback): string');
+      const conditionalSource = source.replace('return $value ?? $fallback;', 'return $flag ? $left : $right;');
+      const conditional = planFor(conditionalSource);
+      expect(conditional).toMatchObject({ parameters: ['flag', 'left', 'right'],
+        callText: '        return $this->extractedMethod($flag, $left, $right);\n' });
+      expect(conditional?.methodText).toContain('private function extractedMethod(bool $flag, string $left, string $right): string');
+      const literalFallbackSource = source.replace('return $value ?? $fallback;', "return $value ?? 'fallback';");
+      const literalFallback = planFor(literalFallbackSource);
+      expect(literalFallback).toMatchObject({ parameters: ['value'],
+        callText: '        return $this->extractedMethod($value);\n' });
+      expect(literalFallback?.methodText).toContain('private function extractedMethod(?string $value): string');
+      const literalBranchSource = source.replace('return $value ?? $fallback;', "return $flag ? $left : 'fallback';");
+      const literalBranch = planFor(literalBranchSource);
+      expect(literalBranch).toMatchObject({ parameters: ['flag', 'left'],
+        callText: '        return $this->extractedMethod($flag, $left);\n' });
+      expect(literalBranch?.methodText).toContain('private function extractedMethod(bool $flag, string $left): string');
+      for (const [text, plan] of [[source, coalesced], [conditionalSource, conditional],
+        [literalFallbackSource, literalFallback], [literalBranchSource, literalBranch]] as const) {
+        if (!plan) throw new Error('Missing scalar choice extraction plan.');
+        const extracted = text.slice(0, plan.selectionStart) + plan.callText
+          + text.slice(plan.selectionEnd, plan.insertOffset) + plan.methodText + text.slice(plan.insertOffset);
+        const parsed = parser.parse(extracted);
+        try { expect(parsed.errors).toEqual([]); } finally { parsed.tree.delete(); }
+      }
+      for (const unsafe of [
+        source.replace('?string $value', 'object $value'),
+        source.replace('string $fallback', 'mixed $fallback'),
+        source.replace('): string {', '): int {'),
+        source.replace('$value ?? $fallback', '$value ?? $this->fallback()'),
+        source.replace('$value ?? $fallback', '$value ?? 0'),
+        source.replace('$value ?? $fallback', '$value ?? "$fallback"'),
+        conditionalSource.replace('bool $flag', 'mixed $flag'),
+        conditionalSource.replace('string $right', 'object $right'),
+        conditionalSource.replace('$flag ? $left : $right', '$flag ? $left : $right . $left'),
       ]) expect(planFor(unsafe)).toBeUndefined();
     } finally { workspace.remove(uri); }
   });
@@ -11087,7 +14317,7 @@ class Worker {
   it('round-trips versioned semantic snapshots and rejects corrupt cache data', () => {
     const uri = 'file:///Cached.php'; const source = '<?php namespace Cache; class Cached extends Base { public function restored(): void {} } function run(Cached $cached, bool $condition): void { if ($condition) { $maybe = new Cached(); } $maybe->rest; $cached->rest; }';
     workspace.update(uri, source); const snapshot = workspace.snapshot(uri); workspace.remove(uri);
-    expect(snapshot).toMatchObject({ schema: 82, declaration: { uri }, implementation: { uri, source,
+    expect(snapshot).toMatchObject({ schema: 83, declaration: { uri }, implementation: { uri, source,
       callables: expect.arrayContaining([expect.objectContaining({ identity: 'cache\\run', kind: 'callable' })]) }, layers: {
       referenceCandidates: { indexed: true, keys: expect.arrayContaining(['declaration:type:cache\\cached']) },
       typeDependencies: { indexed: true, nodes: [{ key: 'cache\\cached', dependencies: ['cache\\base'] }] },

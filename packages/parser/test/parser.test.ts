@@ -124,6 +124,9 @@ describe('@php-companion/parser', () => {
       const { tree, ...facts } = full;
       expect(tree).toBeDefined();
       expect(prepared.facts).toEqual(facts);
+      expect(prepared.namespaceScopes).toEqual([{ namespace: 'App', start: source.indexOf(';') + 1,
+        end: source.length, insertionOffset: source.indexOf(';') + 1 }]);
+      expect(declarations.namespaceScopes).toEqual(prepared.namespaceScopes);
       expect(prepared.controlFlowAssignments).toContain(source.indexOf('$result ='));
       expect(declarations.kind).toBe('declarations');
       if (declarations.kind === 'declarations') expect(declarations.facts.declarations).toEqual(facts.declarations);

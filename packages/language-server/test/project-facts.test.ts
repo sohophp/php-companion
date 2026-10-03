@@ -24,9 +24,12 @@ describe('persistent project PHP facts', () => {
       const payload = compressCachedSourceDeclaration(snapshot, hash);
       const decoded = restoreCachedSourceDeclaration(payload, uri, hash);
       expect(decoded).toEqual(snapshot);
+      const legacy = structuredClone(snapshot);
+      (legacy as { schema: number }).schema = 1;
+      expect(restoreCachedSourceDeclaration(compressCachedSourceDeclaration(legacy, hash), uri, hash)).toBeUndefined();
       expect(restored.restoreSourceDeclaration(decoded, uri)).toBe(true);
       expect(restored.implementationState(uri)).toBe('deferred');
-      expect(restored.restoreSourceDeclaration({ ...decoded, schema: 2 }, uri)).toBe(false);
+      expect(restored.restoreSourceDeclaration({ ...decoded, schema: -1 }, uri)).toBe(false);
       expect(restored.restoreSourceDeclaration(decoded, 'file:///Wrong.php')).toBe(false);
       expect(restored.references(uri, source.indexOf('get()') + 1, false)).toHaveLength(1);
       expect(restored.snapshot(uri)).toEqual(workspace.snapshot(uri));
@@ -55,12 +58,15 @@ describe('persistent project PHP facts', () => {
     expect(facts).not.toHaveProperty('controllerContexts'); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
     expect(cached.checksums.source).toBe(createHash('sha256').update(source).digest('hex'));
-    expect(cached).toMatchObject({ schema: 12, semantic: { schema: 82, declaration: { uri }, implementation: { uri, source,
+    expect(cached).toMatchObject({ schema: 12, semantic: { schema: 83, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),
         callableImplementations: [{ identity: 'app\\pagecontroller::show', checksum: expect.stringMatching(/^[0-9a-f]{64}$/) }],
         layers: expect.stringMatching(/^[0-9a-f]{64}$/), facts: expect.stringMatching(/^[0-9a-f]{64}$/) } });
+    const legacy = structuredClone(semantic);
+    (legacy as { schema: number }).schema = 82;
+    expect(restoreCachedProjectPhpFile(createCachedProjectPhpFile(legacy, facts), uri)).toBeUndefined();
     const restored = restoreCachedProjectPhpFile(structuredClone(cached), uri);
     expect(restored?.facts.doctrineProperties).toEqual(facts.doctrineProperties);
     const compressed = compressCachedProjectPhpFile(cached);

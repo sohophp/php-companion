@@ -25,7 +25,7 @@ import { withBoundedRetry } from '../refactor/retry.js';
 import { moveFileExists } from '../refactor/moveFileState.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { composerRequiresSymfony } from './languageServerPolicy.js';
-import { BUILTIN_DOCUMENT_URI, builtinPhpStub, parseBuiltinDocumentUri, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { BCMATH_NUMBER_DOCUMENT_URI, BUILTIN_DOCUMENT_URI, FILTER_CLASSES_DOCUMENT_URI, bcmathNumberPhpStub, builtinPhpStub, filterClassesPhpStub, parseBcmathNumberDocumentUri, parseBuiltinDocumentUri, parseFilterClassesDocumentUri, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
@@ -238,12 +238,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
 
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('php-companion-builtin', {
     provideTextDocumentContent: (uri) => {
+      const bcmathSnapshot = parseBcmathNumberDocumentUri(uri.toString());
+      if (bcmathSnapshot) return bcmathNumberPhpStub(bcmathSnapshot.version, bcmathSnapshot);
+      const filterSnapshot = parseFilterClassesDocumentUri(uri.toString());
+      if (filterSnapshot) return filterClassesPhpStub(filterSnapshot.version, filterSnapshot);
       const snapshot = parseBuiltinDocumentUri(uri.toString());
-      if (snapshot) return builtinPhpStub(snapshot.version, { disabledExtensions: snapshot.disabledExtensions });
-      if (uri.toString() !== BUILTIN_DOCUMENT_URI) return '';
+      if (snapshot) return builtinPhpStub(snapshot.version, snapshot);
+      if (uri.toString() !== BUILTIN_DOCUMENT_URI && uri.toString() !== BCMATH_NUMBER_DOCUMENT_URI
+        && uri.toString() !== FILTER_CLASSES_DOCUMENT_URI) return '';
       const requested = vscode.workspace.getConfiguration('phpCompanion').get<string>('phpVersion', 'auto');
       const target = (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requested) ? requested as SupportedPhpVersion : '8.5';
-      return builtinPhpStub(target);
+      if (uri.toString() === BCMATH_NUMBER_DOCUMENT_URI) return bcmathNumberPhpStub(target);
+      return uri.toString() === FILTER_CLASSES_DOCUMENT_URI ? filterClassesPhpStub(target) : builtinPhpStub(target);
     },
   }));
   context.subscriptions.push(registerPhpTypePreviewProvider());
@@ -608,10 +614,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       } catch (error) {
         output.warn(`Previewed refactoring failed to apply: ${error instanceof Error ? error.message : String(error)}`);
       }
-      let applied = source.getText() === expectedSource;
+      const matchesDocumentText = (document: vscode.TextDocument, expected: string): boolean => document.getText()
+        === expected.replace(/\r\n|\r|\n/gu, document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n');
+      let applied = matchesDocumentText(source, expectedSource);
       if (applied) for (const target of expectedTargets) {
         try {
-          if ((await vscode.workspace.openTextDocument(target.uri)).getText() !== target.text) { applied = false; break; }
+          if (!matchesDocumentText(await vscode.workspace.openTextDocument(target.uri), target.text)) { applied = false; break; }
         } catch { applied = false; break; }
       }
       if (!applied || (expectedSource === sourceText && expectedTargets.every(({ uri, text }) =>

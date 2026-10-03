@@ -48,6 +48,8 @@
     "package.nls.zh-cn.json",
     "README.md",
     "LICENSE",
+    "LICENSE-phpstorm-stubs.txt",
+    "THIRD_PARTY_NOTICES.md",
     "CHANGELOG.md",
     "SECURITY.md"
   ],
@@ -106,9 +108,11 @@
   "contributes": {
     "configurationDefaults": {
       "php.suggest.basic": false,
+      "emmet.excludeLanguages": ["markdown", "php"],
       "[php]": {
         "editor.wordBasedSuggestions": "off",
-        "editor.suggest.showWords": false
+        "editor.suggest.showWords": false,
+        "editor.snippetSuggestions": "none"
       }
     },
     "commands": [
@@ -140,7 +144,8 @@
       { "command": "phpCompanion.findReferences", "title": "%command.findReferences%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" }
     ],
     "keybindings": [
-      { "command": "phpCompanion.safeRename", "key": "f2", "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled" }
+      { "command": "phpCompanion.safeRename", "key": "f2", "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled" },
+      { "command": "phpCompanion.safeRename", "key": "shift+f6", "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled" }
     ],
     "menus": {
       "explorer/context": [
@@ -162,7 +167,7 @@
       "title": "SoPHP",
       "properties": {
         "phpCompanion.phpVersion": { "type": "string", "scope": "resource", "enum": ["auto", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"], "default": "auto", "description": "%config.phpVersion%" },
-        "phpCompanion.disabledExtensions": { "type": "array", "scope": "resource", "items": { "type": "string", "enum": ["dom", "filter", "mbstring", "pdo", "simplexml", "xml", "xmlreader", "xmlwriter"] }, "uniqueItems": true, "default": [], "description": "%config.disabledExtensions%" },
+        "phpCompanion.disabledExtensions": { "type": "array", "scope": "resource", "items": { "type": "string", "enum": ["apcu", "bcmath", "bz2", "calendar", "ctype", "curl", "dom", "exif", "fileinfo", "filter", "ftp", "gd", "gettext", "iconv", "igbinary", "imagick", "intl", "mbstring", "mcrypt", "msgpack", "mysqli", "openssl", "pcntl", "pdo", "pgsql", "phar", "posix", "readline", "redis", "session", "shmop", "simplexml", "sockets", "sodium", "sqlite3", "sysvmsg", "sysvsem", "sysvshm", "tokenizer", "xml", "xmlreader", "xmlwriter", "xsl", "yaml", "zip", "zlib"] }, "uniqueItems": true, "default": [], "description": "%config.disabledExtensions%" },
         "phpCompanion.phpExecutablePath": { "type": ["string", "null"], "scope": "resource", "default": null, "description": "%config.phpExecutablePath%" },
         "phpCompanion.symfony.environment": { "type": ["string", "null"], "scope": "resource", "default": null, "pattern": "^[A-Za-z0-9_.-]{1,64}$", "description": "%config.symfony.environment%" },
         "phpCompanion.symfony.winstarRoutes.enabled": { "type": "boolean", "scope": "resource", "default": false, "description": "%config.symfony.winstarRoutes.enabled%" },

@@ -4,6 +4,8 @@ mbstring 完整函数目录与版本化常量进入相同内建文档，提供�
 
 # @php-companion/language-server
 
+变量候选支持标准 `completionItem/resolve`，按选中的候选计算可证明类型说明。解析绑定文档版本和对象身份，修改／关闭／重新打开后不补充旧说明；未解析列表不逐项计算类型，不需要新增设置。
+
 由权威容器 Provider 确认的 YAML/XML 配置图支持服务 ID 补全和跨格式 Definition/References。XML 入口只识别传统服务配置中明确的 service/service_closure、alias、parent、decorates、factory 与 configurator 服务属性；声明、参数表达式和普通 XML 不产生结果。Red Hat XML 继续负责通用 XML 语言能力。
 
 Composer 索引缓存使用 v64/schema 12 校验封装：schema 81 的源码、声明/签名、文件级实现、每个唯一 callable 实现、引用候选/类型依赖，以及 Doctrine 事实分别计算 SHA-256，再由整体摘要封装。schema 12 为 Doctrine 数组、标量和单标量水合终端事实提供新鲜度边界，旧 v63/schema 11 记录保守重建。冷写入复用索引器对相同原始源码已经计算的 SHA-256；恢复仍重新校验缓存内嵌源码，不能以外层元数据代替载荷完整性。Symfony Controller/Twig 上下文只来自独立 Provider，不进入核心持久缓存。全部记录核对通过后先注册声明表，未打开文件的实现记录保持延迟；工作区类型、函数、常量和符号目录不装载正文。成员补全、Definition、Type Definition、Signature Help 和区间 Inlay Hint 只把目标 callable 及文件级事实合并进活动语义视图；整文件诊断、重构和无法证明局部边界的正文扫描自动完整水合。索引日志报告仍含未加载记录的文件数。单个缓存条目损坏时只重建对应文件；已打开且内容不同的文档拒绝磁盘缓存，未保存内容不会写入以磁盘时间戳为键的缓存。
@@ -14,7 +16,27 @@ Symfony 监听类与公开方法的 References 会合并 subscriber 数组、`As
 
 已消费且证明为单一构造类型的 Callable 工厂摘要使用独立 `callable-facts-v1` 有界缓存。它只保存正向事实，不预扫描未使用 Callable；恢复会核对调用者源码与事实载荷 SHA-256、唯一 callable/type 身份，并从依赖叶节点向上传递验证完整调用链。依赖实现变化、同名歧义、缺失或损坏会拒绝受影响链，独立事实仍可恢复。写入经过 750 ms 去抖并在关闭前刷新，所有打开文档均排除在磁盘事实之外。
 
-服务器可按 Composer 根选择 DOM、Filter、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter 内建符号。初始化和 `phpCompanion/phpExtensionAvailability` 通知接受 workspace folder/嵌套 Composer 根的禁用及已探测运行时快照，并与 Composer platform 明确为 `false` 的扩展合并；配置、运行时或 Composer 文件变化无需重启即可刷新。运行时载荷必须具有完整版本、SAPI、可执行文件与扩展目录，且 PHP 次版本必须等于服务器目标版本，否则整份运行时事实被拒绝。使用这些已审计扩展的类型、函数或常量时，服务器发布 `php.extension.unavailable`，并区分 workspace 设置、Composer platform 与实际运行时来源；未知扩展、未审计符号和项目 polyfill 保持静默。
+服务器可按 Composer 根选择 BCMath、Ctype、cURL、DOM、Filter、GD、iconv、Intl Locale/Normalizer/Collator/NumberFormatter/IntlDateFormatter/ResourceBundle/Transliterator/MessageFormatter/IntlTimeZone/IntlCalendar/IntlGregorianCalendar/Spoofchecker 与 grapheme/IDN、mbstring、PDO、SimpleXML、XML Parser、XMLReader 与 XMLWriter 内建符号。初始化和 `phpCompanion/phpExtensionAvailability` 通知接受 workspace folder/嵌套 Composer 根的禁用及已探测运行时快照，并与 Composer platform 明确为 `false` 的扩展合并；配置、运行时或 Composer 文件变化无需重启即可刷新。运行时载荷必须具有完整版本、SAPI、可执行文件与扩展目录，且 PHP 次版本必须等于服务器目标版本，否则整份运行时事实被拒绝。已探测运行时还会对 `curl_upkeep`、`intltz_get_iana_id` 和 GD 函数目录做函数级可用性过滤；cURL 与 GD 常量按目标运行时实际导出清单生成。使用这些已审计扩展的类型、函数或常量时，服务器发布 `php.extension.unavailable`，并区分 workspace 设置、Composer platform 与实际运行时来源；未知扩展、未审计符号和项目 polyfill 保持静默。
+
+Intl 类目录还包括 PHP 8.1 起的 `IntlDatePatternGenerator` 和 PHP 8.5 起的 `IntlListFormatter`，遵循同一 Intl 扩展可用性过滤。
+`IntlBreakIterator`、`IntlRuleBasedBreakIterator`、`IntlPartsIterator` 和 `IntlCodePointBreakIterator` 也由同一 Intl 目录和可用性过滤提供，按 PHP 版本切换迭代接口、方法与常量类型。
+`UConverter` 由同一 Intl 目录提供编码转换 API，按目标 PHP 版本处理参数和常量类型。
+`IntlChar` 提供 Unicode 字符 API；运行时探测会传入 7 个随 ICU 变化的常量值，更新运行时后内置声明随之刷新。未探测到运行时时这 7 个值保持缺席。
+`IntlCalendar::FIELD_FIELD_COUNT` 同样使用项目运行时的实际 ICU 值；未探测到运行时时保守缺席。
+
+Fileinfo 的 6 个过程式函数、`finfo` 类及常量从独立审计目录提供；运行时或项目声明缺少 Fileinfo 时，同一扩展可用性机制移除其补全与定义。
+
+Hash 内置目录提供 20 个函数、`HashContext` 和版本化常量；`mhash*` 兼容函数按运行时实际导出列表过滤，常用 `hash_*` API 保持可用。
+
+Zip 目录提供 `ZipArchive` 的 52 个当前方法、类常量与 10 个过程式函数；检测到项目 PHP 运行时时以反射方法/常量表过滤可选 libzip 能力，并带入真实 `LIBZIP_VERSION`。禁用或缺少 Zip 扩展时移除其补全与定义。
+
+Zlib 目录提供压缩、解压、gz 流及增量压缩 API；按 PHP 版本切换 `gzgetss`、上下文类和参数类型。项目运行时提供 `ZLIB_VERSION`、`ZLIB_VERNUM` 的实际值；禁用或缺少 Zlib 时移除候选与定义。
+
+Sockets 目录提供套接字函数、PHP 8 `Socket`/`AddressInfo` 类型和版本化签名；项目运行时提供实际平台常量及 Windows 专用函数清单。禁用或缺少 Sockets 时移除其补全与定义。
+
+OpenSSL 目录提供加解密、签名、证书、CSR、密钥、PKCS7/CMS 的版本化函数及 PHP 8 对象类型；运行时提供实际函数和常量清单。缺少或禁用 OpenSSL 时移除候选与定义。
+
+MySQLi 目录提供过程式 API、连接/结果/预处理语句类、常量与版本化签名；运行时函数、方法及常量表过滤当前客户端缺少的符号。缺少或禁用 MySQLi 时移除候选与定义。
 
 PHP 8.4 属性 hook 现在提供 backed/virtual 感知的 Hover/Definition 与直接赋值类型检查，并发布 get-only 写入、set-only 读取、`private(set)` 外部写入、数组间接修改、直接引用、唯一签名按引用调用、属性/对象按引用遍历、接口/抽象属性缺失、继承类型或可见性不兼容、final 覆盖，以及静态、readonly、非法抽象、虚拟默认值和 backed `&get`/`set` 声明诊断。低于 PHP 8.4 的目标版本只保留既有版本边界，不启用这些 hook 语义诊断。
 

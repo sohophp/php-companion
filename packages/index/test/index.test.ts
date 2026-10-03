@@ -387,6 +387,63 @@ describe('bounded project source index', () => {
     const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: () => { parsed += 1; return {}; } });
     expect(third.cached).toBe(0); expect(parsed).toBe(1); expect(third.warnings).toContain('Persistent index cache was unreadable and will be rebuilt.');
   });
+  it('restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-batches-'));
+    await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B', 'C'].map(name => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const payload = { text: '中文🙂"\\\n'.repeat(40_000) };
+    const directory = join(root, 'cache'); const restored: unknown[] = [];
+    const cache = { directory, version: 'batches-v1', restore: (value: unknown): boolean => { restored.push(value); return true; } };
+    const cold = await indexComposerSources(root, { cache, onSource: () => payload });
+    expect(cold).toMatchObject({ files: 3, cached: 0, complete: true, warnings: [] });
+    const names = await readdir(directory); expect(names).toHaveLength(1);
+    const cacheFile = join(directory, names[0]!); const before = await readFile(cacheFile, 'utf8');
+    const warm = await indexComposerSources(root, { cache, onSource: () => { throw new Error('Must restore every payload'); } });
+    expect(warm).toMatchObject({ files: 3, cached: 3, complete: true, warnings: [] });
+    expect(restored).toEqual([payload, payload, payload]);
+    let analyzed = 0; const cyclic: { self?: unknown } = {}; cyclic.self = cyclic;
+    const failed = await indexComposerSources(root, { cache: { ...cache, restore: () => false },
+      onSource: () => ++analyzed === 3 ? cyclic : payload });
+    expect(failed.warnings).toContain('Persistent index cache could not be written.');
+    expect(await readFile(cacheFile, 'utf8')).toBe(before);
+    expect(await readdir(directory)).toEqual(names);
+  });
+  it('isolates malformed entry metadata and rebuilds unsupported cache versions', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-metadata-'));
+    await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    const damagedPath = join(root, 'src', 'A.php');
+    const intactPath = join(root, 'src', 'B.php');
+    await writeFile(damagedPath, '<?php class A {}'); await writeFile(intactPath, '<?php class B {}');
+    const directory = join(root, 'cache'); const restored: string[] = []; const parsed: string[] = [];
+    const options = { cache: { directory, version: 'metadata-v1', restore: (_payload: unknown, source: { path: string }): boolean => {
+      restored.push(source.path); return true;
+    } }, onSource: ({ path }: { path: string }): { path: string } => { parsed.push(path); return { path }; } };
+    await indexComposerSources(root, options);
+    const cacheFile = join(directory, (await readdir(directory))[0]!);
+    const original = JSON.parse(await readFile(cacheFile, 'utf8'));
+    for (const mutation of [null, [], { ...original.entries[damagedPath], hash: 'invalid' },
+      { ...original.entries[damagedPath], size: -1 }, { ...original.entries[damagedPath], mtimeMs: 'invalid' },
+      { ...original.entries[damagedPath], ctimeMs: null }]) {
+      const manifest = structuredClone(original); manifest.entries[damagedPath] = mutation;
+      await writeFile(cacheFile, JSON.stringify(manifest)); restored.length = 0; parsed.length = 0;
+      const result = await indexComposerSources(root, options);
+      expect(result).toMatchObject({ files: 2, cached: 1, complete: true });
+      expect(restored).toEqual([intactPath]); expect(parsed).toEqual([damagedPath]);
+      expect(result.warnings).toContain(`Persistent index entry for ${damagedPath} was rejected and rebuilt.`);
+    }
+    for (const override of [{ schema: 2 }, { version: 'metadata-v0' }, { entries: [] }]) {
+      await writeFile(cacheFile, JSON.stringify({ ...original, ...override })); restored.length = 0; parsed.length = 0;
+      const result = await indexComposerSources(root, options);
+      expect(result).toMatchObject({ files: 2, cached: 0, complete: true });
+      expect(restored).toEqual([]); expect(parsed).toEqual([damagedPath, intactPath]);
+      restored.length = 0; parsed.length = 0;
+      expect((await indexComposerSources(root, options)).cached).toBe(2);
+      expect(parsed).toEqual([]);
+    }
+  });
+
   it('does not rewrite a fully restored cache when source metadata is unchanged', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-stable-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

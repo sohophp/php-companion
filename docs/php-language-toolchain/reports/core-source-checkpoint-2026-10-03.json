@@ -1,0 +1,90 @@
+{
+  "status": "verified",
+  "freezeReleased": true,
+  "frozenInputs": 3002,
+  "checkedInputsUnchanged": true,
+  "stdio": {
+    "session": 53345,
+    "files": 33,
+    "terminal": true,
+    "exit": 0,
+    "tests": 510,
+    "passed": 510,
+    "skipped": 0,
+    "durationSeconds": 1402.57
+  },
+  "coreC2": {
+    "session": 52421,
+    "terminal": true,
+    "exit": 0,
+    "proofLines": 65
+  },
+  "support": {
+    "session": 74480,
+    "terminal": true,
+    "exit": 0,
+    "rootTypecheck": true,
+    "parser": 100,
+    "phpdoc": 21,
+    "runtimeProbe": 30,
+    "semanticProvider": 14,
+    "semanticProviderHost": 10
+  },
+  "proposedRuntimePaths": 140,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "profileUpdated": false,
+  "independentBuild": {
+    "session": 54949,
+    "terminal": true,
+    "base": "2187f0f",
+    "overlayPaths": 140,
+    "exit": 0,
+    "packagesBuilt": 24,
+    "rootBundleBuilt": true,
+    "rootTypecheck": true,
+    "overlayInputsMatched": 140,
+    "method": "Direct locked tsc in the original build order, esbuild and root noEmit",
+    "assets": {
+      "extension.js": {
+        "root": "7e70e6a9fc5dc2fbb977c907e18c33b6fef9d2b6b6e95755716cddfa07f6c277",
+        "independent": "7e70e6a9fc5dc2fbb977c907e18c33b6fef9d2b6b6e95755716cddfa07f6c277"
+      },
+      "language-server.js": {
+        "root": "6a0a4810f3e16afac6612e9b523034efcdaf93de9dbbd71af5e2c7800580f89a",
+        "independent": "6a0a4810f3e16afac6612e9b523034efcdaf93de9dbbd71af5e2c7800580f89a"
+      },
+      "candidateWorker.js": {
+        "root": "3dd6277277400a9b5b54fecc0bc6a4e145cb099688bb324c6f99c7c6c9ab403c",
+        "independent": "3dd6277277400a9b5b54fecc0bc6a4e145cb099688bb324c6f99c7c6c9ab403c"
+      },
+      "portableCandidateSearchWorker.js": {
+        "root": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+        "independent": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      "sourceStatWorker.js": {
+        "root": "dce2db643593c774b864ee8779178235e6ba9467529f0129ab989716646b09ec",
+        "independent": "dce2db643593c774b864ee8779178235e6ba9467529f0129ab989716646b09ec"
+      },
+      "web-tree-sitter.wasm": {
+        "root": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "independent": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      "tree-sitter-php.wasm": {
+        "root": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "independent": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      }
+    },
+    "runtimeAssetsMatchRoot": true,
+    "scratchCleaned": true
+  },
+  "independentSmoke": {
+    "session": 99070,
+    "terminal": true,
+    "exit": 0,
+    "semanticTests": 5,
+    "stdioTests": 4
+  },
+  "readyForCommit": true
+}

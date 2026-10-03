@@ -1,4 +1,4 @@
-import { mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { mkdir, open, readdir, readFile, rename, rm, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -60,11 +60,21 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const cacheIdentity = options.cache?.key === undefined ? root : `${root}\0${options.cache.key}`;
   const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(cacheIdentity).digest('hex')}.json`) : undefined;
   type CacheEntry = { size: number; mtimeMs: number; ctimeMs?: number; hash: string; payload: unknown };
-  let previous = new Map<string, CacheEntry>();
+  const previous = new Map<string, CacheEntry>();
   if (cachePath && options.cache) {
     try {
       const data = JSON.parse(await readFile(cachePath, 'utf8')) as { schema?: number; version?: string; root?: string; entries?: Record<string, CacheEntry> };
-      if (data.schema === 1 && data.version === options.cache.version && data.root === root && data.entries) previous = new Map(Object.entries(data.entries));
+      if (data.schema === 1 && data.version === options.cache.version && data.root === root
+        && data.entries && typeof data.entries === 'object' && !Array.isArray(data.entries)) {
+        for (const [path, entry] of Object.entries(data.entries)) {
+          if (entry && typeof entry === 'object' && !Array.isArray(entry)
+            && Number.isSafeInteger(entry.size) && entry.size >= 0
+            && Number.isFinite(entry.mtimeMs)
+            && (entry.ctimeMs === undefined || Number.isFinite(entry.ctimeMs))
+            && typeof entry.hash === 'string' && /^[a-f0-9]{64}$/.test(entry.hash)) previous.set(path, entry);
+          else warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);
+        }
+      }
     } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') warnings.push('Persistent index cache was unreadable and will be rebuilt.'); }
   }
   const inventoryLimit = options.skipSourceOutsideBudget ? Math.max(50_000, limits.maxFiles) : limits.maxFiles;
@@ -232,8 +242,25 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (!cachePath || !options.cache) return;
     await Promise.all(pendingPayloads);
     if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry)) return;
-    try { await mkdir(options.cache.directory, { recursive: true }); const temporary = `${cachePath}.${process.pid}.tmp`; await writeFile(temporary, JSON.stringify({ schema: 1, version: options.cache.version, root, entries: Object.fromEntries(next) })); await rename(temporary, cachePath); }
+    const temporary = `${cachePath}.${process.pid}.tmp`;
+    try {
+      await mkdir(options.cache.directory, { recursive: true });
+      const file = await open(temporary, 'w');
+      try {
+        // Serialize bounded batches instead of holding a second full-project JSON string.
+        let batch = `{"schema":1,"version":${JSON.stringify(options.cache.version)},"root":${JSON.stringify(root)},"entries":{`;
+        let separator = '';
+        for (const [path, entry] of next) {
+          batch += `${separator}${JSON.stringify(path)}:${JSON.stringify(entry)}`;
+          separator = ',';
+          if (batch.length >= 256 * 1024) { await file.writeFile(batch); batch = ''; }
+        }
+        await file.writeFile(`${batch}}}`);
+      } finally { await file.close(); }
+      await rename(temporary, cachePath);
+    }
     catch { warnings.push('Persistent index cache could not be written.'); }
+    finally { await rm(temporary, { force: true }).catch(() => undefined); }
   };
   if (options.includeDependencies === false) {
     await commitCache();

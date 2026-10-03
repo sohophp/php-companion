@@ -10,6 +10,8 @@ const messages = {
   filename: ['Primary type {0} should be declared in {0}.php.', '主类型 {0} 应声明在 {0}.php 中。'],
   unusedImport: ['Unused {0} import {1}.', '未使用的{0}导入：{1}。'],
   undefinedVariable: ['Variable ${0} is definitely undefined at this point.', '变量 ${0} 在此处确定未定义。'],
+  possiblyUndefinedVariable: ['Variable ${0} may be undefined at this point.', '变量 ${0} 在此处可能未定义。'],
+  unboundThis: ['Cannot use $this without a bound object.', '当前作用域没有绑定对象，不能使用 $this。'],
   unresolvedType: ['Cannot resolve type {0}.', '无法解析类型 {0}。'],
   unresolvedFunction: ['Cannot resolve function {0}.', '无法解析函数 {0}。'],
   unresolvedConstant: ['Cannot resolve constant {0}.', '无法解析常量 {0}。'],

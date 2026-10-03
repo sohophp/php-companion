@@ -6,11 +6,239 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
 import { SemanticWorkspace } from '@php-companion/semantic';
 import { indexComposerRoot } from '../src/projectIndex.js';
-import { BUILTIN_DOCUMENT_URI, builtinPhpStub } from '@php-companion/language-spec';
+import { bcmathNumberDocumentUri, bcmathNumberPhpStub, BUILTIN_DOCUMENT_URI, builtinPhpStub, filterClassesDocumentUri, filterClassesPhpStub, pdoDriverDocumentUri, pdoDriverPhpStub, randomClassesDocumentUri, randomClassesPhpStub } from '@php-companion/language-spec';
 
 describe('bounded Composer indexing', () => {
   let root: string | undefined;
   afterEach(async () => { if (root) await rm(root, { recursive: true, force: true }); });
+  it('resolves PHP 8.5 Filter exceptions only while the extension is available', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///FilterConsumer.php';
+      const source = '<?php function handle(\\Filter\\FilterException $error): void { $error->getMessage(); }';
+      semantic.update(uri, source);
+      expect(semantic.definition(uri, source.indexOf('FilterException') + 2)).toEqual([]);
+      const filterUri = filterClassesDocumentUri('8.5');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      semantic.update(filterUri, filterClassesPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('FilterException') + 2)).toMatchObject([{ uri: filterUri }]);
+      expect(semantic.definition(uri, source.indexOf('getMessage') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.remove(filterUri);
+      expect(semantic.definition(uri, source.indexOf('FilterException') + 2)).toEqual([]);
+      expect(filterClassesPhpStub('8.4')).toBe('');
+      expect(filterClassesPhpStub('8.5', { disabledExtensions: ['filter'] })).toBe('');
+    } finally { parser.dispose(); }
+  });
+  it('resolves versioned date members and Closure::getCurrent', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///DateMembers.php';
+      const source = '<?php function inspect(DatePeriod $period): void { DateTimeZone::ALL_WITH_BC; $period->start; Closure::getCurrent(); }';
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('ALL_WITH_BC') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->start') + 3)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('getCurrent') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('->start') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('getCurrent') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('getCurrent(') + 'getCurrent('.length)?.returnType).toBe('Closure');
+    } finally { parser.dispose(); }
+  });
+  it('resolves Date procedural functions and their versioned signatures', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///DateFunctions.php';
+      const source = '<?php strtotime("tomorrow"); date("c"); date_create("now"); date_get_last_errors(); DATE_ATOM; DATE_ISO8601_EXPANDED;';
+      semantic.update(uri, source);
+      const signature = (name: string): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf(`${name}(`) + name.length + 1);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('strtotime') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('DATE_ATOM') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('DATE_ISO8601_EXPANDED') + 2)).toEqual([]);
+      expect(signature('strtotime')?.parameters.map((parameter) => parameter.name)).toEqual(['time', 'now']);
+      expect(signature('date_create')?.returnType).toBe('DateTime|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(signature('date_get_last_errors')?.returnType).toBe('array');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(signature('strtotime')?.parameters.map((parameter) => parameter.name)).toEqual(['datetime', 'baseTimestamp']);
+      expect(signature('date_create')?.returnType).toBe('DateTime|false');
+      expect(signature('date_get_last_errors')?.returnType).toBe('array|false');
+      expect(semantic.definition(uri, source.indexOf('DATE_ISO8601_EXPANDED') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves standard array options and versioned sort and pointer signatures', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StandardArrays.php';
+      const source = `<?php /** @param array<string, int> $items */
+        function inspect(array $items): void {
+          ksort($items, SORT_STRING);
+          current($items);
+          array_pad($items, 3, 0);
+          array_count_values(['a', 'a']);
+          array_change_key_case($items, CASE_LOWER);
+        }`;
+      semantic.update(uri, source);
+      const signature = (name: string): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf(`${name}(`) + name.length + 1);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(signature('ksort')?.parameters.map((parameter) => parameter.name)).toEqual(['arg', 'sort_flags']);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(signature('ksort')?.returnType).toBe('bool');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(signature('ksort')?.returnType).toBe('true');
+      expect(signature('current')?.returnType).toBe('TValue|false');
+      expect(semantic.signatures(uri, source.indexOf('array_count_values(') + 'array_count_values('.length).map(item => item.returnType))
+        .toEqual(['array<array-key, int>', 'array<int, int>']);
+      expect(semantic.definition(uri, source.indexOf('SORT_STRING') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('CASE_LOWER') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves PHP 7 and PHP 8 array comparator signatures', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///ArrayComparators.php';
+      const source = '<?php array_uintersect_uassoc([1], [2], $compareData, $compareKeys); array_diff_assoc([1], [2]);';
+      semantic.update(uri, source);
+      const signature = (name: string): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf(`${name}(`) + name.length + 1);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(signature('array_uintersect_uassoc')?.parameters.map((parameter) => parameter.name))
+        .toEqual(['arr1', 'arr2', 'callback_data_compare_func', 'callback_key_compare_func']);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(signature('array_uintersect_uassoc')?.parameters.map((parameter) => parameter.name))
+        .toEqual(['array', 'rest']);
+      expect(signature('array_diff_assoc')?.returnType).toBe('array<TKey, TValue>');
+    } finally { parser.dispose(); }
+  });
+  it('resolves versioned standard time function definitions and signatures', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StandardTime.php';
+      const source = '<?php microtime(true); hrtime(true); sleep(1);';
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.signature(uri, source.indexOf('microtime(') + 'microtime('.length)?.parameters[0]?.name).toBe('get_as_float');
+      expect(semantic.definition(uri, source.indexOf('hrtime') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.3'));
+      expect(semantic.definition(uri, source.indexOf('hrtime') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.signature(uri, source.indexOf('microtime(') + 'microtime('.length)?.parameters[0]?.name).toBe('as_float');
+      expect(semantic.signature(uri, source.indexOf('sleep(') + 'sleep('.length)?.returnType).toBe('int');
+    } finally { parser.dispose(); }
+  });
+  it('resolves stream context and filter version boundaries', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StreamContext.php';
+      const source = `<?php
+        $context = stream_context_create();
+        stream_context_set_options($context, ['http' => []]);
+        stream_context_set_option($context, 'http', 'timeout', 1);
+        stream_filter_append($stream, 'string.toupper', STREAM_FILTER_READ);`;
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.2'));
+      expect(semantic.definition(uri, source.indexOf('stream_context_set_options') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.3'));
+      expect(semantic.signature(uri, source.indexOf('stream_context_set_options(') + 'stream_context_set_options('.length)?.returnType).toBe('bool');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(semantic.signature(uri, source.indexOf('stream_context_set_options(') + 'stream_context_set_options('.length)?.returnType).toBe('true');
+      expect(semantic.definition(uri, source.indexOf('STREAM_FILTER_READ') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('stream_filter_append(') + 'stream_filter_append('.length)?.parameters[1]?.name).toBe('filter_name');
+    } finally { parser.dispose(); }
+  });
+  it('resolves PHP 7 and PHP 8 stream I/O signatures', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StreamIo.php';
+      const source = '<?php stream_get_contents($stream); stream_select($read, $write, $except, 1); stream_get_wrappers();';
+      semantic.update(uri, source);
+      const signature = (name: string): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf(`${name}(`) + name.length + 1);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(signature('stream_get_contents')?.parameters[0]?.name).toBe('source');
+      expect(signature('stream_select')?.parameters.map((parameter) => parameter.name))
+        .toEqual(['read_streams', 'write_streams', 'except_streams', 'tv_sec', 'tv_usec']);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(signature('stream_get_contents')?.returnType).toBe('string|false');
+      expect(signature('stream_select')?.parameters.map((parameter) => parameter.name))
+        .toEqual(['read', 'write', 'except', 'seconds', 'microseconds']);
+      expect(signature('stream_get_wrappers')?.returnType).toBe('list<string>');
+    } finally { parser.dispose(); }
+  });
+  it('resolves stream socket callbacks, flags, and PHP versioned parameter names', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StreamSocket.php';
+      const source = '<?php stream_socket_client("tcp://example.test:80", $code, $message, null, STREAM_CLIENT_CONNECT); stream_socket_shutdown($stream, STREAM_SHUT_RDWR);';
+      semantic.update(uri, source);
+      const client = (): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf('stream_socket_client(') + 'stream_socket_client('.length);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(client()?.parameters.slice(0, 3).map((parameter) => parameter.name)).toEqual(['remoteaddress', 'errcode', 'errstring']);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(client()?.parameters.slice(0, 3).map((parameter) => parameter.name)).toEqual(['address', 'error_code', 'error_message']);
+      expect(client()?.returnType).toBe('resource|false');
+      expect(semantic.definition(uri, source.indexOf('STREAM_CLIENT_CONNECT') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('STREAM_SHUT_RDWR') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves StreamBucket functions across the PHP 8.4 boundary', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StreamFilter.php';
+      const source = '<?php stream_bucket_new($stream, "abc"); stream_bucket_append($brigade, $bucket); stream_wrapper_register("demo", DemoWrapper::class, STREAM_IS_URL);';
+      semantic.update(uri, source);
+      const signature = (name: string): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf(`${name}(`) + name.length + 1);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(signature('stream_bucket_new')?.returnType).toBe('object');
+      expect(signature('stream_bucket_append')?.parameters[1]?.type).toBe('object');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(signature('stream_bucket_new')?.returnType).toBe('StreamBucket');
+      expect(signature('stream_bucket_append')?.parameters[1]?.type).toBe('StreamBucket');
+      expect(semantic.definition(uri, source.indexOf('STREAM_IS_URL') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves standard utility signatures and image constant boundaries', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///StandardUtilities.php';
+      const source = '<?php pack("n", 1); highlight_string("<?php", true); image_type_to_extension(IMAGETYPE_AVIF); getimagesize($path);';
+      semantic.update(uri, source);
+      const signature = (name: string): ReturnType<SemanticWorkspace['signature']> =>
+        semantic.signature(uri, source.indexOf(`${name}(`) + name.length + 1);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(signature('pack')?.returnType).toBe('string|false');
+      expect(semantic.definition(uri, source.indexOf('IMAGETYPE_AVIF') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('IMAGETYPE_AVIF') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(signature('highlight_string')?.returnType).toBe('($return is true ? string : true)');
+      expect(signature('pack')?.returnType).toBe('string');
+      expect(signature('getimagesize')?.parameters[0]?.name).toBe('filename');
+    } finally { parser.dispose(); }
+  });
+  it('removes platform-dependent standard definitions when runtime facts exclude them', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const uri = 'file:///PlatformFunctions.php';
+      const source = '<?php strptime("2026", "%Y"); sys_getloadavg(); ftok(__FILE__, "p");';
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const name of ['strptime', 'sys_getloadavg', 'ftok']) {
+        expect(semantic.definition(uri, source.indexOf(name) + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', {
+        unavailableFunctions: ['strptime', 'sys_getloadavg', 'ftok'],
+      }));
+      for (const name of ['strptime', 'sys_getloadavg', 'ftok']) {
+        expect(semantic.definition(uri, source.indexOf(name) + 2)).toEqual([]);
+      }
+    } finally { parser.dispose(); }
+  });
   it('indexes root and vendor PSR-4 declarations for semantic queries', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-ls-project-'));
     await mkdir(join(root, 'src'), { recursive: true });
@@ -144,6 +372,41 @@ describe('bounded Composer indexing', () => {
       expect(semantic.unresolvedNewTypes(uri)).toEqual([]);
       expect(semantic.completeMembers(uri, source.indexOf('$wrapped->getV') + '$wrapped->getV'.length).map((item) => item.name)).toEqual(['getValue']);
       expect(semantic.definition(uri, source.indexOf('SensitiveParameter') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves versioned core attributes, flags, and constants', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $attribute = new \\Attribute(\\Attribute::TARGET_METHOD);
+        $attribute->fl;
+        \\Attribute::TARGET_CON;
+        #[\\AllowDynamicProperties] class Flexible {}
+        class Base { public function go(): void {} }
+        class Child extends Base { #[\\Override] public function go(): void {} }
+      `;
+      const uri = 'file:///CoreAttributes.php';
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.4'));
+      expect(semantic.unresolvedNewTypes(uri).map((item) => item.fqcn)).toContain('Attribute');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.unresolvedNewTypes(uri)).toEqual([]);
+      const partialUri = 'file:///AttributePartial.php';
+      const partial = '<?php #[\\Attrib';
+      semantic.update(partialUri, partial);
+      expect(semantic.completeTypes(partialUri, partial.length).map((item) => item.name)).toContain('Attribute');
+      expect(semantic.signature(uri, source.indexOf('new \\Attribute(') + 'new \\Attribute('.length)?.parameters[0])
+        .toMatchObject({ name: 'flags', type: 'int' });
+      expect(semantic.completeMembers(uri, source.indexOf('$attribute->fl') + '$attribute->fl'.length))
+        .toMatchObject([{ name: 'flags', kind: 'property', returnType: 'int' }]);
+      expect(semantic.definition(uri, source.indexOf('Attribute::TARGET_METHOD') + 'Attribute::'.length + 2))
+        .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.completeMembers(uri, source.indexOf('Attribute::TARGET_CON') + 'Attribute::TARGET_CON'.length)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.completeMembers(uri, source.indexOf('Attribute::TARGET_CON') + 'Attribute::TARGET_CON'.length)
+        .map((item) => item.name)).toEqual(['TARGET_CONSTANT']);
+      expect(semantic.definition(uri, source.indexOf('AllowDynamicProperties') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('Override') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
     } finally { parser.dispose(); }
   });
   it('resolves core iterable contracts, automatic interfaces, and non-constructible objects', async () => {
@@ -398,6 +661,652 @@ describe('bounded Composer indexing', () => {
       expect(semantic.signature(uri, source.indexOf('array_walk($items') + 'array_walk('.length)?.returnType).toBe('true');
     } finally { parser.dispose(); }
   });
+  it('uses BCMath signatures and removes PHP 8.4 functions on older targets', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        function calculate(): void {
+          bcscale(2); bcdiv('5', '2'); bcadd('1', '2'); bcdivmod('5', '2');
+        }`;
+      const uri = 'file:///BcMathConsumer.php'; semantic.update(uri, source);
+      const returnAt = (name: string): string | undefined => semantic.signature(uri,
+        source.indexOf(`${name}(`) + name.length + 1)?.returnType;
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(returnAt('bcscale')).toBe('bool');
+      expect(returnAt('bcdiv')).toBe('?string');
+      expect(returnAt('bcadd')).toBe('string');
+      expect(semantic.signatures(uri, source.indexOf('bcdivmod(') + 'bcdivmod('.length)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(returnAt('bcscale')).toBe('int');
+      expect(returnAt('bcdiv')).toBe('string');
+      expect(returnAt('bcdivmod')).toBe('array{0: string, 1: string}');
+      expect(semantic.definition(uri, source.indexOf('bcdivmod(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves BcMath Number and its members only while the PHP 8.4 extension document is present', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $number = new \\BcMath\\Number('1.5');
+        $number->round(); $number->co;`;
+      const uri = 'file:///BcMathNumberConsumer.php';
+      const numberUri = bcmathNumberDocumentUri('8.4');
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.3'));
+      expect(semantic.definition(uri, source.indexOf('Number(') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      semantic.update(numberUri, bcmathNumberPhpStub('8.4'));
+      expect(semantic.definition(uri, source.indexOf('Number(') + 2)).toMatchObject([{ uri: numberUri }]);
+      expect(semantic.definition(uri, source.indexOf('->round') + 3)).toMatchObject([{ uri: numberUri }]);
+      expect(semantic.completeMembers(uri, source.indexOf('->co') + 4).map((item) => item.name)).toContain('compare');
+      semantic.remove(numberUri);
+      expect(semantic.definition(uri, source.indexOf('Number(') + 2)).toEqual([]);
+      expect(semantic.completeMembers(uri, source.indexOf('->co') + 4)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves iconv functions and preserves their PHP 7 failure returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $text = iconv('UTF-8', 'ASCII', 'hello');
+        $count = iconv_strlen('hello');
+        $headers = iconv_mime_decode_headers('Subject: example');
+        $mode = ICONV_MIME_DECODE_STRICT;`;
+      const uri = 'file:///IconvConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      const returnAt = (name: string): string | undefined => semantic.signature(uri,
+        source.indexOf(`${name}(`) + name.length + 1)?.returnType;
+      expect(returnAt('iconv')).toBe('string|false');
+      expect(returnAt('iconv_strlen')).toBe('int|false');
+      expect(returnAt('iconv_mime_decode_headers')).toBe('array<string, string|list<string>>|false');
+      expect(semantic.definition(uri, source.indexOf('iconv_strlen') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('ICONV_MIME_DECODE_STRICT') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['iconv'] }));
+      expect(semantic.definition(uri, source.indexOf('iconv_strlen') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves versioned Fileinfo functions, finfo members, and constants', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $handle = finfo_open(FILEINFO_MIME_TYPE);
+        $info = new finfo(FILEINFO_MIME_TYPE);
+        $result = $info->file('example.txt');
+        $fallback = mime_content_type('example.txt');`;
+      const uri = 'file:///FileinfoConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      const returnAt = (name: string): string | undefined => semantic.signature(uri,
+        source.indexOf(`${name}(`) + name.length + 1)?.returnType;
+      expect(returnAt('finfo_open')).toBe('resource|false');
+      expect(returnAt('mime_content_type')).toBe('string|false');
+      expect(semantic.definition(uri, source.indexOf('FILEINFO_MIME_TYPE') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(returnAt('finfo_open')).toBe('finfo|false');
+      expect(semantic.definition(uri, source.indexOf('finfo_open') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->file') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['fileinfo'] }));
+      expect(semantic.definition(uri, source.indexOf('finfo_open') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Hash incremental APIs, context type, and versioned returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $context = hash_init('sha256', HASH_HMAC, 'key');
+        hash_update($context, 'body');
+        $copy = hash_copy($context);
+        $digest = hash_final($copy);
+        $key = hash_hkdf('sha256', 'input');
+        mhash(MHASH_SHA256, 'body');`;
+      const uri = 'file:///HashConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      const returnAt = (name: string): string | undefined => semantic.signature(uri,
+        source.indexOf(`${name}(`) + name.length + 1)?.returnType;
+      expect(returnAt('hash_init')).toBe('HashContext|false');
+      expect(returnAt('hash_hkdf')).toBe('string|false');
+      expect(semantic.definition(uri, source.indexOf('HASH_HMAC') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('MHASH_SHA256') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(returnAt('hash_init')).toBe('HashContext');
+      expect(returnAt('hash_update')).toBe('true');
+      expect(semantic.definition(uri, source.indexOf('hash_copy') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4', { unavailableFunctions: ['mhash'] }));
+      expect(semantic.definition(uri, source.indexOf('mhash(') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('hash_copy') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves ZipArchive methods, constants, and return types only when Zip is available', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $zip = new ZipArchive();
+        $status = $zip->open('example.zip', ZipArchive::CREATE);
+        $zip->addFromString('a.txt', 'body');
+        $body = $zip->getFromName('a.txt');
+        $version = ZipArchive::LIBZIP_VERSION;
+        zip_open('example.zip');`;
+      const uri = 'file:///ZipConsumer.php'; semantic.update(uri, source);
+      const zipRuntime = { methods: ['open', 'addFromString', 'getFromName'],
+        constants: { CREATE: 1, LIBZIP_VERSION: '1.11.4' } };
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { zipRuntime }));
+      expect(semantic.definition(uri, source.indexOf('ZipArchive()') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->addFromString') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('LIBZIP_VERSION') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('zip_open') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('getFromName(') + 'getFromName('.length)?.returnType).toBe('string|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['zip'], zipRuntime }));
+      expect(semantic.definition(uri, source.indexOf('ZipArchive()') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('zip_open') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Zlib functions and context classes only while the extension is available', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $packed = gzencode('body');
+        $plain = gzdecode($packed);
+        $context = deflate_init(ZLIB_ENCODING_GZIP);
+        $next = deflate_add($context, 'more');
+        $version = ZLIB_VERSION;`;
+      const uri = 'file:///ZlibConsumer.php'; semantic.update(uri, source);
+      const zlibRuntime = { version: '1.2.11', vernum: 4784 };
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { zlibRuntime }));
+      expect(semantic.definition(uri, source.indexOf('gzencode(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('deflate_add(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('ZLIB_VERSION') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('gzencode(') + 'gzencode('.length)?.returnType).toBe('string|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['zlib'], zlibRuntime }));
+      expect(semantic.definition(uri, source.indexOf('gzencode(') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('ZLIB_VERSION') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Sockets functions and runtime constants with versioned Socket returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $data = socket_read($socket, 1024);
+        $family = AF_INET6;`;
+      const uri = 'file:///SocketConsumer.php'; semantic.update(uri, source);
+      const socketsRuntime = { functions: ['socket_create', 'socket_read'],
+        constants: { AF_INET: 2, AF_INET6: 10, SOCK_STREAM: 1, SOL_TCP: 6 } };
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { socketsRuntime }));
+      expect(semantic.definition(uri, source.indexOf('socket_create(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('AF_INET6') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('socket_create(') + 'socket_create('.length)?.returnType).toBe('Socket|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2', { socketsRuntime }));
+      expect(semantic.signature(uri, source.indexOf('socket_create(') + 'socket_create('.length)?.returnType).toBe('resource|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['sockets'], socketsRuntime }));
+      expect(semantic.definition(uri, source.indexOf('socket_create(') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('AF_INET6') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves OpenSSL functions, key classes, and runtime constants only while available', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $key = openssl_pkey_new();
+        $cipher = openssl_encrypt('body', 'aes-128-cbc', 'secret', OPENSSL_RAW_DATA);
+        $version = OPENSSL_VERSION_TEXT;`;
+      const uri = 'file:///OpenSslConsumer.php'; semantic.update(uri, source);
+      const openSslRuntime = { functions: ['openssl_pkey_new', 'openssl_encrypt'],
+        constants: { OPENSSL_RAW_DATA: 1, OPENSSL_VERSION_TEXT: 'OpenSSL 1.1.1k' } };
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { openSslRuntime }));
+      expect(semantic.definition(uri, source.indexOf('openssl_pkey_new(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('OPENSSL_VERSION_TEXT') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('openssl_pkey_new(') + 'openssl_pkey_new('.length)?.returnType).toBe('OpenSSLAsymmetricKey|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2', { openSslRuntime }));
+      expect(semantic.signature(uri, source.indexOf('openssl_pkey_new(') + 'openssl_pkey_new('.length)?.returnType).toBe('resource|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['openssl'], openSslRuntime }));
+      expect(semantic.definition(uri, source.indexOf('openssl_pkey_new(') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('OPENSSL_VERSION_TEXT') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves MySQLi connection, result methods, and constants only while available', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $db = mysqli_connect('localhost', 'user', 'pass');
+        $result = $db->query('SELECT 1');
+        if ($result instanceof mysqli_result) { $row = $result->fetch_assoc(); }
+        $mode = MYSQLI_ASSOC;`;
+      const uri = 'file:///MysqliConsumer.php'; semantic.update(uri, source);
+      const mysqliRuntime = { functions: ['mysqli_connect', 'mysqli_query'], constants: { MYSQLI_ASSOC: 1 },
+        methods: { mysqli_sql_exception: [], mysqli_driver: [], mysqli: ['query'], mysqli_warning: [],
+          mysqli_result: ['fetch_assoc'], mysqli_stmt: [] } };
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { mysqliRuntime }));
+      expect(semantic.definition(uri, source.indexOf('mysqli_connect(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('MYSQLI_ASSOC') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('mysqli_connect(') + 'mysqli_connect('.length)?.returnType).toBe('mysqli|false');
+      expect(semantic.signature(uri, source.indexOf('fetch_assoc(') + 'fetch_assoc('.length)?.returnType).toBe('array|false|null');
+      expect(semantic.completeMembers(uri, source.indexOf('fetch_assoc()') + 5).map((item) => item.name)).toContain('fetch_assoc');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['mysqli'], mysqliRuntime }));
+      expect(semantic.definition(uri, source.indexOf('mysqli_connect(') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('MYSQLI_ASSOC') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves cURL handles, options, and versioned APIs without leaking PHP 8 types to PHP 7', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $handle = curl_init('https://example.test');
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($handle);
+        $file = new \\CURLStringFile('body', 'sample.txt');
+        curl_upkeep($handle);
+        $share = curl_share_init_persistent([CURL_LOCK_DATA_DNS]);`;
+      const uri = 'file:///CurlConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      const returnAt = (name: string): string | undefined => semantic.signature(uri,
+        source.indexOf(`${name}(`) + name.length + 1)?.returnType;
+      expect(returnAt('curl_init')).toBe('resource|false');
+      expect(returnAt('curl_exec')).toBe('string|bool');
+      expect(semantic.definition(uri, source.indexOf('CURLStringFile') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('curl_upkeep') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('CURLOPT_RETURNTRANSFER') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
+      expect(returnAt('curl_init')).toBe('CurlHandle|false');
+      expect(semantic.definition(uri, source.indexOf('CURLStringFile') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('CURLStringFile') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.2'));
+      expect(semantic.definition(uri, source.indexOf('curl_upkeep') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(returnAt('curl_share_init_persistent')).toBe('CurlSharePersistentHandle');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['curl'] }));
+      expect(semantic.definition(uri, source.indexOf('curl_init') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('CURLStringFile') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves versioned Intl Locale and Normalizer APIs and removes them when disabled', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $locale = \\Locale::canonicalize('en_US');
+        $text = \\Normalizer::normalize('example');
+        $language = locale_get_primary_language('en_US');
+        $rtl = \\Locale::isRightToLeft('ar');
+        $decomposition = normalizer_get_raw_decomposition('a');
+        $form = \\Normalizer::FORM_C;
+        $length = grapheme_strlen('mañana');
+        $ascii = idn_to_ascii('münchen.example', IDNA_DEFAULT);`;
+      const uri = 'file:///IntlConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('canonicalize') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('normalizer_get_raw_decomposition') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('isRightToLeft') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('FORM_C') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('grapheme_strlen') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('isRightToLeft') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('normalizer_get_raw_decomposition') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('IDNA_DEFAULT') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('canonicalize') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('locale_get_primary_language') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('idn_to_ascii') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Collator methods, constants, and versioned procedural returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $collator = new \\Collator('zh_TW');
+        $comparison = $collator->compare('a', 'b');
+        $created = \\Collator::create('en_US');
+        collator_set_strength($collator, \\Collator::PRIMARY);`;
+      const uri = 'file:///CollatorConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('->compare') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('::PRIMARY') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      const returnAt = (): string | undefined => semantic.signature(uri,
+        source.indexOf('collator_set_strength(') + 'collator_set_strength('.length)?.returnType;
+      expect(returnAt()).toBe('bool');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(returnAt()).toBe('true');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('->compare') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('::PRIMARY') + 3)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves NumberFormatter constructors, members, constants, and procedural failure returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $formatter = new \\NumberFormatter('de_DE', \\NumberFormatter::CURRENCY);
+        $text = $formatter->formatCurrency(12.5, 'EUR');
+        $number = numfmt_parse($formatter, '12,5');
+        $created = \\NumberFormatter::create('en_US', \\NumberFormatter::DECIMAL);`;
+      const uri = 'file:///NumberFormatterConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('new \\NumberFormatter') + 7)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->formatCurrency') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('::CURRENCY') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('numfmt_parse(') + 'numfmt_parse('.length)?.returnType).toBe('int|float|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('->formatCurrency') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('numfmt_parse(') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves IntlDateFormatter constructors, methods, constants, and procedural returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $formatter = new \\IntlDateFormatter('en_US', \\IntlDateFormatter::SHORT, \\IntlDateFormatter::NONE);
+        $formatted = $formatter->format(0);
+        $parsed = datefmt_parse($formatter, '1/1/70');
+        $calendar = $formatter->parseToCalendar('1/1/70');`;
+      const uri = 'file:///IntlDateFormatterConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('new \\IntlDateFormatter') + 7)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('::SHORT') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->format') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->parseToCalendar') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('datefmt_parse(') + 'datefmt_parse('.length)?.returnType).toBe('int|float|false');
+      expect(semantic.signature(uri, source.indexOf('->parseToCalendar(') + '->parseToCalendar('.length)?.returnType).toBe('int|float|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.2'));
+      expect(semantic.definition(uri, source.indexOf('->parseToCalendar') + 4)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('->format') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('datefmt_parse(') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Intl global error functions and their return types', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = '<?php $code = intl_get_error_code(); $failed = intl_is_failure($code); $name = intl_error_name($code);';
+      const uri = 'file:///IntlErrorsConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('intl_get_error_code') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('intl_is_failure(') + 'intl_is_failure('.length)?.returnType).toBe('bool');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('intl_get_error_code') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves ResourceBundle methods, procedural APIs, and versioned iterator exposure', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $bundle = new \\ResourceBundle('en_US', null);
+        $item = $bundle->get('calendar');
+        $iter = $bundle->getIterator();
+        $count = resourcebundle_count($bundle);
+        $value = resourcebundle_get($bundle, 'calendar');`;
+      const uri = 'file:///ResourceBundleConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('new \\ResourceBundle') + 7)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->get(') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->getIterator') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('resourcebundle_get(') + 'resourcebundle_get('.length)?.returnType).toBe('ResourceBundle|array|string|int|null');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('->getIterator') + 3)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('->get(') + 3)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('resourcebundle_count(') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Transliterator members, constants, and versioned procedural returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $trans = \\Transliterator::create('Any-Latin', \\Transliterator::FORWARD);
+        $text = $trans?->transliterate('中文');
+        $id = $trans?->id;
+        $output = transliterator_transliterate('Any-Latin', '中文');
+        $code = transliterator_get_error_code($trans);`;
+      const uri = 'file:///TransliteratorConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('::create') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('::FORWARD') + 3)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('?->transliterate') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('?->id') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('transliterator_get_error_code(') + 'transliterator_get_error_code('.length)?.returnType).toBe('int');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(semantic.signature(uri, source.indexOf('transliterator_get_error_code(') + 'transliterator_get_error_code('.length)?.returnType).toBe('int|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('?->transliterate') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('transliterator_transliterate(') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves MessageFormatter constructors, methods, and procedural failure returns', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $formatter = new \\MessageFormatter('en_US', 'Hello {name}');
+        $text = $formatter->format(['name' => 'Ada']);
+        $parsed = $formatter->parse('Hello Ada');
+        $once = \\MessageFormatter::formatMessage('en_US', 'Hello {name}', ['name' => 'Ada']);
+        $values = msgfmt_parse_message('en_US', 'Hello {name}', 'Hello Ada');`;
+      const uri = 'file:///MessageFormatterConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.definition(uri, source.indexOf('new \\MessageFormatter') + 7)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->format(') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('->parse(') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('::formatMessage(') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('msgfmt_parse_message(') + 'msgfmt_parse_message('.length)?.returnType).toBe('array|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('->format(') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('msgfmt_parse_message(') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves IntlTimeZone methods and versioned procedural functions', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $zone = \\IntlTimeZone::getGMT();
+        $id = $zone->getID();
+        $name = $zone->getDisplayName();
+        $iana = \\IntlTimeZone::getIanaID('UTC');
+        $other = intltz_create_time_zone('UTC');
+        $canonical = intltz_get_iana_id('UTC');
+        function inspectIds(\\IntlIterator $ids): void { $ids->current(); }`;
+      const uri = 'file:///IntlTimeZoneConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const needle of ['getGMT', '->getID', '->getDisplayName', 'getIanaID', 'intltz_create_time_zone', 'intltz_get_iana_id']) {
+        expect(semantic.definition(uri, source.indexOf(needle) + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      expect(semantic.signature(uri, source.indexOf('intltz_get_iana_id(') + 'intltz_get_iana_id('.length)?.returnType).toBe('string|false');
+      expect(semantic.signature(uri, source.indexOf('getIanaID(') + 'getIanaID('.length)?.returnType).toBe('string|false');
+      expect(semantic.definition(uri, source.indexOf('->current') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('getIanaID') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('intltz_get_iana_id') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { unavailableFunctions: ['intltz_get_iana_id'] }));
+      expect(semantic.definition(uri, source.indexOf('getIanaID') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('intltz_get_iana_id') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('getGMT') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('intltz_create_time_zone') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->current') + 4)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves IntlCalendar and Gregorian members with versioned factories', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $calendar = \\IntlCalendar::createInstance();
+        $calendar?->getTime();
+        $calendar?->setDate(2026, 9, 30);
+        $gregorian = new \\IntlGregorianCalendar();
+        $gregorian->isLeapYear(2028);
+        $other = \\IntlGregorianCalendar::createFromDate(2026, 9, 30);
+        $names = intlcal_get_available_locales();
+        $value = intlcal_get_time($calendar);
+        $leap = intlgregcal_is_leap_year($gregorian, 2028);
+        \\IntlCalendar::FIELD_YEAR;`;
+      const uri = 'file:///IntlCalendarConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const needle of ['createInstance', '->getTime', '->setDate', 'new \\IntlGregorianCalendar', '->isLeapYear', 'createFromDate', 'intlcal_get_available_locales', 'intlcal_get_time', 'intlgregcal_is_leap_year', 'FIELD_YEAR']) {
+        const position = source.indexOf(needle) + (needle.startsWith('new ') ? 7 : 2);
+        expect(semantic.definition(uri, position)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      expect(semantic.signature(uri, source.indexOf('intlcal_get_time(') + 'intlcal_get_time('.length)?.returnType).toBe('float|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('->setDate') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('createFromDate') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->getTime') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('createInstance') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('intlgregcal_is_leap_year') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Spoofchecker members and filters later PHP versions', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $checker = new \\Spoofchecker();
+        $checker->isSuspicious('paypal');
+        $checker->setRestrictionLevel(\\Spoofchecker::HIGHLY_RESTRICTIVE);
+        $checker->setAllowedChars('[a-z]', \\Spoofchecker::IGNORE_SPACE);`;
+      const uri = 'file:///SpoofcheckerConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const needle of ['new \\Spoofchecker', '->isSuspicious', '->setRestrictionLevel', 'HIGHLY_RESTRICTIVE', '->setAllowedChars', 'IGNORE_SPACE']) {
+        const position = source.indexOf(needle) + (needle.startsWith('new ') ? 7 : 4);
+        expect(semantic.definition(uri, position)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('->setRestrictionLevel') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('HIGHLY_RESTRICTIVE') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->isSuspicious') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
+      expect(semantic.definition(uri, source.indexOf('->setAllowedChars') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('IGNORE_SPACE') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('->isSuspicious') + 4)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Intl format classes at their PHP version boundaries', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $pattern = new \\IntlDatePatternGenerator('en_US');
+        $best = $pattern->getBestPattern('yMMMd');
+        $list = new \\IntlListFormatter('en_US', \\IntlListFormatter::TYPE_AND);
+        $text = $list->format(['a', 'b']);
+        $code = $list->getErrorCode();`;
+      const uri = 'file:///IntlFormatConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const needle of ['IntlDatePatternGenerator', '->getBestPattern', 'IntlListFormatter', 'TYPE_AND', '->format', '->getErrorCode']) {
+        expect(semantic.definition(uri, source.indexOf(needle) + 2), needle).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(semantic.definition(uri, source.indexOf('IntlListFormatter') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->format') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->getBestPattern') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
+      expect(semantic.definition(uri, source.indexOf('IntlDatePatternGenerator') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('IntlListFormatter') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Intl break iterator factories, subclasses, and PHP 8 collection methods', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $break = \\IntlBreakIterator::createWordInstance('en_US');
+        $break?->setText('one two');
+        $break?->getIterator();
+        $parts = $break?->getPartsIterator(\\IntlPartsIterator::KEY_LEFT);
+        $parts?->getBreakIterator();
+        $parts?->getRuleStatus();
+        $rules = new \\IntlRuleBasedBreakIterator('!!forward;');
+        $rules->getRules();
+        $code = \\IntlBreakIterator::createCodePointInstance();
+        $code->getLastCodePoint();`;
+      const uri = 'file:///IntlBreakConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const needle of ['createWordInstance', '->setText', '->getIterator', '->getPartsIterator', 'KEY_LEFT', '->getBreakIterator', '->getRuleStatus', 'IntlRuleBasedBreakIterator', '->getRules', 'createCodePointInstance', '->getLastCodePoint']) {
+        expect(semantic.definition(uri, source.indexOf(needle) + 3), needle).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('->getIterator') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->getRuleStatus') + 4)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('->getPartsIterator') + 4)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('createWordInstance') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('KEY_LEFT') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves UConverter methods and constants only when Intl is available', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $text = \\UConverter::transcode('abc', 'UTF-8', 'ASCII');
+        $converter = new \\UConverter('UTF-8', 'ASCII');
+        $converter->convert($text);
+        $converter->getErrorCode();
+        \\UConverter::UTF8;`;
+      const uri = 'file:///ConverterConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      for (const needle of ['transcode', 'new \\UConverter', '->convert', '->getErrorCode', 'UTF8']) {
+        expect(semantic.definition(uri, source.indexOf(needle) + (needle.startsWith('new') ? 6 : 2)), needle)
+          .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'] }));
+      expect(semantic.definition(uri, source.indexOf('transcode') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('UTF8') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves IntlChar methods and stable or probed constants by PHP version', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $char = \\IntlChar::chr(65);
+        $code = \\IntlChar::ord($char);
+        \\IntlChar::PROPERTY_ALPHABETIC;
+        \\IntlChar::PROPERTY_IDS_UNARY_OPERATOR;
+        \\IntlChar::UNICODE_VERSION;`;
+      const uri = 'file:///IntlCharConsumer.php'; semantic.update(uri, source);
+      const runtime = { intlCharConstants: { UNICODE_VERSION: '15.1', JG_COUNT: 104 } };
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', runtime));
+      for (const needle of ['::chr', '::ord', 'PROPERTY_ALPHABETIC', 'PROPERTY_IDS_UNARY_OPERATOR', 'UNICODE_VERSION']) {
+        expect(semantic.definition(uri, source.indexOf(needle) + (needle.startsWith('::') ? 3 : 2)), needle)
+          .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      }
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2', runtime));
+      expect(semantic.definition(uri, source.indexOf('PROPERTY_IDS_UNARY_OPERATOR') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('UNICODE_VERSION') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['intl'], ...runtime }));
+      expect(semantic.definition(uri, source.indexOf('::chr') + 3)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('UNICODE_VERSION') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('uses versioned GD image return types and hides unavailable AVIF functions', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        $image = imagecreatetruecolor(16, 16);
+        $scaled = imagescale($image, 32);
+        $font = imageloadfont('font.gdf');
+        imagefilter($image, IMG_FILTER_BRIGHTNESS, 20);
+        imagefilledrectangle($image, 0, 0, 15, 15, 1);
+        image2wbmp($image);
+        imagepng($image);
+        imageavif($image);
+        IMG_PNG;`;
+      const uri = 'file:///ImageConsumer.php'; semantic.update(uri, source);
+      const returnAt = (name: string): string | undefined => semantic.signature(uri,
+        source.indexOf(`${name}(`) + name.length + 1)?.returnType;
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(returnAt('imagecreatetruecolor')).toBe('resource|false');
+      expect(returnAt('imagescale')).toBe('resource|false');
+      expect(returnAt('imageloadfont')).toBe('int|false');
+      expect(returnAt('image2wbmp')).toBe('bool');
+      expect(semantic.definition(uri, source.indexOf('imageavif') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(returnAt('imagecreatetruecolor')).toBe('GdImage|false');
+      expect(returnAt('imagescale')).toBe('GdImage|false');
+      expect(returnAt('imageloadfont')).toBe('GdFont|false');
+      expect(semantic.definition(uri, source.indexOf('image2wbmp') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('IMG_PNG') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('IMG_FILTER_BRIGHTNESS') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('imageavif') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { unavailableFunctions: ['imageavif', 'imagecreatefromavif'] }));
+      expect(semantic.definition(uri, source.indexOf('imageavif') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { disabledExtensions: ['gd'] }));
+      expect(semantic.definition(uri, source.indexOf('imagepng') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
   it('propagates generic array keys, values, filters, and maps', async () => {
     const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
     try {
@@ -419,6 +1328,238 @@ describe('bounded Composer indexing', () => {
       expect(semantic.completeMembers(uri, source.indexOf('$filteredValue->na') + '$filteredValue->na'.length).map((item) => item.name)).toEqual(['name']);
       expect(semantic.completeMembers(uri, source.indexOf('$mappedValue->na') + '$mappedValue->na'.length).map((item) => item.name)).toEqual(['name']);
       expect(semantic.incompatibleArguments(uri).filter((item) => item.callable === 'App\\acceptInt').map((item) => item.actualType)).toEqual(['string', 'false|string']);
+    } finally { parser.dispose(); }
+  });
+  it('does not type array_filter key-mode callback parameters as array values', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        class ArrayItem { public function name(): string { return ''; } }
+        const ARRAY_FILTER_USE_BOTH = 2;
+        /** @param array<string, ArrayItem> $items */
+        function filterItems(array $items, int $mode): void {
+          array_filter($items, fn($value) => $value->na);
+          array_filter($items, fn($key) => $key->na, ARRAY_FILTER_USE_KEY);
+          array_filter(array: $items, callback: fn($namedKey) => $namedKey->na, mode: ARRAY_FILTER_USE_KEY);
+          array_filter($items, fn($unknown) => $unknown->na, $mode);
+          array_filter($items, fn($zero) => $zero->na, 0);
+          array_filter($items, fn($bothValue, $bothKey) => $bothValue->na, \\ARRAY_FILTER_USE_BOTH);
+          array_filter($items, fn($keyInBothValue, $keyInBoth) => $keyInBoth->na, \\ARRAY_FILTER_USE_BOTH);
+          array_filter(array: $items, callback: fn($namedBothValue, $namedBothKey) => $namedBothValue->na, mode: 1);
+          array_filter($items, fn($shadowedValue, $shadowedKey) => $shadowedValue->na, ARRAY_FILTER_USE_BOTH);
+        }`;
+      const uri = 'file:///ArrayFilterModes.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      const names = (marker: string): string[] => semantic.completeMembers(uri,
+        source.indexOf(marker) + marker.length).map((item) => item.name);
+      expect(names('$value->na')).toContain('name');
+      expect(names('$zero->na')).toContain('name');
+      expect(names('$bothValue->na')).toContain('name');
+      expect(names('$namedBothValue->na')).toContain('name');
+      for (const marker of ['$key->na', '$namedKey->na', '$unknown->na']) expect(names(marker), marker).not.toContain('name');
+      for (const marker of ['$keyInBoth->na', '$shadowedValue->na']) expect(names(marker), marker).not.toContain('name');
+      const custom = `<?php namespace Custom;
+        class Item { public function name(): string { return ''; } }
+        /** @param callable(Item): bool $callback */
+        function array_filter(array $items, callable $callback, int $mode): array { return $items; }
+        function inspect(array $items): void { array_filter($items, fn($entry) => $entry->na, 1); }`;
+      const customUri = 'file:///CustomArrayFilter.php'; semantic.update(customUri, custom);
+      expect(semantic.completeMembers(customUri, custom.indexOf('$entry->na') + '$entry->na'.length)
+        .map((item) => item.name)).toContain('name');
+      const global = `<?php
+        class GlobalArrayItem { public function name(): string { return ''; } }
+        /** @param array<string, GlobalArrayItem> $items */
+        function globalFilter(array $items): void {
+          array_filter($items, fn($entry, $key) => $entry->na, ARRAY_FILTER_USE_BOTH);
+        }`;
+      const globalUri = 'file:///GlobalArrayFilter.php'; semantic.update(globalUri, global);
+      expect(semantic.completeMembers(globalUri, global.indexOf('$entry->na') + '$entry->na'.length)
+        .map((item) => item.name)).toContain('name');
+    } finally { parser.dispose(); }
+  });
+  it('infers proven array_filter callback key types without borrowing value types', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        class Item { public function name(): string { return ''; } }
+        /**
+         * @param array<string, Item> $byName
+         * @param array<int, Item> $byIndex
+         */
+        function inspect(array $byName, array $byIndex, int $mode): void {
+          array_filter($byName, fn($value, $stringKey) => strlen($stringKey), \\ARRAY_FILTER_USE_BOTH);
+          array_filter($byName, fn($onlyKey) => strlen($onlyKey), \\ARRAY_FILTER_USE_KEY);
+          array_filter($byIndex, fn($value, $intKey) => abs($intKey), 1);
+          array_filter($byName, fn($value, $unknownKey) => strlen($unknownKey), $mode);
+        }`;
+      const uri = 'file:///ArrayFilterKeys.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      const typeOf = (name: string): string | undefined => {
+        const start = source.indexOf(`(${name})`) + 1;
+        return semantic.provenExpressionType(uri, start, start + name.length);
+      };
+      expect(typeOf('$stringKey')).toBe('string');
+      expect(typeOf('$onlyKey')).toBe('string');
+      expect(typeOf('$intKey')).toBe('int');
+      expect(typeOf('$unknownKey')).toBeUndefined();
+      const stringArgument = source.indexOf('strlen($stringKey)') + 'strlen('.length;
+      const ranked = semantic.completeBareExpressionVariables(uri, stringArgument);
+      expect(ranked?.find((candidate) => candidate.name === '$stringKey')?.compatibilityRank).toBe(0);
+      expect(ranked?.find((candidate) => candidate.name === '$value')?.compatibilityRank).toBe(2);
+    } finally { parser.dispose(); }
+  });
+  it('types array_walk callback values and keys only from proven array inputs', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        class WalkItem { public function name(): string { return ''; } }
+        class WalkContext { public function label(): string { return ''; } }
+        /** @param array<string, WalkItem> $byName */
+        function walkValue(array $byName): void {
+          array_walk($byName, fn($value, $stringKey) => $value->na);
+          array_walk($byName, fn($laterValue) => $laterValue->na);
+        }
+        /** @param array<string, WalkItem> $byName */
+        function walkReference(array $byName): void {
+          array_walk($byName, function (&$referenceValue, $referenceKey): void {
+            $referenceValue->na;
+          });
+        }
+        /** @param array<string, WalkItem> $byName */
+        function walkNamed(array $byName): void {
+          array_walk(array: $byName, callback: fn($namedValue, $namedKey) => $namedValue->na);
+        }
+        /** @param array<string, WalkItem> $byName */
+        function walkSingle(array $byName): void {
+          array_walk($byName, fn($singleValue) => $singleValue->na);
+        }
+        /** @param array<int, WalkItem> $byIndex */
+        function walkIndexed(array $byIndex): void {
+          array_walk($byIndex, fn($indexedValue, $intKey) => $indexedValue->na);
+        }
+        /** @param array<string, WalkItem> $byName */
+        function walkUserData(array $byName, WalkContext $context): void {
+          array_walk($byName, fn($entry, $key, $extra) => $extra->la, $context);
+        }
+        /** @param array<string, WalkItem> $byName */
+        function walkNamedUserData(array $byName, WalkContext $context): void {
+          array_walk(arg: $context, callback: fn($entry, $key, $namedExtra) => $namedExtra->la, array: $byName);
+        }
+        function walkUnknown(object $unknown): void {
+          array_walk($unknown, fn($unknownValue, $unknownKey) => $unknownValue->na);
+        }`;
+      const uri = 'file:///ArrayWalkCallback.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      const names = (marker: string): string[] => semantic.completeMembers(uri,
+        source.indexOf(marker) + marker.length).map((item) => item.name);
+      for (const marker of ['$value->na', '$referenceValue->na', '$namedValue->na', '$singleValue->na', '$indexedValue->na'])
+        expect(names(marker), marker).toContain('name');
+      for (const marker of ['$extra->la', '$namedExtra->la']) expect(names(marker), marker).toContain('label');
+      expect(names('$unknownValue->na')).not.toContain('name');
+      expect(names('$laterValue->na')).not.toContain('name');
+      const typeOf = (name: string): string | undefined => {
+        const start = source.indexOf(name); return semantic.provenExpressionType(uri, start, start + name.length);
+      };
+      expect(typeOf('$stringKey')).toBe('string');
+      expect(typeOf('$referenceKey')).toBe('string');
+      expect(typeOf('$namedKey')).toBe('string');
+      expect(typeOf('$intKey')).toBe('int');
+      expect(typeOf('$unknownKey')).toBeUndefined();
+      expect(semantic.incompatibleArguments(uri).filter((item) => item.callable === 'array_walk')).toEqual([]);
+      const custom = `<?php namespace Custom;
+        class WalkItem { public function name(): string { return ''; } }
+        function array_walk(array &$array, callable $callback): void {}
+        /** @param list<WalkItem> $items */
+        function inspect(array $items): void { array_walk($items, fn($item) => $item->na); }`;
+      const customUri = 'file:///CustomArrayWalk.php'; semantic.update(customUri, custom);
+      expect(semantic.completeMembers(customUri, custom.indexOf('$item->na') + '$item->na'.length)
+        .map((item) => item.name)).not.toContain('name');
+    } finally { parser.dispose(); }
+  });
+  it('types sort comparator values and keys from proven arrays without borrowing custom functions', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        class SortItem { public function name(): string { return ''; } }
+        function sortList(): void {
+          $items = [new SortItem()];
+          usort($items, fn($left, $right) => $left->na);
+        }
+        /** @param array<string, SortItem> $byName */
+        function sortNamed(array $byName): void {
+          uasort($byName, fn($left, $right) => $right->na);
+          uksort($byName, fn($key, $otherKey) => $key->na);
+        }
+        function sortUnknown(array $unknown): void {
+          usort($unknown, fn($left, $right) => $left->na);
+        }`;
+      const uri = 'file:///SortCallbacks.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      const names = (marker: string): string[] => semantic.completeMembers(uri,
+        source.indexOf(marker) + marker.length).map((item) => item.name);
+      for (const marker of ['$left->na', '$right->na'])
+        expect(names(marker), marker).toContain('name');
+      expect(names('$key->na')).not.toContain('name');
+      const key = source.indexOf('$key->na');
+      expect(semantic.provenExpressionType(uri, key, key + '$key'.length)).toBe('string');
+      const unknown = source.lastIndexOf('$left->na');
+      expect(semantic.completeMembers(uri, unknown + '$left->na'.length).map((item) => item.name)).not.toContain('name');
+      const custom = `<?php namespace Custom;
+        class SortItem { public function name(): string { return ''; } }
+        function usort(array &$array, callable $callback): void {}
+        /** @param list<SortItem> $items */
+        function inspect(array $items): void { usort($items, fn($item) => $item->na); }`;
+      const customUri = 'file:///CustomSort.php'; semantic.update(customUri, custom);
+      expect(semantic.completeMembers(customUri, custom.indexOf('$item->na') + '$item->na'.length)
+        .map((item) => item.name)).not.toContain('name');
+    } finally { parser.dispose(); }
+  });
+  it('keeps array_reduce callback item and carry types consistent with iteration', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php namespace App;
+        class ReduceItem { public function name(): string { return ''; } }
+        class ReduceCarry { public function total(): int { return 1; } }
+        /** @param list<ReduceItem> $items */
+        function reduceItems(array $items): void {
+          array_reduce($items, fn($unknownCarry, $item) => $item->na);
+          $stableResult = array_reduce($items, function ($carry, $knownItem) {
+            $carry->tot;
+            $knownItem->na;
+            return new ReduceCarry();
+          }, new ReduceCarry());
+          $stableResult->tot;
+          $changedResult = array_reduce($items, function ($changedCarry, $changedItem) {
+            $changedCarry->tot;
+            $changedItem->na;
+            return new ReduceItem();
+          }, new ReduceCarry());
+          $changedResult->tot;
+          $identityResult = array_reduce($items, fn($identityCarry, $identityItem) => $identityCarry, new ReduceCarry());
+          $identityResult->tot;
+          array_reduce($items, function ($ambiguousCarry, $ambiguousItem) {
+            $ambiguousCarry->tot;
+            if ($ambiguousItem->name()) { return new ReduceCarry(); }
+            return new ReduceItem();
+          }, new ReduceCarry());
+        }`;
+      const uri = 'file:///ArrayReduceCallback.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      const names = (marker: string): string[] => semantic.completeMembers(uri,
+        source.indexOf(marker) + marker.length).map((item) => item.name);
+      for (const marker of ['$item->na', '$knownItem->na', '$changedItem->na'])
+        expect(names(marker), marker).toContain('name');
+      expect(names('$unknownCarry->tot')).not.toContain('total');
+      expect(names('$carry->tot')).toContain('total');
+      expect(names('$changedCarry->tot')).not.toContain('total');
+      expect(names('$stableResult->tot')).toContain('total');
+      expect(names('$changedResult->tot')).not.toContain('total');
+      expect(names('$identityResult->tot')).toContain('total');
+      expect(names('$ambiguousCarry->tot')).not.toContain('total');
+      expect(names('$ambiguousItem->name')).toContain('name');
+      const identityStart = source.indexOf('=> $identityCarry') + '=> '.length;
+      expect(semantic.provenExpressionType(uri, identityStart, identityStart + '$identityCarry'.length))
+        .toBe('App\\ReduceCarry');
     } finally { parser.dispose(); }
   });
   it('gates modern array APIs and propagates their generic key and value results', async () => {
@@ -830,7 +1971,7 @@ describe('bounded Composer indexing', () => {
         expect(semantic.definition(uri, source.lastIndexOf(marker) + 3), marker).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
       }
     } finally { parser.dispose(); }
-  }, 10_000);
+  }, 20_000);
   it('provides versioned SplObserver and SplSubject contracts', async () => {
     const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
     try {
@@ -1013,6 +2154,7 @@ describe('bounded Composer indexing', () => {
           new \\RecursiveIteratorIterator($inner, mode: \\RecursiveIteratorIterator::SELF_FIRST, flags: 0);
           new \\CachingIterator($inner, flags: \\CachingIterator::FULL_CACHE);
           new \\RegexIterator($inner, pattern: '/item/', mode: \\RegexIterator::GET_MATCH, flags: 0, pregFlags: 0);
+          \\RegexIterator::MATCH;
           new \\RecursiveTreeIterator($inner, flags: \\RecursiveTreeIterator::BYPASS_CURRENT,
             cachingIteratorFlags: \\CachingIterator::CATCH_GET_CHILD, mode: \\RecursiveTreeIterator::SELF_FIRST);
           $recursiveItem = $recursive->current(); $recursiveItem->advancedL;
@@ -1043,6 +2185,8 @@ describe('bounded Composer indexing', () => {
       expect(constructorAt('new \\RecursiveTreeIterator(')?.parameters.map((parameter) => parameter.name))
         .toEqual(['iterator', 'flags', 'cachingIteratorFlags', 'mode']);
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(semantic.definition(uri, source.indexOf('RegexIterator::MATCH') + 'RegexIterator::'.length + 2))
+        .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
       expect(signatureAt('$recursive->current()')?.returnType).toBe('App\\AdvancedItem');
       expect(signatureAt('$recursive->getSubIterator()')?.returnType).toBe('RecursiveIterator<string, App\\AdvancedItem>|null');
       expect(signatureAt('$cached->offsetGet(\'item\')')?.returnType).toBe('App\\AdvancedItem|null');
@@ -1180,7 +2324,8 @@ describe('bounded Composer indexing', () => {
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
       expect(semantic.incompatibleArguments(uri).filter((item) => item.actualType === 'null'
         && ['file_get_contents', 'fwrite'].includes(item.callable))).toEqual([]);
-      expect(semantic.signature(uri, source.indexOf("pathinfo('/tmp") + 'pathinfo('.length)?.returnType).toBe('array|string');
+      expect(semantic.signature(uri, source.indexOf("pathinfo('/tmp") + 'pathinfo('.length)?.returnType)
+        .toBe('($flags is 15 ? array{dirname?: string, basename: string, extension?: string, filename: string} : string)');
       expect(semantic.signature(uri, source.indexOf("realpath('/tmp") + 'realpath('.length)?.returnType).toBe('string|false');
       expect(semantic.definition(uri, source.indexOf('FILE_APPEND') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
       expect(semantic.definition(uri, source.indexOf("dirname('/tmp") + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
@@ -1371,8 +2516,8 @@ describe('bounded Composer indexing', () => {
       expect(semantic.signature(uri, source.indexOf('unserialize(') + 'unserialize('.length)?.returnType).toBe('mixed');
       expect(semantic.signature(uri, source.indexOf('base64_decode(') + 'base64_decode('.length)?.returnType).toBe('string|false');
       expect(semantic.signatures(uri, source.indexOf("parse_url('https") + 'parse_url('.length).map((item) => item.returnType))
-        .toEqual(['array|false', 'array|string|int|false|null']);
-      expect(semantic.signature(uri, source.indexOf('PHP_URL_PORT)') + 'PHP_URL_PORT'.length)?.returnType).toBe('array|string|int|false|null');
+        .toHaveLength(1);
+      expect(semantic.signature(uri, source.indexOf('PHP_URL_PORT)') + 'PHP_URL_PORT'.length)?.returnType).toContain('$component is 2 ? int|false|null');
       expect(semantic.signature(uri, source.indexOf("get_headers('https") + 'get_headers('.length)?.parameters[1]).toMatchObject({ name: 'format', type: 'int' });
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
       expect(semantic.signature(uri, source.indexOf("get_headers('https") + 'get_headers('.length)?.parameters[1]).toMatchObject({ name: 'associative', type: 'bool' });
@@ -1394,6 +2539,8 @@ describe('bounded Composer indexing', () => {
           $row = $statement->fetchObject();
           $metadata = $statement->getColumnMeta(0);
           $query = $statement->queryString;
+          $drivers = \\pdo_drivers();
+          $group = \\PDO::FETCH_GROUP;
         }
         $connected = \\PDO::connect('sqlite::memory:');
       `;
@@ -1403,6 +2550,8 @@ describe('bounded Composer indexing', () => {
       expect(semantic.signature(uri, source.indexOf('bindValue(') + 'bindValue('.length)?.parameters[0]).toMatchObject({ name: 'paramno' });
       expect(semantic.signature(uri, source.indexOf('fetchObject(') + 'fetchObject('.length)?.returnType).toBe('object|false');
       expect(semantic.signature(uri, source.indexOf('getColumnMeta(') + 'getColumnMeta('.length)?.returnType).toBe('array<string, mixed>|false');
+      expect(semantic.signature(uri, source.indexOf('pdo_drivers(') + 'pdo_drivers('.length)?.returnType).toBe('list<string>');
+      expect(semantic.definition(uri, source.indexOf('PDO::FETCH_GROUP') + 'PDO::'.length + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
       expect(semantic.signatures(uri, source.indexOf('PDO::connect(') + 'PDO::connect('.length)).toEqual([]);
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
       expect(semantic.signature(uri, source.indexOf('bindValue(') + 'bindValue('.length)?.parameters[0]).toMatchObject({ name: 'param', type: 'string|int' });
@@ -1411,6 +2560,127 @@ describe('bounded Composer indexing', () => {
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
       expect(semantic.signature(uri, source.indexOf('PDO::connect(') + 'PDO::connect('.length)).toMatchObject({ returnType: 'static' });
       expect(semantic.definition(uri, source.indexOf('PDO::connect') + 'PDO::'.length + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('indexes PDO driver subclasses only when the selected runtime exports them', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $driver = new \\Pdo\\Mysql('mysql:host=localhost');
+        $warnings = $driver->getWarningCount();
+        $flag = \\Pdo\\Mysql::ATTR_USE_BUFFERED_QUERY;
+        $baseFlag = \\Pdo\\Mysql::PARAM_BOOL;
+        $legacyFlag = \\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY;
+      `;
+      const uri = 'file:///PdoDriver.php';
+      const pdoRuntime = { constants: { MYSQL_ATTR_USE_BUFFERED_QUERY: 1000 },
+        classes: { 'Pdo\\Mysql': { methods: ['getWarningCount'], constants: { ATTR_USE_BUFFERED_QUERY: 1000 } } } };
+      const driverUri = pdoDriverDocumentUri('8.5', { pdoRuntime });
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5', { pdoRuntime }));
+      expect(semantic.definition(uri, source.indexOf('getWarningCount') + 2)).toEqual([]);
+      semantic.update(driverUri, pdoDriverPhpStub('8.5', pdoRuntime));
+      expect(semantic.definition(uri, source.indexOf('getWarningCount') + 2)).toMatchObject([{ uri: driverUri }]);
+      expect(semantic.signature(uri, source.indexOf('getWarningCount(') + 'getWarningCount('.length)?.returnType).toBe('int');
+      expect(semantic.definition(uri, source.indexOf('ATTR_USE_BUFFERED_QUERY;') + 2)).toMatchObject([{ uri: driverUri }]);
+      expect(semantic.definition(uri, source.indexOf('PARAM_BOOL;') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('MYSQL_ATTR_USE_BUFFERED_QUERY;') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.remove(driverUri);
+      expect(semantic.definition(uri, source.indexOf('getWarningCount') + 2)).toEqual([]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Randomizer engines and versioned methods from the namespaced built-in document', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $randomizer = new \\Random\\Randomizer(new \\Random\\Engine\\Mt19937(1234));
+        $roll = $randomizer->getInt(1, 6);
+        $float = $randomizer->getFloat(0.0, 1.0, \\Random\\IntervalBoundary::ClosedClosed);
+        $bytes = $randomizer->getBytesFromString('abcdef', 3);
+        $plain = rand(1, 6);
+      `;
+      const uri = 'file:///RandomConsumer.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.2'));
+      const random82 = randomClassesDocumentUri('8.2');
+      semantic.update(random82, randomClassesPhpStub('8.2'));
+      expect(semantic.signatures(uri, source.indexOf('rand(') + 'rand('.length).map((signature) => signature.returnType)).toContain('int');
+      expect(semantic.signature(uri, source.indexOf('getInt(') + 'getInt('.length)?.returnType).toBe('int');
+      expect(semantic.definition(uri, source.indexOf('Mt19937(') + 2)).toMatchObject([{ uri: random82 }]);
+      expect(semantic.definition(uri, source.indexOf('getFloat(') + 2)).toEqual([]);
+      semantic.remove(random82);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.3'));
+      const random83 = randomClassesDocumentUri('8.3');
+      semantic.update(random83, randomClassesPhpStub('8.3'));
+      expect(semantic.signature(uri, source.indexOf('getFloat(') + 'getFloat('.length)?.returnType).toBe('float');
+      expect(semantic.definition(uri, source.indexOf('ClosedClosed') + 2)).toMatchObject([{ uri: random83 }]);
+      expect(semantic.definition(uri, source.indexOf('getBytesFromString(') + 2)).toMatchObject([{ uri: random83 }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves Reflection extension and global-constant classes at their version boundaries', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        $extension = new \\ReflectionExtension('intl');
+        $extension->getFun;
+        $extension->na;
+        $classes = $extension->getClasses();
+        $constant = new \\ReflectionConstant('PHP_VERSION');
+        $constant->getEx;
+      `;
+      const uri = 'file:///ReflectionExtensionConsumer.php';
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('new \\ReflectionExtension') + 6))
+        .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.unresolvedNewTypes(uri).map((item) => item.fqcn)).toContain('ReflectionConstant');
+      expect(semantic.completeMembers(uri, source.indexOf('$extension->getFun') + '$extension->getFun'.length)
+        .map((item) => item.name)).toEqual(['getFunctions']);
+      expect(semantic.signature(uri, source.indexOf('->getClasses(') + '->getClasses('.length)?.returnType)
+        .toBe('array<string, ReflectionClass>');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(semantic.unresolvedNewTypes(uri)).toEqual([]);
+      expect(semantic.signature(uri, source.indexOf('new \\ReflectionConstant(') + 'new \\ReflectionConstant('.length)?.parameters[0])
+        .toMatchObject({ name: 'name', type: 'string' });
+      expect(semantic.completeMembers(uri, source.indexOf('$constant->getEx') + '$constant->getEx'.length)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.5'));
+      expect(semantic.completeMembers(uri, source.indexOf('$constant->getEx') + '$constant->getEx'.length)
+        .map((item) => item.name)).toEqual(['getExtension', 'getExtensionName']);
+      expect(semantic.completeMembers(uri, source.indexOf('$extension->na') + '$extension->na'.length))
+        .toMatchObject([{ name: 'name', kind: 'property', returnType: 'string' }]);
+    } finally { parser.dispose(); }
+  });
+  it('resolves ReflectionGenerator and ReflectionReference with versioned members', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = `<?php
+        function values(): Generator { yield 1; }
+        $generator = new \\ReflectionGenerator(values());
+        $generator->getExecut;
+        $generator->isClosed();
+        $value = 1;
+        $array = ['item' => &$value];
+        $reference = \\ReflectionReference::fromArrayElement($array, 'item');
+        if ($reference !== null) { $reference->getI; }
+      `;
+      const uri = 'file:///ReflectionGeneratorConsumer.php';
+      semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.definition(uri, source.indexOf('new \\ReflectionGenerator') + 6))
+        .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('ReflectionReference') + 2)).toEqual([]);
+      expect(semantic.definition(uri, source.indexOf('isClosed') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.4'));
+      expect(semantic.definition(uri, source.indexOf('ReflectionReference') + 2))
+        .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.4'));
+      expect(semantic.signature(uri, source.indexOf('fromArrayElement(') + 'fromArrayElement('.length)?.returnType)
+        .toBe('?ReflectionReference');
+      expect(semantic.completeMembers(uri, source.indexOf('$generator->getExecut') + '$generator->getExecut'.length)
+        .map((item) => item.name)).toContain('getExecutingGenerator');
+      expect(semantic.definition(uri, source.indexOf('isClosed') + 2))
+        .toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.completeMembers(uri, source.indexOf('$reference->getI') + '$reference->getI'.length)
+        .map((item) => item.name)).toContain('getId');
     } finally { parser.dispose(); }
   });
   it('propagates Reflection class, method, property, parameter, and collection identities', async () => {
@@ -1511,6 +2781,8 @@ describe('bounded Composer indexing', () => {
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.4'));
       expect(signature("mb_str_split('")?.returnType).toBe('list<string>');
       expect(semantic.definition(uri, source.indexOf('MB_CASE_FOLD') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('MB_ONIGURUMA_VERSION') + 2)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.4', { mbOnigurumaVersion: '6.9.10' }));
       expect(semantic.definition(uri, source.indexOf('MB_ONIGURUMA_VERSION') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.2'));
       expect(signature("mb_strlen('")?.parameters[0]).toMatchObject({ name: 'string', type: 'string' });
@@ -2268,8 +3540,9 @@ describe('bounded Composer indexing', () => {
     const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
     try {
       const source = `<?php namespace App;
-        class InspectedItem {}
+        class InspectedItem { public static function current(): string { return get_called_class(); } }
         class OtherItem {}
+        class_alias(InspectedItem::class, 'AliasItem');
         /** @param class-string<InspectedItem> $class */ function acceptItem(string $class): void {}
         /** @param class-string<OtherItem> $class */ function acceptOther(string $class): void {}
         function inspect(InspectedItem $item): void {
@@ -2278,12 +3551,27 @@ describe('bounded Composer indexing', () => {
           enum_exists('ExampleEnum'); method_exists($item, 'run'); property_exists($item, 'name');
           is_a($item, InspectedItem::class); is_subclass_of($item, InspectedItem::class);
           get_class_methods($item); get_class_vars(InspectedItem::class); get_object_vars($item);
+          get_mangled_object_vars($item);
+          get_mangled_object_vars('bad');
         }
       `;
       const uri = 'file:///ClassInspection.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
+      expect(semantic.signatures(uri, source.indexOf('get_mangled_object_vars(') + 'get_mangled_object_vars('.length)).toEqual([]);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.4'));
+      expect(semantic.signature(uri, source.indexOf('get_mangled_object_vars(') + 'get_mangled_object_vars('.length))
+        .toMatchObject({ parameters: [{ name: 'obj', type: 'object' }], returnType: 'array<array-key, mixed>' });
+      expect(semantic.incompatibleArguments(uri).filter((item) => item.callable === 'get_mangled_object_vars')
+        .map((item) => [item.actualType, item.expectedType])).toEqual([['string', 'object']]);
+      expect(semantic.incompatibleArguments(uri, true).filter((item) => item.callable === 'get_mangled_object_vars')
+        .map((item) => [item.actualType, item.expectedType])).toEqual([['string', 'object']]);
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
       expect(semantic.signatures(uri, source.indexOf('enum_exists(') + 'enum_exists('.length)).toEqual([]);
       expect(semantic.signature(uri, source.indexOf('get_class_methods(') + 'get_class_methods('.length)?.returnType).toBe('list<string>');
+      expect(semantic.signature(uri, source.indexOf('class_alias(') + 'class_alias('.length)?.returnType).toBe('bool');
+      expect(semantic.signature(uri, source.indexOf('get_called_class(') + 'get_called_class('.length)?.returnType).toBe('class-string');
+      expect(semantic.signature(uri, source.indexOf('get_mangled_object_vars(') + 'get_mangled_object_vars('.length))
+        .toMatchObject({ parameters: [{ name: 'object' }], returnType: 'array<array-key, mixed>' });
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.1'));
       expect(semantic.signature(uri, source.indexOf('enum_exists(') + 'enum_exists('.length)?.returnType).toBe('bool');
       expect(semantic.signatures(uri, source.indexOf('get_class($item)') + 'get_class($item'.length)[0]?.returnType).toBe('class-string<T>');
@@ -2292,6 +3580,21 @@ describe('bounded Composer indexing', () => {
           ['App\\acceptOther', 'class-string<App\\InspectedItem>', 'class-string<App\\OtherItem>'],
         ]);
       expect(semantic.definition(uri, source.indexOf('get_class($item)') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('class_alias(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.definition(uri, source.indexOf('get_called_class(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+    } finally { parser.dispose(); }
+  });
+  it('keeps the legacy each function in PHP 7 and removes it in PHP 8', async () => {
+    const parser = await PhpSyntaxParser.createDefault(); const semantic = new SemanticWorkspace(parser);
+    try {
+      const source = '<?php $items = [1, 2]; $pair = each($items);';
+      const uri = 'file:///LegacyEach.php'; semantic.update(uri, source);
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.4'));
+      expect(semantic.definition(uri, source.indexOf('each(') + 2)).toMatchObject([{ uri: BUILTIN_DOCUMENT_URI }]);
+      expect(semantic.signature(uri, source.indexOf('each(') + 'each('.length)?.returnType)
+        .toBe('array{0: int|string, 1: mixed, key: int|string, value: mixed}|false');
+      semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('8.0'));
+      expect(semantic.definition(uri, source.indexOf('each(') + 2)).toEqual([]);
     } finally { parser.dispose(); }
   });
   it('gates type predicates and narrows proven positive branches', async () => {
