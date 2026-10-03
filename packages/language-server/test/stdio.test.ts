@@ -11425,6 +11425,29 @@ function values(): array { return []; }
         const response = await output.waitFor(message => message.id === requestId);
         expect(response.error).toBeUndefined(); return response.result;
       };
+      const movedPath = join(root, 'src', 'Moved', 'OldName.php');
+      await mkdir(dirname(movedPath));
+      const requestMove = async (newPath = movedPath): Promise<{ error?: string; edit?: { documentChanges?: unknown[] } }> => {
+        const requestId = id++;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'phpCompanion/planSafeMove', params: {
+          moves: [{ oldUri: uri, newUri: pathToFileURL(newPath).toString() }], includeFileOperations: true,
+        } }));
+        const response = await output.waitFor(message => message.id === requestId);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      expect((await requestMove()).edit?.documentChanges).toContainEqual(expect.objectContaining({ kind: 'rename' }));
+      for (const link of ['OldName.php', 'absent.php']) {
+        await symlink(link, movedPath);
+        const result = await requestMove();
+        expect(result.error).toContain('destination is occupied or unavailable');
+        expect(result.edit).toBeUndefined();
+        expect(await readlink(movedPath)).toBe(link); expect(await readFile(path, 'utf8')).toBe(source);
+        await rm(movedPath);
+      }
+      await mkdir(movedPath);
+      expect((await requestMove()).error).toContain('destination is occupied or unavailable');
+      await rm(movedPath, { recursive: true });
+      expect((await requestMove()).edit?.documentChanges).toContainEqual(expect.objectContaining({ kind: 'rename' }));
       const missingPlan = await requestRename();
       expect(missingPlan?.documentChanges).toEqual(expect.arrayContaining([expect.objectContaining({ kind: 'rename' })]));
       for (const [link, code] of [['NewName.php', 'ELOOP'], ['absent.php', 'ENOENT']] as const) {
@@ -11446,6 +11469,9 @@ function values(): array { return []; }
         const collisionSource = '<?php namespace App; class OccupiedDestination {}';
         await writeFile(collisionPath, collisionSource);
         expect(await requestRename(true, 'oldname')).toBeNull();
+        const conflictingMove = await requestMove(collisionPath);
+        expect(conflictingMove.error).toContain('destination is occupied or unavailable');
+        expect(conflictingMove.edit).toBeUndefined();
         expect((await requestRename(false, 'oldname'))?.changes?.[uri]).toEqual([expect.objectContaining({ newText: 'oldname' })]);
         expect(await readFile(path, 'utf8')).toBe(source);
         expect(await readFile(collisionPath, 'utf8')).toBe(collisionSource);

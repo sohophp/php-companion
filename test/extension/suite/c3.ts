@@ -19,6 +19,19 @@ async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> 
   let sawPreview = false;
   const move = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
     vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', oldUri, newUri, { preview: true, testPreviewAction });
+  if (process.platform !== 'win32') {
+    for (const link of ['C3CurrentMove.php', 'absent.php']) {
+      await symlink(link, newUri.fsPath);
+      let invalidPreview = false;
+      assert.strictEqual(await move(async () => { invalidPreview = true; return 'apply'; }), false,
+        'Safe Move accepted an occupied symlink destination');
+      assert.strictEqual(invalidPreview, false, 'Safe Move opened a preview for an occupied symlink');
+      assert.strictEqual(await readlink(newUri.fsPath), link);
+      assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
+      await rm(newUri.fsPath);
+    }
+    console.log('C3 default Safe Move: loop and dangling targets declined before preview');
+  }
   assert.strictEqual(await move(async () => {
     const previews = vscode.window.tabGroups.all.flatMap(group => group.tabs).filter(tab => tab.input instanceof vscode.TabInputTextDiff);
     assert.ok(previews.length >= 2, 'Safe Move omitted a source or consumer preview');

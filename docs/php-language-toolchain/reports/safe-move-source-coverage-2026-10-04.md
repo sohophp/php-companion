@@ -34,4 +34,4 @@ PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_C3_MOVE_ONLY=1 PHP_COMPANION_TES
 
 ## 剩余范围
 
-这是 Safe Move 源码覆盖证明，不是 C3 整体完成或真实 WSL 验收。每次扫描会增加大型项目操作等待，仍需实际规模测量。类型复制／粘贴导入等入口仍存在全局索引前置条件，后续核对；Move 目标文件状态也需与 Rename 的严格检查一致性审计。没有打包、更新用户 Profile、推送或发布。
+这是 Safe Move 源码覆盖证明，不是 C3 整体完成或真实 WSL 验收。每次扫描会增加大型项目操作等待，仍需实际规模测量。类型复制／粘贴导入等入口仍存在全局索引前置条件，后续核对；Move 目标文件状态已进一步复用 Rename 的严格检查，见[目标预检后续记录](rename-destination-preflight-2026-10-04.md)。没有打包、更新用户 Profile、推送或发布。

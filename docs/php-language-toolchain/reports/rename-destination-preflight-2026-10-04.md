@@ -33,3 +33,13 @@
 该临时探针最初等待 progressive 的全局 complete=true，但项目准备已结束且该模式报告 complete=false；修正等待后，类型 Rename 仍没有文件改名计划。完整索引模式才用于上述文件系统别名验证，不把模式替换当作默认模式问题已解决。后续优先核对 onDemand／progressive 的类型 Rename 完整性条件及用户反馈；当前不依据此单个探针给两种模式整体下结论。
 
 随后完成[默认模式 Rename 定向修复](default-indexing-rename-2026-10-04.md)：使用独立完整源码扫描替代旧全局标记拒绝，双模式协议及串行宿主通过；预算反例、首次并行失败及真人边界分别保留。
+
+## Safe Move 使用同一严格目标检查
+
+后续审计发现 Safe Move 仍使用 `stat`，悬空链接会返回 ENOENT，且仅大小写变化时完全跳过目标检查。现在提取 `fileOperationDestinationAvailable`，Rename 与带文件操作的 Move 共用 `lstat` 和实际目录项检查；只有确认目标缺失，或大小写不敏感文件系统中查询命中源目录项而没有独立精确目标，才允许文件操作。Move 的 `includeFileOperations: false` 路径保留，供 Explorer 已移动文件后的文本规划使用。
+
+新增真实 stdio 覆盖 Move 目标的循环链接、悬空链接、目录、独立小写目标、目标恢复缺失后的规划，并保留 Rename 的对应拒绝与纯文本入口证明。最终选定 9 项通过、453 项未运行，包含三模式 Move 源码／预算矩阵、全局 namespace Move 及既有 PSR-4 综合竞态用例。
+
+onDemand 隔离 Linux VS Code 宿主退出 0：循环及悬空目标均在预览前拒绝，源、消费者和链接保持原状；移除目标链接后正常 Move 的预览取消、应用、单次 Undo/Redo 通过。日志 `/tmp/sophp-move-target-onDemand-20261004.log`。通过根 TypeScript noEmit、语言服务器构建、宿主编译、相关 ESLint 及 diff 空白检查。
+
+上述证明不包含 Windows 大小写不敏感文件系统、Remote 提供者或真实 WSL 窗口。没有打包、安装或更新用户 Profile。

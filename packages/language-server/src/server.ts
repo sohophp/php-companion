@@ -5143,6 +5143,16 @@ connection.onRequest('phpCompanion/unresolvedTypeNames', async (params: { textDo
   return workspace.unresolvedTypeNames(uri as string).map((item) => ({ name: item.name, position: document.positionAt(item.start) }));
 });
 
+async function fileOperationDestinationAvailable(oldPath: string, newPath: string): Promise<boolean> {
+  try { await lstat(newPath); }
+  catch (error) { return (error as NodeJS.ErrnoException).code === 'ENOENT'; }
+  if (resolve(oldPath).toLowerCase() !== resolve(newPath).toLowerCase()) return false;
+  // A lookup under another spelling may resolve to the source on an
+  // insensitive filesystem. An independent exact destination is occupied.
+  const entries = await readdir(dirname(oldPath)).catch(() => undefined);
+  return Boolean(entries?.includes(basename(oldPath)) && !entries.includes(basename(newPath)));
+}
+
 connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unknown; includeFileOperations?: unknown; requireCompleteIndex?: unknown }, token) => {
   if (!Array.isArray(params.moves) || !params.moves.length || params.moves.length > 128 || token.isCancellationRequested) return { error: 'Safe Move requires between 1 and 128 PHP files.' };
   const moves = params.moves.flatMap((move): Array<{ oldUri: string; newUri: string; source?: string }> => {
@@ -5175,9 +5185,8 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
     if (diskSource !== undefined && source !== diskSource && document?.getText() !== source) {
       return { error: `Cannot move PHP types: source snapshot for ${oldPath} is stale.` };
     }
-    if (params.includeFileOperations !== false && resolve(oldPath).toLowerCase() !== resolve(newPath).toLowerCase()) {
-      try { await stat(newPath); return { error: `Cannot move ${oldPath}: destination file already exists.` }; }
-      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return { error: `Cannot inspect Safe Move destination ${newPath}.` }; }
+    if (params.includeFileOperations !== false && !await fileOperationDestinationAvailable(oldPath, newPath)) {
+      return { error: `Cannot move ${oldPath}: destination is occupied or unavailable.` };
     }
     capturedMoves.push({ oldUri: move.oldUri, newUri: move.newUri, oldPath, newPath, source, open: Boolean(document) });
   }
@@ -7868,17 +7877,7 @@ connection.onRenameRequest(async (params, token) => {
     const canonical = declarationPath && new Set(resolvePsr4Class(typeTarget.fqcn, mappings).map((candidate) => resolve(candidate))).has(resolve(declarationPath));
     if (canonical && declarationPath && basename(declarationPath) === `${typeTarget.name}.php`) {
       const targetPath = resolve(dirname(declarationPath), `${newName}.php`);
-      const caseOnly = targetPath.toLowerCase() === declarationPath.toLowerCase();
-      let occupied = false;
-      try { await lstat(targetPath); occupied = true; }
-      catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') return null; }
-      if (occupied) {
-        if (!caseOnly) return null;
-        // On a case-insensitive filesystem, lookup can find the source entry
-        // under its new spelling. A separate exact destination is a conflict.
-        const entries = await readdir(dirname(declarationPath)).catch(() => undefined);
-        if (!entries || !entries.includes(basename(declarationPath)) || entries.includes(basename(targetPath))) return null;
-      }
+      if (!await fileOperationDestinationAvailable(declarationPath, targetPath)) return null;
       fileRename = { oldUri: typeTarget.declarationUri, newUri: indexedUriForPath(root, targetPath) };
     }
   }
