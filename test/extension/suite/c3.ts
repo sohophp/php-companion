@@ -61,19 +61,23 @@ async function verifyConstructorImportAccept(folder: vscode.WorkspaceFolder, api
   const document = await vscode.workspace.openTextDocument(uri);
   await vscode.window.showTextDocument(document);
   const position = document.positionAt(source.indexOf('C3ImportConstructor') + 1);
-  const deadline = Date.now() + 15_000;
-  let ready = false;
-  while (Date.now() < deadline) {
-    const candidates = await api.requestLanguageServer<Array<{ fqcn: string }>>('phpCompanion/importCandidates', {
-      textDocument: { uri: uri.toString() }, position, name: 'C3ImportConstructor', context: 'paste',
-    });
-    if (candidates.some(candidate => candidate.fqcn === 'App\\Service\\C3ImportConstructor')) { ready = true; break; }
-    await new Promise(resolve => setTimeout(resolve, 50));
+  if (process.env.PHP_COMPANION_TEST_C3_FIRST_IMPORT_ONLY !== '1') {
+    const deadline = Date.now() + 15_000;
+    let ready = false;
+    while (Date.now() < deadline) {
+      const candidates = await api.requestLanguageServer<Array<{ fqcn: string }>>('phpCompanion/importCandidates', {
+        textDocument: { uri: uri.toString() }, position, name: 'C3ImportConstructor', context: 'paste',
+      });
+      if (candidates.some(candidate => candidate.fqcn === 'App\\Service\\C3ImportConstructor')) { ready = true; break; }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.ok(ready, 'Constructor fixture did not reach source readiness');
+    console.log('C3 constructor fixture source candidates are ready');
   }
-  assert.ok(ready, 'Constructor fixture did not reach source readiness');
-  console.log('C3 constructor fixture source candidates are ready');
+  const pasteStarted = Date.now();
   const paste = await vscode.commands.executeCommand<Array<{ text: string; imports: string[] }> | undefined>(
     'phpCompanion._testPasteImportEdits', uri, 'new C3ImportConstructor()', position);
+  console.log(`C3 constructor first Provider result: ${JSON.stringify(paste)}; wait=${Date.now() - pasteStarted}ms`);
   assert.ok(paste?.some(item => item.imports.some(text => text.includes('use App\\Service\\C3ImportConstructor;'))),
     'Actual Paste Provider omitted the constructor import');
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports'), true,
@@ -208,6 +212,100 @@ async function removeMultiRootFixture(path: string): Promise<void> {
     if (process.platform !== 'win32' || !['EBUSY', 'EPERM'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error;
     // The native harness removes this owned fixture after the editor releases its workspace watchers.
     console.log(`C3 deferred fixture cleanup: ${JSON.stringify({ path })}`);
+  }
+}
+
+
+async function verifyDefaultGeneration(serviceDirectory: vscode.Uri): Promise<void> {
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(serviceDirectory, 'C3GenerationContract.php'), Buffer.from('<?php namespace App\\Service; interface C3GenerationContract { public function accept(string $value): int; }'));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(serviceDirectory, 'C3GenerationBase.php'), Buffer.from('<?php namespace App\\Service; abstract class C3GenerationBase { abstract protected function calculate(int $count): string; public function ping(string $name): string { return $name; } }'));
+  const contractBridge = '<?php namespace App\\Service; interface C3GenerationContractBridge extends C3GenerationContract {}';
+  const baseBridge = '<?php namespace App\\Service; abstract class C3GenerationBaseBridge extends C3GenerationBase {}';
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(serviceDirectory, 'C3GenerationContractBridge.php'), Buffer.from(contractBridge));
+  await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(serviceDirectory, 'C3GenerationBaseBridge.php'), Buffer.from(baseBridge));
+  const cases = [
+    { name: 'C3GenerationOwn', body: 'private int $id;', title: 'Generate constructor for 1 property', expected: 'public function __construct(string $name)', unsaved: true },
+    { name: 'C3GenerationWorker', body: '', relation: ' implements C3GenerationContractBridge', title: 'Implement 1 interface method', expected: 'public function accept(string $value): int' },
+    { name: 'C3GenerationChild', body: '', relation: ' extends C3GenerationBaseBridge', title: 'Implement 1 abstract method', expected: 'protected function calculate(int $count): string' },
+    { name: 'C3GenerationAccessor', body: 'private int $id;', relation: ' extends C3GenerationBaseBridge', title: 'Generate 1 property accessor', expected: 'public function getId(): int' },
+    { name: 'C3GenerationOverride', body: '', relation: ' extends C3GenerationBaseBridge', title: 'Override ', expected: 'parent::ping($name);' },
+  ];
+  for (const item of cases) {
+    const uri = vscode.Uri.joinPath(serviceDirectory, `${item.name}.php`);
+    const diskSource = `<?php namespace App\\Service; class ${item.name}${item.relation ?? ''} { ${item.body} }`;
+    await vscode.workspace.fs.writeFile(uri, Buffer.from(diskSource));
+    const document = await vscode.workspace.openTextDocument(uri);
+    const editor = await vscode.window.showTextDocument(document);
+    const source = item.unsaved ? diskSource.replace('private int $id;', 'private string $name;') : diskSource;
+    if (item.unsaved) {
+      await editor.edit(builder => builder.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source));
+      assert.ok(document.isDirty);
+    }
+    const position = document.positionAt(source.indexOf(`class ${item.name}`) + 7);
+    const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>('vscode.executeCodeActionProvider', uri, new vscode.Range(position, position), vscode.CodeActionKind.RefactorRewrite.value);
+    const action = actions.find((candidate): candidate is vscode.CodeAction => 'command' in candidate && candidate.title.startsWith(item.title));
+    assert.strictEqual(action?.command?.command, 'phpCompanion.applyPreviewedExtract', `${item.name} did not use the guarded preview command`);
+    assert.ok(action?.command);
+    assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'cancel' }), false);
+    assert.strictEqual(document.getText(), source);
+    if (item.name === 'C3GenerationOwn') {
+      const configuration = vscode.workspace.getConfiguration('phpCompanion', uri);
+      const previous = configuration.inspect<string>('phpVersion')?.workspaceFolderValue;
+      try {
+        assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {
+          testPreviewAction: async () => 'apply',
+          testBeforeApply: async () => { await configuration.update('phpVersion', '8.4', vscode.ConfigurationTarget.WorkspaceFolder); },
+        }), false, 'A generation action accepted a changed PHP target version');
+        assert.strictEqual(document.getText(), source);
+      } finally {
+        await configuration.update('phpVersion', previous, vscode.ConfigurationTarget.WorkspaceFolder);
+        await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+      }
+    }
+
+    if (item.relation) {
+      const bridge = vscode.Uri.joinPath(serviceDirectory, item.relation.includes('implements') ? 'C3GenerationContractBridge.php' : 'C3GenerationBaseBridge.php');
+      const bridgeSource = item.relation.includes('implements') ? contractBridge : baseBridge;
+      assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {
+        testPreviewAction: async () => 'apply',
+        testBeforeApply: async () => { await vscode.workspace.fs.writeFile(bridge, Buffer.from(bridgeSource.replace(/ extends [A-Za-z0-9_]+/, ''))); },
+      }), false, 'A generation action accepted a changed intermediate hierarchy');
+      assert.strictEqual(document.getText(), source);
+      await vscode.workspace.fs.writeFile(bridge, Buffer.from(bridgeSource));
+      const dependency = vscode.Uri.joinPath(serviceDirectory, item.relation.includes('implements') ? 'C3GenerationContract.php' : 'C3GenerationBase.php');
+      const baseline = await vscode.workspace.fs.readFile(dependency);
+      const changed = Buffer.from(Buffer.from(baseline).toString('utf8').replace('string $', 'int $'));
+      assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {
+        testPreviewAction: async () => 'apply',
+        testBeforeApply: async () => { await vscode.workspace.fs.writeFile(dependency, changed); },
+      }), false, 'A generation action accepted a changed dependency signature');
+      assert.strictEqual(document.getText(), source);
+      await vscode.workspace.fs.writeFile(dependency, baseline);
+      const dependencyDocument = await vscode.workspace.openTextDocument(dependency);
+      assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {
+        testPreviewAction: async () => 'apply',
+        testBeforeApply: async () => {
+          const change = new vscode.WorkspaceEdit();
+          change.replace(dependency, new vscode.Range(dependencyDocument.positionAt(0), dependencyDocument.positionAt(dependencyDocument.getText().length)), changed.toString('utf8'));
+          assert.ok(await vscode.workspace.applyEdit(change));
+        },
+      }), false, 'A generation action accepted an unsaved dependency signature');
+      assert.strictEqual(document.getText(), source);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(dependency)).toString('utf8'), Buffer.from(baseline).toString('utf8'));
+      const restore = new vscode.WorkspaceEdit();
+      restore.replace(dependency, new vscode.Range(dependencyDocument.positionAt(0), dependencyDocument.positionAt(dependencyDocument.getText().length)), Buffer.from(baseline).toString('utf8'));
+      assert.ok(await vscode.workspace.applyEdit(restore));
+      await vscode.window.showTextDocument(document);
+    }
+    assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'apply' }), true);
+    const accepted = document.getText();
+    assert.ok(accepted.includes(item.expected), `${item.name} generated the wrong signature`);
+    await vscode.commands.executeCommand('undo'); assert.strictEqual(document.getText(), source);
+    await vscode.commands.executeCommand('redo'); assert.strictEqual(document.getText(), accepted);
+    assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], { testPreviewAction: async () => 'apply' }), false, 'A stale generation action was accepted');
+    assert.strictEqual(document.getText(), accepted);
+    assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), diskSource);
+    console.log(`C3 generation ${item.name}: preview cancel/apply, one Undo/Redo and stale rejection passed`);
   }
 }
 
@@ -503,7 +601,7 @@ export async function run(): Promise<void> {
     console.log('C3 focused multiple Paste aliases completed; this is not the full C3 suite');
     return;
   }
-  if (process.env.PHP_COMPANION_TEST_C3_CONSTRUCTOR_IMPORT_ONLY === '1') {
+  if (process.env.PHP_COMPANION_TEST_C3_CONSTRUCTOR_IMPORT_ONLY === '1' || process.env.PHP_COMPANION_TEST_C3_FIRST_IMPORT_ONLY === '1') {
     await verifyConstructorImportAccept(folder, api);
     console.log('C3 focused constructor import completed; this is not the full C3 suite');
     return;
@@ -521,6 +619,11 @@ export async function run(): Promise<void> {
   if (process.env.PHP_COMPANION_TEST_C3_RENAME_DESTINATION_ONLY === '1') {
     await verifyRenameDestination(folder);
     console.log('C3 focused Rename destination completed; this is not the full C3 suite');
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C3_GENERATION_ONLY === '1') {
+    await verifyDefaultGeneration(vscode.Uri.joinPath(folder.uri, 'src', 'Service'));
+    console.log('C3 focused generation completed; this is not the full C3 suite');
     return;
   }
   if (process.env.PHP_COMPANION_TEST_C3_LOCAL_EXTRACTION_ONLY === '1') {

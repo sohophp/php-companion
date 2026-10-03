@@ -1,11 +1,12 @@
+import { createHash } from 'node:crypto';
 import { mkdtemp, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { afterEach, expect, it } from 'vitest';
-import { SourceStatBatches } from '../src/sourceStatBatches.js';
+import { afterEach, expect, it, vi } from 'vitest';
+import { disposeSourceStatWorkers, sourceStatWorkerCount, SourceStatBatches } from '../src/sourceStatBatches.js';
 
 let root: string | undefined;
-afterEach(async () => { if (root) await rm(root, { recursive: true, force: true }); });
+afterEach(async () => { vi.useRealTimers(); disposeSourceStatWorkers(); if (root) await rm(root, { recursive: true, force: true }); });
 
 it('returns filesystem stamps and promptly rejects pending inspections after cancellation', async () => {
   root = await mkdtemp(join(tmpdir(), 'sophp-stat-cancel-'));
@@ -22,4 +23,72 @@ it('returns filesystem stamps and promptly rejects pending inspections after can
     await expect(batches.inspect(path)).rejects.toThrow('Source metadata worker failed.');
     await rejected;
   } finally { batches.close(); }
+});
+
+it('verifies cached bytes independently of timestamps and never hashes over the file budget', async () => {
+  root = await mkdtemp(join(tmpdir(), 'sophp-stat-hash-'));
+  const path = join(root, 'Receipt.php');
+  const original = '<?php class Receipt {}';
+  await writeFile(path, original);
+  const hash = createHash('sha256').update(original).digest('hex');
+  const batches = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'), {
+    expectedHash: (): string => hash, maxSourceBytes: Buffer.byteLength(original),
+  });
+  try {
+    expect((await batches.inspect(path)).matchesHash).toBe(true);
+    await writeFile(path, '<?php class Removed {}'); // Same bytes, different declaration.
+    expect((await batches.inspect(path)).matchesHash).toBe(false);
+    await writeFile(path, original);
+    expect((await batches.inspect(path)).matchesHash).toBe(true);
+    await writeFile(path, original + ' ');
+    expect((await batches.inspect(path)).matchesHash).toBeUndefined();
+    await rm(path);
+    await expect(batches.inspect(path)).rejects.toThrow('Source could not be inspected.');
+  } finally { batches.close(); }
+});
+
+it('reuses a worker across scans while cancelling only the owning scan', async () => {
+  root = await mkdtemp(join(tmpdir(), 'sophp-stat-reuse-'));
+  const path = join(root, 'Source.php'); await writeFile(path, '<?php');
+  let firstLive = true;
+  const first = new SourceStatBatches(() => firstLive, resolve('dist/sourceStatWorker.js'));
+  const second = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'));
+  try {
+    await first.inspect(path);
+    const firstPending = first.inspect(path);
+    const rejected = expect(firstPending).rejects.toThrow('Source metadata worker failed.');
+    const secondPending = second.inspect(path);
+    expect(sourceStatWorkerCount()).toBe(1);
+    await new Promise<void>(done => setImmediate(done)); // Both scans have dispatched their own batches.
+    firstLive = false;
+    await expect(first.inspect(path)).rejects.toThrow('Source metadata worker failed.');
+    await rejected;
+    expect((await secondPending).size).toBe(5);
+    first.close(); second.close();
+    const third = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'));
+    try {
+      expect((await third.inspect(path)).size).toBe(5);
+      expect(sourceStatWorkerCount()).toBe(1);
+      disposeSourceStatWorkers();
+      await expect(third.inspect(path)).rejects.toThrow();
+    } finally { third.close(); }
+    expect(sourceStatWorkerCount()).toBe(0);
+    const recovered = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'));
+    try { expect((await recovered.inspect(path)).size).toBe(5); }
+    finally { recovered.close(); }
+  } finally { first.close(); second.close(); }
+});
+
+it('releases idle workers after the reuse window', async () => {
+  root = await mkdtemp(join(tmpdir(), 'sophp-stat-idle-'));
+  const path = join(root, 'Source.php'); await writeFile(path, '<?php');
+  const batches = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'));
+  try {
+    await batches.inspect(path);
+    vi.useFakeTimers({ toFake: ['setTimeout'] });
+    batches.close();
+    expect(sourceStatWorkerCount()).toBe(1);
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(sourceStatWorkerCount()).toBe(0);
+  } finally { vi.useRealTimers(); batches.close(); }
 });

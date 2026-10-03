@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { arrayAccessCases } from '../../../test/extension/suite/arrayAccessFixture.js';
 import { quotedPrefixCases } from '../../../test/extension/suite/quotedPrefixFixture.js';
 import { unfinishedShapeContexts, unfinishedShapeSource, unfinishedShapeTail } from '../../../test/extension/suite/unfinishedShapeFixture.js';
@@ -11249,6 +11250,59 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+
+  it.each(['scan', 'result'])('keeps fresh Import facts when an older background dependency snapshot finishes (%s)', async phase => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-import-background-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      const source = '<?php namespace App; use Acme\\Receipt as VendorReceipt; function copied(VendorReceipt $value) {}';
+      const sourcePath = join(root, 'src', 'Source.php'); const vendorPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Receipt.php');
+      await writeFile(sourcePath, source); await writeFile(vendorPath, '<?php namespace Acme; class Removed {}');
+      const uri = pathToFileURL(sourcePath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
+          phpVersion: '8.5', indexingMode: 'experimental', testMode: true, testPauseNextQueries: ['indexDependencySource'],
+        },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      let id = 102;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: `phpCompanion/${method}`, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
+      };
+      const waitForPause = async (method: string): Promise<void> => {
+        const deadline = Date.now() + 5000;
+        while (Date.now() < deadline) {
+          if ((await request('testQueryState', { method, uri })).paused) return;
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+        throw new Error(`No controlled pause for ${method}`);
+      };
+      await waitForPause('indexDependencySource');
+      await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}'); // No watcher: the foreground request discovers it.
+      const params = { textDocument: { uri }, ranges: [{ start: lspPosition(source, source.indexOf('VendorReceipt $')), end: lspPosition(source, source.indexOf('VendorReceipt $') + 13) }] };
+      expect(await request('copyTypeSymbols', params)).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      const pauseMethod = phase === 'scan' ? 'importDiskRefresh' : 'copyVerifiedSource';
+      expect(await request('testPauseNextQuery', { method: pauseMethod })).toBe(true);
+      const held = request('copyTypeSymbols', params);
+      await waitForPause(pauseMethod);
+      expect(await request('testReleaseQuery', { method: 'indexDependencySource' })).toBe(true);
+      await output.waitFor(message => message.method === 'window/logMessage' && /\[index:\d+\] end/.test(message.params?.message ?? ''), 20_000);
+      expect(await request('testReleaseQuery', { method: pauseMethod })).toBe(true);
+      expect(await held, JSON.stringify(await request('testQueryTimings', {}))).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+      expect((await request('testQueryTimings', {})).importDiskRefreshSourceRetry ?? []).toHaveLength(phase === 'scan' ? 1 : 0);
+      expect(await readFile(vendorPath, 'utf8')).toBe('<?php namespace Acme; class Receipt {}');
+      expect(await readFile(sourcePath, 'utf8')).toBe(source);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('resolves copied and pasted imports in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-default-imports-'));
     try {
@@ -11266,7 +11320,7 @@ function values(): array { return []; }
       const uri = pathToFileURL(sourcePath).toString(); const targetUri = pathToFileURL(targetPath).toString();
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
-        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode,
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true,
           indexLimits: { maxFiles: limited ? 2 : 4, maxFileSizeBytes: 524288, maxTotalBytes: 4096 } },
       } }));
       await output.waitFor(message => message.id === 101); server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
@@ -11303,7 +11357,8 @@ function values(): array { return []; }
         expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
         await writeFile(vendorPath, '<?php namespace Acme; class Receipt {}');
         await utimes(vendorPath, before.atimeMs / 1000, before.mtimeMs / 1000);
-        expect(await request('copyTypeSymbols', copyParams)).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt', alias: 'VendorReceipt' })]);
+        const restoredCopy = await request('copyTypeSymbols', copyParams);
+        expect(restoredCopy, JSON.stringify({ timings: await request('testQueryTimings', {}), evidence: await request('testCopyImportEvidence', {}), restoredStamp: await stat(vendorPath) })).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt', alias: 'VendorReceipt' })]);
         const freshPath = join(root, 'vendor', 'acme', 'lib', 'src', 'FreshReceipt.php');
         await writeFile(freshPath, '<?php namespace Acme; class FreshReceipt {}');
         expect(await request('importCandidates', { textDocument: { uri: targetUri }, position, name: 'FreshReceipt', context: 'paste' }))
@@ -11320,6 +11375,50 @@ function values(): array { return []; }
         expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: vendorUri } } }));
         expect(await request('copyTypeSymbols', copyParams)).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+        expect(await request('testPauseNextQuery', { method: 'importDiskRefresh' })).toBe(true);
+        const heldCopy = request('copyTypeSymbols', copyParams);
+        const waitForImportPause = async (): Promise<void> => {
+          const deadline = Date.now() + 5000;
+          while (Date.now() < deadline) {
+            if ((await request('testQueryState', { method: 'importDiskRefresh', uri })).paused) return;
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+          throw new Error('Import scan did not reach the controlled pause');
+        };
+        await waitForImportPause();
+        await writeFile(vendorPath, '<?php namespace Acme; class Receipt {} // changed during Copy');
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: vendorUri, type: 2 }] } }));
+        expect(await request('importCandidates', { textDocument: { uri: targetUri }, position, name: 'FreshReceipt', context: 'paste' }))
+          .toEqual([expect.objectContaining({ fqcn: 'Acme\\FreshReceipt' })]);
+        expect(await request('testReleaseQuery', { method: 'importDiskRefresh' })).toBe(true);
+        expect(await heldCopy).toEqual([expect.objectContaining({ fqcn: 'Acme\\Receipt' })]);
+        const retriesBeforeCancel = (await request('testQueryTimings', {})).importDiskRefreshEpochRetry.length;
+        expect(retriesBeforeCancel).toBeGreaterThan(0);
+        expect(await request('testPauseNextQuery', { method: 'importDiskRefresh' })).toBe(true);
+        const cancelledId = id;
+        const cancelledCopy = request('copyTypeSymbols', copyParams);
+        await waitForImportPause();
+        server.stdin.write(encode({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: cancelledId } }));
+        expect(await request('testReleaseQuery', { method: 'importDiskRefresh' })).toBe(true);
+        expect(await cancelledCopy).toEqual([]);
+        expect((await request('testQueryTimings', {})).importDiskRefreshEpochRetry.length).toBe(retriesBeforeCancel);
+        expect(await request('testPauseNextQuery', { method: 'importDiskRefresh' })).toBe(true);
+        const unstableCopy = request('copyTypeSymbols', copyParams);
+        await waitForImportPause();
+        await writeFile(vendorPath, '<?php namespace Acme; class Receipt {} // second controlled change');
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: vendorUri, type: 2 }] } }));
+        await request('importCandidates', { textDocument: { uri: targetUri }, position, name: 'FreshReceipt', context: 'paste' });
+        expect(await request('testPauseNextQuery', { method: 'importDiskRefresh' })).toBe(true);
+        expect(await request('testReleaseQuery', { method: 'importDiskRefresh' })).toBe(true);
+        await waitForImportPause(); // Hold the single allowed retry too.
+        await writeFile(vendorPath, '<?php namespace Acme; class Removed {} // third controlled change');
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: vendorUri, type: 2 }] } }));
+        await request('importCandidates', { textDocument: { uri: targetUri }, position, name: 'FreshReceipt', context: 'paste' });
+        expect(await request('testReleaseQuery', { method: 'importDiskRefresh' })).toBe(true);
+        expect(await unstableCopy).toEqual([]); // Further invalidation terminates; never return the stale type.
+        expect((await request('testQueryTimings', {})).importDiskRefreshEpochRetry.length).toBe(retriesBeforeCancel + 1);
+
+
         await rm(vendorPath); // No watcher notification: stale declarations must disappear.
         expect(await request('copyTypeSymbols', copyParams)).toEqual([]);
         expect(await request('planTypeImports', planParams)).toBeNull();
@@ -15656,6 +15755,104 @@ class Example {}`;
       }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
+
+
+  it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('generates local and inherited members with current sources in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-default-generation-'));
+    try {
+      await mkdir(join(root, 'src')); await mkdir(join(root, 'vendor', 'acme', 'lib', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+      const source = '<?php namespace App; class Own { private int $id; } class Worker implements \\Acme\\Contract {} class Child extends \\Acme\\Base {}';
+      const vendor = '<?php namespace Acme; interface Contract { public function accept(string $value): int; } abstract class Base { abstract protected function calculate(int $count): string; public function ping(string $name): string { return $name; } }';
+      const sourcePath = join(root, 'src', 'Source.php'); const vendorPath = join(root, 'vendor', 'acme', 'lib', 'src', 'Types.php');
+      await writeFile(sourcePath, source); await writeFile(vendorPath, vendor);
+      const uri = pathToFileURL(sourcePath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true,
+          ...(limited ? { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524288, maxTotalBytes: 1048576 } } : {}) },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      let id = 102; let text = source;
+      const control = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: `phpCompanion/${method}`, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
+      };
+      const actionsAt = async (name: string): Promise<Array<{ title: string; edit?: { changes?: Record<string, Array<{ newText: string }>> } }>> => {
+        const requestId = id++; const position = lspPosition(text, text.indexOf(`class ${name}`) + 7);
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: position, end: position }, context: { diagnostics: [], only: ['refactor.rewrite'] } } }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
+      };
+      const own = await actionsAt('Own');
+      expect(own.find(action => action.title === 'Generate constructor for 1 property')?.edit?.changes?.[uri]?.[0]?.newText)
+        .toContain('public function __construct(int $id)'); // This action needs only the current document, even under a project budget limit.
+      if (!limited) expect(own.flatMap(action => action.edit?.changes?.[uri] ?? []).map(edit => edit.newText).join('\n')).toContain('function getId(): int');
+      const worker = await actionsAt('Worker');
+      const implemented = worker.find(action => action.title === 'Implement 1 interface method');
+      if (limited) expect(implemented).toBeUndefined(); else expect(implemented?.edit?.changes?.[uri]?.[0]?.newText).toContain('public function accept(string $value): int');
+      if (!limited) expect(implemented).toMatchObject({ command: {
+        command: 'phpCompanion.refactorSnapshots', arguments: [{
+          [uri]: createHash('sha256').update(source).digest('hex'),
+          [pathToFileURL(vendorPath).toString()]: createHash('sha256').update(vendor).digest('hex'),
+        }],
+      } });
+      expect(own.find(action => action.title === 'Generate constructor for 1 property')).toMatchObject({ data: { phpCompanion: { phpVersion: '8.5' } } });
+      const child = await actionsAt('Child');
+      const abstract = child.find(action => action.title === 'Implement 1 abstract method');
+      const override = child.find(action => action.title.startsWith('Override ') && action.title.includes('ping'));
+      if (limited) { expect(abstract).toBeUndefined(); expect(override).toBeUndefined(); }
+      else {
+        expect(abstract?.edit?.changes?.[uri]?.[0]?.newText).toContain('protected function calculate(int $count): string');
+        expect(override?.edit?.changes?.[uri]?.[0]?.newText).toContain('parent::ping($name);');
+        await writeFile(vendorPath, vendor.replace('accept(string $value): int', 'accept(int $value): string'));
+        expect((await actionsAt('Worker')).find(action => action.title === 'Implement 1 interface method')?.edit?.changes?.[uri]?.[0]?.newText)
+          .toContain('public function accept(int $value): string'); // No watcher: stale signatures must not be generated.
+      }
+      let heldActions: Promise<unknown> | undefined;
+      if (!limited) {
+        expect(await control('testPauseNextQuery', { method: 'generationDiskRefresh' })).toBe(true);
+        heldActions = actionsAt('Worker');
+        const deadline = Date.now() + 5000; let paused = false;
+        while (Date.now() < deadline) {
+          if ((await control('testQueryState', { method: 'generationDiskRefresh', uri })).paused) { paused = true; break; }
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+        expect(paused).toBe(true);
+      }
+      text = source.replace('private int $id;', 'private string $name;');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri, version: 2 }, contentChanges: [{ text }] } }));
+      if (heldActions) {
+        expect((await control('testQueryState', { method: 'generationDiskRefresh', uri })).version).toBe(2);
+        expect(await control('testReleaseQuery', { method: 'generationDiskRefresh' })).toBe(true);
+        expect(await heldActions).toEqual([]);
+      }
+      expect((await actionsAt('Own')).find(action => action.title === 'Generate constructor for 1 property')?.edit?.changes?.[uri]?.[0]?.newText)
+        .toContain('public function __construct(string $name)');
+      if (!limited) {
+        expect(await control('testPauseNextQuery', { method: 'generationDiskRefresh' })).toBe(true);
+        const staleVersion = actionsAt('Own');
+        const deadline = Date.now() + 5000; let paused = false;
+        while (Date.now() < deadline) {
+          if ((await control('testQueryState', { method: 'generationDiskRefresh', uri })).paused) { paused = true; break; }
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+        expect(paused).toBe(true);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpVersions', params: {
+          versions: [{ uri: pathToFileURL(root).toString(), version: '8.4' }], fallback: '8.4',
+        } }));
+        expect(await control('testReleaseQuery', { method: 'generationDiskRefresh' })).toBe(true);
+        expect(await staleVersion).toEqual([]);
+        expect((await actionsAt('Own')).find(action => action.title === 'Generate constructor for 1 property'))
+          .toMatchObject({ data: { phpCompanion: { phpVersion: '8.4' } } });
+      }
+      expect(await readFile(sourcePath, 'utf8')).toBe(source);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
 
   it('generates exact missing interface method stubs without duplicating inherited methods', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-implement-methods-'));

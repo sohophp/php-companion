@@ -70,7 +70,7 @@ import { referenceCandidateEvidenceMatches, skippedCandidateEvidenceMatches, typ
 import { captureReferenceEngineIdentity, type ReferenceEngineInputs } from './referenceEngineIdentity.js';
 import { ReferenceResultStore, type ReferenceLocation, type ReferenceResultProof } from './referenceResultStore.js';
 import { portableCandidatePaths, type CandidatePaths } from './portableCandidatePaths.js';
-import { SourceStatBatches } from './sourceStatBatches.js';
+import { disposeSourceStatWorkers, SourceStatBatches } from './sourceStatBatches.js';
 
 declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
@@ -200,6 +200,7 @@ const lastPublishedDiagnostics = new Map<string, { document: TextDocument; versi
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
 const testQueryDurations = new Map<string, number[]>();
+let testCopyImportEvidence: unknown;
 let experimentalReferenceClosure = false;
 let experimentalReferenceSourceOnly = false;
 function referenceSourceMode(): boolean {
@@ -1733,7 +1734,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     prepareSource: sourceOnly ? ({ uri, source, hash }): Promise<PreparedCandidate | undefined> => sourceWorkers!.prepare({
       uri, source, hash, names: [], mode: 'symbol', deferBodies: false, forceFull: true, includeProjectFacts: true,
     }) : undefined,
-    onSource: ({ uri, path, source, hash, prepared }) => {
+    onSource: async ({ uri, path, source, hash, prepared }) => {
+      if (projectCompleteRoots.has(root) && testPauseNextQueries.has('indexDependencySource')) await pauseTestQuery('indexDependencySource');
       lightEntries?.set(resolve(path), { hash, summary: createSourceCandidateSummary(source, false) });
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
       const candidate = !open && prepared && typeof prepared === 'object' && (prepared as PreparedCandidate).uri === uri
@@ -4089,7 +4091,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
     for (const method of initialization.testPauseNextQueries) {
-      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract'].includes(method)) testPauseNextQueries.add(method);
+      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource'].includes(method)) testPauseNextQueries.add(method);
     }
   }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
@@ -4161,7 +4163,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -4179,6 +4181,8 @@ connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknow
   release();
   return true;
 });
+
+connection.onRequest('phpCompanion/testCopyImportEvidence', () => testMode ? testCopyImportEvidence : null);
 
 connection.onRequest('phpCompanion/testQueryTimings', (params: { reset?: unknown } | undefined): Record<string, number[]> => {
   if (!testMode) return {};
@@ -4968,9 +4972,13 @@ connection.onRequest('phpCompanion/importCandidates', async (params: { textDocum
     || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
   const position = params.position as { line: number; character: number };
   const workspace = await semanticForUri(uri as string);
-  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([params.name.toLowerCase()]))
+  const name = params.name;
+  let candidates: ReturnType<typeof canonicalTypeImportCandidates> = [];
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([name.toLowerCase()]), () => {
+      candidates = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name, params.context !== 'paste');
+    })
     || documents.get(uri as string)?.version !== document.version) return [];
-  return canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), params.name, params.context !== 'paste');
+  return candidates;
 });
 
 connection.onRequest('phpCompanion/addImport', async (params: {
@@ -4985,12 +4993,15 @@ connection.onRequest('phpCompanion/addImport', async (params: {
   const startOffset = document.offsetAt(start); const endOffset = document.offsetAt(end); const source = document.getText();
   if (source.slice(startOffset, endOffset) !== name || alias !== undefined && !isValidPhpIdentifier(alias)) return null;
   const workspace = await semanticForUri(uri as string);
-  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([name.toLowerCase()]))
+  const verified: { candidate?: ReturnType<typeof canonicalTypeImportCandidates>[number]; insertion?: ReturnType<SemanticWorkspace['importInsertion']> } = {};
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', new Set([name.toLowerCase()]), () => {
+      verified.candidate = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name)
+        .find(item => item.fqcn.toLowerCase() === fqcn.toLowerCase());
+      if (verified.candidate && (!verified.candidate.aliasRequired || alias))
+        verified.insertion = workspace.importInsertion(uri as string, document.offsetAt(position), verified.candidate.fqcn, 'class', alias);
+    })
     || documents.get(uri as string)?.version !== document.version) return null;
-  const candidates = canonicalTypeImportCandidates(workspace, root, uri as string, document.offsetAt(position), name);
-  const candidate = candidates.find((item) => item.fqcn.toLowerCase() === fqcn.toLowerCase()); if (!candidate) return null;
-  if (candidate.aliasRequired && !alias) return null;
-  const insertion = workspace.importInsertion(uri as string, document.offsetAt(position), candidate.fqcn, 'class', alias); if (!insertion) return null;
+  const { candidate, insertion } = verified; if (!candidate || !insertion) return null;
   const edits = [{ uri: uri as string, start: insertion.offset, end: insertion.offset, newText: insertion.text }];
   if (alias && alias !== name) edits.push({ uri: uri as string, start: startOffset, end: endOffset, newText: alias });
   const plan = createEditPlan(`Import ${candidate.fqcn}`, [{ uri: uri as string, version: document.version, length: source.length }], edits);
@@ -5109,19 +5120,31 @@ connection.onRequest('phpCompanion/reorderMethodParameters', async (params: {
 
 connection.onRequest('phpCompanion/copyTypeSymbols', async (params: { textDocument?: { uri?: unknown }; ranges?: unknown }, token) => {
   const uri = params.textDocument?.uri; const document = typeof uri === 'string' ? documents.get(uri) : undefined; const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
-  if (!document || !root || !Array.isArray(params.ranges) || params.ranges.length > 128 || token.isCancellationRequested
-    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return [];
+  if (!document || !root || !Array.isArray(params.ranges) || params.ranges.length > 128 || token.isCancellationRequested) return [];
+  if (!await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) { recordTestQueryDuration('copyImportProjectIncomplete', testMode ? performance.now() : 0); return []; }
   const ranges = params.ranges.flatMap((range): Array<{ start: number; end: number }> => {
     if (!range || typeof range !== 'object' || !('start' in range) || !('end' in range)) return [];
     return [{ start: document.offsetAt(range.start as { line: number; character: number }), end: document.offsetAt(range.end as { line: number; character: number }) }];
   });
   const workspace = await semanticForUri(uri as string);
   const symbols = workspace.typeCopySymbols(uri as string, ranges);
-  if (!symbols.length) return [];
+  if (!symbols.length) { recordTestQueryDuration('copyImportMissingSymbols', testMode ? performance.now() : 0); return []; }
   const names = new Set(symbols.map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
-  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
-    || documents.get(uri as string)?.version !== document.version) return [];
-  return workspace.typeCopySymbols(uri as string, ranges).filter((symbol) => canonicalTypeDeclaration(workspace, root, symbol.fqcn));
+  let copied: ReturnType<SemanticWorkspace['typeCopySymbols']> = [];
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names, () => {
+      copied = workspace.typeCopySymbols(uri as string, ranges).filter(symbol => canonicalTypeDeclaration(workspace, root, symbol.fqcn));
+      if (testMode && !copied.length) testCopyImportEvidence = {
+        symbols: workspace.typeCopySymbols(uri as string, ranges),
+        declarations: [...names].flatMap(name => workspace.typeDeclarationsNamed(name)),
+        sources: symbols.flatMap(symbol => resolvePsr4Class(symbol.fqcn, projectMappingsByRoot.get(root) ?? []))
+          .map(path => ({ path, stamp: verifiedDiskSources.get(workspace)?.get(path),
+            source: workspace.source(indexedUriForPath(root, path)), state: workspace.implementationState(indexedUriForPath(root, path)) })),
+      };
+    })
+    || documents.get(uri as string)?.version !== document.version) { recordTestQueryDuration('copyImportRefreshRejected', testMode ? performance.now() : 0); return []; }
+  if (testPauseNextQueries.has('copyVerifiedSource')) await pauseTestQuery('copyVerifiedSource');
+  if (!copied.length) recordTestQueryDuration('copyImportMissingDeclaration', testMode ? performance.now() : 0);
+  return copied;
 });
 
 connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocument?: { uri?: unknown }; position?: unknown; symbols?: unknown }, token) => {
@@ -5137,10 +5160,13 @@ connection.onRequest('phpCompanion/planTypeImports', async (params: { textDocume
   if (symbols.length !== params.symbols.length) return null;
   const workspace = await semanticForUri(uri as string);
   const names = new Set(symbols.map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
-  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+  const verified: { plan?: ReturnType<SemanticWorkspace['planTypeImports']> } = {};
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names, () => {
+      if (symbols.every(symbol => canonicalTypeDeclaration(workspace, root, symbol.fqcn)))
+        verified.plan = workspace.planTypeImports(uri as string, document.offsetAt(params.position as { line: number; character: number }), symbols);
+    })
     || documents.get(uri as string)?.version !== document.version) return null;
-  if (symbols.some((symbol) => !canonicalTypeDeclaration(workspace, root, symbol.fqcn))) return null;
-  const plan = workspace.planTypeImports(uri as string, document.offsetAt(params.position as { line: number; character: number }), symbols); if (!plan) return null;
+  const plan = verified.plan; if (!plan) return null;
   const edit = plan.text ? createEditPlan('Add pasted type imports', [{ uri: uri as string, version: document.version, length: document.getText().length }], [
     { uri: uri as string, start: plan.offset, end: plan.offset, newText: plan.text },
   ]) : undefined;
@@ -5156,9 +5182,10 @@ connection.onRequest('phpCompanion/unresolvedTypeNames', async (params: { textDo
   const workspace = await semanticForUri(uri as string);
   const names = new Set(workspace.typeCopySymbols(uri as string, [{ start: 0, end: document.getText().length }])
     .map(symbol => symbol.fqcn.slice(symbol.fqcn.lastIndexOf('\\') + 1).toLowerCase()));
-  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names)
+  let unresolved: ReturnType<SemanticWorkspace['unresolvedTypeNames']> = [];
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'importDiskRefresh', names, () => { unresolved = workspace.unresolvedTypeNames(uri as string); })
     || documents.get(uri as string)?.version !== document.version) return [];
-  return workspace.unresolvedTypeNames(uri as string).map((item) => ({ name: item.name, position: document.positionAt(item.start) }));
+  return unresolved.map((item) => ({ name: item.name, position: document.positionAt(item.start) }));
 });
 
 async function fileOperationDestinationAvailable(oldPath: string, newPath: string): Promise<boolean> {
@@ -7804,35 +7831,44 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   return { range: { start: document.positionAt(target.start), end: document.positionAt(target.end) }, placeholder: target.name };
 });
 
-type ImportSourceCheck = { size: number; mtimeMs: number; ctimeMs: number; source: string };
+type VerifiedDiskSource = { size: number; mtimeMs: number; ctimeMs: number; source: string; hash: string };
 // Reuse only disk-backed facts; each request still inventories and stats every file.
-const importSourceChecks = new WeakMap<SemanticWorkspace, Map<string, ImportSourceCheck>>();
+const verifiedDiskSources = new WeakMap<SemanticWorkspace, Map<string, VerifiedDiskSource>>();
 
 // Establish current PHP source coverage for a refactor request without marking
 // framework providers or the global reference index ready.
-async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>): Promise<boolean> {
+async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>, captureVerifiedSource?: () => void, retries = 1): Promise<boolean> {
   await watchedFileChanges;
   await applyPendingFiles();
   const epoch = projectEpochs.get(root) ?? 0;
   const current = new Set<string>();
   const selectedNames = typeNames ? [...typeNames] : undefined;
-  const previousChecks = selectedNames ? importSourceChecks.get(workspace) : undefined;
-  const nextChecks = selectedNames ? new Map<string, ImportSourceCheck>() : undefined;
-  const inspected = new Map<string, Omit<ImportSourceCheck, 'source'>>();
+  const reuseChecks = Boolean(selectedNames || captureVerifiedSource);
+  const previousChecks = reuseChecks ? verifiedDiskSources.get(workspace) : undefined;
+  const nextChecks = reuseChecks ? new Map<string, VerifiedDiskSource>() : undefined;
+  const verifiedSources = reuseChecks ? new Map<string, string | undefined>() : undefined;
+  const inspected = new Map<string, Omit<VerifiedDiskSource, 'source' | 'hash'> & { matchesHash?: boolean }>();
   let changedUri: string | undefined;
   const refreshStarted = testMode ? performance.now() : 0;
-  const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch);
+  const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
+    undefined, reuseChecks ? { expectedHash: (path: string): string | undefined => previousChecks?.get(path)?.hash,
+      maxSourceBytes: indexLimits.maxFileSizeBytes } : undefined);
   const scan = await indexComposerSources(root, {
     project: await composerProjectForRoot(root), includeDependencies: true, limits: indexLimits,
-    readConcurrency: 32, yieldEvery: 100, inspectSource: statBatches.inspect,
-    skipSource: selectedNames ? (path, info): boolean => {
-      inspected.set(path, info);
+    readConcurrency: 32, yieldEvery: 100, inspectSource: async path => {
+      const stamp = await statBatches.inspect(path); inspected.set(path, stamp); return stamp;
+    },
+    skipSource: reuseChecks ? (path, info): boolean => {
       const known = previousChecks?.get(path); if (!known) return false;
+      // Metadata can collide after rapid equal-size writes with restored mtime.
+      // Reuse only after the worker verifies the actual bytes as well.
+      if (inspected.get(path)?.matchesHash !== true) return false;
       if (known.size !== info.size || known.mtimeMs !== info.mtimeMs || known.ctimeMs !== info.ctimeMs) return false;
       const uri = indexedUriForPath(root, path);
       const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
       if (workspace.source(uri) !== known.source || open && open.getText() !== known.source) return false;
-      current.add(uri); nextChecks!.set(path, known);
+      if (!selectedNames && workspace.implementationState(uri) !== 'loaded') return false;
+      current.add(uri); nextChecks!.set(path, known); verifiedSources!.set(uri, known.source);
       return true;
     } : undefined,
     shouldContinue: () => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
@@ -7847,26 +7883,44 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       // Imports need complete discovery of selected type names, not the bodies
       // of unrelated new vendor files. Refresh changed indexed files as well
       // so removed declarations cannot survive under their old names.
-      if (previous !== effective && (relevant || previous !== undefined)) {
+      if ((previous !== effective || !selectedNames && workspace.implementationState(uri) !== 'loaded') && (relevant || previous !== undefined)) {
         workspace.update(uri, effective, Boolean(open)); changedUri = uri;
       }
+      verifiedSources?.set(uri, workspace.source(uri));
       const stamp = inspected.get(path);
-      if (nextChecks && stamp && effective === source && workspace.source(uri) === source) nextChecks.set(path, { ...stamp, source });
+      if (nextChecks && stamp && effective === source && workspace.source(uri) === source) nextChecks.set(path, { size: stamp.size, mtimeMs: stamp.mtimeMs, ctimeMs: stamp.ctimeMs, source,
+        hash: createHash('sha256').update(source).digest('hex') });
       return undefined;
     },
   }).finally(() => statBatches.close());
   recordTestQueryDuration(timing, refreshStarted);
-  if (!scan.complete || cancelled() || (projectEpochs.get(root) ?? 0) !== epoch) {
+  if (reuseChecks && testPauseNextQueries.has(timing)) await pauseTestQuery(timing);
+  let sourceSuperseded = false;
+  for (const [uri, source] of verifiedSources ?? []) {
+    if (workspace.source(uri) !== source || !selectedNames && workspace.implementationState(uri) !== 'loaded') { sourceSuperseded = true; break; }
+  }
+  const epochSuperseded = (projectEpochs.get(root) ?? 0) !== epoch;
+  const superseded = epochSuperseded || sourceSuperseded;
+  if (!scan.complete || cancelled() || superseded) {
     if (changedUri) invalidateCandidates(changedUri);
+    // Watchers or a background snapshot can supersede checked Import facts.
+    // Refresh once; cancellation, further supersession and budgets fail closed.
+    if (reuseChecks && superseded && retries > 0 && !cancelled()) {
+      recordTestQueryDuration(`${timing}${epochSuperseded ? 'EpochRetry' : 'SourceRetry'}`, refreshStarted);
+      return refreshRefactorDiskSources(workspace, root, cancelled, timing, typeNames, captureVerifiedSource, retries - 1);
+    }
     return false;
   }
   for (const uri of indexedUrisByRoot.get(root) ?? []) {
     if (!current.has(uri) && !documents.get(uri)) { workspace.remove(uri); changedUri = uri; }
   }
   indexedUrisByRoot.set(root, current);
-  if (nextChecks) importSourceChecks.set(workspace, nextChecks);
+  if (nextChecks) verifiedDiskSources.set(workspace, nextChecks);
   if (changedUri) invalidateCandidates(changedUri);
-  return !cancelled();
+  if (cancelled()) return false;
+  // Consume the verified facts before yielding to background source updates.
+  captureVerifiedSource?.();
+  return true;
 }
 
 connection.onRenameRequest(async (params, token) => {
@@ -7970,6 +8024,7 @@ connection.onCodeAction(async (params, token) => {
   const importSort = requestedImportSort === 'fqcn' ? 'fqcn' : 'grouped';
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
+  const queryVersion = document.version;
   const targetPhpVersion = phpVersionForUri(document.uri);
   const actions: CodeAction[] = [];
   const localWorkspace = await semanticForUri(document.uri);
@@ -8116,81 +8171,16 @@ connection.onCodeAction(async (params, token) => {
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
-  const root = rootForUri(document.uri);
-  if (root && !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return actions;
-  const workspace = localWorkspace;
-  if (token.isCancellationRequested) return [];
   const wantsRewrite = !context.only || context.only.some((kind) => CodeActionKind.RefactorRewrite.startsWith(kind));
-  if (wantsRewrite) {
-    const removal = workspace.removeUnusedPrivateParameter(document.uri, document.offsetAt(range.start));
-    if (removal) {
-      const uris = [...new Set(removal.edits.map((edit) => edit.uri))];
-      const snapshots = uris.flatMap((uri) => {
-        const targetSource = documents.get(uri)?.getText() ?? workspace.source(uri); if (targetSource === undefined) return [];
-        return [{ uri, version: documents.get(uri)?.version ?? null, length: targetSource.length }];
-      });
-      if (snapshots.length === uris.length) {
-        const plan = createEditPlan(`Remove unused parameter $${removal.parameter}`, snapshots, removal.edits.map((edit) => ({ ...edit, newText: '' })));
-        const changes: NonNullable<CodeAction['edit']>['changes'] = {};
-        for (const edit of plan.textEdits) {
-          const targetSource = documents.get(edit.uri)?.getText() ?? workspace.source(edit.uri); if (targetSource === undefined) continue;
-          const targetDocument = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, targetSource);
-          (changes![edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
-        }
-        actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'removeUnusedParameter', removal.parameter), kind: CodeActionKind.RefactorRewrite,
-          edit: { changes }, command: { title: 'Refactor source snapshots', command: 'phpCompanion.refactorSnapshots',
-            arguments: [Object.fromEntries(uris.map((uri) => {
-              const text = documents.get(uri)?.getText() ?? workspace.source(uri)!;
-              return [uri, createHash('sha256').update(text).digest('hex')];
-            }))] } });
-      }
-    }
-  }
   if (!context.only || context.only.includes(CodeActionKind.SourceOrganizeImports)) {
-    const organization = workspace.organizeImports(document.uri, importSort);
+    const organization = localWorkspace.organizeImports(document.uri, importSort);
     if (organization) {
       const plan = createEditPlan('Organize imports', [{ uri: document.uri, version: document.version, length: source.length }], organization);
       actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'organizeImports'), kind: CodeActionKind.SourceOrganizeImports,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
   }
-  const missing = workspace.missingInterfaceImplementation(document.uri, document.offsetAt(range.start));
-  if (missing) {
-    const lineStart = source.lastIndexOf('\n', Math.max(0, missing.insertOffset - 1)) + 1;
-    const classIndent = /^\s*/.exec(source.slice(lineStart, missing.insertOffset))?.[0] ?? '';
-    const indent = `${classIndent}    `;
-    const methods = missing.methods.map((method) => {
-      const signature = method.declarationText.replace(/\babstract\s+/i, '').replace(/;\s*$/, '');
-      return `${indent}${signature}\n${indent}{\n${indent}    throw new \\LogicException('Not implemented.');\n${indent}}`;
-    }).join('\n\n');
-    const plan = createEditPlan(`Implement interface methods in ${missing.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
-      { uri: document.uri, start: missing.insertOffset, end: missing.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
-    ]);
-    actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
-      missing.methods.length === 1 ? 'implementInterfaceMethod' : 'implementInterfaceMethods', String(missing.methods.length)), kind: CodeActionKind.RefactorRewrite,
-      edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
-  }
-  const abstractMissing = workspace.missingAbstractImplementation(document.uri, document.offsetAt(range.start));
-  if (abstractMissing) {
-    const covered = new Set(missing?.methods.map((method) => method.name.toLowerCase()) ?? []);
-    const required = abstractMissing.methods.filter((method) => !covered.has(method.name.toLowerCase()));
-    if (required.length) {
-      const lineStart = source.lastIndexOf('\n', Math.max(0, abstractMissing.insertOffset - 1)) + 1;
-      const classIndent = /^\s*/.exec(source.slice(lineStart, abstractMissing.insertOffset))?.[0] ?? '';
-      const indent = `${classIndent}    `;
-      const methods = required.map((method) => {
-        const signature = method.declarationText.replace(/\babstract\s+/i, '').replace(/;\s*$/, '');
-        return `${indent}${signature}\n${indent}{\n${indent}    throw new \\LogicException('Not implemented.');\n${indent}}`;
-      }).join('\n\n');
-      const plan = createEditPlan(`Implement abstract methods in ${abstractMissing.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
-        { uri: document.uri, start: abstractMissing.insertOffset, end: abstractMissing.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
-      ]);
-      actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
-        required.length === 1 ? 'implementAbstractMethod' : 'implementAbstractMethods', String(required.length)), kind: CodeActionKind.RefactorRewrite,
-        edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
-    }
-  }
-  const constructor = workspace.constructorGeneration(document.uri, document.offsetAt(range.start));
+  const constructor = wantsRewrite ? localWorkspace.constructorGeneration(document.uri, document.offsetAt(range.start)) : undefined;
   if (constructor) {
     const lineStart = source.lastIndexOf('\n', Math.max(0, constructor.insertOffset - 1)) + 1;
     const classIndent = /^\s*/.exec(source.slice(lineStart, constructor.insertOffset))?.[0] ?? '';
@@ -8205,45 +8195,143 @@ connection.onCodeAction(async (params, token) => {
       constructor.properties.length === 1 ? 'generateConstructorProperty' : 'generateConstructorProperties', String(constructor.properties.length)), kind: CodeActionKind.RefactorRewrite,
       edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
   }
-  const accessor = workspace.accessorGeneration(document.uri, document.offsetAt(range.start));
-  if (accessor) {
-    const lineStart = source.lastIndexOf('\n', Math.max(0, accessor.insertOffset - 1)) + 1;
-    const classIndent = /^\s*/.exec(source.slice(lineStart, accessor.insertOffset))?.[0] ?? '';
-    const indent = `${classIndent}    `;
-    const methods = accessor.accessors.flatMap((item) => [
-      item.getter ? `${indent}public function ${item.getter}(): ${item.type}\n${indent}{\n${indent}    return $this->${item.property};\n${indent}}` : undefined,
-      item.setter ? `${indent}public function ${item.setter}(${item.type} $${item.property}): void\n${indent}{\n${indent}    $this->${item.property} = $${item.property};\n${indent}}` : undefined,
-    ].filter((method): method is string => Boolean(method))).join('\n\n');
-    const plan = createEditPlan(`Generate accessors in ${accessor.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
-      { uri: document.uri, start: accessor.insertOffset, end: accessor.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
-    ]);
-    actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
-      accessor.accessors.length === 1 ? 'generateAccessor' : 'generateAccessors', String(accessor.accessors.length)), kind: CodeActionKind.RefactorRewrite,
-      edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
-  }
-  const overrides = workspace.overrideGeneration(document.uri, document.offsetAt(range.start));
-  if (overrides) {
-    const lineStart = source.lastIndexOf('\n', Math.max(0, overrides.insertOffset - 1)) + 1;
-    const classIndent = /^\s*/.exec(source.slice(lineStart, overrides.insertOffset))?.[0] ?? '';
-    const indent = `${classIndent}    `;
-    for (const method of overrides.methods) {
-      const argumentsText = method.parameters.map((parameter) => `${parameter.variadic ? '...' : ''}$${parameter.name}`).join(', ');
-      const invocation = `parent::${method.name}(${argumentsText});`;
-      const statement = method.returnType?.replace(/^\?/, '').toLowerCase() === 'void' || method.returnType?.toLowerCase() === 'never' ? invocation : `return ${invocation}`;
-      const generated = `${indent}${method.declarationText}\n${indent}{\n${indent}    ${statement}\n${indent}}`;
-      const plan = createEditPlan(`Override ${method.fqcn} in ${overrides.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
-        { uri: document.uri, start: overrides.insertOffset, end: overrides.insertOffset, newText: `\n\n${generated}\n${classIndent}` },
+  const appendWorkspaceActions = (): void => {
+    if (!currentQueryDocument(document, token, queryVersion)) return;
+    const workspace = localWorkspace;
+    if (wantsRewrite) {
+      const removal = workspace.removeUnusedPrivateParameter(document.uri, document.offsetAt(range.start));
+      if (removal) {
+        const uris = [...new Set(removal.edits.map((edit) => edit.uri))];
+        const snapshots = uris.flatMap((uri) => {
+          const targetSource = documents.get(uri)?.getText() ?? workspace.source(uri); if (targetSource === undefined) return [];
+          return [{ uri, version: documents.get(uri)?.version ?? null, length: targetSource.length }];
+        });
+        if (snapshots.length === uris.length) {
+          const plan = createEditPlan(`Remove unused parameter $${removal.parameter}`, snapshots, removal.edits.map((edit) => ({ ...edit, newText: '' })));
+          const changes: NonNullable<CodeAction['edit']>['changes'] = {};
+          for (const edit of plan.textEdits) {
+            const targetSource = documents.get(edit.uri)?.getText() ?? workspace.source(edit.uri); if (targetSource === undefined) continue;
+            const targetDocument = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, targetSource);
+            (changes![edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
+          }
+          actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'removeUnusedParameter', removal.parameter), kind: CodeActionKind.RefactorRewrite,
+            edit: { changes }, command: { title: 'Refactor source snapshots', command: 'phpCompanion.refactorSnapshots',
+              arguments: [Object.fromEntries(uris.map((uri) => {
+                const text = documents.get(uri)?.getText() ?? workspace.source(uri)!;
+                return [uri, createHash('sha256').update(text).digest('hex')];
+              }))] } });
+        }
+      }
+    }
+    const hierarchySnapshots = new Map<string, NonNullable<CodeAction['command']> | undefined>();
+    const generationSnapshots = (fqcn: string): NonNullable<CodeAction['command']> | undefined => {
+      if (hierarchySnapshots.has(fqcn)) return hierarchySnapshots.get(fqcn);
+      const uris = workspace.declarationHierarchySourceUris(fqcn);
+      if (!uris) return undefined;
+      const entries: Array<[string, string]> = [];
+      for (const uri of uris) {
+        // Bundled versioned facts are immutable filesystem-independent inputs.
+        if (isBuiltinDocumentUri(uri)) continue;
+        const text = documents.get(uri)?.getText() ?? workspace.source(uri);
+        if (text === undefined) return undefined;
+        entries.push([uri, createHash('sha256').update(text).digest('hex')]);
+      }
+      const command = { title: 'Refactor source snapshots', command: 'phpCompanion.refactorSnapshots',
+        arguments: [Object.fromEntries(entries)] };
+      hierarchySnapshots.set(fqcn, command); return command;
+    };
+    const missing = workspace.missingInterfaceImplementation(document.uri, document.offsetAt(range.start));
+    if (missing) {
+      const lineStart = source.lastIndexOf('\n', Math.max(0, missing.insertOffset - 1)) + 1;
+      const classIndent = /^\s*/.exec(source.slice(lineStart, missing.insertOffset))?.[0] ?? '';
+      const indent = `${classIndent}    `;
+      const methods = missing.methods.map((method) => {
+        const signature = method.declarationText.replace(/\babstract\s+/i, '').replace(/;\s*$/, '');
+        return `${indent}${signature}\n${indent}{\n${indent}    throw new \\LogicException('Not implemented.');\n${indent}}`;
+      }).join('\n\n');
+      const plan = createEditPlan(`Implement interface methods in ${missing.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
+        { uri: document.uri, start: missing.insertOffset, end: missing.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
       ]);
-      actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'overrideMethod', method.fqcn), kind: CodeActionKind.RefactorRewrite,
+      if (generationSnapshots(missing.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+        missing.methods.length === 1 ? 'implementInterfaceMethod' : 'implementInterfaceMethods', String(missing.methods.length)), kind: CodeActionKind.RefactorRewrite,
+        command: generationSnapshots(missing.classFqcn),
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
+    const abstractMissing = workspace.missingAbstractImplementation(document.uri, document.offsetAt(range.start));
+    if (abstractMissing) {
+      const covered = new Set(missing?.methods.map((method) => method.name.toLowerCase()) ?? []);
+      const required = abstractMissing.methods.filter((method) => !covered.has(method.name.toLowerCase()));
+      if (required.length) {
+        const lineStart = source.lastIndexOf('\n', Math.max(0, abstractMissing.insertOffset - 1)) + 1;
+        const classIndent = /^\s*/.exec(source.slice(lineStart, abstractMissing.insertOffset))?.[0] ?? '';
+        const indent = `${classIndent}    `;
+        const methods = required.map((method) => {
+          const signature = method.declarationText.replace(/\babstract\s+/i, '').replace(/;\s*$/, '');
+          return `${indent}${signature}\n${indent}{\n${indent}    throw new \\LogicException('Not implemented.');\n${indent}}`;
+        }).join('\n\n');
+        const plan = createEditPlan(`Implement abstract methods in ${abstractMissing.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
+          { uri: document.uri, start: abstractMissing.insertOffset, end: abstractMissing.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
+        ]);
+        if (generationSnapshots(abstractMissing.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+          required.length === 1 ? 'implementAbstractMethod' : 'implementAbstractMethods', String(required.length)), kind: CodeActionKind.RefactorRewrite,
+          command: generationSnapshots(abstractMissing.classFqcn),
+        edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
+      }
+    }
+    const accessor = workspace.accessorGeneration(document.uri, document.offsetAt(range.start));
+    if (accessor) {
+      const lineStart = source.lastIndexOf('\n', Math.max(0, accessor.insertOffset - 1)) + 1;
+      const classIndent = /^\s*/.exec(source.slice(lineStart, accessor.insertOffset))?.[0] ?? '';
+      const indent = `${classIndent}    `;
+      const methods = accessor.accessors.flatMap((item) => [
+        item.getter ? `${indent}public function ${item.getter}(): ${item.type}\n${indent}{\n${indent}    return $this->${item.property};\n${indent}}` : undefined,
+        item.setter ? `${indent}public function ${item.setter}(${item.type} $${item.property}): void\n${indent}{\n${indent}    $this->${item.property} = $${item.property};\n${indent}}` : undefined,
+      ].filter((method): method is string => Boolean(method))).join('\n\n');
+      const plan = createEditPlan(`Generate accessors in ${accessor.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
+        { uri: document.uri, start: accessor.insertOffset, end: accessor.insertOffset, newText: `\n\n${methods}\n${classIndent}` },
+      ]);
+      if (generationSnapshots(accessor.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
+        accessor.accessors.length === 1 ? 'generateAccessor' : 'generateAccessors', String(accessor.accessors.length)), kind: CodeActionKind.RefactorRewrite,
+        command: generationSnapshots(accessor.classFqcn),
+        edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
+    }
+    const overrides = workspace.overrideGeneration(document.uri, document.offsetAt(range.start));
+    if (overrides) {
+      const lineStart = source.lastIndexOf('\n', Math.max(0, overrides.insertOffset - 1)) + 1;
+      const classIndent = /^\s*/.exec(source.slice(lineStart, overrides.insertOffset))?.[0] ?? '';
+      const indent = `${classIndent}    `;
+      for (const method of overrides.methods) {
+        const argumentsText = method.parameters.map((parameter) => `${parameter.variadic ? '...' : ''}$${parameter.name}`).join(', ');
+        const invocation = `parent::${method.name}(${argumentsText});`;
+        const statement = method.returnType?.replace(/^\?/, '').toLowerCase() === 'void' || method.returnType?.toLowerCase() === 'never' ? invocation : `return ${invocation}`;
+        const generated = `${indent}${method.declarationText}\n${indent}{\n${indent}    ${statement}\n${indent}}`;
+        const plan = createEditPlan(`Override ${method.fqcn} in ${overrides.classFqcn}`, [{ uri: document.uri, version: document.version, length: source.length }], [
+          { uri: document.uri, start: overrides.insertOffset, end: overrides.insertOffset, newText: `\n\n${generated}\n${classIndent}` },
+        ]);
+        if (generationSnapshots(overrides.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'overrideMethod', method.fqcn), kind: CodeActionKind.RefactorRewrite,
+          command: generationSnapshots(overrides.classFqcn),
+        edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
+      }
+    }
+  };
+  const root = rootForUri(document.uri);
+  if (wantsRewrite) {
+    if (!root) appendWorkspaceActions();
+    else if (await ensureProjectCompleteRoot(root, () => token.isCancellationRequested))
+      await refreshRefactorDiskSources(localWorkspace, root, () => token.isCancellationRequested, 'generationDiskRefresh', undefined, appendWorkspaceActions);
   }
   if (context.only?.includes(CodeActionKind.SourceOrganizeImports) && testPauseNextQueries.has('organizeImports')) await pauseTestQuery('organizeImports');
   if (context.only?.some((kind) => CodeActionKind.RefactorExtract.startsWith(kind)) && testPauseNextQueries.has('refactorExtract')) await pauseTestQuery('refactorExtract');
-  return actions;
+  if (phpVersionForUri(document.uri) !== targetPhpVersion) return [];
+  for (const action of actions) {
+    if (action.edit && action.kind?.startsWith(CodeActionKind.Refactor))
+      action.data = { phpCompanion: { phpVersion: targetPhpVersion } };
+  }
+  return currentQueryDocument(document, token, queryVersion) ? actions : [];
 });
 
 connection.onShutdown(async () => {
+  disposeSourceStatWorkers();
   indexingGeneration += 1;
   activeIndexing = undefined;
   for (const pending of relatedDiagnosticRefreshes.values()) clearTimeout(pending.timer);

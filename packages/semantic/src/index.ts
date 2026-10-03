@@ -8326,6 +8326,29 @@ export class SemanticWorkspace {
       .filter((name): name is string => Boolean(name)))];
   }
 
+  /** Exact source inputs for inheritance-dependent edits; ambiguous or incomplete graphs have no proof. */
+  declarationHierarchySourceUris(fqcn: string): string[] | undefined {
+    const pending = [fqcn]; const visited = new Set<string>(); const uris = new Set<string>();
+    while (pending.length) {
+      const name = pending.pop()!; const key = name.toLowerCase();
+      if (visited.has(key)) continue;
+      if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return undefined;
+      const shortName = name.slice(name.lastIndexOf('\\') + 1);
+      const matches = this.typeDeclarationsNamed(shortName).filter(type => type.fqcn.toLowerCase() === key);
+      if (matches.length !== 1) return undefined;
+      const file = this.files.get(matches[0]!.uri)!;
+      const declaration = file.declarations.find(type => type.fqcn.toLowerCase() === key)!;
+      visited.add(key); uris.add(file.uri);
+      const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      for (const parent of [...declaration.extendsNames, ...declaration.implementsNames, ...declaration.traitNames]) {
+        const resolved = this.resolveSourceType(file, parent, namespace, declaration.fqcn, declaration.start);
+        if (!resolved) return undefined;
+        pending.push(resolved);
+      }
+    }
+    return [...uris].sort();
+  }
+
   directSupertypes(fqcn: string): TypeInfo[] {
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
     const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');

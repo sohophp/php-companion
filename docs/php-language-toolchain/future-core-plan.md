@@ -15,7 +15,12 @@
 - [默认模式参数修改](reports/default-indexing-parameters-2026-10-04.md)：新增、删除、重排参数按请求核对完整当前源码及 Composer 依赖；双模式隔离宿主通过三文件预览、取消、应用及单次 Undo/Redo。大项目等待和真实 WSL 验收继续开放。
 - [Safe Move 当前源码覆盖](reports/safe-move-source-coverage-2026-10-04.md)：修复默认模式漏掉依赖调用者、已完成索引漏掉无 watcher 新文件的问题；十项定向协议通过，扫描不完整拒绝规划。真实规模与其它重构入口继续核对。
 - [默认模式复制／粘贴导入](reports/default-indexing-imports-2026-10-04.md)：五个 Import 入口已改为按请求核对当前相关类型源码；三模式成功／预算矩阵及双模式粘贴竞态宿主通过。构造表达式发现与双模式单次 Undo/Redo 也有定向证明；多符号 alias 连续处理已有受控选择及单次 Undo/Redo 证明；真人 alias 输入、启动期首次粘贴和真实规模等待继续核对。
-- [Import 等待优化](reports/default-indexing-imports-2026-10-04.md)：复用已核验磁盘源码并保留逐文件 metadata／预算检查，onDemand 1,003 文件的三步 P95 从 1.27 s 降至 0.37 s，单次约 119–133 ms；2,503 文件仍约 191–202 ms，progressive 还有尖峰，**整体 150 ms 预算未通过**。双模式竞态宿主通过；experimental 一次恢复声明返回空结果的失败及随后复测通过均保留，原因尚未确认。继续核对后台准备交错与首次粘贴。
+- [Import 等待优化](reports/default-indexing-imports-2026-10-04.md)：复用已核验磁盘源码并保留逐文件 metadata／预算检查，onDemand 1,003 文件的三步 P95 从 1.27 s 降至 0.37 s，单次约 119–133 ms；2,503 文件仍约 191–202 ms，progressive 还有尖峰，**整体 150 ms 预算未通过**。双模式竞态宿主通过；experimental 一次恢复声明返回空结果的失败及随后复测通过均保留，后续已定位一次实际内容与 metadata 缓存碰撞，见下文；历史失败仍保留。继续核对后台准备交错与首次粘贴。
+- [Import 首次输入与失效交错](reports/default-indexing-imports-2026-10-04.md)：两默认模式各一次不等待候选的实际首次 Provider、应用／Undo/Redo 通过；受控依赖失效从旧状态重新核验一次，第二次失效终止、取消不重试的三模式协议通过。早先偶发恢复空结果的失败证据仍保留；后续已定位一次 size／mtime／ctime 碰撞并增加实际内容核验，见下文。真实启动、长期使用或规模等待仍未关闭。本批增量纳入本次 C3 源码检查点。
+- [旧后台快照覆盖 Import](reports/default-indexing-imports-2026-10-04.md)：已复现扫描结束及扫描返回后两个覆盖时机；增加受检源码核验，并将五入口结果读取放入核验完成的同步步骤。18 项定向协议及最新 progressive 首次 Provider／接受／Undo/Redo 通过；不将此证明扩展到所有偶发问题或真实 UI。增量纳入本次 C3 源码检查点，继续推进生成／提取等独立入口。
+- [默认模式成员生成](reports/default-indexing-generation-2026-10-04.md)：纯当前文件构造函数独立可用；依赖继承的生成按请求核验当前项目／依赖并接入预览与过期保护；补充实际方法声明来源在预览期间的磁盘／未保存签名变化拒绝，以及中间 class／interface／Trait 继承来源保护，访问器也使用来源快照；CodeAction 绑定 PHP 版本，预览期间版本／显式版本设置变化拒绝，计算期间版本变化撤回结果。7 项定向协议、双模式五类生成的预览／取消／应用／Undo/Redo 通过；早期组合回归的 progressive Import 空结果保留，其后续内容碰撞证据见下文；生成规模等待与真实 UI 未关闭。本批增量纳入本次 C3 源码检查点。
+- [Import 内容一致性](reports/default-indexing-imports-2026-10-04.md)：已抓到恢复文件与旧缓存 size／mtime／ctime 完全相同导致的声明空结果；磁盘源码复用增加 Worker SHA-256 核验，Import／生成／Worker 15 项组合回归通过。保留内容哈希并复用 Worker 后，1,003 文件两默认模式单组 P95 约 60–84 ms；2,503 文件 onDemand 仍约 155–159 ms，旧 metadata 版本数据只作历史基线；150 ms 总体预算仍开放。本批增量纳入本次 C3 源码检查点。
+- [C3 源码阶段检查点](reports/default-indexing-generation-2026-10-04.md#c3-源码阶段检查点)：完整语义 1,352 项通过；完整 LSP 810 通过／2 性能失败／1 条件跳过，魔术方法单文件两项复测通过。150 ms 组合负载门槛仍开放，不将检查点记作完整 C3 完成；本地提交保留源码与正式回归材料，本批不更新 Profile。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序

@@ -185,6 +185,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       provideCodeActions: async (document, range, context, token, next) => {
         const sourceVersion = document.version;
         const sourceText = document.getText();
+        const sourcePhpVersion = versions.stateForUri(document.uri)?.resolution.target;
+        const sourceVersionSetting = vscode.workspace.getConfiguration('phpCompanion', document.uri).get<string>('phpVersion', 'auto');
         const actions = await next(document, range, context, token);
         if (!actions || token.isCancellationRequested) return actions;
         let sourceDiskHash: string | undefined;
@@ -194,16 +196,19 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
           if (!(action instanceof vscode.CodeAction) || !action.edit
             || (action.kind?.value !== vscode.CodeActionKind.RefactorExtract.value
               && action.kind?.value !== vscode.CodeActionKind.RefactorInline.value
-              && !(action.kind?.value === vscode.CodeActionKind.RefactorRewrite.value && rewriteSnapshots))) continue;
+              && action.kind?.value !== vscode.CodeActionKind.RefactorRewrite.value)) continue;
           if (!sourceDiskHash) {
             try { sourceDiskHash = createHash('sha256').update(await vscode.workspace.fs.readFile(document.uri)).digest('hex'); }
             catch { action.edit = undefined; action.disabled = { reason: t('extractCancelled') }; continue; }
           }
+          const protocolVersion = (action as vscode.CodeAction & { data?: { phpCompanion?: { phpVersion?: unknown } } })
+            .data?.phpCompanion?.phpVersion;
           const edit = action.edit;
           action.edit = undefined;
           action.command = { title: action.title, command: 'phpCompanion.applyPreviewedExtract',
             arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText,
-              sourceDiskHash, targetHashes: rewriteSnapshots }] };
+              sourceDiskHash, targetHashes: rewriteSnapshots, sourceVersionSetting,
+              sourcePhpVersion: typeof protocolVersion === 'string' ? protocolVersion : sourcePhpVersion }] };
         }
         return actions;
       },

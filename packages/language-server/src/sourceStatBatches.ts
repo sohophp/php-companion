@@ -1,13 +1,62 @@
-import { stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import type { SourceStamp, SourceStatReply } from './sourceStatWorker.js';
 
-/** Keeps blocking filesystem metadata calls off the language-server event loop. */
+type WorkerEntry = { worker: Worker; leases: number; idle?: ReturnType<typeof setTimeout> };
+const sourceStatWorkers = new Map<string, WorkerEntry>();
+let nextSourceStatBatchId = 0;
+
+/** Reuse the worker thread, but keep cancellation and reply ownership private to each scan. */
+function leaseSourceStatWorker(path: string): { worker: Worker; release: () => void } {
+  let entry = sourceStatWorkers.get(path);
+  if (!entry) {
+    entry = { worker: new Worker(path), leases: 0 };
+    sourceStatWorkers.set(path, entry);
+    const current = entry;
+    const discard = (): void => {
+      if (current.idle) clearTimeout(current.idle);
+      if (sourceStatWorkers.get(path) === current) sourceStatWorkers.delete(path);
+    };
+    current.worker.once('error', discard); current.worker.once('exit', discard);
+    current.worker.unref();
+    // Each active scan owns short-lived listeners, removed on release.
+    current.worker.setMaxListeners(0);
+  }
+  const current = entry;
+  if (current.idle) { clearTimeout(current.idle); current.idle = undefined; }
+  current.leases += 1;
+  current.worker.ref();
+  return { worker: current.worker, release: (): void => {
+    current.leases -= 1;
+    if (current.leases || sourceStatWorkers.get(path) !== current) return;
+    current.worker.unref();
+    current.idle = setTimeout(() => {
+      if (sourceStatWorkers.get(path) !== current || current.leases) return;
+      sourceStatWorkers.delete(path);
+      void current.worker.terminate().catch(() => undefined);
+    }, 30_000);
+    current.idle.unref();
+  } };
+}
+
+export function sourceStatWorkerCount(): number { return sourceStatWorkers.size; }
+export function disposeSourceStatWorkers(): void {
+  for (const { worker, idle } of sourceStatWorkers.values()) {
+    if (idle) clearTimeout(idle);
+    void worker.terminate().catch(() => undefined);
+  }
+  sourceStatWorkers.clear();
+}
+
+/** Keeps blocking filesystem metadata and source hash checks off the language-server event loop. */
 export class SourceStatBatches {
   private worker: Worker | undefined;
-  private nextId = 0;
-  private queue: Array<{ path: string; resolve: (stamp: SourceStamp) => void; reject: (error: Error) => void }> = [];
+  private releaseWorker: (() => void) | undefined;
+  private readonly onMessage = (reply: SourceStatReply): void => this.receive(reply);
+  private readonly onFailure = (): void => this.fail();
+  private queue: Array<{ path: string; expectedHash?: string; resolve: (stamp: SourceStamp) => void; reject: (error: Error) => void }> = [];
   private pending = new Map<number, typeof this.queue>();
   private scheduled = false;
   private failed = false;
@@ -15,27 +64,32 @@ export class SourceStatBatches {
   private readonly cancelFlag = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
 
   constructor(private readonly shouldContinue: () => boolean = () => true,
-    private readonly workerPath = resolve(dirname(process.argv[1] ?? ''), 'sourceStatWorker.js')) {}
+    private readonly workerPath = resolve(dirname(process.argv[1] ?? ''), 'sourceStatWorker.js'),
+    private readonly verification?: { expectedHash: (path: string) => string | undefined; maxSourceBytes: number }) {}
 
   inspect = (path: string): Promise<SourceStamp> => {
     if (!this.shouldContinue()) this.fail();
     if (this.failed) return Promise.reject(new Error('Source metadata worker failed.'));
+    const expectedHash = this.verification?.expectedHash(path);
     if (!this.worker) {
       try {
-        this.worker = new Worker(this.workerPath, { workerData: this.cancelFlag.buffer });
-        this.worker.unref();
-        this.worker.on('message', (reply: SourceStatReply) => this.receive(reply));
-        this.worker.once('error', () => this.fail());
-        this.worker.once('exit', () => this.fail());
+        const lease = leaseSourceStatWorker(this.workerPath);
+        this.worker = lease.worker; this.releaseWorker = lease.release;
+        this.worker.on('message', this.onMessage);
+        this.worker.once('error', this.onFailure);
+        this.worker.once('exit', this.onFailure);
         this.poll = setInterval(() => { if (!this.shouldContinue()) this.fail(); }, 25);
         this.poll.unref();
       } catch {
         // Synchronous worker creation failure uses ordinary async stat, preserving completeness checks.
-        return stat(path).then(({ size, mtimeMs, ctimeMs }) => ({ size, mtimeMs, ctimeMs }));
+        return stat(path).then(async ({ size, mtimeMs, ctimeMs }) => ({ size, mtimeMs, ctimeMs,
+          matchesHash: expectedHash && size <= this.verification!.maxSourceBytes
+            ? createHash('sha256').update(await readFile(path)).digest('hex') === expectedHash : undefined,
+        }));
       }
     }
     return new Promise<SourceStamp>((done, reject) => {
-      this.queue.push({ path, resolve: done, reject });
+      this.queue.push({ path, expectedHash, resolve: done, reject });
       if (!this.scheduled) { this.scheduled = true; setImmediate(() => this.flush()); }
     });
   };
@@ -49,9 +103,10 @@ export class SourceStatBatches {
     if (this.failed || !this.worker) return;
     while (this.queue.length) {
       const batch = this.queue.splice(0, 128);
-      const id = ++this.nextId;
+      const id = ++nextSourceStatBatchId;
       this.pending.set(id, batch);
-      try { this.worker.postMessage({ id, paths: batch.map(({ path }) => path) }); }
+      try { this.worker.postMessage({ id, cancelBuffer: this.cancelFlag.buffer, paths: batch.map(({ path }) => path),
+        expectedHashes: batch.map(({ expectedHash }) => expectedHash), maxSourceBytes: this.verification?.maxSourceBytes }); }
       catch { this.fail(); return; }
     }
   }
@@ -80,6 +135,11 @@ export class SourceStatBatches {
     this.queue = [];
     for (const batch of this.pending.values()) for (const item of batch) item.reject(error);
     this.pending.clear();
-    if (this.worker) void this.worker.terminate().catch(() => undefined);
+    if (this.worker) {
+      this.worker.off('message', this.onMessage);
+      this.worker.off('error', this.onFailure); this.worker.off('exit', this.onFailure);
+      this.worker = undefined;
+      this.releaseWorker?.(); this.releaseWorker = undefined;
+    }
   }
 }
