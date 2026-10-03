@@ -11249,6 +11249,63 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('plans method parameter changes with fresh source coverage in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-default-parameters-'));
+    try {
+      await mkdir(join(root, 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'acme', 'consumer', 'src'), { recursive: true });
+      await mkdir(join(root, 'vendor', 'composer'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/consumer', autoload: { 'psr-4': { 'Acme\\': 'src/' } } }] }));
+      await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/consumer', install_path: '../acme/consumer' }] }));
+      const declaration = '<?php namespace App; interface Store { public function record(string $message, int $count): void; }';
+      const service = '<?php namespace App; final class Service implements Store { public function record(string $message, int $count): void {} }';
+      const external = '<?php namespace Acme; function send(\\App\\Store $store): void { $store->record("external", 2); }';
+      const files = [[join(root, 'src', 'Store.php'), declaration], [join(root, 'src', 'Service.php'), service],
+        [join(root, 'vendor', 'acme', 'consumer', 'src', 'Consumer.php'), external]] as const;
+      for (const [path, source] of files) await writeFile(path, source);
+      const uri = pathToFileURL(files[0][0]).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true, ...(limited ? { indexLimits: { maxFiles: 2, maxFileSizeBytes: 524288, maxTotalBytes: 1048576 } } : {}) },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: declaration } } }));
+      let id = 102;
+      const lateFiles: Array<[string, string]> = [];
+      for (const [method, extra] of [
+        ['addMethodParameter', { name: 'context', type: 'string', value: '"web"' }],
+        ['removeMethodParameter', {}], ['reorderMethodParameters', { targetIndex: 1 }],
+      ] as const) {
+        // No watcher notification: every edit request must refresh its own scope.
+        const path = join(root, 'src', `Late${id}.php`);
+        const source = `<?php namespace App; function send${id}(Store $store): void { $store->record("late", 3); }`;
+        if (!limited) { await writeFile(path, source); lateFiles.push([path, source]); }
+        const requestId = id++;
+        server.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: `phpCompanion/${method}`, params: {
+          textDocument: { uri }, position: lspPosition(declaration, declaration.indexOf(method === 'addMethodParameter' ? 'record' : '$message') + 2), ...extra,
+        } }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000);
+        expect(response.error).toBeUndefined();
+        if (limited) { expect(response.result).toBeNull(); continue; }
+        const expectedUris = [...files, ...lateFiles].map(([path]) => pathToFileURL(path).toString()).sort();
+        expect(Object.keys(response.result?.changes ?? {}).sort()).toEqual(expectedUris);
+        expect(Object.keys(response.result.phpCompanion.sourceHashes).sort()).toEqual(expectedUris);
+        expect(response.result.phpCompanion.workspaceMethodFamily).toBe(true);
+        for (const edits of Object.values(response.result.changes) as Array<Array<{ newText: string }>>) {
+          expect(edits.length).toBeGreaterThan(0);
+          if (method === 'addMethodParameter') expect(edits.some(edit => edit.newText.includes('web') || edit.newText.includes('$context'))).toBe(true);
+        }
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 110, method: 'phpCompanion/testQueryTimings', params: {} }));
+      const timings = (await output.waitFor(message => message.id === 110)).result;
+      expect(timings.parameterDiskRefresh).toHaveLength(3);
+      for (const [path, source] of [...files, ...lateFiles]) expect(await readFile(path, 'utf8')).toBe(source);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['onDemand', 'progressive'])('prepares and plans complete source Rename in %s mode', async indexingMode => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-default-rename-'));
     try {

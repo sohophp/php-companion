@@ -5001,8 +5001,10 @@ connection.onRequest('phpCompanion/addMethodParameter', async (params: {
   const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || typeof params.name !== 'string' || typeof params.type !== 'string'
     || typeof params.value !== 'string' || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'parameterDiskRefresh')
+    || documents.get(uri as string)?.version !== document.version) return null;
   const plan = workspace.addMethodParameter(uri as string, document.offsetAt(params.position as { line: number; character: number }),
     params.name, params.type, params.value);
   if (!plan || token.isCancellationRequested) return null;
@@ -5033,8 +5035,10 @@ connection.onRequest('phpCompanion/removeMethodParameter', async (params: {
   const document = typeof uri === 'string' ? documents.get(uri) : undefined;
   const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'parameterDiskRefresh')
+    || documents.get(uri as string)?.version !== document.version) return null;
   const plan = workspace.removeMethodParameter(uri as string, document.offsetAt(params.position as { line: number; character: number }));
   if (!plan || token.isCancellationRequested) return null;
   const uris = [...new Set(plan.edits.map((edit) => edit.uri))];
@@ -5071,8 +5075,10 @@ connection.onRequest('phpCompanion/reorderMethodParameters', async (params: {
   const document = typeof uri === 'string' ? documents.get(uri) : undefined;
   const root = typeof uri === 'string' ? rootForUri(uri) : undefined;
   if (!document || !root || !params.position || !Number.isInteger(params.targetIndex) || token.isCancellationRequested
-    || !await ensureCompleteRoot(root, () => token.isCancellationRequested)) return null;
+    || !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return null;
   const workspace = await semanticForUri(uri as string);
+  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'parameterDiskRefresh')
+    || documents.get(uri as string)?.version !== document.version) return null;
   const plan = workspace.reorderMethodParameters(uri as string, document.offsetAt(params.position as { line: number; character: number }), params.targetIndex as number);
   if (!plan || token.isCancellationRequested) return null;
   const uris = [...new Set(plan.edits.map((edit) => edit.uri))];
@@ -7771,7 +7777,7 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   // Lazy/source-only startup does not mark the global reference index complete.
   // Ordinary Rename can establish its own complete, current PHP source scope.
   if (!scopedTarget && !completeRoots.has(root)
-    && !await refreshRenameDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
+    && !await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
   const target = scopedTarget ?? canonicalTypeRename(workspace, root, document.uri, offset)
     ?? workspace.methodRename(document.uri, offset)
     ?? workspace.propertyRename(document.uri, offset)
@@ -7781,7 +7787,9 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
   return { range: { start: document.positionAt(target.start), end: document.positionAt(target.end) }, placeholder: target.name };
 });
 
-async function refreshRenameDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean): Promise<boolean> {
+// Establish current PHP source coverage for a refactor request without marking
+// framework providers or the global reference index ready.
+async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh'): Promise<boolean> {
   await watchedFileChanges;
   await applyPendingFiles();
   const epoch = projectEpochs.get(root) ?? 0;
@@ -7804,7 +7812,7 @@ async function refreshRenameDiskSources(workspace: SemanticWorkspace, root: stri
       return undefined;
     },
   }).finally(() => statBatches.close());
-  recordTestQueryDuration('renameDiskRefresh', refreshStarted);
+  recordTestQueryDuration(timing, refreshStarted);
   if (!scan.complete || cancelled() || (projectEpochs.get(root) ?? 0) !== epoch) {
     if (changedUri) invalidateCandidates(changedUri);
     return false;
@@ -7854,7 +7862,7 @@ connection.onRenameRequest(async (params, token) => {
   }
   // Watcher delivery can lag behind a new disk consumer. A completed earlier
   // index alone does not prove that a cross-file edit plan covers current files.
-  if (!scopedTarget && !await refreshRenameDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
+  if (!scopedTarget && !await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested)) return null;
   const symbolPlanStarted = testMode ? performance.now() : 0;
   const typeTarget = scopedTarget ? undefined : canonicalTypeRename(workspace, root, document.uri, offset, newName, includePhpDoc);
   const target = scopedTarget ?? typeTarget

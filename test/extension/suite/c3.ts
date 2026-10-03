@@ -5,6 +5,59 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
 
+async function verifyDefaultParameters(folder: vscode.WorkspaceFolder): Promise<void> {
+  const directory = vscode.Uri.joinPath(folder.uri, 'src', 'C3Parameters');
+  await vscode.workspace.fs.createDirectory(directory);
+  const contractUri = vscode.Uri.joinPath(directory, 'Store.php');
+  const serviceUri = vscode.Uri.joinPath(directory, 'Service.php');
+  const callerUri = vscode.Uri.joinPath(directory, 'Caller.php');
+  const sources = [
+    '<?php namespace App\\C3Parameters; interface Store { public function record(string $message, int $count): void; }',
+    '<?php namespace App\\C3Parameters; final class Service implements Store { public function record(string $message, int $count): void {} }',
+    '<?php namespace App\\C3Parameters; function send(Store $store): void { $store->record("hello", 2); }',
+  ];
+  const uris = [contractUri, serviceUri, callerUri];
+  for (let index = 0; index < uris.length; index++) await vscode.workspace.fs.writeFile(uris[index]!, Buffer.from(sources[index]!));
+  const documents = await Promise.all(uris.map(uri => vscode.workspace.openTextDocument(uri)));
+  const contract = documents[0]!;
+  await vscode.window.showTextDocument(contract);
+  for (const operation of ['add', 'remove', 'reorder'] as const) {
+    const position = contract.positionAt(contract.getText().indexOf(operation === 'add' ? 'record' : '$message') + 2);
+    const request = { uri: contractUri, position, ...(operation === 'add' ? { name: 'context', type: 'string', value: '"web"' } : {}),
+      ...(operation === 'reorder' ? { targetIndex: 1 } : {}) };
+    const command = `phpCompanion.${operation === 'reorder' ? 'reorderMethodParameters' : `${operation}MethodParameter`}`;
+    let sawPreview = false;
+    assert.strictEqual(await vscode.commands.executeCommand<boolean>(command, { ...request, testPreviewAction: async () => {
+      const previews = vscode.window.tabGroups.all.flatMap(group => group.tabs).filter(tab => tab.input instanceof vscode.TabInputTextDiff);
+      assert.ok(previews.length >= 3, `${operation}: missing method-family previews`);
+      sawPreview = true; return 'cancel';
+    } }), false);
+    assert.ok(sawPreview, `${operation}: never reached preview`);
+    documents.forEach((document, index) => assert.strictEqual(document.getText(), sources[index]));
+    assert.strictEqual(await vscode.commands.executeCommand<boolean>(command, { ...request, testPreviewAction: async () => 'apply' }), true);
+    const edited = documents.map(document => document.getText());
+    edited.forEach((text, index) => assert.notStrictEqual(text, sources[index]));
+    if (operation === 'add') {
+      assert.ok(edited[0]!.includes('int $count, string $context'));
+      assert.ok(edited[2]!.includes('"hello", 2, "web"'));
+    } else if (operation === 'remove') {
+      assert.ok(edited[0]!.includes('record(int $count)'));
+      assert.ok(edited[2]!.includes('record(2)'));
+    } else {
+      assert.ok(edited[0]!.includes('record(int $count, string $message)'));
+      assert.ok(edited[2]!.includes('record(2, "hello")'));
+    }
+    await vscode.window.showTextDocument(contract);
+    await vscode.commands.executeCommand('undo');
+    documents.forEach((document, index) => assert.strictEqual(document.getText(), sources[index], `${operation}: one Undo`));
+    await vscode.commands.executeCommand('redo');
+    documents.forEach((document, index) => assert.strictEqual(document.getText(), edited[index], `${operation}: one Redo`));
+    await vscode.commands.executeCommand('undo');
+    documents.forEach((document, index) => assert.strictEqual(document.getText(), sources[index]));
+    console.log(`C3 default ${operation} parameter: three-file preview, cancel/apply and one Undo/Redo passed`);
+  }
+}
+
 type QueryState = { paused: boolean; version: number | null };
 type TestApi = { requestLanguageServer<T>(method: string, params: unknown): Promise<T> };
 
@@ -311,6 +364,11 @@ export async function run(): Promise<void> {
     ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_PARAMETERS_ONLY === '1') {
+    await verifyDefaultParameters(folder);
+    console.log('C3 focused default parameter changes completed; this is not the full C3 suite');
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C3_RENAME_DESTINATION_ONLY === '1') {
     await verifyRenameDestination(folder);
     console.log('C3 focused Rename destination completed; this is not the full C3 suite');
