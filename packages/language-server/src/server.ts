@@ -1752,10 +1752,22 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     cache: cacheDirectory ? {
       directory: cacheDirectory,
       version: semanticIndexCacheVersion(phpVersionForRoot(root)),
-      restore: (payload, { uri, path, hash }): boolean => {
+      finalizePayload: sourceOnly ? (payload): unknown => {
+        // Compact the existing validated format; oversized entries retain the
+        // ordinary representation rather than losing cache coverage.
+        try { return compressCachedProjectPhpFile(payload as ReturnType<typeof createCachedProjectPhpFile>); }
+        catch { return payload; }
+      } : undefined,
+      prepareRestore: sourceOnly ? (payload, { uri, hash }): Promise<PreparedCandidateRestore | undefined> =>
+        sourceWorkers!.restore({ uri, hash, payload: { semantic: payload }, deferBodies: false }) : undefined,
+      restore: (payload, { uri, path, hash }, prepared): boolean => {
         const started = testMode ? performance.now() : 0;
         const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path));
-        const restored = restoreCachedProjectPhpFile(payload, uri, open?.getText());
+        const candidate = prepared && typeof prepared === 'object' && (prepared as PreparedCandidateRestore).kind === 'restored'
+          && (prepared as PreparedCandidateRestore).uri === uri && (prepared as PreparedCandidateRestore).hash === hash
+          ? prepared as PreparedCandidateRestore : undefined;
+        const restored = !open && candidate?.semantic
+          ? candidate.semantic : restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(payload) ?? payload, uri, open?.getText());
         if (!restored) return false;
         if (testMode) restoreTiming.validateMs += performance.now() - started;
         const summaryStarted = testMode ? performance.now() : 0;

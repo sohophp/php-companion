@@ -24,10 +24,10 @@ parentPort?.on('message', async (task: CandidatePreparation | CandidateRestore |
       }
       const payload = task.payload as { declarations?: unknown; semantic?: unknown } | null;
       const declaration = task.deferBodies ? restoreCachedSourceDeclaration(payload?.declarations, task.uri, task.hash) : undefined;
-      const semantic = declaration ? undefined : restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(payload?.semantic), task.uri);
+      const semantic = declaration ? undefined : restoreCachedProjectPhpFile(decompressCachedProjectPhpFile(payload?.semantic) ?? payload?.semantic, task.uri);
       const result: PreparedCandidateRestore = { kind: 'restored', id: task.id, uri: task.uri, hash: task.hash,
         declaration, semantic: semantic?.checksums.source === task.hash ? semantic : undefined };
-      parentPort?.postMessage(result); return;
+      parentPort?.postMessage({ id: task.id, json: JSON.stringify(result) } satisfies SerializedPreparedCandidate); return;
     }
     const parser = await (parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault());
     const summary = createSourceCandidateSummary(task.source, task.mode === 'named-argument');
