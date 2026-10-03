@@ -1230,7 +1230,10 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
     const workspace = await semanticForRoot(root);
     if (containerChanged) clearContainerFacts(root, workspace);
     if (eventsChanged) externalSymfonyEventsByRoot.delete(root);
-    if (contextsChanged) { interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root); }
+    if (contextsChanged) {
+      interopContextsByRoot.delete(root); controllerContextScanEpochs.delete(root);
+      controllerContextScanTasks.get(root)?.waiters.clear(); controllerContextScanTasks.delete(root);
+    }
   }
   if (workspaceFolderRoots.length && (indexingMode === 'experimental' || indexingMode === 'progressive')) await startIndexWorkspace('semantic-provider-change');
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
@@ -2689,7 +2692,7 @@ async function indexWorkspace(generation: number, changedComposerPaths?: readonl
       classmapNamespacePathsByRoot.delete(key.slice('root:'.length));
       classmapNamespaceResultsByRoot.delete(key.slice('root:'.length));
       typeNameSearchEpochsByRoot.delete(key.slice('root:'.length));
-      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); retainedClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
+      const oldRoot = key.slice('root:'.length); indexedUrisByRoot.delete(oldRoot); retainedClosedDocumentsByRoot.delete(oldRoot); projectIndexedUrisByRoot.delete(oldRoot); projectMappingsByRoot.delete(oldRoot); composerProjectsByRoot.delete(oldRoot); composerDisabledExtensionsByRoot.delete(oldRoot); builtinUriByRoot.delete(oldRoot); completeRoots.delete(oldRoot); projectCompleteRoots.delete(oldRoot); referenceSourceReadyRoots.delete(oldRoot); referenceLightSummaries.delete(oldRoot); for (const resolveReady of projectCompleteWaiters.get(oldRoot) ?? []) resolveReady(); projectCompleteWaiters.delete(oldRoot); interopContextsByRoot.delete(oldRoot); controllerContextScanEpochs.delete(oldRoot); controllerContextScanTasks.get(oldRoot)?.waiters.clear(); controllerContextScanTasks.delete(oldRoot); doctrineMethodsByRoot.delete(oldRoot); doctrinePropertiesByRoot.delete(oldRoot); doctrineRepositoryLookupsByRoot.delete(oldRoot); symfonyServiceCatalogByRoot.delete(oldRoot); symfonyParameterCatalogByRoot.delete(oldRoot); symfonyServiceConfigPathsByRoot.delete(oldRoot); symfonyServiceInputPathsByRoot.delete(oldRoot);
       const referenceRefreshTimer = progressiveRefreshTimers.get(oldRoot); if (referenceRefreshTimer) clearTimeout(referenceRefreshTimer); progressiveRefreshTimers.delete(oldRoot);
       for (const query of symfonyAutowireReferenceQueries.keys()) {
         if (query.startsWith(`${oldRoot}:`)) symfonyAutowireReferenceQueries.delete(query);
@@ -3046,6 +3049,13 @@ function prepareReferenceWrite(root: string, workspace: SemanticWorkspace, uri: 
 }
 const symfonyAutowireReferenceQueries = new Map<string, { epoch: number; references: Array<{ uri: string; source: string; start: number; end: number }> }>();
 const controllerContextScanEpochs = new Map<string, number>();
+interface ControllerContextScanTask {
+  epoch: number;
+  generation: number;
+  waiters: Set<() => boolean>;
+  promise: Promise<boolean>;
+}
+const controllerContextScanTasks = new Map<string, ControllerContextScanTask>();
 function invalidateCandidates(uri: string, preservePreparedSource = false): void {
   if (testMode && documents.get(uri)) recordTestQueryDuration('candidateInvalidatedOpen', performance.now());
   invalidateContainerFacts();
@@ -3789,6 +3799,31 @@ async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, 
 const CONTROLLER_CONTEXT_CANDIDATE_NAMES = new Set(['render', 'template']);
 
 async function ensureOnDemandControllerContexts(root: string, cancelled: () => boolean, retries = 2): Promise<boolean> {
+  if (cancelled()) return false;
+  const epoch = projectEpochs.get(root) ?? 0;
+  let task = controllerContextScanTasks.get(root);
+  if (!task || task.epoch !== epoch || task.generation !== indexingGeneration
+    || [...task.waiters].every((isCancelled) => isCancelled())) {
+    const waiters = new Set<() => boolean>([cancelled]);
+    task = { epoch, generation: indexingGeneration, waiters, promise: Promise.resolve(false) };
+    const running = task;
+    task.promise = performOnDemandControllerContextScan(root, () => [...waiters].every((isCancelled) => isCancelled()))
+      .finally(() => { if (controllerContextScanTasks.get(root) === running) controllerContextScanTasks.delete(root); });
+    controllerContextScanTasks.set(root, task);
+  } else task.waiters.add(cancelled);
+  try {
+    const ready = await new Promise<boolean>((done, fail) => {
+      const timer = setInterval(() => { if (cancelled()) { clearInterval(timer); done(false); } }, 50);
+      void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error) => { clearInterval(timer); fail(error); });
+    });
+    if (!ready && !cancelled() && retries > 0 && (projectEpochs.get(root) ?? 0) !== epoch) {
+      return ensureOnDemandControllerContexts(root, cancelled, retries - 1);
+    }
+    return ready && !cancelled();
+  } finally { task.waiters.delete(cancelled); }
+}
+
+async function performOnDemandControllerContextScan(root: string, cancelled: () => boolean): Promise<boolean> {
   const providers = semanticProviders.filter((provider) => provider.replacesControllerContexts);
   if (providers.length !== 1) { interopContextsByRoot.delete(root); return providers.length === 0; }
   const epoch = projectEpochs.get(root) ?? 0;
@@ -3834,10 +3869,11 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
     }
     if ((projectEpochs.get(root) ?? 0) !== epoch) {
       await applyPendingFiles();
-      return retries > 0 ? ensureOnDemandControllerContexts(root, cancelled, retries - 1) : false;
+      return false;
     }
     const candidates = [...scopes.values()].sort((left, right) => left.uri.localeCompare(right.uri));
     if (candidates.length && !await runControllerContextProvider(root, indexingGeneration, workspace, () => !cancelled(), candidates)) return false;
+    if (cancelled() || (projectEpochs.get(root) ?? 0) !== epoch) return false;
     const candidateUris = new Set(candidates.map((candidate) => candidate.uri));
     const current = interopContextsByRoot.get(root);
     for (const uri of current?.keys() ?? []) if (!candidateUris.has(uri)) current!.delete(uri);
@@ -8143,6 +8179,8 @@ connection.onShutdown(async () => {
   projectIndexedUrisByRoot.clear();
   symfonyAutowireReferenceQueries.clear();
   controllerContextScanEpochs.clear();
+  for (const task of controllerContextScanTasks.values()) task.waiters.clear();
+  controllerContextScanTasks.clear();
   workspaceFolderRoots = [];
   workspaceFolderLocations = [];
   composerRootChecks.clear();
