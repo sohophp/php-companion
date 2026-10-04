@@ -1,0 +1,682 @@
+{
+  "milestone": "D66 cold type hydration uses current editor buffers",
+  "baseCommit": "b1ad9ddd489527df7692fcc63b693e88a696b1bc",
+  "productFiles": {
+    "packages/language-server/src/server.ts": "50a3cf38188995f29d9a437f4942184cc7d3b1ecb6a84dd7dd04eb218b6f18c6"
+  },
+  "productionBundle": {
+    "path": "dist/language-server.js",
+    "sha256": "1ace758d05cfe5e409047114f9da20a6855b1f30e69e99768ea643d3c1fb2ee7",
+    "bytes": 4170878
+  },
+  "baseline": {
+    "actualBundle": "D65 fec5df24a9cf3978ea4881a6bfc039e601c3ee58b9ccc3a31c132d67329eb342",
+    "firstFailure": "Opening an unsaved renamed type while the read is held returns the old disk class",
+    "isolatedOldSourceCommit": "b1ad9ddd",
+    "isolatedBaselineSha256": "19e754032871402fca993587d0603855d871aa522033e4ce13025a86c482e90d",
+    "isolatedBaselineScope": "Old server.ts from git object, current unchanged dependency source; separate test-only engine marker and explicit WASM assets; not a release artifact",
+    "sameNameInterfaceFailure": "Old source returns kind 7 after opening same-name kind 8 buffer",
+    "inverseParentFailure": "Old source returns __construct after current parent buffer makes it final"
+  },
+  "coldImportCaseCount": 64,
+  "coldImportResults": [
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr4", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "psr0", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "classmap", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "onDemand", "autoloadKind": "files", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr4", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "psr0", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "classmap", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "cancel", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootCandidate"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "consumer-edit", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "consumer-reopen", "heldAt": "cold import readFile", "oldLabels": [], "oldKinds": [], "freshLabels": ["RootReplacement"], "freshKinds": [7], "consumerVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "indexingMode": "progressive", "autoloadKind": "files", "scenario": "candidate-open", "heldAt": "cold import readFile", "oldLabels": ["RootCandidate"], "oldKinds": [8], "freshLabels": ["RootCandidate"], "freshKinds": [8], "consumerVersion": 1, "disksUnchanged": true}
+  ],
+  "coldParentCaseCount": 6,
+  "coldParentResults": [
+    {"phpVersion": "7.2", "scenario": "cancel", "heldAt": "cold parent readFile", "oldLabels": [], "freshLabels": [], "resumedLabels": ["__destruct", "__call", "__callStatic", "__get", "__set", "__isset", "__unset", "__sleep", "__wakeup", "__toString", "__invoke", "__set_state", "__clone", "__debugInfo"], "childVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "7.2", "scenario": "child-edit", "heldAt": "cold parent readFile", "oldLabels": [], "freshLabels": ["__invoke"], "childVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "7.2", "scenario": "parent-open", "heldAt": "cold parent readFile", "oldLabels": [], "freshLabels": [], "resumedLabels": ["__destruct", "__call", "__callStatic", "__get", "__set", "__isset", "__unset", "__sleep", "__wakeup", "__toString", "__invoke", "__set_state", "__clone", "__debugInfo"], "childVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "scenario": "cancel", "heldAt": "cold parent readFile", "oldLabels": [], "freshLabels": [], "resumedLabels": ["__destruct", "__call", "__callStatic", "__get", "__set", "__isset", "__unset", "__sleep", "__wakeup", "__serialize", "__unserialize", "__toString", "__invoke", "__set_state", "__clone", "__debugInfo"], "childVersion": 1, "disksUnchanged": true},
+    {"phpVersion": "8.5", "scenario": "child-edit", "heldAt": "cold parent readFile", "oldLabels": [], "freshLabels": ["__invoke"], "childVersion": 2, "disksUnchanged": true},
+    {"phpVersion": "8.5", "scenario": "parent-open", "heldAt": "cold parent readFile", "oldLabels": [], "freshLabels": [], "resumedLabels": ["__destruct", "__call", "__callStatic", "__get", "__set", "__isset", "__unset", "__sleep", "__wakeup", "__serialize", "__unserialize", "__toString", "__invoke", "__set_state", "__clone", "__debugInfo"], "childVersion": 1, "disksUnchanged": true}
+  ],
+  "protocol": {
+    "existingAutoload": {
+      "passed": 8,
+      "notSelected": 515,
+      "seconds": 26.48
+    },
+    "rootImports": {
+      "passed": 4,
+      "unsavedStates": 96,
+      "seconds": 12.57
+    }
+  },
+  "ui": {
+    "platform": "linux",
+    "vscodeVersion": "1.140.0",
+    "context": "ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest",
+    "settings": {
+      "quickSuggestions": {
+        "other": "offWhenInlineCompletions",
+        "comments": "off",
+        "strings": "off"
+      },
+      "wordBasedSuggestions": "off",
+      "snippetSuggestions": "none",
+      "basicPhpSuggestions": false
+    },
+    "results": [
+      {
+        "name": "Function",
+        "observations": [
+          {
+            "phase": "func",
+            "afterLastKeyMs": 578,
+            "transitions": [
+              {
+                "elapsedMs": 21,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 578,
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "function",
+              "function blockPHP declaration or block"
+            ]
+          },
+          {
+            "phase": "function",
+            "afterLastKeyMs": 20,
+            "transitions": [
+              {
+                "elapsedMs": 20,
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "function",
+              "function blockPHP declaration or block"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 511,
+            "transitions": [
+              {
+                "elapsedMs": 8,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php\nfunction z\n",
+        "version": 11,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Class",
+        "observations": [
+          {
+            "phase": "clas",
+            "afterLastKeyMs": 204,
+            "transitions": [
+              {
+                "elapsedMs": 14,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 204,
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "class"
+            ]
+          },
+          {
+            "phase": "class",
+            "afterLastKeyMs": 26,
+            "transitions": [
+              {
+                "elapsedMs": 26,
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "class"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 520,
+            "transitions": [
+              {
+                "elapsedMs": 12,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php\nclass z\n",
+        "version": 8,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Enum",
+        "observations": [
+          {
+            "phase": "enu",
+            "afterLastKeyMs": 195,
+            "transitions": [
+              {
+                "elapsedMs": 15,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 195,
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "enum"
+            ]
+          },
+          {
+            "phase": "enum",
+            "afterLastKeyMs": 19,
+            "transitions": [
+              {
+                "elapsedMs": 19,
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "enum"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 547,
+            "transitions": [
+              {
+                "elapsedMs": 9,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php\nenum z\n",
+        "version": 7,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Member",
+        "observations": [
+          {
+            "phase": "public",
+            "afterLastKeyMs": 196,
+            "transitions": [
+              {
+                "elapsedMs": 19,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 196,
+                "visible": true,
+                "labels": [
+                  "public"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "public"
+            ]
+          },
+          {
+            "phase": "magic name",
+            "afterLastKeyMs": 218,
+            "transitions": [
+              {
+                "elapsedMs": 16,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 218,
+                "visible": true,
+                "labels": [
+                  "__construct"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "__construct"
+            ]
+          }
+        ],
+        "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+        "version": 23,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Types",
+        "observations": [
+          {
+            "phase": "short type",
+            "afterLastKeyMs": 233,
+            "transitions": [
+              {
+                "elapsedMs": 60,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 233,
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+              "ShortCurrentAutomaticTypes\\ShortCurrent",
+              "SessionHandlerSessionHandler"
+            ]
+          },
+          {
+            "phase": "changed type",
+            "afterLastKeyMs": 224,
+            "transitions": [
+              {
+                "elapsedMs": 14,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 224,
+                "visible": true,
+                "labels": [
+                  "OtherCurrentAutomaticTypes\\OtherCurrent",
+                  "OverrideTargetApp\\Service\\OverrideTarget"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "OtherCurrentAutomaticTypes\\OtherCurrent",
+              "OverrideTargetApp\\Service\\OverrideTarget"
+            ]
+          },
+          {
+            "phase": "restored type",
+            "afterLastKeyMs": 210,
+            "transitions": [
+              {
+                "elapsedMs": 8,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 210,
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+              "ShortCurrentAutomaticTypes\\ShortCurrent",
+              "SessionHandlerSessionHandler"
+            ]
+          },
+          {
+            "phase": "narrow type",
+            "afterLastKeyMs": 59,
+            "transitions": [
+              {
+                "elapsedMs": 19,
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              },
+              {
+                "elapsedMs": 59,
+                "visible": true,
+                "labels": [
+                  "ShortCurrentAutomaticTypes\\ShortCurrent"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ShortCurrentAutomaticTypes\\ShortCurrent"
+            ]
+          }
+        ],
+        "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+        "version": 8,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Arguments",
+        "observations": [
+          {
+            "phase": "bool argument",
+            "afterLastKeyMs": 247,
+            "transitions": [
+              {
+                "elapsedMs": 66,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 247,
+                "visible": true,
+                "labels": [
+                  "$firstBool$firstBool: bool",
+                  "$firstText",
+                  "$_FILES"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "$firstBool$firstBool: bool",
+              "$firstText",
+              "$_FILES"
+            ]
+          },
+          {
+            "phase": "string argument",
+            "afterLastKeyMs": 185,
+            "transitions": [
+              {
+                "elapsedMs": 10,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 185,
+                "visible": true,
+                "labels": [
+                  "$firstText$firstText: string",
+                  "$firstBool",
+                  "$_FILES"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "$firstText$firstText: string",
+              "$firstBool",
+              "$_FILES"
+            ]
+          }
+        ],
+        "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+        "version": 13,
+        "diskUnchanged": true
+      },
+      {
+        "name": "RootImport",
+        "observations": [
+          {
+            "phase": "root type",
+            "afterLastKeyMs": 237,
+            "transitions": [
+              {
+                "elapsedMs": 18,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 237,
+                "visible": true,
+                "labels": [
+                  "ArrayObjectArrayObject"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ArrayObjectArrayObject"
+            ]
+          },
+          {
+            "phase": "import alias name",
+            "afterLastKeyMs": 548,
+            "transitions": [
+              {
+                "elapsedMs": 14,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php namespace AutomaticRootImport; use ArrayObject as strl;",
+        "version": 24,
+        "diskUnchanged": true
+      },
+      {
+        "name": "LiveType",
+        "observations": [
+          {
+            "phase": "cold class",
+            "afterLastKeyMs": 218,
+            "transitions": [
+              {
+                "elapsedMs": 17,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 218,
+                "visible": true,
+                "labels": [
+                  "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+            ]
+          },
+          {
+            "phase": "unsaved interface withdraws construction",
+            "afterLastKeyMs": 548,
+            "transitions": [
+              {
+                "elapsedMs": 34,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          },
+          {
+            "phase": "restored class",
+            "afterLastKeyMs": 193,
+            "transitions": [
+              {
+                "elapsedMs": 20,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 193,
+                "visible": true,
+                "labels": [
+                  "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+            ]
+          }
+        ],
+        "text": "<?php namespace App; function buildLive():void{new AutomaticLiveDep;}",
+        "version": 49,
+        "diskUnchanged": true,
+        "dependencyDiskUnchanged": true,
+        "dependencyFinalText": "<?php namespace App; class AutomaticLiveDependency {}"
+      }
+    ],
+    "rendererExceptions": 0
+  },
+  "uiCounts": {
+    "flows": 8,
+    "phases": 22,
+    "rendererExceptions": 0,
+    "newFlow": {
+      "coldClassVisibleMs": 218,
+      "interfaceEmptyObservedMs": 548,
+      "restoredClassVisibleMs": 193
+    }
+  },
+  "engineering": [
+    "language-server build",
+    "production bundle build",
+    "isolated host TypeScript",
+    "targeted eslint",
+    "git diff --check"
+  ],
+  "logHashes": {
+    "/tmp/sophp-d66-cold-import-baseline.log": "fbc0f959a7a016326e95dffbe7e507f940198118c14dbfb8d221bc8cd57983ca",
+    "/tmp/sophp-d66-cold-import.log": "18c0c39f884e0e9edc39efa053fb0e61ae3aa9050fd741f729aa00fb30e320c3",
+    "/tmp/sophp-d66-interface-baseline.log": "5a73e93d8ea6251571db3253081b71ef6fac19aa7785e58a5368f120d99c0b5e",
+    "/tmp/sophp-d66-cold-import-final.log": "190fc4ab97782e6dafac5b4734dffc90a8723a5b607ccc364eb4385007ddd776",
+    "/tmp/sophp-d66-cold-parent.log": "fa9ac91f35a3d82637a3d7ad0cdc44135e1929cda40d41b6acdbe71351144330",
+    "/tmp/sophp-d66-parent-inverse-baseline.log": "09d0bcff5aac43fdaeacd326f38a7e1b5cc3ccbe5acd0b6b088e1481d1fb207f",
+    "/tmp/sophp-d66-cold-parent-final.log": "b0b217437ffbfe7c0bf0b867baa69cbafeb547931d17a376eb7674488712a53e",
+    "/tmp/sophp-d66-autoload-protocol.log": "5bc22f47a68688181902b248285e5b4484fa7b49e38e373e8879b3595774aa7b",
+    "/tmp/sophp-d66-root-protocol.log": "956ce2c26518f9de06133a3338eac122dff198bc79afa37d1d5bf5a675b09291",
+    "/tmp/sophp-d66-host-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d66-final-lint-current.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d66-automatic-ui.log": "8c4792e978334d1192d3bdd79feb640332e27e947b29af576533ed6dce720a35"
+  },
+  "limitations": [
+    "Two configured PHP versions and Linux isolated host do not prove all runtimes, platforms or real user WSL acceptance",
+    "Progressive cold query uses existing test-only background indexing pause; this is a controlled first-query race, not an ordinary background performance measurement",
+    "No editing P95 measurement in D66: last ordinary D65 result 243.40 ms exceeds 150 ms",
+    "Current complete LSP not rerun; semantic source unchanged by this increment",
+    "Other hydration sources, watched-file replacement and buffer close with disk replacement remain outside these held-read cases",
+    "No VSIX, profile update, push or release"
+  ]
+}

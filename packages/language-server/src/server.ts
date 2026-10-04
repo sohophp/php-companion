@@ -3964,9 +3964,12 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
       const information = await stat(path);
       if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { evidence.reject(); continue; }
       const targetUri = indexedUriForPath(root, path);
-      const source = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
-      if (declarationsOnly && !documents.get(targetUri)) workspace.updateDeclarations(targetUri, source);
-      else workspace.update(targetUri, source, Boolean(documents.get(targetUri)));
+      const diskSource = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
+      // A buffer may open or change while the disk read is pending.
+      const opened = documents.get(targetUri);
+      const source = opened?.getText() ?? diskSource;
+      if (declarationsOnly && !opened) workspace.updateDeclarations(targetUri, source);
+      else workspace.update(targetUri, source, Boolean(opened));
       if (!declarationsOnly && workspace.typeByFqcn('Doctrine\\ORM\\EntityRepository')?.uri === targetUri)
         await refreshDoctrineDocument(root, targetUri, source, workspace);
       evidence.source(path, targetUri, source);
@@ -6300,14 +6303,16 @@ async function hydrateNonPsr4TypeSource(workspace: SemanticWorkspace, root: stri
     const information = await stat(path);
     if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) return false;
     const uri = indexedUriForPath(root, path);
-    const opened = documents.get(uri);
-    const source = opened?.getText() ?? await readFile(path, 'utf8');
     const classmapOrFile = [...project.classmap, ...project.files,
       ...project.dependencies.flatMap((dependency) => [...dependency.classmap, ...dependency.files])]
       .some((entry) => path === resolve(entry) || path.startsWith(`${resolve(entry)}${sep}`));
+    const syntaxParser = classmapOrFile ? undefined : await parser();
+    const diskSource = documents.get(uri)?.getText() ?? await readFile(path, 'utf8');
+    const opened = documents.get(uri);
+    const source = opened?.getText() ?? diskSource;
     if (!classmapOrFile) {
       const mappings = [...project.psr0, ...project.dependencies.flatMap((dependency) => dependency.psr0)];
-      const parsed = (await parser()).parseDeclarations(source, uri);
+      const parsed = syntaxParser!.parseDeclarations(source, uri);
       try {
         if (!parsed.declarations.some((declaration) => !declaration.anonymous)
           || parsed.declarations.some((declaration) => !declaration.anonymous
@@ -6573,8 +6578,9 @@ async function importNamespaceSegments(workspace: SemanticWorkspace, root: strin
         const information = await stat(path);
         if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { complete = false; continue; }
         const uri = indexedUriForPath(root, path);
+        const diskSource = documents.get(uri)?.getText() ?? await readFile(path, 'utf8');
         const opened = documents.get(uri);
-        const source = opened?.getText() ?? await readFile(path, 'utf8');
+        const source = opened?.getText() ?? diskSource;
         if (stale()) return 'stale';
         if (opened && documents.get(uri)?.getText() !== source) return 'stale';
         const parsed = syntaxParser.parseDeclarations(source, uri);

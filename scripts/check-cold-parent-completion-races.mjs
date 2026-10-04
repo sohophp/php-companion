@@ -13,7 +13,8 @@ import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/in
 // Test-only read gate runs in this child process, never in the installed extension.
 const workspace = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const reportPath = process.argv[2];
-if (process.argv.length > 3) throw new Error('Usage: check-cold-parent-completion-races.mjs [report.json]');
+const serverPath = process.argv[3] ? resolve(process.argv[3]) : join(workspace, 'dist/language-server.js');
+if (process.argv.length > 4) throw new Error('Usage: check-cold-parent-completion-races.mjs [report.json] [server entry]');
 const results = [];
 for (const phpVersion of ['7.2', '8.5']) for (const scenario of ['cancel', 'child-edit', 'parent-open']) {
   const root = await mkdtemp(join(tmpdir(), 'sophp-cold-parent-race-'));
@@ -21,7 +22,7 @@ for (const phpVersion of ['7.2', '8.5']) for (const scenario of ['cancel', 'chil
   try {
     await mkdir(join(root, 'src'));
     const parentPath = join(root, 'src', 'Base.php');
-    const parent = '<?php namespace App; class Base { final public function __construct() {} }';
+    const parent = `<?php namespace App; class Base { ${scenario === 'parent-open' ? '' : 'final '}public function __construct() {} }`;
     const source = '<?php namespace App; class Child extends Base { public function __con() {} }';
     const uri = pathToFileURL(join(root, 'src', 'Child.php')).toString();
     const parentUri = pathToFileURL(parentPath).toString();
@@ -29,7 +30,7 @@ for (const phpVersion of ['7.2', '8.5']) for (const scenario of ['cancel', 'chil
     await writeFile(parentPath, parent);
     await writeFile(join(root, 'src', 'Child.php'), source);
     child = spawn(process.execPath, ['--import', fileURLToPath(new URL('./fixtures/cold-parent-read-gate.mjs', import.meta.url)),
-      join(workspace, 'dist/language-server.js'), '--stdio',
+      serverPath, '--stdio',
       '--parser-core-wasm',join(workspace, 'dist/web-tree-sitter.wasm'),
       '--php-wasm',join(workspace, 'dist/tree-sitter-php.wasm')],
       {stdio:['pipe','pipe','pipe','ipc']});
@@ -69,20 +70,20 @@ for (const phpVersion of ['7.2', '8.5']) for (const scenario of ['cancel', 'chil
       current=source.replace('__con','__inv');
       send({method:'textDocument/didChange',params:{textDocument:{uri,version:2},contentChanges:[{text:current}]}});
     }
-    if(scenario==='parent-open') send({method:'textDocument/didOpen',params:{textDocument:{uri:parentUri,languageId:'php',version:1,text:parent.replace('final ','')}}});
+    if(scenario==='parent-open') send({method:'textDocument/didOpen',params:{textDocument:{uri:parentUri,languageId:'php',version:1,text:parent.replace('public function','final public function')}}});
     const state=await request(11,'phpCompanion/testQueryState',{method:'completion',uri});
     assert.equal(state.version,scenario==='child-edit'?2:1);
     child.send({kind:'release'});await wait(m=>m.ipc?.kind==='released');
     const stale=await wait(m=>m.id===10);assert.equal(stale.error,undefined);
     const labels=result=>(Array.isArray(result)?result:result?.items??[]).map(item=>item.label);
-    // Opening the parent also invalidates the in-flight dependency query.
-    // The fresh request, rather than an obsolete request ID, must see its buffer.
+    // A new final parent forbids __construct. Both responses must use that
+    // current restriction, not restore the older non-final disk declaration.
     assert.deepEqual(stale.result,[]);
     const fresh=await request(12,'textDocument/completion',completionParams(current));
-    assert.equal(labels(fresh).includes('__construct'),scenario==='parent-open');
+    assert.equal(labels(fresh).includes('__construct'),false);
     if(scenario==='child-edit') assert.ok(labels(fresh).includes('__invoke'));
     let resumedLabels;
-    if(scenario==='cancel') {
+    if(scenario==='cancel'||scenario==='parent-open') {
       const broader=completionParams(current);broader.position.character=current.indexOf('__con')+2;
       resumedLabels=labels(await request(14,'textDocument/completion',broader));
       assert.ok(resumedLabels.includes('__invoke'));assert.ok(!resumedLabels.includes('__construct'));

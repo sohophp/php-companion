@@ -110,6 +110,33 @@ export async function run(): Promise<void> {
     await type('ject as strl'); await observe('import alias name', labels => labels.length === 0, true); await finish();
   }
 
+  if (process.env.SOPHP_LIVE_TYPE_FLOW === '1') {
+    const dependencyUri = vscode.Uri.joinPath(folder.uri, 'src', 'AutomaticLiveDependency.php');
+    const dependencySource = '<?php namespace App; class AutomaticLiveDependency {}';
+    await vscode.workspace.fs.writeFile(dependencyUri, Buffer.from(dependencySource));
+    await open('LiveType', '<?php namespace App; function buildLive():void{new §;}');
+    const prefix = 'AutomaticLiveDep';
+    await type(prefix);
+    await observe('cold class', labels => labels[0]?.startsWith('AutomaticLiveDependency') === true);
+    const dependencyDocument = await vscode.workspace.openTextDocument(dependencyUri);
+    async function changeDependency(source: string): Promise<void> {
+      const edit = new vscode.WorkspaceEdit();
+      edit.replace(dependencyUri, new vscode.Range(dependencyDocument.positionAt(0),
+        dependencyDocument.positionAt(dependencyDocument.getText().length)), source);
+      assert.equal(await vscode.workspace.applyEdit(edit), true);
+      assert.equal(dependencyDocument.getText(), source);
+      const end = document.offsetAt(editor.selection.active);
+      await select(end - prefix.length, end); await type(prefix);
+    }
+    await changeDependency(dependencySource.replace('class', 'interface'));
+    await observe('unsaved interface withdraws construction', labels => labels.length === 0, true);
+    await changeDependency(dependencySource);
+    await observe('restored class', labels => labels[0]?.startsWith('AutomaticLiveDependency') === true);
+    assert.equal(Buffer.from(await vscode.workspace.fs.readFile(dependencyUri)).toString(), dependencySource);
+    await finish();
+    Object.assign(results.at(-1)!, { dependencyDiskUnchanged: true, dependencyFinalText: dependencyDocument.getText() });
+  }
+
   const settings = vscode.workspace.getConfiguration('editor', { uri: document!.uri, languageId: 'php' });
   console.log('Automatic completion acceptance proof: ' + JSON.stringify({ platform: process.platform, vscodeVersion: vscode.version,
     context: 'ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest',
