@@ -1,0 +1,554 @@
+{
+  "milestone": "D80",
+  "date": "2026-10-05",
+  "previousCheckpoint": "aae39a54",
+  "productInputs": {
+    "packages/semantic/src/index.ts": "c04bad942b9405a6a760dd8fe3e33d460faad64ce538c9f2d553f31ed6cb792f",
+    "packages/semantic/dist/index.js": "2d7b1f128acb3f4c53444eaddf07b9d4dd4b42d6b04b0f5ba3a0c8fdb1064269",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "c84d6fe7dd7077007ae88ae3b983d9f2817c76425dd97ec66e0a424bbf1f9cc6",
+    "packages/semantic/test/large-candidate-type-ranking.test.ts": "4de453387601f6c5142ba2ae05823130437de111abd089fa5a5940d3f612e7a1",
+    "packages/language-server/test/large-candidate-ranking-stdio.test.ts": "59b661effb60053a0be3a4c3af876cee2cf6324657d5f7d2348c26a446c6b63f",
+    "test/extension/suite/largeRankingFixture.ts": "baa57ecab2917196aa5263747572032d2b702c9f1dc6758e93c9c5ef6ea8f6f4",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "8cb611cb08bbdc647684134f6d806230430e2d916b1232dbfa60926560cc8deb"
+  },
+  "semantic": {
+    "newPassed": 60,
+    "fullFiles": 101,
+    "fullPassed": 2194,
+    "fullFailed": 0,
+    "durationSeconds": 57.97
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "passed": 2,
+    "queries": 48,
+    "firstFailure": "Test expected zero-argument call caret inside parentheses; original product inserts name()$0"
+  },
+  "hotPerformance": {
+    "scope": "Serial real production stdio; 500 matching native candidates; no edits during warm samples; not continuous-edit or Composer-scale qualification",
+    "bundleSha256": "c84d6fe7dd7077007ae88ae3b983d9f2817c76425dd97ec66e0a424bbf1f9cc6",
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "kind": "function",
+        "candidates": 500,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 30.241801000000123,
+        "samples": [
+          28.925276000000395,
+          30.241801000000123,
+          25.725085000000036,
+          24.981088,
+          23.967761999999766,
+          24.369999000000007,
+          23.230731000000105,
+          23.885467000000062,
+          25.393577000000278,
+          25.714848000000075,
+          25.80903999999964,
+          24.94224899999972,
+          24.19927400000006,
+          21.04371600000013,
+          21.09764099999984,
+          19.838149000000158,
+          21.650278999999955,
+          19.920558000000256,
+          20.848641000000043,
+          30.40203399999973
+        ],
+        "sourceSha256": "6afc88ae5891c3d1d1a1bf5e0c0cee179c759b2deea98cd279a8061ebde93ce2",
+        "topCandidate": "offer499"
+      },
+      {
+        "phpVersion": "7.2",
+        "kind": "constant",
+        "candidates": 500,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 22.31475300000011,
+        "samples": [
+          22.31475300000011,
+          31.260301999999683,
+          17.997322000000167,
+          19.06801399999995,
+          16.26008499999989,
+          18.380286999999953,
+          17.36689299999989,
+          19.594408999999814,
+          16.120402000000013,
+          18.147453999999925,
+          14.431879000000208,
+          15.598881999999776,
+          13.967577999999776,
+          14.909703000000263,
+          15.154227999999875,
+          14.917665000000397,
+          13.375456999999642,
+          14.224194999999781,
+          13.373764999999821,
+          14.599796999999853
+        ],
+        "sourceSha256": "6fe8489a22bdd341c2fa72aaed98c6aa395b3104d93f67c65b9dbbdd3ca1b411",
+        "topCandidate": "OFFER_499"
+      },
+      {
+        "phpVersion": "7.2",
+        "kind": "method",
+        "candidates": 500,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 10.154156000000057,
+        "samples": [
+          9.074927000000116,
+          10.090113000000201,
+          9.229278999999678,
+          8.585476000000199,
+          10.154156000000057,
+          8.231445999999778,
+          9.843947999999727,
+          7.788984999999684,
+          7.1645260000000235,
+          7.685678999999709,
+          8.556901999999809,
+          8.469081000000187,
+          7.875479000000269,
+          7.722007000000303,
+          6.894822999999633,
+          7.38662499999964,
+          8.109420999999656,
+          17.08388300000024,
+          7.299557000000277,
+          8.56973300000027
+        ],
+        "sourceSha256": "a0c597759bcb745dce7126d126ebaa8f863d4701a356ca051b53e160aa670350",
+        "topCandidate": "offer499"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "function",
+        "candidates": 500,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 28.549898000000212,
+        "samples": [
+          28.549898000000212,
+          27.271404999999504,
+          38.22516500000074,
+          26.142479999999523,
+          25.648294999999962,
+          22.25608000000011,
+          24.614415999999437,
+          24.680049999999937,
+          21.93681000000015,
+          22.61349599999994,
+          22.790846999999303,
+          20.998356000000058,
+          22.63829700000042,
+          22.003373999999894,
+          21.11819100000048,
+          19.872190000000046,
+          19.428444000000127,
+          20.038115999999718,
+          20.037733000000117,
+          19.21970599999986
+        ],
+        "sourceSha256": "6afc88ae5891c3d1d1a1bf5e0c0cee179c759b2deea98cd279a8061ebde93ce2",
+        "topCandidate": "offer499"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "constant",
+        "candidates": 500,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 27.455629999999474,
+        "samples": [
+          21.47436199999993,
+          20.396142999999938,
+          20.073716000000786,
+          27.455629999999474,
+          18.130025999999816,
+          18.03716700000041,
+          25.806523000000197,
+          17.063068999999814,
+          16.81960600000002,
+          16.809610999999677,
+          15.739145000000462,
+          15.424184999999852,
+          29.80058899999949,
+          15.872153000000253,
+          13.875017000000298,
+          15.478110999999444,
+          14.494937000000391,
+          16.864434999999503,
+          14.241355999999541,
+          15.084445999999843
+        ],
+        "sourceSha256": "6fe8489a22bdd341c2fa72aaed98c6aa395b3104d93f67c65b9dbbdd3ca1b411",
+        "topCandidate": "OFFER_499"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "method",
+        "candidates": 500,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 10.548686999999518,
+        "samples": [
+          10.973066000000472,
+          10.548686999999518,
+          9.95057000000088,
+          8.102137999999286,
+          8.810308999999506,
+          8.669763999999304,
+          7.768191999999544,
+          7.981734999999389,
+          7.601861999999528,
+          7.822560999999041,
+          9.10846599999968,
+          8.154645999999047,
+          8.590997999999672,
+          7.908260999998674,
+          7.965180000001055,
+          8.115740999999616,
+          7.145712999999887,
+          7.207274999998845,
+          7.549664000000121,
+          7.278548000000228
+        ],
+        "sourceSha256": "a0c597759bcb745dce7126d126ebaa8f863d4701a356ca051b53e160aa670350",
+        "topCandidate": "offer499"
+      }
+    ]
+  },
+  "visible": {
+    "platform": "linux",
+    "context": "large-candidate-type-ranking",
+    "results": [
+      {
+        "label": "offer069",
+        "key": "Enter",
+        "visibleMs": 276,
+        "caretOffset": 3369,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "function",
+        "candidateCount": 70,
+        "visibleTopFive": [
+          "offer069LargeRankingGate0Enter\\offer069(): int",
+          "offer001LargeRankingGate0Enter\\offer001()",
+          "offer000LargeRankingGate0Enter\\offer000(): string",
+          "offer002LargeRankingGate0Enter\\offer002(): string",
+          "offer003LargeRankingGate0Enter\\offer003(): string"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "9048bf629ae54b51892dc6c124e66d2a98de730e9129ed86fbaa9a2c8c5b3dff",
+        "acceptedTextSha256": "66cd9fbbe1730bb6deb91545905764526ee1b51add7f3d41656c20d12094c10f",
+        "acceptedTextTail": "ring { return 'text'; }\nfunction offer069(): int { return 1; }  function consume(int $value):void{} consume(offer069());"
+      },
+      {
+        "label": "offer069",
+        "key": "Tab",
+        "visibleMs": 137,
+        "caretOffset": 3367,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "function",
+        "candidateCount": 70,
+        "visibleTopFive": [
+          "offer069LargeRankingGate0Tab\\offer069(): int",
+          "offer001LargeRankingGate0Tab\\offer001()",
+          "offer000LargeRankingGate0Tab\\offer000(): string",
+          "offer002LargeRankingGate0Tab\\offer002(): string",
+          "offer003LargeRankingGate0Tab\\offer003(): string"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "ed018c1a4d04b280e36b024321ad71b66ba014b12ab9f8af3c7a312d761def30",
+        "acceptedTextSha256": "637e4a26bc4e4eb6141ff90a247ff2dba54ccdaf43a4106eccf3645204553656",
+        "acceptedTextTail": "ring { return 'text'; }\nfunction offer069(): int { return 1; }  function consume(int $value):void{} consume(offer069());"
+      },
+      {
+        "label": "OFFER_069",
+        "key": "Enter",
+        "visibleMs": 185,
+        "caretOffset": 1916,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "constant",
+        "candidateCount": 70,
+        "visibleTopFive": [
+          "OFFER_069LargeRankingGate1Enter\\OFFER_069 = 1",
+          "OFFER_001LargeRankingGate1Enter\\OFFER_001 = UNKNOWN_VALUE",
+          "OFFER_000LargeRankingGate1Enter\\OFFER_000 = 'text'",
+          "OFFER_002LargeRankingGate1Enter\\OFFER_002 = 'text'",
+          "OFFER_003LargeRankingGate1Enter\\OFFER_003 = 'text'"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "ca6eb53aa1496bfe9397fc4c06c2de8c7f42e3a8af71bec396ebecee24d64d94",
+        "acceptedTextSha256": "cd2af80eeb12b96e2a5648a5c0776d06c85e05874709cfc61d7ad326ac837ac1",
+        "acceptedTextTail": "ER_067 = 'text';\nconst OFFER_068 = 'text';\nconst OFFER_069 = 1;  function consume(int $value):void{} consume(OFFER_069);"
+      },
+      {
+        "label": "OFFER_069",
+        "key": "Tab",
+        "visibleMs": 138,
+        "caretOffset": 1914,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "constant",
+        "candidateCount": 70,
+        "visibleTopFive": [
+          "OFFER_069LargeRankingGate1Tab\\OFFER_069 = 1",
+          "OFFER_001LargeRankingGate1Tab\\OFFER_001 = UNKNOWN_VALUE",
+          "OFFER_000LargeRankingGate1Tab\\OFFER_000 = 'text'",
+          "OFFER_002LargeRankingGate1Tab\\OFFER_002 = 'text'",
+          "OFFER_003LargeRankingGate1Tab\\OFFER_003 = 'text'"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "6860f5ab472a6bfcb03beae84bd56eda5c0c83ed86c5f3d7f1352dbb6a776f5c",
+        "acceptedTextSha256": "399b342b81805226080fbf5420fa3c6c58e4b8fbc32ebcfbee55403bfc7f671c",
+        "acceptedTextTail": "ER_067 = 'text';\nconst OFFER_068 = 'text';\nconst OFFER_069 = 1;  function consume(int $value):void{} consume(OFFER_069);"
+      },
+      {
+        "label": "offer069",
+        "key": "Enter",
+        "visibleMs": 182,
+        "caretOffset": 3964,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "method",
+        "candidateCount": 70,
+        "visibleTopFive": [
+          "offer069LargeRankingGate2Enter\\Provider::offer069(): int",
+          "offer001LargeRankingGate2Enter\\Provider::offer001()",
+          "offer000LargeRankingGate2Enter\\Provider::offer000(): string",
+          "offer002LargeRankingGate2Enter\\Provider::offer002(): string",
+          "offer003LargeRankingGate2Enter\\Provider::offer003(): string"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "3d25540308d13bbdcdb5474e7a08735c4c23fdfb173afb38a67f2546dcc56330",
+        "acceptedTextSha256": "3aca412feb6aab8a128005c140bb374520a45592110b215ecb704d054d0cc5e5",
+        "acceptedTextTail": "ivate(): int { return 1; } } function consume(int $value):void{} $service=new Provider(); consume($service->offer069());"
+      },
+      {
+        "label": "offer069",
+        "key": "Tab",
+        "visibleMs": 163,
+        "caretOffset": 3962,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "method",
+        "candidateCount": 70,
+        "visibleTopFive": [
+          "offer069LargeRankingGate2Tab\\Provider::offer069(): int",
+          "offer001LargeRankingGate2Tab\\Provider::offer001()",
+          "offer000LargeRankingGate2Tab\\Provider::offer000(): string",
+          "offer002LargeRankingGate2Tab\\Provider::offer002(): string",
+          "offer003LargeRankingGate2Tab\\Provider::offer003(): string"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "3f3689631d10cc9371450dbf6ff666b91e68ee19bb3eb843dd06cb25f2e730e9",
+        "acceptedTextSha256": "d9268e112cc9cc1ccc8620f8c54154f2edb37f47ce5e6e2b9d98a0a2b4f4d511",
+        "acceptedTextTail": "ivate(): int { return 1; } } function consume(int $value):void{} $service=new Provider(); consume($service->offer069());"
+      },
+      {
+        "label": "offer499",
+        "key": "Enter",
+        "visibleMs": 305,
+        "caretOffset": 23579,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "function",
+        "candidateCount": 500,
+        "visibleTopFive": [
+          "offer499LargeRankingGate3Enter\\offer499(): int",
+          "offer001LargeRankingGate3Enter\\offer001()",
+          "offer000LargeRankingGate3Enter\\offer000(): string",
+          "offer002LargeRankingGate3Enter\\offer002(): string",
+          "offer003LargeRankingGate3Enter\\offer003(): string"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "459a59db71ad9efde7519967d0cc84a971ec77f114c869978fa80158aad53de4",
+        "acceptedTextSha256": "3be87000f9b4607fc14a12520ecf6c2728cbf0eaf63a164e7c182dcc818c99db",
+        "acceptedTextTail": "ring { return 'text'; }\nfunction offer499(): int { return 1; }  function consume(int $value):void{} consume(offer499());"
+      },
+      {
+        "label": "offer499",
+        "key": "Tab",
+        "visibleMs": 392,
+        "caretOffset": 23577,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true,
+        "diskUnchanged": true,
+        "fixtureKind": "function",
+        "candidateCount": 500,
+        "visibleTopFive": [
+          "offer499LargeRankingGate3Tab\\offer499(): int",
+          "offer001LargeRankingGate3Tab\\offer001()",
+          "offer000LargeRankingGate3Tab\\offer000(): string",
+          "offer002LargeRankingGate3Tab\\offer002(): string",
+          "offer003LargeRankingGate3Tab\\offer003(): string"
+        ],
+        "visibleLabelsCount": 12,
+        "visibleLabelsSha256": "78ff43327359aa464f9c7a4a68cbcfafef1271ef99ae7e859ea5d20541732bf7",
+        "acceptedTextSha256": "9eaf4f863bbe8a3626f4efecc858639e946760a0a897cd422dfa02bd7675dc24",
+        "acceptedTextTail": "ring { return 'text'; }\nfunction offer499(): int { return 1; }  function consume(int $value):void{} consume(offer499());"
+      }
+    ],
+    "fullProofPath": "/tmp/sophp-d80-ranking-host-proof.json",
+    "fullProofSha256": "1c4cc0794b5366409fd7e45d0544e3a4c30afe1a8e8c32b40e483f5dac161c2e"
+  },
+  "actualAcceptedCompilation": [
+    {
+      "version": "7.2.34",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "66cd9fbbe1730bb6deb91545905764526ee1b51add7f3d41656c20d12094c10f"
+    },
+    {
+      "version": "7.2.34",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "637e4a26bc4e4eb6141ff90a247ff2dba54ccdaf43a4106eccf3645204553656"
+    },
+    {
+      "version": "7.2.34",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "cd2af80eeb12b96e2a5648a5c0776d06c85e05874709cfc61d7ad326ac837ac1"
+    },
+    {
+      "version": "7.2.34",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "399b342b81805226080fbf5420fa3c6c58e4b8fbc32ebcfbee55403bfc7f671c"
+    },
+    {
+      "version": "7.2.34",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "3aca412feb6aab8a128005c140bb374520a45592110b215ecb704d054d0cc5e5"
+    },
+    {
+      "version": "7.2.34",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "d9268e112cc9cc1ccc8620f8c54154f2edb37f47ce5e6e2b9d98a0a2b4f4d511"
+    },
+    {
+      "version": "7.2.34",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "3be87000f9b4607fc14a12520ecf6c2728cbf0eaf63a164e7c182dcc818c99db"
+    },
+    {
+      "version": "7.2.34",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "9eaf4f863bbe8a3626f4efecc858639e946760a0a897cd422dfa02bd7675dc24"
+    },
+    {
+      "version": "8.5.9",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "66cd9fbbe1730bb6deb91545905764526ee1b51add7f3d41656c20d12094c10f"
+    },
+    {
+      "version": "8.5.9",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "637e4a26bc4e4eb6141ff90a247ff2dba54ccdaf43a4106eccf3645204553656"
+    },
+    {
+      "version": "8.5.9",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "cd2af80eeb12b96e2a5648a5c0776d06c85e05874709cfc61d7ad326ac837ac1"
+    },
+    {
+      "version": "8.5.9",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "399b342b81805226080fbf5420fa3c6c58e4b8fbc32ebcfbee55403bfc7f671c"
+    },
+    {
+      "version": "8.5.9",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "3aca412feb6aab8a128005c140bb374520a45592110b215ecb704d054d0cc5e5"
+    },
+    {
+      "version": "8.5.9",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "d9268e112cc9cc1ccc8620f8c54154f2edb37f47ce5e6e2b9d98a0a2b4f4d511"
+    },
+    {
+      "version": "8.5.9",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "3be87000f9b4607fc14a12520ecf6c2728cbf0eaf63a164e7c182dcc818c99db"
+    },
+    {
+      "version": "8.5.9",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "9eaf4f863bbe8a3626f4efecc858639e946760a0a897cd422dfa02bd7675dc24"
+    }
+  ],
+  "sourcePreview": {
+    "prospectiveCases": 24,
+    "allPassed": true,
+    "artifactSha256": "86977ea3560204da4c45cfc1d7f6eec585c39630cf5d1fd9a4b91e2217536389"
+  },
+  "open": [
+    "D79 full LSP binds the preceding product, not D80",
+    "All type graphs and larger Composer projects",
+    "Continuous editing",
+    "Automatic popup and human WSL",
+    "Other PHP versions and platforms"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}

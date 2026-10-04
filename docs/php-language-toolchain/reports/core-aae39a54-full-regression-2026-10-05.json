@@ -1,0 +1,590 @@
+{
+  "milestone": "D79",
+  "date": "2026-10-05",
+  "checkpoint": "aae39a546717280e1592af597861a027e84aa905",
+  "qualification": "One complete frozen run of aae39a54, before D80 product mutations",
+  "productInputs": {
+    "packages/parser/src/index.ts": "3931da5f557d6d4c8b4f10e8acb5e27b08eaac43aa0023067f6c725b3e12da32",
+    "packages/parser/dist/index.js": "8a17d443cc8866e4b3f57bed1c7ea1809a8cbba8abb49f2a8e179a957d168888",
+    "packages/language-server/src/server.ts": "5fd8dd29825d52e21e6f956435937022f730931d096ab76865d2edf18611338f",
+    "packages/language-server/src/analysis.ts": "732b5d4eec7d8266f313dd922099b909e6cb631b44096a03559f779624e08394",
+    "packages/semantic/src/index.ts": "fa2b74cbbeed060d04cf0d9a16851dcb05fc8257a53bb8b0a2bbf320cf4b8db1",
+    "packages/semantic/dist/index.js": "1d7d0f561f48a811f8ba02ff6ac6301971c8a054d24bb451d504efaa8f68a1b0",
+    "dist/language-server.js": "6d340d6b348945d728eb889317a387f84b3d190b9f396b50c5c546ff160105e3"
+  },
+  "meta": {
+    "commit": "aae39a546717280e1592af597861a027e84aa905",
+    "createdAtUtc": "2026-10-04T22:36:42.101926+00:00",
+    "status": "finished",
+    "inputCount": 2990,
+    "runtimePaths": {
+      "7.2": "/opt/remi/php72/root/usr/bin/php",
+      "7.4": "/opt/remi/php74/root/usr/bin/php",
+      "8.1": "/opt/remi/php81/root/usr/bin/php",
+      "8.2": "/opt/remi/php82/root/usr/bin/php",
+      "8.4": "/opt/remi/php84/root/usr/bin/php",
+      "8.5": "/opt/remi/php85/root/usr/bin/php"
+    },
+    "runtimeVersions": {
+      "7.2": "7.2.34",
+      "7.4": "7.4.33",
+      "8.1": "8.1.34",
+      "8.2": "8.2.32",
+      "8.4": "8.4.23",
+      "8.5": "8.5.9"
+    },
+    "runtimeSha256": {
+      "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "referenceBundle": "/var/www/node/php-companion/dist/language-server.js",
+    "performanceTimingDirectory": "/tmp/sophp-d79-full-timings",
+    "freeze": "src, test, scripts, dist, packages and root build/workspace configuration; no mutations until terminal verification",
+    "log": "/tmp/sophp-d79-full-lsp.log",
+    "runnerPid": 2170849,
+    "collectedCases": 888,
+    "collectedFiles": 60,
+    "collectionSha256": "55bfe62bf177a584864ffde21cdb6e46a686a84aa9703e3558262c597fa7d70c",
+    "startedAtUtc": "2026-10-04T22:36:53.094420+00:00",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d79-full-results.json"
+    ],
+    "finishedAtUtc": "2026-10-04T23:05:54.004873+00:00",
+    "exitCode": 0,
+    "inputsUnchanged": true
+  },
+  "verification": {
+    "originalCount": 2990,
+    "finalCount": 2990,
+    "inputsUnchanged": true,
+    "changes": {
+      "changed": [],
+      "missing": [],
+      "added": []
+    },
+    "runtimeChanges": [],
+    "initialSha256": "93659e16d0d94f7c95e2c8c501184ec441388bbe53a6339e9f786c4c8804d90e"
+  },
+  "canonicalProof": {
+    "verifiedAtUtc": "2026-10-04T23:08:05.453592+00:00",
+    "checkpoint": "aae39a546717280e1592af597861a027e84aa905",
+    "cases": 888,
+    "files": 60,
+    "canonicalNamesMatch": true,
+    "zeroFailedPendingTodo": true,
+    "frozenInputs": 2990,
+    "inputsAndSixRuntimesStillMatch": true,
+    "artifactSha256": {
+      "-meta.json": "0860161d183a3ced708f86792f599ca790765fc226c47a038ba381dfa3539402",
+      "-collection.json": "55bfe62bf177a584864ffde21cdb6e46a686a84aa9703e3558262c597fa7d70c",
+      "-results.json": "a5266a6cc29bbab6b94a34c37b4907ed0f6f006b8dc63e3bdb5fab83d76ee67d",
+      "-verification.json": "f01ebe1fbb0423ced00727bdc3c391b106b946c7ae31c813b0f817efaa67b6a1",
+      "-inputs.json": "93659e16d0d94f7c95e2c8c501184ec441388bbe53a6339e9f786c4c8804d90e"
+    }
+  },
+  "lsp": {
+    "files": 60,
+    "passed": 888,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "fileSummaries": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/analysis.test.ts",
+        "status": "passed",
+        "tests": 48
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-column-return-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-combine-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-count-values-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-fill-keys-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-flip-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-inline-doc-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-key-preservation-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/call-trivia-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/callable-facts-cache.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/candidate-worker-project-facts.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/candidate-workers.test.ts",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/code-action-messages.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/completion-call-trivia.test.ts",
+        "status": "passed",
+        "tests": 18
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/construction-trivia-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/csv-fields-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/diagnostic-messages.test.ts",
+        "status": "passed",
+        "tests": 5
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/getrusage-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/headers-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/highlight-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/image-size-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/implicit-nullable-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/inheritance-list-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/inheritance-trivia-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/inheritance-validity-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/inherited-final-magic-stdio.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/iterator-apply-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/magic-declaration-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/match-condition-completion-stdio.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-array-template-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/output-messages.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/php-runtime-syntax.test.ts",
+        "status": "passed",
+        "tests": 7
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/portableCandidatePaths.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/progress-messages.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/project-facts.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/project-index.test.ts",
+        "status": "passed",
+        "tests": 133
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/property-hook-keywords-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/protocol-messages.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/readonly-anonymous-stdio.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/readonly-anonymous.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/reference-candidate-evidence.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/reference-dependency-evidence.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/reference-engine-identity.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/reference-input-snapshot.test.ts",
+        "status": "passed",
+        "tests": 15
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/reference-result-store.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/root-import-stdio.test.ts",
+        "status": "passed",
+        "tests": 4
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/sourceStatBatches.test.ts",
+        "status": "passed",
+        "tests": 6
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "status": "passed",
+        "tests": 531
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/string-replacement-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/switch-condition-completion-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/trait-final-cache-stdio.test.ts",
+        "status": "passed",
+        "tests": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/magic-modifier-stdio.test.ts",
+        "status": "passed",
+        "tests": 2
+      }
+    ]
+  },
+  "referenceCacheProcesses": [
+    {
+      "run": 1,
+      "durationMs": 2415
+    },
+    {
+      "run": 2,
+      "durationMs": 2128
+    },
+    {
+      "run": 3,
+      "durationMs": 2181
+    },
+    {
+      "run": 4,
+      "durationMs": 2463
+    },
+    {
+      "run": 5,
+      "durationMs": 2063
+    },
+    {
+      "run": 6,
+      "durationMs": 2364
+    },
+    {
+      "run": 7,
+      "durationMs": 2722
+    },
+    {
+      "run": 8,
+      "durationMs": 2305
+    },
+    {
+      "run": 9,
+      "durationMs": 2435
+    },
+    {
+      "run": 10,
+      "durationMs": 2394
+    },
+    {
+      "run": 11,
+      "durationMs": 2340
+    },
+    {
+      "run": 12,
+      "durationMs": 2302
+    },
+    {
+      "run": 13,
+      "durationMs": 2118
+    },
+    {
+      "run": 14,
+      "durationMs": 2363
+    },
+    {
+      "run": 15,
+      "durationMs": 2490
+    },
+    {
+      "run": 16,
+      "durationMs": 4180
+    },
+    {
+      "run": 17,
+      "durationMs": 2899
+    },
+    {
+      "run": 18,
+      "durationMs": 2594
+    },
+    {
+      "run": 19,
+      "durationMs": 2688
+    },
+    {
+      "run": 20,
+      "durationMs": 2476
+    },
+    {
+      "run": 21,
+      "durationMs": 2158
+    },
+    {
+      "run": 22,
+      "durationMs": 2449
+    },
+    {
+      "run": 23,
+      "durationMs": 2179
+    },
+    {
+      "run": 24,
+      "durationMs": 2590
+    },
+    {
+      "run": 25,
+      "durationMs": 2388
+    },
+    {
+      "run": 26,
+      "durationMs": 2196
+    },
+    {
+      "run": 27,
+      "durationMs": 2626
+    },
+    {
+      "run": 28,
+      "durationMs": 2090
+    },
+    {
+      "run": 29,
+      "durationMs": 2580
+    },
+    {
+      "run": 30,
+      "durationMs": 2162
+    },
+    {
+      "run": 31,
+      "durationMs": 2546
+    },
+    {
+      "run": 32,
+      "durationMs": 2644
+    }
+  ],
+  "performance": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 100.14811499999996,
+      "p95Ms": 77.44933899999978,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 141.24750099999983,
+      "p95Ms": 89.23871000000145,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 25.93107500000042,
+      "p95Ms": 18.99563599999965,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 29.756844999999885,
+      "p95Ms": 15.078584000000319,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "open": [
+    "D80 product not covered by D79 full LSP",
+    "Continuous editing latency",
+    "Human WSL",
+    "Other platforms, scale and long sessions",
+    "Actual PHP 7.3/8.0/8.3 CLI"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}

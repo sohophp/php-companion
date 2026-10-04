@@ -4373,7 +4373,7 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     const memberStart = offset - target.member.length;
     const receiver = file && /\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*(?:\?->|->)\s*$/u.exec(file.source.slice(0, memberStart));
-    const expected = file && members.length <= 64
+    const expected = file
       ? this.expectedCandidateCompletionType(file, receiver?.index ?? memberStart, offset) : undefined;
     const typeRanks = new Map<MemberInfo, number>();
     if (expected) {
@@ -6520,8 +6520,7 @@ export class SemanticWorkspace {
       if (!alias && collision && collision.toLowerCase() !== item.fqcn.toLowerCase()) return [];
       return [{ uri: owner.uri, start: item.start, end: item.end, name, fqcn: item.fqcn, parameters: item.parameters, returnType: item.returnType, importFqfn: alias || candidateNamespace === namespace || candidateNamespace === '' ? undefined : item.fqcn }];
     });
-    const expected = matching.length <= 64
-      ? this.expectedCandidateCompletionType(file, prefixStart, offset) : undefined;
+    const expected = this.expectedCandidateCompletionType(file, prefixStart, offset);
     const typeRanks = new Map<string, number>();
     if (expected) {
       const initializer = this.initializerCompletionContext(uri, offset);
@@ -6587,8 +6586,7 @@ export class SemanticWorkspace {
       if (!importedEntry && collision && collision !== item.fqcn) return [];
       return [{ uri: owner.uri, start: item.start, end: item.end, name, fqcn: item.fqcn, type: item.type, value: item.value, importFqcn: importedEntry || candidateNamespace === namespace || candidateNamespace === '' ? undefined : item.fqcn }];
     });
-    const expected = matching.length <= 64
-      ? this.expectedCandidateCompletionType(file, prefixStart, offset) : undefined;
+    const expected = this.expectedCandidateCompletionType(file, prefixStart, offset);
     const typeRanks = new Map<string, number>();
     if (expected) {
       const relationContext = this.typeRelationContext();
