@@ -1,0 +1,452 @@
+{
+  "milestone": "D67 namespace module completion before existing separator",
+  "date": "2026-10-05",
+  "baseCommit": "c0d4404227a46b030ff27b611f3778b07ba969d6",
+  "productFiles": {
+    "packages/language-server/src/server.ts": "c469552ae81eb973f51538b1faadea34c1bc01e224f47f977f0fb40a0c5dcc22"
+  },
+  "productionBundle": {
+    "path": "dist/language-server.js",
+    "sha256": "1b556876fbfae9f891366e567f53b16ddfdb581989558835496386f23f95b287",
+    "bytes": 4170975
+  },
+  "baseline": {
+    "rangeFailures": 4,
+    "duplicateAcceptedTexts": [
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "marked": "<?php namespace Consumer; use RootImportName§space\\Other;",
+        "items": [
+          {
+            "label": "RootImportNamespace\\",
+            "kind": 9,
+            "detail": "RootImportNamespace\\",
+            "sortText": "0000000",
+            "preselect": true,
+            "textEdit": {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 49
+                }
+              },
+              "newText": "RootImportNamespace\\"
+            }
+          }
+        ],
+        "accepted": "<?php namespace Consumer; use RootImportNamespace\\\\Other;",
+        "duplicateSeparator": true
+      },
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "progressive",
+        "marked": "<?php namespace Consumer; use RootImportName§space\\Other;",
+        "items": [
+          {
+            "label": "RootImportNamespace\\",
+            "kind": 9,
+            "detail": "RootImportNamespace\\",
+            "sortText": "0000000",
+            "preselect": true,
+            "textEdit": {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 49
+                }
+              },
+              "newText": "RootImportNamespace\\"
+            }
+          }
+        ],
+        "accepted": "<?php namespace Consumer; use RootImportNamespace\\\\Other;",
+        "duplicateSeparator": true
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "marked": "<?php namespace Consumer; use RootImportName§space\\Other;",
+        "items": [
+          {
+            "label": "RootImportNamespace\\",
+            "kind": 9,
+            "detail": "RootImportNamespace\\",
+            "sortText": "0000000",
+            "preselect": true,
+            "textEdit": {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 49
+                }
+              },
+              "newText": "RootImportNamespace\\"
+            }
+          }
+        ],
+        "accepted": "<?php namespace Consumer; use RootImportNamespace\\\\Other;",
+        "duplicateSeparator": true
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "marked": "<?php namespace Consumer; use RootImportName§space\\Other;",
+        "items": [
+          {
+            "label": "RootImportNamespace\\",
+            "kind": 9,
+            "detail": "RootImportNamespace\\",
+            "sortText": "0000000",
+            "preselect": true,
+            "textEdit": {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 49
+                }
+              },
+              "newText": "RootImportNamespace\\"
+            }
+          }
+        ],
+        "accepted": "<?php namespace Consumer; use RootImportNamespace\\\\Other;",
+        "duplicateSeparator": true
+      }
+    ],
+    "oldSameFileCasesBeforeFailure": 24
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "modes": [
+      "onDemand",
+      "progressive"
+    ],
+    "tests": 4,
+    "statesPerVariant": 35,
+    "states": 140,
+    "newSeparatorStatesPerVariant": 11,
+    "seconds": 13.83,
+    "qualification": "Each variant passed every range and applied-text assertion; stdout proof suppressed on successful Vitest run, counts checked against actual fixture source",
+    "existingAutoloadSupplement": {
+      "tests": 6,
+      "filteredNotRun": 517,
+      "seconds": 20.74
+    }
+  },
+  "visibleUI": {
+    "vscodeVersion": "1.140.0",
+    "phpConfiguration": "8.5",
+    "providerPrewarmed": true,
+    "explicitTriggerSuggest": true,
+    "rendererGetItemsByProviderExceptions": 0,
+    "platform": "linux",
+    "context": "namespace-separators-and-middle-word-ranges",
+    "results": [
+      {
+        "label": "NamespaceUi0Enter\\",
+        "key": "Enter",
+        "visibleMs": 263,
+        "visibleLabels": [
+          "NamespaceUi0Enter\\App\\SeparatorGate0Enter\\NamespaceUi0Enter\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate0Enter\\NamespaceUi0Enter; function nestedFn():void{} namespace Consumer; use App\\SeparatorGate0Enter\\NamespaceUi0Enter\\Child;",
+        "caretOffset": 152,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi0Tab\\",
+        "key": "Tab",
+        "visibleMs": 125,
+        "visibleLabels": [
+          "NamespaceUi0Tab\\App\\SeparatorGate0Tab\\NamespaceUi0Tab\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate0Tab\\NamespaceUi0Tab; function nestedFn():void{} namespace Consumer; use App\\SeparatorGate0Tab\\NamespaceUi0Tab\\Child;",
+        "caretOffset": 144,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi1Enter\\",
+        "key": "Enter",
+        "visibleMs": 176,
+        "visibleLabels": [
+          "NamespaceUi1Enter\\App\\SeparatorGate1Enter\\NamespaceUi1Enter\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate1Enter\\NamespaceUi1Enter; function nestedFn():void{} namespace Consumer; use App\\SeparatorGate1Enter\\{NamespaceUi1Enter\\Child};",
+        "caretOffset": 153,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi1Tab\\",
+        "key": "Tab",
+        "visibleMs": 169,
+        "visibleLabels": [
+          "NamespaceUi1Tab\\App\\SeparatorGate1Tab\\NamespaceUi1Tab\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate1Tab\\NamespaceUi1Tab; function nestedFn():void{} namespace Consumer; use App\\SeparatorGate1Tab\\{NamespaceUi1Tab\\Child};",
+        "caretOffset": 145,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi2Enter\\",
+        "key": "Enter",
+        "visibleMs": 200,
+        "visibleLabels": [
+          "NamespaceUi2Enter\\App\\SeparatorGate2Enter\\NamespaceUi2Enter\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate2Enter\\NamespaceUi2Enter; function nestedFn():void{} namespace Consumer; use function App\\SeparatorGate2Enter\\NamespaceUi2Enter\\nestedFn;",
+        "caretOffset": 161,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi2Tab\\",
+        "key": "Tab",
+        "visibleMs": 178,
+        "visibleLabels": [
+          "NamespaceUi2Tab\\App\\SeparatorGate2Tab\\NamespaceUi2Tab\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate2Tab\\NamespaceUi2Tab; function nestedFn():void{} namespace Consumer; use function App\\SeparatorGate2Tab\\NamespaceUi2Tab\\nestedFn;",
+        "caretOffset": 153,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi3Enter\\",
+        "key": "Enter",
+        "visibleMs": 134,
+        "visibleLabels": [
+          "NamespaceUi3Enter\\App\\SeparatorGate3Enter\\NamespaceUi3Enter\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate3Enter\\NamespaceUi3Enter; function nestedFn():void{} namespace Consumer; function make(){new \\App\\SeparatorGate3Enter\\NamespaceUi3Enter\\Child();}",
+        "caretOffset": 169,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "NamespaceUi3Tab\\",
+        "key": "Tab",
+        "visibleMs": 164,
+        "visibleLabels": [
+          "NamespaceUi3Tab\\App\\SeparatorGate3Tab\\NamespaceUi3Tab\\"
+        ],
+        "acceptedText": "<?php namespace App\\SeparatorGate3Tab\\NamespaceUi3Tab; function nestedFn():void{} namespace Consumer; function make(){new \\App\\SeparatorGate3Tab\\NamespaceUi3Tab\\Child();}",
+        "caretOffset": 161,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "acceptedTextPhpSyntax": [
+    {
+      "key": "Enter",
+      "label": "NamespaceUi0Enter\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "a631c5118087e0b5e6aa8a88e11baf9aea78de73ae6556fe04a3e00efd603cb8",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi0Enter\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "a631c5118087e0b5e6aa8a88e11baf9aea78de73ae6556fe04a3e00efd603cb8",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi0Tab\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "c36e48a17285bc6b2474213c3aab472e22a40355ca6a7e384e064eba9c4f1014",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi0Tab\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "c36e48a17285bc6b2474213c3aab472e22a40355ca6a7e384e064eba9c4f1014",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi1Enter\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "9403cecc7606e7860d66d61594074ff0514df2739c64736df157c4c0964f7f2e",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi1Enter\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "9403cecc7606e7860d66d61594074ff0514df2739c64736df157c4c0964f7f2e",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi1Tab\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "76f219758d5b75ed93db78c1382d2644da0098b097f5f09765d923f283ce65e8",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi1Tab\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "76f219758d5b75ed93db78c1382d2644da0098b097f5f09765d923f283ce65e8",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi2Enter\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "2f62c6057a89da6f3f7fbc2d75b5f4366a2ec3296d59203f747a6e7b4cf243a4",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi2Enter\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "2f62c6057a89da6f3f7fbc2d75b5f4366a2ec3296d59203f747a6e7b4cf243a4",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi2Tab\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "44526990cb74f20bc8f19d13f7a6463eb061740214690e6b28c7ec5a68189051",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi2Tab\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "44526990cb74f20bc8f19d13f7a6463eb061740214690e6b28c7ec5a68189051",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi3Enter\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "de32bc88f71ece567ef8f8e8ef905bfc6ba932d99ced954f6b85ae5c8411b155",
+      "syntaxValid": true
+    },
+    {
+      "key": "Enter",
+      "label": "NamespaceUi3Enter\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "de32bc88f71ece567ef8f8e8ef905bfc6ba932d99ced954f6b85ae5c8411b155",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi3Tab\\",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "runtime": "7.2.34",
+      "sha256": "47ee82792562795deafc0513add43c5eafafbe3c3f4f0a08efe63d12b3ccecb8",
+      "syntaxValid": true
+    },
+    {
+      "key": "Tab",
+      "label": "NamespaceUi3Tab\\",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "runtime": "8.5.9",
+      "sha256": "47ee82792562795deafc0513add43c5eafafbe3c3f4f0a08efe63d12b3ccecb8",
+      "syntaxValid": true
+    }
+  ],
+  "harnessCorrections": {
+    "initialFailures": [
+      "Shared namespace parent caused earlier directory to rank first for the same Name prefix",
+      "Same ambiguity remained after correcting repeated suffix substitution"
+    ],
+    "resolution": "Each case and acceptance key uses its own PSR-4 parent namespace; keeps visible-first, exact-text, caret and Undo/Redo assertions"
+  },
+  "engineering": {
+    "serverBuild": true,
+    "productionBuild": true,
+    "targetedEslint": true,
+    "hostTypecheck": true,
+    "diffWhitespace": true
+  },
+  "open": [
+    "Current full LSP not rerun",
+    "Natural automatic namespace input not verified in this gate",
+    "Windows macOS and human WSL not verified",
+    "D65 ordinary editing P95 243.40 ms remains above 150 ms, not remeasured",
+    "All PHP versions, long sessions and large-project qualification remain open"
+  ],
+  "logSha256": {
+    "/tmp/sophp-d67-separator-baseline.log": "6cb99d390f4458e3902ae6c98e28043dcb210470087c9b7d802d388b9b889714",
+    "/tmp/sophp-d67-root-protocol.log": "011a03dd65607138c8252d0acae9694074de725793ad0e4dadc9592632564166",
+    "/tmp/sophp-d67-root-protocol-proof.log": "f5699fcb4e8558290cfd7eb53bbc2d7250ade581859cf90dba2812384a354999",
+    "/tmp/sophp-d67-autoload-protocol.log": "cf9603d11b6b1f9182d89b25f50c2944544c85790a3e8454d6529aea7d11a2ee",
+    "/tmp/sophp-d67-separator-ui.log": "3e4d2d4050755dd359a680e4fe55f75eef011b3a115b0f488a29adbc6bea96fa",
+    "/tmp/sophp-d67-separator-ui-final.log": "ca242e8d34ad44cd0ab1301bc0501519c9759709efa4bd42fb3de31e9f1321df",
+    "/tmp/sophp-d67-separator-ui-isolated.log": "6a3602e5dd63349f0c356c1b579b3507e254568db5445fa2f1f7dba155a7c07f",
+    "/tmp/sophp-d67-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d67-host-typecheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d67-server-build.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    "/tmp/sophp-d67-production-build.log": "f235ce5e5e3c8edf722e27746bfb6ef6467910b1c32cb85426a15a0840bc277b",
+    "/tmp/sophp-d67-diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

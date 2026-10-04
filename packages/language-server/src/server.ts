@@ -7046,12 +7046,16 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const importWordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(source.slice(offset))?.[0].length ?? 0);
     const groupedFilterText = symbolImport.replacementStart === undefined ? undefined
       : source.slice(symbolImport.replacementStart, symbolImport.replacementEnd ?? offset);
-    const importCompletionEdit = (name: string): TextEdit => symbolImport.replacementStart === undefined
-      ? { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(importWordEnd) },
+    const importCompletionEdit = (name: string): TextEdit => {
+      const wordEnd = symbolImport.replacementEnd ?? importWordEnd;
+      const end = wordEnd + (name.endsWith('\\') && source[wordEnd] === '\\' ? 1 : 0);
+      return symbolImport.replacementStart === undefined
+      ? { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(end) },
         newText: name }
       : { range: { start: document.positionAt(symbolImport.replacementStart),
-        end: document.positionAt(symbolImport.replacementEnd ?? offset) },
+        end: document.positionAt(end) },
         newText: `${source.slice(symbolImport.replacementStart, offset - symbolImport.prefix.length)}${name}${source[symbolImport.replacementEnd! - 1] === '}' ? '}' : ''}` };
+    };
     const names = new Map<string, string>();
     const symbols = allSymbols.flatMap((symbol) => {
       const parts = symbol.fqcn.split('\\'); const name = parts.pop()!;
@@ -7184,6 +7188,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (segments === 'stale' || typeOutcome === 'stale') return { isIncomplete: true, items: [] };
   const namespaceCandidatesComplete = segments?.complete ?? true;
   const namespaceWordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
+  const namespaceEnd = typeContext?.replacementEnd ?? namespaceWordEnd;
+  const namespaceReplacementEnd = namespaceEnd + (document.getText()[namespaceEnd] === '\\' ? 1 : 0);
   let namespaceItems: CompletionItem[] = [];
   if (segments && namespaceContext) namespaceItems = segments.names.map((name, index) => ({
     label: `${name}\\`, kind: CompletionItemKind.Module,
@@ -7193,9 +7199,9 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       : document.getText().slice(typeContext.replacementStart, typeContext.replacementEnd ?? offset),
     textEdit: typeContext?.replacementStart === undefined
       ? { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
-        end: document.positionAt(namespaceWordEnd) }, newText: `${name}\\` }
+        end: document.positionAt(namespaceReplacementEnd) }, newText: `${name}\\` }
       : { range: { start: document.positionAt(typeContext.replacementStart),
-        end: document.positionAt(typeContext.replacementEnd ?? offset) },
+        end: document.positionAt(namespaceReplacementEnd) },
       newText: `${document.getText().slice(typeContext.replacementStart, offset - namespaceContext.prefix.length)}${name}\\${document.getText()[typeContext.replacementEnd! - 1] === '}' ? '}' : ''}` },
   }));
   let typeCandidatesComplete = typeOutcome ?? true;

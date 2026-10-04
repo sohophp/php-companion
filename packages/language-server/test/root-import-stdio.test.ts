@@ -69,7 +69,7 @@ async function verify({phpVersion, indexingMode}: typeof variants[number]): Prom
   try {
     const rootUri = pathToFileURL(root).toString(), path = join(root, 'Consumer.php'), uri = pathToFileURL(path).toString();
     const original = '<?php namespace Consumer;';
-    const catalog = '<?php function rootImportFunction():void{} const ROOT_IMPORT_CONST=1; namespace RootImportNamespace; class Other {} function nsImportFunction():void{} const NS_IMPORT_CONST=2;';
+    const catalog = '<?php function rootImportFunction():void{} const ROOT_IMPORT_CONST=1; namespace RootImportNamespace; class Other {} function nsImportFunction():void{} const NS_IMPORT_CONST=2; namespace RootImportNamespace\\Nested; class Child {} function nestedFunction():void{} const NESTED_CONST=3;';
     await writeFile(path, original); await writeFile(join(root, 'Catalog.php'), catalog);
     await mkdir(join(root, 'src')); await writeFile(join(root, 'src', 'RootImportEntity.php'), '<?php class RootImportEntity {}');
     await writeFile(join(root, 'composer.json'), JSON.stringify({autoload:{'psr-4':{'':'src/'},files:['Catalog.php', 'Consumer.php']}}));
@@ -106,6 +106,17 @@ async function verify({phpVersion, indexingMode}: typeof variants[number]): Prom
       ['use RootImportNamespace\\{function /* { ; */ nsImportF§unction};','nsImportFunction',3],
       ['use RootImportNamespace\\{const /* { ; */ NS_IMPORT_C§ONST};','NS_IMPORT_CONST',21],
       ['use RootImportEntity, stdCl§ass;','stdClass',7],
+      ['use RootImportName§space\\Other;','RootImportNamespace\\',9],
+      ['use RootImportNamespace§\\Other;','RootImportNamespace\\',9],
+      ['use RootImportNamespace\\Ne§sted\\Child;','Nested\\',9],
+      ['use RootImportNamespace\\{Ne§sted\\Child};','Nested\\',9],
+      ['use function RootImportName§space\\nsImportFunction;','RootImportNamespace\\',9],
+      ['use const RootImportName§space\\NS_IMPORT_CONST;','RootImportNamespace\\',9],
+      ['use function RootImportNamespace\\{Ne§sted\\nestedFunction};','Nested\\',9],
+      ['use RootImportNamespace\\{function Ne§sted\\nestedFunction};','Nested\\',9],
+      ['use RootImportNamespace\\{const Ne§sted\\NESTED_CONST};','Nested\\',9],
+      ['function typed(\\RootImportName§space\\Other $value):void{}','RootImportNamespace\\',9],
+      ['function make(){new \\RootImportName§space\\Other();}','RootImportNamespace\\',9],
     ] as const){
       const marked='<?php namespace Consumer; '+tail,source=marked.replace('§',''),offset=marked.indexOf('§');version++;
       notify(version===1?'textDocument/didOpen':'textDocument/didChange',version===1
@@ -124,10 +135,12 @@ async function verify({phpVersion, indexingMode}: typeof variants[number]): Prom
       expect(items.every(value=>value.kind===kind||value.kind===9),marked).toBe(true);
       const start=offset-(/[A-Za-z0-9_]*$/u.exec(source.slice(0,offset))?.[0].length??0);
       const end=offset+(/^[A-Za-z0-9_]*/u.exec(source.slice(offset))?.[0].length??0);
+      const replacementEnd=end+(kind===9&&source[end]==='\\'?1:0);
+      expect(item!.textEdit!.range).toEqual({start:lspPosition(source,start),end:lspPosition(source,replacementEnd)});
       const accepted=item!.textEdit
         ?source.slice(0,lspOffset(source,item!.textEdit.range.start))+item!.textEdit.newText+source.slice(lspOffset(source,item!.textEdit.range.end))
         :source.slice(0,start)+item!.insertText+source.slice(end);
-      expect(accepted,marked).toBe(source.slice(0,start)+label+source.slice(end));
+      expect(accepted,marked).toBe(source.slice(0,start)+label+source.slice(replacementEnd));
     }
     expect(await readFile(path,'utf8')).toBe(original);await request('shutdown',{});notify('exit',{});
     console.log('Root import protocol proof: '+JSON.stringify({phpVersion,indexingMode,observations,diskUnchanged:true}));

@@ -28,8 +28,15 @@ export async function run(): Promise<void> {
   const importPrefixes = process.env.PHP_COMPANION_TEST_IMPORT_PREFIX_ONLY === '1';
   const nativeHandles = process.env.PHP_COMPANION_TEST_NATIVE_HANDLE_ONLY === '1';
   const rootImports = process.env.PHP_COMPANION_TEST_ROOT_IMPORT_ONLY === '1';
+  const namespaceSeparators = process.env.PHP_COMPANION_TEST_NAMESPACE_SEPARATOR_ONLY === '1';
   const importHeader = '<?php namespace ImportCatalog; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text="literal;😀"; /* 中文; trivia */\r\n';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = rootImports ? [
+  const separatorHeader = '<?php namespace App\\NamespaceUi; function nestedFn():void{} namespace Consumer; ';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = namespaceSeparators ? [
+    {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'use App\\Name§spaceUi\\Child;'},
+    {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'use App\\{Name§spaceUi\\Child};'},
+    {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'use function App\\Name§spaceUi\\nestedFn;'},
+    {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'function make(){new \\App\\Name§spaceUi\\Child();}'},
+  ] : rootImports ? [
     {prefix:'Shm',label:'Shmop',forbidden:'shmop_open',addCall:false,consume:2,marked:'<?php namespace Consumer; use Shm§op;'},
     {prefix:'ArrayOb',label:'ArrayObject',forbidden:'array_map',addCall:true,consume:4,marked:'<?php namespace Consumer; $value=new \\ArrayOb§ject;'},
     {prefix:'strl',label:'strlen',forbidden:'ArrayObject',addCall:false,consume:2,marked:'<?php namespace Consumer; use function count as Existing, strl§en;'},
@@ -190,13 +197,25 @@ export async function run(): Promise<void> {
       .replaceAll('PICK_', `PICK${suffix}_`);
     if (importPrefixes) marked = marked.replaceAll('ImportCatalog', `ImportCatalog${suffix}`);
     if (rootImports) marked = marked.replaceAll('RootImportCatalog', `RootImportCatalog${suffix}`);
+    if (namespaceSeparators) {
+      marked = marked.replaceAll('Name§spaceUi', `Name§spaceUi${suffix}`)
+        .replace(/\bNamespaceUi\b/gu, `NamespaceUi${suffix}`)
+        .replaceAll('App\\', `App\\SeparatorGate${suffix}\\`);
+      const directory = vscode.Uri.joinPath(folder.uri, 'src', `SeparatorGate${suffix}`, `NamespaceUi${suffix}`);
+      await vscode.workspace.fs.createDirectory(directory);
+      await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(directory, 'Child.php'),
+        Buffer.from(`<?php namespace App\\SeparatorGate${suffix}\\NamespaceUi${suffix}; class Child {}`));
+    }
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
-    const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`);
+    const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`)
+      .replace('NamespaceUi', `NamespaceUi${suffix}`);
     const prefix = item.prefix.replace('PICK_', `PICK${suffix}_`);
-    const accepted = source.slice(0, offset - prefix.length) + label + (item.suffix ?? (item.addCall ? '()' : '')) + source.slice(offset + (item.consume ?? 0));
+    const consume = namespaceSeparators ? /^[A-Za-z0-9_]+\\/u.exec(source.slice(offset))?.[0].length : item.consume ?? 0;
+    if (namespaceSeparators) assert.ok(consume, 'Namespace fixture must retain a word suffix and separator');
+    const accepted = source.slice(0, offset - prefix.length) + label + (item.suffix ?? (item.addCall ? '()' : '')) + source.slice(offset + (consume ?? 0));
     await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
     const document = await vscode.workspace.openTextDocument(uri); const editor = await vscode.window.showTextDocument(document);
     const position = document.positionAt(offset); editor.selection = new vscode.Selection(position, position);
@@ -224,6 +243,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }
