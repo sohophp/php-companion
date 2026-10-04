@@ -8,6 +8,32 @@ import { existingShapeArrowCases } from './existingShapeArrowFixture.js';
 import { wordMiddleShapeCases } from './wordMiddleShapeFixture.js';
 import { visibleCompletionLabels } from './c1Ui.js';
 
+async function verifyCommentHeavyMagicCompletion(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2CommentHeavyMagic.php');
+  const source = '<?php class Current {\n' + Array.from({ length: 1500 }, (_, index) =>
+    `/** comment ${index} ${'documentation '.repeat(8)} */ public const VALUE${index} = ${index};\n`).join('')
+    + 'public function __ca($name,$args){} }';
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
+  const document = await vscode.workspace.openTextDocument(uri); await vscode.window.showTextDocument(document);
+  const query = async (expected: string[]): Promise<void> => {
+    const position = document.positionAt(document.getText().lastIndexOf('__ca') + 4);
+    const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, position);
+    assert.deepStrictEqual(result?.items.map(item => typeof item.label === 'string' ? item.label : item.label.label).sort(), expected);
+    const callStatic = result?.items.find(item => item.label === '__callStatic');
+    if (callStatic) assert.strictEqual(callStatic.additionalTextEdits?.length ?? 0,
+      document.getText().includes('public static function') ? 0 : 1);
+  };
+  await query(['__call', '__callStatic']); await query(['__call', '__callStatic']);
+  const change = new vscode.WorkspaceEdit();
+  change.insert(uri, document.positionAt(source.lastIndexOf('function')), 'static ');
+  assert.ok(await vscode.workspace.applyEdit(change)); assert.ok(document.isDirty);
+  await query(['__callStatic']);
+  await vscode.commands.executeCommand('undo'); assert.strictEqual(document.getText(), source);
+  await query(['__call', '__callStatic']);
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), source);
+  console.log('C2 comment-heavy magic: repeat query, unsaved static edit, Undo and current candidates passed');
+}
+
 async function verifyProtectedFamily(root: vscode.Uri): Promise<void> {
   const port = Number(process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT); assert.ok(port);
   const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'ProtectedFamily.php');
@@ -1579,6 +1605,10 @@ export async function run(): Promise<void> {
     await verifyReferenceReturnCompletion(root.uri);
     await verifyOverloadExpectedCompletion(root.uri);
     await verifyGenericExpectedCompletion(root.uri);
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C2_MAGIC_HEADER_ONLY === '1') {
+    await verifyCommentHeavyMagicCompletion(root.uri);
     return;
   }
   if (process.env.PHP_COMPANION_TEST_C2_THIS_ONLY === '1') {

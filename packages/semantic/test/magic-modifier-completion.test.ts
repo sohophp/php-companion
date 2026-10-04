@@ -34,6 +34,27 @@ it.each(cases)('records method modifiers and function position: %s',(_name,marke
   expect(source.slice(start,start+8).toLowerCase()).toBe('function');
  } finally {workspace.dispose();}
 });
+it('refreshes comment-masked declarations across cursor movement and unsaved edits',()=>{
+ const workspace=new SemanticWorkspace(parser),uri='file:///EditingMagic.php';
+ const original='<?php class C {\r\n/* 漢 😀 static */ public function __first(){}\r\nstatic /* private */ public function __second(){} }';
+ try {
+  for(const source of [original,original.replace('/* 漢 😀 static */ public','static /* 漢 😀 */ protected'),original]) {
+   workspace.update(uri,source,true);
+   for(const name of ['__second','__first','__second','__first']) {
+    const context=workspace.phpDeclarationNameCompletionContext(uri,source.indexOf(name)+name.length);
+    const firstChanged=name==='__first'&&source!==original;
+    expect(context?.kind).toBe('function');
+    expect(context?.methodModifiers).toMatchObject({static:name==='__second'||firstChanged,
+     visibility:firstChanged?'protected':'public'});
+    const start=context!.methodModifiers!.functionStart;
+    expect(source.slice(start,start+8)).toBe('function');
+    expect(context?.prefix).toBe(name);
+   }
+  }
+  workspace.remove(uri);workspace.update(uri,'<?php use function Vendor\\__first;',true);
+  expect(workspace.phpDeclarationNameCompletionContext(uri,'<?php use function Vendor\\__first'.length)).toBeUndefined();
+ } finally {workspace.dispose();}
+});
 const boundaries=[
  ['class-comment','<?php class /* doc */\n C§ {}','type'],
  ['enum-comment','<?php enum /* doc */ e§ {}','type'],

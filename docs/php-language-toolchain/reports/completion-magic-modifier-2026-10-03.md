@@ -27,3 +27,34 @@ PHP 实际加载和独立原型历史见[审计](completion-magic-static-audit-2
 此前完整协议 494 项／Core C2 65 条属于本次修饰符修改之前。本次没有重跑当前完整协议或 C2，Windows 与真人 WSL 单列；注释密集独立样例也不能代表大 Composer 项目。未打包、提交、推送或更新 Profile。
 
 后续[当前集中集成](completion-modifier-integration-2026-10-03.md)已完成本修饰符产品输入下的完整协议 496/496（零跳过）、完整 Core C2 65、正式夹具修正后的标准 Core／Symfony C3 68、三版 C1 操作链及当前重启／冷父类竞态。原本节的“未重跑”是定向批次时点，不能据此误读为当前仍缺集中结果；真人 WSL 与完整平台矩阵继续单列。
+
+## 2026-10-04 注释密集声明热查询优化
+
+继续处理后续完整 LSP 曾出现的 185.57／209.14 ms 超预算。先串行测量当前旧 bundle 的同一 242,729 字节、1500 注释、各版 20 热样本夹具。语义 CPU 采样发现，多条声明／前缀正则反复扫描整份头部；缓存注释遮蔽本身不能解决这一成本。
+
+现每个活跃 SemanticFile 最多保留一份遮蔽注释后的前缀，通过 WeakMap 随文件释放；源码或解析注释集合变化不复用。声明前缀从光标向后扫描当前标识符；声明正则限定到最后一个语句／块边界后的完整尾部，并将匹配位置恢复成绝对 UTF-16 位置。不使用固定字符截断，尾部的长注释与换行仍完整保留；成员、导入和参数边界仍按现有规则处理。
+
+| 独立真实 LSP | 旧 bundle 热 P95 | 当前 bundle 热 P95 | 当前第一次查询 |
+| --- | ---: | ---: | ---: |
+| PHP 7.2 | 102.83 ms | 28.52 ms | 70.30 ms |
+| PHP 8.5 | 101.14 ms | 34.93 ms | 65.98 ms |
+
+原始数据分别在 `/tmp/sophp-magic-header-baseline/` 和 `/tmp/sophp-magic-header-current/` 的 `magic-modifier-stdio-*.json`。每次继续精确核对 __call／__callStatic、static 编辑及插入文本，原 150 ms 门槛未改。第一次查询发生在诊断更新后，不是整个冷启动。中间 `/tmp/sophp-magic-header-fixed.log`、`/tmp/sophp-magic-header-tail.log` 实际仍运行旧扩展 bundle，保留记录但不作为优化证明；最终显式执行 production bundle 后，当前日志为 `/tmp/sophp-magic-header-current.log`。
+
+当前完整语义 79 文件／1366 项通过（`/tmp/sophp-magic-header-full-semantic.log`）；新增 CRLF／Unicode 注释、光标前后移动、未保存源码替换、恢复原文和移除后替换为导入的回归。五文件／13 项定向 LSP 回归通过（`/tmp/sophp-magic-header-protocol-regression.log`），覆盖继承 final、枚举、属性／参数声明边界、属性 hook 和普通魔术方法。构建、根 TypeScript、定向 ESLint 与 diff 检查通过。
+
+`/tmp/sophp-magic-header-host.log`：Linux 隔离 VS Code 宿主退出 0，通过实际 Completion Provider 对同一注释密集文件的重复查询、未保存加入 static、一次 Undo 和恢复后的精确候选及 additionalTextEdits 核对，磁盘保持原文。可复用 Test-only 选择器 `PHP_COMPANION_TEST_C2_MAGIC_HEADER_ONLY=1`；不是产品设置。该宿主测试没有测实际可见弹窗等待或用户 Enter/Tab 接受，不冒称真人 WSL UI 验收。
+
+这是注释密集独立文档的性能改善，不关闭原完整 LSP 组合负载失败、大 Composer 项目／全部冻结场景性能或真实 WSL 门槛。未打包、更新 Profile、提交或推送。
+
+后续当前完整 Language Server 回归已结束：`pnpm --filter @php-companion/language-server exec vitest run`，日志 `/tmp/sophp-magic-header-full-lsp.log`，56 文件、837 项通过、1 项条件跳过、零失败，1506.37 秒，退出 0。沿用默认并发和所有既有断言，未筛掉性能失败；此前两项魔术方法热 P95 失败在此完整运行范围内已通过。未输出该轮具体 P95，单独样例的数值不当作全量运行实测数值。唯一跨进程引用 bundle 条件跳过单列补验，默认完整运行不称为零跳过验收。上文“完整 LSP 组合负载失败未关闭”是定向批次状态，不改写历史失败日志，也不据此证明大项目／全部操作预算。
+
+条件项补验：将 PHP_COMPANION_TEST_REFERENCE_BUNDLE 指向当前 dist/language-server.js，显式选取跨进程引用恢复及变更输入撤回用例。`/tmp/sophp-magic-header-reference-bundle.log` 一项通过、498 项未选中，77.62 秒。补验结果独立记录，未把默认完整运行改写成零跳过；也没有改变该用例的原断言。
+
+### 连续编辑与缓存内存
+
+复用 scripts/benchmark-project-completion.mjs，独立临时 Composer 项目的 Editing.php 保留上述 1500 注释／常量、未闭合 class 前缀；分别追加 `public static function __ca{{cursor}}($name,$args){} }` 和 `private function __con{{cursor}}(){} }`。当前 bundle 与 parser WASM 配套，开启 SOPHP_BENCHMARK_GC=1、SOPHP_BENCHMARK_EXPECT_FIRST=1，交替 300 轮。每轮核对首位 __callStatic／__construct，另一侧旧候选不出现，不完整列表为零；未要求 resolve，未修改磁盘。原始[测量 JSON](completion-magic-header-edit-memory-2026-10-04.json)纳入回归材料，临时项目测量后移除，日志保留。
+
+GC 后 heapUsed 第 1／100／300 轮为 39.60／30.34／30.62 MiB，第 100–300 轮增加 0.28 MiB；external 约 34 MiB、arrayBuffers 约 0.02 MiB。RSS 从 228.89 MiB 增至 311.16 MiB，不能把该数字隐去或直接当成保留对象泄漏。这是单文档 300 轮短时证明，不关闭两小时、多文档、全部缓存或平台的内存验收。
+
+连续编辑后立即请求补全的全链路 P95 为 383.56 ms，包含源码解析／语义更新；即使候选断言通过和堆增长趋缓，也不能称该路径满足 150 ms。GC 会改变运行状态，此数字用于定位剩余编辑成本，不替代普通运行性能门禁。下一项核对该注释密集文档的更新成本；不改写上文已有同一文档未修改时的热查询改善。

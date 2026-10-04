@@ -921,6 +921,31 @@ function preferredPropertyVarTag(doc: ParsedPhpDoc | undefined, propertyName: st
 // A declaration-heavy builtin document queries adjacent comments thousands of times.
 const phpDocRangesByComments = new WeakMap<SourceRange[], SourceRange[]>();
 
+// Retain at most one masked prefix per live file. File replacement/collection
+// releases it; edits and changed parsed comment ranges never reuse old text.
+const declarationHeaders = new WeakMap<SemanticFile, {
+  source: string; comments: SourceRange[]; end: number; header: string;
+}>();
+function declarationHeader(file: SemanticFile, end: number): string {
+  const cached = declarationHeaders.get(file);
+  if (cached?.source === file.source && cached.comments === file.commentRanges && cached.end >= end) {
+    return cached.header.slice(0, end);
+  }
+  const header = file.source.slice(0, end);
+  const comments = file.commentRanges.filter(range => range.start < end).sort((a, b) => a.start - b.start);
+  const fragments: string[] = []; let cursor = 0;
+  for (const range of comments) {
+    const start = Math.max(cursor, range.start), stop = Math.min(end, range.end);
+    if (stop <= start) continue;
+    fragments.push(header.slice(cursor, start), header.slice(start, stop).replace(/[^\r\n]/g, ' '));
+    cursor = stop;
+  }
+  fragments.push(header.slice(cursor));
+  const masked = fragments.join('');
+  declarationHeaders.set(file, { source: file.source, comments: file.commentRanges, end, header: masked });
+  return masked;
+}
+
 function adjacentPhpDoc(file: Pick<SemanticFile, 'source' | 'commentRanges'>, offset: number): ParsedPhpDoc | undefined {
   let ranges = phpDocRangesByComments.get(file.commentRanges);
   if (!ranges) {
@@ -4178,26 +4203,20 @@ export class SemanticWorkspace {
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
     const source = file.source;
     const before = source.slice(0, offset);
-    const prefix = /[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.exec(before)?.[0] ?? '';
+    let wordStart = offset;
+    while (wordStart > 0 && /[A-Za-z0-9_\x80-\xff]/u.test(source[wordStart - 1]!)) wordStart--;
+    const prefix = /[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.exec(before.slice(wordStart))?.[0] ?? '';
     const start = offset - prefix.length;
     const end = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(source.slice(offset))?.[0].length ?? 0);
-    let header = before.slice(0, start);
-    // Mask only parsed comments, preserving UTF-16 offsets and line breaks.
-    // Joining fragments once avoids quadratic copies in comment-heavy files.
-    const comments = file.commentRanges.filter(range => range.start < start).sort((a, b) => a.start - b.start);
-    if (comments.length) {
-      const fragments: string[] = []; let cursor = 0;
-      for (const range of comments) {
-        const commentStart = Math.max(cursor, range.start), commentEnd = Math.min(start, range.end);
-        if (commentEnd <= commentStart) continue;
-        fragments.push(header.slice(cursor, commentStart), header.slice(commentStart, commentEnd).replace(/[^\r\n]/g, ' '));
-        cursor = commentEnd;
-      }
-      fragments.push(header.slice(cursor)); header = fragments.join('');
-    }
-    const methodHeader = /\bfunction\s*&?\s*$/i.exec(header);
+    const header = declarationHeader(file, start);
+    const tailStart = Math.max(header.lastIndexOf(';'), header.lastIndexOf('{'), header.lastIndexOf('}')) + 1;
+    const tail = header.slice(tailStart);
+    const matchHeader = (pattern: RegExp): RegExpExecArray | null => {
+      const match = pattern.exec(tail); if (match) match.index += tailStart; return match;
+    };
+    const methodHeader = matchHeader(/\bfunction\s*&?\s*$/i);
     const modifiers = methodHeader && /((?:(?:public|protected|private|static|abstract|final)\s+)+)$/i
-      .exec(header.slice(0, methodHeader.index))?.[1]?.toLowerCase().trim().split(/\s+/);
+      .exec(header.slice(tailStart, methodHeader.index))?.[1]?.toLowerCase().trim().split(/\s+/);
     const methodModifiers: PhpDeclarationNameCompletionContext['methodModifiers'] = methodHeader ? {
       static: modifiers?.includes('static') ?? false,
       visibility: modifiers?.includes('private') ? 'private' : modifiers?.includes('protected') ? 'protected' : 'public',
@@ -4228,9 +4247,9 @@ export class SemanticWorkspace {
     // Imports contain the same words (use function / use const), but the name
     // there is a reference and must retain the import completion provider.
     if (this.symbolImportContext(uri, offset)) return undefined;
-    const namespace = /\bnamespace\s+(?:[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)*$/iu.exec(header);
-    const type = /\b(class|interface|trait|enum)\s+$/iu.exec(header);
-    const named = /\b(function|const|case)\s+&?\s*$/iu.exec(header);
+    const namespace = matchHeader(/\bnamespace\s+(?:[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)*$/iu);
+    const type = matchHeader(/\b(class|interface|trait|enum)\s+$/iu);
+    const named = matchHeader(/\b(function|const|case)\s+&?\s*$/iu);
     if (!namespace && !type && !named && (start === 0 || source[start - 1] !== '$')) return undefined;
     const isVariable = start > 0 && source[start - 1] === '$';
     const variableHeader = isVariable ? header.slice(0, -1) : '';
@@ -4251,7 +4270,7 @@ export class SemanticWorkspace {
       if (namespace && recoverPhpKeywordCompletionContext(source, namespace.index, recoveryTree)?.kind === 'top-level')
         return result('namespace', 'namespace');
       if (type) {
-        const leading = header.slice(0, type.index);
+        const leading = header.slice(tailStart, type.index);
         if (!/(?:\bnew|::|->|\?->)\s*$/iu.test(leading)) {
           const context = recoverPhpKeywordCompletionContext(source, type.index, recoveryTree);
           if (context && ['top-level', 'statement'].includes(context.kind))
@@ -4259,7 +4278,7 @@ export class SemanticWorkspace {
         }
       }
       if (named) {
-        const leading = header.slice(0, named.index);
+        const leading = header.slice(tailStart, named.index);
         const context = recoverPhpKeywordCompletionContext(source, named.index, recoveryTree);
         if (context && context.kind !== 'expression'
           && !(named[1]!.toLowerCase() === 'case' && !context.inEnum)

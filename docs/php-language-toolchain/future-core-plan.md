@@ -39,6 +39,12 @@
 
 ## 当前执行顺序
 
+下一项 C2 明确缺口：当前 242 KB／1500 注释文档交替编辑后立即请求补全，全链路 P95 383.56 ms（GC 测量，非独立正常性能门禁），包含解析和语义更新，未满足 150 ms；300 轮候选／排序／撤回和磁盘不变均通过，后 200 轮 GC 后堆增长 0.28 MiB。先定向核对更新成本，不将热查询 P95 改善推导为连续编辑预算完成。见[缓存内存记录](reports/completion-magic-modifier-2026-10-03.md#连续编辑与缓存内存)。
+
+当前完整 LSP 门禁已核对：56 文件、837 通过、1 条件跳过、零失败（1506.37 秒）；此前两个魔术方法热 P95 失败在同一默认完整运行范围内通过。唯一跨进程引用 bundle 条件项另用当前 bundle 补验通过，默认完整运行仍如实记为 1 跳过。见[补全优化完整验收](reports/completion-magic-modifier-2026-10-03.md#2026-10-04-注释密集声明热查询优化)。以下“完整 LSP 组合性能未关闭”描述是当批历史状态；大 Composer 项目／全部操作性能、平台及真人 WSL 仍开放。
+
+最新 C2 性能增量：[注释密集声明热查询优化](reports/completion-magic-modifier-2026-10-03.md#2026-10-04-注释密集声明热查询优化)。单文件弱引用前缀缓存与声明尾部匹配保留绝对位置，PHP 7.2／8.5 的同一 1500 注释真实 LSP 热 P95 从 102.83／101.14 ms 降为 28.52／34.93 ms。完整语义 1366 项、定向协议 13 项和隔离宿主的重复查询／未保存 static／Undo 刷新通过；此前完整 LSP 组合负载性能仍开放，未提交、不更新 Profile。
+
 最新 C3 Rename 增量：[Safe Rename 运行环境变化保护](reports/rename-destination-preflight-2026-10-04.md#safe-rename-运行环境变化保护)。与 Safe Move 共用资源配置／有效运行环境守卫；两个默认模式均通过 PHP 目标及运行程序变化的四项拒绝，以及恢复后普通／大小写改名、预览取消与一次 UndoRedo。默认命令之外的直接 LSP／Explorer／平台／真实 WSL 继续开放。
 
 最新 C3 运行环境增量：[Safe Move 运行环境变化保护](reports/safe-move-source-coverage-2026-10-04.md#safe-move-运行环境变化保护)。隔离编辑器复现规划后改 PHP 目标仍应用旧计划，现核对源／目标资源配置与有效运行环境。两个默认模式均通过四项版本／运行程序路径变化拒绝，以及恢复后完整 Move、构造生成建议和单次 UndoRedo。Rename／Explorer／批量、同路径二进制替换未由本次证明；不更新 Profile、未提交。
@@ -62,6 +68,8 @@
 2026-10-04 本地源码检查点合并接口提取的全局源类型歧义保护、格式化候选的文件夹配置隔离／双 PHP 运行程序验证、严格渲染异常探针及受检扫描有界并行；提交标题 `fix(toolchain): isolate formatter settings and parallelize verified scans`。各报告保留原始失败与测量限制，旧“未提交”叙述是当批状态；该检查点不关闭 C1–C4、未修复的 Workbench 异常或真人门槛。不更新 Profile；goal 继续。
 
 ## 历史记录与材料管理
+
+本地补全性能检查点汇总注释前缀弱引用缓存、声明尾部匹配和当前完整语义／LSP／隔离宿主证明，提交标题 `perf(core): bound declaration matching in comment-heavy documents`。完整 LSP 837 通过、1 条件跳过，另补验条件项通过；300 轮编辑内存测量及新发现的更新等待分别记录。以前“未提交”文字是当批状态，不关闭后续更新性能、平台或真实 WSL。没有打包、更新 Profile 或推送；goal 继续。
 
 本地重构可靠性检查点汇总 Safe Move 预览的新调用者／声明重验、不可读 watcher 的过期事实撤回、受检扫描的一次失效重验，以及 Safe Move／Safe Rename 共用运行环境保护。提交标题 `fix(core): revalidate refactor previews and recover watched sources`。历史报告中的“未提交”指当批状态；保留原始失败与定向证据，不据此关闭大规模性能、Explorer／批量／平台或真人 WSL。没有打包、更新 Profile 或推送，goal 继续 active。
 
