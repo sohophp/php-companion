@@ -271,3 +271,45 @@ progressive 隔离宿主的首次实际构造表达式 Paste Provider、resolve�
 可复核的逐轮热样本、冷／热统计、源码哈希、Node／平台和后台消息保存在[五轮原始数据](default-indexing-imports-2503-five-runs-2026-10-04.json)。完整请求 trace／stderr 留于 `/tmp/sophp-import-qualification-2500/`。本轮只关闭本机 2,503 文件两默认模式的 Import 热查询子门槛；10k／50k、峰值 RSS、取消／长期会话、外部 Provider 组合及真人 WSL 可见等待仍开放，完整套件的两条魔术方法组合负载失败保留。没有打包或更新用户 Profile。
 
 扫描窗口、prepared source 复用和公共预览运行程序设置保护合并为同一源码里程碑，提交标题 `fix(refactor): reuse verified project preparation and bind PHP runtime settings`。上述“尚未提交”记录描述各增量完成时的状态，以本里程碑为后续源码基线；C3 整体仍未完成，用户已安装的旧 Profile 未包含此批修改。
+
+## 首次扫描复用已加载源码
+
+本地里程碑为 `4248e37`。后续冷启动 profile（`/tmp/sophp-import-cold-profile{.json,.log,/}`）显示首次 Copy 约 4.12 秒，其中项目准备约 3.14 秒，随后 Import 受检扫描约 1.02 秒；已有项目文本在首次受检扫描没有此前 Import 缓存时仍被再次读入。profile 带额外开销，仅作定位，不与无 profile 数字直接计算优化比例。
+
+当前源码把已加载文本作为**待验证候选**，请求 Worker 比对实际磁盘字节的 SHA-256；只有哈希匹配、扫描元数据符合、当前语义文本和打开缓冲区仍一致，且需要实现时实现已加载，才跳过重复读取并进入原有受检缓存。未知文件、哈希不匹配、未保存缓冲区与磁盘不同、实现未加载仍走原读取路径；文件数／单文件／总字节预算、取消、来源失效后单次重新核验不放宽。候选仅保留本次扫描期间，不另建持久缓存。
+
+新增两模式首次复制回归先通过真实 Rename 准备建立已加载项目，再同尺寸修改闭合声明并恢复 mtime、不发送 watcher，同时使打开文档的磁盘副本与未保存缓冲区不同：首次复制不接受已删除声明，恢复声明后复制成功，缓冲区优先且规划不修改磁盘。初版测试用 workspace symbol 建立前置状态，但 onDemand 不会因此启动完整索引，超时日志 `/tmp/sophp-import-first-loaded-regression.log` 保留；改为实际 Rename 准备，没有放宽断言。最终 Import 组合 11 通过／468 未运行（35.59 秒），成员生成＋Worker 组合另 10 通过／473 未运行（20.61 秒）；日志 `/tmp/sophp-import-first-loaded-{regression-final,generation-worker}.log`。源码／扩展构建、修改文件 ESLint、diff 检查通过。
+
+两默认模式隔离 VS Code 宿主的实际首次构造表达式 Paste Provider、resolve／应用和一次 Undo/Redo 均通过，等待分别为 onDemand 636 ms／progressive 410 ms；日志 `/tmp/sophp-import-first-loaded-host-{onDemand,progressive}.log`，退出 0。这是小 fixture 单次操作数据，不证明真实 WSL 或大项目 UI 延迟。
+
+随后以相同 2,503 文件确定性 fixture 串行运行两模式各五个冷进程；每个进程仅带五次热控制查询（命令 `node scripts/benchmark-paste-imports.mjs 2500 5 MODE`），不将这 25 个热样本当作新的 100 样本热门槛。十轮均验证删除撤回与规划不写文件，失败 0，没有重复准备。首次 Copy 与首次受检扫描统计单位 ms：
+
+| 模式 | 五轮首次 Copy | 中位数 | 前次五轮中位数 | 首次扫描中位数 |
+| --- | --- | ---: | ---: | ---: |
+| onDemand | 3292.62／3270.90／3153.23／3196.29／3270.13 | 3270.13 | 3889.90 | 259.09 |
+| progressive | 3042.32／3079.76／3027.75／3075.87／3219.87 | 3075.87 | 3752.92 | 246.99 |
+
+中位数分别减少约 15.9%／18.0%，仍需约 3 秒，项目准备仍占主要等待。前次和本次均串行、无 CPU profile；它是本机前后测量，不宣称跨平台同等收益。逐轮原始数据、源码哈希及五个热控制样本已追加到[原始数据](default-indexing-imports-2503-five-runs-2026-10-04.json)的 `coldSourceReuseFollowup`，没有覆盖 `4248e37` 前批热门槛证据。完整 trace／stderr 在 `/tmp/sophp-import-first-loaded-cold-2500/`；取消／内存未在这轮冷测量中采样。此增量暂留同一分支，不打包、提交、推送或更新 Profile；跨规模及真实使用门槛继续开放。
+
+## 项目准备读取与首次请求交错
+
+按首次 Copy 的单调时钟窗口拆分前述 CPU profile，主线程文件打开／读取／fstat／关闭累计约 1.1 秒，准备过程的 `memoryUsage` 约 266 ms，解析 Worker 有较多空闲等待。本增量选择文件读取路径，未修改内存阈值或内存检查频率。
+
+现有 SourceStat Worker 增加可选的预算内 UTF-8 源码返回；读取后按实际字节长度核对单文件预算，过大的文件不提供文本，读取失败使扫描不完整。创建 Worker 失败的原 async fallback 同样返回预算内文本。索引器的既有大库存 inspector 可携带当前文本，顺序准备／语义回调消费同一次读取快照；项目准备沿用原 32／128 窗口，取消、文件数／总字节、缓存写入格式和解析路径不扩大。小于 1,000 路径时沿用原读取方式。已供应当前文本时，即使 `verifyCachedSourceHash` 未启用，也比较实际文本哈希，不凭碰撞元数据恢复旧 payload。新测试覆盖读取／下一次修改、UTF-8／空文件／过大文件／删除、元数据全部碰撞及显式哈希选项开／关两种缓存恢复。
+
+新增 `PHP_COMPANION_TEST_C3_PROJECT_NOISE` 仅为隔离 first-import 宿主 fixture 添加有界 PHP 文件，没有产品设置。1,000 文件首次 progressive 宿主曾返回空 Provider（`/tmp/sophp-index-worker-source-host-progressive-1000.log`）；带失败诊断的一轮又返回成功（`...-1000-diag.log`），原失败保持为间歇证据。继续以测试暂停点在项目首个语义回调前创建闭合类型并发送 watcher；等待来源 epoch 实际改变后释放，稳定复现 progressive 首次候选为空，onDemand 同场景通过：`/tmp/sophp-first-import-watch-red.log`。
+
+修补共同准备入口：只有等待期间来源 epoch 确实改变且未取消，才在原准备结束后重新准备一次；不循环重复未知失败或预算失败。测试状态的 epoch 及新暂停点仅在 testMode 返回／启用。epoch 入口修补后的协议＋Worker 组合 20 项通过、466 未运行，49.61 秒（`/tmp/sophp-index-worker-source-regression-final.log`），包含受控 watcher 交错、两个默认模式首次复制、原 Import／预算／旧快照、1,000 文件并发准备与取消及 Worker 生命周期。随后补齐当前文本缓存保护，最终索引包全量 45 项通过（`/tmp/sophp-index-worker-source-final-index-tests.log`）。源码／扩展 bundle、宿主编译、根 TypeScript、修改文件 ESLint 与 diff 检查通过。
+
+最终 bundle 的隔离宿主均加入 1,000 个 PHP 文件后才激活，两个模式实际首次 Paste Provider、resolve／应用和一次 Undo/Redo 通过，等待 onDemand 1468 ms／progressive 1528 ms；日志 `/tmp/sophp-index-worker-source-cache-guard-host-{onDemand,progressive}.log`，退出 0。首次失败与两种模式的受控回归保留；这组通过不宣称所有首次交错或真实 WSL 已验收。
+
+缓存文本保护补齐前的十轮冷测保留于 `/tmp/sophp-index-worker-source-cold-2500/`，作为中间诊断。最终源码再串行执行两模式各五个冷进程，每轮五个热控制样本；所有十轮的删除撤回／不写文件断言通过，失败 0。单位 ms：
+
+| 模式 | 五轮首次 Copy | 中位数 | 前批中位数 | 最小／最大 |
+| --- | --- | ---: | ---: | --- |
+| onDemand | 2062.04／1928.33／2004.94／1934.35／1973.90 | 1973.90 | 3270.13 | 1928.33／2062.04 |
+| progressive | 1984.61／2310.84／2333.33／1967.63／2184.48 | 2184.48 | 3075.87 | 1967.63／2333.33 |
+
+相对前批减少约 39.6%／29.0%；相对最初五轮 3889.90／3752.92 ms 减少约 49.3%／41.8%。仍是本机独立、短源码 Composer fixture 的冷请求等待，首次请求约 2 秒，不能写成真实业务项目同等收益或完整冷索引门槛。最终逐轮样本、实际源码哈希、背景消息追加到[原始数据](default-indexing-imports-2503-five-runs-2026-10-04.json)的 `projectSourceReadFollowup`；trace／stderr 在 `/tmp/sophp-index-worker-source-final-cold-2500/`。每模式每类 25 个热控制样本低于 150 ms，但不替代当前源码的完整热测；峰值内存、新规模、长期会话、跨平台、外部 Provider 和真人使用继续开放，完整套件两条魔术方法组合负载失败保留。
+
+首次扫描复用、项目准备读取、当前文本缓存保护和首次准备的 epoch 交错修补合并为一次必要源码里程碑，提交标题 `fix(index): reuse verified source reads and retry superseded preparation`。前节未提交状态由本里程碑更新；不打包、推送、发布或更新用户 Profile，goal 继续运行。

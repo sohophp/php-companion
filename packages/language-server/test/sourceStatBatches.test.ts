@@ -47,6 +47,25 @@ it('verifies cached bytes independently of timestamps and never hashes over the 
   } finally { batches.close(); }
 });
 
+it('reads current UTF-8 source within the byte budget without requiring a prior hash', async () => {
+  root = await mkdtemp(join(tmpdir(), 'sophp-stat-source-'));
+  const path = join(root, 'Source.php'); const source = '<?php // 中文\n';
+  await writeFile(path, source);
+  const batches = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'), {
+    readSource: true, maxSourceBytes: Buffer.byteLength(source),
+  });
+  try {
+    expect(await batches.inspect(path)).toMatchObject({ source, size: Buffer.byteLength(source) });
+    await writeFile(path, '');
+    expect(await batches.inspect(path)).toMatchObject({ source: '', size: 0 });
+    await writeFile(path, source + ' ');
+    const oversized = await batches.inspect(path);
+    expect(oversized.size).toBe(Buffer.byteLength(source) + 1); expect(oversized.source).toBeUndefined();
+    await rm(path);
+    await expect(batches.inspect(path)).rejects.toThrow('Source could not be inspected.');
+  } finally { batches.close(); }
+});
+
 it('reuses a worker across scans while cancelling only the owning scan', async () => {
   root = await mkdtemp(join(tmpdir(), 'sophp-stat-reuse-'));
   const path = join(root, 'Source.php'); await writeFile(path, '<?php');

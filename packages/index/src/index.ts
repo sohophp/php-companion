@@ -24,8 +24,8 @@ export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) =>
   skipSource?: (path: string, info: { size: number; mtimeMs: number; ctimeMs: number }) => boolean;
   /** Charge only candidate files to read budgets; inspect at most 50,000 PHP paths by default. Requires skipSource. */
   skipSourceOutsideBudget?: boolean;
-  /** Optional bounded metadata inspector for large candidate inventories. Failures make the scan incomplete. */
-  inspectSource?: (path: string) => Promise<{ size: number; mtimeMs: number; ctimeMs: number }>;
+  /** Optional bounded inspector for large inventories. It may supply current source text to avoid a second read. Failures make the scan incomplete. */
+  inspectSource?: (path: string) => Promise<{ size: number; mtimeMs: number; ctimeMs: number; source?: string }>;
   onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
 
@@ -103,13 +103,15 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (info.size > limits.maxFileSizeBytes) return { info };
     if (options.skipSource?.(path, info)) return { info, omitted: true };
     const old = previous.get(path);
-    let verifiedSource: string | undefined; let verifiedHash: string | undefined;
+    let verifiedSource = 'source' in information && typeof information.source === 'string' ? information.source : undefined;
+    let verifiedHash: string | undefined;
     if (options.cache && old && old.size === info.size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs) {
-      if (options.verifyCachedSourceHash) {
-        try { verifiedSource = await readFile(path, 'utf8'); verifiedHash = createHash('sha256').update(verifiedSource).digest('hex'); }
+      const verifySource = options.verifyCachedSourceHash || verifiedSource !== undefined;
+      if (verifySource) {
+        try { verifiedSource ??= await readFile(path, 'utf8'); verifiedHash = createHash('sha256').update(verifiedSource).digest('hex'); }
         catch { return { info, readFailed: true }; }
       }
-      if (!options.verifyCachedSourceHash || verifiedHash === old.hash) {
+      if (!verifySource || verifiedHash === old.hash) {
         if (!options.cache.prepareRestore || options.shouldContinue?.() === false) return { info, hash: verifiedHash };
         try {
           const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();
@@ -117,7 +119,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
         } catch { return { info, hash: verifiedHash }; }
       }
     }
-    if (options.cache && !options.prepareSource) return verifiedSource ? { info, source: verifiedSource, hash: verifiedHash } : { info };
+    if (options.cache && !options.prepareSource) return verifiedSource !== undefined ? { info, source: verifiedSource, hash: verifiedHash } : { info };
     let source: string; try { source = verifiedSource ?? await readFile(path, 'utf8'); } catch { return { info, readFailed: true }; }
     if (!options.prepareSource || options.shouldContinue?.() === false) return { info, source, hash: verifiedHash };
     const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();
@@ -188,7 +190,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     try {
       const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString(); const old = previous.get(path); let restoreAttempted = false;
       if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs && options.cache
-        && (!options.verifyCachedSourceHash || prefetched?.hash === old.hash)) {
+        && (prefetched?.hash === undefined ? !options.verifyCachedSourceHash : prefetched.hash === old.hash)) {
         restoreAttempted = true;
         try {
           const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);

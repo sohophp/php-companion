@@ -11364,6 +11364,93 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 
+  it.each(['onDemand', 'progressive'])('returns the first import after a watcher supersedes initial project preparation in %s mode', async indexingMode => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-first-import-watch-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const source = '<?php namespace Destination; function create() { new Receipt(); }';
+      const sourcePath = join(root, 'src', 'Consumer.php'); await writeFile(sourcePath, source);
+      await Promise.all(Array.from({ length: 1000 }, (_, i) => writeFile(join(root, 'src', `Noise${i}.php`), `<?php namespace App; class Noise${i} {}`)));
+      const uri = pathToFileURL(sourcePath).toString(); let id = 101;
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true, testPauseNextQueries: ['indexProjectSource'] } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const first = request('phpCompanion/importCandidates', { textDocument: { uri },
+        position: lspPosition(source, source.indexOf('Receipt') + 2), name: 'Receipt', context: 'paste' });
+      const state = (): Promise<{ paused: boolean; epoch: number }> => request('phpCompanion/testQueryState', { method: 'indexProjectSource', uri });
+      let initial = await state(); const deadline = Date.now() + 10_000;
+      while (!initial.paused && Date.now() < deadline) { await new Promise(done => setTimeout(done, 10)); initial = await state(); }
+      expect(initial.paused).toBe(true);
+      const declarationPath = join(root, 'src', 'Receipt.php');
+      await writeFile(declarationPath, '<?php namespace App; class Receipt {}');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(declarationPath).toString(), type: 1 }],
+      } }));
+      let changed = await state();
+      while (changed.epoch === initial.epoch && Date.now() < deadline) { await new Promise(done => setTimeout(done, 10)); changed = await state(); }
+      expect(changed.epoch).toBeGreaterThan(initial.epoch);
+      expect(await request('phpCompanion/testReleaseQuery', { method: 'indexProjectSource' })).toBe(true);
+      expect(await first).toEqual([expect.objectContaining({ fqcn: 'App\\Receipt' })]);
+      expect(await readFile(sourcePath, 'utf8')).toBe(source);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
+  it.each(['onDemand', 'progressive'])('checks loaded disk declarations before the first copied import in %s mode', async indexingMode => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-first-import-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const declarationPath = join(root, 'src', 'Receipt.php');
+      const declaration = '<?php namespace App; class Receipt {}';
+      const sourcePath = join(root, 'src', 'Source.php');
+      const source = '<?php namespace App; use App\\Receipt as ProjectReceipt; function copied(ProjectReceipt $value) {}';
+      await writeFile(declarationPath, declaration); await writeFile(sourcePath, source);
+      await utimes(declarationPath, 1700000000, 1700000000);
+      const uri = pathToFileURL(sourcePath).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); let id = 101;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      expect(await request('textDocument/prepareRename', { textDocument: { uri },
+        position: lspPosition(source, source.indexOf('copied') + 2) })).toMatchObject({ placeholder: 'copied' });
+      await output.waitFor(message => message.method === 'window/logMessage' && message.params?.message?.includes('[index:1] end'));
+      const before = await stat(declarationPath);
+      await writeFile(declarationPath, declaration.replace('Receipt', 'Removed'));
+      await utimes(declarationPath, before.atimeMs / 1000, before.mtimeMs / 1000);
+      const changed = await stat(declarationPath);
+      expect(changed.size).toBe(before.size); expect(changed.mtimeMs).toBe(before.mtimeMs);
+      // The open, unsaved source remains authoritative even when its disk copy differs.
+      await writeFile(sourcePath, source.replaceAll('ProjectReceipt', 'ChangedReceipt'));
+      const params = { textDocument: { uri }, ranges: [{ start: lspPosition(source, source.indexOf('ProjectReceipt $')),
+        end: lspPosition(source, source.indexOf('ProjectReceipt $') + 'ProjectReceipt'.length) }] };
+      expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([]);
+      await writeFile(declarationPath, declaration);
+      await utimes(declarationPath, before.atimeMs / 1000, before.mtimeMs / 1000);
+      expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([
+        expect.objectContaining({ fqcn: 'App\\Receipt', alias: 'ProjectReceipt' }),
+      ]);
+      expect(await readFile(sourcePath, 'utf8')).toBe(source.replaceAll('ProjectReceipt', 'ChangedReceipt'));
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('resolves copied and pasted imports in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-default-imports-'));
     try {

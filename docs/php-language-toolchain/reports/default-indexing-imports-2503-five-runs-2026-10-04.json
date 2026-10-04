@@ -799,5 +799,1057 @@
       "deletionWithoutWatcherVerified": true,
       "planningDidNotWriteFiles": true
     }
-  ]
+  ],
+  "coldSourceReuseFollowup": {
+    "scope": "Cold Copy follow-up on uncommitted source after 4248e37; five cold processes per mode; only five hot controls per run; not a new 100-sample hot qualification",
+    "sourceHashes": {
+      "packages/language-server/src/server.ts": "6ff8d37a9cba52b152172651283b2df94f6160570d3384aeb87691cb460b3c3a",
+      "scripts/benchmark-paste-imports.mjs": "8f8eb372323190565ae458daa6cb69e4dcb511499b0f9229e5677c30f4be2242"
+    },
+    "cancelMeasured": false,
+    "runs": [
+      {
+        "mode": "onDemand",
+        "run": 1,
+        "cold": {
+          "copy": 3292.624205,
+          "candidates": 111.46902299999965,
+          "plan": 101.05158800000027,
+          "total": 3505.6367179999997
+        },
+        "firstSourceScanMs": 269.38172699999996,
+        "warmControlSamples": {
+          "copy": [91.31763299999966,92.55713199999991,90.56392600000072,122.70864100000017,97.21056700000008],
+          "candidates": [94.03855999999996,92.37557500000003,106.59480100000019,102.54316300000028,100.02555500000017],
+          "plan": [99.31450500000028,92.44870999999966,97.95240999999987,105.5866619999997,88.24367299999994],
+          "total": [284.8159219999998,277.6915319999998,295.20283199999994,330.96024099999977,285.55738699999984]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2082.73344,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2128.080216,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-41H3TD."
+          },
+          {
+            "atMs": 5090.485479,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-41H3TD; project indexing complete."
+          },
+          {
+            "atMs": 5091.379382,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-41H3TD; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5091.553344,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5091.557146,
+            "message": "[index:1] end elapsedMs=3015 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 2,
+        "cold": {
+          "copy": 3270.90066,
+          "candidates": 136.49810100000013,
+          "plan": 111.75290699999914,
+          "total": 3519.455976
+        },
+        "firstSourceScanMs": 241.34044499999982,
+        "warmControlSamples": {
+          "copy": [90.31839899999977,96.2044049999995,116.03486900000007,106.70172599999933,99.50888200000009],
+          "candidates": [103.73934300000019,101.95179499999995,111.6678979999997,88.08911700000044,98.43133099999977],
+          "plan": [96.30118000000039,95.51787100000001,109.75272399999994,90.81638599999951,99.88976699999967],
+          "total": [290.49193600000035,293.8812710000002,337.52340600000025,285.7076589999997,297.8875630000002]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2155.1871869999995,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2200.0678159999998,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-77WMaE."
+          },
+          {
+            "atMs": 5150.436395,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-77WMaE; project indexing complete."
+          },
+          {
+            "atMs": 5151.379201,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-77WMaE; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5151.560844,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5151.564687,
+            "message": "[index:1] end elapsedMs=3013 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 3,
+        "cold": {
+          "copy": 3153.2307550000005,
+          "candidates": 118.50124000000051,
+          "plan": 115.97834299999977,
+          "total": 3387.9081390000006
+        },
+        "firstSourceScanMs": 277.1623959999997,
+        "warmControlSamples": {
+          "copy": [98.82235900000069,96.40006200000062,89.90450000000055,97.44384600000012,100.0267960000001],
+          "candidates": [90.68771500000003,84.91931199999999,94.10122899999988,95.68073400000048,87.31716000000051],
+          "plan": [101.743606,88.03931099999954,88.10103999999956,96.73166399999991,117.93700600000011],
+          "total": [291.39352299999973,269.667829,272.1719830000002,289.92772800000057,305.34858799999984]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2071.534267,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2125.6748279999997,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-G6I0JP."
+          },
+          {
+            "atMs": 4931.924755,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-G6I0JP; project indexing complete."
+          },
+          {
+            "atMs": 4932.629017,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-G6I0JP; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4932.637078000001,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4932.832687,
+            "message": "[index:1] end elapsedMs=2868 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 4,
+        "cold": {
+          "copy": 3196.293872,
+          "candidates": 131.38985700000012,
+          "plan": 99.9579590000003,
+          "total": 3427.986715
+        },
+        "firstSourceScanMs": 254.59737899999982,
+        "warmControlSamples": {
+          "copy": [103.91665199999989,96.64482000000044,99.75800600000002,97.2225040000003,105.71848600000067],
+          "candidates": [106.84882199999993,99.53236000000015,108.05916799999977,97.35342400000081,90.73867399999926],
+          "plan": [88.49743399999988,103.23991600000045,99.55908799999997,108.31130699999994,100.6154430000006],
+          "total": [299.41060500000003,299.7372519999999,307.4796780000006,302.9820529999997,297.15823399999954]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2099.911508,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2138.172733,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-tzJM3i."
+          },
+          {
+            "atMs": 5025.645484999999,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-tzJM3i; project indexing complete."
+          },
+          {
+            "atMs": 5026.677328,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-tzJM3i; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5026.864981000001,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5026.869253999999,
+            "message": "[index:1] end elapsedMs=2935 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 5,
+        "cold": {
+          "copy": 3270.132541,
+          "candidates": 121.94404799999938,
+          "plan": 106.92789899999934,
+          "total": 3499.3026350000005
+        },
+        "firstSourceScanMs": 259.09486599999946,
+        "warmControlSamples": {
+          "copy": [102.9138469999998,106.62103599999955,93.11319999999978,101.79163900000003,105.87620799999968],
+          "candidates": [99.52175400000033,96.64648899999975,104.62555099999918,100.84190699999999,106.6211030000004],
+          "plan": [96.2151019999992,99.15518400000019,99.48983099999987,106.46954600000026,108.31773499999963],
+          "total": [298.8165399999998,302.73716499999955,297.32642099999975,309.2017370000003,320.89254099999926]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2303.053551,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2339.488216,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-ZuPQVY."
+          },
+          {
+            "atMs": 5304.731589999999,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-ZuPQVY; project indexing complete."
+          },
+          {
+            "atMs": 5306.070976999999,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-ZuPQVY; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5306.174883,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5306.177484,
+            "message": "[index:1] end elapsedMs=3010 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 1,
+        "cold": {
+          "copy": 3042.3176750000002,
+          "candidates": 112.26025200000004,
+          "plan": 98.18245000000024,
+          "total": 3253.212056
+        },
+        "firstSourceScanMs": 259.5044079999998,
+        "warmControlSamples": {
+          "copy": [87.55935899999986,93.98375000000033,96.92771799999991,114.3213310000001,98.85622500000045],
+          "candidates": [101.19015000000036,96.31183499999952,120.36597900000015,104.64095499999985,110.20267599999988],
+          "plan": [95.34244499999932,93.16132500000003,133.70892099999946,102.31691599999976,102.84666500000003],
+          "total": [284.2085310000002,283.79619600000024,351.10651599999983,321.41507999999976,311.9849119999999]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2349.15517,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2396.857056,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-DFkTaT."
+          },
+          {
+            "atMs": 5142.107932999999,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-DFkTaT files=2502"
+          },
+          {
+            "atMs": 5142.369801000001,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-DFkTaT; reference facts preparing."
+          },
+          {
+            "atMs": 5142.377071000001,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-DFkTaT."
+          },
+          {
+            "atMs": 5156.840198,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-DFkTaT; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5157.01132,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5157.014744,
+            "message": "[index:1] end elapsedMs=2796 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 2,
+        "cold": {
+          "copy": 3079.763855,
+          "candidates": 125.55427400000008,
+          "plan": 99.53962299999966,
+          "total": 3305.273845
+        },
+        "firstSourceScanMs": 246.98538999999982,
+        "warmControlSamples": {
+          "copy": [103.56971500000054,102.61503400000038,103.78624299999956,97.55873100000008,92.67210800000066],
+          "candidates": [101.39931299999989,94.28195999999934,91.89055199999984,96.74579699999958,97.62108799999987],
+          "plan": [98.4188520000007,98.89518899999985,98.27809900000011,102.81042799999977,99.53531900000053],
+          "total": [303.51681800000006,296.15414800000053,294.0538210000004,297.1999079999996,289.902325]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2209.938825,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2257.689387,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-3IKLAW."
+          },
+          {
+            "atMs": 5047.993780999999,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-3IKLAW files=2502"
+          },
+          {
+            "atMs": 5048.149337999999,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-3IKLAW; reference facts preparing."
+          },
+          {
+            "atMs": 5048.152733999999,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-3IKLAW."
+          },
+          {
+            "atMs": 5059.888096999999,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-3IKLAW; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5059.972672,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5060.042726,
+            "message": "[index:1] end elapsedMs=2843 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 3,
+        "cold": {
+          "copy": 3027.7463820000003,
+          "candidates": 123.71769199999926,
+          "plan": 91.92478500000016,
+          "total": 3243.591957
+        },
+        "firstSourceScanMs": 225.4318549999998,
+        "warmControlSamples": {
+          "copy": [94.70414700000038,90.67757200000051,108.40095400000064,88.043678,90.4710500000001],
+          "candidates": [94.74484499999926,86.70974700000079,113.89917499999956,98.28644299999996,88.85166600000048],
+          "plan": [93.2235040000005,110.65681800000038,92.65248899999915,84.099784,83.44590700000026],
+          "total": [282.7921040000001,288.2893100000001,315.04174299999977,270.54589599999963,262.8475779999999]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2225.130225,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2275.527121,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-Vb8LdR."
+          },
+          {
+            "atMs": 5032.777352,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-Vb8LdR files=2502"
+          },
+          {
+            "atMs": 5032.977882,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-Vb8LdR; reference facts preparing."
+          },
+          {
+            "atMs": 5033.053159,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-Vb8LdR."
+          },
+          {
+            "atMs": 5045.423863999999,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-Vb8LdR; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5045.517734999999,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5045.519308,
+            "message": "[index:1] end elapsedMs=2811 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 4,
+        "cold": {
+          "copy": 3075.8655479999998,
+          "candidates": 112.8538639999997,
+          "plan": 101.1417449999999,
+          "total": 3290.1495409999998
+        },
+        "firstSourceScanMs": 226.46747400000004,
+        "warmControlSamples": {
+          "copy": [104.81788500000039,97.24527000000035,86.62328900000011,89.31690400000025,92.94855999999982],
+          "candidates": [96.04752199999984,107.6907169999995,100.75636099999974,91.92580099999941,100.02195099999972],
+          "plan": [93.37157900000057,98.01229700000022,90.3373760000004,90.43633099999988,109.7575280000001],
+          "total": [294.37524200000007,303.250951,277.8167480000002,271.76543799999945,302.9032020000004]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2138.264961,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2191.96443,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-nsjbVR."
+          },
+          {
+            "atMs": 4988.178617,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-nsjbVR files=2502"
+          },
+          {
+            "atMs": 4988.498382,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-nsjbVR; reference facts preparing."
+          },
+          {
+            "atMs": 4988.656715,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-nsjbVR."
+          },
+          {
+            "atMs": 5000.008307,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-nsjbVR; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5000.097592,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5000.164648,
+            "message": "[index:1] end elapsedMs=2854 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 5,
+        "cold": {
+          "copy": 3219.865028,
+          "candidates": 146.4563360000002,
+          "plan": 108.74402800000007,
+          "total": 3475.457708
+        },
+        "firstSourceScanMs": 270.2492890000003,
+        "warmControlSamples": {
+          "copy": [91.90012000000024,101.20906200000081,104.00275500000043,95.18247100000008,100.27110900000025],
+          "candidates": [103.37298499999997,100.01720299999943,101.26346000000012,98.75778200000059,106.29746199999954],
+          "plan": [104.27897900000062,109.42942500000026,102.44187300000067,114.98331800000051,96.19610999999986],
+          "total": [299.6880220000003,311.0243850000006,307.80401099999926,309.01366899999994,302.83533700000044]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2055.035758,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2097.6073220000003,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-Bvjh38."
+          },
+          {
+            "atMs": 5001.68551,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-Bvjh38 files=2502"
+          },
+          {
+            "atMs": 5001.895091,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-Bvjh38; reference facts preparing."
+          },
+          {
+            "atMs": 5001.902923,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-Bvjh38."
+          },
+          {
+            "atMs": 5003.53612,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-Bvjh38; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 5003.61884,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 5003.69674,
+            "message": "[index:1] end elapsedMs=2951 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      }
+    ],
+    "coldCopyByMode": {
+      "onDemand": {
+        "samples": 5,
+        "values": [3292.624205,3270.90066,3153.2307550000005,3196.293872,3270.132541],
+        "median": 3270.132541,
+        "min": 3153.2307550000005,
+        "max": 3292.624205,
+        "previousMedian": 3889.903294,
+        "reductionPercent": 15.93280619484727,
+        "firstSourceScanValues": [269.38172699999996,241.34044499999982,277.1623959999997,254.59737899999982,259.09486599999946],
+        "firstSourceScanMedian": 259.09486599999946
+      },
+      "progressive": {
+        "samples": 5,
+        "values": [3042.3176750000002,3079.763855,3027.7463820000003,3075.8655479999998,3219.865028],
+        "median": 3075.8655479999998,
+        "min": 3027.7463820000003,
+        "max": 3219.865028,
+        "previousMedian": 3752.9154329999997,
+        "reductionPercent": 18.040637927691883,
+        "firstSourceScanValues": [259.5044079999998,246.98538999999982,225.4318549999998,226.46747400000004,270.2492890000003],
+        "firstSourceScanMedian": 246.98538999999982
+      }
+    }
+  },
+  "projectSourceReadFollowup": {
+    "scope": "Final bounded Worker source reads and first preparation epoch retry; five cold processes per mode; five hot controls per run, not a 100-sample hot qualification",
+    "sourceHashes": {
+      "packages/language-server/src/server.ts": "c1cd27ff804119d84dc51bed32abbf7be66b4c06a9a7a1d65962ae7aee40769b",
+      "packages/language-server/src/sourceStatWorker.ts": "c392b071a923bc1620dd61b261bbad40402c60d20cb7c6e6bb0469e096893963",
+      "packages/language-server/src/sourceStatBatches.ts": "283fec5eaa98ce3d9dccb5458ddacdb5c4439be342fb964af9968bf0580921a3",
+      "packages/index/src/index.ts": "17cc8e62f0ef1d96200ac6686d465c4d9e1d91c413d87418cbf21c6672c86a72",
+      "scripts/benchmark-paste-imports.mjs": "8f8eb372323190565ae458daa6cb69e4dcb511499b0f9229e5677c30f4be2242"
+    },
+    "cancelMeasured": false,
+    "rssMeasured": false,
+    "runs": [
+      {
+        "mode": "onDemand",
+        "run": 1,
+        "cold": {
+          "copy": 2062.038425,
+          "candidates": 109.95841100000052,
+          "plan": 89.94091500000013,
+          "total": 2262.3862350000004
+        },
+        "firstSourceScanMs": 149.7989459999999,
+        "warmControlSamples": {
+          "copy": [92.81714699999975,90.76190099999985,107.56022800000028,108.37881199999993,83.36002899999949],
+          "candidates": [85.04031200000009,82.15396500000043,105.15602000000035,97.37711899999977,90.76947100000052],
+          "plan": [94.56555800000024,99.50247500000023,106.9844809999995,90.43496799999957,85.81621099999938],
+          "total": [272.5786539999999,272.72773899999993,319.78133700000035,296.28947100000005,260.0259449999994]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2565.013123,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2615.750398,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-JxnVXz."
+          },
+          {
+            "atMs": 4458.800174999999,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-JxnVXz; project indexing complete."
+          },
+          {
+            "atMs": 4459.570293999999,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-JxnVXz; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4459.577799,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4459.579742999999,
+            "message": "[index:1] end elapsedMs=1904 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 2,
+        "cold": {
+          "copy": 1928.3311780000004,
+          "candidates": 100.69082799999978,
+          "plan": 102.21844299999975,
+          "total": 2131.5857700000006
+        },
+        "firstSourceScanMs": 153.0518280000001,
+        "warmControlSamples": {
+          "copy": [105.51158699999996,98.68252800000027,86.95023700000002,86.5587170000008,82.09567599999991],
+          "candidates": [100.14693299999999,89.56738399999995,81.35094400000071,82.02270200000021,76.9461940000001],
+          "plan": [94.05329800000072,78.21536299999934,87.11839299999974,85.58778699999948,80.7928179999999],
+          "total": [299.83090100000027,266.89908099999957,255.48017700000037,254.3246480000007,239.9129980000007]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2233.996533,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2268.909138,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-zPQdUr."
+          },
+          {
+            "atMs": 3991.6490430000003,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-zPQdUr; project indexing complete."
+          },
+          {
+            "atMs": 3992.545532,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-zPQdUr; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 3992.607819,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 3992.6716450000004,
+            "message": "[index:1] end elapsedMs=1766 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 3,
+        "cold": {
+          "copy": 2004.9396299999999,
+          "candidates": 108.19199599999956,
+          "plan": 106.0457379999998,
+          "total": 2219.464626
+        },
+        "firstSourceScanMs": 177.9067759999998,
+        "warmControlSamples": {
+          "copy": [107.93276100000003,94.64955399999963,92.23776600000019,97.43027400000028,96.50770999999986],
+          "candidates": [98.0359410000001,95.89803399999983,86.83119100000022,82.13861499999985,85.76106499999969],
+          "plan": [89.77349000000049,82.34096200000022,87.98495700000058,88.31113099999948,83.80567499999961],
+          "total": [295.974338,273.21496899999966,267.1527390000001,267.9643220000007,266.1656090000006]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2469.443576,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2504.385826,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-ItiXwn."
+          },
+          {
+            "atMs": 4280.367781000001,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-ItiXwn; project indexing complete."
+          },
+          {
+            "atMs": 4281.15661,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-ItiXwn; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4281.165073,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4281.290913999999,
+            "message": "[index:1] end elapsedMs=1819 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 4,
+        "cold": {
+          "copy": 1934.3482370000002,
+          "candidates": 103.08922799999982,
+          "plan": 100.17368400000032,
+          "total": 2137.9954110000003
+        },
+        "firstSourceScanMs": 176.43292800000017,
+        "warmControlSamples": {
+          "copy": [95.31140099999993,103.38473799999974,112.81946200000039,100.2839039999999,100.64276400000017],
+          "candidates": [106.59041499999967,104.44061899999997,104.78182100000049,94.04912599999989,85.51249899999948],
+          "plan": [98.79230400000051,104.53145399999994,93.08680900000036,94.78270200000043,97.98346200000015],
+          "total": [300.85175700000036,312.6528580000004,310.78352300000006,289.22178799999983,284.20946000000004]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2185.113801,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2222.740029,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-qFeP3A."
+          },
+          {
+            "atMs": 3924.2154490000003,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-qFeP3A; project indexing complete."
+          },
+          {
+            "atMs": 3924.9317980000005,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-qFeP3A; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 3924.9395560000003,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 3924.941337,
+            "message": "[index:1] end elapsedMs=1748 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "onDemand",
+        "run": 5,
+        "cold": {
+          "copy": 1973.897883,
+          "candidates": 121.97539399999914,
+          "plan": 104.68849499999942,
+          "total": 2200.891327
+        },
+        "firstSourceScanMs": 170.66199599999982,
+        "warmControlSamples": {
+          "copy": [101.07845799999996,88.41122399999949,98.05687299999954,102.35822899999948,88.54506399999991],
+          "candidates": [105.61739200000011,90.94775500000014,91.3307879999993,92.55870800000048,101.04583699999966],
+          "plan": [102.12688100000014,96.10938199999964,94.00061800000003,93.77288399999998,98.94507299999987],
+          "total": [308.96583700000065,275.76649799999996,283.4529249999996,288.7896959999998,288.6141399999997]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2213.110603,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2259.597403,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-LWJvGl."
+          },
+          {
+            "atMs": 4000.1680690000003,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-LWJvGl; project indexing complete."
+          },
+          {
+            "atMs": 4001.109375,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-LWJvGl; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4001.1142609999997,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4001.1152760000004,
+            "message": "[index:1] end elapsedMs=1796 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 1,
+        "cold": {
+          "copy": 1984.6129409999999,
+          "candidates": 115.99742400000014,
+          "plan": 104.06303099999968,
+          "total": 2204.9832899999997
+        },
+        "firstSourceScanMs": 195.41102,
+        "warmControlSamples": {
+          "copy": [100.94738000000052,98.5708969999996,90.72480300000007,95.1230599999999,93.04316000000017],
+          "candidates": [102.11538000000019,95.16479900000013,95.0637999999999,97.28647199999978,95.28192099999978],
+          "plan": [99.68958099999963,97.7577309999997,94.20959399999992,97.2278839999999,103.04256900000019],
+          "total": [302.9061240000001,291.82245500000045,280.0982819999999,289.7353950000006,291.45613800000046]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2093.356521,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2136.299207,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-r0Yujv."
+          },
+          {
+            "atMs": 3880.6201050000004,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-r0Yujv files=2502"
+          },
+          {
+            "atMs": 3880.6329440000004,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-r0Yujv; reference facts preparing."
+          },
+          {
+            "atMs": 3880.638233,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-r0Yujv."
+          },
+          {
+            "atMs": 3881.439521,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-r0Yujv; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 3881.589735,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 3881.7131670000003,
+            "message": "[index:1] end elapsedMs=1791 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 2,
+        "cold": {
+          "copy": 2310.839893,
+          "candidates": 138.84704799999963,
+          "plan": 122.54189099999985,
+          "total": 2572.6592430000005
+        },
+        "firstSourceScanMs": 244.7313640000002,
+        "warmControlSamples": {
+          "copy": [109.76701899999989,104.47598500000004,119.06535799999983,115.16857999999957,116.14363199999934],
+          "candidates": [122.87565499999982,116.69566500000019,139.10734899999989,118.25526600000012,119.36800399999993],
+          "plan": [110.01117599999998,120.05875000000015,111.6248659999992,132.97373900000002,114.64536899999985],
+          "total": [342.80633300000045,341.4958859999997,369.89714599999934,366.4740190000002,350.22607999999946]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2174.809216,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2227.29493,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-Cq7Osm."
+          },
+          {
+            "atMs": 4238.404287,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-Cq7Osm files=2502"
+          },
+          {
+            "atMs": 4238.655472,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-Cq7Osm; reference facts preparing."
+          },
+          {
+            "atMs": 4238.823676,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-Cq7Osm."
+          },
+          {
+            "atMs": 4239.994669000001,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-Cq7Osm; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4240.178013000001,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4240.180846,
+            "message": "[index:1] end elapsedMs=2069 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 3,
+        "cold": {
+          "copy": 2333.328554,
+          "candidates": 134.7918840000002,
+          "plan": 104.69222700000046,
+          "total": 2573.1921239999997
+        },
+        "firstSourceScanMs": 231.91088200000013,
+        "warmControlSamples": {
+          "copy": [107.6138690000007,97.90748899999926,93.71127700000034,97.6673780000001,98.32099800000015],
+          "candidates": [121.94734599999992,95.91302300000007,102.2608250000003,101.8177770000002,123.51713600000039],
+          "plan": [107.31845700000031,109.34530499999983,97.3934960000006,92.29507199999989,103.07823399999961],
+          "total": [336.9993290000002,303.57506399999966,293.4597080000003,291.8994039999998,325.03935699999965]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2167.745085,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2212.540945,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-gIHCZV."
+          },
+          {
+            "atMs": 4293.562765,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-gIHCZV files=2502"
+          },
+          {
+            "atMs": 4293.827835,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-gIHCZV; reference facts preparing."
+          },
+          {
+            "atMs": 4293.831416,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-gIHCZV."
+          },
+          {
+            "atMs": 4303.543125,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-gIHCZV; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4303.672439,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4303.675721,
+            "message": "[index:1] end elapsedMs=2129 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 4,
+        "cold": {
+          "copy": 1967.6330480000001,
+          "candidates": 111.25737500000014,
+          "plan": 102.41401899999983,
+          "total": 2181.593272
+        },
+        "firstSourceScanMs": 184.98713899999984,
+        "warmControlSamples": {
+          "copy": [110.31850099999974,97.34577300000001,99.4963800000005,98.64213899999959,99.86656800000037],
+          "candidates": [98.12760899999921,112.49843799999962,99.86606400000073,89.26937799999996,96.75319300000046],
+          "plan": [101.79268100000081,92.26332699999966,99.55620999999974,99.04914499999995,95.8371959999995],
+          "total": [310.3678719999998,302.36022500000036,299.0170099999996,287.0618220000006,292.5308840000007]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2213.379403,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2277.972039,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-S2oGGD."
+          },
+          {
+            "atMs": 4016.4182109999997,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-S2oGGD files=2502"
+          },
+          {
+            "atMs": 4016.561908,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-S2oGGD; reference facts preparing."
+          },
+          {
+            "atMs": 4016.638391,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-S2oGGD."
+          },
+          {
+            "atMs": 4026.7454220000004,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-S2oGGD; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4026.8206370000003,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4026.870878,
+            "message": "[index:1] end elapsedMs=1806 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      },
+      {
+        "mode": "progressive",
+        "run": 5,
+        "cold": {
+          "copy": 2184.475222,
+          "candidates": 120.33724699999948,
+          "plan": 123.38365700000031,
+          "total": 2428.5151760000003
+        },
+        "firstSourceScanMs": 196.30982199999926,
+        "warmControlSamples": {
+          "copy": [112.16970500000025,104.54934199999934,98.50876900000003,100.02247500000067,103.0815590000002],
+          "candidates": [114.25667299999986,102.59014300000035,106.61558499999956,102.66134000000056,106.38391499999943],
+          "plan": [114.84590500000013,96.89618700000028,99.43498499999987,108.59656900000027,102.91648700000042],
+          "total": [341.37191600000006,304.3220430000001,304.6793629999993,311.3698950000007,312.4551389999997]
+        },
+        "backgroundMessages": [
+          {
+            "atMs": 2216.433552,
+            "message": "[index:1] start reason=semantic-query"
+          },
+          {
+            "atMs": 2381.328795,
+            "message": "Loaded Composer project snapshot for /tmp/sophp-paste-imports-4ugKNA."
+          },
+          {
+            "atMs": 4217.098101,
+            "message": "[reference-progressive] light ready root=/tmp/sophp-paste-imports-4ugKNA files=2502"
+          },
+          {
+            "atMs": 4217.210066,
+            "message": "Project source index ready with 2502 PHP files in /tmp/sophp-paste-imports-4ugKNA; reference facts preparing."
+          },
+          {
+            "atMs": 4217.274372,
+            "message": "Reference source facts ready in /tmp/sophp-paste-imports-4ugKNA."
+          },
+          {
+            "atMs": 4230.3543230000005,
+            "message": "Indexed 2502 PHP files (216565 bytes, 0 cached) from /tmp/sophp-paste-imports-4ugKNA; complete=false; deferred implementations=0."
+          },
+          {
+            "atMs": 4230.431853,
+            "message": "[index:restore-timing] {\"validateMs\":0,\"summaryMs\":0,\"semanticMs\":0,\"factsMs\":0,\"count\":0}"
+          },
+          {
+            "atMs": 4230.493943,
+            "message": "[index:1] end elapsedMs=2005 pending=0"
+          }
+        ],
+        "deletionWithoutWatcherVerified": true,
+        "planningDidNotWriteFiles": true
+      }
+    ],
+    "coldCopyByMode": {
+      "onDemand": {
+        "samples": 5,
+        "values": [2062.038425,1928.3311780000004,2004.9396299999999,1934.3482370000002,1973.897883],
+        "median": 1973.897883,
+        "min": 1928.3311780000004,
+        "max": 2062.038425,
+        "previousMedian": 3270.132541,
+        "reductionFromLoadedReusePercent": 39.63859696046491,
+        "originalMedian": 3889.903294,
+        "reductionFromOriginalPercent": 49.25586232324469
+      },
+      "progressive": {
+        "samples": 5,
+        "values": [1984.6129409999999,2310.839893,2333.328554,1967.6330480000001,2184.475222],
+        "median": 2184.475222,
+        "min": 1967.6330480000001,
+        "max": 2333.328554,
+        "previousMedian": 3075.8655479999998,
+        "reductionFromLoadedReusePercent": 28.980145981335326,
+        "originalMedian": 3752.9154329999997,
+        "reductionFromOriginalPercent": 41.79258070161795
+      }
+    }
+  }
 }

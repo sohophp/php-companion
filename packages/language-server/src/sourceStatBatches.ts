@@ -65,12 +65,12 @@ export class SourceStatBatches {
 
   constructor(private readonly shouldContinue: () => boolean = () => true,
     private readonly workerPath = resolve(dirname(process.argv[1] ?? ''), 'sourceStatWorker.js'),
-    private readonly verification?: { expectedHash: (path: string) => string | undefined; maxSourceBytes: number }) {}
+    private readonly verification?: { expectedHash?: (path: string) => string | undefined; maxSourceBytes: number; readSource?: boolean }) {}
 
   inspect = (path: string): Promise<SourceStamp> => {
     if (!this.shouldContinue()) this.fail();
     if (this.failed) return Promise.reject(new Error('Source metadata worker failed.'));
-    const expectedHash = this.verification?.expectedHash(path);
+    const expectedHash = this.verification?.expectedHash?.(path);
     if (!this.worker) {
       try {
         const lease = leaseSourceStatWorker(this.workerPath);
@@ -82,10 +82,15 @@ export class SourceStatBatches {
         this.poll.unref();
       } catch {
         // Synchronous worker creation failure uses ordinary async stat, preserving completeness checks.
-        return stat(path).then(async ({ size, mtimeMs, ctimeMs }) => ({ size, mtimeMs, ctimeMs,
-          matchesHash: expectedHash && size <= this.verification!.maxSourceBytes
-            ? createHash('sha256').update(await readFile(path)).digest('hex') === expectedHash : undefined,
-        }));
+        return stat(path).then(async ({ size, mtimeMs, ctimeMs }) => {
+          const data = (expectedHash || this.verification?.readSource) && size <= this.verification!.maxSourceBytes
+            ? await readFile(path) : undefined;
+          const bytes = data?.length ?? size;
+          const withinBudget = bytes <= (this.verification?.maxSourceBytes ?? 0);
+          return { size: bytes, mtimeMs, ctimeMs,
+            matchesHash: expectedHash && data && withinBudget ? createHash('sha256').update(data).digest('hex') === expectedHash : undefined,
+            source: this.verification?.readSource && data && withinBudget ? data.toString('utf8') : undefined };
+        });
       }
     }
     return new Promise<SourceStamp>((done, reject) => {
@@ -106,7 +111,8 @@ export class SourceStatBatches {
       const id = ++nextSourceStatBatchId;
       this.pending.set(id, batch);
       try { this.worker.postMessage({ id, cancelBuffer: this.cancelFlag.buffer, paths: batch.map(({ path }) => path),
-        expectedHashes: batch.map(({ expectedHash }) => expectedHash), maxSourceBytes: this.verification?.maxSourceBytes }); }
+        expectedHashes: batch.map(({ expectedHash }) => expectedHash), maxSourceBytes: this.verification?.maxSourceBytes,
+        readSource: this.verification?.readSource }); }
       catch { this.fail(); return; }
     }
   }

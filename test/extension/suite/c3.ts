@@ -78,6 +78,15 @@ async function verifyConstructorImportAccept(folder: vscode.WorkspaceFolder, api
   const paste = await vscode.commands.executeCommand<Array<{ text: string; imports: string[] }> | undefined>(
     'phpCompanion._testPasteImportEdits', uri, 'new C3ImportConstructor()', position);
   console.log(`C3 constructor first Provider result: ${JSON.stringify(paste)}; wait=${Date.now() - pasteStarted}ms`);
+  if (!paste?.length) {
+    console.log(`C3 first Provider failure evidence: ${JSON.stringify({
+      timings: await api.requestLanguageServer('phpCompanion/testQueryTimings', {}),
+      version: document.version, dirty: document.isDirty,
+      candidatesAfterFailure: await api.requestLanguageServer('phpCompanion/importCandidates', {
+        textDocument: { uri: uri.toString() }, position, name: 'C3ImportConstructor', context: 'paste',
+      }),
+    })}`);
+  }
   assert.ok(paste?.some(item => item.imports.some(text => text.includes('use App\\Service\\C3ImportConstructor;'))),
     'Actual Paste Provider omitted the constructor import');
   assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.resolvePastedImports'), true,

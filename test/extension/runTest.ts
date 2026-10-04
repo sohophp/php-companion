@@ -41,6 +41,11 @@ async function main(): Promise<void> {
   if (c3IndexingMode && (!c3Only || !['onDemand', 'progressive', 'experimental'].includes(c3IndexingMode))) {
     throw new Error('C3 indexing mode requires C3-only mode and onDemand, progressive or experimental.');
   }
+  const c3ProjectNoise = Number(process.env.PHP_COMPANION_TEST_C3_PROJECT_NOISE ?? 0);
+  if (!Number.isSafeInteger(c3ProjectNoise) || c3ProjectNoise < 0 || c3ProjectNoise > 8_000
+    || c3ProjectNoise > 0 && (!c3Only || process.env.PHP_COMPANION_TEST_C3_FIRST_IMPORT_ONLY !== '1')) {
+    throw new Error('C3 project noise requires first-import-only mode and an integer from 0 to 8,000.');
+  }
   const routeStatusOnly = process.env.PHP_COMPANION_TEST_ROUTE_STATUS_ONLY === '1';
   const symfonyContextOnly = process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ONLY === '1';
   const c3OpenSourceProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
@@ -59,6 +64,16 @@ async function main(): Promise<void> {
   }
   const fixture = await mkdtemp(join(tmpdir(), 'php-companion-extension-'));
   await cp(sourceFixture, fixture, { recursive: true });
+  if (c3ProjectNoise) {
+    const directory = join(fixture, 'src', 'C3Noise'); await mkdir(directory, { recursive: true });
+    for (let offset = 0; offset < c3ProjectNoise; offset += 64) {
+      await Promise.all(Array.from({ length: Math.min(64, c3ProjectNoise - offset) }, (_, index) => {
+        const name = `Noise${offset + index}`;
+        return writeFile(join(directory, `${name}.php`), `<?php namespace App\\C3Noise; final class ${name} { public function run(): int { return 1; } }`);
+      }));
+    }
+    console.log(`C3 isolated project: added ${c3ProjectNoise} PHP noise files before activation`);
+  }
   if (process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ON_DEMAND === '1' || c3IndexingMode) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;

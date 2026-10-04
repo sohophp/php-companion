@@ -1713,6 +1713,9 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   const doctrinePropertyFiles = new Map<string, DoctrineAssociationPropertyFact[]>();
   const doctrineRepositoryLookupFiles = new Map<string, DoctrineRepositoryLookupFact[]>();
   let sourceReadyTask: Promise<void> | undefined;
+  const sourceReads = new SourceStatBatches(continueIndexing, undefined, {
+    readSource: true, maxSourceBytes: indexLimits.maxFileSizeBytes,
+  });
   const syntaxParser = await parser();
   const acceptFacts = (uri: string, facts: ProjectPhpFileFacts): void => {
     if (facts.doctrineMethods.length) doctrineFiles.set(uri, facts.doctrineMethods);
@@ -1723,6 +1726,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     project,
     limits: indexLimits,
     readConcurrency: sourceOnly ? 128 : 32,
+    inspectSource: sourceReads.inspect,
     verifyCachedSourceHash: sourceOnly,
     onProgress: (progress): void => {
       if (preparation) { preparation.files = progress.files; preparation.total = progress.total; }
@@ -1735,6 +1739,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
       uri, source, hash, names: [], mode: 'symbol', deferBodies: false, forceFull: true, includeProjectFacts: true,
     }) : undefined,
     onSource: async ({ uri, path, source, hash, prepared }) => {
+      if (testPauseNextQueries.has('indexProjectSource')) await pauseTestQuery('indexProjectSource');
       if (projectCompleteRoots.has(root) && testPauseNextQueries.has('indexDependencySource')) await pauseTestQuery('indexDependencySource');
       lightEntries?.set(resolve(path), { hash, summary: createSourceCandidateSummary(source, false) });
       const open = documents.all().find((document) => sameFilesystemPath(pathForUri(document.uri), path)); const effectiveSource = open?.getText() ?? source;
@@ -1838,7 +1843,7 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   }).finally(() => {
     sourceWorkers?.dispose();
     if (referenceSourceWorkers === sourceWorkers) referenceSourceWorkers = undefined;
-  });
+  }).finally(() => sourceReads.close());
   if (result.projectComplete && continueIndexing()) {
     projectCompleteRoots.add(root);
     for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
@@ -2783,10 +2788,11 @@ async function ensureCompleteRoot(root: string, isCancellationRequested: () => b
   return !isCancellationRequested() && completeRoots.has(root);
 }
 
-async function ensureProjectCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
+async function ensureProjectCompleteRoot(root: string, isCancellationRequested: () => boolean, retries = 1): Promise<boolean> {
   if (indexingMode === 'off') return false;
   await watchedFileChanges;
   if (projectCompleteRoots.has(root)) { await applyPendingFiles(); return !isCancellationRequested(); }
+  const epoch = projectEpochs.get(root) ?? 0;
   const indexing = activeIndexing ?? startIndexWorkspace();
   if (!projectCompleteRoots.has(root)) await new Promise<void>((resolveReady) => {
     const waiters = projectCompleteWaiters.get(root) ?? new Set<() => void>(); projectCompleteWaiters.set(root, waiters);
@@ -2796,6 +2802,13 @@ async function ensureProjectCompleteRoot(root: string, isCancellationRequested: 
     void indexing.then(finish, finish);
     if (projectCompleteRoots.has(root)) finish();
   });
+  if (!isCancellationRequested() && !projectCompleteRoots.has(root) && retries > 0
+    && (projectEpochs.get(root) ?? 0) !== epoch) {
+    // A watcher may supersede the first preparation while the caller waits.
+    // Retry that changed source once; unchanged budget failures stay closed.
+    await indexing;
+    if (!isCancellationRequested()) return ensureProjectCompleteRoot(root, isCancellationRequested, retries - 1);
+  }
   return !isCancellationRequested() && projectCompleteRoots.has(root);
 }
 
@@ -4093,7 +4106,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
     for (const method of initialization.testPauseNextQueries) {
-      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource'].includes(method)) testPauseNextQueries.add(method);
+      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource'].includes(method)) testPauseNextQueries.add(method);
     }
   }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
@@ -4170,9 +4183,10 @@ connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unkn
   return true;
 });
 
-connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown; uri?: unknown }): { paused: boolean; version: number | null } | null => {
+connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown; uri?: unknown }): { paused: boolean; version: number | null; epoch?: number } | null => {
   if (!testMode || typeof params?.method !== 'string' || typeof params.uri !== 'string') return null;
-  return { paused: testPausedQueries.has(params.method), version: documents.get(params.uri)?.version ?? null };
+  return { paused: testPausedQueries.has(params.method), version: documents.get(params.uri)?.version ?? null,
+    ...(params.method === 'indexProjectSource' ? { epoch: projectEpochs.get(rootForUri(params.uri) ?? '') ?? 0 } : {}) };
 });
 
 connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknown }): boolean => {
@@ -7862,12 +7876,21 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
   const selectedNames = typeNames ? [...typeNames] : undefined;
   const reuseChecks = Boolean(selectedNames || captureVerifiedSource);
   const previousChecks = reuseChecks ? verifiedDiskSources.get(workspace) : undefined;
+  const loadedChecks = new Map<string, Pick<VerifiedDiskSource, 'source' | 'hash'>>();
   const nextChecks = reuseChecks ? new Map<string, VerifiedDiskSource>() : undefined;
   const verifiedSources = reuseChecks ? new Map<string, string | undefined>() : undefined;
   const inspected = new Map<string, Omit<VerifiedDiskSource, 'source' | 'hash'> & { matchesHash?: boolean }>();
   const refreshStarted = testMode ? performance.now() : 0;
   const statBatches = new SourceStatBatches(() => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
-    undefined, reuseChecks ? { expectedHash: (path: string): string | undefined => previousChecks?.get(path)?.hash,
+    undefined, reuseChecks ? { expectedHash: (path: string): string | undefined => {
+      const known = previousChecks?.get(path); if (known) return known.hash;
+      // Already indexed text is only a candidate: the worker must still hash
+      // the current disk bytes before the first refactor can reuse it.
+      const source = workspace.source(indexedUriForPath(root, path));
+      if (source === undefined) return undefined;
+      const candidate = { source, hash: createHash('sha256').update(source).digest('hex') };
+      loadedChecks.set(path, candidate); return candidate.hash;
+    },
       maxSourceBytes: indexLimits.maxFileSizeBytes } : undefined);
   const scan = await indexComposerSources(root, {
     project, includeDependencies: true, limits: indexLimits,
@@ -7876,7 +7899,10 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       const stamp = await statBatches.inspect(path); inspected.set(path, stamp); return stamp;
     },
     skipSource: reuseChecks ? (path, info): boolean => {
-      const known = previousChecks?.get(path); if (!known) return false;
+      const stamp = inspected.get(path);
+      const loaded = loadedChecks.get(path);
+      const known = previousChecks?.get(path) ?? (stamp && loaded ? { ...stamp, ...loaded } : undefined);
+      if (!known) return false;
       // Metadata can collide after rapid equal-size writes with restored mtime.
       // Reuse only after the worker verifies the actual bytes as well.
       if (inspected.get(path)?.matchesHash !== true) return false;
