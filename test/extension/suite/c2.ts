@@ -1509,10 +1509,10 @@ function c2ParseUrl(string $url): void {
   console.log('C2 parse_url shape, unsaved component Hover and Undo/Redo passed');
 }
 
-async function verifyMatchConditions(root: vscode.Uri): Promise<void> {
+async function verifyMatchConditions(root: vscode.Uri, switchConditions = false): Promise<void> {
   const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2MatchConditions.php');
   const sourceFor = (type: string): string => `<?php enum C2MatchStatus { case Ready; case Waiting; }
-function choose(${type} $status): string { return match($status) { rea => "x", default => "y" }; }`;
+function choose(${type} $status): string { ${switchConditions ? 'switch($status) { case rea: return "x"; default: return "y"; }' : 'return match($status) { rea => "x", default => "y" };'} }`;
   const original = sourceFor('C2MatchStatus');
   await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
   const document = await vscode.workspace.openTextDocument(uri);
@@ -1544,7 +1544,7 @@ function choose(${type} $status): string { return match($status) { rea => "x", d
   await vscode.commands.executeCommand('undo'); await completion(true);
   await vscode.commands.executeCommand('redo'); await completion(false);
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), original);
-  console.log('C2 match conditions: current enum values, replacement range, unsaved type change and Undo/Redo passed');
+  console.log(`C2 ${switchConditions ? 'switch' : 'match'} conditions: current enum values, replacement range, unsaved type change and Undo/Redo passed`);
 }
 
 export async function run(): Promise<void> {
@@ -1554,8 +1554,9 @@ export async function run(): Promise<void> {
   assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', root.uri).get('phpVersion'), '8.5');
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load.');
-  if (process.env.PHP_COMPANION_TEST_C2_MATCH_CONDITION_ONLY === '1') {
-    await extension.activate(); await verifyMatchConditions(root.uri); return;
+  if (process.env.PHP_COMPANION_TEST_C2_MATCH_CONDITION_ONLY === '1'
+    || process.env.PHP_COMPANION_TEST_C2_SWITCH_CONDITION_ONLY === '1') {
+    await extension.activate(); await verifyMatchConditions(root.uri, process.env.PHP_COMPANION_TEST_C2_SWITCH_CONDITION_ONLY === '1'); return;
   }
   if (process.env.PHP_COMPANION_TEST_C2_PROTECTED_FAMILY_ONLY === '1') {
     await extension.activate(); await verifyProtectedFamily(root.uri); return;

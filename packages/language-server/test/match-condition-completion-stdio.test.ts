@@ -90,6 +90,7 @@ function choose(${type} $status): string { return match($status) { rea${tail ? '
         expect(item).toBeDefined(); expect(items[0].label).toBe('Status::Ready');
         expect(item.textEdit.range).toEqual({ start: lspPosition(source, offset - 3), end: lspPosition(source, offset + (tail ? 0 : 2)) });
         expect(item.textEdit.newText).toBe('Status::Ready');
+        expect(item.filterText).toBe('ready');
       } else expect(item).toBeUndefined();
     }
     expect(await readFile(path, 'utf8')).toBe(original); await request('shutdown', {}); notify('exit', {});

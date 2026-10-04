@@ -4406,7 +4406,7 @@ export class SemanticWorkspace {
   }
 
   private completionValuePosition(file: SemanticFile, start: number, offset: number,
-    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; matchCondition?: boolean; type?: PhpType } | undefined {
+    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; comparisonCondition?: boolean; type?: PhpType } | undefined {
     const retainedTree = recoveredTree ?? this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
@@ -4419,9 +4419,10 @@ export class SemanticWorkspace {
         // have already stopped at their own arguments; coalescing keeps its values.
         if (node.type === 'unary_op_expression' || node.type === 'cast_expression'
           || node.type === 'binary_expression' && node.childForFieldName('operator')?.text !== '??') return undefined;
-        if (node.type === 'match_condition_list') {
-          const match = node.parent?.parent?.parent;
-          let subject = match?.type === 'match_expression' ? match.childForFieldName('condition') : undefined;
+        const caseValue = node.type === 'case_statement' ? node.childForFieldName('value') : undefined;
+        if (node.type === 'match_condition_list' || caseValue && offset > caseValue.startIndex && offset <= caseValue.endIndex) {
+          const selection = node.type === 'match_condition_list' ? node.parent?.parent?.parent : node.parent?.parent;
+          let subject = selection?.childForFieldName('condition');
           while (subject?.type === 'parenthesized_expression') subject = subject.namedChildren[0] ?? null;
           const scope = subject && this.containingScope(file, subject.startIndex);
           const mutated = subject?.type === 'variable_name' && scope
@@ -4433,9 +4434,9 @@ export class SemanticWorkspace {
                 return file.source.slice(valueStart, argument.end).trim() === subject!.text;
               })
               && !this.knownCallHasOnlyValueArguments(file, call));
-          // Conditions compare with the subject using strict equality. The result
+          // Conditions use the subject type to rank candidates, never filter them. The result
           // contract (return value or outer argument) must never leak into them.
-          return { start: valueStart, allowsNull: false, matchCondition: true,
+          return { start: valueStart, allowsNull: false, comparisonCondition: true,
             type: subject && !mutated ? this.provenArgumentType(file, subject.startIndex, subject.endIndex) : undefined };
         }
         if (node.type === 'match_expression') {
@@ -4463,7 +4464,7 @@ export class SemanticWorkspace {
   private expectedArgumentCompletionType(file: SemanticFile, offset: number): PhpType | undefined {
     const position = this.completionValuePosition(file, offset, offset);
     if (!position) return undefined;
-    if (position.matchCondition) return position.type;
+    if (position.comparisonCondition) return position.type;
     // A surrounding invocation does not supply a contract inside a callback.
     const lexicalScope = this.containingScope(file, offset);
     if (lexicalScope && ['closure', 'arrow'].includes(lexicalScope.kind)) {
@@ -4534,7 +4535,7 @@ export class SemanticWorkspace {
     allowArgument = true): PhpType | undefined {
     const position = this.completionValuePosition(file, start, offset);
     if (!position) return undefined;
-    if (position.matchCondition) return position.type;
+    if (position.comparisonCondition) return position.type;
     const expected = this.expectedVariableCompletionBaseType(file, scope, position.start, offset, allowArgument);
     return expected && position.allowsNull ? nullable(expected) : expected;
   }
@@ -4909,7 +4910,8 @@ export class SemanticWorkspace {
     if (!file) return [];
     const recovered = this.recoveredMiddleArrayLiteral(file, offset, fork => fork.completeExpectedValues(uri, offset));
     if (recovered) return recovered.invalid ? [] : recovered.value.map(value => ({ ...value, end: Math.min(value.end, recovered.end) }));
-    const trailing = this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), true);
+    const trailing = this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), 'match')
+      ?? this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), 'switch');
     if (trailing) return trailing.value;
     const stringRange = file.stringRanges.find(range => range.start < offset && offset < range.end);
     const opening = stringRange?.start ?? this.completionQuotedOpening(file, offset);
@@ -5272,7 +5274,7 @@ export class SemanticWorkspace {
     }).sort((left, right) => left.compatibilityRank - right.compatibilityRank || left.name.localeCompare(right.name));
   }
 
-  private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T, matchCondition = false): { value: T } | undefined {
+  private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T, comparisonCondition: 'match' | 'switch' | false = false): { value: T } | undefined {
     // Complete only a trailing expression. The fork owns recovered syntax and
     // query caches; no synthetic delimiters reach project facts or diagnostics.
     if (!file.syntaxErrors.length || file.source.length > 131_072 || file.source.slice(offset).trim()
@@ -5289,13 +5291,14 @@ export class SemanticWorkspace {
         if (delimiters.pop() !== ({ ')': '(', ']': '[', '}': '{' } as Record<string, string>)[character]) return undefined;
       }
     }
-    if (matchCondition && (delimiters.at(-1) !== '{' || !/\bmatch\s*\(/iu.test(file.source))) return undefined;
+    if (comparisonCondition && (delimiters.at(-1) !== '{'
+      || !(comparisonCondition === 'match' ? /\bmatch\s*\(/iu : /\bswitch\s*\(/iu).test(file.source))) return undefined;
     let ending = '';
     for (const [index, delimiter] of delimiters.reverse().entries())
-      ending += delimiter === '{' ? matchCondition && index === 0 ? '}' : ';}' : delimiter === '(' ? ')' : ']';
+      ending += delimiter === '{' ? comparisonCondition && index === 0 ? '}' : ';}' : delimiter === '(' ? ')' : ']';
     // A bare member operator needs a disposable identifier, not a guessed type.
     const memberPlaceholder = /(?:\?->|->|::)\s*$/u.test(file.source.slice(0, offset)) ? '__sophp_completion' : '';
-    const suffix = (matchCondition ? ' => null' : memberPlaceholder) + '\n' + ending + ';';
+    const suffix = (comparisonCondition === 'match' ? ' => null' : comparisonCondition === 'switch' ? ': break;' : memberPlaceholder) + '\n' + ending + ';';
     let fork = this.forkForCompletionRecovery(file.uri, file.source + suffix);
     try {
       let recovered = fork.files.get(file.uri)!;
@@ -5311,7 +5314,7 @@ export class SemanticWorkspace {
       }
       const scope = fork.containingScope(recovered, offset);
       if (recovered.syntaxErrors.length || !scope || !['function', 'method', 'closure', 'arrow'].includes(scope.kind)) return undefined;
-      if (matchCondition && !fork.completionValuePosition(recovered, offset, offset)?.matchCondition) return undefined;
+      if (comparisonCondition && !fork.completionValuePosition(recovered, offset, offset)?.comparisonCondition) return undefined;
       return { value: query(fork) };
     } finally { fork.dispose(); }
   }
@@ -5331,7 +5334,8 @@ export class SemanticWorkspace {
     const insideString = file.stringRanges.some((range) => start >= range.start && start < range.end);
     if (!insideString) {
       const recovered = this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset))
-        ?? this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset), true);
+        ?? this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset), 'match')
+        ?? this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset), 'switch');
       if (recovered) return recovered.value;
     }
     if (insideString) {
@@ -6130,6 +6134,9 @@ export class SemanticWorkspace {
   phpKeywordCompletionContext(uri: string, offset: number): PhpKeywordCompletionContext | undefined {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset) || this.isMemberCompletionContext(uri, offset)) return undefined;
+    const trailing = this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'match')
+      ?? this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'switch');
+    if (trailing) return trailing.value;
     const before = file.source.slice(0, offset);
     const match = /([A-Za-z_][A-Za-z0-9_]*)$/u.exec(before);
     if (!match) return undefined;
@@ -6162,7 +6169,10 @@ export class SemanticWorkspace {
         if (current.type === 'switch_statement') inSwitch = true;
         if (current.type === 'enum_declaration') inEnum = true;
         if (!kind) {
-          if (expressionNodes.has(current.type)) kind = 'expression';
+          const caseValue = current.type === 'case_statement' ? current.childForFieldName('value') : undefined;
+          if (current.type === 'match_condition_list' || caseValue && start >= caseValue.startIndex && offset <= caseValue.endIndex)
+            kind = 'expression';
+          else if (expressionNodes.has(current.type)) kind = 'expression';
           else if (current.type === 'declaration_list' || current.type === 'enum_declaration_list') kind = 'class-member';
           else if (current.type === 'compound_statement') kind = 'statement';
           else if (current.type === 'program') kind = 'top-level';

@@ -315,3 +315,9 @@ getter／setter 的 `r` 优先 `return`，接受后保留空格；setter 不提�
 ## D43 match 分支条件
 
 已知被匹配类型驱动条件枚举值与兼容变量排序；未知或可能被引用修改的变量不猜测。包括完整/未闭合输入、嵌套调用和运算、分支结果、词中光标、未保存类型切换和 Undo/Redo。证据及范围见 [D43 记录](reports/completion-match-conditions-2026-10-04.md)，不替代原 60 项与真人验收。
+
+
+D16／D43 的条件表达式补充：switch case 与 match 条件现在均使用被比较值事实，`case tr` 不再混入 try；PHP 7.2 bool／8.5 enum 协议及隔离宿主未保存／UndoRedo 有定向证据。见 [switch 条件记录](reports/completion-switch-conditions-2026-10-04.md)。保留全部原资格要求。
+
+
+D16／D43 可见接受补充：枚举 case 前缀曾被 Workbench 隐藏，修复 filterText 与前缀大小写后，match／switch 枚举与 bool 共八次可见首项和 Enter／Tab 精确文本、光标、Undo/Redo 通过。见 [可见证据](reports/completion-comparison-visible-2026-10-04.md)。此处仍是隔离 Linux，不算真人 WSL。

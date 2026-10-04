@@ -120,3 +120,9 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 
 2026-10-04 C2 补全新增 [D43 match 条件证据](reports/completion-match-conditions-2026-10-04.md)：被匹配类型驱动枚举候选和兼容变量排序，临时恢复未闭合分支，未知引用调用撤回旧事实。最终完整语义 80 文件、1382 通过；定向真实 stdio、隔离 Linux 宿主的未保存编辑与 Undo/Redo 通过。不据此关闭 C2、全量协议、性能或真人 WSL。保持原路线图 active，不打包或更新 Profile。
+
+
+2026-10-04 C2 后续 [switch 条件与表达式边界](reports/completion-switch-conditions-2026-10-04.md)：条件类型驱动建议与排序，修复 case tr 混入 try；完整语义 1393、两文件三条定向协议及隔离宿主编辑／UndoRedo 通过。当前增量留在同一分支未提交，保留真人 WSL、全量协议、性能与版本矩阵的未完成边界，不更新 Profile。
+
+
+2026-10-04 [条件补全可见接受](reports/completion-comparison-visible-2026-10-04.md)：发现 Provider 通过但实际弹窗只显示函数的枚举 filterText 缺口，修复匹配文本与输入前缀大小写；隔离 Linux 1.140.0 四场景八次 Enter／Tab、可见首项、光标、Undo/Redo 和磁盘不变通过，三条当前协议通过。与 switch 增量收口提交，历史未提交为批次状态；不关闭真人 WSL、全量协议或性能资格，不更新 Profile。

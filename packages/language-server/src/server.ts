@@ -6894,13 +6894,17 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     !value.label.includes('::') || supportsEnums).map((value, index) => {
     const prefix = document.getText().slice(value.start, offset);
     const literalContent = /^(['"])(.*)\1$/su.exec(value.label)?.[2];
-    const filterLabel = literalContent !== undefined && !/^['"]/u.test(prefix) ? literalContent : value.label;
+    const enumCase = value.label.includes('::') ? value.label.split('::').at(-1) : undefined;
+    const filterLabel = enumCase && completionMatchRank(enumCase, prefix) !== undefined ? enumCase
+      : literalContent !== undefined && !/^['"]/u.test(prefix) ? literalContent : value.label;
     return {
       label: value.label,
       kind: value.label.includes('::') ? CompletionItemKind.EnumMember : CompletionItemKind.Value,
       sortText: `0${String(index).padStart(6, '0')}`,
-      filterText: completionMatchRank(filterLabel, prefix) === undefined ? `${prefix}${filterLabel}`
-        : literalContent !== undefined ? filterLabel : undefined,
+      filterText: enumCase ? filterLabel.toLowerCase().startsWith(prefix.toLowerCase())
+        ? prefix + filterLabel.slice(prefix.length) : `${prefix}${filterLabel}`
+        : completionMatchRank(filterLabel, prefix) === undefined ? `${prefix}${filterLabel}`
+          : literalContent !== undefined ? filterLabel : undefined,
       detail: 'Compatible value',
       textEdit: { range: { start: document.positionAt(value.start), end: document.positionAt(value.end) },
         newText: value.insertText },
