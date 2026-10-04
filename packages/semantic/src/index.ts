@@ -4465,33 +4465,42 @@ export class SemanticWorkspace {
       if (context || !tree.rootNode.hasError || file.source.length > 131_072) return context;
       const attribute = this.attributeConstructorAt(file, offset, tree);
       if (attribute && this.signatureContext(attribute.argumentsText, []).namedArgumentPrefix === undefined) return 'attribute';
-      // Reserved words can remove the entire initializer from an incomplete AST.
-      // Replace only the current closure prefix, or insert a value immediately
-      // after an empty initializer's equals sign. Never publish recovered facts.
-      const from = Math.max(0, offset - 160);
-      const before = file.source.slice(from, offset);
-      const closure = /\b(?:static\s+)?(?:fn|function|fun[A-Za-z0-9_]*)$/u.exec(before);
-      const empty = !closure && /=(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*\r?\n|#[^\r\n]*\r?\n)*$/u.test(before);
-      if (!closure && !empty) return undefined;
-      const start = closure ? from + closure.index : offset;
-      const end = offset + (/^[A-Za-z0-9_]*/u.exec(file.source.slice(offset))?.[0].length ?? 0);
-      const placeholder = '__sophp_initializer_value__';
-      const recoveredSource = file.source.slice(0, start) + placeholder + file.source.slice(end);
-      const recovered = this.parser.parseTree(recoveredSource);
-      // At EOF the parser drops a function's entire parameter list until its
-      // closing parenthesis exists. Validate the slot in a disposable completed
-      // signature, rather than deriving a parameter context from text alone.
-      const completeSignature = empty && end === file.source.length
-        && /\bfunction\s*&?\s*(?:[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*)?\([^()]*$/u.test(before);
-      try {
-        const recoveredContext = this.initializerCompletionKindAt(recovered, start + placeholder.length);
-        if (recoveredContext || !completeSignature) return recoveredContext;
-        const completed = this.parser.parseTree(recoveredSource + ') {}');
-        try { return this.initializerCompletionKindAt(completed, start + placeholder.length); }
-        finally { completed.delete(); }
-      }
-      finally { recovered.delete(); }
+      return this.recoveredInitializerQuery(file, offset, tree,
+        (recovered, at) => this.initializerCompletionKindAt(recovered, at));
     } finally { temporary?.delete(); }
+  }
+
+  private recoveredInitializerQuery<T>(file: SemanticFile, offset: number,
+    tree: ReturnType<PhpSyntaxParser['parseTree']>, query: (recovered: ReturnType<PhpSyntaxParser['parseTree']>, at: number) => T | undefined): T | undefined {
+    if (!tree.rootNode.hasError || file.source.length > 131_072) return undefined;
+    // Reserved words can remove the entire initializer from an incomplete AST.
+    // Replace only the current closure prefix, or insert a value immediately
+    // after an empty initializer's equals sign. Never publish recovered facts.
+    const from = Math.max(0, offset - 160);
+    const before = file.source.slice(from, offset);
+    const closure = /\b(?:static\s+)?(?:fn|function|fun[A-Za-z0-9_]*)$/u.exec(before);
+    const empty = !closure && /=(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*\r?\n|#[^\r\n]*\r?\n)*$/u.test(before);
+    if (!closure && !empty) return undefined;
+    const start = closure ? from + closure.index : offset;
+    const end = offset + (/^[A-Za-z0-9_]*/u.exec(file.source.slice(offset))?.[0].length ?? 0);
+    // One character keeps declaration/type positions before the slot intact
+    // and avoids inflating a recovered value beyond its original owner range.
+    const placeholder = '0';
+    const recoveredSource = file.source.slice(0, start) + placeholder + file.source.slice(end);
+    const recovered = this.parser.parseTree(recoveredSource);
+    // At EOF the parser drops a function's entire parameter list until its
+    // closing parenthesis exists. Validate the slot in a disposable completed
+    // signature, rather than deriving a parameter context from text alone.
+    const completeSignature = empty && end === file.source.length
+      && /\bfunction\s*&?\s*(?:[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*)?\([^()]*$/u.test(before);
+    try {
+      const recoveredContext = query(recovered, start + placeholder.length);
+      if (recoveredContext || !completeSignature) return recoveredContext;
+      const completed = this.parser.parseTree(recoveredSource + ') {}');
+      try { return query(completed, start + placeholder.length); }
+      finally { completed.delete(); }
+    }
+    finally { recovered.delete(); }
   }
 
   private initializerCompletionKindAt(tree: ReturnType<PhpSyntaxParser['parseTree']>, offset: number): PhpInitializerCompletionKind | undefined {
@@ -4533,6 +4542,13 @@ export class SemanticWorkspace {
     const retainedTree = recoveredTree ?? this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
+      if (!recoveredTree && !completionIdentifierPrefix(file.source, offset)) {
+        const recovered = this.recoveredInitializerQuery(file, offset, (retainedTree ?? temporaryTree)!, (tree, at) => {
+          const position = this.completionValuePosition(file, start, at, tree);
+          return position?.declarationDefault || position?.constantInitializer ? position : undefined;
+        });
+        if (recovered) return recovered;
+      }
       let node = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1), offset);
       let valueStart = start; let allowsNull = false; let remaining = 256;
       while (node && remaining-- > 0) {

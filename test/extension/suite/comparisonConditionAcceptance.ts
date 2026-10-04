@@ -16,6 +16,7 @@ export async function run(): Promise<void> {
   const constantInitializers = process.env.PHP_COMPANION_TEST_CONSTANT_INITIALIZER_ONLY === '1';
   const initializerExpressions = process.env.PHP_COMPANION_TEST_INITIALIZER_EXPRESSION_ONLY === '1';
   const blankInitializers = process.env.PHP_COMPANION_TEST_BLANK_INITIALIZER_ONLY === '1';
+  const blankInitializerTypes = process.env.PHP_COMPANION_TEST_BLANK_INITIALIZER_TYPE_ONLY === '1';
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
   const typeTails = process.env.PHP_COMPANION_TEST_TYPE_TAIL_ONLY === '1';
   const unclosedCallables = process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_ONLY === '1';
@@ -32,7 +33,12 @@ export async function run(): Promise<void> {
   const namespaceSeparators = process.env.PHP_COMPANION_TEST_NAMESPACE_SEPARATOR_ONLY === '1';
   const importHeader = '<?php namespace ImportCatalog; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text="literal;😀"; /* 中文; trivia */\r\n';
   const separatorHeader = '<?php namespace App\\NamespaceUi; function nestedFn():void{} namespace Consumer; ';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = blankInitializers ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = blankInitializerTypes ? [
+    {prefix:'',label:'false',forbidden:'strlen',addCall:false,marked:'<?php function choose(bool $value = §) {}'},
+    {prefix:'',label:'Current::Ready',forbidden:'strlen',addCall:false,marked:'<?php enum Current { case Ready; case Waiting; } function choose(Current $value = /* value */ §) {}'},
+    {prefix:'',label:'false',forbidden:'new',addCall:false,marked:'<?php class Host { public bool $value = // value\n §; }'},
+    {prefix:'',label:'false',forbidden:'new',addCall:false,marked:'<?php class Host { const bool VALUE = §; }'},
+  ] : blankInitializers ? [
     {prefix:'',label:'true',forbidden:'strlen',addCall:false,marked:'<?php function choose($value = §) {}'},
     {prefix:'',label:'true',forbidden:'new',addCall:false,marked:'<?php class Host { public $value = /* default */ §; }'},
     {prefix:'',label:'true',forbidden:'strlen',addCall:false,marked:'<?php const VALUE = // default\n §;'},
@@ -215,7 +221,7 @@ export async function run(): Promise<void> {
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
-    if (blankInitializers) marked = marked.replace('<?php ', `<?php namespace BlankInitializerGate${suffix}; `);
+    if (blankInitializers || blankInitializerTypes) marked = marked.replace('<?php ', `<?php namespace BlankInitializerGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`)
       .replace('NamespaceUi', `NamespaceUi${suffix}`);
@@ -255,6 +261,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

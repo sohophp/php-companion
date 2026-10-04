@@ -1,0 +1,276 @@
+{
+  "scope": "D78 native-type ranking at blank initializer values",
+  "date": "2026-10-05",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "fa2b74cbbeed060d04cf0d9a16851dcb05fc8257a53bb8b0a2bbf320cf4b8db1",
+    "packages/semantic/test/blank-initializer-type-completion.test.ts": "9abcdab81719cb40e78a83fc0392b4bfba15ddb4f9897056384a2b425ed1a774",
+    "packages/language-server/src/server.ts": "5fd8dd29825d52e21e6f956435937022f730931d096ab76865d2edf18611338f",
+    "packages/language-server/test/stdio.test.ts": "5c47146c6613ad900d90b091cee7f6de0e34535bf12acff1168d11beee76b9de",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "0b97192bd3e4c767819468e53440b53a6a1f2a5026e46f802a3f9d1db5514de4",
+    "packages/semantic/dist/index.js": "1d7d0f561f48a811f8ba02ff6ac6301971c8a054d24bb451d504efaa8f68a1b0",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "6d340d6b348945d728eb889317a387f84b3d190b9f396b50c5c546ff160105e3"
+  },
+  "semantic": {
+    "newCases": 40,
+    "targetedPassed": 226,
+    "fullFiles": 100,
+    "fullPassed": 2134,
+    "fullFailed": 0,
+    "durationSeconds": 63.13
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.1",
+      "8.3",
+      "8.5"
+    ],
+    "newQueries": 108,
+    "targetedPassed": 19,
+    "unselected": 512,
+    "durationSeconds": 51.36,
+    "baselineFailed": 4
+  },
+  "visible": {
+    "platform": "linux",
+    "context": "blank-initializer-native-types",
+    "results": [
+      {
+        "label": "false",
+        "key": "Enter",
+        "visibleMs": 277,
+        "visibleLabels": [
+          "falseCompatible value",
+          "trueCompatible value",
+          "array",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate0Enter; function choose0Enter(bool $value = false) {}",
+        "caretOffset": 85,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "false",
+        "key": "Tab",
+        "visibleMs": 151,
+        "visibleLabels": [
+          "falseCompatible value",
+          "trueCompatible value",
+          "array",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate0Tab; function choose0Tab(bool $value = false) {}",
+        "caretOffset": 81,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Current1Enter::Ready",
+        "key": "Enter",
+        "visibleMs": 125,
+        "visibleLabels": [
+          "Current1Enter::ReadyCompatible value",
+          "Current1Enter::WaitingCompatible value",
+          "array",
+          "true",
+          "false",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate1Enter; enum Current1Enter { case Ready; case Waiting; } function choose1Enter(Current1Enter $value = /* value */ Current1Enter::Ready) {}",
+        "caretOffset": 170,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Current1Tab::Ready",
+        "key": "Tab",
+        "visibleMs": 156,
+        "visibleLabels": [
+          "Current1Tab::ReadyCompatible value",
+          "Current1Tab::WaitingCompatible value",
+          "array",
+          "true",
+          "false",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate1Tab; enum Current1Tab { case Ready; case Waiting; } function choose1Tab(Current1Tab $value = /* value */ Current1Tab::Ready) {}",
+        "caretOffset": 160,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "false",
+        "key": "Enter",
+        "visibleMs": 210,
+        "visibleLabels": [
+          "falseCompatible value",
+          "trueCompatible value",
+          "array",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate2Enter; class Host2Enter { public bool $value = // value\n false; }",
+        "caretOffset": 99,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "false",
+        "key": "Tab",
+        "visibleMs": 156,
+        "visibleLabels": [
+          "falseCompatible value",
+          "trueCompatible value",
+          "array",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate2Tab; class Host2Tab { public bool $value = // value\n false; }",
+        "caretOffset": 95,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "false",
+        "key": "Enter",
+        "visibleMs": 174,
+        "visibleLabels": [
+          "falseCompatible value",
+          "trueCompatible value",
+          "array",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate3Enter; class Host3Enter { const bool VALUE = false; }",
+        "caretOffset": 87,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "false",
+        "key": "Tab",
+        "visibleMs": 149,
+        "visibleLabels": [
+          "falseCompatible value",
+          "trueCompatible value",
+          "array",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate3Tab; class Host3Tab { const bool VALUE = false; }",
+        "caretOffset": 83,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "compilation": [
+    {
+      "case": 0,
+      "key": "Enter",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "6a71e4e76877c43497599cc73642840afba0648d3e4f01240914938726d0bc6b"
+    },
+    {
+      "case": 1,
+      "key": "Tab",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "60d2172e3bfce2b97242840f0b33a273a38ce33feacb677eae4b8c764e7f6efa"
+    },
+    {
+      "case": 2,
+      "key": "Enter",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "ffb989bdd37c0c684f67d3092122d62a09831fc456366b788100d4809e2a104f"
+    },
+    {
+      "case": 3,
+      "key": "Tab",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "03d091be0146819b081b16d81359f47ac474a59f17e7c787032fa73c94eb2da7"
+    },
+    {
+      "case": 4,
+      "key": "Enter",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "6c435f70d87300b15f30a6a6031d29756fc3b9e2b5d7f45660ed857c8b1ca97f"
+    },
+    {
+      "case": 5,
+      "key": "Tab",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "5fa17641c96955c2414390c6357ca122935b563322eb6dd9743d252fe5d5fd08"
+    },
+    {
+      "case": 6,
+      "key": "Enter",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "cbfc6a86f792c23b6dcde906528539e04c10f04fac842f922c81a92f7970fbaa"
+    },
+    {
+      "case": 7,
+      "key": "Tab",
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "185c28b37fc627b48d07d2c0c35bab2e090fe27372d80ebe6bf33f277fc66da8"
+    }
+  ],
+  "boundaries": [
+    "Visible trigger is explicit; not automatic popup or P95 gate",
+    "No Profile update, packaging, push or release",
+    "Complex and over-budget recovery remains open",
+    "Not proof of every lower-ranked candidate matching declaration type",
+    "Full current LSP scheduled separately; pending until verified terminal",
+    "Actual accepted-text compiler checks use PHP 8.5; other versions have scoped protocol evidence",
+    "Real WSL and other platforms remain unverified"
+  ]
+}

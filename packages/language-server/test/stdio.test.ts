@@ -3052,6 +3052,56 @@ function inspect(Sink $sink, ?Sink $optional): void {
       expect(accepted.textEdit.newText).toBe('true');
     }
   }, 60_000);
+  it.each(['7.2', '8.1', '8.3', '8.5'])('prioritizes native values at blank initializer slots without borrowing sibling types on PHP %s', async phpVersion => {
+    const uri = 'file:///BlankInitializerType.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const rows: Array<{ tail: string; values: string[] }> = [
+      { tail: 'function run(bool $value = §) {}', values: ['false', 'true'] },
+      { tail: 'function run(?bool $value = §) {}', values: ['false', 'null', 'true'] },
+      { tail: 'function run(bool $value = §', values: ['false', 'true'] },
+      { tail: 'function run($value = §): bool { return true; }', values: [] },
+      { tail: 'const VALUE = §;', values: [] },
+    ];
+    if (phpVersion !== '7.2') rows.push(
+      { tail: 'enum State { case Ready; case Waiting; } function run(State $value = §) {}', values: ['State::Ready', 'State::Waiting'] },
+      { tail: 'class Host { public bool $value = §; }', values: ['false', 'true'] },
+      { tail: 'class Host { public function __construct(public bool $value = §) {} }', values: ['false', 'true'] },
+      { tail: 'class Host { public bool $first = false; public $other = §; }', values: [] },
+    );
+    if (phpVersion === '8.3' || phpVersion === '8.5') rows.push(
+      { tail: 'class Host { const bool VALUE = §; }', values: ['false', 'true'] },
+      { tail: 'class Host { const bool FIRST = false; const OTHER = §; }', values: [] },
+    );
+    let version = 0;
+    for (const row of rows) for (const trivia of ['', '/* value */ ', '// value\n ']) {
+      const marked = '<?php ' + row.tail.replace('§', trivia + '§'), offset = marked.indexOf('§');
+      const source = marked.replace('§', ''); version++;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: version === 1 ? 'textDocument/didOpen' : 'textDocument/didChange', params: version === 1
+        ? { textDocument: { uri, languageId: 'php', version, text: source } }
+        : { textDocument: { uri, version }, contentChanges: [{ text: source }] } }));
+      const id = version + 100;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id); expect(response.error).toBeUndefined();
+      const items = completionItems(response.result);
+      const preferred = items.filter(item => item.sortText?.startsWith('!!'));
+      expect(preferred.map(item => item.label), marked).toEqual(row.values);
+      const sorted = [...items].sort((left, right) => left.sortText < right.sortText ? -1 : left.sortText > right.sortText ? 1 : 0);
+      expect(sorted[0]?.label, marked).toBe(row.values[0] ?? 'array');
+      for (const value of preferred) {
+        expect(items.filter(item => item.label === value.label)).toHaveLength(1);
+        expect(lspOffset(source, value.textEdit.range.start)).toBe(offset);
+        expect(lspOffset(source, value.textEdit.range.end)).toBe(offset);
+        expect(value.textEdit.newText).toBe(value.label);
+      }
+    }
+  }, 60_000);
   it.each(['8.3', '8.5'])('refreshes constant initializer types without reusing enum identity on PHP %s', async phpVersion => {
     const uri = 'file:///ConstantInitializer.php';
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });

@@ -6953,6 +6953,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       newText: `${quotedKey}${completionContext.shapeKeys.hasArrow ? '' : ' => '}`,
     },
   }); });
+  const rankBlankInitializerValues = Boolean(constantInitializer && completionContext.kind === 'general'
+    && completionContext.keywordContext?.prefix === '');
   const expectedValues = (completionContext.kind === 'named-argument' || completionContext.kind === 'general'
     ? completionContext.expectedValues : []).filter((value) =>
     !value.label.includes('::') || supportsEnums).map((value, index) => {
@@ -6964,7 +6966,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     return {
       label: value.label,
       kind: value.label.includes('::') ? CompletionItemKind.EnumMember : CompletionItemKind.Value,
-      sortText: `0${String(index).padStart(6, '0')}`,
+      sortText: `${rankBlankInitializerValues ? '!!' : '0'}${String(index).padStart(6, '0')}`,
+      preselect: rankBlankInitializerValues && index === 0 ? true : undefined,
       filterText: enumCase ? filterLabel.toLowerCase().startsWith(prefix.toLowerCase())
         ? prefix + filterLabel.slice(prefix.length) : `${prefix}${filterLabel}`
         : completionMatchRank(filterLabel, prefix) === undefined ? `${prefix}${filterLabel}`
@@ -7284,8 +7287,11 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  const items = [...keywords, ...expectedValues.filter((value) =>
-    !keywords.some((keyword) => keyword.label === value.label)),
+  const preferInitializerValues = rankBlankInitializerValues && expectedValues.length > 0;
+  const items = [...keywords.filter(keyword => !preferInitializerValues
+    || !expectedValues.some(value => value.label === keyword.label)).map(keyword =>
+      preferInitializerValues ? { ...keyword, preselect: false } : keyword),
+  ...expectedValues.filter((value) => preferInitializerValues || !keywords.some((keyword) => keyword.label === value.label)),
   ...bareVariables, ...functions, ...constants, ...namespaceItems, ...typeItems, ...templates];
   // A complete index does not make a prefix-filtered list reusable. Types,
   // callables and constants use server matching and prefix-dependent filterText;
