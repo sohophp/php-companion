@@ -1509,6 +1509,44 @@ function c2ParseUrl(string $url): void {
   console.log('C2 parse_url shape, unsaved component Hover and Undo/Redo passed');
 }
 
+async function verifyMatchConditions(root: vscode.Uri): Promise<void> {
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2MatchConditions.php');
+  const sourceFor = (type: string): string => `<?php enum C2MatchStatus { case Ready; case Waiting; }
+function choose(${type} $status): string { return match($status) { rea => "x", default => "y" }; }`;
+  const original = sourceFor('C2MatchStatus');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+  const completion = async (expected: boolean): Promise<void> => {
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      const text = document.getText(); const offset = text.lastIndexOf('rea') + 3;
+      const result = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider',
+        uri, document.positionAt(offset));
+      const items = result?.items.filter(item => item.label === 'C2MatchStatus::Ready') ?? [];
+      if (result && Boolean(items.length) === expected) {
+        if (expected) {
+          const range = items[0]!.range instanceof vscode.Range ? items[0]!.range : items[0]!.range?.replacing;
+          assert.ok(range); assert.strictEqual(document.getText(range), 'rea');
+          assert.strictEqual(items[0]!.insertText, 'C2MatchStatus::Ready');
+        }
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+    assert.fail(`Match condition enum completion did not refresh expected=${expected}.`);
+  };
+  await completion(true);
+  const edit = new vscode.WorkspaceEdit();
+  edit.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(original.length)), sourceFor('string'));
+  assert.ok(await vscode.workspace.applyEdit(edit)); assert.ok(document.isDirty);
+  await completion(false);
+  await vscode.commands.executeCommand('undo'); await completion(true);
+  await vscode.commands.executeCommand('redo'); await completion(false);
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), original);
+  console.log('C2 match conditions: current enum values, replacement range, unsaved type change and Undo/Redo passed');
+}
+
 export async function run(): Promise<void> {
   const root = vscode.workspace.workspaceFolders?.[0];
   assert.ok(root, 'C2 diagnostics test requires the Composer fixture.');
@@ -1516,6 +1554,9 @@ export async function run(): Promise<void> {
   assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', root.uri).get('phpVersion'), '8.5');
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load.');
+  if (process.env.PHP_COMPANION_TEST_C2_MATCH_CONDITION_ONLY === '1') {
+    await extension.activate(); await verifyMatchConditions(root.uri); return;
+  }
   if (process.env.PHP_COMPANION_TEST_C2_PROTECTED_FAMILY_ONLY === '1') {
     await extension.activate(); await verifyProtectedFamily(root.uri); return;
   }

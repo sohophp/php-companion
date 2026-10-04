@@ -117,3 +117,6 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 最新 C3 增量：[同路径运行程序替换](reports/safe-move-source-coverage-2026-10-04.md#同路径运行程序替换)。已取得旧 Move 在规划后返回 true 的明确失败，修复共享文件身份守卫的异步等待。两个默认模式均通过四种 Move／Rename 替换拒绝、原文不变及恢复后应用／单次 Undo/Redo，实际文件系统六项和类型／Lint／构建通过。早期测试假通过与清理遮盖断言均明确排除；其它命令入口、平台、启动脚本依赖、预先发生的变化及真人 WSL 保持开放。同一分支未提交；临时准备目录已移除，不更新 Profile。
 
 当前运行程序文件身份保护已覆盖并实测 Move、Rename、构造生成、方法提取、接口提取的预览。新增生成旧逻辑返回 true 的失败；两个默认模式的三类生成／提取均通过六项替换拒绝、恢复后取消／应用／单次 Undo/Redo，接口目标实际内容及删除／恢复核对通过。与 Move／Rename 和六项文件系统回归合并为本地可靠性里程碑 `fix(core): guard executable changes across previewed refactors`；此前“未提交”指当批状态，证明范围与遗留事项见[报告](reports/default-indexing-generation-2026-10-04.md#生成与提取预览的运行程序核验)。不扩张为所有命令／平台／真人完成；没有打包、推送或更新 Profile，goal 继续。
+
+
+2026-10-04 C2 补全新增 [D43 match 条件证据](reports/completion-match-conditions-2026-10-04.md)：被匹配类型驱动枚举候选和兼容变量排序，临时恢复未闭合分支，未知引用调用撤回旧事实。最终完整语义 80 文件、1382 通过；定向真实 stdio、隔离 Linux 宿主的未保存编辑与 Undo/Redo 通过。不据此关闭 C2、全量协议、性能或真人 WSL。保持原路线图 active，不打包或更新 Profile。

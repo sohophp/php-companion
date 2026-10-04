@@ -4406,7 +4406,7 @@ export class SemanticWorkspace {
   }
 
   private completionValuePosition(file: SemanticFile, start: number, offset: number,
-    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean } | undefined {
+    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; matchCondition?: boolean; type?: PhpType } | undefined {
     const retainedTree = recoveredTree ?? this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
@@ -4419,7 +4419,25 @@ export class SemanticWorkspace {
         // have already stopped at their own arguments; coalescing keeps its values.
         if (node.type === 'unary_op_expression' || node.type === 'cast_expression'
           || node.type === 'binary_expression' && node.childForFieldName('operator')?.text !== '??') return undefined;
-        if (node.type === 'match_condition_list') return undefined;
+        if (node.type === 'match_condition_list') {
+          const match = node.parent?.parent?.parent;
+          let subject = match?.type === 'match_expression' ? match.childForFieldName('condition') : undefined;
+          while (subject?.type === 'parenthesized_expression') subject = subject.namedChildren[0] ?? null;
+          const scope = subject && this.containingScope(file, subject.startIndex);
+          const mutated = subject?.type === 'variable_name' && scope
+            && file.calls.some(call => call.start >= scope.start && call.end <= subject!.startIndex
+              && this.containingScope(file, call.start)?.id === scope.id
+              && call.arguments.some(argument => {
+                const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':', argument.nameEnd);
+                const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
+                return file.source.slice(valueStart, argument.end).trim() === subject!.text;
+              })
+              && !this.knownCallHasOnlyValueArguments(file, call));
+          // Conditions compare with the subject using strict equality. The result
+          // contract (return value or outer argument) must never leak into them.
+          return { start: valueStart, allowsNull: false, matchCondition: true,
+            type: subject && !mutated ? this.provenArgumentType(file, subject.startIndex, subject.endIndex) : undefined };
+        }
         if (node.type === 'match_expression') {
           const condition = node.childForFieldName('condition');
           if (condition && offset > condition.startIndex && offset <= condition.endIndex) return undefined;
@@ -4445,6 +4463,7 @@ export class SemanticWorkspace {
   private expectedArgumentCompletionType(file: SemanticFile, offset: number): PhpType | undefined {
     const position = this.completionValuePosition(file, offset, offset);
     if (!position) return undefined;
+    if (position.matchCondition) return position.type;
     // A surrounding invocation does not supply a contract inside a callback.
     const lexicalScope = this.containingScope(file, offset);
     if (lexicalScope && ['closure', 'arrow'].includes(lexicalScope.kind)) {
@@ -4515,6 +4534,7 @@ export class SemanticWorkspace {
     allowArgument = true): PhpType | undefined {
     const position = this.completionValuePosition(file, start, offset);
     if (!position) return undefined;
+    if (position.matchCondition) return position.type;
     const expected = this.expectedVariableCompletionBaseType(file, scope, position.start, offset, allowArgument);
     return expected && position.allowsNull ? nullable(expected) : expected;
   }
@@ -4889,6 +4909,8 @@ export class SemanticWorkspace {
     if (!file) return [];
     const recovered = this.recoveredMiddleArrayLiteral(file, offset, fork => fork.completeExpectedValues(uri, offset));
     if (recovered) return recovered.invalid ? [] : recovered.value.map(value => ({ ...value, end: Math.min(value.end, recovered.end) }));
+    const trailing = this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), true);
+    if (trailing) return trailing.value;
     const stringRange = file.stringRanges.find(range => range.start < offset && offset < range.end);
     const opening = stringRange?.start ?? this.completionQuotedOpening(file, offset);
     const quoted = opening !== undefined
@@ -5250,7 +5272,7 @@ export class SemanticWorkspace {
     }).sort((left, right) => left.compatibilityRank - right.compatibilityRank || left.name.localeCompare(right.name));
   }
 
-  private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T): { value: T } | undefined {
+  private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T, matchCondition = false): { value: T } | undefined {
     // Complete only a trailing expression. The fork owns recovered syntax and
     // query caches; no synthetic delimiters reach project facts or diagnostics.
     if (!file.syntaxErrors.length || file.source.length > 131_072 || file.source.slice(offset).trim()
@@ -5267,11 +5289,13 @@ export class SemanticWorkspace {
         if (delimiters.pop() !== ({ ')': '(', ']': '[', '}': '{' } as Record<string, string>)[character]) return undefined;
       }
     }
+    if (matchCondition && (delimiters.at(-1) !== '{' || !/\bmatch\s*\(/iu.test(file.source))) return undefined;
     let ending = '';
-    for (const delimiter of delimiters.reverse()) ending += delimiter === '{' ? ';}' : delimiter === '(' ? ')' : ']';
+    for (const [index, delimiter] of delimiters.reverse().entries())
+      ending += delimiter === '{' ? matchCondition && index === 0 ? '}' : ';}' : delimiter === '(' ? ')' : ']';
     // A bare member operator needs a disposable identifier, not a guessed type.
     const memberPlaceholder = /(?:\?->|->|::)\s*$/u.test(file.source.slice(0, offset)) ? '__sophp_completion' : '';
-    const suffix = memberPlaceholder + '\n' + ending + ';';
+    const suffix = (matchCondition ? ' => null' : memberPlaceholder) + '\n' + ending + ';';
     let fork = this.forkForCompletionRecovery(file.uri, file.source + suffix);
     try {
       let recovered = fork.files.get(file.uri)!;
@@ -5287,6 +5311,7 @@ export class SemanticWorkspace {
       }
       const scope = fork.containingScope(recovered, offset);
       if (recovered.syntaxErrors.length || !scope || !['function', 'method', 'closure', 'arrow'].includes(scope.kind)) return undefined;
+      if (matchCondition && !fork.completionValuePosition(recovered, offset, offset)?.matchCondition) return undefined;
       return { value: query(fork) };
     } finally { fork.dispose(); }
   }
@@ -5305,7 +5330,8 @@ export class SemanticWorkspace {
     if (!this.isPhpCodeContext(uri, start + 1)) return undefined;
     const insideString = file.stringRanges.some((range) => start >= range.start && start < range.end);
     if (!insideString) {
-      const recovered = this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset));
+      const recovered = this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset))
+        ?? this.trailingCallableQuery(file, offset, fork => fork.completeVariables(uri, offset), true);
       if (recovered) return recovered.value;
     }
     if (insideString) {

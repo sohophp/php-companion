@@ -310,3 +310,8 @@ getter／setter 的 `r` 优先 `return`，接受后保留空格；setter 不提�
 
 
 2026-10-03 D42 Windows 收口：当前 Core 四次可见 Enter／Tab 精确文本、光标、Undo/Redo 和磁盘不变通过；20 项资产终态一致，临时单份 Core 已清理。见 [D42 Windows 证据](reports/completion-array-callback-carry-2026-10-03.md)。未更新 Profile，真人 WSL 仍单列。
+
+
+## D43 match 分支条件
+
+已知被匹配类型驱动条件枚举值与兼容变量排序；未知或可能被引用修改的变量不猜测。包括完整/未闭合输入、嵌套调用和运算、分支结果、词中光标、未保存类型切换和 Undo/Redo。证据及范围见 [D43 记录](reports/completion-match-conditions-2026-10-04.md)，不替代原 60 项与真人验收。
