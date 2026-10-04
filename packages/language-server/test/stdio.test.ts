@@ -2572,7 +2572,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       function shapePickA():string{return 'x';} function shapePickZ():bool{return true;}
       const PICK_A_TEXT='x', PICK_Z_BOOL=true;
       function innerText(string $text):bool{return true;} function innerBool(bool $flag):bool{return true;}
-      class Builder { public function makeA():string{return '';} public function makeZ():bool{return true;} }
+      class Builder { /** @var bool */ public $enabled; /** @var bool */ public static $staticEnabled; public function makeA():string{return '';} public function makeZ():bool{return true;} }
       interface Contract {} class ChoiceA {} class ChoiceZ implements Contract {}
       /** @param array{object:Contract} $config */ function build(array $config):void {} `;
     const rows = [
@@ -2598,6 +2598,9 @@ function inspect(Sink $sink, ?Sink $optional): void {
       { tail: "function run(string $shapeAText,bool $shapeZBool){innerBool(flag: /* value */ §);}", label: '$shapeZBool', other: '$shapeAText', clientSorted: true },
       { tail: "function run(Builder $builder){send(['enabled'=>$builder->make§]);}", label: 'makeZ', other: 'makeA' },
       { tail: "build(['object'=>new Choice§]);", label: 'ChoiceZ', other: 'ChoiceA' },
+      { tail: "function run(Builder $builder){$builder /* owner */ -> enabled /* property */ = shapePick§;}", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "function run(){Builder /* owner */ :: $staticEnabled /* property */ = shapePick§;}", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "function run(bool $assigned){$assigned /* variable */ = shapePick§;}", label: 'shapePickZ', other: 'shapePickA' },
     ];
     let version = 0;
     const query = async (marked: string, id: number): Promise<any[]> => {

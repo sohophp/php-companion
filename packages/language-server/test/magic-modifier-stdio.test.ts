@@ -1,4 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -120,6 +121,33 @@ it.each(['7.2','8.5'] as const)('respects magic method modifiers and static edit
   if(process.env.PHP_COMPANION_TEST_MAGIC_MODIFIER_TIMING_DIR)
    await writeFile(join(process.env.PHP_COMPANION_TEST_MAGIC_MODIFIER_TIMING_DIR,`magic-modifier-stdio-${phpVersion}.json`),JSON.stringify(timing));
   expect(p95Ms).toBeLessThanOrEqual(150);
+  // An unrelated unfinished declaration forces member lookup's error-tree
+  // fallback to inspect the prefix. Measure that path with real comment trivia.
+  const assignmentSource='<?php class Builder {\n'+Array.from({length:1500},(_,index)=>
+   `/** comment ${index} ${'documentation '.repeat(8)} */ public const VALUE${index} = ${index};\n`).join('')+
+   "/** @var bool */ public $enabled;} function pickA():string{return 'x';} function pickZ():bool{return true;} "+
+   'function run(Builder $builder){$builder /* owner */ -> enabled /* property */ = pick;} function unfinished(';
+  version++;
+  notify('textDocument/didChange',{textDocument:{uri,version},contentChanges:[{text:assignmentSource}]});
+  await output.waitFor(message=>message.method==='textDocument/publishDiagnostics'&&message.params?.uri===uri&&message.params?.version===version);
+  const assignmentPosition=lspPosition(assignmentSource,assignmentSource.lastIndexOf('= pick')+6),assignmentTimings:number[]=[];
+  let assignmentFirstQueryMs=0;
+  for(let sample=0;sample<25;sample++) {
+   const started=performance.now();
+   const result=await request('textDocument/completion',{textDocument:{uri},position:assignmentPosition});
+   const elapsed=performance.now()-started;
+   const items=Array.isArray(result)?result:result?.items??[];
+   expect(items.map((item:{label:string})=>item.label)).toEqual(['pickZ','pickA']);
+   if(sample===0) assignmentFirstQueryMs=elapsed;
+   if(sample>=5) assignmentTimings.push(elapsed);
+  }
+  const assignmentP95Ms=[...assignmentTimings].sort((a,b)=>a-b)[Math.ceil(assignmentTimings.length*0.95)-1]!;
+  const assignmentTiming={phpVersion,sourceBytes:Buffer.byteLength(assignmentSource),sourceSha256:createHash('sha256').update(assignmentSource).digest('hex'),
+   comments:1503,warmSamples:assignmentTimings.length,firstQueryMs:assignmentFirstQueryMs,p95Ms:assignmentP95Ms,
+   scope:'isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling'};
+  if(process.env.PHP_COMPANION_TEST_ASSIGNMENT_COMMENT_TIMING_DIR)
+   await writeFile(join(process.env.PHP_COMPANION_TEST_ASSIGNMENT_COMMENT_TIMING_DIR,`assignment-comment-stdio-${phpVersion}.json`),JSON.stringify(assignmentTiming));
+  expect(assignmentP95Ms).toBeLessThanOrEqual(150);
   expect(await readFile(path,'utf8')).toBe(original);await request('shutdown',{});notify('exit',{});
  } finally {server?.kill();await rm(root,{recursive:true,force:true});}
 },30_000);

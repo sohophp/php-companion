@@ -1,3 +1,4 @@
+import { commentMaskedSlice } from './completionTrivia.js';
 /** Read a literal prefix without treating PHP interpolation as a known value. */
 export function quotedCompletion(source: string, start: number, offset: number):
   { quote: "'" | '"'; start: number; end: number; word: string; closed: boolean } | undefined {
@@ -51,17 +52,7 @@ export function quotedArrayKey(source: string, start: number, end: number, onlyA
   comments: readonly { start: number; end: number }[] = []): string | undefined {
   // Mask only parser-confirmed trivia in this element. Keep offsets and literal
   // contents intact; comment-looking text in a quoted key is ordinary text.
-  const ranges = comments.filter(range => range.start < end && range.end > start)
-    .sort((left, right) => left.start - right.start);
-  const parts: string[] = []; let cursor = start;
-  for (const range of ranges) {
-    const from = Math.max(cursor, range.start), to = Math.min(end, range.end);
-    if (to <= from) continue;
-    parts.push(source.slice(cursor, from), source.slice(from, to).replace(/[^\r\n]/g, ' '));
-    cursor = to;
-  }
-  parts.push(source.slice(cursor, end));
-  const text = parts.join('');
+  const text = commentMaskedSlice(source, start, end, comments);
   const first = text.search(/\S/u);
   if (first < 0) return undefined;
   const opening = start + first;

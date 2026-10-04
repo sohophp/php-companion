@@ -1,4 +1,5 @@
 import { compositeTypeCompletionTail } from './completionTypeTail.js';
+import { commentMaskedSlice } from './completionTrivia.js';
 import { quotedCompletion, trailingQuotedOpening, quoteCompletionLiteral, quotedArrayKey } from './quotedCompletion.js';
 import { createIncrementalEdit, controlFlowAssignmentStarts, phpNamespaceScopes, type PreparedPhpDocument, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
 import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
@@ -4642,7 +4643,7 @@ export class SemanticWorkspace {
     const argument = allowArgument ? this.expectedArgumentCompletionType(file, offset) : undefined;
     if (argument) return argument;
     const statementEnd = this.completionTriviaEnd(file, start);
-    const statement = file.source.slice(Math.max(0, statementEnd - 160), statementEnd);
+    const statement = commentMaskedSlice(file.source, Math.max(0, statementEnd - 160), statementEnd, file.commentRanges);
     if (scope.kind === 'closure' || scope.kind === 'arrow') {
       let returning = /(?:^|[;{}])\s*return\s*$/u.test(statement);
       if (scope.kind === 'arrow') {
@@ -5425,6 +5426,17 @@ export class SemanticWorkspace {
       end = comment.start;
     }
     return end;
+  }
+
+  private completionTriviaStart(file: SemanticFile, offset: number): number {
+    let start = offset;
+    while (start < file.source.length) {
+      while (start < file.source.length && /\s/u.test(file.source[start]!)) start++;
+      const comment = file.commentRanges.find(range => range.start <= start && start < range.end);
+      if (!comment) break;
+      start = comment.end;
+    }
+    return start;
   }
 
   private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T, comparisonCondition: 'match' | 'switch' | false = false): { value: T } | undefined {
@@ -6621,10 +6633,11 @@ export class SemanticWorkspace {
     const target = this.memberTarget(uri, word.end);
     if (!target) return [];
     const name = word.text.replace(/^\$/, '');
-    const called = /^\s*\(/.test(file.source.slice(word.end));
+    const following = file.source.slice(this.completionTriviaStart(file, word.end));
+    const called = /^\(/.test(following);
     const dollarPrefixed = word.start > 0 && file.source[word.start - 1] === '$';
     const expectedKind: MemberInfo['kind'] = called ? 'method' : target.static && !dollarPrefixed ? 'constant' : 'property';
-    const assignment = /^\s*=(?!=|>)/.test(file.source.slice(word.end));
+    const assignment = /^=(?!=|>)/.test(following);
     const members = this.targetMembers(target).filter((candidate) => candidate.kind === expectedKind
       && memberNameEquals(candidate.kind, candidate.name, name) && (candidate.kind !== 'property' || candidate.readable !== false || assignment));
     if (!members.length || !target.groups) return members;
@@ -11693,16 +11706,19 @@ export class SemanticWorkspace {
     if (this.isNonCodeMemberTextPosition(uri, file, offset)) return undefined;
     const tree = this.trees.get(uri);
     let statementStart = 0;
-    if (tree && !tree.rootNode.hasError && offset > 0 && offset <= file.source.length) {
+    if (tree && offset > 0 && offset <= file.source.length) {
       let node: SyntaxNode | null = tree.rootNode.namedDescendantForIndex(offset - 1);
       while (node && node !== tree.rootNode) {
         if (node.type.endsWith('_statement') && node.type !== 'compound_statement') {
-          statementStart = node.startIndex; break;
+          // An unrelated incomplete declaration must not force a whole-file
+          // prefix scan. A damaged local statement keeps the original fallback.
+          if (!node.hasError) statementStart = node.startIndex;
+          break;
         }
         node = node.parent;
       }
     }
-    const before = file.source.slice(statementStart, offset);
+    const before = commentMaskedSlice(file.source, statementStart, offset, file.commentRanges);
     const dynamicTarget = this.dynamicCallMemberTarget(file, offset, statementStart);
     if (dynamicTarget) return dynamicTarget;
     const staticChain = before.includes('::')

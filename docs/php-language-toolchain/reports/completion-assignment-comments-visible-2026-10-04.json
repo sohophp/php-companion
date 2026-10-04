@@ -1,0 +1,138 @@
+{
+  "platform": "linux",
+  "context": "assignment-comment-values",
+  "results": [
+    {
+      "label": "pickZ",
+      "key": "Enter",
+      "visibleMs": 253,
+      "visibleLabels": [
+        "pickZShapeGate0Enter\\pickZ($value = null): bool",
+        "pickAShapeGate0Enter\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Enter; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} class Builder{public bool $enabled;} function run(Builder $builder){$builder /* owner */ -> enabled /* property */ = pickZ();}",
+      "caretOffset": 251,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Tab",
+      "visibleMs": 153,
+      "visibleLabels": [
+        "pickZShapeGate0Tab\\pickZ($value = null): bool",
+        "pickAShapeGate0Tab\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Tab; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} class Builder{public bool $enabled;} function run(Builder $builder){$builder /* owner */ -> enabled /* property */ = pickZ();}",
+      "caretOffset": 249,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Enter",
+      "visibleMs": 158,
+      "visibleLabels": [
+        "pickZShapeGate1Enter\\pickZ($value = null): bool",
+        "pickAShapeGate1Enter\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Enter; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} class Builder{public static bool $enabled;} function run(){Builder /* owner */ :: $enabled /* property */ = pickZ();}",
+      "caretOffset": 242,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Tab",
+      "visibleMs": 152,
+      "visibleLabels": [
+        "pickZShapeGate1Tab\\pickZ($value = null): bool",
+        "pickAShapeGate1Tab\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Tab; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} class Builder{public static bool $enabled;} function run(){Builder /* owner */ :: $enabled /* property */ = pickZ();}",
+      "caretOffset": 240,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Enter",
+      "visibleMs": 182,
+      "visibleLabels": [
+        "pickZShapeGate2Enter\\pickZ($value = null): bool",
+        "pickAShapeGate2Enter\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Enter; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} function run(bool $assigned){$assigned /* variable */ = pickZ();}",
+      "caretOffset": 190,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Tab",
+      "visibleMs": 161,
+      "visibleLabels": [
+        "pickZShapeGate2Tab\\pickZ($value = null): bool",
+        "pickAShapeGate2Tab\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Tab; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} function run(bool $assigned){$assigned /* variable */ = pickZ();}",
+      "caretOffset": 188,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Enter",
+      "visibleMs": 142,
+      "visibleLabels": [
+        "pickZShapeGate3Enter\\pickZ($value = null): bool",
+        "pickAShapeGate3Enter\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Enter; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} class Builder{public bool $enabled{set(bool $value){}}} function run(Builder $builder){$builder /* owner */ -> enabled /* property */ = pickZ();}",
+      "caretOffset": 270,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Tab",
+      "visibleMs": 166,
+      "visibleLabels": [
+        "pickZShapeGate3Tab\\pickZ($value = null): bool",
+        "pickAShapeGate3Tab\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Tab; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} class Builder{public bool $enabled{set(bool $value){}}} function run(Builder $builder){$builder /* owner */ -> enabled /* property */ = pickZ();}",
+      "caretOffset": 268,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "qualification": {
+    "scope": "isolated Linux VS Code visible list and Enter/Tab acceptance; not real WSL acceptance",
+    "acceptedTextPhpLint": "8/8 with /opt/remi/php85/root/usr/bin/php -l; code was not executed"
+  }
+}

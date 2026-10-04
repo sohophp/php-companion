@@ -1,0 +1,61 @@
+{
+  "baseCommit": "cbf8a0bb194eec11dce7b9f1219851f3d4f4e49e",
+  "scope": "one serial before/after pair, 20 warm stdio samples each; no edits during sampling; not an editing or visible popup benchmark",
+  "afterInputSha256": {
+    "packages/semantic/src/index.ts": "b21ea20960024899f3c6d43ea7a252b93f521d4fa88521e0332dadc6fbcf1a2d",
+    "packages/semantic/src/quotedCompletion.ts": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c",
+    "packages/semantic/src/completionTrivia.ts": "693d9440d5778f39601434a20a56ffd68093df58358f92d2e15903ff0ed7dfce",
+    "packages/semantic/test/assignment-comment-completion.test.ts": "ed60846334e878d37d4422acb40fb1dcdd02ba5aa1501375469592aae71e51af",
+    "packages/language-server/test/stdio.test.ts": "a3992b72f1ea705cee1cff67fa2819987956d98f5eae61cbae6149ac29d91bb9",
+    "packages/language-server/test/magic-modifier-stdio.test.ts": "8e8bf75c0922243554b56ca1cd4636dfb430a4ecf2de1e69682e9b139f362cc3",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "7f978edd3623e61a160a629ab6f9f57997415338c1301503a31a898c0492eae0",
+    "dist/language-server.js": "7125ca4d93f1dc5c3468a3a1a14bc2ce1918b48209e74e3a9d2b614791a5e72f",
+    "dist/extension.js": "a01b90ba11fa1691a2c084dc85cbdb945694c1ff86f7ee58e7db223a940e8427"
+  },
+  "measurements": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 265.56700500000034,
+      "p95Ms": 212.6096180000004,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling",
+      "stage": "before local statement optimization"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 320.127371999999,
+      "p95Ms": 240.56170099999872,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling",
+      "stage": "before local statement optimization"
+    },
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 236.66701400000056,
+      "p95Ms": 123.44154200000048,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling",
+      "stage": "after local statement optimization"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 187.6674380000004,
+      "p95Ms": 119.24067599999944,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling",
+      "stage": "after local statement optimization"
+    }
+  ]
+}
