@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import * as vscode from 'vscode';
 import { chmod } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
+import { checkFormatterAutoFixState } from './formatterAutoFixAcceptance';
 
 export async function run(): Promise<void> {
   const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder);
@@ -23,7 +24,7 @@ export async function run(): Promise<void> {
     vscode.Uri.joinPath(formatter.extensionUri, 'sophp-no-change-candidate.json'))).toString('utf8'));
   assert.equal(candidate.owner, 'junstyle.php-cs-fixer');
   assert.equal(candidate.license, 'ISC');
-  assert.equal(candidate.patchedHash, 'f19592bc739d3e8804f26de43417e3bf21a48d55f3d0c690de69c6f2b2418cf6');
+  assert.equal(candidate.patchedHash, 'aa440f0e83294968d27a6f9f723a68173bd13bc7871ce1d70417e9f9bfe38068');
   for (const key of candidate.resourceKeys) assert.equal(
     formatter.packageJSON.contributes.configuration.properties[`php-cs-fixer.${key}`].scope, 'resource');
   const uri = vscode.Uri.joinPath(folder.uri, 'src', 'ProfileFormat.php');
@@ -121,9 +122,10 @@ export async function run(): Promise<void> {
     assert.notEqual(actualRuntimes[0], actualRuntimes[1], 'Both requests must run under different actual PHP versions');
     assert.deepEqual(actualRuntimes, expectedRuntimes, 'Each request must run with its own configured PHP executable');
   } else if (process.platform !== 'win32') assert.match(Buffer.from(await vscode.workspace.fs.readFile(trace)).toString('utf8'), /called/u);
+  const autoFixState = await checkFormatterAutoFixState(folder, second);
   console.log(`Formatter candidate acceptance proof: ${JSON.stringify({ platform: process.platform, node: process.version,
     formatterVersion: formatter.packageJSON.version, candidateHash: candidate.patchedHash, formatDocument: true, undo: true, redo: true, formatOnSave: true,
     diskMatches: true, idempotent: true, multiRootDistinctConfig: true, concurrentFormatting: true,
     distinctExecutableWithSpaces: process.platform !== 'win32', distinctPhpRuntimes: Boolean(secondPhp), actualRuntimes,
-    original, formatted: expected })}`);
+    original, formatted: expected, autoFixState })}`);
 }

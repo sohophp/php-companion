@@ -1326,6 +1326,25 @@ when@prod:
     expect(symfonyAutowireServiceIdReferences(decoys)).toEqual([]);
   });
 
+  it('keeps real Autowire references after an earlier comment or unrelated attribute match', () => {
+    const canonical = '\\Symfony\\Component\\DependencyInjection\\Attribute\\Autowire';
+    for (const preceding of [
+      `// #[${canonical}(service:'fake.line')]\n`,
+      `/* 中文🙂 #[${canonical}(service:'fake.block')] */`,
+      `#[Other(service:'fake.custom')] class OtherConsumer {}`,
+    ]) {
+      const source = `<?php ${preceding} #[${canonical}(service:'app.first')] class FirstConsumer {}`
+        + ` #[${canonical}(service:'app.second')] class SecondConsumer {}`;
+      const references = symfonyAutowireServiceIdReferences(source);
+      expect(references.map(({ value }) => value)).toEqual(['app.first', 'app.second']);
+      expect(references.map(({ start, end }) => source.slice(start, end))).toEqual(['app.first', 'app.second']);
+      for (const reference of references) {
+        expect(symfonyAutowireServiceIdAt(source, reference.start)).toEqual(reference);
+        expect(symfonyAutowireServiceIdAt(source, reference.end)).toEqual(reference);
+      }
+    }
+  });
+
   it('reads compiled bundle services, aliases and controller method locators from debug-container XML', () => {
     const uri = 'file:///project/var/cache/dev/App_KernelDevDebugContainer.xml';
     const source = `<?xml version="1.0"?><container><services>

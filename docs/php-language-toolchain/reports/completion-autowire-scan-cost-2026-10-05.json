@@ -1,0 +1,478 @@
+{
+  "milestone": "D75",
+  "date": "2026-10-05",
+  "baseCheckpoint": "fec034ee",
+  "change": "Defer comment/string masking until the existing Autowire service-literal regex finds a possible match. Preserve that first match, filtering, aliases, source ranges, and later matches. No parser prototype applied.",
+  "productionInputs": {
+    "packages/framework-symfony/src/index.ts": "11e250262428cd09fff55a1793b133453c31bfe86c06dc39a7747c28692a9d54",
+    "packages/framework-symfony/dist/index.js": "deb5c513855211cd3bd605f2e22876162e6650d5361864e863ed5ec3a1c5aa29",
+    "packages/framework-symfony/src/routes.ts": "82118dfd100c87cf48a1400cfbbe60ad87cd079e71463ef88cda8de6cc75c2c5",
+    "packages/framework-symfony/test/framework-symfony.test.ts": "8ba85ca981c39ec0111e8893e74d7db8631ee0772187bc3ab26c482b1026ef88",
+    "packages/parser/src/index.ts": "3931da5f557d6d4c8b4f10e8acb5e27b08eaac43aa0023067f6c725b3e12da32",
+    "packages/semantic/src/index.ts": "f0aa96bef7e6b09456d78a905f7fac4fd3a26d10bde0d687c09ea1526fa4de32",
+    "packages/language-server/src/analysis.ts": "732b5d4eec7d8266f313dd922099b909e6cb631b44096a03559f779624e08394",
+    "packages/language-server/src/server.ts": "66f660c5dd29b967b35832e7cd8a980d867b5e66ab7f2827c9947cd7096c30bf",
+    "dist/language-server.js": "fef56758ada94cf5407123335c14725a3a422c84e7973abb66c32cc305aa2a9f"
+  },
+  "parity": {
+    "cases": 70,
+    "offsets": 10000,
+    "fullReferencesEqual": true,
+    "everyOffsetEqual": true
+  },
+  "productionTests": {
+    "framework": {
+      "files": 5,
+      "passed": 70,
+      "failed": 0,
+      "notSelectedOrSkipped": 0,
+      "selectedNames": [
+        "F09 Symfony route acceptance fixtures F09-ROUTE-01 resolves a literal route and its exact controller range",
+        "F09 Symfony route acceptance fixtures F09-ROUTE-02 does not invent routes for a valid attribute directory import",
+        "F09 Symfony route acceptance fixtures F09-ROUTE-03 does not claim a route with a dynamic path",
+        "F09 Symfony service acceptance fixtures F09-SVC-01 resolves an exact YAML service ID reference to one declaration",
+        "F09 Symfony service acceptance fixtures F09-SVC-02 rejects valid escaped and expression literals as service references",
+        "F09 Symfony service acceptance fixtures F09-SVC-03 suppresses facts and references for incomplete YAML",
+        "static Symfony Controller context analysis extracts only literal render targets and associative context keys",
+        "static Symfony Controller context analysis records the value expression range for semantic render type inference",
+        "static Symfony Controller context analysis marks dynamic context shapes incomplete and lets interop merge controller alternatives",
+        "static Symfony Controller context analysis extracts render and renderView contexts with named PHP arguments",
+        "static Symfony Controller context analysis keeps known Controller parameters passed through compact and marks unknown arguments incomplete",
+        "static Symfony Controller context analysis does not treat a shadowed compact function as the PHP builtin",
+        "static Symfony Controller context analysis proves local compact variables from consecutive direct assignments",
+        "static Symfony Controller context analysis extracts an exact Symfony Template attribute with a literal returned array",
+        "static Symfony Controller context analysis extracts a known compact parameter from an exact Symfony Template attribute",
+        "static Symfony Controller context analysis keeps consecutive local compact values in a Template attribute",
+        "static Symfony Controller context analysis resolves an immediately assigned literal context passed to render or returned from Template",
+        "static Symfony Controller context analysis extracts literal event subscriber maps and rejects dynamic or inaccessible listeners",
+        "static Symfony Controller context analysis extracts a deterministic local subscription array and rejects dynamic mutations",
+        "static Symfony Controller context analysis extracts only complete subscription branches whose static results converge exactly",
+        "static Symfony Controller context analysis accepts inherited subscriber callbacks only when a semantic validator proves them",
+        "static Symfony Controller context analysis extracts inherited or Trait subscription maps with exact relative constant bindings",
+        "static Symfony Controller context analysis extracts exact class and method AsEventListener attributes with type inference",
+        "static Symfony Controller context analysis extracts inherited method attributes for a proven consumer and rejects relative rebinding",
+        "static Symfony Controller context analysis extracts exact dispatch event identities without claiming the receiver type",
+        "static Symfony Controller context analysis extracts explicit service classes and resolved aliases without expanding resources",
+        "static Symfony Controller context analysis locates exact Symfony YAML service references without treating declarations or expressions as references",
+        "static Symfony Controller context analysis locates static YAML parameter declarations and exact value placeholders without exposing values",
+        "static Symfony Controller context analysis selects exact Symfony YAML service environments without leaking inactive declarations or references",
+        "static Symfony Controller context analysis extracts conventional XML services, prototypes and exact listener ranges",
+        "static Symfony Controller context analysis selects exact Symfony XML service environments without leaking inactive declarations or references",
+        "static Symfony Controller context analysis locates only exact Symfony XML service reference attributes",
+        "static Symfony Controller context analysis locates exact Symfony XML parameter declarations and placeholders without exposing values",
+        "static Symfony Controller context analysis extracts universal and exact environment-gated bundle registrations",
+        "static Symfony Controller context analysis extracts the deterministic Symfony PHP Configurator service DSL",
+        "static Symfony Controller context analysis resolves PHP Configurator positional arguments by exact constructor index",
+        "static Symfony Controller context analysis locates exact PHP Configurator service references and completion ranges",
+        "static Symfony Controller context analysis locates parameters only in a proven PHP Configurator closure",
+        "static Symfony Controller context analysis selects exact PHP Configurator environment guards without leaking inactive facts",
+        "static Symfony Controller context analysis selects complete PHP Configurator elseif and fallback environment branches",
+        "static Symfony Controller context analysis selects exact when@environment branches in PHP array service configuration",
+        "static Symfony Controller context analysis extracts only explicit kernel.event_listener YAML tags with precise ranges",
+        "static Symfony Controller context analysis expands deterministic resources, brace exclusions and explicit overrides without registering non-instantiable types",
+        "static Symfony Controller context analysis recognizes only literal Autowire service named arguments",
+        "static Symfony Controller context analysis keeps real Autowire references after an earlier comment or unrelated attribute match",
+        "static Symfony Controller context analysis reads compiled bundle services, aliases and controller method locators from debug-container XML",
+        "static Symfony Controller context analysis resolves exact type ids and a unique resource implementation only for autowired consumers",
+        "combines class prefixes and named method routes through import aliases",
+        "keeps custom Route names separate and supports explicitly named invokable class routes",
+        "does not invent names for dynamic or malformed route attributes",
+        "selects literal class and method environments without consuming skipped default-name indexes",
+        "expands literal localized paths with exact class and method locale correspondence",
+        "generates loader-specific names, counting only unnamed attributes per method",
+        "does not consume an unnamed index for an excluded environment attribute",
+        "static Symfony routes preserves literal route names, locations and import prefixes without inventing runtime routes",
+        "static Symfony routes locates exact class and method segments in literal YAML controllers",
+        "static Symfony routes selects a literal controller segment at the cursor in standard and module route YAML",
+        "static Symfony routes records explicit attribute directories with bounded glob imports and exclusions",
+        "static Symfony routes preserves explicit PSR-4 directory mappings and rejects ambiguous resources",
+        "static Symfony routes retains glob selectors and refuses unbounded brace expansion inputs",
+        "static Symfony routes expands localized paths and import prefixes while rejecting dynamic values",
+        "static Symfony routes selects an exact YAML environment block and preserves nested source ranges",
+        "static Symfony routes extracts PHP Configurator route declarations and deterministic imports",
+        "static Symfony routes records exact PHP route controller sources while preserving import aliases",
+        "static Symfony routes extracts unconditional and exact environment-gated Kernel route imports",
+        "static Symfony routes escapes quotes, backslashes and dollar signs for the original PHP string delimiter",
+        "static Symfony routes locates reordered named arguments while rejecting duplicate or positional collisions",
+        "static Symfony routes locates only direct first literal route arguments, not comments or concatenations",
+        "static Symfony routes locates direct route parameter string keys and records existing keys",
+        "static Symfony routes rejects dynamic route names, dynamic parameter keys and non-array parameters"
+      ]
+    },
+    "frameworkLsp": {
+      "files": 1,
+      "passed": 2,
+      "failed": 0,
+      "notSelectedOrSkipped": 521,
+      "selectedNames": [
+        "language server stdio refreshes indexed PHP files after a watched disk change",
+        "language server stdio uses a bundled authoritative container provider for Symfony service references"
+      ]
+    },
+    "prefix": {
+      "files": 1,
+      "passed": 4,
+      "failed": 0,
+      "notSelectedOrSkipped": 0,
+      "selectedNames": [
+        "refreshes server matching as unsaved prefixes narrow in 'onDemand' at PHP '7.2'",
+        "refreshes server matching as unsaved prefixes narrow in 'onDemand' at PHP '8.5'",
+        "refreshes server matching as unsaved prefixes narrow in 'progressive' at PHP '7.2'",
+        "refreshes server matching as unsaved prefixes narrow in 'progressive' at PHP '8.5'"
+      ]
+    },
+    "hotPerformance": {
+      "files": 1,
+      "passed": 2,
+      "failed": 0,
+      "notSelectedOrSkipped": 0,
+      "selectedNames": [
+        "respects magic method modifiers and static edits at PHP 7.2",
+        "respects magic method modifiers and static edits at PHP 8.5"
+      ]
+    }
+  },
+  "frozenVerification": {
+    "inputCount": 2987,
+    "inputsUnchanged": true,
+    "stages": [
+      {
+        "name": "framework",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/framework-symfony",
+          "exec",
+          "vitest",
+          "run",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d75-production-framework-results.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "lsp-framework",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/stdio.test.ts",
+          "-t",
+          "refreshes indexed PHP files after a watched disk change|uses a bundled authoritative container provider for Symfony service references",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d75-production-framework-lsp-results.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "prefix",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/completion-prefix-refresh-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d75-production-prefix-results.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "performance",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/magic-modifier-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d75-production-performance-results.json"
+        ],
+        "exitCode": 0
+      }
+    ]
+  },
+  "hotPerformance": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 95.45661900000005,
+      "p95Ms": 62.26487199999974,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 113.47065300000031,
+      "p95Ms": 82.97833999999966,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 22.32391000000007,
+      "p95Ms": 12.054838000000018,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 25.66452500000014,
+      "p95Ms": 10.119897999999921,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "visible": {
+    "onDemand": {
+      "flows": 12,
+      "observations": 50,
+      "visibleChecks": 39,
+      "exactAcceptances": 11,
+      "visibleWaitRangeMs": [
+        15,
+        331
+      ],
+      "vscodeVersion": "1.140.0",
+      "platform": "linux",
+      "indexingMode": "onDemand",
+      "workspaceIndexingMode": "onDemand",
+      "rendererExceptions": 0
+    },
+    "progressive": {
+      "flows": 12,
+      "observations": 50,
+      "visibleChecks": 39,
+      "exactAcceptances": 11,
+      "visibleWaitRangeMs": [
+        14,
+        343
+      ],
+      "vscodeVersion": "1.140.0",
+      "platform": "linux",
+      "indexingMode": "progressive",
+      "workspaceIndexingMode": "progressive",
+      "rendererExceptions": 0
+    }
+  },
+  "visibleVerification": {
+    "inputs": {
+      "dist/language-server.js": "fef56758ada94cf5407123335c14725a3a422c84e7973abb66c32cc305aa2a9f",
+      "scripts/check-comparison-condition-acceptance.mjs": "67a7417ceda2654f92461d2be856018ef9bb761d3bb0edbfb4491c1d4a7fb8c2",
+      "test/extension/suite/automaticCompletionAcceptance.ts": "4b566e0cd695723fef8a6fba4f2f0034197e07a1953c0fbcebb2932aa2de8c6c"
+    },
+    "stages": [
+      {
+        "mode": "onDemand",
+        "exitCode": 0
+      },
+      {
+        "mode": "progressive",
+        "exitCode": 0
+      }
+    ],
+    "inputsUnchanged": true
+  },
+  "ordinary": {
+    "fixture": {
+      "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+      "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "comments": 1500,
+      "constants": 1500,
+      "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "rounds": 100,
+      "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+    },
+    "finalProduction": [
+      {
+        "version": "7.2",
+        "label": "production",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 147.63,
+          "p95Ms": 208.51,
+          "maxMs": 363.04
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "production",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 105.97,
+          "p95Ms": 157.64,
+          "maxMs": 182.7
+        }
+      }
+    ],
+    "sourceUnchanged": true,
+    "prospectiveAutowireOnly": [
+      {
+        "version": "7.2",
+        "label": "baseline",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 137.87,
+          "p95Ms": 189.33,
+          "maxMs": 344.38
+        }
+      },
+      {
+        "version": "7.2",
+        "label": "prototype",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 129.24,
+          "p95Ms": 231.8,
+          "maxMs": 335.96
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "baseline",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 118.51,
+          "p95Ms": 164.59,
+          "maxMs": 363.47
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "prototype",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 108.97,
+          "p95Ms": 152.61,
+          "maxMs": 186.09
+        }
+      }
+    ],
+    "productionBinding": {
+      "productionSha256": "fef56758ada94cf5407123335c14725a3a422c84e7973abb66c32cc305aa2a9f",
+      "prototypeSha256": "5997dcf5adc8e3b1fa9cfdf006a9052ce350be670bb65a722ed7f936c50fe642",
+      "equal": false,
+      "qualification": "Different bundle identities; prototype timing is not final product qualification. Measure the final product once."
+    },
+    "qualification": "Final production measured once per version because prospective TypeScript-hook bundle identity differed. No P95 pass or overall improvement claimed."
+  },
+  "rejectedParserPrototype": {
+    "rawFacts": 166,
+    "diagnosticComparisons": 2988,
+    "parityPassed": true,
+    "applied": false,
+    "ordinaryCombinedWithAutowire": [
+      {
+        "version": "7.2",
+        "label": "baseline",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 151.24,
+          "p95Ms": 184.13,
+          "maxMs": 441.12
+        }
+      },
+      {
+        "version": "7.2",
+        "label": "prototype",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 131.02,
+          "p95Ms": 208.61,
+          "maxMs": 257.46
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "baseline",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 114.5,
+          "p95Ms": 153.4,
+          "maxMs": 424.24
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "prototype",
+        "exitCode": 0,
+        "all": {
+          "p50Ms": 97.44,
+          "p95Ms": 154.82,
+          "maxMs": 361.45
+        }
+      }
+    ],
+    "decision": "Median lower but both P95 pairs failed to improve; parse CPU difference small. Do not adopt broader traversal strategy."
+  },
+  "profiling": {
+    "fixture": "same 242801-byte source as D74; debug engine, initialization included, CPU sampling only",
+    "autowireInclusiveMs": {
+      "baseline": 671.48,
+      "combinedPrototype": 26.86
+    },
+    "maskInclusiveMs": {
+      "baseline": 626.08,
+      "combinedPrototype": 0
+    },
+    "qualifier": "The combined prototype also changed parser traversal. CPU samples establish removable Autowire work, not final end-to-end timing qualification."
+  },
+  "engineering": {
+    "typeScriptBuild": true,
+    "productionBundle": true,
+    "eslint": true,
+    "diffCheck": true,
+    "initialBuildIssue": "RegExpExecArray narrowed after null guard; loop variable annotated RegExpExecArray | null before successful build."
+  },
+  "open": [
+    "ordinary PHP 7.2 P95 208.51 ms > 150 ms",
+    "ordinary PHP 8.5 P95 157.64 ms > 150 ms",
+    "no current full-LSP combination; D73 binds D72",
+    "other platforms/scale/long-session and real WSL acceptance"
+  ],
+  "next": "Close this bounded cost investigation. Continue independent original C1-C4 gaps; do not repeatedly rerun the same fixture for a green P95. Run full LSP at next candidate closure.",
+  "delivery": {
+    "committed": true,
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false,
+    "goal": "active",
+    "milestone": "D75 and D76 local source checkpoint"
+  },
+  "artifactSha256": {
+    "profile-meta": "2701550f9f71fa0c3d8996bd48ee7299336f2dc741ae1c593bd501b208208481",
+    "profile-summary": "908496312940991f27ac0b78effce7c66f9401c8310a0ed9ce980d27b7ae346f",
+    "prototype-profile-meta": "e1f1ba295d05901fd49110101441a8e5234599be9f3957406ec124c84a21f51c",
+    "prototype-profile-summary": "47a7655456cf8b8e5cebe1e7545686484489f74b7cca5918290267e5e04888a6",
+    "autowire-parity": "e6b2da1b4d005ad11e199693cc01af5603cf6d9c76afeb6bab1cf96136d1ca28",
+    "recovery-parity": "b9a2f3e2a7fde4c6153fbc2321d2f7d9e751c6937f68d8894fc08629a3b338aa",
+    "ordinary-pair": "49f1e09895787e7231799a2f651b3d1830aa20b004f3d4e7de1a958b17b0ee10",
+    "autowire-ordinary-pair": "778ce4cabdb4fa9475f8d4362ad98a4102a8fb1103362a46af0ee8dba6776f01",
+    "final-ordinary-pair": "394a1ab4ff1b8a3eb1967881ba7c3dd906ac82a0b8c0d5938a8f19c1c4cf9f7b",
+    "production-gates-meta": "3e4bc883e20a75e1b018994a481aa140ae8f3c1f1d8f6fabb4176e2ebaebcc53",
+    "visible-verification": "a3cf2f5a74bf8465493a9d2fd552cb714ee588e7f3fd098586a08212b9c613b7"
+  }
+}

@@ -47,6 +47,22 @@ replaceOnce('i.document.languageId=="php"&&e.onsave&&e.editorFormatOnSave==!1',
   'i.document.languageId=="php"&&e.forResource(i.document.uri).onsave&&e.forResource(i.document.uri).editorFormatOnSave==!1');
 replaceOnce('e.autoFixByBracket&&e.doAutoFixByBracket(i),e.autoFixBySemicolon&&e.doAutoFixBySemicolon(i)',
   'e.forResource(i.document.uri).autoFixByBracket&&e.doAutoFixByBracket(i),e.forResource(i.document.uri).autoFixBySemicolon&&e.doAutoFixBySemicolon(i)');
+// Auto-fix receives a document event, while upstream targets whichever editor is active.
+// Bind it to that document and reject results after editing, closing, or changing focus.
+replaceOnce('let s=v.window.activeTextEditor,n=s.document,r=s.selection.start;v.commands.executeCommand("editor.action.jumpToBracket").then(()=>{let o=s.selection.start',
+  'let s=v.window.activeTextEditor;if(!s||s.document!==e.document||e.document.isClosed)return;let n=s.document,version=n.version,r=s.selection.start;const current=()=>v.window.activeTextEditor===s&&!n.isClosed&&n.version===version;v.commands.executeCommand("editor.action.jumpToBracket").then(()=>{if(!current())return;let o=s.selection.start');
+replaceOnce('v.commands.executeCommand("cursorUndo").then(()=>{let y=s.selection.start',
+  'v.commands.executeCommand("cursorUndo").then(()=>{if(!current())return;let y=s.selection.start');
+replaceOnce('this.format(et,n.uri,!1,!0).then(W=>{W=x(W)',
+  'this.format(et,n.uri,!1,!0).then(W=>{if(!current())return;W=x(W)');
+replaceOnce('let s=v.window.activeTextEditor,n=s.document.lineAt(s.selection.start);',
+  'let s=v.window.activeTextEditor;if(!s||s.document!==e.document||e.document.isClosed)return;let version=s.document.version,n=s.document.lineAt(s.selection.start);const current=()=>v.window.activeTextEditor===s&&!s.document.isClosed&&s.document.version===version;');
+replaceOnce('this.format(a,s.document.uri,!1,!0).then(u=>{u=o(u)',
+  'this.format(a,s.document.uri,!1,!0).then(u=>{if(!current())return;u=o(u)');
+const afterEdit = '.then(()=>{s.selections.length>0&&v.commands.executeCommand("cancelSelection")})';
+assert.equal(output.split(afterEdit).length, 3, 'Expected the two reviewed auto-fix edit completions');
+output = output.replaceAll(afterEdit,
+  '.then(applied=>{applied&&v.window.activeTextEditor===s&&!s.document.isClosed&&s.selections.length>0&&v.commands.executeCommand("cancelSelection")})');
 await writeFile(`${destination}/index.js`, output);
 const resourceKeys = ['executablePath', 'executablePathWindows', 'rules', 'config', 'allowRisky', 'pathMode',
   'ignorePHPVersion', 'exclude', 'onsave', 'autoFixByBracket', 'autoFixBySemicolon', 'formatHtml', 'tmpDir'];
@@ -63,6 +79,7 @@ const proof = { owner: 'junstyle.php-cs-fixer', version: manifest.version, licen
   change: 'On successful CLI exit with valid JSON and no changed files, preserve informational stderr in output and return original text. Explicit CS Fixer lint/fix error reports, nonzero exit and invalid JSON still reject.',
   resourceSettings: 'Read formatter, PHP, editor and HTML settings for the document URI; isolate each request settings snapshot across workspace folders.',
   resourceKeys,
+  autoFixState: 'Require the active editor to own the event document; skip closed documents, changed versions, changed focus and failed edits before subsequent caret commands.',
   scope: 'Isolated development candidate only; no marketplace identity, Profile or default Pack change' };
 await writeFile(`${destination}/sophp-no-change-candidate.json`, JSON.stringify(proof, null, 2));
 process.stdout.write(`${JSON.stringify(proof, null, 2)}\n`);

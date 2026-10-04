@@ -1,0 +1,270 @@
+{
+  "date": "2026-10-05",
+  "milestone": "D76",
+  "sourceBase": "fec034ee plus D75 pending source",
+  "owner": "junstyle.php-cs-fixer development candidate only",
+  "defect": "Auto-fix used active editor instead of the document that triggered an event, and applied delayed results after content or focus changed.",
+  "baseline": {
+    "oldCandidateSha256": "f19592bc739d3e8804f26de43417e3bf21a48d55f3d0c690de69c6f2b2418cf6",
+    "failure": "doAutoFixBySemicolon/different-document invoked formatting once instead of zero",
+    "scope": "Exact extension class with mocked VS Code and deferred formatter boundary"
+  },
+  "patch": {
+    "owner": "junstyle.php-cs-fixer",
+    "version": "0.3.21",
+    "license": "ISC",
+    "sourceHash": "0d94dba0ab92cfcee26a4fdbc49ef9da81289ee4124395940b1a3c76deeaa243",
+    "patchedHash": "aa440f0e83294968d27a6f9f723a68173bd13bc7871ce1d70417e9f9bfe38068",
+    "source": "/tmp/sophp-stable-pack-extensions-20260927/junstyle.php-cs-fixer-0.3.21",
+    "destination": "/tmp/sophp-d76-formatter-candidate",
+    "change": "On successful CLI exit with valid JSON and no changed files, preserve informational stderr in output and return original text. Explicit CS Fixer lint/fix error reports, nonzero exit and invalid JSON still reject.",
+    "resourceSettings": "Read formatter, PHP, editor and HTML settings for the document URI; isolate each request settings snapshot across workspace folders.",
+    "resourceKeys": [
+      "executablePath",
+      "executablePathWindows",
+      "rules",
+      "config",
+      "allowRisky",
+      "pathMode",
+      "ignorePHPVersion",
+      "exclude",
+      "onsave",
+      "autoFixByBracket",
+      "autoFixBySemicolon",
+      "formatHtml",
+      "tmpDir"
+    ],
+    "autoFixState": "Require the active editor to own the event document; skip closed documents, changed versions, changed focus and failed edits before subsequent caret commands.",
+    "scope": "Isolated development candidate only; no marketplace identity, Profile or default Pack change"
+  },
+  "productionInputs": {
+    "scripts/prepare-formatter-no-change-candidate.mjs": "b6088dc2a62ff4653e57336ed84d608b85f4836c2b14e4efd36319964b6a2616",
+    "test/extension/suite/formatterCandidateAcceptance.ts": "d9f7c35bc881606fe4b961b6d143123eaad38b9606db9cb6720b85d7e5e6f4cb",
+    "test/extension/suite/formatterAutoFixAcceptance.ts": "37b3d41cc2add9a065d6bc43816bf76b2a1cd4bde1a1535f30d0f13c4aa52940",
+    "dist-test/runPackagedTest.js": "04de24c8df20621f64c376a225a3369c68e5bcd0949ded9721ce25096a723567",
+    "dist/language-server.js": "fef56758ada94cf5407123335c14725a3a422c84e7973abb66c32cc305aa2a9f",
+    "scripts/check-formatter-auto-fix-state.mjs": "2c8e10075bfa97462a4aff2a9b6170d25465f479eb12eb1a7813b878796b010a"
+  },
+  "boundary": {
+    "cases": 20,
+    "results": [
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "different-document",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "no-editor",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "new-version",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "closed-document",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "focus-changed",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "current",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "failed-edit",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixBySemicolon",
+        "state": "focus-after-edit",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "different-document",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "no-editor",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "new-version",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "closed-document",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "focus-changed",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "current",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "failed-edit",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "state": "focus-after-edit",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "command": "editor.action.jumpToBracket",
+        "state": "new-version",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "command": "editor.action.jumpToBracket",
+        "state": "focus-changed",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "command": "cursorUndo",
+        "state": "new-version",
+        "passed": true
+      },
+      {
+        "method": "doAutoFixByBracket",
+        "command": "cursorUndo",
+        "state": "focus-changed",
+        "passed": true
+      }
+    ],
+    "scope": "Exact reviewed formatter methods in a mocked VS Code/deferred-format boundary; not real CLI or editor UI acceptance"
+  },
+  "resourceSettings": {
+    "resourceScopedPhp": true,
+    "resourceScopedFixer": true,
+    "resourceScopedConfig": true,
+    "resourceScopedTemp": true,
+    "concurrentRequests": true,
+    "reversedCompletion": true,
+    "noChangeAccepted": true,
+    "lintErrorsRejected": true,
+    "invalidJsonRejected": true,
+    "scope": "Exact pinned extension class in a mocked VS Code/CLI boundary; not real editor or actual CLI acceptance"
+  },
+  "actualHost": {
+    "platform": "linux",
+    "node": "v24.21.0",
+    "formatterVersion": "0.3.21",
+    "candidateHash": "aa440f0e83294968d27a6f9f723a68173bd13bc7871ce1d70417e9f9bfe38068",
+    "formatDocument": true,
+    "undo": true,
+    "redo": true,
+    "formatOnSave": true,
+    "diskMatches": true,
+    "idempotent": true,
+    "multiRootDistinctConfig": true,
+    "concurrentFormatting": true,
+    "distinctExecutableWithSpaces": true,
+    "distinctPhpRuntimes": true,
+    "actualRuntimes": [
+      "8.5.9",
+      "8.4.23"
+    ],
+    "original": "<?php\nclass  ProfileFormat{public function value( ):int{return 1234;}}\n",
+    "formatted": "<?php\n\nclass ProfileFormat\n{\n    public function value(): int\n    {\n        return 1234;\n    }\n}\n",
+    "autoFixState": {
+      "tested": true,
+      "backgroundIgnored": true,
+      "disabledFolderIgnored": true,
+      "deferredCliResults": [
+        {
+          "state": "new-version",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 17,
+          "source": "<?php\n$value=1; // later input"
+        },
+        {
+          "state": "focus-changed",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 2,
+          "source": "<?php\n$value=1;"
+        },
+        {
+          "state": "current",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 3,
+          "source": "<?php\n$value = 1;"
+        }
+      ],
+      "bracketCurrentFormatted": true,
+      "scope": "Actual isolated VS Code and pinned CLI; not real WSL human acceptance"
+    }
+  },
+  "hostVerification": {
+    "exitCode": 0,
+    "inputsUnchangedDuringHost": true,
+    "started": "2026-10-04T22:02:19.223Z",
+    "finished": "2026-10-04T22:02:51.737Z",
+    "bootstrapCleaned": true,
+    "postHostMockOnlyChange": "Added explicit Node imports for ESLint and failed-edit/focus-after-edit cases; runtime source and candidate bytes unchanged."
+  },
+  "engineering": {
+    "typeScriptNoEmit": true,
+    "eslintFinal": true,
+    "nodeSyntax": true,
+    "diffCheck": true,
+    "initialLintIssue": "Explicit imports added for Node process, console and timers; no rule disabled"
+  },
+  "qualification": {
+    "realCliStaleAndFocusTests": "semicolon only; all three real CLI invocations exited zero",
+    "realBracket": "current positive only; stale brackets and jump/cursorUndo boundaries covered by exact class tests",
+    "platform": "Linux VS Code 1.140.0 / Node 24.21.0",
+    "tool": "PHP CS Fixer 3.95.27",
+    "actualPhpVersions": [
+      "8.5.9",
+      "8.4.23"
+    ],
+    "userProfileUpdated": false,
+    "wholeC4Complete": false
+  },
+  "open": [
+    "Windows/macOS and real WSL human auto-fix acceptance",
+    "Bracket deferred CLI scenarios currently mock boundary evidence only",
+    "Default installed Marketplace formatter unchanged",
+    "Core ordinary continuous-edit P95 remains over budget"
+  ],
+  "delivery": {
+    "milestone": "D75 and D76 combined local source checkpoint",
+    "packaged": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  },
+  "artifacts": {
+    "/tmp/sophp-d76-host.log": "cca39b20a4cedaf4756cf279bd4d0c87c32a057033dd63be9af711598c04936d",
+    "/tmp/sophp-d76-host-meta.json": "4eb9fd5df7cd58886245c5f6870c3035bcde976e228f6440b5d4fd8cba5367e8",
+    "/tmp/sophp-d76-auto-fix-red.log": "84bed09f5a8a31247ea18f69fae92b6dead610a718ca2444b6e0ecfb7a8002d2",
+    "/tmp/sophp-d76-auto-fix-green.json": "b01c16383a67b1cb0309c5373c9d39dd7c797306777a706dec7fd90033cb76c3",
+    "/tmp/sophp-d76-eslint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d76-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

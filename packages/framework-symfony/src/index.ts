@@ -184,6 +184,9 @@ function maskPhpCommentsAndStrings(source: string): string {
 
 /** Enumerate exact #[Autowire(service: ...)] string literal source ranges. */
 export function symfonyAutowireServiceIdReferences(source: string): SymfonyServiceIdReference[] {
+  const pattern = /#\[\s*(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\((?:(?!\)\s*\]).){0,2000}?\bservice\s*:\s*(['"])((?:\\(?!['"])|[^\\'"\r\n])*)\2/gs;
+  const firstMatch = pattern.exec(source);
+  if (!firstMatch) return [];
   const canonical = 'symfony\\component\\dependencyinjection\\attribute\\autowire';
   const acceptedNames = new Set([canonical]);
   const code = maskPhpCommentsAndStrings(source);
@@ -194,9 +197,8 @@ export function symfonyAutowireServiceIdReferences(source: string): SymfonyServi
     }
     if (/\bnamespace\s+Symfony\\Component\\DependencyInjection\\Attribute\s*[;{]/i.test(code)) acceptedNames.add('autowire');
   }
-  const pattern = /#\[\s*(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\((?:(?!\)\s*\]).){0,2000}?\bservice\s*:\s*(['"])((?:\\(?!['"])|[^\\'"\r\n])*)\2/gs;
   const references: SymfonyServiceIdReference[] = [];
-  for (let match = pattern.exec(source); match; match = pattern.exec(source)) {
+  for (let match: RegExpExecArray | null = firstMatch; match; match = pattern.exec(source)) {
     if (code.slice(match.index, match.index + 2) !== '#[') continue;
     if (!acceptedNames.has(match[1]!.replace(/^\\/, '').toLowerCase())) continue;
     const value = match[3]!; const end = match.index + match[0].length - 1; const start = end - value.length;
