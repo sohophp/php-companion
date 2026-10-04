@@ -1,0 +1,501 @@
+{
+  "milestone": "D65 declaration-header trivia cost and stale-query qualification",
+  "baseCommit": "44c229069e9fc5a52eb06b3345d1006f79c289f6",
+  "productFiles": {
+    "packages/semantic/src/index.ts": "f0aa96bef7e6b09456d78a905f7fac4fd3a26d10bde0d687c09ea1526fa4de32"
+  },
+  "bundleBefore": {
+    "path": "dist/language-server.js",
+    "sha256": "d907fa0278e4f25d4d649f9bac517700c1a400e2b28c611abb10de2d542a5daf",
+    "bytes": 4170817
+  },
+  "bundleAfter": {
+    "path": "dist/language-server.js",
+    "sha256": "fec5df24a9cf3978ea4881a6bfc039e601c3ee58b9ccc3a31c132d67329eb342",
+    "bytes": 4170797
+  },
+  "fixture": {
+    "root": "/tmp/sophp-d65-edit-xoovw2x8",
+    "file": "/tmp/sophp-d65-edit-xoovw2x8/src/Editing.php",
+    "bytes": 241283,
+    "sha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+    "expectedFiles": [
+      "composer.json",
+      "src/Editing.php"
+    ],
+    "status": "cleaned after exact file-list and source-hash checks",
+    "cleanedAtUtc": "2026-10-04T16:58:11.013320+00:00"
+  },
+  "ordinaryBefore": {
+    "root": "/tmp/sophp-d65-edit-xoovw2x8",
+    "file": "/tmp/sophp-d65-edit-xoovw2x8/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 298.95,
+    "all": {
+      "p50Ms": 208.55,
+      "p95Ms": 244.03,
+      "maxMs": 447.97
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 211.42,
+      "p95Ms": 240.55,
+      "maxMs": 298.95,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 202.23,
+      "p95Ms": 249.27,
+      "maxMs": 447.97,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "ordinaryAfter": {
+    "root": "/tmp/sophp-d65-edit-xoovw2x8",
+    "file": "/tmp/sophp-d65-edit-xoovw2x8/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 178.43,
+    "all": {
+      "p50Ms": 187.83,
+      "p95Ms": 243.4,
+      "maxMs": 486.52
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 185.87,
+      "p95Ms": 243.4,
+      "maxMs": 300.19,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 187.83,
+      "p95Ms": 253.45,
+      "maxMs": 486.52,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "cpuMeasurement": {
+    "root": "/tmp/sophp-d65-edit-xoovw2x8",
+    "file": "/tmp/sophp-d65-edit-xoovw2x8/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 202.54,
+    "all": {
+      "p50Ms": 213.75,
+      "p95Ms": 258.14,
+      "maxMs": 517.61
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 213.75,
+      "p95Ms": 258.14,
+      "maxMs": 270.53,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 211.41,
+      "p95Ms": 259.49,
+      "maxMs": 517.61,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "cpuSummary": {
+    "totalSampleMs": 24271.44,
+    "topSelf": [
+      {
+        "functionName": "(garbage collector)",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "selfMs": 1353.86,
+        "inclusiveMs": 1353.86
+      },
+      {
+        "functionName": "_E",
+        "scriptId": "75",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineNumber": 188,
+        "columnNumber": 2305,
+        "selfMs": 1027.99,
+        "inclusiveMs": 1367.95
+      },
+      {
+        "functionName": "P4",
+        "scriptId": "75",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineNumber": 11392,
+        "columnNumber": 5055,
+        "selfMs": 679.25,
+        "inclusiveMs": 682.71
+      },
+      {
+        "functionName": "RegExp: \\bclone\\s*\\(",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "selfMs": 491.11,
+        "inclusiveMs": 491.11
+      },
+      {
+        "functionName": "RegExp: [^\\r\\n]",
+        "scriptId": "0",
+        "url": "",
+        "lineNumber": -1,
+        "columnNumber": -1,
+        "selfMs": 334.7,
+        "inclusiveMs": 334.7
+      },
+      {
+        "functionName": "parseDocument",
+        "scriptId": "75",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineNumber": 181,
+        "columnNumber": 3531,
+        "selfMs": 320.82,
+        "inclusiveMs": 3510.98
+      }
+    ],
+    "rawProfileSha256": "42e3b4d86cee0af4c8e08259f393560f2aab7c29d44aa2e7c33436b7eeb877dd",
+    "sampledDeclarationHeaderSelfMs": 1027.99
+  },
+  "preChangeCancellation": [
+    {
+      "platform": "linux",
+      "node": "v22.14.0",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "cancelledResult": [],
+      "freshLabels": [
+        "render"
+      ],
+      "documentVersion": 1,
+      "cancellationThroughReleaseMs": 6.707702000000154
+    },
+    {
+      "platform": "linux",
+      "node": "v22.14.0",
+      "phpVersion": "7.2",
+      "indexingMode": "experimental",
+      "cancelledResult": [],
+      "freshLabels": [
+        "render"
+      ],
+      "documentVersion": 1,
+      "cancellationThroughReleaseMs": 3.372808999999961
+    },
+    {
+      "platform": "linux",
+      "node": "v22.14.0",
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "cancelledResult": [],
+      "freshLabels": [
+        "render"
+      ],
+      "documentVersion": 1,
+      "cancellationThroughReleaseMs": 2.9285250000002634
+    },
+    {
+      "platform": "linux",
+      "node": "v22.14.0",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "cancelledResult": [],
+      "freshLabels": [
+        "render"
+      ],
+      "documentVersion": 1,
+      "cancellationThroughReleaseMs": 3.052773000000343
+    },
+    {
+      "platform": "linux",
+      "node": "v22.14.0",
+      "phpVersion": "8.5",
+      "indexingMode": "experimental",
+      "cancelledResult": [],
+      "freshLabels": [
+        "render"
+      ],
+      "documentVersion": 1,
+      "cancellationThroughReleaseMs": 2.942574999999124
+    },
+    {
+      "platform": "linux",
+      "node": "v22.14.0",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "cancelledResult": [],
+      "freshLabels": [
+        "render"
+      ],
+      "documentVersion": 1,
+      "cancellationThroughReleaseMs": 2.8940719999991416
+    }
+  ],
+  "preChangeStaleQueries": {
+    "passed": 4,
+    "notSelected": 519,
+    "seconds": 13.86,
+    "scope": "newer edit, same-version reopen, four query methods; package server built from D64 source"
+  },
+  "postChangeSemantic": {
+    "files": 5,
+    "passed": 74,
+    "seconds": 4.21
+  },
+  "postChangeProtocol": {
+    "passed": 2,
+    "notSelected": 521,
+    "seconds": 8.49
+  },
+  "postChangeUI": {
+    "platform": "linux",
+    "vscodeVersion": "1.140.0",
+    "rendererExceptions": 0,
+    "cases": [
+      {
+        "name": "Function",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "func",
+            "afterLastKeyMs": 355,
+            "visible": true,
+            "labels": [
+              "function",
+              "function blockPHP declaration or block"
+            ]
+          },
+          {
+            "phase": "function",
+            "afterLastKeyMs": 18,
+            "visible": true,
+            "labels": [
+              "function",
+              "function blockPHP declaration or block"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 632,
+            "visible": false,
+            "labels": []
+          }
+        ]
+      },
+      {
+        "name": "Class",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "clas",
+            "afterLastKeyMs": 182,
+            "visible": true,
+            "labels": [
+              "class"
+            ]
+          },
+          {
+            "phase": "class",
+            "afterLastKeyMs": 15,
+            "visible": true,
+            "labels": [
+              "class"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 511,
+            "visible": false,
+            "labels": []
+          }
+        ]
+      },
+      {
+        "name": "Enum",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "enu",
+            "afterLastKeyMs": 215,
+            "visible": true,
+            "labels": [
+              "enum"
+            ]
+          },
+          {
+            "phase": "enum",
+            "afterLastKeyMs": 19,
+            "visible": true,
+            "labels": [
+              "enum"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 550,
+            "visible": false,
+            "labels": []
+          }
+        ]
+      },
+      {
+        "name": "Member",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "public",
+            "afterLastKeyMs": 225,
+            "visible": true,
+            "labels": [
+              "public"
+            ]
+          },
+          {
+            "phase": "magic name",
+            "afterLastKeyMs": 215,
+            "visible": true,
+            "labels": [
+              "__construct"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Types",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "short type",
+            "afterLastKeyMs": 245,
+            "visible": true,
+            "labels": [
+              "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+              "ShortCurrentAutomaticTypes\\ShortCurrent",
+              "SessionHandlerSessionHandler"
+            ]
+          },
+          {
+            "phase": "changed type",
+            "afterLastKeyMs": 224,
+            "visible": true,
+            "labels": [
+              "OtherCurrentAutomaticTypes\\OtherCurrent",
+              "OverrideTargetApp\\Service\\OverrideTarget"
+            ]
+          },
+          {
+            "phase": "restored type",
+            "afterLastKeyMs": 220,
+            "visible": true,
+            "labels": [
+              "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+              "ShortCurrentAutomaticTypes\\ShortCurrent",
+              "SessionHandlerSessionHandler"
+            ]
+          },
+          {
+            "phase": "narrow type",
+            "afterLastKeyMs": 55,
+            "visible": true,
+            "labels": [
+              "ShortCurrentAutomaticTypes\\ShortCurrent"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Arguments",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "bool argument",
+            "afterLastKeyMs": 199,
+            "visible": true,
+            "labels": [
+              "$firstBool$firstBool: bool",
+              "$firstText",
+              "$_FILES"
+            ]
+          },
+          {
+            "phase": "string argument",
+            "afterLastKeyMs": 188,
+            "visible": true,
+            "labels": [
+              "$firstText$firstText: string",
+              "$firstBool",
+              "$_FILES"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "RootImport",
+        "diskUnchanged": true,
+        "observations": [
+          {
+            "phase": "root type",
+            "afterLastKeyMs": 220,
+            "visible": true,
+            "labels": [
+              "ArrayObjectArrayObject"
+            ]
+          },
+          {
+            "phase": "import alias name",
+            "afterLastKeyMs": 546,
+            "visible": false,
+            "labels": []
+          }
+        ]
+      }
+    ],
+    "proofSha256": "865c573f671268ad80f32902f83349299c0d300a4deccf663f9ad2c601e62d12"
+  },
+  "engineering": [
+    "semantic build",
+    "language-server build",
+    "production bundle build",
+    "targeted eslint",
+    "git diff --check"
+  ],
+  "limitations": [
+    "P95 243.40 ms still exceeds 150 ms; the small before/after P95 difference is not evidence of a meaningful improvement",
+    "CPU sample totals are accumulated profiler costs, not ordinary wall-clock or P95 qualification",
+    "Current complete semantic/LSP suite not rerun for this increment; prior full results belong to their respective inputs",
+    "Delayed on-demand type hydration, full version/platform/scale scope and real user WSL acceptance remain open",
+    "No VSIX, profile update, push or release"
+  ]
+}

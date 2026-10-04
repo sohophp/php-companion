@@ -980,7 +980,7 @@ function declarationHeader(file: SemanticFile, end: number): string {
   for (const range of comments) {
     const start = Math.max(cursor, range.start), stop = Math.min(end, range.end);
     if (stop <= start) continue;
-    fragments.push(header.slice(cursor, start), header.slice(start, stop).replace(/[^\r\n]/g, ' '));
+    fragments.push(header.slice(cursor, start), maskCompletionTrivia(header.slice(start, stop)));
     cursor = stop;
   }
   fragments.push(header.slice(cursor));
