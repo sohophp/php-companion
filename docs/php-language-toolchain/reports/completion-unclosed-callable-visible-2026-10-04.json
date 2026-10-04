@@ -1,0 +1,167 @@
+{
+  "platform": "linux",
+  "context": "unclosed-callable-values",
+  "results": [
+    {
+      "label": "$flag",
+      "key": "Enter",
+      "visibleMs": 252,
+      "visibleLabels": [
+        "$flag",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$text"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Enter; function choose0Enter(string $text,bool $flag):bool{return /* value */ $flag",
+      "caretOffset": 109,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "$flag",
+      "key": "Tab",
+      "visibleMs": 128,
+      "visibleLabels": [
+        "$flag",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$text"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Tab; function choose0Tab(string $text,bool $flag):bool{return /* value */ $flag",
+      "caretOffset": 105,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 176,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Enter; class Host1Enter{public function choose1Enter(string $text,bool $flag):bool{return /* value */ true",
+      "caretOffset": 132,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 159,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Tab; class Host1Tab{public function choose1Tab(string $text,bool $flag):bool{return /* value */ true",
+      "caretOffset": 126,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Enter",
+      "visibleMs": 153,
+      "visibleLabels": [
+        "pickZShapeGate2Enter\\pickZ($value = null): bool",
+        "pickAShapeGate2Enter\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Enter; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} $callback=function():bool{return pickZ()",
+      "caretOffset": 167,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "pickZ",
+      "key": "Tab",
+      "visibleMs": 161,
+      "visibleLabels": [
+        "pickZShapeGate2Tab\\pickZ($value = null): bool",
+        "pickAShapeGate2Tab\\pickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Tab; function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} $callback=function():bool{return pickZ()",
+      "caretOffset": 165,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "$flag",
+      "key": "Enter",
+      "visibleMs": 139,
+      "visibleLabels": [
+        "$flag",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$text"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Enter; $callback=fn(string $text,bool $flag):bool=> /* value */ $flag",
+      "caretOffset": 95,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "$flag",
+      "key": "Tab",
+      "visibleMs": 139,
+      "visibleLabels": [
+        "$flag",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$text"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Tab; $callback=fn(string $text,bool $flag):bool=> /* value */ $flag",
+      "caretOffset": 93,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "qualification": {
+    "scope": "isolated Linux VS Code visible lists and Enter/Tab; not real WSL acceptance",
+    "source": "deliberately unfinished callable bodies; no PHP compilation claim",
+    "trigger": "explicit suggest after completion provider readiness; not automatic popup or latency P95"
+  }
+}

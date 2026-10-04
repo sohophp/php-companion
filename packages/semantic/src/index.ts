@@ -4954,6 +4954,11 @@ export class SemanticWorkspace {
     const field = this.expectedArrayShapeValueType(file, offset, start, unclosedQuote);
     if (field.insideArray) return field.type;
     const scope = this.containingScope(file, offset);
+    if (!scope || scope.kind === 'global') {
+      const recovered = this.trailingCallableQuery(file, offset, fork =>
+        fork.expectedCandidateCompletionType(fork.files.get(file.uri)!, start, offset, unclosedQuote), 'expression');
+      if (recovered) return recovered.value;
+    }
     return scope ? this.expectedVariableCompletionType(file, scope, start, offset)
       : this.expectedArgumentCompletionType(file, offset);
   }
@@ -5056,7 +5061,8 @@ export class SemanticWorkspace {
     if (!file) return [];
     const recovered = this.recoveredMiddleArrayLiteral(file, offset, fork => fork.completeExpectedValues(uri, offset));
     if (recovered) return recovered.invalid ? [] : recovered.value.map(value => ({ ...value, end: Math.min(value.end, recovered.end) }));
-    const trailing = this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), 'match')
+    const trailing = this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), 'expression')
+      ?? this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), 'match')
       ?? this.trailingCallableQuery(file, offset, fork => fork.completeExpectedValues(uri, offset), 'switch');
     if (trailing) return trailing.value;
     const stringRange = file.stringRanges.find(range => range.start < offset && offset < range.end);
@@ -5403,6 +5409,8 @@ export class SemanticWorkspace {
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
     const prefixEnd = this.completionTriviaEnd(file, offset);
     if (!/(?:=>|\(|,|:|=|\breturn)\s*$/u.test(file.source.slice(0, prefixEnd))) return undefined;
+    const recovered = this.trailingCallableQuery(file, offset, fork => fork.completeBareExpressionVariables(uri, offset), 'expression');
+    if (recovered) return recovered.value;
     const scope = this.containingScope(file, offset);
     if (!scope) return undefined;
     const expected = this.expectedCandidateCompletionType(file, offset, offset);
@@ -5439,19 +5447,23 @@ export class SemanticWorkspace {
     return start;
   }
 
-  private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T, comparisonCondition: 'match' | 'switch' | false = false): { value: T } | undefined {
+  private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T,
+    recoveryContext: 'expression' | 'match' | 'switch' | false = false): { value: T } | undefined {
     // Complete only a trailing expression. The fork owns recovered syntax and
     // query caches; no synthetic delimiters reach project facts or diagnostics.
     if (!file.syntaxErrors.length || file.source.length > 131_072 || file.source.slice(offset).trim()
       || file.source.includes('?>') || !/\b(?:function\s*(?:&\s*)?\(|function\s+(?:&\s*)?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*\(|fn\s*\()/iu.test(file.source)) return undefined;
     const ignored = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
+    const comparisonCondition = recoveryContext === 'expression' ? false : recoveryContext;
+    // New expression consumers retain the array recovery's 16-delimiter budget.
+    const maximumDelimiters = recoveryContext === 'expression' ? 16 : 32;
     const delimiters: string[] = []; let rangeIndex = 0;
     for (let index = 0; index < file.source.length; index += 1) {
       while (ignored[rangeIndex] && ignored[rangeIndex]!.end <= index) rangeIndex += 1;
       const range = ignored[rangeIndex];
       if (range && range.start <= index) { index = range.end - 1; continue; }
       const character = file.source[index]!;
-      if ('([{'.includes(character)) { if (delimiters.length >= 32) return undefined; delimiters.push(character); }
+      if ('([{'.includes(character)) { if (delimiters.length >= maximumDelimiters) return undefined; delimiters.push(character); }
       else if (')]}'.includes(character)) {
         if (delimiters.pop() !== ({ ')': '(', ']': '[', '}': '{' } as Record<string, string>)[character]) return undefined;
       }
@@ -5463,7 +5475,11 @@ export class SemanticWorkspace {
       ending += delimiter === '{' ? comparisonCondition && index === 0 ? '}' : ';}' : delimiter === '(' ? ')' : ']';
     // A bare member operator needs a disposable identifier, not a guessed type.
     const memberPlaceholder = /(?:\?->|->|::)\s*$/u.test(file.source.slice(0, offset)) ? '__sophp_completion' : '';
-    const suffix = (comparisonCondition === 'match' ? ' => null' : comparisonCondition === 'switch' ? ': break;' : memberPlaceholder) + '\n' + ending + ';';
+    const valuePlaceholder = recoveryContext === 'expression'
+      && /(?:=>|(?<![=!<>])=|\(|,|:)\s*$/u.test(file.source.slice(0, this.completionTriviaEnd(file, offset)))
+      ? '__sophp_completion' : '';
+    const suffix = (comparisonCondition === 'match' ? ' => null' : comparisonCondition === 'switch' ? ': break;'
+      : memberPlaceholder || valuePlaceholder) + '\n' + ending + ';';
     let fork = this.forkForCompletionRecovery(file.uri, file.source + suffix);
     try {
       let recovered = fork.files.get(file.uri)!;
@@ -6297,7 +6313,8 @@ export class SemanticWorkspace {
   phpKeywordCompletionContext(uri: string, offset: number): PhpKeywordCompletionContext | undefined {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset) || this.isMemberCompletionContext(uri, offset)) return undefined;
-    const trailing = this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'match')
+    const trailing = this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'expression')
+      ?? this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'match')
       ?? this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'switch');
     if (trailing) return trailing.value;
     const prefix = completionIdentifierPrefix(file.source, offset);
@@ -6365,6 +6382,8 @@ export class SemanticWorkspace {
   completeFunctions(uri: string, offset: number): FunctionCompletionInfo[] {
     const file = this.files.get(uri); if (!file) return [];
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
+    const recovered = this.trailingCallableQuery(file, offset, fork => fork.completeFunctions(uri, offset), 'expression');
+    if (recovered) return recovered.value;
     const word = completionIdentifierPrefix(file.source, offset);
     if (typeCompletionPrefix(file.source, offset) !== undefined
       || isFunctionOrConstantImportPosition(file.source, offset)) return [];

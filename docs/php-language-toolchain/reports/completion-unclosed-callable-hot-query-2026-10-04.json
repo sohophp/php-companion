@@ -1,0 +1,30 @@
+{
+  "baseCommit": "6a1f2b30bf3f96eda128431621e547d823e395d2",
+  "scope": "one fixed small-document stdio sample per configured PHP version; no edits, not a cold query, editor UI or large-document benchmark",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "d3ab24ff30dd79d87081fc35ae0b9e8ecaabc7a39dd9dc36ec9be37192a22059",
+    "packages/semantic/test/unclosed-callable-value-completion.test.ts": "5b4fc759dcec3a0e1eeee7be750b7514c5675772b9acdb3174919e6fdb64f7df",
+    "packages/language-server/test/stdio.test.ts": "02067b221d42508a73fe0e8ba84b97aab1657f6ea858b956df90521ed516615b",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "48f10e34b30f315321fbbca3f26d04ea95e88bd302bcd03011cad134f9a4a94a",
+    "dist/language-server.js": "df0e850ee381ce9e4e054da1be976bde270effbec94069d3610fc6260b99a5f8",
+    "dist/extension.js": "a01b90ba11fa1691a2c084dc85cbdb945694c1ff86f7ee58e7db223a940e8427"
+  },
+  "measurements": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 232,
+      "warmSamples": 20,
+      "firstQueryMs": 2.8967329999995854,
+      "p95Ms": 5.11626299999989,
+      "scope": "real stdio completion in an unclosed return; fixed small document, no edits during samples"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 232,
+      "warmSamples": 20,
+      "firstQueryMs": 2.599344000000201,
+      "p95Ms": 3.8257340000000113,
+      "scope": "real stdio completion in an unclosed return; fixed small document, no edits during samples"
+    }
+  ]
+}

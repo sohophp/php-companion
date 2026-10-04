@@ -2641,6 +2641,75 @@ function inspect(Sink $sink, ?Sink $optional): void {
       expect(items.some(item => item.label === 'shapePickZ'), tail).toBe(true);
     }
   }, 30_000);
+  it.each(['7.2','8.5'])('recovers ordinary unclosed callable values through stdio on PHP %s', async phpVersion => {
+    const uri='file:///UnclosedCallableValues.php';
+    server=spawn(process.execPath,[resolve('dist/server.js'),'--stdio'],{stdio:'pipe'});
+    const output=messagesFrom(server);
+    server.stdin.write(encode({jsonrpc:'2.0',id:1,method:'initialize',params:{processId:null,rootUri:null,
+      capabilities:{textDocument:{completion:{completionItem:{snippetSupport:true}}}},initializationOptions:{phpVersion}}}));
+    await output.waitFor(message=>message.id===1);
+    const header="<?php function pickA():string{return 'x';} function pickZ():bool{return true;} const PICK_A_TEXT='x',PICK_Z_BOOL=true; function innerBool(bool $flag):bool{return $flag;} ";
+    const bodies=[
+      'function run(string $text,bool $flag):bool{return /* value */ §',
+      'class Host{public function run(string $text,bool $flag):bool{return /* value */ §',
+      '$callback=function(string $text,bool $flag):bool{return /* value */ §',
+      'function run(string $text,bool $flag){$flag /* target */ = /* value */ §',
+      'function run(string $text,bool $flag):string{return innerBool(/* value */ §',
+    ];
+    if(phpVersion==='8.5') bodies.push('$callback=fn(string $text,bool $flag):bool=> /* value */ §');
+    let version=0;
+    const query=async(tail:string):Promise<any[]>=>{
+      const marked=header+tail,offset=marked.indexOf('§'),source=marked.replace('§','');version++;
+      server!.stdin.write(encode({jsonrpc:'2.0',method:version===1?'textDocument/didOpen':'textDocument/didChange',params:version===1
+        ?{textDocument:{uri,languageId:'php',version,text:source}}:{textDocument:{uri,version},contentChanges:[{text:source}]}}));
+      server!.stdin.write(encode({jsonrpc:'2.0',id:100+version,method:'textDocument/completion',params:{textDocument:{uri},position:lspPosition(source,offset)}}));
+      const response=await output.waitFor(message=>message.id===100+version);expect(response.error).toBeUndefined();
+      const items=Array.isArray(response.result)?response.result:response.result.items;
+      for(const item of items) if(item.textEdit) {
+        expect(lspOffset(source,item.textEdit.range.start)).toBeLessThanOrEqual(offset);
+        expect(lspOffset(source,item.textEdit.range.end)).toBeGreaterThanOrEqual(offset);
+      }
+      return [...items].sort((a,b)=>(a.sortText??a.label)<(b.sortText??b.label)?-1:(a.sortText??a.label)>(b.sortText??b.label)?1:0);
+    };
+    for(const body of bodies) for(const [prefix,label,other] of [
+      ['','$flag','$text'],['tr','true',''],['pick','pickZ','pickA'],['PICK_','PICK_Z_BOOL','PICK_A_TEXT'],
+    ]) {
+      const items=await query(body.replace('§',prefix+'§'));
+      expect(items[0]?.label,body+prefix).toBe(label);
+      if(other) expect(items.some(item=>item.label===other)).toBe(true);
+      if(prefix==='tr') expect(items.some(item=>item.label==='try'||item.label==='try block')).toBe(false);
+    }
+    for(const type of ['string','bool','string']) {
+      const items=await query(`function run(string $text,bool $flag):${type}{return §`);
+      expect(items[0]?.label).toBe(type==='bool'?'$flag':'$text');
+    }
+    const unknown=await query('function run():bool{return unknown(pick§');
+    expect(unknown[0]?.label).toBe('pickA');expect(unknown.some(item=>item.label==='pickZ')).toBe(true);
+    const recursive=await query('function recursive():bool{return recu§');
+    expect(recursive[0]?.label).toBe('recursive');expect(recursive[0]?.textEdit?.newText).toContain('recursive(');
+    const marked=header+'function run(string $text,bool $flag):bool{return /* value */ §';
+    const source=marked.replace('§',''),position=lspPosition(source,marked.indexOf('§'));
+    await query(marked.slice(header.length));
+    const timings:number[]=[];let firstQueryMs=0;
+    for(let sample=0;sample<25;sample++) {
+      const started=performance.now(),id=10_000+sample;
+      server.stdin.write(encode({jsonrpc:'2.0',id,method:'textDocument/completion',params:{textDocument:{uri},position}}));
+      const response=await output.waitFor(message=>message.id===id),elapsed=performance.now()-started;
+      expect(response.error).toBeUndefined();
+      const items=Array.isArray(response.result)?response.result:response.result.items;
+      const first=[...items].sort((a,b)=>(a.sortText??a.label)<(b.sortText??b.label)?-1:(a.sortText??a.label)>(b.sortText??b.label)?1:0)[0];
+      expect(first?.label).toBe('$flag');
+      if(sample===0) firstQueryMs=elapsed;
+      if(sample>=5) timings.push(elapsed);
+    }
+    const p95Ms=[...timings].sort((a,b)=>a-b)[Math.ceil(timings.length*0.95)-1]!;
+    if(process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_TIMING_DIR)
+      await writeFile(join(process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_TIMING_DIR,`unclosed-callable-stdio-${phpVersion}.json`),JSON.stringify({
+        phpVersion,sourceBytes:Buffer.byteLength(source),warmSamples:timings.length,firstQueryMs,p95Ms,
+        scope:'real stdio completion in an unclosed return; fixed small document, no edits during samples',
+      }));
+    expect(p95Ms).toBeLessThanOrEqual(150);
+  },30_000);
   it.each(['8.1', '8.5'])('completes named attribute values through grouping and trivia on PHP %s', async phpVersion => {
     const uri = 'file:///NamedAttributeValues.php';
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
