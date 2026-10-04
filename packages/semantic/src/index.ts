@@ -1,3 +1,4 @@
+import { compositeTypeCompletionTail } from './completionTypeTail.js';
 import { quotedCompletion, trailingQuotedOpening, quoteCompletionLiteral, quotedArrayKey } from './quotedCompletion.js';
 import { createIncrementalEdit, controlFlowAssignmentStarts, phpNamespaceScopes, type PreparedPhpDocument, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
 import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
@@ -674,11 +675,11 @@ function typeCompletionPrefix(source: string, offset: number): string | undefine
   if (direct) return direct[1] ?? '';
   const catchUnion = /\bcatch\s*\(\s*(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*\s*\|\s*)+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(before);
   if (catchUnion) return catchUnion[1] ?? '';
-  const composite = compositeType.exec(before);
+  const composite = compositeTypeCompletionTail(before);
   if (composite) {
     const start = before.slice(0, composite.index);
     if (/\b(?:public|protected|private|static|readonly|var)(?:\s+(?:public|protected|private|static|readonly))*\s+$/.test(start)) {
-      return composite[1] ?? '';
+      return composite.prefix;
     }
   }
   const declaration = [...before.matchAll(/\b(?:function\s*(?:&\s*)?\(|function\s+(?:&\s*)?[A-Za-z_][A-Za-z0-9_]*\s*\(|fn\s*\()/g)].at(-1);
@@ -10662,7 +10663,13 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     if (!file) return [];
     if (this.cursorInsideSourceTrivia(file, offset)) return [];
-    const before = file.source.slice(0, offset);
+    // A parsed invocation proves the start of the relevant prefix. Preserve
+    // the whole-source fallback when recovery has not produced that fact; do
+    // not truncate long names, arguments, or cross-line calls by byte count.
+    let enclosing: ParsedCall | undefined;
+    for (const call of file.calls) if (call.argumentsStart < offset && offset <= call.argumentsEnd
+      && (!enclosing || call.argumentsStart > enclosing.argumentsStart)) enclosing = call;
+    const before = file.source.slice(enclosing?.start ?? 0, offset);
     const completeAtCursor = file.source[offset] === ')';
     const namespace = this.namespaceAt(file, offset);
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn ?? this.containingScope(file, offset)?.containerFqcn;
@@ -10740,8 +10747,6 @@ export class SemanticWorkspace {
     }
     const functionCall = /(?<![\\A-Za-z0-9_\x80-\xff])([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
     if (!functionCall || ['if', 'while', 'for', 'switch', 'match', 'isset', 'empty'].includes(functionCall[1]!.toLowerCase())) {
-      const enclosing = file.calls.filter((call) => call.argumentsStart + 1 < offset && offset <= call.argumentsEnd)
-        .sort((left, right) => right.argumentsStart - left.argumentsStart)[0];
       const opening = enclosing?.argumentsStart ?? this.unclosedCallOpening(file, offset);
       if (opening === undefined || opening + 1 >= offset) return [];
       const members = this.signatures(uri, opening + 1);

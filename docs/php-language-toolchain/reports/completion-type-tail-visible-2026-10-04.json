@@ -1,0 +1,260 @@
+{
+  "platform": "linux",
+  "context": "composite-type-positions",
+  "results": [
+    {
+      "label": "Current0Enter",
+      "key": "Enter",
+      "visibleMs": 236,
+      "visibleLabels": [
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "RecursiveArrayIteratorRecursiveArrayIterator",
+        "RecursiveCachingIteratorRecursiveCachingIterator",
+        "RecursiveCallbackFilterIteratorRecursiveCallbackFilterIterator",
+        "RecursiveDirectoryIteratorRecursiveDirectoryIterator",
+        "RecursiveFilterIteratorRecursiveFilterIterator",
+        "RecursiveIteratorRecursiveIterator",
+        "RecursiveIteratorIteratorRecursiveIteratorIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate0Enter; class Current0Enter {} class Other {} class Host0Enter { public Other|Current0Enter $value; }",
+      "caretOffset": 119,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current0Tab",
+      "key": "Tab",
+      "visibleMs": 157,
+      "visibleLabels": [
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "RecursiveArrayIteratorRecursiveArrayIterator",
+        "RecursiveCachingIteratorRecursiveCachingIterator",
+        "RecursiveCallbackFilterIteratorRecursiveCallbackFilterIterator",
+        "RecursiveDirectoryIteratorRecursiveDirectoryIterator",
+        "RecursiveFilterIteratorRecursiveFilterIterator",
+        "RecursiveIteratorRecursiveIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate0Tab; class Current0Tab {} class Other {} class Host0Tab { public Other|Current0Tab $value; }",
+      "caretOffset": 111,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current1Enter",
+      "key": "Enter",
+      "visibleMs": 175,
+      "visibleLabels": [
+        "Current1EnterTypeTailGate1Enter\\Current1Enter",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "RecursiveArrayIteratorRecursiveArrayIterator",
+        "RecursiveCachingIteratorRecursiveCachingIterator",
+        "RecursiveCallbackFilterIteratorRecursiveCallbackFilterIterator",
+        "RecursiveDirectoryIteratorRecursiveDirectoryIterator",
+        "RecursiveFilterIteratorRecursiveFilterIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate1Enter; class Current1Enter {} class Other {} function choose1Enter(Other|Current1Enter $value):void {}",
+      "caretOffset": 115,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current1Tab",
+      "key": "Tab",
+      "visibleMs": 137,
+      "visibleLabels": [
+        "Current1TabTypeTailGate1Tab\\Current1Tab",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "Current1EnterTypeTailGate1Enter\\Current1Enter",
+        "RecursiveArrayIteratorRecursiveArrayIterator",
+        "RecursiveCachingIteratorRecursiveCachingIterator",
+        "RecursiveCallbackFilterIteratorRecursiveCallbackFilterIterator",
+        "RecursiveDirectoryIteratorRecursiveDirectoryIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate1Tab; class Current1Tab {} class Other {} function choose1Tab(Other|Current1Tab $value):void {}",
+      "caretOffset": 107,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current2Enter",
+      "key": "Enter",
+      "visibleMs": 158,
+      "visibleLabels": [
+        "Current2EnterTypeTailGate2Enter\\Current2Enter",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "Current1EnterTypeTailGate1Enter\\Current1Enter",
+        "Current1TabTypeTailGate1Tab\\Current1Tab",
+        "RecursiveArrayIteratorRecursiveArrayIterator",
+        "RecursiveCachingIteratorRecursiveCachingIterator",
+        "RecursiveCallbackFilterIteratorRecursiveCallbackFilterIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate2Enter; class Current2Enter {} class Other {} function choose2Enter():Other|Current2Enter {return new Current2Enter;}",
+      "caretOffset": 117,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current2Tab",
+      "key": "Tab",
+      "visibleMs": 173,
+      "visibleLabels": [
+        "Current2TabTypeTailGate2Tab\\Current2Tab",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "Current1EnterTypeTailGate1Enter\\Current1Enter",
+        "Current1TabTypeTailGate1Tab\\Current1Tab",
+        "Current2EnterTypeTailGate2Enter\\Current2Enter",
+        "RecursiveArrayIteratorRecursiveArrayIterator",
+        "RecursiveCachingIteratorRecursiveCachingIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate2Tab; class Current2Tab {} class Other {} function choose2Tab():Other|Current2Tab {return new Current2Tab;}",
+      "caretOffset": 109,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current3Enter",
+      "key": "Enter",
+      "visibleMs": 151,
+      "visibleLabels": [
+        "Current3EnterTypeTailGate3Enter\\Current3Enter",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "Current1EnterTypeTailGate1Enter\\Current1Enter",
+        "Current1TabTypeTailGate1Tab\\Current1Tab",
+        "Current2EnterTypeTailGate2Enter\\Current2Enter",
+        "Current2TabTypeTailGate2Tab\\Current2Tab",
+        "RecursiveArrayIteratorRecursiveArrayIterator"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate3Enter; class Current3Enter {} class Other {} class Host3Enter { public function __construct(public Other|Current3Enter $value) {} }",
+      "caretOffset": 147,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current3Tab",
+      "key": "Tab",
+      "visibleMs": 129,
+      "visibleLabels": [
+        "Current3TabTypeTailGate3Tab\\Current3Tab",
+        "CurlHandleCurlHandle",
+        "CurlMultiHandleCurlMultiHandle",
+        "CurlShareHandleCurlShareHandle",
+        "CurlSharePersistentHandleCurlSharePersistentHandle",
+        "Current0EnterTypeTailGate0Enter\\Current0Enter",
+        "Current0TabTypeTailGate0Tab\\Current0Tab",
+        "Current1EnterTypeTailGate1Enter\\Current1Enter",
+        "Current1TabTypeTailGate1Tab\\Current1Tab",
+        "Current2EnterTypeTailGate2Enter\\Current2Enter",
+        "Current2TabTypeTailGate2Tab\\Current2Tab",
+        "Current3EnterTypeTailGate3Enter\\Current3Enter"
+      ],
+      "acceptedText": "<?php namespace TypeTailGate3Tab; class Current3Tab {} class Other {} class Host3Tab { public function __construct(public Other|Current3Tab $value) {} }",
+      "caretOffset": 139,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "syntaxValidation": {
+    "engine": "PHP 8.5.9 (cli) (built: Jul 28 2026 13:06:52) (NTS gcc x86_64)",
+    "mode": "lint-only-no-execution",
+    "checks": [
+      {
+        "label": "Current0Enter",
+        "key": "Enter",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current0Tab",
+        "key": "Tab",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current1Enter",
+        "key": "Enter",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current1Tab",
+        "key": "Tab",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current2Enter",
+        "key": "Enter",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current2Tab",
+        "key": "Tab",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current3Enter",
+        "key": "Enter",
+        "syntaxAccepted": true
+      },
+      {
+        "label": "Current3Tab",
+        "key": "Tab",
+        "syntaxAccepted": true
+      }
+    ]
+  }
+}

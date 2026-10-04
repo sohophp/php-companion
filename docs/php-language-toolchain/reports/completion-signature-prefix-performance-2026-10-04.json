@@ -1,0 +1,74 @@
+{
+  "baseCommit": "6efbe705",
+  "sourceBytes": 241283,
+  "sourceSha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+  "scope": "serial identical-input before and after; one 100-round ordinary run each; no profiler or explicit GC",
+  "before": {
+    "root": "/tmp/sophp-shape-edit-b8xv532l",
+    "file": "/tmp/sophp-shape-edit-b8xv532l/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 308.41,
+    "all": {
+      "p50Ms": 402.65,
+      "p95Ms": 463.51,
+      "maxMs": 707.62
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 411.53,
+      "p95Ms": 465.81,
+      "maxMs": 707.62,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 392.92,
+      "p95Ms": 458.68,
+      "maxMs": 511.15,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "after": {
+    "root": "/tmp/sophp-signature-edit-nf8mt9bi",
+    "file": "/tmp/sophp-signature-edit-nf8mt9bi/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 298.8,
+    "all": {
+      "p50Ms": 278.86,
+      "p95Ms": 334.55,
+      "maxMs": 393.56
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 282.55,
+      "p95Ms": 343.68,
+      "maxMs": 371.13,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 274.86,
+      "p95Ms": 323.59,
+      "maxMs": 393.56,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  }
+}

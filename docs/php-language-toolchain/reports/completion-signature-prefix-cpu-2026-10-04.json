@@ -1,0 +1,68 @@
+{
+  "baseCommit": "6efbe705",
+  "sourceSha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+  "mode": "CPU profile; sampled stacks include nested calls; profile timings are not ordinary performance qualification",
+  "rawProfile": "/tmp/sophp-shape-candidate-current-cpu/CPU.20261004.181307.1467168.0.001.cpuprofile",
+  "topAggregatedSelf": [
+    {
+      "name": "RegExp: (\\$[A-Za-z_][A-Za-z0-9_]*|[\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)\\s*(\\?->|->|::)\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)$",
+      "selfMs": 6879.56
+    },
+    {
+      "name": "RegExp: \\bfunction\\s+&?\\s*$",
+      "selfMs": 4606.4
+    },
+    {
+      "name": "",
+      "selfMs": 4133.09
+    },
+    {
+      "name": "RegExp: (?:[\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*\\s*[|&]\\s*)+([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+      "selfMs": 2835.67
+    },
+    {
+      "name": "RegExp: (?<![\\\\A-Za-z0-9_\\x80-\\xff])([\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)\\s*\\(([^()]*)$",
+      "selfMs": 2391.43
+    },
+    {
+      "name": "wasm-function[37]",
+      "selfMs": 1525.79
+    },
+    {
+      "name": "(garbage collector)",
+      "selfMs": 1474.0
+    },
+    {
+      "name": "completionTriviaSource",
+      "selfMs": 1219.24
+    },
+    {
+      "name": "cE",
+      "selfMs": 1196.3
+    },
+    {
+      "name": "get type",
+      "selfMs": 1153.42
+    },
+    {
+      "name": "RegExp: ([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+      "selfMs": 1094.56
+    },
+    {
+      "name": "setValue",
+      "selfMs": 1031.59
+    },
+    {
+      "name": "wasm-function[224]",
+      "selfMs": 821.42
+    },
+    {
+      "name": "I4",
+      "selfMs": 695.91
+    },
+    {
+      "name": "wasm-function[70]",
+      "selfMs": 671.36
+    }
+  ]
+}
