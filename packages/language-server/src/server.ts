@@ -4219,10 +4219,10 @@ connection.onRequest('phpCompanion/testOnDemandClosedDocuments', (params: { uri?
   return root ? [...(retainedClosedDocumentsByRoot.get(root)?.keys() ?? [])] : [];
 });
 
-connection.onRequest('phpCompanion/testMemoryUsage', (params: { collect?: unknown } | undefined): NodeJS.MemoryUsage | undefined => {
+connection.onRequest('phpCompanion/testMemoryUsage', (params: { collect?: unknown } | undefined): (NodeJS.MemoryUsage & { peakRssBytes: number }) | undefined => {
   if (!testMode) return undefined;
   if (params?.collect === true) (globalThis as { gc?: () => void }).gc?.();
-  return process.memoryUsage();
+  return { ...process.memoryUsage(), peakRssBytes: process.resourceUsage().maxRSS * 1024 };
 });
 
 function recordTestQueryDuration(method: string, started: number): void {

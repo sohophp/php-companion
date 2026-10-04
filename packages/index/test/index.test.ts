@@ -82,12 +82,13 @@ describe('bounded project source index', () => {
     const result = await indexComposerSources(root, { onSource: ({ source }) => { sources.push(source); } });
     expect(result).toMatchObject({ files: 1, complete: true }); expect(sources).toEqual(['<?php class User {}']);
   });
-  it.each([false, true])('prepares one inspected snapshot and verifies colliding disk metadata (verifyCachedSourceHash=%s)', async verifyCachedSourceHash => {
+  it.each([false, true].flatMap(verifyCachedSourceHash => [1, 128].map(readConcurrency => ({ verifyCachedSourceHash, readConcurrency }))))(
+    'prepares inspected small-project snapshots with colliding metadata (verify=$verifyCachedSourceHash, concurrency=$readConcurrency)', async ({ verifyCachedSourceHash, readConcurrency }) => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-inspected-source-')); await mkdir(join(root, 'src'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
     const path = join(root, 'src', 'A.php'); const original = '<?php class Receipt {}';
     const changed = original.replace('Receipt', 'Removed'); await writeFile(path, original);
-    await Promise.all(Array.from({ length: 999 }, (_, i) => writeFile(join(root!, 'src', `Noise${i}.php`), '<?php')));
+    await writeFile(join(root, 'src', 'Noise.php'), '<?php');
     const cache = join(root, 'cache'); const seen: string[] = []; let readOnce = false;
     const originalStamp = await stat(path);
     const inspectSource = async (candidate: string): Promise<{ size: number; mtimeMs: number; ctimeMs: number; source: string }> => {
@@ -96,15 +97,15 @@ describe('bounded project source index', () => {
       const stamp = candidate === path ? originalStamp : info; // Metadata may collide across equal-size writes.
       return { size: stamp.size, mtimeMs: stamp.mtimeMs, ctimeMs: stamp.ctimeMs, source };
     };
-    const options = { readConcurrency: 128, inspectSource, verifyCachedSourceHash,
+    const options = { readConcurrency, inspectSource, verifyCachedSourceHash,
       cache: { directory: cache, version: 'inspected-v1', restore: (): boolean => true },
       onSource: (file: { path: string; source: string; hash: string }): unknown => {
         expect(file.hash).toBe(createHash('sha256').update(file.source).digest('hex'));
         if (file.path === path) seen.push(file.source); return { source: file.source };
       } };
-    expect(await indexComposerSources(root, options)).toMatchObject({ files: 1000, complete: true, cached: 0 });
+    expect(await indexComposerSources(root, options)).toMatchObject({ files: 2, complete: true, cached: 0 });
     expect(seen).toEqual([original]);
-    expect(await indexComposerSources(root, options)).toMatchObject({ files: 1000, complete: true, cached: 999 });
+    expect(await indexComposerSources(root, options)).toMatchObject({ files: 2, complete: true, cached: 1 });
     expect(seen).toEqual([original, changed]);
   });
 

@@ -8,17 +8,20 @@ import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
-import { encodeLspMessage, LspMessageDecoder } from '../packages/testkit/dist/index.js';
+import { encodeLspMessage, LspMessageDecoder, R1_PERFORMANCE_BUDGETS, summarizeDurations } from '../packages/testkit/dist/index.js';
+import { DEFAULT_INDEX_LIMITS } from '../packages/index/dist/index.js';
 
 const files = Number(process.argv[2] ?? 1000);
 const rounds = Number(process.argv[3] ?? 10);
 const mode = process.argv[4] ?? 'onDemand';
-assert.ok(Number.isSafeInteger(files) && files >= 100 && files <= 8000);
+const coreRounds = Number(process.argv[5] ?? rounds);
+assert.ok(Number.isSafeInteger(files) && files >= 100 && files + 3 <= DEFAULT_INDEX_LIMITS.maxFiles);
 assert.ok(Number.isSafeInteger(rounds) && rounds >= 5 && rounds <= 100);
 assert.ok(['onDemand', 'progressive'].includes(mode));
+assert.ok(Number.isSafeInteger(coreRounds) && coreRounds >= 5 && coreRounds <= 100);
 const summarize = values => {
-  const sorted = [...values].sort((a, b) => a - b);
-  return { p50: sorted[Math.ceil(sorted.length * .5) - 1], p95: sorted[Math.ceil(sorted.length * .95) - 1], max: sorted.at(-1) };
+  const summary = summarizeDurations(values);
+  return { p50: summary.p50, p95: summary.p95, max: summary.maximum };
 };
 const root = await mkdtemp(join(tmpdir(), 'sophp-paste-imports-'));
 let child;
@@ -89,7 +92,7 @@ try {
     end: { line: 0, character: source.indexOf('ImportedReceipt $') + 'ImportedReceipt'.length } }] };
   const candidateParams = { textDocument: { uri: targetUri }, position: { line: 0, character: target.indexOf('Receipt') + 2 }, name: 'Receipt', context: 'paste' };
   const planParams = { textDocument: { uri: targetUri }, position: candidateParams.position, symbols: [{ fqcn: 'Acme\\Receipt', sourceAlias: 'Receipt' }] };
-  const samples = { copy: [], candidates: [], plan: [], total: [] }; let cold;
+  const samples = { copy: [], candidates: [], plan: [], total: [] }; let cold; let coldMemory;
   for (let round = 0; round <= rounds; round++) {
     const started = performance.now();
     const copy = await request('phpCompanion/copyTypeSymbols', copyParams);
@@ -99,18 +102,46 @@ try {
     const plan = await request('phpCompanion/planTypeImports', planParams);
     assert.ok(plan.result?.edit?.changes[targetUri]?.some(edit => edit.newText.includes('use Acme\\Receipt;')));
     const timings = { copy: copy.ms, candidates: candidates.ms, plan: plan.ms, total: performance.now() - started };
-    if (round === 0) cold = timings;
+    if (round === 0) {
+      cold = timings;
+      coldMemory = (await request('phpCompanion/testMemoryUsage', {})).result;
+    }
     else for (const [name, ms] of Object.entries(timings)) samples[name].push(ms);
   }
+  const warmMemory = (await request('phpCompanion/testMemoryUsage', {})).result;
+  assert.ok(Number.isSafeInteger(warmMemory?.peakRssBytes) && warmMemory.peakRssBytes > 0);
+  // R1 names completion/hover/definition separately from the checked Import workflow.
+  const coreSamples = { completion: [], hover: [], definition: [] };
+  const typePosition = { line: 0, character: source.indexOf('ImportedReceipt $') + 2 };
+  const variablePosition = { line: 0, character: source.indexOf('return $value') + 'return $val'.length };
+  const vendorUri = pathToFileURL(vendorPath).toString();
+  for (let round = 0; round < coreRounds; round++) {
+    const completion = await request('textDocument/completion', { textDocument: { uri }, position: variablePosition });
+    const items = Array.isArray(completion.result) ? completion.result : completion.result?.items;
+    assert.ok(items?.some(item => item.label === '$value'));
+    coreSamples.completion.push(completion.ms);
+    const hover = await request('textDocument/hover', { textDocument: { uri }, position: typePosition });
+    assert.ok(JSON.stringify(hover.result?.contents).includes('Receipt'));
+    coreSamples.hover.push(hover.ms);
+    const definition = await request('textDocument/definition', { textDocument: { uri }, position: typePosition });
+    const locations = Array.isArray(definition.result) ? definition.result : [definition.result];
+    assert.ok(locations.some(location => location?.uri === vendorUri || location?.targetUri === vendorUri));
+    coreSamples.definition.push(definition.ms);
+  }
+  const coreMemory = (await request('phpCompanion/testMemoryUsage', {})).result;
   // Current-state checks outside the measured steady-input samples.
   await rm(vendorPath);
   assert.deepEqual((await request('phpCompanion/copyTypeSymbols', copyParams)).result, []);
   assert.equal((await request('phpCompanion/planTypeImports', planParams)).result, null);
   assert.equal(await readFile(sourcePath, 'utf8'), source); assert.equal(await readFile(targetPath, 'utf8'), target);
   const scanTimings = (await request('phpCompanion/testQueryTimings', {})).result.importDiskRefresh;
-  console.log(JSON.stringify({ mode, noiseFiles: files, totalFilesBeforeDeletion: files + 3, rounds, cold,
+  console.log(JSON.stringify({ mode, noiseFiles: files, totalFilesBeforeDeletion: files + 3, rounds, coreRounds, cold,
     hot: Object.fromEntries(Object.entries(samples).map(([name, values]) => [name, summarize(values)])),
     sourceScan: summarize(scanTimings), warmSamples: samples, sourceScanSamples: scanTimings,
+    memory: { scope: 'language-server process including worker threads, through hot Import and core queries; no forced GC',
+      peakSource: 'process.resourceUsage().maxRSS converted from KiB to bytes', cold: coldMemory, warm: warmMemory, core: coreMemory },
+    coreHot: Object.fromEntries(Object.entries(coreSamples).map(([name, values]) => [name, summarize(values)])),
+    coreWarmSamples: coreSamples, referenceBudgets: R1_PERFORMANCE_BUDGETS,
     trace: { requests: requestTimings, backgroundMessages },
     deletionWithoutWatcherVerified: true, planningDidNotWriteFiles: true }, null, 2));
   await request('shutdown', null); send({ method: 'exit', params: null });

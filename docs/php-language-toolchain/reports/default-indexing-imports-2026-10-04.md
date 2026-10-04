@@ -313,3 +313,5 @@ progressive 隔离宿主的首次实际构造表达式 Paste Provider、resolve�
 相对前批减少约 39.6%／29.0%；相对最初五轮 3889.90／3752.92 ms 减少约 49.3%／41.8%。仍是本机独立、短源码 Composer fixture 的冷请求等待，首次请求约 2 秒，不能写成真实业务项目同等收益或完整冷索引门槛。最终逐轮样本、实际源码哈希、背景消息追加到[原始数据](default-indexing-imports-2503-five-runs-2026-10-04.json)的 `projectSourceReadFollowup`；trace／stderr 在 `/tmp/sophp-index-worker-source-final-cold-2500/`。每模式每类 25 个热控制样本低于 150 ms，但不替代当前源码的完整热测；峰值内存、新规模、长期会话、跨平台、外部 Provider 和真人使用继续开放，完整套件两条魔术方法组合负载失败保留。
 
 首次扫描复用、项目准备读取、当前文本缓存保护和首次准备的 epoch 交错修补合并为一次必要源码里程碑，提交标题 `fix(index): reuse verified source reads and retry superseded preparation`。前节未提交状态由本里程碑更新；不打包、推送、发布或更新用户 Profile，goal 继续运行。
+
+后续[小项目读取路径与核心热查询／峰值内存](default-indexing-core-memory-2026-10-04.md)已移除显式 inspector 的 1,000 路径门槛，覆盖并发 1；上述“小于 1,000 路径沿用原读取方式”仅描述此前里程碑实现。新测量单独报告核心查询与 Import，10k Import 延迟继续开放。

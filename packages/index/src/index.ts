@@ -24,7 +24,7 @@ export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) =>
   skipSource?: (path: string, info: { size: number; mtimeMs: number; ctimeMs: number }) => boolean;
   /** Charge only candidate files to read budgets; inspect at most 50,000 PHP paths by default. Requires skipSource. */
   skipSourceOutsideBudget?: boolean;
-  /** Optional bounded inspector for large inventories. It may supply current source text to avoid a second read. Failures make the scan incomplete. */
+  /** Optional bounded inspector. It may supply current source text to avoid a second read. Failures make the scan incomplete. */
   inspectSource?: (path: string) => Promise<{ size: number; mtimeMs: number; ctimeMs: number; source?: string }>;
   onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }
 export const DEFAULT_INDEX_LIMITS: ProjectIndexLimits = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };
@@ -130,12 +130,12 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   // Keep at most one bounded window in flight, without a slow-file batch barrier.
   // Preparation is speculative; semantic callbacks still run in file order.
   const preparedSources = async function* (paths: string[]): AsyncGenerator<{ path: string; source?: PrefetchedSource }> {
-    if (readConcurrency === 1) {
+    if (readConcurrency === 1 && !options.inspectSource) {
       for (const path of paths) yield { path };
       return;
     }
     const pending = new Map<number, Promise<PrefetchedSource>>();
-    const inspect = paths.length >= 1_000 ? options.inspectSource ?? stat : stat;
+    const inspect = options.inspectSource ?? stat;
     let nextPath = 0;
     const fill = (): void => {
       while (nextPath < paths.length && pending.size < readConcurrency && options.shouldContinue?.() !== false) {
