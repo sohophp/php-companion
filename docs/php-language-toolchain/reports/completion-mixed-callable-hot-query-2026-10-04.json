@@ -1,0 +1,32 @@
+{
+  "baseCommit": "acd08b2d53e828529ea775ef8d6855b3430b775e",
+  "scope": "one sample per configured version, fixed mixed document, no edits or other test/build/host load during samples",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "e3654ed4dbc02695500100e39382183d142a98653765c1b5b4719143cac2a32f",
+    "packages/semantic/test/mixed-callable-recovery.test.ts": "4ad00c9f5632eff4f18fb99a0e98dc6d42fd3be077cdfacc8eed16af54f2cc66",
+    "packages/language-server/test/stdio.test.ts": "91f09d590093621745b1605b39ae46e91cd94d09e6ecb7c91041f50a84362f9e",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "472fb454bc1d6e64a4e1a839088992394371a6a1c9a58b4b7eb909f71ce14a7b",
+    "dist/language-server.js": "247443b966a95f4b6f4f6b3f1deb0684dc89bca8c0817a489011aa60b4e8dde8",
+    "dist/extension.js": "a01b90ba11fa1691a2c084dc85cbdb945694c1ff86f7ee58e7db223a940e8427"
+  },
+  "measurements": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 96285,
+      "sourceSha256": "df217df650b672c3bca0248079ed7cda79c8a1e30bedd937c7cb1741ac0bf34a",
+      "warmSamples": 20,
+      "firstSampleMs": 24.875136000000566,
+      "p95Ms": 17.7800670000006,
+      "scope": "fixed mixed PHP/HTML document with 96000 characters of HTML delimiters; warm real stdio, no edits during sampling"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 96285,
+      "sourceSha256": "df217df650b672c3bca0248079ed7cda79c8a1e30bedd937c7cb1741ac0bf34a",
+      "warmSamples": 20,
+      "firstSampleMs": 20.766749000000345,
+      "p95Ms": 19.95609499999955,
+      "scope": "fixed mixed PHP/HTML document with 96000 characters of HTML delimiters; warm real stdio, no edits during sampling"
+    }
+  ]
+}

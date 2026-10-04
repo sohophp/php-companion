@@ -1,0 +1,425 @@
+{
+  "scope": "complete control specimens; not the incomplete editor inputs; PHP -l only, no execution",
+  "results": [
+    {
+      "phpVersion": "7.2",
+      "layout": "HTML prefix",
+      "kind": "bare",
+      "sourceSha256": "4c3d71b5493df259bea82335f65b238fafe9697d3d252dab9ff2c89642b38d2e",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "HTML prefix",
+      "kind": "literal",
+      "sourceSha256": "df239d8f71b2af774e1b5a1921ebdfff98ed934fed8d09c61d1854bb398fbeed",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "HTML prefix",
+      "kind": "member",
+      "sourceSha256": "b45ca8ed15ea1c7ddb7bf198802087ff5392989c786b6eeb54b321924133fb9e",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "HTML prefix",
+      "kind": "switch",
+      "sourceSha256": "498de48b16c1b43b756879cf5948e58410f6cb5a47642090656361a171d742f6",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "PHP islands",
+      "kind": "bare",
+      "sourceSha256": "758ef59e4e104f86cca0282725d7c1958c6eb1492e9d8671bf9f0fc7e0e95471",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "PHP islands",
+      "kind": "literal",
+      "sourceSha256": "5c6056847d6ac9466295ea9add62b931e92370a8421685573b0bd65f82b0b754",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "PHP islands",
+      "kind": "member",
+      "sourceSha256": "cd80b84bd3698339968cac64892298a7a75374983ceb04fd79e5ff7b10f50acf",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "PHP islands",
+      "kind": "switch",
+      "sourceSha256": "7c944e5bdeb86716abe23988804bf83d4ee79bde58bbf0c989d4cb466d9c268c",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "body island",
+      "kind": "bare",
+      "sourceSha256": "c96ba273feb21246c6301192f630702209f5b6b2852c9f6a15bb21a25c688353",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "body island",
+      "kind": "literal",
+      "sourceSha256": "6912731bff107ffc3da88b7ef58e92293391ddbc301151b58fe2515e72bc612c",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "body island",
+      "kind": "member",
+      "sourceSha256": "6fe1047e2de46c266053bddaf7c5114032e9985f6ab6731ca7b2f150e1a067d4",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "body island",
+      "kind": "switch",
+      "sourceSha256": "33756a985f1ea73f43ec4885e61519cb9d7f690523b73978d90df623d4a34b6e",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "Unicode body island",
+      "kind": "bare",
+      "sourceSha256": "5b033ef730499ae6134382b72ff6802a23b9677140a8483add5a767dd2c1d24d",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "Unicode body island",
+      "kind": "literal",
+      "sourceSha256": "753801eba0ced2028fd2e03bd6a3ca2e7bc6d51d3f4d3c02f2c135c11c66d623",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "Unicode body island",
+      "kind": "member",
+      "sourceSha256": "39e44e3f28157cb09b20c12ba3397996fdf04af48faef27d91e7f3195e105aa3",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "Unicode body island",
+      "kind": "switch",
+      "sourceSha256": "b8188958f3922de2164cf2408ed09d0c8d10dc2239017c13197c349b95dcd152",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "string tag",
+      "kind": "bare",
+      "sourceSha256": "840f493e36957b1a355e7bcb6b8286325967fc7fbb03e8707cf6a7a35ed451ab",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "string tag",
+      "kind": "literal",
+      "sourceSha256": "4a81c0f2eb75242b1458f7b455646ce020435b25c6ef40aec017dc1a21aaa5d1",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "string tag",
+      "kind": "member",
+      "sourceSha256": "43695de819760ceee83ab670e79234d5e24ba448e3cfd7032cb6b8818aa22427",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "string tag",
+      "kind": "switch",
+      "sourceSha256": "d0bee00b17ee2c45342b65577d76484d7c2fb5d316273c1f7e46498b5b22afc2",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "block comment tag",
+      "kind": "bare",
+      "sourceSha256": "7bb22e54c459a367b5db0fd5df99d77657aec0e18da19eea393a4ccfb485ef4d",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "block comment tag",
+      "kind": "literal",
+      "sourceSha256": "a30ea5c4e2b9212f3b9615f1315c1b3b5c17c53f344c948601ef0a68d7c6452f",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "block comment tag",
+      "kind": "member",
+      "sourceSha256": "e5274bcb270819411099241c09853ae788bcc8e86a08277b14918627261b4cce",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "block comment tag",
+      "kind": "switch",
+      "sourceSha256": "280244b44099190692ac2ea9d3022aa728e93849647285eda54d68df6f3cf6b9",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "heredoc tag",
+      "kind": "bare",
+      "sourceSha256": "4b5dbaf445d9c428939e5f65868b00c31fd4c56cab8895106008cfb81b3835f1",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "heredoc tag",
+      "kind": "literal",
+      "sourceSha256": "772a229afb6ad72dde142273f1a644bdc304ec5b8d338e68db44ab114ee37546",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "heredoc tag",
+      "kind": "member",
+      "sourceSha256": "4341895ae31f755d9843ed8a5abd72dbba7761dcb9f05e205b7c27cbde1a124f",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "heredoc tag",
+      "kind": "switch",
+      "sourceSha256": "ca330a9fff4f85e3d9965e1b4bfda6c9b1c0c1e53e8abda0ac30f366f39bf34c",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "invalid cross-island assignment",
+      "kind": "$flag",
+      "sourceSha256": "194a18d1f0fea08fd74b082e2f69c587b8cae4a436627f387470a4a2b1757a97",
+      "exitCode": 255
+    },
+    {
+      "phpVersion": "7.2",
+      "layout": "invalid cross-island assignment",
+      "kind": "$item->enabled",
+      "sourceSha256": "eeca62c8add98e9288ec5d4b94016fee8251f92752dce5c4233d74cc5522ba62",
+      "exitCode": 255
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "HTML prefix",
+      "kind": "bare",
+      "sourceSha256": "4c3d71b5493df259bea82335f65b238fafe9697d3d252dab9ff2c89642b38d2e",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "HTML prefix",
+      "kind": "literal",
+      "sourceSha256": "df239d8f71b2af774e1b5a1921ebdfff98ed934fed8d09c61d1854bb398fbeed",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "HTML prefix",
+      "kind": "member",
+      "sourceSha256": "b45ca8ed15ea1c7ddb7bf198802087ff5392989c786b6eeb54b321924133fb9e",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "HTML prefix",
+      "kind": "switch",
+      "sourceSha256": "498de48b16c1b43b756879cf5948e58410f6cb5a47642090656361a171d742f6",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "PHP islands",
+      "kind": "bare",
+      "sourceSha256": "758ef59e4e104f86cca0282725d7c1958c6eb1492e9d8671bf9f0fc7e0e95471",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "PHP islands",
+      "kind": "literal",
+      "sourceSha256": "5c6056847d6ac9466295ea9add62b931e92370a8421685573b0bd65f82b0b754",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "PHP islands",
+      "kind": "member",
+      "sourceSha256": "cd80b84bd3698339968cac64892298a7a75374983ceb04fd79e5ff7b10f50acf",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "PHP islands",
+      "kind": "switch",
+      "sourceSha256": "7c944e5bdeb86716abe23988804bf83d4ee79bde58bbf0c989d4cb466d9c268c",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "body island",
+      "kind": "bare",
+      "sourceSha256": "c96ba273feb21246c6301192f630702209f5b6b2852c9f6a15bb21a25c688353",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "body island",
+      "kind": "literal",
+      "sourceSha256": "6912731bff107ffc3da88b7ef58e92293391ddbc301151b58fe2515e72bc612c",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "body island",
+      "kind": "member",
+      "sourceSha256": "6fe1047e2de46c266053bddaf7c5114032e9985f6ab6731ca7b2f150e1a067d4",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "body island",
+      "kind": "switch",
+      "sourceSha256": "33756a985f1ea73f43ec4885e61519cb9d7f690523b73978d90df623d4a34b6e",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "Unicode body island",
+      "kind": "bare",
+      "sourceSha256": "5b033ef730499ae6134382b72ff6802a23b9677140a8483add5a767dd2c1d24d",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "Unicode body island",
+      "kind": "literal",
+      "sourceSha256": "753801eba0ced2028fd2e03bd6a3ca2e7bc6d51d3f4d3c02f2c135c11c66d623",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "Unicode body island",
+      "kind": "member",
+      "sourceSha256": "39e44e3f28157cb09b20c12ba3397996fdf04af48faef27d91e7f3195e105aa3",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "Unicode body island",
+      "kind": "switch",
+      "sourceSha256": "b8188958f3922de2164cf2408ed09d0c8d10dc2239017c13197c349b95dcd152",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "string tag",
+      "kind": "bare",
+      "sourceSha256": "840f493e36957b1a355e7bcb6b8286325967fc7fbb03e8707cf6a7a35ed451ab",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "string tag",
+      "kind": "literal",
+      "sourceSha256": "4a81c0f2eb75242b1458f7b455646ce020435b25c6ef40aec017dc1a21aaa5d1",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "string tag",
+      "kind": "member",
+      "sourceSha256": "43695de819760ceee83ab670e79234d5e24ba448e3cfd7032cb6b8818aa22427",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "string tag",
+      "kind": "switch",
+      "sourceSha256": "d0bee00b17ee2c45342b65577d76484d7c2fb5d316273c1f7e46498b5b22afc2",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "block comment tag",
+      "kind": "bare",
+      "sourceSha256": "7bb22e54c459a367b5db0fd5df99d77657aec0e18da19eea393a4ccfb485ef4d",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "block comment tag",
+      "kind": "literal",
+      "sourceSha256": "a30ea5c4e2b9212f3b9615f1315c1b3b5c17c53f344c948601ef0a68d7c6452f",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "block comment tag",
+      "kind": "member",
+      "sourceSha256": "e5274bcb270819411099241c09853ae788bcc8e86a08277b14918627261b4cce",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "block comment tag",
+      "kind": "switch",
+      "sourceSha256": "280244b44099190692ac2ea9d3022aa728e93849647285eda54d68df6f3cf6b9",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "heredoc tag",
+      "kind": "bare",
+      "sourceSha256": "4b5dbaf445d9c428939e5f65868b00c31fd4c56cab8895106008cfb81b3835f1",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "heredoc tag",
+      "kind": "literal",
+      "sourceSha256": "772a229afb6ad72dde142273f1a644bdc304ec5b8d338e68db44ab114ee37546",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "heredoc tag",
+      "kind": "member",
+      "sourceSha256": "4341895ae31f755d9843ed8a5abd72dbba7761dcb9f05e205b7c27cbde1a124f",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "heredoc tag",
+      "kind": "switch",
+      "sourceSha256": "ca330a9fff4f85e3d9965e1b4bfda6c9b1c0c1e53e8abda0ac30f366f39bf34c",
+      "exitCode": 0
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "invalid cross-island assignment",
+      "kind": "$flag",
+      "sourceSha256": "2df09b9d97947cc636992a13e6b4e32da15a9baa15d3dd87c28390ffcc3b63d3",
+      "exitCode": 255
+    },
+    {
+      "phpVersion": "8.5",
+      "layout": "invalid cross-island assignment",
+      "kind": "$item->enabled",
+      "sourceSha256": "a5a919532e4423975f366593039d28d42b780343c228382fe2a06cdeaa1e2803",
+      "exitCode": 255
+    }
+  ]
+}

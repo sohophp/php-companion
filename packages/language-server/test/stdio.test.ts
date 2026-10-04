@@ -2710,6 +2710,80 @@ function inspect(Sink $sink, ?Sink $optional): void {
       }));
     expect(p95Ms).toBeLessThanOrEqual(150);
   },30_000);
+  it.each(['7.2','8.5'])('recovers PHP islands without treating HTML as code through stdio on PHP %s', async phpVersion => {
+    const uri='file:///MixedCallableValues.php';
+    server=spawn(process.execPath,[resolve('dist/server.js'),'--stdio'],{stdio:'pipe'});
+    const output=messagesFrom(server);
+    server.stdin.write(encode({jsonrpc:'2.0',id:1,method:'initialize',params:{processId:null,rootUri:null,
+      capabilities:{textDocument:{completion:{completionItem:{snippetSupport:true}}}},initializationOptions:{phpVersion}}}));
+    await output.waitFor(message=>message.id===1);
+    const header="<?php function pickA():string{return 'x';} function pickZ():bool{return true;} const PICK_A_TEXT='x',PICK_Z_BOOL=true; class Item{public function title():string{return 'x';} private function hidden():void{}} ";
+    const layouts=[
+      {prefix:'?> <script>{])</script> <?php ',body:''},
+      {prefix:'',body:'?> <main>{])</main> <?php '},
+      {prefix:'',body:'?> <main>汉字🙂{])</main> <?php '},
+      {prefix:"$tag='?> {])'; ",body:''},
+      {prefix:'/* ?> {]) */ ',body:''},
+      {prefix:'$tag=<<<TEXT\n?> {])\nTEXT;\n',body:''},
+    ];
+    let version=0;
+    const query=async(tail:string):Promise<any[]>=>{
+      const marked=header+tail,offset=marked.indexOf('§'),source=marked.replace('§','');version++;
+      server!.stdin.write(encode({jsonrpc:'2.0',method:version===1?'textDocument/didOpen':'textDocument/didChange',params:version===1
+        ?{textDocument:{uri,languageId:'php',version,text:source}}:{textDocument:{uri,version},contentChanges:[{text:source}]}}));
+      server!.stdin.write(encode({jsonrpc:'2.0',id:100+version,method:'textDocument/completion',params:{textDocument:{uri},position:lspPosition(source,offset)}}));
+      const response=await output.waitFor(message=>message.id===100+version);expect(response.error).toBeUndefined();
+      const items=Array.isArray(response.result)?response.result:response.result.items;
+      for(const item of items) if(item.textEdit) {
+        expect(lspOffset(source,item.textEdit.range.start)).toBeLessThanOrEqual(offset);
+        expect(lspOffset(source,item.textEdit.range.end)).toBeGreaterThanOrEqual(offset);
+      }
+      return [...items].sort((a,b)=>(a.sortText??a.label)<(b.sortText??b.label)?-1:(a.sortText??a.label)>(b.sortText??b.label)?1:0);
+    };
+    for(const {prefix,body} of layouts) for(const [word,label,other] of [
+      ['','$flag','$text'],['tr','true',''],['pick','pickZ','pickA'],['PICK_','PICK_Z_BOOL','PICK_A_TEXT'],
+    ]) {
+      const items=await query(prefix+'function run(string $text,bool $flag):bool{'+body+'return /* value */ '+word+'§');
+      expect(items[0]?.label).toBe(label);
+      if(other) expect(items.some(item=>item.label===other)).toBe(true);
+      if(word==='tr') expect(items.some(item=>item.label==='try'||item.label==='try block')).toBe(false);
+    }
+    expect((await query('function run(Item $item):string{?> <main>{])</main> <?php return $item->ti§'))[0]?.label).toBe('title');
+    expect((await query('function run(bool $flag):void{?> <main>{])</main> <?php switch($flag){case tr§'))[0]?.label).toBe('true');
+    expect((await query('function run(string $valueText,bool $valueFlag):bool{?> <main>{])</main> <?php return $va§'))[0]?.label).toBe('$valueFlag');
+    for(const tail of [
+      'function run():bool{?> <main>return tr§',
+      'function run():bool{// ?> return tr§',
+      'function run():bool{?> function fake():bool{return tr§',
+    ]) expect(await query(tail)).toEqual([]);
+    expect((await query('?> <main>{])</main> <?php function run():bool{return unknown(pick§'))[0]?.label).toBe('pickA');
+    expect((await query('function run(bool $flag){$flag ?> <main>{])</main> <?php = pick§;}'))[0]?.label).toBe('pickA');
+    for(const type of ['string','bool','string'])
+      expect((await query(`?> <main>{])</main> <?php function run(string $text,bool $flag):${type}{return §`))[0]?.label).toBe(type==='bool'?'$flag':'$text');
+    expect((await query('function recursive():bool{?> <main>{])</main> <?php return recu§'))[0]?.label).toBe('recursive');
+    const tail='?> <script>'+ '{[})'.repeat(24_000)+'</script> <?php function run(string $text,bool $flag):bool{return §';
+    const marked=header+tail,source=marked.replace('§',''),position=lspPosition(source,marked.indexOf('§'));
+    await query(tail);
+    const timings:number[]=[];let firstSampleMs=0;
+    for(let sample=0;sample<25;sample++) {
+      const started=performance.now(),id=10_000+sample;
+      server.stdin.write(encode({jsonrpc:'2.0',id,method:'textDocument/completion',params:{textDocument:{uri},position}}));
+      const response=await output.waitFor(message=>message.id===id),elapsed=performance.now()-started;
+      expect(response.error).toBeUndefined();
+      const items=Array.isArray(response.result)?response.result:response.result.items;
+      const first=[...items].sort((a,b)=>(a.sortText??a.label)<(b.sortText??b.label)?-1:(a.sortText??a.label)>(b.sortText??b.label)?1:0)[0];
+      expect(first?.label).toBe('$flag');
+      if(sample===0) firstSampleMs=elapsed;
+      if(sample>=5) timings.push(elapsed);
+    }
+    const p95Ms=[...timings].sort((a,b)=>a-b)[Math.ceil(timings.length*0.95)-1]!;
+    if(process.env.PHP_COMPANION_TEST_MIXED_CALLABLE_TIMING_DIR)
+      await writeFile(join(process.env.PHP_COMPANION_TEST_MIXED_CALLABLE_TIMING_DIR,`mixed-callable-stdio-${phpVersion}.json`),JSON.stringify({
+        phpVersion,sourceBytes:Buffer.byteLength(source),sourceSha256:createHash('sha256').update(source).digest('hex'),warmSamples:timings.length,firstSampleMs,p95Ms,
+        scope:'fixed mixed PHP/HTML document with 96000 characters of HTML delimiters; warm real stdio, no edits during sampling',
+      }));
+    expect(p95Ms).toBeLessThanOrEqual(150);
+  },30_000);
   it.each(['8.1', '8.5'])('completes named attribute values through grouping and trivia on PHP %s', async phpVersion => {
     const uri = 'file:///NamedAttributeValues.php';
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });

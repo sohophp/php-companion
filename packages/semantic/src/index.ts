@@ -1487,6 +1487,7 @@ export class SemanticWorkspace {
   private readonly localPrefixHazardCache = new Map<string, boolean>();
   private readonly importScopeCache = new WeakMap<SemanticFile, Array<{ namespace: string; start: number; end: number; insertionOffset: number }>>();
   private readonly completionTriviaSourceCache = new WeakMap<SemanticFile, string>();
+  private readonly completionNonPhpRangesCache = new WeakMap<SemanticFile, Array<SourceRange & { endTag: boolean }>>();
   private readonly readOnlyParseUrlInProgress = new Set<string>();
   constructor(private readonly parser: PhpSyntaxParser) {}
 
@@ -4643,7 +4644,7 @@ export class SemanticWorkspace {
     const argument = allowArgument ? this.expectedArgumentCompletionType(file, offset) : undefined;
     if (argument) return argument;
     const statementEnd = this.completionTriviaEnd(file, start);
-    const statement = commentMaskedSlice(file.source, Math.max(0, statementEnd - 160), statementEnd, file.commentRanges);
+    const statement = this.completionCodeSlice(file, Math.max(0, statementEnd - 160), statementEnd);
     if (scope.kind === 'closure' || scope.kind === 'arrow') {
       let returning = /(?:^|[;{}])\s*return\s*$/u.test(statement);
       if (scope.kind === 'arrow') {
@@ -5447,13 +5448,39 @@ export class SemanticWorkspace {
     return start;
   }
 
+  private completionNonPhpRanges(file: SemanticFile): Array<SourceRange & { endTag: boolean }> {
+    if (!file.source.includes('?>') && /^\s*<\?(?:php|=)/u.test(file.source)) return [];
+    const cached = this.completionNonPhpRangesCache.get(file);
+    if (cached) return cached;
+    const retainedTree = this.trees.get(file.uri), temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      const ranges = (retainedTree ?? temporaryTree)!.rootNode.descendantsOfType(['text', 'php_tag', 'php_end_tag'])
+        .map(node => ({ start: node.startIndex, end: node.endIndex, endTag: node.type === 'php_end_tag' }));
+      this.completionNonPhpRangesCache.set(file, ranges);
+      return ranges;
+    } finally { temporaryTree?.delete(); }
+  }
+
+  private completionCodeSlice(file: SemanticFile, start: number, end: number): string {
+    const ranges = this.completionNonPhpRanges(file);
+    let text = commentMaskedSlice(file.source, start, end, [...file.commentRanges, ...ranges]);
+    // A PHP closing tag terminates a statement. Masking it as only whitespace
+    // would incorrectly join a variable and an assignment in different islands.
+    for (const range of ranges) if (range.endTag && range.start >= start && range.start < end) {
+      const index = range.start - start;
+      text = text.slice(0, index) + ';' + text.slice(index + 1);
+    }
+    return text;
+  }
+
   private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T,
     recoveryContext: 'expression' | 'match' | 'switch' | false = false): { value: T } | undefined {
     // Complete only a trailing expression. The fork owns recovered syntax and
     // query caches; no synthetic delimiters reach project facts or diagnostics.
     if (!file.syntaxErrors.length || file.source.length > 131_072 || file.source.slice(offset).trim()
-      || file.source.includes('?>') || !/\b(?:function\s*(?:&\s*)?\(|function\s+(?:&\s*)?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*\(|fn\s*\()/iu.test(file.source)) return undefined;
-    const ignored = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
+      || !/\b(?:function\s*(?:&\s*)?\(|function\s+(?:&\s*)?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*\(|fn\s*\()/iu.test(file.source)) return undefined;
+    const ignored = [...file.commentRanges, ...file.stringRanges, ...this.completionNonPhpRanges(file)]
+      .sort((left, right) => left.start - right.start);
     const comparisonCondition = recoveryContext === 'expression' ? false : recoveryContext;
     // New expression consumers retain the array recovery's 16-delimiter budget.
     const maximumDelimiters = recoveryContext === 'expression' ? 16 : 32;

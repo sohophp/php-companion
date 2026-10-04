@@ -18,6 +18,7 @@ export async function run(): Promise<void> {
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
   const typeTails = process.env.PHP_COMPANION_TEST_TYPE_TAIL_ONLY === '1';
   const unclosedCallables = process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_ONLY === '1';
+  const mixedCallables = process.env.PHP_COMPANION_TEST_MIXED_CALLABLE_ONLY === '1';
   const assignmentComments = process.env.PHP_COMPANION_TEST_ASSIGNMENT_COMMENT_ONLY === '1';
   const unclosedShapes = process.env.PHP_COMPANION_TEST_UNCLOSED_SHAPE_ONLY === '1';
   const blankComments = process.env.PHP_COMPANION_TEST_BLANK_COMMENT_ONLY === '1';
@@ -33,6 +34,15 @@ export async function run(): Promise<void> {
       marked:'<?php class Current {} class Other {} function choose():Other|Cur§ {return new Current;}'},
     {prefix:'Cur',label:'Current',forbidden:'',addCall:false,
       marked:'<?php class Current {} class Other {} class Host { public function __construct(public Other|Cur§ $value) {} }'},
+  ] : mixedCallables ? [
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:'<?php ?> <script>const data={a:[1]}; }])</script> <?php function choose():bool{return tr§'},
+    {prefix:'',label:'$flag',forbidden:'',addCall:false,
+      marked:'<?php function choose(string $text,bool $flag):bool{?> <main>汉字🙂{])</main> <?php return /* value */ §'},
+    {prefix:'pick',label:'pickZ',forbidden:'',addCall:true,
+      marked:"<?php function pickA($value=null):string{return 'x';} function pickZ($value=null):bool{return true;} $tag='?> {])'; $callback=function():bool{return pick§"},
+    {prefix:'tit',label:'title',forbidden:'hidden',addCall:true,
+      marked:"<?php class Item{public function title($value=null):string{return 'x';} private function hidden():void{}} function choose(Item $item):string{?> <main>{])</main> <?php return $item->tit§"},
   ] : unclosedCallables ? [
     {prefix:'',label:'$flag',forbidden:'',addCall:false,
       marked:'<?php function choose(string $text,bool $flag):bool{return /* value */ §'},
@@ -160,7 +170,7 @@ export async function run(): Promise<void> {
     let marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
       .replaceAll('PICK_', `PICK${suffix}_`);
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
-    if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
+    if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`);
@@ -192,6 +202,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }
