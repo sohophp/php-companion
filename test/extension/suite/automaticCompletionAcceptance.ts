@@ -6,6 +6,15 @@ export async function run(): Promise<void> {
   const core = vscode.extensions.getExtension('sohophp.php-companion'); assert.ok(core); await core.activate();
   const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder);
   const port = Number(process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT); assert.ok(port > 0);
+  const modeProof = {
+    indexingMode: vscode.workspace.getConfiguration('phpCompanion', folder.uri).get('indexing.mode'),
+    workspaceIndexingMode: vscode.workspace.getConfiguration('phpCompanion').get('indexing.mode'),
+  };
+  console.log('Automatic completion mode proof: ' + JSON.stringify(modeProof));
+  if (process.env.SOPHP_AUTOMATIC_INDEXING_MODE) {
+    assert.equal(modeProof.indexingMode, process.env.SOPHP_AUTOMATIC_INDEXING_MODE);
+    assert.equal(modeProof.workspaceIndexingMode, process.env.SOPHP_AUTOMATIC_INDEXING_MODE);
+  }
   const results: object[] = [];
   const observations: object[] = [];
   let document: vscode.TextDocument, editor: vscode.TextEditor, original: string, name: string;
@@ -200,6 +209,7 @@ export async function run(): Promise<void> {
   console.log('Automatic completion acceptance proof: ' + JSON.stringify({ platform: process.platform, vscodeVersion: vscode.version,
     context: 'ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest',
     indexingMode: vscode.workspace.getConfiguration('phpCompanion', document!.uri).get('indexing.mode'),
+    workspaceIndexingMode: vscode.workspace.getConfiguration('phpCompanion').get('indexing.mode'),
     settings: { quickSuggestions: settings.get('quickSuggestions'), wordBasedSuggestions: settings.get('wordBasedSuggestions'),
       snippetSuggestions: settings.get('snippetSuggestions'), basicPhpSuggestions: vscode.workspace.getConfiguration('php').get('suggest.basic') }, results }));
 }

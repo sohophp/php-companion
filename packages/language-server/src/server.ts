@@ -7017,7 +7017,9 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       ? `${member.fqcn}(${member.parameters.map(displayPhpParameter).join(', ')})${member.returnType ? `: ${member.returnType}` : ''}`
       : `${member.fqcn}${member.returnType ? `: ${member.returnType}` : ''}${member.value ? ` = ${member.value}` : ''}`,
   }));
-  if (completionContext.kind === 'member') return members;
+  // Member matching includes case, word initials and substrings. The client
+  // cannot reproduce that matching by filtering an old complete list.
+  if (completionContext.kind === 'member') return { isIncomplete: true, items: members };
   if (completionContext.kind === 'variable') {
     if (constantInitializer) return [];
     let documentIdentity = completionDocumentIdentities.get(document);
@@ -7252,14 +7254,17 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const items = [...keywords, ...expectedValues.filter((value) =>
     !keywords.some((keyword) => keyword.label === value.label)),
   ...bareVariables, ...functions, ...constants, ...namespaceItems, ...typeItems, ...templates];
-  // VS Code filters a complete list locally as the user types. Keep the
-  // initial declaration prefix incomplete so `func` gets a fresh context and
-  // drops callable names that only matched the first letter.
+  // A complete index does not make a prefix-filtered list reusable. Types,
+  // callables and constants use server matching and prefix-dependent filterText;
+  // VS Code's fuzzy narrowing can retain rejected items or lose new matches.
+  // Keep these lists refreshable even after progressive indexing completes.
+  const serverMatchedCandidates = Boolean(typeContext || functions.length || constants.length);
+  // Declaration intent can also change as the prefix grows (e.g. f -> func).
   const declarationPrefix = completionContext.keywordContext?.prefix.toLowerCase();
   const refreshingDeclaration = Boolean(declarationPrefix && keywords.some((item) =>
     PHP_DECLARATION_KEYWORDS.has(String(item.label)) && String(item.label).startsWith(declarationPrefix)
       && String(item.label) !== declarationPrefix));
-  return namespaceCandidatesComplete && typeCandidatesComplete && !refreshingDeclaration
+  return namespaceCandidatesComplete && typeCandidatesComplete && !refreshingDeclaration && !serverMatchedCandidates
     ? items : { isIncomplete: true, items };
   } finally { recordTestQueryDuration('completion', timingStarted); }
 });

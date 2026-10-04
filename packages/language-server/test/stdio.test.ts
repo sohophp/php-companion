@@ -25,6 +25,10 @@ function encode(message: object): string {
   return `Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`;
 }
 
+function completionItems(result: any[] | { isIncomplete: boolean; items: any[] }): any[] {
+  return Array.isArray(result) ? result : result.items;
+}
+
 function lspPosition(source: string, offset: number): { line: number; character: number } {
   const lines = source.slice(0, offset).split('\n');
   return { line: lines.length - 1, character: lines.at(-1)!.length };
@@ -4494,13 +4498,13 @@ function inspect(Sink $sink, ?Sink $optional): void {
         textDocument: { uri }, position: lspPosition(source,
           source.indexOf('new \\Domain\\Billing\\Inv') + 'new \\Domain\\Billing\\Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 10001)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 10001)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' }),
       ]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 10002, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Inv;') + 'new Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 10002)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 10002)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Inventory', detail: 'Domain\\Other\\Inventory' }),
       ]));
       const manualImport = '<?php namespace App; use Domain\\Billing\\Inv; class ManualImport {}';
@@ -4513,7 +4517,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 118, method: 'textDocument/completion', params: {
         textDocument: { uri: manualImportUri }, position: lspPosition(manualImport, manualImport.indexOf('Billing\\Inv') + 'Billing\\Inv'.length),
       } }));
-      const manualImportResult = (await output.waitFor((message) => message.id === 118)).result;
+      const manualImportResult = completionItems((await output.waitFor((message) => message.id === 118)).result);
       expect(manualImportResult).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' }),
       ]));
@@ -4527,7 +4531,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 11805, method: 'textDocument/completion', params: {
         textDocument: { uri: repeatedBlockUri }, position: lspPosition(repeatedBlock, repeatedBlock.indexOf('Inv;') + 3),
       } }));
-      const repeatedItems = (await output.waitFor((message) => message.id === 11805)).result;
+      const repeatedItems = completionItems((await output.waitFor((message) => message.id === 11805)).result);
       const repeatedInvoice = repeatedItems.find((item: { detail?: string }) => item.detail === 'Domain\\Billing\\Invoice');
       expect(repeatedInvoice?.additionalTextEdits).toEqual([expect.objectContaining({
         range: { start: lspPosition(repeatedBlock, repeatedBlock.lastIndexOf('namespace App {') + 'namespace App {'.length),
@@ -4547,7 +4551,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri: globalUri }, position: lspPosition(globalImport, globalImport.indexOf(fragment) + fragment.length),
         } }));
-        const result = (await output.waitFor((message) => message.id === id)).result;
+        const result = completionItems((await output.waitFor((message) => message.id === id)).result);
         expect(result).toEqual(expect.arrayContaining([expect.objectContaining({ label: expected })]));
       }
       const groupImport = '<?php namespace App; use Domain\\Billing\\{Inv}; class GroupImport {}';
@@ -4560,7 +4564,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1181, method: 'textDocument/completion', params: {
         textDocument: { uri: groupImportUri }, position: lspPosition(groupImport, groupImport.indexOf('{Inv') + '{Inv'.length),
       } }));
-      const groupImportResult = (await output.waitFor((message) => message.id === 1181)).result;
+      const groupImportResult = completionItems((await output.waitFor((message) => message.id === 1181)).result);
       expect(groupImportResult).toEqual([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' })]);
       expect(groupImportResult[0]?.additionalTextEdits).toBeUndefined();
       expect(groupImportResult[0]?.filterText).toBe('Inv');
@@ -4577,7 +4581,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 11803, method: 'textDocument/completion', params: {
         textDocument: { uri: globalGroupUri }, position: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + '{Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 11803)).result).toEqual([
+      expect(completionItems((await output.waitFor((message) => message.id === 11803)).result)).toEqual([
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice',
           textEdit: { range: { start: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + 1),
             end: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + '{Inv'.length) }, newText: 'Invoice' } }),
@@ -4590,7 +4594,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         textDocument: { uri: groupImportUri }, position: lspPosition(laterGroupImport,
           laterGroupImport.indexOf('Inv}') + 'Inv'.length),
       } }));
-      const laterGroupResult = (await output.waitFor((message) => message.id === 1182)).result;
+      const laterGroupResult = completionItems((await output.waitFor((message) => message.id === 1182)).result);
       expect(laterGroupResult).toEqual([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice',
         filterText: 'Inv',
         textEdit: { range: { start: lspPosition(laterGroupImport, laterGroupImport.indexOf('Inv}')),
@@ -4663,7 +4667,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1183, method: 'textDocument/completion', params: {
         textDocument: { uri: namespaceImportUri }, position: lspPosition(namespaceImport, namespaceImport.indexOf('use Dom') + 'use Dom'.length),
       } }));
-      const rootNamespaceItems = (await output.waitFor((message) => message.id === 1183)).result;
+      const rootNamespaceItems = completionItems((await output.waitFor((message) => message.id === 1183)).result);
       expect(rootNamespaceItems).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Domain\\', kind: 9,
           textEdit: { range: { start: lspPosition(namespaceImport, namespaceImport.indexOf('Dom;')),
@@ -4682,7 +4686,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         textDocument: { uri: namespaceImportUri }, position: lspPosition(nestedNamespaceImport,
           nestedNamespaceImport.indexOf('Domain\\Bil') + 'Domain\\Bil'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 1184)).result).toEqual([
+      expect(completionItems((await output.waitFor((message) => message.id === 1184)).result)).toEqual([
         expect.objectContaining({ label: 'Billing\\', kind: 9,
           textEdit: { range: { start: lspPosition(nestedNamespaceImport, nestedNamespaceImport.indexOf('Bil;')),
             end: lspPosition(nestedNamespaceImport, nestedNamespaceImport.indexOf('Bil;') + 3) }, newText: 'Billing\\' } }),
@@ -4711,7 +4715,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 119, method: 'textDocument/completion', params: {
         textDocument: { uri: manualImportUri }, position: lspPosition(unsavedImport, unsavedImport.indexOf('Other\\Inv') + 'Other\\Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 119)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 119)).result))
         .toEqual(expect.arrayContaining([
           expect.objectContaining({ label: 'Inventory', detail: 'Domain\\Other\\Inventory' }),
           expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Other\\Invoice' }),
@@ -4725,12 +4729,12 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 120, method: 'textDocument/completion', params: {
         textDocument: { uri: manualImportUri }, position: lspPosition(manualImport, manualImport.indexOf('Billing\\Inv') + 'Billing\\Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 120)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 120)).result))
         .toEqual([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' })]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 102, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Proj') + 'new Proj'.length),
       } }));
-      const result = (await output.waitFor((message) => message.id === 102)).result;
+      const result = completionItems((await output.waitFor((message) => message.id === 102)).result);
       expect(result).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'ProjectType', detail: 'App\\ProjectType' })]));
       expect(result.some((item: { label: string }) => item.label === 'ProjectGhost')).toBe(false);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1021, method: 'textDocument/completion', params: {
@@ -4774,7 +4778,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + marker.length),
         } }));
-        const qualified = (await output.waitFor((message) => message.id === id)).result;
+        const qualified = completionItems((await output.waitFor((message) => message.id === id)).result);
         expect(qualified).toEqual(expect.arrayContaining([
           expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' }),
         ]));
@@ -4786,23 +4790,23 @@ function inspect(Sink $sink, ?Sink $optional): void {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + 'string|Inv'.length),
         } }));
-        expect((await output.waitFor((message) => message.id === id)).result)
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result))
           .toEqual(expect.arrayContaining([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' })]));
       }
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('] Inv $value') + '] Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 117)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 117)).result))
         .toEqual(expect.arrayContaining([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' })]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 103, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Impor') + 'new Impor'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 103)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 103)).result))
         .toEqual(expect.arrayContaining([expect.objectContaining({ label: 'ImportedType', detail: 'Domain\\OtherType' })]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 106, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Inv') + 'new Inv'.length),
       } }));
-      const external = (await output.waitFor((message) => message.id === 106)).result;
+      const external = completionItems((await output.waitFor((message) => message.id === 106)).result);
       expect(external).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice', additionalTextEdits: expect.any(Array) }),
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Other\\Invoice', additionalTextEdits: expect.any(Array) }),
@@ -4815,7 +4819,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 108, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Gho') + 'new Gho'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 108)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 108)).result)).toEqual([]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 109, method: 'phpCompanion/testPauseNextQuery', params: {
         method: 'typeCompletionCandidates',
       } }));
@@ -4845,7 +4849,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 107, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Inv') + 'new Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 107)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 107)).result))
         .toEqual(expect.arrayContaining([expect.objectContaining({ label: 'Inventory', detail: 'Domain\\Billing\\Inventory' })]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 130, method: 'phpCompanion/testPauseNextQuery', params: {
         method: 'typeCompletionCandidates',
@@ -4919,7 +4923,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 105, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(narrowed, narrowed.indexOf('new ProjectExtra69') + 'new ProjectExtra69'.length),
       } }));
-      const specific = (await output.waitFor((message) => message.id === 105)).result;
+      const specific = completionItems((await output.waitFor((message) => message.id === 105)).result);
       expect(specific).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'ProjectExtra69', detail: 'App\\ProjectExtra69' })]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 112, method: 'phpCompanion/testPauseNextQuery', params: {
         method: 'typeCompletionCandidates',
@@ -5020,7 +5024,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(`new ${prefix}`) + `new ${prefix}`.length),
         } }));
-        expect((await output.waitFor((message) => message.id === id)).result).toEqual(expect.arrayContaining([
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toEqual(expect.arrayContaining([
           expect.objectContaining({ label: expected.slice(expected.lastIndexOf('\\') + 1), detail: expected,
             additionalTextEdits: expect.arrayContaining([expect.objectContaining({ newText: expect.stringContaining(`use ${expected};`) })]) }),
         ]));
@@ -5032,7 +5036,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(fragment) + fragment.length),
         } }));
-        const result = (await output.waitFor((message) => message.id === id)).result;
+        const result = completionItems((await output.waitFor((message) => message.id === id)).result);
         expect(result).toEqual(expect.arrayContaining([
           expect.objectContaining({ label: expected.slice(expected.lastIndexOf('\\') + 1), detail: expected }),
         ]));
@@ -5041,7 +5045,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(`new ${prefix}`) + `new ${prefix}`.length),
         } }));
-        expect((await output.waitFor((message) => message.id === id)).result).toEqual([]);
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toEqual([]);
       }
       const addedPath = join(root, 'legacy', 'NewBundle.php');
       const addedUri = pathToFileURL(addedPath).toString();
@@ -5054,7 +5058,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 122, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('new Odd') + 'new Odd'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 122)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 122)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'OddExtra', detail: 'Legacy\\OddExtra' }),
       ]));
       await Promise.all(Array.from({ length: 70 }, (_, index) => {
@@ -5089,7 +5093,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 124, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(changed, changed.indexOf('new CMapNew') + 'new CMapNew'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 124)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 124)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'CMapNew', detail: 'Legacy\\CMapNew' }),
       ]));
       const narrow = source.replace('new CMap;', 'new CMap69;');
@@ -5099,7 +5103,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 121, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(narrow, narrow.indexOf('new CMap69') + 'new CMap69'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 121)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 121)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'CMap69', detail: 'Legacy\\CMap69' }),
       ]));
     } finally { await rm(root, { recursive: true, force: true }); }
@@ -5252,7 +5256,7 @@ return array(
         } }));
         return (await output.waitFor((message) => message.id === id)).result;
       };
-      expect(await request(148, 'textDocument/completion', consumer, '$item->se')).toEqual(expect.arrayContaining([
+      expect(completionItems(await request(148, 'textDocument/completion', consumer, '$item->se'))).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'send' }),
       ]));
       await writeFile(classmapPath, generatedMap('Bundle.php'));
@@ -5292,7 +5296,7 @@ return array(
       } }));
       await output.waitFor((message) => message.method === 'phpCompanion/versionedDiagnostics'
         && message.params.uri === consumerUri && message.params.version === 3);
-      expect(await request(152, 'textDocument/completion', revisedConsumer, '$item->po')).toEqual(expect.arrayContaining([
+      expect(completionItems(await request(152, 'textDocument/completion', revisedConsumer, '$item->po'))).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'post' }),
       ]));
       const revisedDefinition = await request(153, 'textDocument/definition', revisedConsumer, '$item->post');
@@ -5373,7 +5377,7 @@ return array(
         } }));
         return (await output.waitFor((message) => message.id === id)).result;
       };
-      expect(await request(155, 'textDocument/completion', '$draft->se')).toEqual(expect.arrayContaining([
+      expect(completionItems(await request(155, 'textDocument/completion', '$draft->se'))).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'send' }),
       ]));
       expect((await request(156, 'textDocument/signatureHelp', '$draft->send(')).signatures[0].label)
@@ -5457,7 +5461,7 @@ return array(
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(`new ${prefix}`) + `new ${prefix}`.length),
         } }));
-        const result = (await output.waitFor((message) => message.id === id)).result;
+        const result = completionItems((await output.waitFor((message) => message.id === id)).result);
         if (expected) expect(result).toEqual(expect.arrayContaining([
           expect.objectContaining({ label: expected, detail: expected }),
         ]));
@@ -5551,7 +5555,7 @@ return array(
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(`new ${prefix}`) + `new ${prefix}`.length),
         } }));
-        expect((await output.waitFor((message) => message.id === id)).result).toEqual(expect.arrayContaining([
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toEqual(expect.arrayContaining([
           expect.objectContaining({ label: expected }),
         ]));
       }
@@ -6556,7 +6560,7 @@ choose(1, /* note */);`;
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf('str_con') + 'str_con'.length),
         } }));
-        return (await output.waitFor((message) => message.id === id)).result.some((item: { label: string }) => item.label === 'str_contains');
+        return completionItems((await output.waitFor((message) => message.id === id)).result).some((item: { label: string }) => item.label === 'str_contains');
       };
       expect(await completion(9972)).toBe(false);
       for (const [version, expectedBuiltin, expectedDiagnostic, id] of [
@@ -6805,7 +6809,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 904, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf("'account.'") + "'account.".length),
       } }));
-      const result = (await output.waitFor((message) => message.id === 904, 15_000)).result as Array<{ label: string }>;
+      const result = completionItems((await output.waitFor((message) => message.id === 904, 15_000)).result) as Array<{ label: string }>;
       expect(result.map((item) => item.label)).toContain('account.show');
       const incomplete = await readFile(resolve('../framework-symfony/test/fixtures/acceptance/f09-route-incomplete.yaml'), 'utf8');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/frameworkDocumentSnapshots', params: {
@@ -6814,7 +6818,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 905, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf("'account.'") + "'account.".length),
       } }));
-      expect((await output.waitFor((message) => message.id === 905, 15_000)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 905, 15_000)).result)).toEqual([]);
       await output.waitFor((message) => message.method === 'window/logMessage'
         && message.params?.message?.includes('returned an incomplete snapshot'));
     } finally { await rm(root, { recursive: true, force: true }); }
@@ -8645,22 +8649,22 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 2581, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('$queried->lab') + '$queried->lab'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 2581)).result).toMatchObject([{ label: 'label' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 2581)).result)).toMatchObject([{ label: 'label' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 257, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('fi;') + 2),
       } }));
       const completion = await output.waitFor((message) => message.id === 257);
-      expect(completion.result).toMatchObject([
+      expect(completionItems(completion.result)).toMatchObject([
         { label: 'find', detail: expect.stringContaining('App\\Item|null') },
       ]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 258, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('lab;') + 3),
       } }));
-      expect((await output.waitFor((message) => message.id === 258)).result).toMatchObject([{ label: 'label' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 258)).result)).toMatchObject([{ label: 'label' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 259, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.lastIndexOf('lab;') + 3),
       } }));
-      expect((await output.waitFor((message) => message.id === 259)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 259)).result)).toEqual([]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 260, method: 'shutdown', params: null }));
       await output.waitFor((message) => message.id === 260);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
@@ -13456,7 +13460,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: 'file:///Named.php', languageId: 'php', version: 1, text: namedSource } } }));
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///Named.php');
     server.stdin.write(encode({ jsonrpc: '2.0', id: 4, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Named.php' }, position: { line: 0, character: namedSource.length } } }));
-    expect((await output.waitFor((message) => message.id === 4)).result).toMatchObject([{ label: 'first:', insertText: 'first: ' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 4)).result)).toMatchObject([{ label: 'first:', insertText: 'first: ' }]);
     server.stdin.write(encode({ jsonrpc: '2.0', id: 5, method: 'textDocument/hover', params: { textDocument: { uri: 'file:///Named.php' }, position: { line: 0, character: namedSource.lastIndexOf('Builder') + 1 } } }));
     expect((await output.waitFor((message) => message.id === 5)).result.contents.value).toContain('class Builder');
     server.stdin.write(encode({ jsonrpc: '2.0', id: 7, method: 'textDocument/signatureHelp', params: { textDocument: { uri: 'file:///Named.php' }, position: { line: 0, character: namedSource.length } } }));
@@ -13467,41 +13471,41 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     for (const [id, marker] of [[20, '$left->pro'], [21, '$right->pro'], [22, '$error->pro']] as const) {
       const character = flowSource.indexOf(marker) + marker.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Flow.php' }, position: { line: 0, character } } }));
-      expect((await output.waitFor((message) => message.id === id)).result).toMatchObject([{ label: 'proven' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toMatchObject([{ label: 'proven' }]);
     }
     const unsafeCharacter = flowSource.indexOf('$left->unsafe') + '$left->unsafe'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 23, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Flow.php' }, position: { line: 0, character: unsafeCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 23)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 23)).result)).toEqual([]);
     const assertionSource = '<?php namespace AssertFlow; class Base {} class Ready extends Base { function onlyReady(): void {} } /** @phpstan-assert Ready $value */ function assertReady(Base $value): void {} /** @phpstan-assert-if-true Ready $value */ function isReady(Base $value): bool { return true; } /** @phpstan-assert-if-true !null $value */ function isPresent(?Ready $value): bool { return true; } /** @phpstan-assert-if-true !false $value */ function isFound(Ready|false $value): bool { return true; } function run(Base $proven, Base $conditional, Base $compound, ?Ready $nullable, Ready|false $falseable, Base $loop, Base $doShort): void { assertReady($proven); $proven->only; if (isReady($conditional)) { $conditional->only; } $conditional->outside; if (isReady($compound) && unknown()) { $compound->only; } if (isPresent($nullable)) { $nullable->only; } if (isFound($falseable)) { $falseable->only; } while (isReady($loop)) { $loop->only; } $loop->outside; do {} while (isReady($doShort) && $doShort->only); }';
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: 'file:///Assertion.php', languageId: 'php', version: 1, text: assertionSource } } }));
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///Assertion.php');
     const assertedCharacter = assertionSource.indexOf('$proven->only') + '$proven->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 120, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: assertedCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 120)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 120)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const conditionalCharacter = assertionSource.indexOf('$conditional->only') + '$conditional->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 121, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: conditionalCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 121)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 121)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const outsideConditionalCharacter = assertionSource.indexOf('$conditional->outside') + '$conditional->outside'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 122, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: outsideConditionalCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 122)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 122)).result)).toEqual([]);
     const compoundCharacter = assertionSource.indexOf('$compound->only') + '$compound->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 123, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: compoundCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 123)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 123)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const nonNullCharacter = assertionSource.indexOf('$nullable->only') + '$nullable->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 124, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: nonNullCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 124)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 124)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const falseableCharacter = assertionSource.indexOf('$falseable->only') + '$falseable->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 137, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: falseableCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 137)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 137)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const loopAssertionCharacter = assertionSource.indexOf('$loop->only') + '$loop->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 149, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: loopAssertionCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 149)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 149)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const outsideLoopCharacter = assertionSource.indexOf('$loop->outside') + '$loop->outside'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 150, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: outsideLoopCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 150)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 150)).result)).toEqual([]);
     const doShortCharacter = assertionSource.indexOf('$doShort->only') + '$doShort->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 151, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Assertion.php' }, position: { line: 0, character: doShortCharacter } } }));
-    expect((await output.waitFor((message) => message.id === 151)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 151)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const genericNegativeSource = `<?php namespace GenericNegativeAssert;
       class User { function onlyUser(): void {} } class Other {}
       /** @template T of object */ class Box { /** @return T */ function get() {} }
@@ -13513,7 +13517,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///GenericNegativeAssertion.php');
     const genericNegativeOffset = genericNegativeSource.indexOf('$value->get()->only') + '$value->get()->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 138, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GenericNegativeAssertion.php' }, position: lspPosition(genericNegativeSource, genericNegativeOffset) } }));
-    expect((await output.waitFor((message) => message.id === 138)).result).toMatchObject([{ label: 'onlyUser' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 138)).result)).toMatchObject([{ label: 'onlyUser' }]);
     const intersectionNegativeSource = `<?php namespace IntersectionNegativeAssert;
       class Ready { function onlyReady(): void {} } interface Marker { function onlyMarker(): void; } class Rejected implements Marker {}
       /** @phpstan-assert-if-true !(Rejected&Marker) $value */ function excludesRejected($value): bool { return true; }
@@ -13527,10 +13531,10 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///IntersectionNegativeAssertion.php');
     const intersectionNegativeOffset = intersectionNegativeSource.indexOf('$value->only') + '$value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 139, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///IntersectionNegativeAssertion.php' }, position: lspPosition(intersectionNegativeSource, intersectionNegativeOffset) } }));
-    expect((await output.waitFor((message) => message.id === 139)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 139)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const remainingIntersectionOffset = intersectionNegativeSource.indexOf('$remaining->onlyMarker') + '$remaining->onlyMarker'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 140, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///IntersectionNegativeAssertion.php' }, position: lspPosition(intersectionNegativeSource, remainingIntersectionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 140)).result).toContainEqual(expect.objectContaining({ label: 'onlyMarker' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 140)).result)).toContainEqual(expect.objectContaining({ label: 'onlyMarker' }));
     const conditionalReturnSource = `<?php namespace ConditionalReturnFlow;
       class Ready { function onlyReady(): void {} function common(): void {} }
       class Other { function onlyOther(): void {} function common(): void {} }
@@ -13560,25 +13564,25 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     for (const [id, marker, label] of [[141, '$ready->only', 'onlyReady'], [142, '$other->only', 'onlyOther'], [143, '$unknown->common', 'common']] as const) {
       const markerOffset = conditionalReturnSource.indexOf(marker) + marker.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ConditionalReturn.php' }, position: lspPosition(conditionalReturnSource, markerOffset) } }));
-      expect((await output.waitFor((message) => message.id === id)).result).toContainEqual(expect.objectContaining({ label }));
+      expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toContainEqual(expect.objectContaining({ label }));
     }
     for (const [id, marker, label] of [[144, '$callableReady->only', 'onlyReady'], [145, '$callableOther->only', 'onlyOther'], [146, '$callableUnknown->common', 'common']] as const) {
       const markerOffset = conditionalReturnSource.indexOf(marker) + marker.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ConditionalReturn.php' }, position: lspPosition(conditionalReturnSource, markerOffset) } }));
-      expect((await output.waitFor((message) => message.id === id)).result).toContainEqual(expect.objectContaining({ label }));
+      expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toContainEqual(expect.objectContaining({ label }));
     }
     const nestedCommonOffset = conditionalReturnSource.indexOf('$nested->common') + '$nested->common'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 147, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ConditionalReturn.php' }, position: lspPosition(conditionalReturnSource, nestedCommonOffset) } }));
-    expect((await output.waitFor((message) => message.id === 147)).result).toContainEqual(expect.objectContaining({ label: 'common' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 147)).result)).toContainEqual(expect.objectContaining({ label: 'common' }));
     const nestedImpossibleOffset = conditionalReturnSource.indexOf('$nested->impossible') + '$nested->impossible'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 148, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ConditionalReturn.php' }, position: lspPosition(conditionalReturnSource, nestedImpossibleOffset) } }));
-    expect((await output.waitFor((message) => message.id === 148)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 148)).result)).toEqual([]);
     const crossCommonOffset = conditionalReturnSource.indexOf('$cross->common') + '$cross->common'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 152, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ConditionalReturn.php' }, position: lspPosition(conditionalReturnSource, crossCommonOffset) } }));
-    expect((await output.waitFor((message) => message.id === 152)).result).toContainEqual(expect.objectContaining({ label: 'common' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 152)).result)).toContainEqual(expect.objectContaining({ label: 'common' }));
     const crossImpossibleOffset = conditionalReturnSource.indexOf('$cross->impossible') + '$cross->impossible'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 153, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ConditionalReturn.php' }, position: lspPosition(conditionalReturnSource, crossImpossibleOffset) } }));
-    expect((await output.waitFor((message) => message.id === 153)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 153)).result)).toEqual([]);
     const magicSource = `<?php namespace MagicFlow;
       class User { public string $name; } class Other {}
       /** @property User $owner resolved owner
@@ -13599,10 +13603,10 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///Magic.php');
     const magicCompletion = magicSource.indexOf('$model->ow') + '$model->ow'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 154, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicCompletion) } }));
-    expect((await output.waitFor((message) => message.id === 154)).result.map((item: { label: string }) => item.label)).toEqual(['owner']);
+    expect(completionItems((await output.waitFor((message) => message.id === 154)).result).map((item: { label: string }) => item.label)).toEqual(['owner']);
     const magicChain = magicSource.indexOf('$model->find(1)->na') + '$model->find(1)->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 155, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicChain) } }));
-    expect((await output.waitFor((message) => message.id === 155)).result).toContainEqual(expect.objectContaining({ label: 'name' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 155)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
     const magicSignature = magicSource.indexOf('$model->find(1)') + '$model->find('.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 156, method: 'textDocument/signatureHelp', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicSignature) } }));
     expect((await output.waitFor((message) => message.id === 156)).result.signatures[0].label).toBe('find(int $id, string $label = null): User');
@@ -13617,10 +13621,10 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     expect((await output.waitFor((message) => message.id === 170)).result.signatures[0].label).toBe('find(int $id, string $label = null): User');
     const dynamicAssignedChain = magicSource.indexOf('$dynamicResult->na') + '$dynamicResult->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 171, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, dynamicAssignedChain) } }));
-    expect((await output.waitFor((message) => message.id === 171)).result).toContainEqual(expect.objectContaining({ label: 'name' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 171)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
     const dynamicDirectChain = magicSource.indexOf('$model->{$directMethod}(1)->na') + '$model->{$directMethod}(1)->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 172, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, dynamicDirectChain) } }));
-    expect((await output.waitFor((message) => message.id === 172)).result).toContainEqual(expect.objectContaining({ label: 'name' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 172)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
     const dynamicPropertyDefinition = magicSource.indexOf("'owner'", magicSource.indexOf('function run')) + 2;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 168, method: 'textDocument/definition', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, dynamicPropertyDefinition) } }));
     expect((await output.waitFor((message) => message.id === 168)).result).toHaveLength(1);
@@ -13629,10 +13633,10 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     expect((await output.waitFor((message) => message.id === 169)).result).toEqual([]);
     const magicReadChain = magicSource.indexOf('$model->createdBy->na') + '$model->createdBy->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 158, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicReadChain) } }));
-    expect((await output.waitFor((message) => message.id === 158)).result).toContainEqual(expect.objectContaining({ label: 'name' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 158)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
     const magicWriteOnlyRead = magicSource.indexOf('$model->payload->na') + '$model->payload->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 159, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicWriteOnlyRead) } }));
-    expect((await output.waitFor((message) => message.id === 159)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 159)).result)).toEqual([]);
     const magicOverload = magicSource.indexOf('$model->locate(1)') + '$model->locate('.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 160, method: 'textDocument/signatureHelp', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicOverload) } }));
     expect((await output.waitFor((message) => message.id === 160)).result.signatures.map((item: { label: string }) => item.label)).toEqual([
@@ -13643,13 +13647,13 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     expect((await output.waitFor((message) => message.id === 162)).result.signatures.map((item: { label: string }) => item.label)).toEqual(['locate(int $id): User']);
     const magicAmbiguousChain = magicSource.indexOf('$model->locate($key)->na') + '$model->locate($key)->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 161, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicAmbiguousChain) } }));
-    expect((await output.waitFor((message) => message.id === 161)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 161)).result)).toEqual([]);
     const magicTemplateChain = magicSource.indexOf('$model->fetch(User::class)->na') + '$model->fetch(User::class)->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 163, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicTemplateChain) } }));
-    expect((await output.waitFor((message) => message.id === 163)).result).toContainEqual(expect.objectContaining({ label: 'name' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 163)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
     const magicInvalidTemplateChain = magicSource.indexOf('$model->fetch(Other::class)->na') + '$model->fetch(Other::class)->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 164, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicInvalidTemplateChain) } }));
-    expect((await output.waitFor((message) => message.id === 164)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 164)).result)).toEqual([]);
     const templateAssertionSource = `<?php namespace TemplateAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} }
       /** @template T of Base
@@ -13661,7 +13665,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///TemplateAssertion.php');
     const templateAssertionOffset = templateAssertionSource.indexOf('$value->only') + '$value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 125, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///TemplateAssertion.php' }, position: lspPosition(templateAssertionSource, templateAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 125)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 125)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const propertyAssertionSource = `<?php namespace PropertyAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} } class Holder { public Base $value; }
       /** @phpstan-assert Ready $holder->value */ function assertHolder(Holder $holder): void {}
@@ -13670,7 +13674,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///PropertyAssertion.php');
     const propertyAssertionOffset = propertyAssertionSource.indexOf('$holder->value->only') + '$holder->value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 126, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///PropertyAssertion.php' }, position: lspPosition(propertyAssertionSource, propertyAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 126)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 126)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const methodAssertionSource = `<?php namespace MethodAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} }
       class Guard { /** @phpstan-assert Ready $value */ function requireReady(Base $value): void {} }
@@ -13679,7 +13683,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///MethodAssertion.php');
     const methodAssertionOffset = methodAssertionSource.indexOf('$value->only') + '$value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 127, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///MethodAssertion.php' }, position: lspPosition(methodAssertionSource, methodAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 127)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 127)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const thisAssertionSource = `<?php namespace ThisAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} }
       class Holder { public Base $value; /** @phpstan-assert Ready $this->value */ function requireReady(): void {} }
@@ -13688,7 +13692,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///ThisAssertion.php');
     const thisAssertionOffset = thisAssertionSource.indexOf('$holder->value->only') + '$holder->value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 128, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ThisAssertion.php' }, position: lspPosition(thisAssertionSource, thisAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 128)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 128)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const nestedAssertionSource = `<?php namespace NestedAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} }
       class Child { public Base $value; } class Holder { public Child $child; }
@@ -13698,7 +13702,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///NestedAssertion.php');
     const nestedAssertionOffset = nestedAssertionSource.indexOf('$holder->child->value->only') + '$holder->child->value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 129, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///NestedAssertion.php' }, position: lspPosition(nestedAssertionSource, nestedAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 129)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 129)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const negativePropertySource = `<?php namespace NegativePropertyFlow;
       class Ready { function onlyReady(): void {} } class Holder { public ?Ready $value; }
       /** @phpstan-assert !null $holder->value */ function requirePresent(Holder $holder): void {}
@@ -13707,7 +13711,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///NegativePropertyAssertion.php');
     const negativePropertyOffset = negativePropertySource.indexOf('$holder->value->only') + '$holder->value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 130, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///NegativePropertyAssertion.php' }, position: lspPosition(negativePropertySource, negativePropertyOffset) } }));
-    expect((await output.waitFor((message) => message.id === 130)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 130)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const templatePropertySource = `<?php namespace TemplatePropertyFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} } class Holder { public Base $value; }
       /** @template T of Base
@@ -13719,7 +13723,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///TemplatePropertyAssertion.php');
     const templatePropertyOffset = templatePropertySource.indexOf('$holder->value->only') + '$holder->value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 131, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///TemplatePropertyAssertion.php' }, position: lspPosition(templatePropertySource, templatePropertyOffset) } }));
-    expect((await output.waitFor((message) => message.id === 131)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 131)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const shortCircuitAssertionSource = `<?php namespace ShortCircuitAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): bool { return true; } }
       /** @phpstan-assert-if-true Ready $value */ function isReady(Base $value): bool { return true; }
@@ -13728,7 +13732,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///ShortCircuitAssertion.php');
     const shortCircuitAssertionOffset = shortCircuitAssertionSource.indexOf('$value->only') + '$value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 132, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///ShortCircuitAssertion.php' }, position: lspPosition(shortCircuitAssertionSource, shortCircuitAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 132)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 132)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const guardAssertionSource = `<?php namespace GuardAssertFlow;
       class Base {} class Ready extends Base { function onlyReady(): void {} }
       /** @phpstan-assert-if-true Ready $value */ function isReady(Base $value): bool { return true; }
@@ -13737,21 +13741,21 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///GuardAssertion.php');
     const guardAssertionOffset = guardAssertionSource.indexOf('$value->only') + '$value->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 133, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GuardAssertion.php' }, position: lspPosition(guardAssertionSource, guardAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 133)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 133)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const tryGuardAssertionOffset = guardAssertionSource.indexOf('$caught->only') + '$caught->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 134, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GuardAssertion.php' }, position: lspPosition(guardAssertionSource, tryGuardAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 134)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 134)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const switchGuardAssertionOffset = guardAssertionSource.indexOf('$switched->only') + '$switched->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 135, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GuardAssertion.php' }, position: lspPosition(guardAssertionSource, switchGuardAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 135)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 135)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const loopGuardAssertionOffset = guardAssertionSource.indexOf('$looped->only') + '$looped->only'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 136, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GuardAssertion.php' }, position: lspPosition(guardAssertionSource, loopGuardAssertionOffset) } }));
-    expect((await output.waitFor((message) => message.id === 136)).result).toMatchObject([{ label: 'onlyReady' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 136)).result)).toMatchObject([{ label: 'onlyReady' }]);
     const genericSource = '<?php interface Row {} class User implements Row { function name(): string {} } /** @template T of Row */ class BaseRepository { /** @return T */ function find() {} } /** @extends BaseRepository<User> */ class UserRepository extends BaseRepository {} function generic(UserRepository $repository): void { $repository->find()->na; }';
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: 'file:///Generic.php', languageId: 'php', version: 1, text: genericSource } } }));
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///Generic.php');
     server.stdin.write(encode({ jsonrpc: '2.0', id: 24, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Generic.php' }, position: { line: 0, character: genericSource.indexOf('na;') + 2 } } }));
-    expect((await output.waitFor((message) => message.id === 24)).result).toMatchObject([{ label: 'name' }]);
+    expect(completionItems((await output.waitFor((message) => message.id === 24)).result)).toMatchObject([{ label: 'name' }]);
     server.stdin.write(encode({ jsonrpc: '2.0', id: 25, method: 'textDocument/hover', params: { textDocument: { uri: 'file:///Generic.php' }, position: { line: 0, character: genericSource.lastIndexOf('find()') + 1 } } }));
     expect((await output.waitFor((message) => message.id === 25)).result.contents.value).toContain(': User');
     const genericIterableSource = `<?php
@@ -13790,11 +13794,11 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === 'file:///GenericIterable.php');
     for (const [id, match] of [...genericIterableSource.matchAll(/na;/g)].map((item, index) => [28 + index, item.index] as const)) {
       server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GenericIterable.php' }, position: lspPosition(genericIterableSource, match + 2) } }));
-      expect((await output.waitFor((message) => message.id === id)).result).toMatchObject([{ label: 'name' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toMatchObject([{ label: 'name' }]);
     }
     for (const [id, match] of [...genericIterableSource.matchAll(/ti;/g)].map((item, index) => [32 + index, item.index] as const)) {
       server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///GenericIterable.php' }, position: lspPosition(genericIterableSource, match + 2) } }));
-      expect((await output.waitFor((message) => message.id === id)).result).toMatchObject([{ label: 'title' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toMatchObject([{ label: 'title' }]);
     }
     const organizeSource = '<?php namespace Imports;\nuse Vendor\\Unused;\nuse Vendor\\Used;\nfunction run(Used $used): void {}\n';
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: 'file:///Organize.php', languageId: 'php', version: 1, text: organizeSource } } }));
@@ -13989,47 +13993,47 @@ namespace Second {
       }
       server.stdin.write(encode({ jsonrpc: '2.0', id: 12, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('Inv;') + 3 } } }));
       const typeCompletion = await output.waitFor((message) => message.id === 12);
-      expect(typeCompletion.result).toEqual(expect.arrayContaining([
+      expect(completionItems(typeCompletion.result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice', additionalTextEdits: [expect.objectContaining({ newText: expect.stringContaining('use Domain\\Billing\\Invoice;') })] }),
       ]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 16, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('$repo->fi') + '$repo->fi'.length } } }));
-      expect((await output.waitFor((message) => message.id === 16)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 16)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'find', detail: expect.stringContaining('App\\User|null') }),
         expect.objectContaining({ label: 'findAll' }), expect.objectContaining({ label: 'findBy' }), expect.objectContaining({ label: 'findOneBy' }),
       ]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 17, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('na;') + 2 } } }));
-      expect((await output.waitFor((message) => message.id === 17)).result).toMatchObject([{ label: 'name' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 17)).result)).toMatchObject([{ label: 'name' }]);
       for (const [id, match] of [...consumer.matchAll(/queryN;/g)].map((item, index) => [172 + index, item.index] as const)) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(consumer, match + 'queryN'.length) } }));
-        const result = (await output.waitFor((message) => message.id === id)).result;
+        const result = completionItems((await output.waitFor((message) => message.id === id)).result);
         if (id < 178) expect(result, `Doctrine query completion ${id}`).toMatchObject([{ label: 'queryName' }]);
         else expect(result).toEqual([]);
       }
       for (const [id, match] of [...consumer.matchAll(/->pub;/g)].map((item, index) => [190 + index, item.index] as const)) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(consumer, match + '->pub'.length) } }));
-        const result = (await output.waitFor((message) => message.id === id)).result;
+        const result = completionItems((await output.waitFor((message) => message.id === id)).result);
         if (id === 190) expect(result).toMatchObject([{ label: 'published' }]);
         else expect(result).toEqual([]);
       }
       server.stdin.write(encode({ jsonrpc: '2.0', id: 171, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('to;') + 2 } } }));
-      expect((await output.waitFor((message) => message.id === 171)).result).toMatchObject([{ label: 'total' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 171)).result)).toMatchObject([{ label: 'total' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 18, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('nu;') + 2 } } }));
-      expect((await output.waitFor((message) => message.id === 18)).result).toMatchObject([{ label: 'number' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 18)).result)).toMatchObject([{ label: 'number' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 19, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.lastIndexOf('nu;') + 2 } } }));
-      expect((await output.waitFor((message) => message.id === 19)).result).toMatchObject([{ label: 'number' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 19)).result)).toMatchObject([{ label: 'number' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 31, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.lastIndexOf('na;') + 2 } } }));
-      expect((await output.waitFor((message) => message.id === 31)).result).toMatchObject([{ label: 'name' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 31)).result)).toMatchObject([{ label: 'name' }]);
       for (const [id, match] of [...consumer.matchAll(/->co;/g)].map((item, index) => [117 + index, item.index] as const)) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(consumer, match + 4) } }));
-        expect((await output.waitFor((message) => message.id === id)).result).toMatchObject([{ label: 'code' }]);
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toMatchObject([{ label: 'code' }]);
       }
       for (const [id, match] of [...consumer.matchAll(/se;/g)].map((item, index) => [35 + index, item.index] as const)) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: match + 2 } } }));
-        expect((await output.waitFor((message) => message.id === id)).result).toMatchObject([{ label: 'send' }]);
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toMatchObject([{ label: 'send' }]);
       }
       const serviceIdOffset = consumer.indexOf('App\\Serv') + 'App\\Serv'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 39, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(consumer, serviceIdOffset) } }));
-      expect((await output.waitFor((message) => message.id === 39)).result).toEqual(expect.arrayContaining([
+      expect(completionItems((await output.waitFor((message) => message.id === 39)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'App\\Service', detail: 'App\\Service', textEdit: expect.objectContaining({ newText: 'App\\Service' }) }),
       ]));
       const definitionSource = consumer.replace('App\\Serv', 'App\\Service');
@@ -14089,7 +14093,7 @@ namespace Second {
       expect((await output.waitFor((message) => message.id === 68)).result).toMatchObject([{ uri: pathToFileURL(servicePath).toString() }]);
       const compositeCompletion = definitionSource.indexOf('$dnf->sha') + '$dnf->sha'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 69, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, compositeCompletion) } }));
-      expect((await output.waitFor((message) => message.id === 69)).result).toMatchObject([{ label: 'shared' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 69)).result)).toMatchObject([{ label: 'shared' }]);
       const compositeMember = definitionSource.indexOf('shared();', definitionSource.indexOf('function composite')) + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 70, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, compositeMember) } }));
       expect((await output.waitFor((message) => message.id === 70)).result).toHaveLength(2);
@@ -14097,22 +14101,22 @@ namespace Second {
       expect((await output.waitFor((message) => message.id === 71)).result).toMatchObject({ contents: { value: expect.stringContaining('shared') } });
       const compositeReturn = definitionSource.indexOf('->fi', definitionSource.indexOf('function composite')) + 4;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 80, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, compositeReturn) } }));
-      expect((await output.waitFor((message) => message.id === 80)).result).toMatchObject([{ label: 'finish' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 80)).result)).toMatchObject([{ label: 'finish' }]);
       const assignedCompositeReturn = definitionSource.indexOf('$route->fi') + '$route->fi'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 81, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, assignedCompositeReturn) } }));
-      expect((await output.waitFor((message) => message.id === 81)).result).toMatchObject([{ label: 'finish' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 81)).result)).toMatchObject([{ label: 'finish' }]);
       const copyCompletion = definitionSource.indexOf('$copy->sha') + '$copy->sha'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 74, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, copyCompletion) } }));
-      expect((await output.waitFor((message) => message.id === 74)).result).toMatchObject([{ label: 'shared' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 74)).result)).toMatchObject([{ label: 'shared' }]);
       const copyMember = definitionSource.indexOf('shared();', definitionSource.indexOf('$copy->sha')) + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 75, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, copyMember) } }));
       expect((await output.waitFor((message) => message.id === 75)).result).toHaveLength(2);
       const choiceCompletion = definitionSource.indexOf('$choice->sha') + '$choice->sha'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 76, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, choiceCompletion) } }));
-      expect((await output.waitFor((message) => message.id === 76)).result).toMatchObject([{ label: 'shared' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 76)).result)).toMatchObject([{ label: 'shared' }]);
       const catchCompletion = definitionSource.indexOf('$exception->sha') + '$exception->sha'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 72, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, catchCompletion) } }));
-      expect((await output.waitFor((message) => message.id === 72)).result).toMatchObject([{ label: 'shared' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 72)).result)).toMatchObject([{ label: 'shared' }]);
       const catchMember = definitionSource.indexOf('shared();', definitionSource.indexOf('function catching')) + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 73, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, catchMember) } }));
       expect((await output.waitFor((message) => message.id === 73)).result).toHaveLength(2);
@@ -14129,32 +14133,32 @@ namespace Second {
       expect((await output.waitFor((message) => message.id === 63)).result).toMatchObject([{ uri: pathToFileURL(servicePath).toString() }]);
       const bundleMember = definitionSource.indexOf('->del') + '->del'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 65, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleMember) } }));
-      expect((await output.waitFor((message) => message.id === 65)).result).toMatchObject([{ label: 'deliver' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 65)).result)).toMatchObject([{ label: 'deliver' }]);
       await writeFile(servicesPath, 'services: {}\n');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(servicesPath).toString(), type: 2 }] } }));
       await new Promise((resolvePromise) => setTimeout(resolvePromise, 500));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 64, method: 'textDocument/hover', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleOffset) } }));
       expect((await output.waitFor((message) => message.id === 64)).result).toMatchObject({ contents: { value: expect.not.stringContaining('(compiled)') } });
       server.stdin.write(encode({ jsonrpc: '2.0', id: 66, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleMember) } }));
-      expect((await output.waitFor((message) => message.id === 66)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 66)).result)).toEqual([]);
       const containerAssignmentMember = consumer.indexOf('$mailer->se', consumer.indexOf('$mailer = $container')) + '$mailer->se'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 41, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, containerAssignmentMember) } }));
-      expect((await output.waitFor((message) => message.id === 41)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 41)).result)).toEqual([]);
       await writeFile(servicePath, '<?php namespace App; class Service { public function newMethod(): void {} } function localHelper(): Service {}');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(servicePath).toString(), type: 2 }] } }));
       await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 11, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('newM') + 4 } } }));
       const completion = await output.waitFor((message) => message.id === 11);
-      expect(completion.result).toMatchObject([{ label: 'newMethod' }]);
+      expect(completionItems(completion.result)).toMatchObject([{ label: 'newMethod' }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 15, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('localH;') + 6 } } }));
-      expect((await output.waitFor((message) => message.id === 15)).result).toMatchObject([{ label: 'localHelper', kind: 3 }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 15)).result)).toMatchObject([{ label: 'localHelper', kind: 3 }]);
       const serviceUri = pathToFileURL(servicePath).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: serviceUri, languageId: 'php', version: 1, text: '<?php namespace App; class Service {}' } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === serviceUri);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: serviceUri } } }));
       await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 13, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: consumer.indexOf('newM') + 4 } } }));
-      expect((await output.waitFor((message) => message.id === 13)).result).toMatchObject([{ label: 'newMethod' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 13)).result)).toMatchObject([{ label: 'newMethod' }]);
       const wrongUri = pathToFileURL(join(root, 'src', 'Wrong.php')).toString();
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri: wrongUri, languageId: 'php', version: 1, text: '<?php namespace Wrong; class Wrong {}' } } }));
       const namespaceDiagnostics = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === wrongUri);
@@ -14192,7 +14196,7 @@ namespace Second {
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
         await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position: { line: 0, character: source.indexOf(prefix) + prefix.length } } }));
-        expect((await output.waitFor((message) => message.id === id)).result.map((item: { label: string }) => item.label)).toEqual(expected);
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result).map((item: { label: string }) => item.label)).toEqual(expected);
       }
     } finally { await rm(parent, { recursive: true, force: true }); }
   });
@@ -14708,7 +14712,7 @@ namespace Second {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: serviceUri, type: 2 }] } }));
       await new Promise((resolvePromise) => setTimeout(resolvePromise, 100));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 27, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: { line: 0, character: source.indexOf('newM') + 4 } } }));
-      expect((await output.waitFor((message) => message.id === 27)).result).toMatchObject([{ label: 'newMethod' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 27)).result)).toMatchObject([{ label: 'newMethod' }]);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -15005,12 +15009,12 @@ namespace Second {
         && item.message.includes('App\\ConstructedReadonlyState'))).toBe(true);
       const enumStaticCompletion = source.indexOf('DeliveryState::Ready') + 'DeliveryState::'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 94, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, enumStaticCompletion) } }));
-      const enumStaticItems = (await output.waitFor((message) => message.id === 94)).result;
+      const enumStaticItems = completionItems((await output.waitFor((message) => message.id === 94)).result);
       expect(enumStaticItems.map((item: { label: string }) => item.label)).toEqual(expect.arrayContaining(['cases', 'from', 'tryFrom', 'Ready', 'ready']));
       expect(enumStaticItems.find((item: { label: string }) => item.label === 'Ready')).toMatchObject({ kind: 20 });
       const enumInstanceCompletion = source.lastIndexOf('->value') + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 95, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, enumInstanceCompletion) } }));
-      expect((await output.waitFor((message) => message.id === 95)).result.map((item: { label: string }) => item.label)).toEqual(expect.arrayContaining(['name', 'value']));
+      expect(completionItems((await output.waitFor((message) => message.id === 95)).result).map((item: { label: string }) => item.label)).toEqual(expect.arrayContaining(['name', 'value']));
       const enumHoverPosition = source.indexOf('Ready->value') + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 96, method: 'textDocument/hover', params: { textDocument: { uri }, position: lspPosition(source, enumHoverPosition) } }));
       expect((await output.waitFor((message) => message.id === 96)).result.contents.value).toContain("case Ready = 'ready'");
@@ -15117,7 +15121,7 @@ namespace Second {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 26, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, source.lastIndexOf('nested') + 6) } }));
-      expect((await output.waitFor((message) => message.id === 26)).result.map((item: { label: string }) => item.label)).toEqual(['nestedOnly']);
+      expect(completionItems((await output.waitFor((message) => message.id === 26)).result).map((item: { label: string }) => item.label)).toEqual(['nestedOnly']);
       const nestedDeclarationUri = pathToFileURL(join(nested, 'src', 'Service.php')).toString();
       const definitionPosition = lspPosition(source, source.indexOf('nestedOnly()') + 2);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
@@ -15452,7 +15456,7 @@ namespace Second {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 419, method: 'textDocument/completion', params: {
         textDocument: { uri: actualUri }, position: lspPosition(changed, localCall),
       } }));
-      const localCompletions = (await output.waitFor((message) => message.id === 419)).result;
+      const localCompletions = completionItems((await output.waitFor((message) => message.id === 419)).result);
       expect(localCompletions.map((item: { label: string }) => item.label)).toContain('betaOnly');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 420, method: 'textDocument/definition', params: {
         textDocument: { uri: actualUri }, position: lspPosition(changed, localCall + 2),
@@ -15487,7 +15491,7 @@ namespace Second {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 423, method: 'textDocument/completion', params: {
         textDocument: { uri: actualUri }, position: lspPosition(latestRealEdit, latestLocalCall),
       } }));
-      expect((await output.waitFor((message) => message.id === 423)).result
+      expect(completionItems((await output.waitFor((message) => message.id === 423)).result)
         .map((item: { label: string }) => item.label)).toContain('realLatestOnly');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 424, method: 'textDocument/definition', params: {
         textDocument: { uri: actualUri }, position: lspPosition(latestRealEdit, latestLocalCall + 2),
@@ -15729,7 +15733,7 @@ $app = new Bootstrap(projectDir: $a);`;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 31, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 31)).result).toMatchObject([
+      expect(completionItems((await output.waitFor((message) => message.id === 31)).result)).toMatchObject([
         { label: 'GlobalOnlyType', detail: 'GlobalOnlyType', additionalTextEdits: expect.any(Array) },
       ]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 32, method: 'textDocument/definition', params: {
@@ -15752,7 +15756,7 @@ $app = new Bootstrap(projectDir: $a);`;
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, source.indexOf(marker) + marker.length),
         } }));
-        expect((await output.waitFor((message) => message.id === id)).result).toMatchObject(expected);
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result)).toMatchObject(expected);
       }
       for (const [id, marker] of [[38, 'localHelper'], [39, 'LOCAL_FLAG']] as const) {
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/definition', params: {
@@ -18259,7 +18263,7 @@ class ChildService extends Service { public function call(int|string $value): vo
     server.stdin.write(encode({ jsonrpc: '2.0', id: 620, method: 'textDocument/completion', params: {
       textDocument: { uri }, position,
     } }));
-    expect((await output.waitFor((message) => message.id === 620)).result).toContainEqual(expect.objectContaining({ label: 'second:' }));
+    expect(completionItems((await output.waitFor((message) => message.id === 620)).result)).toContainEqual(expect.objectContaining({ label: 'second:' }));
     server.stdin.write(encode({ jsonrpc: '2.0', id: 621, method: 'textDocument/signatureHelp', params: {
       textDocument: { uri }, position,
     } }));
@@ -18276,7 +18280,7 @@ class ChildService extends Service { public function call(int|string $value): vo
     server.stdin.write(encode({ jsonrpc: '2.0', id: 622, method: 'textDocument/completion', params: {
       textDocument: { uri }, position: attributedPosition,
     } }));
-    expect((await output.waitFor((message) => message.id === 622)).result)
+    expect(completionItems((await output.waitFor((message) => message.id === 622)).result))
       .toContainEqual(expect.objectContaining({ label: 'second:' }));
     server.stdin.write(encode({ jsonrpc: '2.0', id: 623, method: 'textDocument/signatureHelp', params: {
       textDocument: { uri }, position: attributedPosition,
@@ -18306,7 +18310,7 @@ class ChildService extends Service { public function call(int|string $value): vo
     server.stdin.write(encode({ jsonrpc: '2.0', id: 647, method: 'textDocument/completion', params: {
       textDocument: { uri }, position,
     } }));
-    expect((await output.waitFor((message) => message.id === 647)).result).toEqual([]);
+    expect(completionItems((await output.waitFor((message) => message.id === 647)).result)).toEqual([]);
     server.stdin.write(encode({ jsonrpc: '2.0', id: 648, method: 'textDocument/signatureHelp', params: {
       textDocument: { uri }, position,
     } }));
@@ -18340,7 +18344,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(text, text.length),
       } }));
-      const labels = (await output.waitFor((message) => message.id === id)).result
+      const labels = completionItems((await output.waitFor((message) => message.id === id)).result)
         .map((item: { label: string }) => item.label) as string[];
       return labels.filter((label) => ['host:', 'port:', 'tls:'].includes(label));
     };
@@ -18423,7 +18427,7 @@ class ChildService extends Service { public function call(int|string $value): vo
     server.stdin.write(encode({ jsonrpc: '2.0', id: 6242, method: 'textDocument/completion', params: {
       textDocument: { uri }, position,
     } }));
-    const completions = (await output.waitFor((message) => message.id === 6242)).result as Array<{ label: string }>;
+    const completions = completionItems((await output.waitFor((message) => message.id === 6242)).result) as Array<{ label: string }>;
     expect(completions.map((item) => item.label)).toContain('name:');
     server.stdin.write(encode({ jsonrpc: '2.0', id: 6243, method: 'textDocument/signatureHelp', params: {
       textDocument: { uri }, position,
@@ -18463,7 +18467,7 @@ class ChildService extends Service { public function call(int|string $value): vo
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position,
         } }));
-        const result = (await output.waitFor((message) => message.id === id, 15_000)).result as Array<{ label: string }>;
+        const result = completionItems((await output.waitFor((message) => message.id === id, 15_000)).result) as Array<{ label: string }>;
         return result.map((item) => item.label).filter((label) => label === 'name:' || label === 'label:');
       };
       const signature = async (id: number): Promise<string | undefined> => {
@@ -18704,7 +18708,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 62, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('name()') + 2),
       } }));
-      expect((await output.waitFor((message) => message.id === 62)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 62)).result))
         .toContainEqual(expect.objectContaining({ label: 'name' }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 63, method: 'textDocument/definition', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('name()') + 2),
@@ -18715,7 +18719,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 64, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, arrayMapCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 64)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 64)).result))
         .toContainEqual(expect.objectContaining({ label: 'name' }));
       const arrayMapDefinitionOffset = source.lastIndexOf('name()') + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 65, method: 'textDocument/definition', params: {
@@ -18727,7 +18731,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 66, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, mappedCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 66)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 66)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const mappedDefinitionOffset = source.indexOf('title()') + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 67, method: 'textDocument/definition', params: {
@@ -18739,7 +18743,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 68, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, closureMappedCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 68)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 68)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const closureMappedDefinitionOffset = source.indexOf('$definedClosureViews[0]->title()')
         + '$definedClosureViews[0]->'.length + 2;
@@ -18752,7 +18756,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 70, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, conditionalCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 70)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 70)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const conditionalDefinitionOffset = source.indexOf('$definedConditionalViews[0]->title()')
         + '$definedConditionalViews[0]->'.length + 2;
@@ -18769,13 +18773,13 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 72, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, incompleteCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 72)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 72)).result))
         .not.toContainEqual(expect.objectContaining({ label: 'title' }));
       const localCompletionOffset = source.indexOf('$localViews[0]->ti') + '$localViews[0]->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 73, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, localCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 73)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 73)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const localDefinitionOffset = source.indexOf('$definedLocalViews[0]->title()')
         + '$definedLocalViews[0]->'.length + 2;
@@ -18788,7 +18792,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 75, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, earlyCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 75)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 75)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const earlyDefinitionOffset = source.indexOf('$definedEarlyViews[0]->title()')
         + '$definedEarlyViews[0]->'.length + 2;
@@ -18800,7 +18804,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 77, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, throwCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 77)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 77)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const throwDefinitionOffset = source.indexOf('$definedThrowViews[0]->title()')
         + '$definedThrowViews[0]->'.length + 2;
@@ -18813,13 +18817,13 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 79, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, exitCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 79)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 79)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const neverCompletionOffset = source.indexOf('$neverViews[0]->ti') + '$neverViews[0]->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 80, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, neverCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 80)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 80)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const neverDefinitionOffset = source.indexOf('$definedNeverViews[0]->title()')
         + '$definedNeverViews[0]->'.length + 2;
@@ -18832,7 +18836,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 82, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, documentedNeverOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 82)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 82)).result))
         .not.toContainEqual(expect.objectContaining({ label: 'title' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 15_000);
@@ -19100,7 +19104,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 84, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, tryCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 84)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 84)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const tryDefinitionOffset = source.indexOf('$definedTryViews[0]->title()')
         + '$definedTryViews[0]->'.length + 2;
@@ -19112,13 +19116,13 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 86, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, finallyCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 86)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 86)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const incompleteTryOffset = source.indexOf('$incompleteTryViews[0]->ti') + '$incompleteTryViews[0]->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 87, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, incompleteTryOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 87)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 87)).result))
         .not.toContainEqual(expect.objectContaining({ label: 'title' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 15_000);
@@ -19174,7 +19178,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 89, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 89)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 89)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const definitionOffset = source.indexOf('$definedSwitchViews[0]->title()')
         + '$definedSwitchViews[0]->'.length + 2;
@@ -19187,13 +19191,13 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 92, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, breakThenFinalOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 92)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 92)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const breakOffset = source.indexOf('$breakSwitchViews[0]->ti') + '$breakSwitchViews[0]->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 91, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, breakOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 91)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 91)).result))
         .not.toContainEqual(expect.objectContaining({ label: 'title' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -19259,7 +19263,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 94, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 94)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 94)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const definitionOffset = source.indexOf('$definedLoopViews[0]->title()')
         + '$definedLoopViews[0]->'.length + 2;
@@ -19271,19 +19275,19 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 96, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, foreachOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 96)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 96)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const breakOffset = source.indexOf('$breakLoopViews[0]->ti') + '$breakLoopViews[0]->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 97, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, breakOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 97)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 97)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const nestedBreakOffset = source.indexOf('$nestedBreakLoopViews[0]->ti') + '$nestedBreakLoopViews[0]->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 98, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, nestedBreakOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 98)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 98)).result))
         .not.toContainEqual(expect.objectContaining({ label: 'title' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -19334,7 +19338,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 100, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 100)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 100)).result))
         .toContainEqual(expect.objectContaining({ label: 'title' }));
       const definitionOffset = source.indexOf('$definedWhile->title()') + '$definedWhile->'.length + 2;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 103, method: 'textDocument/definition', params: {
@@ -19387,14 +19391,14 @@ class ChildService extends Service { public function call(int|string $value): vo
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(source, offset),
         } }));
-        expect((await output.waitFor((message) => message.id === id)).result)
+        expect(completionItems((await output.waitFor((message) => message.id === id)).result))
           .toContainEqual(expect.objectContaining({ label: 'title' }));
       }
       const unsafeOffset = source.indexOf('$unsafe->ti') + '$unsafe->ti'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 108, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, unsafeOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 108)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 108)).result))
         .not.toContainEqual(expect.objectContaining({ label: 'title' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -19429,7 +19433,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 110, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, offset),
       } }));
-      const result = (await output.waitFor((message) => message.id === 110)).result as Array<{ label: string; detail: string; sortText?: string; additionalTextEdits?: unknown[] }>;
+      const result = completionItems((await output.waitFor((message) => message.id === 110)).result) as Array<{ label: string; detail: string; sortText?: string; additionalTextEdits?: unknown[] }>;
       expect(result.map((item) => item.detail)).toEqual([
         'App\\Controller\\Admin\\RankedLocal',
         'Vendor\\Imported',
@@ -19469,7 +19473,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 116, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.length),
       } }));
-      const result = (await output.waitFor((message) => message.id === 116)).result as Array<{
+      const result = completionItems((await output.waitFor((message) => message.id === 116)).result) as Array<{
         label: string; detail: string; additionalTextEdits?: unknown[] }>;
       expect(result).toContainEqual(expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Invoice' }));
       expect(result.find((item) => item.label === 'Invoice')?.additionalTextEdits).toHaveLength(1);
@@ -19481,7 +19485,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(call, call.length),
       } }));
-      const ordinaryCall = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string }>;
+      const ordinaryCall = completionItems((await output.waitFor((message) => message.id === 117)).result) as Array<{ label: string }>;
       expect(ordinaryCall.map((item) => item.label)).not.toContain('Invoice');
 
       const dnfReturn = '<?php namespace App; function useInvoice(): (Countable&Throwable)|Inv';
@@ -19491,7 +19495,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 118, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(dnfReturn, dnfReturn.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 118)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 118)).result))
         .toContainEqual(expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Invoice' }));
 
       const ternary = '<?php namespace App; function run(): void { $value = $choose ? make() : Inv';
@@ -19501,7 +19505,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 119, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(ternary, ternary.length),
       } }));
-      const expressionResult = (await output.waitFor((message) => message.id === 119)).result as Array<{ label: string }>;
+      const expressionResult = completionItems((await output.waitFor((message) => message.id === 119)).result) as Array<{ label: string }>;
       expect(expressionResult.map((item) => item.label)).not.toContain('Invoice');
 
       const phpDoc = '<?php namespace App; /**\n * @phpstan-template TAfter as\n * Inv\n */ class Holder {}';
@@ -19511,7 +19515,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 120, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(phpDoc, phpDoc.indexOf(' * Inv') + ' * Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 120)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 120)).result))
         .toContainEqual(expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Invoice' }));
 
       const vendorUri = pathToFileURL(vendorPath).toString();
@@ -19548,7 +19552,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 121, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(phpDoc, phpDoc.indexOf(' * Inv') + ' * Inv'.length),
       } }));
-      const renamed = (await output.waitFor((message) => message.id === 121)).result as Array<{ label: string }>;
+      const renamed = completionItems((await output.waitFor((message) => message.id === 121)).result) as Array<{ label: string }>;
       expect(renamed.map((item) => item.label)).not.toContain('Invoice');
 
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
@@ -19557,14 +19561,14 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 122, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(phpDoc, phpDoc.indexOf(' * Inv') + ' * Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 122)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 122)).result))
         .toContainEqual(expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Invoice' }));
 
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: vendorUri } } }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 123, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(phpDoc, phpDoc.indexOf(' * Inv') + ' * Inv'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 123)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 123)).result))
         .toContainEqual(expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Invoice' }));
 
       for (const [version, text] of [
@@ -19577,7 +19581,7 @@ class ChildService extends Service { public function call(int|string $value): vo
         server.stdin.write(encode({ jsonrpc: '2.0', id: 130 + version, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(text, text.length),
         } }));
-        expect((await output.waitFor((message) => message.id === 130 + version)).result)
+        expect(completionItems((await output.waitFor((message) => message.id === 130 + version)).result))
           .toContainEqual(expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Invoice' }));
       }
     } finally { await rm(root, { recursive: true, force: true }); }
@@ -19609,7 +19613,7 @@ class ChildService extends Service { public function call(int|string $value): vo
       server.stdin.write(encode({ jsonrpc: '2.0', id: 121, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('Rem;') + 3),
       } }));
-      const result = (await output.waitFor((message) => message.id === 121)).result as Array<{
+      const result = completionItems((await output.waitFor((message) => message.id === 121)).result) as Array<{
         label: string; detail: string; additionalTextEdits?: unknown[] }>;
       expect(result).toContainEqual(expect.objectContaining({ label: 'RemoteTrait', detail: 'Domain\\RemoteTrait' }));
       expect(result.map((item) => item.label)).not.toContain('RemoteThing');
@@ -19652,7 +19656,7 @@ echo ranked_lsp_over;`;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 112, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, functionOffset),
       } }));
-      const functions = (await output.waitFor((message) => message.id === 112)).result as Array<{ label: string; detail: string; sortText?: string; additionalTextEdits?: unknown[] }>;
+      const functions = completionItems((await output.waitFor((message) => message.id === 112)).result) as Array<{ label: string; detail: string; sortText?: string; additionalTextEdits?: unknown[] }>;
       expect(functions.map((item) => item.label)).toEqual([
         'ranked_lsp_function_local',
         'ranked_lsp_function_imported',
@@ -19669,7 +19673,7 @@ echo ranked_lsp_over;`;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 113, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, constantOffset),
       } }));
-      const constants = (await output.waitFor((message) => message.id === 113)).result as Array<{ label: string; detail: string; sortText?: string; additionalTextEdits?: unknown[] }>;
+      const constants = completionItems((await output.waitFor((message) => message.id === 113)).result) as Array<{ label: string; detail: string; sortText?: string; additionalTextEdits?: unknown[] }>;
       expect(constants.map((item) => item.label)).toEqual([
         'RANKED_LSP_CONSTANT_LOCAL',
         'RANKED_LSP_CONSTANT_IMPORTED',
@@ -19686,7 +19690,7 @@ echo ranked_lsp_over;`;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 114, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, overlapOffset),
       } }));
-      const overlap = (await output.waitFor((message) => message.id === 114)).result as Array<{ label: string; sortText?: string }>;
+      const overlap = completionItems((await output.waitFor((message) => message.id === 114)).result) as Array<{ label: string; sortText?: string }>;
       expect(overlap.map((item) => item.label)).toEqual(['ranked_lsp_overlap', 'RANKED_LSP_OVERLAP']);
       expect(overlap.map((item) => item.sortText)).toEqual(['0000000', '1000000']);
     } finally { await rm(root, { recursive: true, force: true }); }
@@ -20084,7 +20088,7 @@ function run(RouterInterface $router): void { $router->generate('zulu.route'); $
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1135, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf("['i'") + 3),
       } }));
-      expect((await output.waitFor((message) => message.id === 1135)).result).toMatchObject([{ label: 'id',
+      expect(completionItems((await output.waitFor((message) => message.id === 1135)).result)).toMatchObject([{ label: 'id',
         detail: 'admin.ZuluPage.workflowStatus path parameter', textEdit: { newText: 'id' },
       }]);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1131, method: 'textDocument/definition', params: {
@@ -20150,7 +20154,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       const completionOffset = source.indexOf("'dynamic.'") + "'dynamic.".length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 115, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      expect((await output.waitFor((message) => message.id === 115)).result).toContainEqual(expect.objectContaining({ label: 'dynamic.home', detail: '/dynamic (source declaration)' }));
+      expect(completionItems((await output.waitFor((message) => message.id === 115)).result)).toContainEqual(expect.objectContaining({ label: 'dynamic.home', detail: '/dynamic (source declaration)' }));
       const definitionOffset = source.indexOf("'dynamic.home'") + 4;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 116, method: 'textDocument/definition', params: { textDocument: { uri }, position: lspPosition(source, definitionOffset) } }));
       expect((await output.waitFor((message) => message.id === 116)).result).toEqual([{ uri: declarationUri, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 12 } } }]);
@@ -20217,23 +20221,23 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       }
       await writeFile(statePath, JSON.stringify({ name: 'dynamic.changed', path: '/changed' })); await writeFile(declarationPath, 'dynamic.changed\n');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 117, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      const refreshed = (await output.waitFor((message) => message.id === 117)).result as Array<{ label: string; detail: string }>;
+      const refreshed = completionItems((await output.waitFor((message) => message.id === 117)).result) as Array<{ label: string; detail: string }>;
       expect(refreshed.map((item) => [item.label, item.detail])).toEqual([['dynamic.changed', '/changed (runtime route)']]);
       await writeFile(statePath, JSON.stringify({ name: 'dynamic.partial', path: '/partial', complete: false }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1171, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      expect((await output.waitFor((message) => message.id === 1171)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 1171)).result)).toEqual([]);
       await output.waitFor((message) => message.method === 'window/logMessage'
         && message.params?.message?.includes('returned an incomplete snapshot'));
       await writeFile(statePath, '{broken');
       server.stdin.write(encode({ jsonrpc: '2.0', id: 118, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      const unavailable = (await output.waitFor((message) => message.id === 118)).result as Array<{ label: string }>;
+      const unavailable = completionItems((await output.waitFor((message) => message.id === 118)).result) as Array<{ label: string }>;
       expect(unavailable).toEqual([]);
       await writeFile(statePath, JSON.stringify({ name: 'dynamic.restored', path: '/restored' }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledRouteProviders', params: { providers: [{
         providerId: 'other.static', command: process.execPath, args: [provider], timeoutMs: 1000, replacesStaticRoutes: true,
       }] } }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 119, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, completionOffset) } }));
-      expect((await output.waitFor((message) => message.id === 119)).result).toEqual([]);
+      expect(completionItems((await output.waitFor((message) => message.id === 119)).result)).toEqual([]);
       await output.waitFor((message) => message.method === 'window/logMessage'
         && message.params?.message?.includes('multiple authoritative route providers'));
     } finally { await rm(root, { recursive: true, force: true }); }
@@ -20323,7 +20327,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const position = lspPosition(source, source.indexOf("'recover.'") + "'recover.".length);
       const query = async (id: number): Promise<string[]> => {
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
-        return (await output.waitFor((message) => message.id === id)).result.map((item: { label: string }) => item.label);
+        return completionItems((await output.waitFor((message) => message.id === id)).result).map((item: { label: string }) => item.label);
       };
       expect(await query(1200)).toEqual([]);
       expect((await output.waitFor((message) => message.method === 'phpCompanion/symfonyRouteStatus'
@@ -20359,7 +20363,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 61, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, source.indexOf('plug') + 4) } }));
-      expect((await output.waitFor((message) => message.id === 61)).result).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
+      expect(completionItems((await output.waitFor((message) => message.id === 61)).result)).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -20404,7 +20408,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 672, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('met') + 3),
       } }));
-      const labels = (await output.waitFor((message) => message.id === 672)).result.map((item: { label: string }) => item.label);
+      const labels = completionItems((await output.waitFor((message) => message.id === 672)).result).map((item: { label: string }) => item.label);
       expect(labels).toContain('methodFast'); expect(labels).not.toContain('methodSlow'); expect(labels).not.toContain('methodInitial');
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -20435,11 +20439,11 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('vendor.symfony.services committed'), 20_000);
       const position = lspPosition(source, source.indexOf('plug') + 4);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 63, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
-      expect((await output.waitFor((message) => message.id === 63, 20_000)).result).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
+      expect(completionItems((await output.waitFor((message) => message.id === 63, 20_000)).result)).toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/bundledSemanticProviders', params: { providers: [] } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 64, method: 'textDocument/completion', params: { textDocument: { uri }, position } }));
-      expect((await output.waitFor((message) => message.id === 64)).result).not.toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
+      expect(completionItems((await output.waitFor((message) => message.id === 64)).result)).not.toContainEqual(expect.objectContaining({ label: 'pluginMethod' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
@@ -21960,7 +21964,7 @@ function run(Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 226, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 226)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 226)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
       const signatureOffset = source.indexOf('$callback($input)') + '$callback('.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 227, method: 'textDocument/signatureHelp', params: {
@@ -22021,7 +22025,7 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
       server.stdin.write(encode({ jsonrpc: '2.0', id: 229, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 229)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 229)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
       const signatureOffset = source.indexOf('$callback(value:') + '$callback('.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 230, method: 'textDocument/signatureHelp', params: {
@@ -22034,7 +22038,7 @@ function run(callable $callback, callable $missing, callable $wrong, Input $inpu
       server.stdin.write(encode({ jsonrpc: '2.0', id: 231, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, localCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 231)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 231)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
       const localSignatureOffset = source.indexOf('$local(value:') + '$local('.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 232, method: 'textDocument/signatureHelp', params: {
@@ -22101,7 +22105,7 @@ function run(Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 234, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 234)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 234)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
       const signatureOffset = source.indexOf('$callback(value:') + '$callback('.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 235, method: 'textDocument/signatureHelp', params: {
@@ -22114,7 +22118,7 @@ function run(Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 236, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, aliasCompletionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 236)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 236)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
       const aliasSignatureOffset = source.indexOf('$alias(value:') + '$alias('.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 237, method: 'textDocument/signatureHelp', params: {
@@ -22175,7 +22179,7 @@ function run(Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 240, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 240)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 240)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
       const memberStart = source.indexOf('done();', source.indexOf('$result->'));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 242, method: 'textDocument/definition', params: {
@@ -22239,7 +22243,7 @@ function run(Handler $handler, Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 245, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 245)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 245)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -22288,7 +22292,7 @@ function run(Handler $handler, Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 248, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, completionOffset),
       } }));
-      expect((await output.waitFor((message) => message.id === 248)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 248)).result))
         .toContainEqual(expect.objectContaining({ label: 'done' }));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -22329,7 +22333,7 @@ function run(Input $input): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 202, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, memberEnd),
       } }));
-      expect((await output.waitFor((message) => message.id === 202)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 202)).result))
         .toContainEqual(expect.objectContaining({ label: 'outputOnly' }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 203, method: 'textDocument/definition', params: {
         textDocument: { uri }, position: lspPosition(source, memberStart + 2),
@@ -22374,7 +22378,7 @@ function run(Value $value, Value|null $nullable): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 206, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, memberStart + 'valueOnly'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 206)).result)
+      expect(completionItems((await output.waitFor((message) => message.id === 206)).result))
         .toContainEqual(expect.objectContaining({ label: 'valueOnly' }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 207, method: 'textDocument/definition', params: {
         textDocument: { uri }, position: lspPosition(source, memberStart + 2),
