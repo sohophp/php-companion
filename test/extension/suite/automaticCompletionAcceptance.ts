@@ -64,6 +64,20 @@ export async function run(): Promise<void> {
     results.push({ name, observations: [...observations], text: document.getText(), version: document.version, diskUnchanged: true });
   }
 
+  async function accept(prefix: string, label: string): Promise<void> {
+    const source = document.getText(), offset = document.offsetAt(editor.selection.active);
+    assert.equal(source.slice(offset - prefix.length, offset), prefix);
+    const accepted = source.slice(0, offset - prefix.length) + label + source.slice(offset);
+    await pressWorkbenchEnter(port);
+    const deadline = Date.now() + 5_000;
+    while (document.getText() !== accepted && Date.now() < deadline) await new Promise(done => setTimeout(done, 20));
+    assert.equal(document.getText(), accepted, `Natural acceptance text for ${name}/${label}`);
+    const caretOffset = document.offsetAt(editor.selection.active);
+    assert.equal(caretOffset, offset - prefix.length + label.length);
+    assert.equal(editor.selection.isEmpty, true);
+    observations.push({ phase: `accept ${label}`, exactText: true, caretMatched: true, text: accepted, caretOffset });
+  }
+
   for (const [caseName, partial, rest, keyword, excluded] of [
     ['Function', 'func', 'tion', 'function', 'function_exists'],
     ['Class', 'clas', 's', 'class', 'class_exists'],
@@ -137,9 +151,55 @@ export async function run(): Promise<void> {
     Object.assign(results.at(-1)!, { dependencyDiskUnchanged: true, dependencyFinalText: dependencyDocument.getText() });
   }
 
+  if (process.env.SOPHP_NAMESPACE_IMPORT_FLOW === '1') {
+    const directory = vscode.Uri.joinPath(folder.uri, 'src', 'AutomaticImportTree', 'Nested');
+    await vscode.workspace.fs.createDirectory(directory);
+    const dependencies = ['ChildEntity', 'OtherEntity'].map(typeName => ({
+      uri: vscode.Uri.joinPath(directory, `${typeName}.php`),
+      source: `<?php namespace App\\AutomaticImportTree\\Nested; class ${typeName} {}`,
+    }));
+    for (const dependency of dependencies) await vscode.workspace.fs.writeFile(dependency.uri, Buffer.from(dependency.source));
+    const namespacePrefix = 'AutomaticImportT';
+    for (const kind of ['class', 'group', 'function', 'const'] as const) {
+      // Define this symbol catalog once; repeated declarations across consumer
+      // files would make the fixture an invalid PHP project.
+      const catalog = kind === 'class' ? 'namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; ' : '';
+      const header = `<?php ${catalog}namespace AutomaticImportConsumer${kind}; `;
+      await open(`Namespace${kind}`, header + (kind === 'group' ? 'use App\\AutomaticImportTree\\{§};'
+        : `use ${kind === 'class' ? '' : `${kind} `}App\\§;`));
+      if (kind !== 'group') {
+        await type(namespacePrefix);
+        await observe('namespace segment', labels => labels[0]?.startsWith('AutomaticImportTree\\') === true);
+        await accept(namespacePrefix, 'AutomaticImportTree\\');
+      }
+      await type('Nest');
+      await observe('nested namespace', labels => labels[0]?.startsWith('Nested\\') === true);
+      await accept('Nest', 'Nested\\');
+      const prefix = kind === 'function' ? 'childF' : kind === 'const' ? 'CHILD_' : 'Chi';
+      const label = kind === 'function' ? 'childFactory' : kind === 'const' ? 'CHILD_FLAG' : 'ChildEntity';
+      await type(prefix);
+      await observe('next segment symbol', labels => labels[0]?.startsWith(label) === true
+        && !labels.some(value => /strlen|array_map|OTHER_FLAG|otherFactory|OtherEntity/u.test(value))
+        && labels.filter(value => value.startsWith(label)).length === 1);
+      if (kind === 'class') {
+        const end = document!.offsetAt(editor!.selection.active);
+        await select(end - prefix.length, end); await type('Oth');
+        await observe('changed segment', labels => labels[0]?.startsWith('OtherEntity') === true && !labels.some(value => value.includes('ChildEntity')));
+        const changedEnd = document!.offsetAt(editor!.selection.active);
+        await select(changedEnd - 3, changedEnd); await type(prefix);
+        await observe('restored segment', labels => labels[0]?.startsWith(label) === true && !labels.some(value => value.includes('OtherEntity')));
+      }
+      await accept(prefix, label);
+      await type(' as strl'); await observe('namespace import alias name', labels => labels.length === 0, true);
+      await finish();
+    }
+    for (const dependency of dependencies) assert.equal(Buffer.from(await vscode.workspace.fs.readFile(dependency.uri)).toString(), dependency.source);
+  }
+
   const settings = vscode.workspace.getConfiguration('editor', { uri: document!.uri, languageId: 'php' });
   console.log('Automatic completion acceptance proof: ' + JSON.stringify({ platform: process.platform, vscodeVersion: vscode.version,
     context: 'ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest',
+    indexingMode: vscode.workspace.getConfiguration('phpCompanion', document!.uri).get('indexing.mode'),
     settings: { quickSuggestions: settings.get('quickSuggestions'), wordBasedSuggestions: settings.get('wordBasedSuggestions'),
       snippetSuggestions: settings.get('snippetSuggestions'), basicPhpSuggestions: vscode.workspace.getConfiguration('php').get('suggest.basic') }, results }));
 }

@@ -425,3 +425,7 @@ D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法�
 ## D67 已有命名空间分隔符前接受
 
 固定普通／分组／function／const／混合导入及参数类型、new 的词中与词尾 Module 接受：仅消费紧邻当前词的已有反斜杠，后续符号与分组保持。两版本／两模式 4 项／140 状态及原 Composer 6 项通过；Linux 四类位置的 8 次 Enter／Tab 首项、文本、光标、Undo/Redo 与磁盘不变通过，实际接受文本的两 CLI 16 次语法检查通过。宿主先查询 Provider 并显式触发，不记自然输入通过；原共享目录歧义失败及隔离修正保留，见 [D67 记录](reports/completion-namespace-separators-2026-10-05.md)。当前完整 LSP、150 ms 连续编辑预算、其它自动输入及平台／真人继续开放。
+
+## D68 自然输入的命名空间导入
+
+在 D67 相同产品上，Linux VS Code 1.140.0／PHP 配置 8.5／onDemand 的 12 条自然输入流程通过，包含 39 次可见列表检查与 11 次完整文本／光标接受。新增普通类型、分组、function、const 四类逐段输入，类型前缀改变／恢复、别名列表稳定撤回；不预热 Provider、不显式 triggerSuggest。原夹具的重复函数／常量声明使首次通过不具备有效项目资格，单次声明修正后完整重验并加入唯一候选断言。实际四份最终文本两 CLI 八次语法检查通过，见 [D68 记录](reports/completion-natural-namespace-imports-2026-10-05.md)。progressive 自然输入、其它自动输入、当前完整 LSP、150 ms 连续编辑预算及平台／真人仍开放。

@@ -42,7 +42,8 @@ try {
   const match = (automatic ? /Automatic completion acceptance proof: (\{[^\r\n]*\})/u : /Comparison condition acceptance proof: (\{[^\r\n]*\})/u).exec(output);
   assert.ok(match, 'Successful host exit did not provide the completion acceptance proof.');
   const proof = JSON.parse(match[1]);
-  const expectedFlows = 6 + Number(process.env.SOPHP_ROOT_IMPORT_FLOW === '1') + Number(process.env.SOPHP_LIVE_TYPE_FLOW === '1');
+  const expectedFlows = 6 + Number(process.env.SOPHP_ROOT_IMPORT_FLOW === '1') + Number(process.env.SOPHP_LIVE_TYPE_FLOW === '1')
+    + 4 * Number(process.env.SOPHP_NAMESPACE_IMPORT_FLOW === '1');
   assert.equal(proof.results.length, automatic ? expectedFlows : 8);
   if (automatic) { assert.equal(rendererExceptions, 0, 'Automatic completion raised getItemsByProvider'); proof.rendererExceptions = rendererExceptions; }
   if (process.argv[2]) await writeFile(process.argv[2], JSON.stringify(proof, null, 2) + '\n');
