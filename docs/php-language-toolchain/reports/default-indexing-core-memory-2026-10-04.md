@@ -77,3 +77,15 @@ node scripts/benchmark-paste-imports.mjs 9997 5 progressive 100
 当前字节核验的磁盘成本仍开放，本增量不再重复等价测量；后续磁盘改进需要独立方案和一致性／取消证据。完整冻结语料、C3 其它工作流、组合性能、真实 WSL 与长期使用保持原验收范围。
 
 上述路径查找增量与[接口提取前／预览重新核验](default-indexing-generation-2026-10-04.md#接口提取预览的重新核验与源码检查点)合并为必要本地源码检查点，提交标题 `fix(refactor): revalidate extracted interface previews`，更新前节未提交状态。JSON 逐轮数据与源码哈希仍对应测量时的历史快照，未把随后提取改动伪装成已经重跑性能验收；10k Import 的参考目标继续开放。不更新 Profile、打包、推送或发布。
+
+## 后续：受检扫描的有界 Worker 并行
+
+受检扫描仍核验每个文件的当前字节哈希。SourceStatBatches 对此类扫描可复用最多四个 Worker，把既有 128 项扫描窗口分成每批 32 项；普通 stat／首次源码读取继续用原来的单 Worker。线程只按实际批次需要租用，同一 Worker 路径的线程槽可在扫描间共享，每个扫描保留独立取消标记和全局唯一的回复 ID。关闭、取消或 Worker 失败时释放全部自身租约，其他扫描的租约不受影响。空闲回收窗口、扫描预算、元数据碰撞检查、未保存覆盖、删除发现与单次失效重扫不变。
+
+新增 128 个独立文件的 Worker 回归：四个线程核验哈希，等长改写一个文件，两次扫描同时派发；取消一方后，另一方仍准确发现改写并完成其余核验。定向协议／Worker **15 项通过、478 未运行**，37.25 秒，日志 `/tmp/sophp-import-pool-regression.log`，覆盖三模式 Import／预算、后台旧快照及首次准备被 watcher 替代。语言服务构建、扩展 bundle、根 TypeScript、三文件 ESLint 与 diff 检查通过。
+
+仅做方向性单组探针，未重复五轮正式验收。10k onDemand／每类 Import 五样本，新版 Copy／候选／规划 P95 **292.07／302.57／275.12 ms**，三入口总 P95 849.43 ms，进程 RSS 峰值约 **451.17 MiB**，仍未达到 150 ms Import 参考目标。旧版控制热 P95 334.29／354.20／319.10 ms，但旧版启动与构建有重叠，未另存源码哈希；不使用冷等待作改进结论，也不把单组热结果当作正式性能通过。
+
+1k progressive 单组，五个 Import 控制样本、每类核心查询 100 次：Import P95 44.48／32.74／35.63 ms；核心 completion／hover／definition P95 2.20／1.63／2.33 ms；RSS 峰值 **296.46 MiB**，低于对应 384 MiB 预算。删除撤回和不写盘断言通过。原始样本与新版源码／构建 SHA-256 追加到同名 JSON 的 workerPoolProbe，保留此前材料原样；大量请求 trace 留在完整临时原始文件，并记录其 SHA-256。
+
+最新 bundle 的 progressive Linux 隔离宿主加 1,000 个独立 fixture 噪声文件，不等待候选就执行真实首次构造表达式 Paste Provider；resolve／应用及一次 Undo/Redo 通过，Provider 等待 **1,888 ms**。日志 `/tmp/sophp-import-pool-first-host.log`，退出 0；首次交互等待仍应改善，不能用热扫描数字替代它。此批源码保留同一分支，未打包或更新用户 Profile。跨平台、正式规模性能和真实 WSL 继续开放。

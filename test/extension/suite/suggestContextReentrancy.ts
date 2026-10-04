@@ -36,5 +36,5 @@ export async function run():Promise<void>{
    assert.equal(document.getText(),source.slice(0,offset)+keyword+' e'+source.slice(offset));checked++;
   }
  }
- console.log('Suggest context probe proof: '+JSON.stringify({checked,platform:process.platform,separateKeys:process.env.SOPHP_SUGGEST_SEPARATE_KEYS==='1',provider:{version:core.packageJSON.version,uri:core.extensionUri.toString()}}));
+ console.log('Suggest context probe proof: '+JSON.stringify({checked,platform:process.platform,vscodeVersion:vscode.version,separateKeys:process.env.SOPHP_SUGGEST_SEPARATE_KEYS==='1',provider:{version:core.packageJSON.version,uri:core.extensionUri.toString()}}));
 }

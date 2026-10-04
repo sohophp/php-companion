@@ -153,6 +153,14 @@ describe('language server stdio', () => {
       expect(await request('phpCompanion/validateInterfaceExtraction', { ...validation, planHash: '0'.repeat(64) })).toBe(false);
       expect(await request('phpCompanion/validateInterfaceExtraction', { ...validation, textDocument: { uri, version: 2 } })).toBe(false);
       const collision = join(root, 'src', 'DifferentFilename.php');
+      if (!limited) {
+        await writeFile(collision, '<?php namespace App; class Builder {}');
+        expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(false);
+        expect(await extraction()).toBeUndefined();
+        await rm(collision);
+        expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(true);
+        expect(await extraction()).toBeDefined();
+      }
       await writeFile(collision, '<?php namespace App; interface BuilderInterface {}');
       expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(false);
       expect(await extraction()).toBeUndefined(); // No watcher: the current type, not only the destination file, must be checked.

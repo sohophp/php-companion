@@ -25,3 +25,15 @@ C1 的“普通键入 enum 名称”现分别输入空格和 e，匹配该场景
 可复现工具：`node scripts/check-suggest-context-reentrancy.mjs core`、`control`、`coreKeys`。它是诊断工具，退出 0 表示其文本／候选断言完成，批量模式的渲染错误应另读日志，不能解释为无异常的工作流门禁。正式 coreKeys 宿主退出 0，六次断言、零异常；宿主 TypeScript noEmit、定向 ESLint 和 diff 空白检查通过。完整后端 506 项结果仍属于未变化的产品源码，不需要因 UI 测试动作调整重新运行后端全集。
 
 原始证据见同名 JSON；日志 `/tmp/sophp-suggest-context-{core-enum,control-enum-v4,formal-keys}.log`。不发送上游 issue，不把自动化当作真人 WSL 或所有 IME／粘贴验收。
+
+## 2026-10-04：严格门禁与版本对照
+
+诊断工具此前只替换生成 runner 的单行 extensionTestsPath。当前 runner 的提取入口已变成多行表达式，首次版本对照因此生成 SyntaxError，日志 `/tmp/sophp-suggest-context-control-11391-strict.log` 保留；它没有启动编辑器，不算版本对照结果。工具改为替换完整属性至 launchArgs 边界，并断言唯一入口；正式复测使用本次实时生成的 suite。
+
+新增 SOPHP_SUGGEST_STRICT=1：完整转发宿主 stdout／stderr，按完整输出行计数指定 getItemsByProvider TypeError，等待 close 确保流读完，输出独立 renderer error proof。有异常时即使候选和文本断言完成也退出非零；默认模式仍用于诊断，不把默认退出 0 当作工作流无异常。该门禁只检查指定异常，不宣称检测所有渲染错误。suite proof 同时记录实际 vscode.version。
+
+Linux VS Code **1.139.1**，独立合成提供者 0.0.0，无 SoPHP 运行代码／语言服务，六轮批量跨词输入：文本和候选断言完成，**6 次异常**，严格工具退出 1。日志 `/tmp/sophp-suggest-context-control-11391-strict-final.log`。其 Workbench 对应分支与 1.140.0 均在 shouldAutoTrigger 返回后直接读取 completionModel；相同源码结构仅作为线索，仍不冒充完整重入因果证明。此版本对照没有找到可靠的版本切换解法，停止继续试更多版本。
+
+产品运行代码与编辑器内部源码未修改；没有安装合成提供者、更新 Profile 或发送上游消息。该问题保持未修复。
+
+同一严格工具在 Linux VS Code **1.140.0** 的当前 Core 中分别键入空格和 e，六轮候选撤回／文本断言通过，**零指定异常**，退出 0；日志 `/tmp/sophp-suggest-context-corekeys-strict-final.log`。这核对新门禁确实区分失败和通过，不把普通键入的通过外推至批量输入。宿主 TypeScript noEmit、定向 ESLint、脚本语法与 diff 检查通过。本轮没有继续做更多等价版本试探，后续推进其他独立范围。

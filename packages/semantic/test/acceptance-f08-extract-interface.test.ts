@@ -44,6 +44,16 @@ describe('F08 Extract Interface acceptance fixtures', () => {
     expect(workspace.extractInterface(uri, classOffset(source))).toBeUndefined();
   });
 
+  it.each(['class Report {}', 'interface REPORT {}', 'trait Report {}'])('refuses ambiguous source types and recovers after removing %s', declaration => {
+    const source = fixture('f08-extract-interface-valid');
+    workspace.update(uri, source, true);
+    const collision = 'file:///workspace/src/Contract/DifferentFilename.php';
+    workspace.update(collision, `<?php namespace App\\Contract; ${declaration}`, true);
+    expect(workspace.extractInterface(uri, classOffset(source))).toBeUndefined();
+    workspace.remove(collision);
+    expect(workspace.extractInterface(uri, classOffset(source))?.interfaceName).toBe('ReportInterface');
+  });
+
   it('F08-EI-03 refuses an unfinished method declaration', () => {
     const source = fixture('f08-extract-interface-incomplete');
     const parsed = parser.parse(source);

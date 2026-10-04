@@ -36,5 +36,35 @@
     }
   },
   "ordinaryC1InputAdjusted": true,
-  "productRuntimeChanged": false
+  "productRuntimeChanged": false,
+  "strictFollowup20261004": {
+    "controlBulk11391": {
+      "proof": {
+        "checked": 6,
+        "platform": "linux",
+        "vscodeVersion": "1.139.1",
+        "providerVersion": "0.0.0"
+      },
+      "rendererExceptions": 6,
+      "strict": true,
+      "exitCode": 1,
+      "log": "/tmp/sophp-suggest-context-control-11391-strict-final.log"
+    },
+    "initialHarnessFailure": "/tmp/sophp-suggest-context-control-11391-strict.log",
+    "productRuntimeChanged": false,
+    "editorRuntimeChanged": false,
+    "versionSwitchSolutionFound": false,
+    "coreIndividual11400": {
+      "proof": {
+        "checked": 6,
+        "platform": "linux",
+        "vscodeVersion": "1.140.0",
+        "providerVersion": "0.4.13"
+      },
+      "rendererExceptions": 0,
+      "strict": true,
+      "exitCode": 0,
+      "log": "/tmp/sophp-suggest-context-corekeys-strict-final.log"
+    }
+  }
 }

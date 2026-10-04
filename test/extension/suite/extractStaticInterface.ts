@@ -20,6 +20,20 @@ export async function run(): Promise<void> {
   }
   assert.ok(action?.command, 'Late-static Extract Interface action was unavailable');
   const collision = vscode.Uri.joinPath(folder.uri, 'src', 'DifferentFilename.php');
+  await vscode.workspace.fs.writeFile(collision, Buffer.from('<?php namespace App; class bUiLdEr {}'));
+  assert.equal(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [],
+    { testPreviewAction: async (): Promise<'apply'> => 'apply' }), false,
+    'An ambiguous source class did not reject the old extraction');
+  assert.equal(document.getText(), source);
+  await assert.rejects(async () => vscode.workspace.fs.stat(target));
+  const ambiguousActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>('vscode.executeCodeActionProvider', uri,
+    new vscode.Range(position, position), vscode.CodeActionKind.RefactorExtract.value);
+  assert.ok(!ambiguousActions.some(item => item.title === 'Extract interface BuilderInterface'));
+  await vscode.workspace.fs.delete(collision);
+  const recoveredActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>('vscode.executeCodeActionProvider', uri,
+    new vscode.Range(position, position), vscode.CodeActionKind.RefactorExtract.value);
+  assert.ok(recoveredActions.some(item => item.title === 'Extract interface BuilderInterface'),
+    'Removing an ambiguous source declaration did not restore extraction');
   await vscode.workspace.fs.writeFile(collision, Buffer.from('<?php namespace App; interface BuilderInterface {}'));
   const blockedActions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>('vscode.executeCodeActionProvider', uri,
     new vscode.Range(position, position), vscode.CodeActionKind.RefactorExtract.value);
@@ -78,6 +92,7 @@ export async function run(): Promise<void> {
   console.log(`Extract static interface host proof: ${JSON.stringify({ platform: process.platform, extracted: true,
     differentFilenameConflictRejected: true, conflictRemovalRestoresAction: true, previewCancelLeavesFilesUntouched: true,
     diskConflictDuringPreviewRejected: true, unsavedConflictBeforeApplyRejected: true,
+    ambiguousSourceClassRejected: true, sourceAmbiguityRemovalRestoresAction: true,
     staticReturnsPreserved: true, targetEol: targetEol === vscode.EndOfLine.CRLF ? 'CRLF' : 'LF',
     undoRestoresSourceAndDeletesFile: true, redoRestoresSourceAndFile: true, redoPreservesTargetEol: true })}`);
 }

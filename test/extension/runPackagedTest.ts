@@ -254,6 +254,18 @@ abstract class AbstractController { public function generateUrl(string $route, a
         'zh-cn': { hash: 'sophp-isolated-zh-cn', translations: { vscode: messages } },
       }));
     }
+    let launchWorkspace = fixture;
+    if (formatterOnly) {
+      const secondFolder = join(temporary, 'formatter second project');
+      await mkdir(join(secondFolder, 'src'), { recursive: true });
+      const secondPhp = process.env.PHP_COMPANION_TEST_FORMATTER_SECOND_PHP;
+      const secondVersion = secondPhp ? execFileSync(secondPhp,
+        ['-r', 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;'], { encoding: 'utf8', timeout: 30_000 }) : '8.5';
+      if (!/^\d+\.\d+$/u.test(secondVersion)) throw new Error('Unexpected formatter fixture PHP version.');
+      await writeFile(join(secondFolder, 'composer.json'), JSON.stringify({ require: { php: `>=${secondVersion}` } }));
+      launchWorkspace = join(temporary, 'formatter.code-workspace');
+      await writeFile(launchWorkspace, JSON.stringify({ folders: [{ path: fixture }, { path: secondFolder }] }));
+    }
     await runTests({
       vscodeExecutablePath: process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE
         ? resolve(process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE) : await testExecutablePath(),
@@ -266,7 +278,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
       extensionTestsPath: resolve(__dirname, 'suite', formatterOnly ? 'formatterCandidateAcceptance' : c1Only ? 'c1' : c3OpenSourceProfile ? 'c3' : 'index'),
       launchArgs: [
         ...(process.env.PHP_COMPANION_TEST_LOCALE ? ['--locale', process.env.PHP_COMPANION_TEST_LOCALE] : []),
-        fixture,
+        launchWorkspace,
         ...(externalExtensions || process.env.PHP_COMPANION_TEST_LOCALE ? [] : ['--disable-extensions']),
         '--disable-gpu',
         '--disable-workspace-trust',
@@ -299,6 +311,8 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS: realVendorProfile ? String(realVendorRounds) : undefined,
         PHP_COMPANION_FORMATTER_EXECUTABLE: formatterExecutable,
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
+        PHP_COMPANION_TEST_FORMATTER_SECOND_PHP: formatterOnly ? process.env.PHP_COMPANION_TEST_FORMATTER_SECOND_PHP : undefined,
+        PHP_COMPANION_TEST_FORMATTER_CLI: formatterOnly ? process.env.PHP_COMPANION_PHP_CS_FIXER : undefined,
         PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunitExecutable,
         PHP_COMPANION_TWIG_ROUTE_RENAME: twigVsix ? '1' : undefined,
       },

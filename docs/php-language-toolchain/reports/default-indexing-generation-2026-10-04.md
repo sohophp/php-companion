@@ -140,3 +140,17 @@ PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_E
 公共流程最终构建的 onDemand 七条局部提取回归也通过预览、取消／应用及一次 Undo/Redo：`/tmp/sophp-extract-preview-local-host.log`。语言服务／扩展构建、根 TypeScript、宿主编译、六个修改源码／宿主文件 ESLint、diff 检查通过。没有重跑完整语义／LSP，原全量两项魔术方法性能失败、条件跳过及大规模／跨平台／真实 WSL 边界保持开放。
 
 扫描路径查找、提取前冲突检查及本次预览重新核验整理为一个必要本地源码里程碑，提交标题 `fix(refactor): revalidate extracted interface previews`。本节更新前节未提交状态和预览缺口；不将该局部证明扩展为完整 C3，不打包、更新 Profile、推送或发布。goal 保持 active，继续原路线图。
+
+## 源 class 歧义的拒绝与恢复
+
+`033f5b9` 后新增两模式回归，复现异文件声明同名源 class 时原接口计划仍校验为 true。此前只检查当前文件内的重复源声明；另一方面，全局唯一 typeAt 在旧外部声明仍留在缓存时会提前拒绝，无法发起磁盘核对来移除旧冲突。红日志 `/tmp/sophp-extract-ambiguous-red.log` 为 2 失败／2 通过，保持原预算不足矩阵，不改通过标准。
+
+语义接口提取按已有声明引用索引，要求源类型全名在当前事实中唯一，大小写不同以及 class／interface／Trait 同名也拒绝。语言服务仍选取当前文件唯一 class 候选作为扫描锚点，随后由当前字节核验后的全局语义决定是否提取；因此缓存中的外部歧义不会阻断删除后的恢复。它没有将含糊声明当作合法源类型，也没有放宽项目预算。
+
+新语义三例覆盖 class、大小写不同的 interface 和 Trait 冲突，删除后恢复。初次语义命令中的 `--` 未限定文件，实际运行了全量：1,354 通过／1 失败，日志 `/tmp/sophp-extract-ambiguous-semantic.log`。失败的原生方法契约测试复用全局工作区，前序成员测试留有 `file:///Child.php` 的 App\\Child，与本例自己的 App\\Child 冲突。该契约测试改用独立工作区，并用 onTestFinished 释放；原断言和唯一性规则保留。随后明确运行全量语义 **1,355 项／78 文件全部通过**，56.94 秒：`/tmp/sophp-extract-ambiguous-semantic-final.log`。
+
+定向协议 **7 项通过、480 未运行**，20.15 秒：`/tmp/sophp-extract-ambiguous-protocol.log`。正常两模式额外核对同名源 class 的计划拒绝、建议拒绝及无 watcher 删除后的原计划／建议恢复；其余既有接口冲突、预算、未保存来源、旧版本／哈希、Composer 映射以及三个 PHP 版本继续通过。
+
+最新 bundle 的 onDemand／progressive 串行隔离宿主额外验证异文件 `bUiLdEr` 对当前 Builder 的计划／建议拒绝，以及删除后的建议恢复；原目标接口冲突、预览中磁盘／未保存冲突、取消、正常应用、一次 Undo/Redo 和 EOL 继续通过。日志 `/tmp/sophp-extract-ambiguous-host-{onDemand,progressive}.log` 均退出 0。语义／语言服务／扩展构建、根 TypeScript、宿主编译、六个修改文件 ESLint 和 diff 检查通过。
+
+本批没有重跑全量 LSP 或性能测量，不关闭先前组合负载的两项魔术方法性能失败、10k Import 成本、跨平台或真实 WSL。源码与回归材料留在同一分支未提交，不打包、更新 Profile、推送或发布；goal 继续执行。

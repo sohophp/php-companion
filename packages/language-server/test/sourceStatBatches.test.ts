@@ -111,3 +111,30 @@ it('releases idle workers after the reuse window', async () => {
     expect(sourceStatWorkerCount()).toBe(0);
   } finally { vi.useRealTimers(); batches.close(); }
 });
+
+it('shares a bounded parallel pool while keeping cancellation and hash replies owned by each scan', async () => {
+  root = await mkdtemp(join(tmpdir(), 'sophp-stat-pool-'));
+  const paths = await Promise.all(Array.from({ length: 128 }, async (_, index) => {
+    const path = join(root!, `Source${index}.php`); await writeFile(path, `<?php // ${index}`); return path;
+  }));
+  const hashes = new Map(paths.map((path, index) => [path, createHash('sha256').update(`<?php // ${index}`).digest('hex')]));
+  const verification = { expectedHash: (path: string): string | undefined => hashes.get(path), maxSourceBytes: 1024, parallelism: 4 as const };
+  let live = true;
+  const first = new SourceStatBatches(() => live, resolve('dist/sourceStatWorker.js'), verification);
+  const second = new SourceStatBatches(() => true, resolve('dist/sourceStatWorker.js'), verification);
+  try {
+    expect((await Promise.all(paths.map(first.inspect))).every(stamp => stamp.matchesHash === true)).toBe(true);
+    expect(sourceStatWorkerCount()).toBe(4);
+    await writeFile(paths[3]!, '<?php // x');
+    const cancelled = Promise.all(paths.map(first.inspect));
+    const rejected = expect(cancelled).rejects.toThrow('Source metadata worker failed.');
+    const current = Promise.all(paths.map(second.inspect));
+    await new Promise<void>(done => setImmediate(done));
+    live = false; await expect(first.inspect(paths[0]!)).rejects.toThrow('Source metadata worker failed.');
+    await rejected;
+    const stamps = await current;
+    expect(stamps[3]!.matchesHash).toBe(false);
+    expect(stamps.filter((_, index) => index !== 3).every(stamp => stamp.matchesHash === true)).toBe(true);
+    expect(sourceStatWorkerCount()).toBe(4);
+  } finally { first.close(); second.close(); }
+});

@@ -29,8 +29,10 @@
 - [项目准备读取与首次交错](reports/default-indexing-imports-2026-10-04.md#项目准备读取与首次请求交错)：把预算内源码读取交给既有 Worker，缓存核对已供应文本；受控回归修复 progressive 首次准备被 watcher 替代时返回空候选，只重试变化来源一次。索引包 45 项、协议／Worker 20 项及两模式 1,000 文件首次 Paste Provider／应用／Undo/Redo 通过。最终各五轮 2,503 文件首次 Copy 中位数 1.97／2.18 秒，原失败／中间测量保留；完整热测、峰值 RSS、大规模及真人验收继续开放。与前节首次扫描复用一起整理源码里程碑，不更新 Profile。
 - [小项目受检读取与核心热查询／峰值内存](reports/default-indexing-core-memory-2026-10-04.md)：修复小库存／并发 1 跳过显式 inspector 的读取路径。索引全量 47 项、协议／Worker 20 项及双模式小项目实际首次粘贴／应用／Undo/Redo 通过。1k／10k、两默认模式各五轮、每轮每类 100 次核心查询，6,000 次结果断言通过且各轮 P95 满足 150 ms；峰值 RSS 分别最高 314.54／465.23 MiB，低于 384／768 MiB 预算。此处只覆盖局部变量补全、别名 Hover、vendor 跳转；10k Import 控制 P95 409–445 ms 仍是缺口，完整 R1、真实 WSL、组合负载和先前全量魔术方法性能失败继续开放。本批不更新 Profile。
 - [Import 扫描的路径查找](reports/default-indexing-core-memory-2026-10-04.md#后续扫描中的-uri-与活动文档查找)：复用根 URI 转换及活动文档路径映射，不缓存未保存文本或省略字节核验。17 项组合协议、两默认模式实际首次粘贴／应用／Undo/Redo 通过；10k 各五轮 Import 控制 P95 降至 321–375 ms，仍未达到 150 ms 参考目标。3,000 次核心查询及 RSS 保持预算内；原始数据追加到既有 JSON。本增量留在同一分支未提交，不更新 Profile；不重复等价测量，保留大项目磁盘成本与其余 C3 范围。
+- [受检扫描的有界并行](reports/default-indexing-core-memory-2026-10-04.md#后续受检扫描的有界-worker-并行)：最多四个共享 Worker，取消／回复归属独立，逐文件字节核验不省略。15 项定向协议／Worker 与 1k progressive 首次 Paste／Undo/Redo 宿主通过；单组 10k 热 Import P95 275–303 ms 仍超参考目标，首次 1k Provider 等待 1,888 ms 仍待改善。不把单组探针外推为正式性能通过，原样保留旧数据。
 - [接口提取前的当前类型冲突](reports/default-indexing-generation-2026-10-04.md#接口提取前的当前类型冲突)：两默认模式已复现并修复异文件同名接口无 watcher 时仍给出建议的问题；受检扫描后重新计算计划，删除恢复、超预算拒绝及三 PHP 版本共 7 项协议通过。双模式隔离宿主的冲突拒绝／恢复、预览取消／应用、单次 Undo/Redo 和 EOL 保持通过；预览期间新出现的异文件声明仍需独立核对。增量保留未提交，不更新 Profile，完整 C3 与真人验收不关闭。
 - [接口预览重新核验源码检查点](reports/default-indexing-generation-2026-10-04.md#接口提取预览的重新核验与源码检查点)：已独立复现并修复预览期间异文件同名类型仍被应用的问题；原计划绑定生成文本与目标 URI，打开预览前和应用前重新检查当前声明、缓冲区与 PSR-4。最终 24 项组合协议、双模式预览磁盘／未保存冲突拒绝、删除恢复、正常应用／Undo/Redo，以及七条局部提取通过。前批路径查找与提取前检查合并为必要本地里程碑，更新未提交状态；完整 C3、性能组合、跨平台和真人使用继续开放，不更新 Profile。
+- [源 class 歧义拒绝与恢复](reports/default-indexing-generation-2026-10-04.md#源-class-歧义的拒绝与恢复)：补齐异文件同名源 class 的提取拒绝；扫描仍以当前文件 class 为锚点，旧外部冲突删除后能够恢复。语义全量 1,355 项、定向协议 7 项与双模式大小写冲突／恢复及原预览／Undo/Redo 通过；修正一条旧契约测试的共享工作区污染，未放宽产品规则。增量未提交，不更新 Profile；全量 LSP／性能和真人边界保持开放。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序
@@ -39,9 +41,11 @@
 2. C1 继续核对真实 WSL 的引用准备终态、冷启动、未保存编辑与长期使用。两版冷／缓存／取消已有[自动化进度记录](reports/reference-progress-lifecycle-2026-10-03.md)；实项目缓存启动未明显加速，真实 WSL 与 Symfony 组合仍开放。完整 LSP 510 项已由[Core 里程碑](reports/core-source-checkpoint-2026-10-03.md)覆盖，不能替代真人验收。
 3. C2 沿赋值、返回、实参、集合、PHPDoc 及控制流检查同一类型事实驱动各查询。stubs 数据与 Core 接入已提交；[D42 回调累加器](reports/completion-array-callback-carry-2026-10-03.md)当前语义、缓存、LSP、Windows 及性能证据已收口，动态或有副作用路径继续保守。按实际缺口推进，不重复已有证明。
 4. C3 核对 Rename／Import／生成及提取的预览、取消、Undo/Redo 和失效保护。onDemand／progressive 的普通 Rename 已有按请求完整扫描及定向宿主证明；新增、删除、重排参数也已有完整源码扫描及双模式宿主证明；Safe Move 已按请求核对当前项目与依赖调用者；复制／粘贴导入的五个入口已有默认模式及竞态证明；构造表达式导入已补齐并有双模式接受／Undo/Redo 证明；多个 alias 冲突已支持依次处理并有受控宿主证明；继续核对真人 alias 输入、启动期首次粘贴和真实规模等待；Move 已复用 Rename 的严格目标检查，POSIX 链接与大小写独立目标的定向协议、onDemand 链接拒绝宿主证明见[目标预检](reports/rename-destination-preflight-2026-10-04.md)。已有自动化证明继续复用；跨平台、Remote 可见交互与真实规模操作未整体关闭，不能由单个 createFile 修复推导整阶段完成。
-5. C4 核对工具所有权、外部扩展组合、PHP 版本及平台矩阵、长期会话与缓存恢复。[格式化修补候选](reports/c4-formatter-source-profile-candidate-2026-10-03.md)仍是可选开发候选，未修改用户默认格式化器。VS Code 批量输入的[getItemsByProvider 异常](reports/completion-suggest-context-reentrancy-2026-10-03.md)仍未解决；保留复现，避免反复采用同一失败方法。
+5. C4 核对工具所有权、外部扩展组合、PHP 版本及平台矩阵、长期会话与缓存恢复。[格式化修补候选](reports/c4-formatter-source-profile-candidate-2026-10-03.md)仍是可选开发候选，未修改用户默认格式化器。[多根 Workspace 配置隔离](reports/c4-formatter-resource-settings-2026-10-04.md)已通过 Linux 隔离宿主的双项目并发格式化及 PHP 8.5.9／8.4.23 独立运行程序选择，其他 PHP／平台与真实 WSL 验收未关闭。VS Code 批量输入的[getItemsByProvider 异常](reports/completion-suggest-context-reentrancy-2026-10-03.md)仍未解决；1.139.1 独立提供者仍复现六次，新增严格异常门禁已区分批量失败和逐键通过。保留复现，停止等价版本试探，推进其他独立项。
 
 同一开发分支推进；日常增量不打包、推送或发布。必要里程碑先整理文档和可复用验证工具，再做本地提交；真人候选仅按用户要求更新。用户已要求继续开发，goal 当前为 active，开发按本节顺序推进。
+
+2026-10-04 本地源码检查点合并接口提取的全局源类型歧义保护、格式化候选的文件夹配置隔离／双 PHP 运行程序验证、严格渲染异常探针及受检扫描有界并行；提交标题 `fix(toolchain): isolate formatter settings and parallelize verified scans`。各报告保留原始失败与测量限制，旧“未提交”叙述是当批状态；该检查点不关闭 C1–C4、未修复的 Workbench 异常或真人门槛。不更新 Profile；goal 继续。
 
 ## 历史记录与材料管理
 

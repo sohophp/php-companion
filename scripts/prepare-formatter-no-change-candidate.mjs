@@ -26,12 +26,43 @@ assert.equal(input.split(original).length, 2, 'Expected exactly one reviewed no-
 const replacement = 'let x=JSON.parse(c);if(!x||!Array.isArray(x.files))throw new Error("Invalid PHP CS Fixer JSON files");if(/Files that were not fixed due to errors reported during /.test(T)){J(T);n||ge(T);return u(new Error(T))}if(x.files.length>0)a(ct.readFileSync(r,"utf-8"));else{T&&J(T);a(e.toString())}';
 // Copy fails when destination files already exist; never edit a user's installation or the locked source.
 await cp(source, destination, { recursive: true, force: false, errorOnExist: true });
-const output = input.replace(original, replacement);
+let output = input.replace(original, replacement);
+const replaceOnce = (before, after) => {
+  assert.equal(output.split(before).length, 2, `Expected exactly one reviewed resource settings branch: ${before}`);
+  output = output.replace(before, after);
+};
+replaceOnce('loadSettings(){let e=v.workspace.getConfiguration("php-cs-fixer");',
+  'forResource(e){let i=Object.create(this);return i.loadSettings(e),i}loadSettings(resource){let e=v.workspace.getConfiguration("php-cs-fixer",resource);');
+replaceOnce('v.workspace.getConfiguration("php").get("validate.executablePath","php")',
+  'v.workspace.getConfiguration("php",resource).get("validate.executablePath","php")');
+replaceOnce('this.editorFormatOnSave=v.workspace.getConfiguration("editor").get("formatOnSave")',
+  'this.editorFormatOnSave=v.workspace.getConfiguration("editor",resource).get("formatOnSave")');
+replaceOnce('v.workspace.getConfiguration("html").get("format")',
+  'v.workspace.getConfiguration("html",e.uri).get("format")');
+// Each request owns a configuration snapshot. Never mutate the activation singleton while
+// another folder's asynchronous CLI request is still running.
+replaceOnce('exports.activate=t=>{let e=new Dn;',
+  'for(let name of ["formattingProvider","rangeFormattingProvider","format","fix","diff","isExcluded","doAutoFixByBracket","doAutoFixBySemicolon"]){let original=Dn.prototype[name];Dn.prototype[name]=function(...args){let resource=name==="format"?args[1]:args[0]?.document?.uri||args[0]?.uri||args[0];return original.apply(this.forResource(resource),args)}}exports.activate=t=>{let e=new Dn;');
+replaceOnce('i.document.languageId=="php"&&e.onsave&&e.editorFormatOnSave==!1',
+  'i.document.languageId=="php"&&e.forResource(i.document.uri).onsave&&e.forResource(i.document.uri).editorFormatOnSave==!1');
+replaceOnce('e.autoFixByBracket&&e.doAutoFixByBracket(i),e.autoFixBySemicolon&&e.doAutoFixBySemicolon(i)',
+  'e.forResource(i.document.uri).autoFixByBracket&&e.doAutoFixByBracket(i),e.forResource(i.document.uri).autoFixBySemicolon&&e.doAutoFixBySemicolon(i)');
 await writeFile(`${destination}/index.js`, output);
+const resourceKeys = ['executablePath', 'executablePathWindows', 'rules', 'config', 'allowRisky', 'pathMode',
+  'ignorePHPVersion', 'exclude', 'onsave', 'autoFixByBracket', 'autoFixBySemicolon', 'formatHtml', 'tmpDir'];
+const properties = manifest.contributes.configuration.properties;
+for (const key of resourceKeys) {
+  assert.ok(properties[`php-cs-fixer.${key}`], `Missing reviewed formatter setting: ${key}`);
+  properties[`php-cs-fixer.${key}`].scope = 'resource';
+}
+// VS Code otherwise rejects folder settings before the request-scoped loader can read them.
+await writeFile(`${destination}/package.json`, JSON.stringify(manifest, null, 2));
 const hash = value => createHash('sha256').update(value).digest('hex');
 const proof = { owner: 'junstyle.php-cs-fixer', version: manifest.version, license: manifest.license,
   sourceHash: hash(input), patchedHash: hash(output), source, destination,
   change: 'On successful CLI exit with valid JSON and no changed files, preserve informational stderr in output and return original text. Explicit CS Fixer lint/fix error reports, nonzero exit and invalid JSON still reject.',
+  resourceSettings: 'Read formatter, PHP, editor and HTML settings for the document URI; isolate each request settings snapshot across workspace folders.',
+  resourceKeys,
   scope: 'Isolated development candidate only; no marketplace identity, Profile or default Pack change' };
 await writeFile(`${destination}/sophp-no-change-candidate.json`, JSON.stringify(proof, null, 2));
 process.stdout.write(`${JSON.stringify(proof, null, 2)}\n`);

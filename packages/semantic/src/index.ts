@@ -2889,7 +2889,8 @@ export class SemanticWorkspace {
     const file = this.files.get(uri); const tree = this.trees.get(uri);
     if (!file || !tree || file.syntaxErrors.length) return undefined;
     const declaration = file.declarations.find((item) => item.kind === 'class' && !item.anonymous && offset >= item.start && offset <= item.end);
-    if (!declaration || file.declarations.filter((item) => item.fqcn.toLowerCase() === declaration.fqcn.toLowerCase()).length !== 1) return undefined;
+    if (!declaration || this.filesForReferenceKeys(`declaration:type:${declaration.fqcn.toLowerCase()}`)
+      .reduce((count, candidate) => count + candidate.declarations.filter((item) => item.fqcn.toLowerCase() === declaration.fqcn.toLowerCase()).length, 0) !== 1) return undefined;
     const classNode = deepestLocalSyntax(tree.rootNode, declaration.start, declaration.end,
       (node) => node.type === 'class_declaration' && node.startIndex === declaration.declarationStart && node.endIndex === declaration.declarationEnd);
     const body = classNode?.namedChildren.find((node) => node.type === 'declaration_list');

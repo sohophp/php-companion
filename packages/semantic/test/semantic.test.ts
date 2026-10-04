@@ -13268,7 +13268,10 @@ namespace Second {
     expect(workspace.extractVariable(uri, inline, inline + 'inlineObject()'.length)).toBeUndefined();
     workspace.remove(uri);
   });
-  it('extracts public native method contracts into a separate interface plan', () => {
+  it('extracts public native method contracts into a separate interface plan', ({ onTestFinished }) => {
+    // These contract fixtures are separate projects; prior tests retain App\Child.
+    const workspace = new SemanticWorkspace(parser);
+    onTestFinished(() => workspace.dispose());
     const uri = 'file:///src/Formatter.php';
     const source = `<?php namespace App; final class Formatter {
       public function format(string $input, int $limit = 2): string { return $input; }

@@ -9,15 +9,16 @@ const sourceStatWorkers = new Map<string, WorkerEntry>();
 let nextSourceStatBatchId = 0;
 
 /** Reuse the worker thread, but keep cancellation and reply ownership private to each scan. */
-function leaseSourceStatWorker(path: string): { worker: Worker; release: () => void } {
-  let entry = sourceStatWorkers.get(path);
+function leaseSourceStatWorker(path: string, slot = 0): { worker: Worker; release: () => void } {
+  const key = slot === 0 ? path : `${path}\0${slot}`;
+  let entry = sourceStatWorkers.get(key);
   if (!entry) {
     entry = { worker: new Worker(path), leases: 0 };
-    sourceStatWorkers.set(path, entry);
+    sourceStatWorkers.set(key, entry);
     const current = entry;
     const discard = (): void => {
       if (current.idle) clearTimeout(current.idle);
-      if (sourceStatWorkers.get(path) === current) sourceStatWorkers.delete(path);
+      if (sourceStatWorkers.get(key) === current) sourceStatWorkers.delete(key);
     };
     current.worker.once('error', discard); current.worker.once('exit', discard);
     current.worker.unref();
@@ -30,11 +31,11 @@ function leaseSourceStatWorker(path: string): { worker: Worker; release: () => v
   current.worker.ref();
   return { worker: current.worker, release: (): void => {
     current.leases -= 1;
-    if (current.leases || sourceStatWorkers.get(path) !== current) return;
+    if (current.leases || sourceStatWorkers.get(key) !== current) return;
     current.worker.unref();
     current.idle = setTimeout(() => {
-      if (sourceStatWorkers.get(path) !== current || current.leases) return;
-      sourceStatWorkers.delete(path);
+      if (sourceStatWorkers.get(key) !== current || current.leases) return;
+      sourceStatWorkers.delete(key);
       void current.worker.terminate().catch(() => undefined);
     }, 30_000);
     current.idle.unref();
@@ -54,6 +55,7 @@ export function disposeSourceStatWorkers(): void {
 export class SourceStatBatches {
   private worker: Worker | undefined;
   private releaseWorker: (() => void) | undefined;
+  private readonly extraWorkers = new Map<number, { worker: Worker; release: () => void }>();
   private readonly onMessage = (reply: SourceStatReply): void => this.receive(reply);
   private readonly onFailure = (): void => this.fail();
   private queue: Array<{ path: string; expectedHash?: string; resolve: (stamp: SourceStamp) => void; reject: (error: Error) => void }> = [];
@@ -65,7 +67,7 @@ export class SourceStatBatches {
 
   constructor(private readonly shouldContinue: () => boolean = () => true,
     private readonly workerPath = resolve(dirname(process.argv[1] ?? ''), 'sourceStatWorker.js'),
-    private readonly verification?: { expectedHash?: (path: string) => string | undefined; maxSourceBytes: number; readSource?: boolean }) {}
+    private readonly verification?: { expectedHash?: (path: string) => string | undefined; maxSourceBytes: number; readSource?: boolean; parallelism?: 1 | 2 | 4 }) {}
 
   inspect = (path: string): Promise<SourceStamp> => {
     if (!this.shouldContinue()) this.fail();
@@ -106,13 +108,29 @@ export class SourceStatBatches {
   private flush(): void {
     this.scheduled = false;
     if (this.failed || !this.worker) return;
+    const parallelism = this.verification?.parallelism ?? 1;
+    let slot = 0;
     while (this.queue.length) {
-      const batch = this.queue.splice(0, 128);
+      const batch = this.queue.splice(0, 128 / parallelism);
       const id = ++nextSourceStatBatchId;
       this.pending.set(id, batch);
-      try { this.worker.postMessage({ id, cancelBuffer: this.cancelFlag.buffer, paths: batch.map(({ path }) => path),
+      try {
+        let worker = this.worker;
+        if (slot > 0) {
+          let lease = this.extraWorkers.get(slot);
+          if (!lease) {
+            lease = leaseSourceStatWorker(this.workerPath, slot);
+            this.extraWorkers.set(slot, lease);
+            lease.worker.on('message', this.onMessage);
+            lease.worker.once('error', this.onFailure); lease.worker.once('exit', this.onFailure);
+          }
+          worker = lease.worker;
+        }
+        worker.postMessage({ id, cancelBuffer: this.cancelFlag.buffer, paths: batch.map(({ path }) => path),
         expectedHashes: batch.map(({ expectedHash }) => expectedHash), maxSourceBytes: this.verification?.maxSourceBytes,
-        readSource: this.verification?.readSource }); }
+        readSource: this.verification?.readSource });
+        slot = (slot + 1) % parallelism;
+      }
       catch { this.fail(); return; }
     }
   }
@@ -141,6 +159,11 @@ export class SourceStatBatches {
     this.queue = [];
     for (const batch of this.pending.values()) for (const item of batch) item.reject(error);
     this.pending.clear();
+    for (const { worker, release } of this.extraWorkers.values()) {
+      worker.off('message', this.onMessage); worker.off('error', this.onFailure); worker.off('exit', this.onFailure);
+      release();
+    }
+    this.extraWorkers.clear();
     if (this.worker) {
       this.worker.off('message', this.onMessage);
       this.worker.off('error', this.onFailure); this.worker.off('exit', this.onFailure);

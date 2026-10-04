@@ -7924,7 +7924,7 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       const candidate = { source, hash: createHash('sha256').update(source).digest('hex') };
       loadedChecks.set(path, candidate); return candidate.hash;
     },
-      maxSourceBytes: indexLimits.maxFileSizeBytes } : undefined);
+      maxSourceBytes: indexLimits.maxFileSizeBytes, parallelism: 4 } : undefined);
   const scan = await indexComposerSources(root, {
     project, includeDependencies: true, limits: indexLimits,
     // Match the existing bounded worker batch; source and scan budgets remain enforced.
@@ -8109,7 +8109,11 @@ function interfaceExtractionHash(plan: NonNullable<ReturnType<SemanticWorkspace[
 
 async function checkedInterfaceExtraction(workspace: SemanticWorkspace, document: TextDocument,
   position: { line: number; character: number }, phpVersion: string, cancelled: () => boolean): Promise<ReturnType<SemanticWorkspace['extractInterface']>> {
-  const selectedClass = workspace.typeAt(document.uri, document.offsetAt(position));
+  // Select the local declaration even if an old external declaration makes
+  // global lookup ambiguous: the checked scan must be able to remove it.
+  const localClasses = workspace.typeCandidatesAt(document.uri, document.offsetAt(position))
+    .filter(type => type.kind === 'class' && type.uri === document.uri);
+  const selectedClass = localClasses.length === 1 ? localClasses[0] : undefined;
   const root = selectedClass?.kind === 'class' && selectedClass.uri === document.uri ? rootForUri(document.uri) : undefined;
   if (!root || !selectedClass || !await ensureProjectCompleteRoot(root, cancelled)) return undefined;
   let plan = workspace.extractInterface(document.uri, document.offsetAt(position), phpVersion);
