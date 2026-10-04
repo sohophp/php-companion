@@ -16,8 +16,18 @@ export async function run(): Promise<void> {
   const constantInitializers = process.env.PHP_COMPANION_TEST_CONSTANT_INITIALIZER_ONLY === '1';
   const initializerExpressions = process.env.PHP_COMPANION_TEST_INITIALIZER_EXPRESSION_ONLY === '1';
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
+  const shapeValues = process.env.PHP_COMPANION_TEST_SHAPE_VALUE_ONLY === '1';
   const namedAttributeValues = process.env.PHP_COMPANION_TEST_NAMED_ATTRIBUTE_VALUE_ONLY === '1';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = namedAttributeValues ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = shapeValues ? [
+    {prefix:'shapePick',label:'shapePickZ',forbidden:'',addCall:true,
+      marked:"<?php function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick§]);"},
+    {prefix:'PICK_',label:'PICK_Z_BOOL',forbidden:'',addCall:false,
+      marked:"<?php const PICK_A_TEXT='x', PICK_Z_BOOL=true; /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>PICK_§]);"},
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:"<?php /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>(tr§)]);"},
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:"<?php /** @param array{enabled:bool} $config */ function send(array $config):void{} function inner(bool $value):bool{return $value;} send(['enabled'=>inner(tr§)]);"},
+  ] : namedAttributeValues ? [
     {prefix:'tr',label:'true',forbidden:'flag:',addCall:false,
       marked:'<?php #[\\Attribute] class Host { public function __construct(string $text, bool $flag) {} } #[Host(flag: (tr§), text: "x")] class Tagged {}'},
     {prefix:'tr',label:'true',forbidden:'flag:',addCall:false,
@@ -89,6 +99,7 @@ export async function run(): Promise<void> {
     const suffix = `${cases.indexOf(item)}${key}`;
     let marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
       .replaceAll('PICK_', `PICK${suffix}_`);
+    if (shapeValues) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`);
@@ -120,6 +131,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

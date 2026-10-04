@@ -1,0 +1,39 @@
+{
+  "sourceBytes": 241283,
+  "sourceSha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+  "scope": "one serial 100-round current shape-field edit measurement; no paired baseline, profiler, or explicit GC",
+  "measurement": {
+    "root": "/tmp/sophp-shape-edit-b8xv532l",
+    "file": "/tmp/sophp-shape-edit-b8xv532l/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 308.41,
+    "all": {
+      "p50Ms": 402.65,
+      "p95Ms": 463.51,
+      "maxMs": 707.62
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 411.53,
+      "p95Ms": 465.81,
+      "maxMs": 707.62,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 392.92,
+      "p95Ms": 458.68,
+      "maxMs": 511.15,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  }
+}

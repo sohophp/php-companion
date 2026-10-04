@@ -4331,10 +4331,8 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     const memberStart = offset - target.member.length;
     const receiver = file && /\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*(?:\?->|->)\s*$/u.exec(file.source.slice(0, memberStart));
-    const scope = file && this.containingScope(file, offset);
-    const expected = file && members.length <= 64 ? receiver && scope
-      ? this.expectedVariableCompletionType(file, scope, receiver.index, offset)
-      : this.expectedArgumentCompletionType(file, offset) : undefined;
+    const expected = file && members.length <= 64
+      ? this.expectedCandidateCompletionType(file, receiver?.index ?? memberStart, offset) : undefined;
     const typeRanks = new Map<MemberInfo, number>();
     if (expected) {
       const initializer = this.initializerCompletionContext(uri, offset);
@@ -4944,21 +4942,52 @@ export class SemanticWorkspace {
     return tree;
   }
 
+  // Candidate contracts may be a shape field; root-array contract readers must
+  // remain separate because resolving the field calls those readers itself.
+  private expectedCandidateCompletionType(file: SemanticFile, start: number, offset: number,
+    unclosedQuote?: string): PhpType | undefined {
+    const field = this.expectedArrayShapeValueType(file, offset, start, unclosedQuote);
+    if (field.insideArray) return field.type;
+    const scope = this.containingScope(file, offset);
+    return scope ? this.expectedVariableCompletionType(file, scope, start, offset)
+      : this.expectedArgumentCompletionType(file, offset);
+  }
+
   private expectedArrayShapeValueType(file: SemanticFile, offset: number, valueStart: number,
     unclosedQuote?: string): { insideArray: boolean; type?: PhpType } {
     const retainedTree = this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     let completedTree: ReturnType<typeof this.parser.parseTree> | undefined;
     try {
-      let array: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode
-        .namedDescendantForIndex(Math.max(0, offset - 1));
-      while (array && array.type !== 'array_creation_expression') array = array.parent;
+      const tree = (retainedTree ?? temporaryTree)!;
+      const position = this.completionValuePosition(file, valueStart, offset, file.syntaxErrors.length ? undefined : tree);
+      if (!position || position.comparisonCondition || position.declarationDefault || position.constantInitializer)
+        return { insideArray: false };
+      const initialValueStart = valueStart;
+      valueStart = position.start;
+      let array: SyntaxNode | null = tree.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
+      let remaining = 256;
+      while (array && array.type !== 'array_creation_expression' && remaining-- > 0) {
+        // An inner invocation or lexical body owns its own contract. Do not
+        // suppress that contract merely because an outer array is an ancestor.
+        if (['arguments', 'compound_statement', 'anonymous_function', 'arrow_function',
+          'function_definition', 'method_declaration'].includes(array.type)) return { insideArray: false };
+        if (['member_access_expression', 'nullsafe_member_access_expression', 'member_call_expression',
+          'nullsafe_member_call_expression', 'scoped_call_expression', 'scoped_property_access_expression',
+          'class_constant_access_expression', 'object_creation_expression', 'function_call_expression'].includes(array.type))
+          valueStart = Math.min(valueStart, array.startIndex);
+        array = array.parent;
+      }
+      if (remaining <= 0) return { insideArray: true };
       if (!array && unclosedQuote) {
         completedTree = this.completedUnclosedArrayTree(file, offset, valueStart, unclosedQuote, (retainedTree ?? temporaryTree)!);
         array = completedTree?.rootNode.namedDescendantForIndex(Math.max(0, offset - 1)) ?? null;
         while (array && array.type !== 'array_creation_expression') array = array.parent;
       }
       if (!array) return { insideArray: false };
+      // At a missing value the CST can put the arrow in ERROR directly under
+      // the array. A containing branch describes the array, not this field.
+      if (valueStart <= array.startIndex) valueStart = initialValueStart;
       let expectedRoot = this.expectedArrayLiteralRootType(file, array);
       if (!expectedRoot && completedTree) expectedRoot = this.recoveredUnclosedArrayShapeRootType(file, array);
       if (!expectedRoot) return { insideArray: true };
@@ -4967,8 +4996,8 @@ export class SemanticWorkspace {
       const start = element?.startIndex ?? Math.max(array.startIndex + 1, file.source.lastIndexOf(',', offset - 1) + 1);
       const key = quotedArrayKey(file.source, start, valueStart, true);
       if (key === undefined) return { insideArray: true };
-      return { insideArray: true,
-        type: this.expectedShapeAtArray(file, array, expectedRoot)?.fields.find((field) => field.key === key)?.type };
+      const type = this.expectedShapeAtArray(file, array, expectedRoot)?.fields.find((field) => field.key === key)?.type;
+      return { insideArray: true, type: type && position.start > array.startIndex && position.allowsNull ? nullable(type) : type };
     } finally { completedTree?.delete(); temporaryTree?.delete(); }
   }
 
@@ -5022,11 +5051,7 @@ export class SemanticWorkspace {
     const start = quoted?.start ?? offset - word.length;
     const before = file.source.slice(Math.max(0, start - 1), start);
     if (!quoted && before && !/[\s(,=:?]/u.test(before) && file.source.slice(start - 2, start) !== '=>') return [];
-    const scope = this.containingScope(file, offset);
-    const expected = scope ? this.expectedVariableCompletionType(file, scope, start, offset)
-      : this.expectedArgumentCompletionType(file, offset);
-    const arrayValue = this.expectedArrayShapeValueType(file, offset, start, unclosedQuoted?.quote);
-    const valueType = arrayValue.insideArray ? arrayValue.type : expected;
+    const valueType = this.expectedCandidateCompletionType(file, start, offset, unclosedQuoted?.quote);
     if (!valueType) return [];
     const end = quoted?.end ?? offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(file.source.slice(offset))?.[0].length ?? 0);
     const results = new Map<string, { label: string; insertText: string; start: number; end: number }>();
@@ -5355,10 +5380,10 @@ export class SemanticWorkspace {
   completeBareExpressionVariables(uri: string, offset: number): { name: string; compatibilityRank: number }[] | undefined {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
-      || !/(?:\(|,|:|=|\breturn)\s*$/u.test(file.source.slice(0, offset))) return undefined;
+      || !/(?:=>|\(|,|:|=|\breturn)\s*$/u.test(file.source.slice(0, offset))) return undefined;
     const scope = this.containingScope(file, offset);
     if (!scope) return undefined;
-    const expected = this.expectedVariableCompletionType(file, scope, offset, offset);
+    const expected = this.expectedCandidateCompletionType(file, offset, offset);
     if (!expected) return undefined;
     const names = this.visibleVariableNames(file, scope, offset, false);
     if (names.length > 64) return [];
@@ -5453,7 +5478,7 @@ export class SemanticWorkspace {
     const names = this.visibleVariableNames(file, scope, offset, true);
     const prefix = match[0].toLowerCase();
     const matching = names.filter((name) => completionMatchRank(name, prefix) !== undefined && (name !== match[0] || end !== offset));
-    const expected = matching.length <= 32 ? this.expectedVariableCompletionType(file, scope, start, offset) : undefined;
+    const expected = matching.length <= 32 ? this.expectedCandidateCompletionType(file, start, offset) : undefined;
     const relationContext = expected ? this.typeRelationContext() : undefined;
     const typeRanks = new Map<string, number>();
     if (expected) for (const name of matching) {
@@ -5931,10 +5956,8 @@ export class SemanticWorkspace {
         importFqcn: qualifiedNamespace !== undefined || visibleName || candidateNamespace === namespace ? undefined : candidate.fqcn });
     }
     const constructStart = constructKind === 'class' ? constructContext?.start : undefined;
-    const completionScope = constructStart !== undefined ? this.containingScope(file, offset) : undefined;
     const expected = constructStart !== undefined && results.length <= 64
-      ? completionScope ? this.expectedVariableCompletionType(file, completionScope, constructStart, offset)
-        : this.expectedArgumentCompletionType(file, offset) : undefined;
+      ? this.expectedCandidateCompletionType(file, constructStart, offset) : undefined;
     const relationContext = expected ? this.typeRelationContext() : undefined;
     const typeRanks = new Map<string, number>();
     if (expected) for (const candidate of results) {
@@ -6337,10 +6360,8 @@ export class SemanticWorkspace {
       if (!alias && collision && collision.toLowerCase() !== item.fqcn.toLowerCase()) return [];
       return [{ uri: owner.uri, start: item.start, end: item.end, name, fqcn: item.fqcn, parameters: item.parameters, returnType: item.returnType, importFqfn: alias || candidateNamespace === namespace || candidateNamespace === '' ? undefined : item.fqcn }];
     });
-    const completionScope = this.containingScope(file, offset);
-    const expected = matching.length <= 64 ? completionScope
-      ? this.expectedVariableCompletionType(file, completionScope, prefixStart, offset)
-      : this.expectedArgumentCompletionType(file, offset) : undefined;
+    const expected = matching.length <= 64
+      ? this.expectedCandidateCompletionType(file, prefixStart, offset) : undefined;
     const typeRanks = new Map<string, number>();
     if (expected) {
       const initializer = this.initializerCompletionContext(uri, offset);
@@ -6406,10 +6427,8 @@ export class SemanticWorkspace {
       if (!importedEntry && collision && collision !== item.fqcn) return [];
       return [{ uri: owner.uri, start: item.start, end: item.end, name, fqcn: item.fqcn, type: item.type, value: item.value, importFqcn: importedEntry || candidateNamespace === namespace || candidateNamespace === '' ? undefined : item.fqcn }];
     });
-    const completionScope = this.containingScope(file, offset);
-    const expected = matching.length <= 64 ? completionScope
-      ? this.expectedVariableCompletionType(file, completionScope, prefixStart, offset)
-      : this.expectedArgumentCompletionType(file, offset) : undefined;
+    const expected = matching.length <= 64
+      ? this.expectedCandidateCompletionType(file, prefixStart, offset) : undefined;
     const typeRanks = new Map<string, number>();
     if (expected) {
       const relationContext = this.typeRelationContext();

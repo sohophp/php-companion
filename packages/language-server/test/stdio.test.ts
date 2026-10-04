@@ -2559,6 +2559,69 @@ function inspect(Sink $sink, ?Sink $optional): void {
       expect(keyword.sortText < template.sortText).toBe(true);
     }
   });
+  it.each(['7.2', '8.5'])('ranks shape field values by the nearest contract through stdio on PHP %s', async phpVersion => {
+    const uri = 'file:///ShapeCandidateValues.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: { textDocument: { completion: { completionItem: { snippetSupport: true } } } },
+      rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const header = `<?php /** @param array{enabled:bool,nested:array{enabled:bool}} $config */ function send(array $config):void {}
+      function shapePickA():string{return 'x';} function shapePickZ():bool{return true;}
+      const PICK_A_TEXT='x', PICK_Z_BOOL=true;
+      function innerText(string $text):bool{return true;} function innerBool(bool $flag):bool{return true;}
+      class Builder { public function makeA():string{return '';} public function makeZ():bool{return true;} }
+      interface Contract {} class ChoiceA {} class ChoiceZ implements Contract {}
+      /** @param array{object:Contract} $config */ function build(array $config):void {} `;
+    const rows = [
+      { tail: "send(['enabled'=>shapePick§]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled'=>(shapePick§)]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['nested'=>['enabled'=>shapePick§]]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled'=>innerText(shapePick§)]);", label: 'shapePickA', other: 'shapePickZ' },
+      { tail: "send(['enabled'=>PICK_§]);", label: 'PICK_Z_BOOL', other: 'PICK_A_TEXT' },
+      { tail: "send(['enabled'=>(tr§)]);", label: 'true', other: '' },
+      { tail: "send(['enabled'=>innerBool(tr§)]);", label: 'true', other: '' },
+      { tail: "function run(string $shapeAText,bool $shapeZBool){send(['enabled'=>$shape§]);}", label: '$shapeZBool', other: '$shapeAText' },
+      { tail: "function run(Builder $builder){send(['enabled'=>$builder->make§]);}", label: 'makeZ', other: 'makeA' },
+      { tail: "build(['object'=>new Choice§]);", label: 'ChoiceZ', other: 'ChoiceA' },
+    ];
+    let version = 0;
+    const query = async (marked: string, id: number): Promise<any[]> => {
+      const offset = marked.indexOf('§'), source = marked.replace('§', ''); version++;
+      server!.stdin.write(encode({ jsonrpc: '2.0', method: version === 1 ? 'textDocument/didOpen' : 'textDocument/didChange',
+        params: version === 1 ? { textDocument: { uri, languageId: 'php', version, text: source } }
+          : { textDocument: { uri, version }, contentChanges: [{ text: source }] } }));
+      server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id); expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      for (const item of items) if (item.textEdit) {
+        expect(lspOffset(source, item.textEdit.range.start)).toBeLessThanOrEqual(offset);
+        expect(lspOffset(source, item.textEdit.range.end)).toBeGreaterThanOrEqual(offset);
+      }
+      return items;
+    };
+    for (const [index, row] of rows.entries()) {
+      const items = await query(header + row.tail, 100 + index);
+      expect(items[0]?.label, row.tail).toBe(row.label);
+      if (row.other) expect(items.some(item => item.label === row.other), row.tail).toBe(true);
+      if (row.label === 'shapePickZ') expect(items[0]?.textEdit?.newText).toContain('shapePickZ(');
+    }
+    for (const [index, type] of ['string', 'bool', 'string', 'bool'].entries()) {
+      const items = await query(header.replace('enabled:bool', `enabled:${type}`) + "send(['enabled'=>shapePick§]);", 200 + index);
+      expect(items[0]?.label, type).toBe(type === 'bool' ? 'shapePickZ' : 'shapePickA');
+    }
+    // Generic expression keywords (including true) remain legal even without
+    // a proven expected type. Test absence of leaked ranking using symbols.
+    for (const [index, tail] of ["send(['enabled'=>unknown(shapePick§)]);", "send(['missing'=>shapePick§]);", "send(['enabled'=>!shapePick§]);"].entries()) {
+      const items = await query(header + tail, 300 + index);
+      expect(items[0]?.label, tail).toBe('shapePickA');
+      expect(items.some(item => item.label === 'shapePickZ'), tail).toBe(true);
+    }
+  }, 30_000);
   it.each(['8.1', '8.5'])('completes named attribute values through grouping and trivia on PHP %s', async phpVersion => {
     const uri = 'file:///NamedAttributeValues.php';
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
