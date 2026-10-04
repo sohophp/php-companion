@@ -1,0 +1,230 @@
+{
+  "platform": "linux",
+  "context": "constant-initializers",
+  "results": [
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 246,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php class Host0Enter { const bool VALUE = /* value */ true; }",
+      "caretOffset": 60,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 189,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php class Host0Tab { const bool VALUE = /* value */ true; }",
+      "caretOffset": 58,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK1Enter_TEXT",
+      "key": "Enter",
+      "visibleMs": 135,
+      "visibleLabels": [
+        "PICK1Enter_TEXTPICK1Enter_TEXT = \"ready\"",
+        "PICK1Enter_BOOLPICK1Enter_BOOL = true"
+      ],
+      "acceptedText": "<?php const PICK1Enter_BOOL = true, PICK1Enter_TEXT = \"ready\"; class Host1Enter { const string VALUE = PICK1Enter_TEXT; }",
+      "caretOffset": 118,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK1Tab_TEXT",
+      "key": "Tab",
+      "visibleMs": 130,
+      "visibleLabels": [
+        "PICK1Tab_TEXTPICK1Tab_TEXT = \"ready\"",
+        "PICK1Tab_BOOLPICK1Tab_BOOL = true"
+      ],
+      "acceptedText": "<?php const PICK1Tab_BOOL = true, PICK1Tab_TEXT = \"ready\"; class Host1Tab { const string VALUE = PICK1Tab_TEXT; }",
+      "caretOffset": 110,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK2Enter_INT",
+      "key": "Enter",
+      "visibleMs": 165,
+      "visibleLabels": [
+        "PICK2Enter_INTPICK2Enter_INT = 1",
+        "PICK2Enter_BOOLPICK2Enter_BOOL = true",
+        "PICK2Enter_TEXTPICK2Enter_TEXT = \"ready\""
+      ],
+      "acceptedText": "<?php const PICK2Enter_BOOL = true, PICK2Enter_INT = 1, PICK2Enter_TEXT = \"ready\"; enum Current2Enter: int { case Ready = PICK2Enter_INT; }",
+      "caretOffset": 136,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK2Tab_INT",
+      "key": "Tab",
+      "visibleMs": 145,
+      "visibleLabels": [
+        "PICK2Tab_INTPICK2Tab_INT = 1",
+        "PICK2Tab_BOOLPICK2Tab_BOOL = true",
+        "PICK2Tab_TEXTPICK2Tab_TEXT = \"ready\""
+      ],
+      "acceptedText": "<?php const PICK2Tab_BOOL = true, PICK2Tab_INT = 1, PICK2Tab_TEXT = \"ready\"; enum Current2Tab: int { case Ready = PICK2Tab_INT; }",
+      "caretOffset": 126,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK3Enter_TEXT",
+      "key": "Enter",
+      "visibleMs": 164,
+      "visibleLabels": [
+        "PICK3Enter_TEXTPICK3Enter_TEXT = \"ready\"",
+        "PICK3Enter_BOOLPICK3Enter_BOOL = true",
+        "PICK3Enter_INTPICK3Enter_INT = 1"
+      ],
+      "acceptedText": "<?php const PICK3Enter_BOOL = true, PICK3Enter_INT = 1, PICK3Enter_TEXT = \"ready\"; enum Current3Enter: string { case Ready = PICK3Enter_TEXT; }",
+      "caretOffset": 140,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK3Tab_TEXT",
+      "key": "Tab",
+      "visibleMs": 152,
+      "visibleLabels": [
+        "PICK3Tab_TEXTPICK3Tab_TEXT = \"ready\"",
+        "PICK3Tab_BOOLPICK3Tab_BOOL = true",
+        "PICK3Tab_INTPICK3Tab_INT = 1"
+      ],
+      "acceptedText": "<?php const PICK3Tab_BOOL = true, PICK3Tab_INT = 1, PICK3Tab_TEXT = \"ready\"; enum Current3Tab: string { case Ready = PICK3Tab_TEXT; }",
+      "caretOffset": 130,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "scope": {
+    "vscode": "1.140.0",
+    "phpTarget": "8.5",
+    "trigger": "explicit trigger after provider readiness",
+    "manualWsl": false,
+    "performanceGate": false,
+    "fullLspScope": "4d52f320 before this increment",
+    "sourceState": "uncommitted constant initializer increment including comments"
+  },
+  "compile": {
+    "runtime": "8.5.9",
+    "command": "php85 -l",
+    "executedBusinessCode": false,
+    "results": [
+      {
+        "label": "true",
+        "key": "Enter",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted0.php",
+        "stderr": ""
+      },
+      {
+        "label": "true",
+        "key": "Tab",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted1.php",
+        "stderr": ""
+      },
+      {
+        "label": "PICK1Enter_TEXT",
+        "key": "Enter",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted2.php",
+        "stderr": ""
+      },
+      {
+        "label": "PICK1Tab_TEXT",
+        "key": "Tab",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted3.php",
+        "stderr": ""
+      },
+      {
+        "label": "PICK2Enter_INT",
+        "key": "Enter",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted4.php",
+        "stderr": ""
+      },
+      {
+        "label": "PICK2Tab_INT",
+        "key": "Tab",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted5.php",
+        "stderr": ""
+      },
+      {
+        "label": "PICK3Enter_TEXT",
+        "key": "Enter",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted6.php",
+        "stderr": ""
+      },
+      {
+        "label": "PICK3Tab_TEXT",
+        "key": "Tab",
+        "exitCode": 0,
+        "output": "No syntax errors detected in Accepted7.php",
+        "stderr": ""
+      }
+    ]
+  }
+}

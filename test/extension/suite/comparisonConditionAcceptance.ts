@@ -13,7 +13,27 @@ export async function run(): Promise<void> {
   const port = Number(process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT); assert.ok(port > 0);
   const declarationDefaults = process.env.PHP_COMPANION_TEST_DECLARATION_DEFAULT_ONLY === '1';
   const defaultCallables = process.env.PHP_COMPANION_TEST_DEFAULT_CALLABLE_ONLY === '1';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = defaultCallables ? [
+  const constantInitializers = process.env.PHP_COMPANION_TEST_CONSTANT_INITIALIZER_ONLY === '1';
+  const initializerExpressions = process.env.PHP_COMPANION_TEST_INITIALIZER_EXPRESSION_ONLY === '1';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = initializerExpressions ? [
+    {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
+      marked:'<?php const CALLBACK = strl§;'},
+    {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
+      marked:'<?php #[Attr(strl§)] class Host {}'},
+    {prefix:'tar',label:'target',forbidden:'',addCall:false,suffix:'(...)',
+      marked:'<?php class Host { private static function target() {} const CALLBACK = self::tar§; }'},
+    {prefix:'phpv',label:'phpversion',forbidden:'',addCall:true,
+      marked:'<?php function choose() { static $value = phpv§; }'},
+  ] : constantInitializers ? [
+    {prefix:'tr',label:'true',forbidden:'readonly',addCall:false,
+      marked:'<?php class Host { const bool VALUE = /* value */ tr§; }'},
+    {prefix:'PICK_',label:'PICK_TEXT',forbidden:'',addCall:false,
+      marked:'<?php const PICK_BOOL = true, PICK_TEXT = "ready"; class Host { const string VALUE = PICK_§; }'},
+    {prefix:'PICK_',label:'PICK_INT',forbidden:'',addCall:false,
+      marked:'<?php const PICK_BOOL = true, PICK_INT = 1, PICK_TEXT = "ready"; enum Current: int { case Ready = PICK_§; }'},
+    {prefix:'PICK_',label:'PICK_TEXT',forbidden:'',addCall:false,
+      marked:'<?php const PICK_BOOL = true, PICK_INT = 1, PICK_TEXT = "ready"; enum Current: string { case Ready = PICK_§; }'},
+  ] : defaultCallables ? [
     {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
       marked:'<?php function choose($callback = strl§) {}'},
     {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
@@ -46,10 +66,12 @@ export async function run(): Promise<void> {
     console.log('Comparison condition case: ' + JSON.stringify({ index: cases.indexOf(item), key, marked: item.marked }));
     const uri = vscode.Uri.joinPath(folder.uri, 'src', `ComparisonCondition${cases.indexOf(item)}${key}.php`);
     const suffix = `${cases.indexOf(item)}${key}`;
-    const marked = item.marked.replace(/\b(Current|choose|Host)\b/g, name => `${name}${suffix}`);
+    const marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
+      .replaceAll('PICK_', `PICK${suffix}_`);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
-    const label = item.label.replace('Current', `Current${suffix}`);
-    const accepted = source.slice(0, offset - item.prefix.length) + label + (item.suffix ?? (item.addCall ? '()' : '')) + source.slice(offset + (item.consume ?? 0));
+    const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`);
+    const prefix = item.prefix.replace('PICK_', `PICK${suffix}_`);
+    const accepted = source.slice(0, offset - prefix.length) + label + (item.suffix ?? (item.addCall ? '()' : '')) + source.slice(offset + (item.consume ?? 0));
     await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
     const document = await vscode.workspace.openTextDocument(uri); const editor = await vscode.window.showTextDocument(document);
     const position = document.positionAt(offset); editor.selection = new vscode.Selection(position, position);
@@ -67,7 +89,7 @@ export async function run(): Promise<void> {
     assert.equal(labels.findIndex(value => value.startsWith(label)), 0, `Expected first visible candidate ${label}, got ${JSON.stringify(labels)}`);
     if (key === 'Enter') await pressWorkbenchEnter(port); else await pressWorkbenchTab(port);
     await until(async () => document.getText(), text => text === accepted);
-    assert.equal(document.offsetAt(editor.selection.active), offset - item.prefix.length + label.length + (item.suffix?.length ?? (item.addCall ? 1 : 0)));
+    assert.equal(document.offsetAt(editor.selection.active), offset - prefix.length + label.length + (item.suffix?.length ?? (item.addCall ? 1 : 0)));
     assert.equal(editor.selection.isEmpty, true);
     await vscode.commands.executeCommand('undo'); await until(async () => document.getText(), text => text === source);
     await vscode.commands.executeCommand('redo'); await until(async () => document.getText(), text => text === accepted);
@@ -76,5 +98,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
+    context: initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+      : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

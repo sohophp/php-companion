@@ -237,6 +237,8 @@ export interface TypeMovePlan {
 }
 export type TypeMoveResult = { plan: TypeMovePlan; error?: never } | { plan?: never; error: string };
 export interface FunctionCompletionInfo extends SemanticLocation { name: string; fqcn: string; parameters: ParsedCallableDeclaration['parameters']; returnType?: string; importFqfn?: string; compatibilityRank?: number; }
+export type PhpInitializerCompletionKind = 'parameter' | 'property' | 'global-constant' | 'class-constant'
+  | 'enum-case' | 'attribute' | 'static-local';
 export interface PhpKeywordCompletionContext {
   prefix: string;
   start: number;
@@ -4333,7 +4335,8 @@ export class SemanticWorkspace {
       : this.expectedArgumentCompletionType(file, offset) : undefined;
     const typeRanks = new Map<MemberInfo, number>();
     if (expected) {
-      const defaultCallable = this.declarationDefaultCompletionContext(uri, offset) !== undefined;
+      const initializer = this.initializerCompletionContext(uri, offset);
+      const defaultCallable = initializer !== undefined && initializer !== 'static-local';
       const relationContext = this.typeRelationContext();
       for (const member of members) {
         const owner = this.files.get(member.uri);
@@ -4407,26 +4410,67 @@ export class SemanticWorkspace {
   }
 
   declarationDefaultCompletionContext(uri: string, offset: number): 'parameter' | 'property' | undefined {
+    const context = this.initializerCompletionContext(uri, offset);
+    return context === 'parameter' || context === 'property' ? context : undefined;
+  }
+
+  initializerCompletionContext(uri: string, offset: number): PhpInitializerCompletionKind | undefined {
     const file = this.files.get(uri); if (!file) return undefined;
     const retained = this.trees.get(uri), temporary = retained ? undefined : this.parser.parseTree(file.source);
     try {
-      let node = (retained ?? temporary)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1), offset);
-      for (let remaining = 256; node && remaining-- > 0; node = node.parent) {
-        if (['simple_parameter', 'property_promotion_parameter', 'property_element'].includes(node.type)) {
-          const value = node.childForFieldName('default_value');
-          if (value && offset > value.startIndex && offset <= value.endIndex)
-            return node.type === 'property_element' ? 'property' : 'parameter';
-        }
-        // A closure body/signature is ordinary code. Its own parameter defaults
-        // have already been considered before reaching this boundary.
-        if (['anonymous_function', 'arrow_function', 'function_definition', 'method_declaration'].includes(node.type)) return undefined;
-      }
-      return undefined;
+      const tree = (retained ?? temporary)!;
+      const context = this.initializerCompletionKindAt(tree, offset);
+      if (context || !tree.rootNode.hasError || file.source.length > 131_072) return context;
+      // Reserved words can remove the entire initializer from an incomplete AST.
+      // Replace only the current closure prefix in a disposable tree; never publish facts.
+      const from = Math.max(0, offset - 160);
+      const closure = /\b(?:static\s+)?(?:fn|function|fun[A-Za-z0-9_]*)$/u.exec(file.source.slice(from, offset));
+      if (!closure) return undefined;
+      const start = from + closure.index;
+      const end = offset + (/^[A-Za-z0-9_]*/u.exec(file.source.slice(offset))?.[0].length ?? 0);
+      const placeholder = '__sophp_initializer_value__';
+      const recovered = this.parser.parseTree(file.source.slice(0, start) + placeholder + file.source.slice(end));
+      try { return this.initializerCompletionKindAt(recovered, start + placeholder.length); }
+      finally { recovered.delete(); }
     } finally { temporary?.delete(); }
   }
 
+  private initializerCompletionKindAt(tree: ReturnType<PhpSyntaxParser['parseTree']>, offset: number): PhpInitializerCompletionKind | undefined {
+    let node = tree.rootNode.namedDescendantForIndex(Math.max(0, offset - 1), offset);
+    for (let remaining = 256; node && remaining-- > 0; node = node.parent) {
+      if (['simple_parameter', 'property_promotion_parameter', 'property_element'].includes(node.type)) {
+        const value = node.childForFieldName('default_value');
+        if (value && offset > value.startIndex && offset <= value.endIndex)
+          return node.type === 'property_element' ? 'property' : 'parameter';
+      }
+      if (node.type === 'argument') {
+        const name = node.childForFieldName('name');
+        if (name && offset > name.startIndex && offset <= name.endIndex) return undefined;
+      }
+      if (node.type === 'const_element') {
+        const value = node.namedChildren.filter(child => child.type !== 'comment')[1];
+        if (value && offset > value.startIndex && offset <= value.endIndex)
+          return ['declaration_list', 'enum_declaration_list'].includes(node.parent?.parent?.type ?? '')
+            ? 'class-constant' : 'global-constant';
+      }
+      if (node.type === 'enum_case' || node.type === 'static_variable_declaration') {
+        const value = node.childForFieldName('value');
+        if (value && offset > value.startIndex && offset <= value.endIndex)
+          return node.type === 'enum_case' ? 'enum-case' : 'static-local';
+      }
+      if (node.type === 'attribute') {
+        const argumentsNode = node.childForFieldName('parameters');
+        return argumentsNode && offset > argumentsNode.startIndex && offset < argumentsNode.endIndex ? 'attribute' : undefined;
+      }
+      // A closure body/signature is ordinary code. Its own parameter defaults
+      // have already been considered before reaching this boundary.
+      if (['anonymous_function', 'arrow_function', 'function_definition', 'method_declaration'].includes(node.type)) return undefined;
+    }
+    return undefined;
+  }
+
   private completionValuePosition(file: SemanticFile, start: number, offset: number,
-    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; comparisonCondition?: boolean; declarationDefault?: boolean; type?: PhpType } | undefined {
+    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; comparisonCondition?: boolean; declarationDefault?: boolean; constantInitializer?: boolean; type?: PhpType } | undefined {
     const retainedTree = recoveredTree ?? this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
@@ -4450,6 +4494,21 @@ export class SemanticWorkspace {
             .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
           const type = nativeType ? this.nativeSourceType(file, nativeType.text, owner?.fqcn, nativeType.startIndex) : undefined;
           return { start: valueStart, allowsNull, declarationDefault: true,
+            type: type && allowsNull ? nullable(type) : type };
+        }
+        if (node.type === 'const_element' || node.type === 'enum_case') {
+          const value = node.type === 'enum_case' ? node.childForFieldName('value')
+            : node.namedChildren.filter(child => child.type !== 'comment')[1];
+          if (!value || offset <= value.startIndex || offset > value.endIndex) return undefined;
+          const owner = file.declarations.filter(item => node!.startIndex >= item.declarationStart && node!.endIndex <= item.declarationEnd)
+            .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
+          const nativeType = node.type === 'const_element' ? node.parent?.childForFieldName('type') : undefined;
+          // An enum case expression produces the backing scalar, not the enum object.
+          // Untyped constants have no contract; do not infer one from their current value.
+          const type = nativeType ? this.nativeSourceType(file, nativeType.text, owner?.fqcn, nativeType.startIndex)
+            : node.type === 'enum_case' && owner?.enumBackingType
+              ? this.nativeSourceType(file, owner.enumBackingType, owner.fqcn, node.startIndex) : undefined;
+          return { start: valueStart, allowsNull, constantInitializer: true,
             type: type && allowsNull ? nullable(type) : type };
         }
         const caseValue = node.type === 'case_statement' ? node.childForFieldName('value') : undefined;
@@ -4497,7 +4556,7 @@ export class SemanticWorkspace {
   private expectedArgumentCompletionType(file: SemanticFile, offset: number): PhpType | undefined {
     const position = this.completionValuePosition(file, offset, offset);
     if (!position) return undefined;
-    if (position.comparisonCondition || position.declarationDefault) return position.type;
+    if (position.comparisonCondition || position.declarationDefault || position.constantInitializer) return position.type;
     // A surrounding invocation does not supply a contract inside a callback.
     const lexicalScope = this.containingScope(file, offset);
     if (lexicalScope && ['closure', 'arrow'].includes(lexicalScope.kind)) {
@@ -4568,7 +4627,7 @@ export class SemanticWorkspace {
     allowArgument = true): PhpType | undefined {
     const position = this.completionValuePosition(file, start, offset);
     if (!position) return undefined;
-    if (position.comparisonCondition || position.declarationDefault) return position.type;
+    if (position.comparisonCondition || position.declarationDefault || position.constantInitializer) return position.type;
     const expected = this.expectedVariableCompletionBaseType(file, scope, position.start, offset, allowArgument);
     return expected && position.allowsNull ? nullable(expected) : expected;
   }
@@ -6185,11 +6244,15 @@ export class SemanticWorkspace {
       const expressionNodes = new Set(['assignment_expression', 'augmented_assignment_expression', 'binary_expression',
         'conditional_expression', 'function_call_expression', 'member_call_expression', 'scoped_call_expression',
         'argument', 'arguments', 'array_creation_expression', 'array_element_initializer', 'return_statement',
-        'throw_expression', 'echo_statement', 'print_intrinsic', 'arrow_function', 'object_creation_expression']);
+        'throw_expression', 'echo_statement', 'print_intrinsic', 'arrow_function', 'object_creation_expression', 'static_variable_declaration']);
       while (current) {
         if (current.type === 'ERROR') insideError = true;
         if (current.type === 'formal_parameters' && !kind) return undefined;
-        if (['comment', 'namespace_use_declaration', 'namespace_name', 'attribute',
+        if (current.type === 'attribute') {
+          const argumentsNode = current.childForFieldName('parameters');
+          if (!argumentsNode || start <= argumentsNode.startIndex || offset >= argumentsNode.endIndex) return undefined;
+        }
+        if (['comment', 'namespace_use_declaration', 'namespace_name',
           'qualified_name', 'relative_name', 'string_content', 'encapsed_string'].includes(current.type)) return undefined;
         if (['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function'].includes(current.type)) inCallable = true;
         // A nested closure owns its callable context; the surrounding hook's
@@ -6205,8 +6268,11 @@ export class SemanticWorkspace {
         if (!kind) {
           const defaultValue = ['property_element', 'simple_parameter', 'property_promotion_parameter'].includes(current.type)
             ? current.childForFieldName('default_value') : undefined;
+          const constantValue = current.type === 'enum_case' ? current.childForFieldName('value')
+            : current.type === 'const_element' ? current.namedChildren.filter(child => child.type !== 'comment')[1] : undefined;
           const caseValue = current.type === 'case_statement' ? current.childForFieldName('value') : undefined;
           if (defaultValue && start >= defaultValue.startIndex && offset <= defaultValue.endIndex
+            || constantValue && start >= constantValue.startIndex && offset <= constantValue.endIndex
             || current.type === 'match_condition_list' || caseValue && start >= caseValue.startIndex && offset <= caseValue.endIndex)
             kind = 'expression';
           else if (expressionNodes.has(current.type)) kind = 'expression';
@@ -6216,6 +6282,8 @@ export class SemanticWorkspace {
         }
         current = current.parent;
       }
+      if ((retainedTree ?? temporaryTree)!.rootNode.hasError && kind !== 'expression'
+        && this.initializerCompletionContext(uri, offset)) kind = 'expression';
       if (insideError && (!kind || kind === 'top-level')) {
         const recovered = recoverPhpKeywordCompletionContext(file.source, start, retainedTree ?? temporaryTree);
         return recovered ? { prefix: match[1]!, start, ...recovered } : undefined;
@@ -6272,7 +6340,8 @@ export class SemanticWorkspace {
       : this.expectedArgumentCompletionType(file, offset) : undefined;
     const typeRanks = new Map<string, number>();
     if (expected) {
-      const defaultCallable = this.declarationDefaultCompletionContext(uri, offset) !== undefined;
+      const initializer = this.initializerCompletionContext(uri, offset);
+      const defaultCallable = initializer !== undefined && initializer !== 'static-local';
       const relationContext = this.typeRelationContext();
       for (const candidate of matching) {
         const owner = this.files.get(candidate.uri);
@@ -11562,7 +11631,7 @@ export class SemanticWorkspace {
       : null;
     const chained = /(\$[A-Za-z_][A-Za-z0-9_]*)((?:\s*\[\s*(?:'[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*'|"[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*"|-?(?:0|[1-9][0-9]*))\s*\]){0,16})((?:\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*(?:\s*\((?:[^()]|\([^()]*\))*\))?)*)\s*(\?->|->)\s*([A-Za-z_][A-Za-z0-9_]*)?$/.exec(before);
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn ?? this.containingScope(file, offset)?.containerFqcn
-      ?? (this.declarationDefaultCompletionContext(uri, offset) === 'property'
+      ?? (['property', 'class-constant', 'enum-case', 'attribute'].includes(this.initializerCompletionContext(uri, offset) ?? '')
         ? file.declarations.filter(item => item.declarationStart < offset && offset <= item.declarationEnd)
           .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0]?.fqcn
         : undefined);

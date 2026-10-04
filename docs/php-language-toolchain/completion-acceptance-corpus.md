@@ -329,3 +329,11 @@ D16／D43 可见接受补充：枚举 case 前缀曾被 Workbench 隐藏，修�
 
 
 D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法关键词，PHP 8.5 函数与 static 方法接受为第一类可调用对象，空括号与已有占位符不重复；属性 self:: 权限与 Closure 身份排序均有正反例。当前完整语义 1451、5 项定向协议共 58 查询、八次 Linux 可见接受及 PHP 8.5.9 编译通过，详见 [当前组合](reports/completion-declaration-defaults-2026-10-04.md#最终组合源码里程碑)。不关闭平台／真人或完整 LSP 资格。
+
+## D45 常量初始化表达式
+
+带原生类型的类常量与枚举 backing 值按声明类型生成兼容值和排序常量候选，枚举值不使用枚举对象身份。包括多常量、nullable、未声明类型、操作数负例、注释、保留／临时树、未保存类型切换及可见 Enter／Tab／Undo／Redo。[D45 记录](reports/completion-constant-initializers-2026-10-04.md)区分类型相关性与尚未完成的合法表达式过滤；不替代完整版本／平台、原 60 项或真人资格。
+
+## D46 初始化表达式候选
+
+统一参数／属性、全局／类常量、枚举、attribute 与 static local 的位置和版本边界。覆盖 fn／static fun 不完整 AST、恢复不发布事实、self:: 私有成员、普通闭包体、PHP 8.3+ static local 的调用／变量／闭包，以及实际可见接受文本。见 [D46 记录](reports/completion-initializer-legality-2026-10-04.md)。保留全部原资格与文档恢复预算，不将四版本协议或 Linux 八次 UI 推导为整体完成。

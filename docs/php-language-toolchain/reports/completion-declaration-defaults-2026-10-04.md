@@ -44,3 +44,17 @@ PHP 7.2／8.5 的独立 Composer 实项目 stdio 对未保存类型切换、默�
 当前隔离 Linux VS Code 1.140.0 callable 接受 `/tmp/sophp-default-callable-final-visible-host.log` 退出 0，四场景 × Enter／Tab 八次实际首位、精确 name(...) 文本、光标、一次 Undo／Redo、磁盘不变全部通过。场景分别为参数默认值、属性默认值、自己 private static 方法、已有空括号；[当前可见和 PHP 编译证据](completion-default-callable-visible-2026-10-04.json)保存实际接受文本。八份接受文本再由真实 PHP 8.5.9 `/usr/bin/php85 -l` 编译全部退出 0，只编译、不执行业务代码；自己的临时文件已清理。
 
 默认值类型、合法候选、callable 引用与撤回的 readonly 两种试验记录合为本地源码里程碑 `feat(core): complete declaration defaults with valid expressions`。前文“未提交／未过滤”的批次状态按各段保留，不视为当前缺口均关闭。PHP 7.2／8.1／8.5 是定向协议，当前 UI 是 Linux 8.5；完整版本／平台、原 60 项、默认值未闭合恢复、其它 constant expression 位置、热／编辑预算、真人 WSL 与完整 LSP 未由本次证明。不打包、推送或更新 Profile；goal active。
+
+
+### 4d52f320 的默认完整 LSP 回归（已结束）
+
+源码里程碑提交后、干净工作区开始默认 pnpm --filter @php-companion/language-server exec vitest run。日志 `/tmp/sophp-defaults-milestone-full-lsp.log`，原会话 60291；Vitest PID 1269813 与新建 stdio 服务器确认仍运行。`/tmp/sophp-defaults-milestone-full-inputs.json` 冻结 1743 项源码／测试／构建输入，提交 4d52f3202ffcfab3b2cf523d33889e02fc6ddb14。
+
+结束前不修改这些输入、不启动并行测试宿主或性能测量；默认并发、150 ms 热断言及条件跳过均保持原配置。终态需核对真实摘要、退出码和所有冻结哈希；没有把早先红色全量或当前定向通过改写为本轮全绿。路线图和 goal active，不更新 Profile。
+
+
+等待完整回归期间的只读边界审计：parser 的 const_element 使用值子节点，enum_case 使用 value 字段且 ParsedConstantDeclaration.type 记录的是枚举身份；不能直接拿该身份当 backing case 的值期望类型。全局／类常量的 new 许可也不同。函数内 static local initializer 自 PHP 8.3 起允许动态表达式（[官方变量作用域](https://www.php.net/manual/en/language.variables.scope.php)及[对应 RFC](https://wiki.php.net/rfc/arbitrary_static_variable_initializers)），因此不能把当前参数／属性 default 过滤简单扩展到所有 static 初始值。
+
+下一轮应先按位置及 PHP 版本拆分候选规则，并保留 closure body／签名和 attribute 名称／实参边界。这里尚未执行新的语义查询、测试或实现；冻结源码／测试／产物未改变，原会话继续运行，不能把源码审计写成错误已复现或缺口已修复。
+
+终态：原会话 60291 退出 0；58 文件全部通过，845 项通过、1 条件跳过，共 846 项，1636.62 秒。逐项 SHA-256 复核全部 1743 项输入一致，`/tmp/sophp-defaults-milestone-full-verification.json` 保存摘要。默认并发、150 ms 热断言与条件跳过未调整；跳过不记通过。此前红色全量保留为历史结果，本次新输入的通过不抹除它。冻结已释放，继续下一项源码工作；不更新 Profile，普通编辑 P95、版本／平台和真人 WSL 仍开放。

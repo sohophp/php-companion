@@ -2559,6 +2559,116 @@ function inspect(Sink $sink, ?Sink $optional): void {
       expect(keyword.sortText < template.sortText).toBe(true);
     }
   });
+  it.each(['7.2', '8.1', '8.3', '8.5'])('limits initializer expression candidates by position and PHP version %s', async phpVersion => {
+    const uri = 'file:///InitializerLegality.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const rows: Array<{ source: string; label: string; allowed: boolean; text?: string; callable?: boolean }> = [];
+    const constantPositions = [
+      { surround: (value: string): string => `const VALUE = ${value};`, newAllowed: phpVersion !== '7.2' },
+      { surround: (value: string): string => `class Host { const VALUE = ${value}; }`, newAllowed: false },
+    ];
+    if (phpVersion !== '7.2') constantPositions.push(
+      { surround: (value: string) => `#[Attr(value: ${value})] class Host {}`, newAllowed: true },
+      { surround: (value: string) => `enum Host: int { case Value = ${value}; }`, newAllowed: false },
+    );
+    for (const { surround, newAllowed } of constantPositions) rows.push(
+      { source: surround('strl§'), label: 'strlen', allowed: phpVersion === '8.5', callable: true },
+      { source: surround('strl§()'), label: 'strlen', allowed: phpVersion === '8.5', callable: true },
+      { source: surround('strl§(42)'), label: 'strlen', allowed: false },
+      { source: surround('n§'), label: 'new', allowed: newAllowed, text: 'new ' },
+      { source: surround('fn§'), label: 'fn', allowed: false },
+      { source: surround('fun§'), label: 'function', allowed: false },
+      { source: surround('static fun§'), label: 'function', allowed: phpVersion === '8.5', text: 'function ' },
+      { source: surround('stat§'), label: 'static', allowed: phpVersion === '8.5', text: 'static ' },
+      { source: surround('$fl§'), label: '$flag', allowed: false },
+    );
+    const dynamicStatic = phpVersion === '8.3' || phpVersion === '8.5';
+    rows.push(
+      { source: 'function run() { static $value = strl§; }', label: 'strlen', allowed: dynamicStatic, callable: false },
+      { source: 'function run($flag) { static $value = $fl§; }', label: '$flag', allowed: dynamicStatic },
+      { source: 'function run() { static $value = n§; }', label: 'new', allowed: phpVersion !== '7.2', text: 'new ' },
+      { source: 'function run() { static $value = fn§; }', label: 'fn', allowed: dynamicStatic, text: 'fn ' },
+      { source: 'function run() { static $value = fun§; }', label: 'function', allowed: dynamicStatic, text: 'function ' },
+      { source: 'function run() { static $value = stat§; }', label: 'static', allowed: dynamicStatic, text: 'static ' },
+      { source: 'class Host { private static function target() {} const VALUE = self::tar§; }', label: 'target', allowed: phpVersion === '8.5', text: 'target(...)' },
+      { source: 'class Host { private const TOKEN = 1; const VALUE = self::TO§; }', label: 'TOKEN', allowed: true },
+      { source: 'function run(): void { $value = strl§; }', label: 'strlen', allowed: true, callable: false },
+    );
+    if (phpVersion === '8.5') rows.push(
+      { source: 'const VALUE = static function() { return strl§; };', label: 'strlen', allowed: true, callable: false },
+      { source: '#[Attr(static function() { return strl§; })] class Host {}', label: 'strlen', allowed: true, callable: false },
+    );
+    for (const [index, row] of rows.entries()) {
+      const marked = '<?php ' + row.source, offset = marked.indexOf('§'), source = marked.replace('§', ''), version = index + 1;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+        ? { textDocument: { uri, version }, contentChanges: [{ text: source }] }
+        : { textDocument: { uri, languageId: 'php', version, text: source } } }));
+      const id = 100 + index;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id);
+      expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      const candidate = items.find((item: { label: string }) => item.label === row.label);
+      if (!row.allowed) expect(candidate, row.source).toBeUndefined();
+      else {
+        expect(candidate, row.source).toBeDefined();
+        if (row.text) expect(candidate.textEdit.newText, row.source).toBe(row.text);
+        if (row.callable === true) {
+          expect(candidate.textEdit.newText).toBe('strlen(...)');
+          const accepted = source.slice(0, lspOffset(source, candidate.textEdit.range.start))
+            + candidate.textEdit.newText + source.slice(lspOffset(source, candidate.textEdit.range.end));
+          expect(accepted).toContain('strlen(...)');
+          expect(accepted).not.toContain('(...)(...)');
+        }
+        if (row.callable === false) expect(candidate.textEdit.newText).not.toBe('strlen(...)');
+      }
+    }
+  }, 60_000);
+  it.each(['8.3', '8.5'])('refreshes constant initializer types without reusing enum identity on PHP %s', async phpVersion => {
+    const uri = 'file:///ConstantInitializer.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const cases = [
+      ['class Host { const bool VALUE = tr§ue; }', 'true'],
+      ['class Host { const bool VALUE = /* value */ tr§ue; }', 'true'],
+      ['class Host { const bool VALUE = PICK_§; }', 'PICK_BOOL'],
+      ['class Host { const string VALUE = PICK_§; }', 'PICK_TEXT'],
+      ['enum State: int { case Ready = PICK_§; }', 'PICK_INT'],
+      ['enum State: string { case Ready = PICK_§; }', 'PICK_TEXT'],
+    ] as const;
+    for (const [index, [tail, expected]] of cases.entries()) {
+      const marked = '<?php const PICK_BOOL = true, PICK_INT = 1, PICK_TEXT = "ready"; ' + tail;
+      const offset = marked.indexOf('§'), source = marked.replace('§', ''), version = index + 1;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+        ? { textDocument: { uri, version }, contentChanges: [{ text: source }] }
+        : { textDocument: { uri, languageId: 'php', version, text: source } } }));
+      await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === version);
+      const id = 100 + index;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id);
+      expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      expect(items[0].label).toBe(expected);
+      expect(items.filter((item: { label: string }) => item.label === expected)).toHaveLength(1);
+      expect(items.some((item: { label: string }) => item.label === 'readonly' || item.label === 'State::Ready')).toBe(false);
+      if (expected === 'true') expect(items[0].textEdit).toEqual({ newText: 'true', range: {
+        start: lspPosition(source, offset - 2), end: lspPosition(source, offset + 2),
+      } });
+    }
+  }, 30_000);
   it.each(['7.2', '8.5'])('refreshes declaration default completion from native types on PHP %s', async phpVersion => {
     const root = await mkdtemp(join(tmpdir(), 'sophp-declaration-default-lsp-'));
     const path = join(root, 'Defaults.php'), uri = pathToFileURL(path).toString();

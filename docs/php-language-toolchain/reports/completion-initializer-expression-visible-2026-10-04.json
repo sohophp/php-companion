@@ -1,0 +1,296 @@
+{
+  "platform": "linux",
+  "context": "initializer-expressions",
+  "results": [
+    {
+      "label": "strlen",
+      "key": "Enter",
+      "visibleMs": 242,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php const CALLBACK0Enter = strlen(...);",
+      "caretOffset": 40,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Tab",
+      "visibleMs": 171,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php const CALLBACK0Tab = strlen(...);",
+      "caretOffset": 38,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Enter",
+      "visibleMs": 158,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php #[Attr(strlen(...))] class Host1Enter {}",
+      "caretOffset": 24,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Tab",
+      "visibleMs": 159,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php #[Attr(strlen(...))] class Host1Tab {}",
+      "caretOffset": 24,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "target",
+      "key": "Enter",
+      "visibleMs": 203,
+      "visibleLabels": [
+        "targetHost2Enter::target()"
+      ],
+      "acceptedText": "<?php class Host2Enter { private static function target() {} const CALLBACK2Enter = self::target(...); }",
+      "caretOffset": 101,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "target",
+      "key": "Tab",
+      "visibleMs": 209,
+      "visibleLabels": [
+        "targetHost2Tab::target()"
+      ],
+      "acceptedText": "<?php class Host2Tab { private static function target() {} const CALLBACK2Tab = self::target(...); }",
+      "caretOffset": 97,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "phpversion",
+      "key": "Enter",
+      "visibleMs": 153,
+      "visibleLabels": [
+        "phpversionphpversion(?string $extension = null): string|false"
+      ],
+      "acceptedText": "<?php function choose3Enter() { static $value = phpversion(); }",
+      "caretOffset": 59,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "phpversion",
+      "key": "Tab",
+      "visibleMs": 181,
+      "visibleLabels": [
+        "phpversionphpversion(?string $extension = null): string|false"
+      ],
+      "acceptedText": "<?php function choose3Tab() { static $value = phpversion(); }",
+      "caretOffset": 57,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "scope": {
+    "vscode": "1.140.0",
+    "targetPhp": "8.5",
+    "trigger": "explicit trigger after provider readiness",
+    "manualWsl": false,
+    "performanceGate": false,
+    "sourceState": "initializer legality increment after D45"
+  },
+  "compile": {
+    "command": "php -l",
+    "executedBusinessCode": false,
+    "checks": [
+      {
+        "runtime": "8.5.9",
+        "label": "strlen",
+        "key": "Enter",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted0.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "strlen",
+        "key": "Tab",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted1.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "strlen",
+        "key": "Enter",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted2.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "strlen",
+        "key": "Tab",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted3.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "target",
+        "key": "Enter",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted4.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "target",
+        "key": "Tab",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted5.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "phpversion",
+        "key": "Enter",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted6.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.5.9",
+        "label": "phpversion",
+        "key": "Tab",
+        "expectedAcceptance": true,
+        "exitCode": 0,
+        "stdout": "No syntax errors detected in Accepted7.php",
+        "stderr": ""
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "strlen",
+        "key": "Enter",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted0.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted0.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "strlen",
+        "key": "Tab",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted1.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted1.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "strlen",
+        "key": "Enter",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted2.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted2.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "strlen",
+        "key": "Tab",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted3.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted3.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "target",
+        "key": "Enter",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted4.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted4.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "target",
+        "key": "Tab",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted5.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted5.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "phpversion",
+        "key": "Enter",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted6.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted6.php on line 1"
+      },
+      {
+        "runtime": "8.1.34",
+        "label": "phpversion",
+        "key": "Tab",
+        "expectedAcceptance": false,
+        "exitCode": 255,
+        "stdout": "Errors parsing Accepted7.php",
+        "stderr": "PHP Fatal error:  Constant expression contains invalid operations in Accepted7.php on line 1"
+      }
+    ]
+  }
+}
