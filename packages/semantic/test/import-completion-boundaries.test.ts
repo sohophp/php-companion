@@ -47,7 +47,7 @@ for (const retained of [false, true]) {
           workspace.update(uri, source, retained);
           const revision = workspace.revision(), snapshot = JSON.stringify(workspace.snapshot(uri));
           expect(workspace.symbolImportContext(uri, offset)).toEqual({ kind, qualifier: 'Vendor\\Billing', prefix: token,
-            replacementStart: source.lastIndexOf('{', offset), replacementEnd: offset + (source[offset] === '}' ? 1 : 0) });
+            replacementStart: offset - token.length, replacementEnd: offset });
           expect(workspace.completeFunctions(uri, offset)).toEqual([]);
           expect(workspace.completeConstants(uri, offset)).toEqual([]);
           expect(workspace.revision()).toBe(revision);
@@ -57,7 +57,7 @@ for (const retained of [false, true]) {
         const source = marked.replace('§', ''), offset = marked.indexOf('§');
         workspace.update(uri, source, retained);
         expect(workspace.typeCompletionContext(uri, offset)).toMatchObject({ namespace: 'Vendor\\Billing', prefix: 'Inv',
-          replacementStart: source.lastIndexOf('{', offset), replacementEnd: offset + 1 });
+          replacementStart: offset - 'Inv'.length, replacementEnd: offset });
         expect(workspace.completeTypes(uri, offset)).toMatchObject([{ fqcn: 'Vendor\\Billing\\Invoice', importFqcn: undefined }]);
       }
     } finally { workspace.dispose(); }

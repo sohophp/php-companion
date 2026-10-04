@@ -1,0 +1,1065 @@
+{
+  "milestone": "D64 root and comma imports with single-word edits",
+  "date": "2026-10-05",
+  "baseCommit": "5a425e2344d34a1206d042a19b61fefd062dc145",
+  "productFiles": {
+    "packages/semantic/src/index.ts": "d390bbd9475283de6ce3efd46ddbb6996ca2a698b9789daba2bd504877a4e241",
+    "packages/language-server/src/server.ts": "147ee1dbdbc87634355063fd08c0db3bf3d4a2e3041672b5c4bd67056c314ff8"
+  },
+  "productionBundle": {
+    "path": "dist/language-server.js",
+    "sha256": "d907fa0278e4f25d4d649f9bac517700c1a400e2b28c611abb10de2d542a5daf",
+    "bytes": 4170817
+  },
+  "semantic": {
+    "fullRun": {
+      "passed": 2052,
+      "failedOldRangeAssertions": 2,
+      "files": 99,
+      "total": 2054,
+      "seconds": 59.05
+    },
+    "correctedWholeFileSupplement": {
+      "passed": 497,
+      "files": 1,
+      "seconds": 53.37
+    },
+    "newCases": 10,
+    "qualification": "All 2054 unique cases covered by full run and corrected whole-file supplement; no single final full green run claimed"
+  },
+  "protocol": {
+    "productionBundleTests": 6,
+    "rootStates": 96,
+    "constructionStates": 144,
+    "seconds": 12.53,
+    "existingImportSupplement": {
+      "passed": 3,
+      "filteredNotRun": 520,
+      "seconds": 11.98
+    }
+  },
+  "ui": {
+    "root": {
+      "platform": "linux",
+      "context": "root-imports-and-middle-word-ranges",
+      "results": [
+        {
+          "label": "Shmop",
+          "key": "Enter",
+          "visibleMs": 229,
+          "visibleLabels": [
+            "ShmopShmop"
+          ],
+          "acceptedText": "<?php namespace Consumer; use Shmop;",
+          "caretOffset": 35,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Shmop",
+          "key": "Tab",
+          "visibleMs": 492,
+          "visibleLabels": [
+            "ShmopShmop"
+          ],
+          "acceptedText": "<?php namespace Consumer; use Shmop;",
+          "caretOffset": 35,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ArrayObject",
+          "key": "Enter",
+          "visibleMs": 125,
+          "visibleLabels": [
+            "ArrayObjectArrayObject"
+          ],
+          "acceptedText": "<?php namespace Consumer; $value=new \\ArrayObject();",
+          "caretOffset": 50,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ArrayObject",
+          "key": "Tab",
+          "visibleMs": 123,
+          "visibleLabels": [
+            "ArrayObjectArrayObject"
+          ],
+          "acceptedText": "<?php namespace Consumer; $value=new \\ArrayObject();",
+          "caretOffset": 50,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "strlen",
+          "key": "Enter",
+          "visibleMs": 152,
+          "visibleLabels": [
+            "strlenstrlen"
+          ],
+          "acceptedText": "<?php namespace Consumer; use function count as Existing, strlen;",
+          "caretOffset": 64,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "strlen",
+          "key": "Tab",
+          "visibleMs": 114,
+          "visibleLabels": [
+            "strlenstrlen"
+          ],
+          "acceptedText": "<?php namespace Consumer; use function count as Existing, strlen;",
+          "caretOffset": 64,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 136,
+          "visibleLabels": [
+            "InvoiceRootImportCatalog3Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace RootImportCatalog3Enter; class Invoice {} namespace Consumer; use RootImportCatalog3Enter\\{/* { ; 中文😀 } */\r\nInvoice};",
+          "caretOffset": 132,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 162,
+          "visibleLabels": [
+            "InvoiceRootImportCatalog3Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace RootImportCatalog3Tab; class Invoice {} namespace Consumer; use RootImportCatalog3Tab\\{/* { ; 中文😀 } */\r\nInvoice};",
+          "caretOffset": 128,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "group": {
+      "platform": "linux",
+      "context": "comparison-conditions",
+      "results": [
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 343,
+          "visibleLabels": [
+            "InvoiceImportCatalog0Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog0Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog0Enter\\Invoice;",
+          "caretOffset": 192,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 193,
+          "visibleLabels": [
+            "InvoiceImportCatalog0Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog0Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog0Tab\\Invoice;",
+          "caretOffset": 188,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 208,
+          "visibleLabels": [
+            "InvoiceImportCatalog1Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog1Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog1Enter\\{Invoice};",
+          "caretOffset": 193,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 228,
+          "visibleLabels": [
+            "InvoiceImportCatalog1Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog1Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog1Tab\\{Invoice};",
+          "caretOffset": 189,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "createInvoice",
+          "key": "Enter",
+          "visibleMs": 196,
+          "visibleLabels": [
+            "createInvoiceImportCatalog2Enter\\createInvoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog2Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog2Enter\\{Invoice, function createInvoice};",
+          "caretOffset": 217,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "createInvoice",
+          "key": "Tab",
+          "visibleMs": 134,
+          "visibleLabels": [
+            "createInvoiceImportCatalog2Tab\\createInvoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog2Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog2Tab\\{Invoice, function createInvoice};",
+          "caretOffset": 213,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "API_KEY",
+          "key": "Enter",
+          "visibleMs": 185,
+          "visibleLabels": [
+            "API_KEYImportCatalog3Enter\\API_KEY"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog3Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog3Enter\\{function createInvoice, const API_KEY};",
+          "caretOffset": 223,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "API_KEY",
+          "key": "Tab",
+          "visibleMs": 169,
+          "visibleLabels": [
+            "API_KEYImportCatalog3Tab\\API_KEY"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog3Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog3Tab\\{function createInvoice, const API_KEY};",
+          "caretOffset": 219,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "automatic": {
+      "platform": "linux",
+      "vscodeVersion": "1.140.0",
+      "context": "ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest",
+      "settings": {
+        "quickSuggestions": {
+          "other": "offWhenInlineCompletions",
+          "comments": "off",
+          "strings": "off"
+        },
+        "wordBasedSuggestions": "off",
+        "snippetSuggestions": "none",
+        "basicPhpSuggestions": false
+      },
+      "results": [
+        {
+          "name": "Function",
+          "observations": [
+            {
+              "phase": "func",
+              "afterLastKeyMs": 361,
+              "transitions": [
+                {
+                  "elapsedMs": 31,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 360,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "function",
+              "afterLastKeyMs": 19,
+              "transitions": [
+                {
+                  "elapsedMs": 19,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 685,
+              "transitions": [
+                {
+                  "elapsedMs": 22,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                },
+                {
+                  "elapsedMs": 148,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nfunction z\n",
+          "version": 11,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Class",
+          "observations": [
+            {
+              "phase": "clas",
+              "afterLastKeyMs": 181,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 181,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "class",
+              "afterLastKeyMs": 11,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 542,
+              "transitions": [
+                {
+                  "elapsedMs": 10,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nclass z\n",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Enum",
+          "observations": [
+            {
+              "phase": "enu",
+              "afterLastKeyMs": 190,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 190,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "enum",
+              "afterLastKeyMs": 10,
+              "transitions": [
+                {
+                  "elapsedMs": 10,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 534,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nenum z\n",
+          "version": 7,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Member",
+          "observations": [
+            {
+              "phase": "public",
+              "afterLastKeyMs": 193,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 193,
+                  "visible": true,
+                  "labels": [
+                    "public"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "public"
+              ]
+            },
+            {
+              "phase": "magic name",
+              "afterLastKeyMs": 191,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 191,
+                  "visible": true,
+                  "labels": [
+                    "__construct"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "__construct"
+              ]
+            }
+          ],
+          "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+          "version": 23,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Types",
+          "observations": [
+            {
+              "phase": "short type",
+              "afterLastKeyMs": 260,
+              "transitions": [
+                {
+                  "elapsedMs": 19,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 260,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "changed type",
+              "afterLastKeyMs": 216,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 215,
+                  "visible": true,
+                  "labels": [
+                    "OtherCurrentAutomaticTypes\\OtherCurrent",
+                    "OverrideTargetApp\\Service\\OverrideTarget"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "OtherCurrentAutomaticTypes\\OtherCurrent",
+                "OverrideTargetApp\\Service\\OverrideTarget"
+              ]
+            },
+            {
+              "phase": "restored type",
+              "afterLastKeyMs": 227,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 226,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "narrow type",
+              "afterLastKeyMs": 62,
+              "transitions": [
+                {
+                  "elapsedMs": 23,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                },
+                {
+                  "elapsedMs": 62,
+                  "visible": true,
+                  "labels": [
+                    "ShortCurrentAutomaticTypes\\ShortCurrent"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShortCurrentAutomaticTypes\\ShortCurrent"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Arguments",
+          "observations": [
+            {
+              "phase": "bool argument",
+              "afterLastKeyMs": 196,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 196,
+                  "visible": true,
+                  "labels": [
+                    "$firstBool$firstBool: bool",
+                    "$firstText",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstBool$firstBool: bool",
+                "$firstText",
+                "$_FILES"
+              ]
+            },
+            {
+              "phase": "string argument",
+              "afterLastKeyMs": 187,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 187,
+                  "visible": true,
+                  "labels": [
+                    "$firstText$firstText: string",
+                    "$firstBool",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstText$firstText: string",
+                "$firstBool",
+                "$_FILES"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+          "version": 13,
+          "diskUnchanged": true
+        },
+        {
+          "name": "RootImport",
+          "observations": [
+            {
+              "phase": "root type",
+              "afterLastKeyMs": 224,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 224,
+                  "visible": true,
+                  "labels": [
+                    "ArrayObjectArrayObject"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ArrayObjectArrayObject"
+              ]
+            },
+            {
+              "phase": "import alias name",
+              "afterLastKeyMs": 535,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticRootImport; use ArrayObject as strl;",
+          "version": 24,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    }
+  },
+  "nativeCompile": [
+    {
+      "suite": "root",
+      "label": "Shmop",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1aeb5b6800131489836a9d694a5a1fff7afdf6957e566a092c027def6c2ddef8"
+    },
+    {
+      "suite": "root",
+      "label": "Shmop",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1aeb5b6800131489836a9d694a5a1fff7afdf6957e566a092c027def6c2ddef8"
+    },
+    {
+      "suite": "root",
+      "label": "Shmop",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1aeb5b6800131489836a9d694a5a1fff7afdf6957e566a092c027def6c2ddef8"
+    },
+    {
+      "suite": "root",
+      "label": "Shmop",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1aeb5b6800131489836a9d694a5a1fff7afdf6957e566a092c027def6c2ddef8"
+    },
+    {
+      "suite": "root",
+      "label": "ArrayObject",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "2139b949388115c82e686650e3c697dfc943bd5e967f3c7af4d220e9bae6812b"
+    },
+    {
+      "suite": "root",
+      "label": "ArrayObject",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "2139b949388115c82e686650e3c697dfc943bd5e967f3c7af4d220e9bae6812b"
+    },
+    {
+      "suite": "root",
+      "label": "ArrayObject",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "2139b949388115c82e686650e3c697dfc943bd5e967f3c7af4d220e9bae6812b"
+    },
+    {
+      "suite": "root",
+      "label": "ArrayObject",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "2139b949388115c82e686650e3c697dfc943bd5e967f3c7af4d220e9bae6812b"
+    },
+    {
+      "suite": "root",
+      "label": "strlen",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1bf132c3252fe116fb1c9d2001ddf0c20fddd42badb0391695df124a43737796"
+    },
+    {
+      "suite": "root",
+      "label": "strlen",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1bf132c3252fe116fb1c9d2001ddf0c20fddd42badb0391695df124a43737796"
+    },
+    {
+      "suite": "root",
+      "label": "strlen",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1bf132c3252fe116fb1c9d2001ddf0c20fddd42badb0391695df124a43737796"
+    },
+    {
+      "suite": "root",
+      "label": "strlen",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1bf132c3252fe116fb1c9d2001ddf0c20fddd42badb0391695df124a43737796"
+    },
+    {
+      "suite": "root",
+      "label": "Invoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "abea3de34973d0d740eed7cf675d60b8a75df4cd258bb05640f2ae9f7e913945"
+    },
+    {
+      "suite": "root",
+      "label": "Invoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "abea3de34973d0d740eed7cf675d60b8a75df4cd258bb05640f2ae9f7e913945"
+    },
+    {
+      "suite": "root",
+      "label": "Invoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "73b509f947b055201e77c1dd010c76dd6ea660fccc64d36228abbdfe436c3f63"
+    },
+    {
+      "suite": "root",
+      "label": "Invoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "73b509f947b055201e77c1dd010c76dd6ea660fccc64d36228abbdfe436c3f63"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "9ebb1043f108236c57148b3a3f0efaa191ce57671c56a909b1956add0ce5b27a"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "9ebb1043f108236c57148b3a3f0efaa191ce57671c56a909b1956add0ce5b27a"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "4e9faec3ef6740189f420cbccf3f4a9eccec913bdd8c85cf068c78eef14d21dd"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "4e9faec3ef6740189f420cbccf3f4a9eccec913bdd8c85cf068c78eef14d21dd"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1db6d96b81be9d72b1d328a67487c0fee7c192d4f2970e0b5b5682135af675e0"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "1db6d96b81be9d72b1d328a67487c0fee7c192d4f2970e0b5b5682135af675e0"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "4c8c5ac7604f8162827f8780c76da8cf7060eaca051d7a87268c3fee40b548e2"
+    },
+    {
+      "suite": "group",
+      "label": "Invoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "4c8c5ac7604f8162827f8780c76da8cf7060eaca051d7a87268c3fee40b548e2"
+    },
+    {
+      "suite": "group",
+      "label": "createInvoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "0cdf32ea00915811e9869ac1bfaf97c02d958576f404d58b74fbf7bc64bf3c03"
+    },
+    {
+      "suite": "group",
+      "label": "createInvoice",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "0cdf32ea00915811e9869ac1bfaf97c02d958576f404d58b74fbf7bc64bf3c03"
+    },
+    {
+      "suite": "group",
+      "label": "createInvoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "d5c67c01a8707770134e8992c8867f949a270b896922efee8a09f805a56f482f"
+    },
+    {
+      "suite": "group",
+      "label": "createInvoice",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "d5c67c01a8707770134e8992c8867f949a270b896922efee8a09f805a56f482f"
+    },
+    {
+      "suite": "group",
+      "label": "API_KEY",
+      "key": "Enter",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "6ee23a4bf5788a73af37cca59863e840a802d451c7f935533e123a4f8bd5ac47"
+    },
+    {
+      "suite": "group",
+      "label": "API_KEY",
+      "key": "Enter",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "6ee23a4bf5788a73af37cca59863e840a802d451c7f935533e123a4f8bd5ac47"
+    },
+    {
+      "suite": "group",
+      "label": "API_KEY",
+      "key": "Tab",
+      "cli": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "704a7cde117c8e4d50a377b8ffda8f9d87e4bcda82da0b31f183a16ad5d8712f"
+    },
+    {
+      "suite": "group",
+      "label": "API_KEY",
+      "key": "Tab",
+      "cli": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "sha256": "704a7cde117c8e4d50a377b8ffda8f9d87e4bcda82da0b31f183a16ad5d8712f"
+    }
+  ],
+  "longInput": {
+    "scope": "One long valid root import after 6000 comments, not a timing or P95 gate",
+    "bytes": 162043,
+    "sha256": "79146bb4f02b0e6a8b9f8f578e661009de8f2bc69f20bde3a70455a27ec8553f",
+    "context": {
+      "prefix": "RootImportEn",
+      "namespace": "",
+      "importedTypes": []
+    },
+    "types": [
+      {
+        "uri": "file:///RootType.php",
+        "start": 12,
+        "end": 28,
+        "name": "RootImportEntity",
+        "fqcn": "RootImportEntity",
+        "kind": "class"
+      }
+    ],
+    "snapshotUnchanged": true
+  },
+  "logHashes": {
+    "/tmp/sophp-d64-full-semantic-word-ranges.log": "31621a05aa56f0bf4f83f69383263c5e754d02e32e437154558382d379b1d652",
+    "/tmp/sophp-d64-semantic-range-contracts.log": "7bad8536d076a9e636b273756847e630cde10a5f691b8f6317c61951448c24f7",
+    "/tmp/sophp-d64-protocol-single-line.log": "d8c157573e41a4e7e7c4983a56f6571a6878250b64fad854d0297b0a295a383b",
+    "/tmp/sophp-d64-existing-import-protocol.log": "c2041a69cec659c310e2944f1c8e39e8de391b6d66c431c84cd7535e4d84d3b0",
+    "/tmp/sophp-d64-existing-import-protocol-final.log": "48dd1c5f2aab0767f72f07ea517cea1e027840c44ed6cf103839edf7d10a388c",
+    "/tmp/sophp-d64-final-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d64-final-host-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limitations": [
+    "Current complete LSP suite not rerun; previous full-suite qualifications belong to earlier source inputs",
+    "No new editing P95 measured: previous D61 P95 251.71 ms exceeds 150 ms",
+    "Automated Linux isolated editor does not establish real user WSL acceptance or all platforms",
+    "Recovery length budget, full frozen corpus, version and scale qualification remain open",
+    "No VSIX, profile update, push, PR or release"
+  ]
+}

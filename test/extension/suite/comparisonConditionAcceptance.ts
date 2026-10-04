@@ -27,8 +27,14 @@ export async function run(): Promise<void> {
   const namedAttributeValues = process.env.PHP_COMPANION_TEST_NAMED_ATTRIBUTE_VALUE_ONLY === '1';
   const importPrefixes = process.env.PHP_COMPANION_TEST_IMPORT_PREFIX_ONLY === '1';
   const nativeHandles = process.env.PHP_COMPANION_TEST_NATIVE_HANDLE_ONLY === '1';
+  const rootImports = process.env.PHP_COMPANION_TEST_ROOT_IMPORT_ONLY === '1';
   const importHeader = '<?php namespace ImportCatalog; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text="literal;😀"; /* 中文; trivia */\r\n';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = nativeHandles ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = rootImports ? [
+    {prefix:'Shm',label:'Shmop',forbidden:'shmop_open',addCall:false,consume:2,marked:'<?php namespace Consumer; use Shm§op;'},
+    {prefix:'ArrayOb',label:'ArrayObject',forbidden:'array_map',addCall:true,consume:4,marked:'<?php namespace Consumer; $value=new \\ArrayOb§ject;'},
+    {prefix:'strl',label:'strlen',forbidden:'ArrayObject',addCall:false,consume:2,marked:'<?php namespace Consumer; use function count as Existing, strl§en;'},
+    {prefix:'Inv',label:'Invoice',forbidden:'strlen',addCall:false,suffix:'}',consume:5,marked:'<?php namespace RootImportCatalog; class Invoice {} namespace Consumer; use RootImportCatalog\\{/* { ; 中文😀 } */\r\nInv§oice};'},
+  ] : nativeHandles ? [
     {prefix:'Sh',label:'Shmop',forbidden:'shmop_open',addCall:false,marked:'<?php function choose(\\Sh§ $value):void{}'},
     {prefix:'XMLP',label:'XMLParser',forbidden:'xml_parser_create',addCall:false,marked:'<?php function choose(\\XMLP§ $value):void{}'},
     {prefix:'Con',label:'Connection',forbidden:'ftp_connect',addCall:false,marked:'<?php function choose():\\FTP\\Con§{}'},
@@ -183,6 +189,7 @@ export async function run(): Promise<void> {
     let marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
       .replaceAll('PICK_', `PICK${suffix}_`);
     if (importPrefixes) marked = marked.replaceAll('ImportCatalog', `ImportCatalog${suffix}`);
+    if (rootImports) marked = marked.replaceAll('RootImportCatalog', `RootImportCatalog${suffix}`);
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
@@ -207,7 +214,8 @@ export async function run(): Promise<void> {
     assert.equal(labels.findIndex(value => value.startsWith(label)), 0, `Expected first visible candidate ${label}, got ${JSON.stringify(labels)}`);
     if (key === 'Enter') await pressWorkbenchEnter(port); else await pressWorkbenchTab(port);
     await until(async () => document.getText(), text => text === accepted);
-    assert.equal(document.offsetAt(editor.selection.active), offset - prefix.length + label.length + (item.suffix?.length ?? (item.addCall ? 1 : 0)));
+    const caretExtra = (rootImports || importPrefixes) && item.suffix === '}' ? 0 : item.suffix?.length ?? (item.addCall ? 1 : 0);
+    assert.equal(document.offsetAt(editor.selection.active), offset - prefix.length + label.length + caretExtra);
     assert.equal(editor.selection.isEmpty, true);
     await vscode.commands.executeCommand('undo'); await until(async () => document.getText(), text => text === source);
     await vscode.commands.executeCommand('redo'); await until(async () => document.getText(), text => text === accepted);
@@ -216,6 +224,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

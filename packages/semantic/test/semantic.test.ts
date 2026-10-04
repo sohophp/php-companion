@@ -7826,7 +7826,7 @@ function useNames(): void {
       const uri = `file:///GroupSymbolImport-${kind}-${source.length}.php`;
       project.update(uri, source);
       expect(project.symbolImportContext(uri, source.length), source).toEqual({
-        kind, qualifier, prefix, replacementStart: source.lastIndexOf('{'), replacementEnd: source.length,
+        kind, qualifier, prefix, replacementStart: source.length - prefix.length, replacementEnd: source.length,
       });
       expect(project.completeFunctions(uri, source.length), source).toEqual([]);
       expect(project.completeConstants(uri, source.length), source).toEqual([]);
@@ -7869,7 +7869,7 @@ function useNames(): void {
         project.update(uri, source);
         expect(project.symbolImportContext(uri, source.length), source).toEqual({
           kind, qualifier: 'Vendor', prefix,
-          ...(grouped ? { replacementStart: source.lastIndexOf('{'), replacementEnd: source.length } : {}),
+          ...(grouped ? { replacementStart: source.length - prefix.length, replacementEnd: source.length } : {}),
         });
       }
       const alias = '<?php namespace App { use function Vendor\\createInvoice as cre';

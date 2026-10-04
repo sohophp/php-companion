@@ -7037,14 +7037,15 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const qualifier = symbolImport.qualifier.toLowerCase();
     const prefix = symbolImport.prefix.toLowerCase();
     const source = document.getText();
+    const importWordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(source.slice(offset))?.[0].length ?? 0);
     const groupedFilterText = symbolImport.replacementStart === undefined ? undefined
       : source.slice(symbolImport.replacementStart, symbolImport.replacementEnd ?? offset);
     const importCompletionEdit = (name: string): TextEdit => symbolImport.replacementStart === undefined
-      ? { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(offset) },
+      ? { range: { start: document.positionAt(offset - symbolImport.prefix.length), end: document.positionAt(importWordEnd) },
         newText: name }
       : { range: { start: document.positionAt(symbolImport.replacementStart),
         end: document.positionAt(symbolImport.replacementEnd ?? offset) },
-        newText: `${source.slice(symbolImport.replacementStart, offset - symbolImport.prefix.length)}${name}${symbolImport.replacementEnd === offset + 1 ? '}' : ''}` };
+        newText: `${source.slice(symbolImport.replacementStart, offset - symbolImport.prefix.length)}${name}${source[symbolImport.replacementEnd! - 1] === '}' ? '}' : ''}` };
     const names = new Map<string, string>();
     const symbols = allSymbols.flatMap((symbol) => {
       const parts = symbol.fqcn.split('\\'); const name = parts.pop()!;
@@ -7143,16 +7144,17 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });
-  const namespaceContext = completeDeclarationKeyword ? undefined : workspace.namespaceImportContext(document.uri, offset)
+  const importNamespaceContext = completeDeclarationKeyword ? undefined : workspace.namespaceImportContext(document.uri, offset);
+  const namespaceContext = completeDeclarationKeyword ? undefined : importNamespaceContext
     ?? (typeContext?.replacementStart !== undefined
       ? { qualifier: typeContext.namespace, prefix: typeContext.prefix } : undefined)
     ?? workspace.namespaceTypeContext(document.uri, offset);
-  const qualifiedTypeContext = Boolean(typeContext && (typeContext.replacementStart !== undefined
+  const qualifiedTypeContext = Boolean(typeContext && (importNamespaceContext || typeContext.replacementStart !== undefined
     || document.getText()[offset - typeContext.prefix.length - 1] === '\\'));
   let [segments, typeOutcome] = await Promise.all([
     namespaceContext && root ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
       : Promise.resolve(undefined),
-    indexingMode === 'onDemand' && typeContext && root
+    (indexingMode === 'onDemand' || importNamespaceContext !== undefined) && typeContext && root
       ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, qualifiedTypeContext,
         () => token.isCancellationRequested)
       : Promise.resolve(undefined),
@@ -7166,7 +7168,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       segments === 'stale' && namespaceContext && root
         ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
         : Promise.resolve(segments),
-      typeOutcome === 'stale' && indexingMode === 'onDemand' && typeContext && root
+      typeOutcome === 'stale' && (indexingMode === 'onDemand' || importNamespaceContext !== undefined) && typeContext && root
         ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, qualifiedTypeContext,
           () => token.isCancellationRequested)
         : Promise.resolve(typeOutcome),
@@ -7175,6 +7177,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (segments === 'stale' || typeOutcome === 'stale') return { isIncomplete: true, items: [] };
   const namespaceCandidatesComplete = segments?.complete ?? true;
+  const namespaceWordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
   let namespaceItems: CompletionItem[] = [];
   if (segments && namespaceContext) namespaceItems = segments.names.map((name, index) => ({
     label: `${name}\\`, kind: CompletionItemKind.Module,
@@ -7184,10 +7187,10 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       : document.getText().slice(typeContext.replacementStart, typeContext.replacementEnd ?? offset),
     textEdit: typeContext?.replacementStart === undefined
       ? { range: { start: document.positionAt(offset - namespaceContext.prefix.length),
-        end: document.positionAt(offset) }, newText: `${name}\\` }
+        end: document.positionAt(namespaceWordEnd) }, newText: `${name}\\` }
       : { range: { start: document.positionAt(typeContext.replacementStart),
         end: document.positionAt(typeContext.replacementEnd ?? offset) },
-      newText: `${document.getText().slice(typeContext.replacementStart, offset - namespaceContext.prefix.length)}${name}\\${typeContext.replacementEnd === offset + 1 ? '}' : ''}` },
+      newText: `${document.getText().slice(typeContext.replacementStart, offset - namespaceContext.prefix.length)}${name}\\${document.getText()[typeContext.replacementEnd! - 1] === '}' ? '}' : ''}` },
   }));
   let typeCandidatesComplete = typeOutcome ?? true;
   const allTypes = completeDeclarationKeyword ? [] : workspace.completeTypes(document.uri, offset)
@@ -7210,7 +7213,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
     const addCall = type.kind === 'class' && addConstructorCall;
     const name = `${typeContext?.replacementStart === undefined ? ''
-      : typeSource.slice(typeContext.replacementStart, offset - typeContext.prefix.length)}${type.name}${typeContext?.replacementEnd === offset + 1 ? '}' : ''}`;
+      : typeSource.slice(typeContext.replacementStart, offset - typeContext.prefix.length)}${type.name}${typeContext?.replacementEnd !== undefined && typeSource[typeContext.replacementEnd - 1] === '}' ? '}' : ''}`;
     return {
       ...deprecation(type),
       label: type.name,
@@ -7223,7 +7226,10 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       filterText: typeContext?.replacementStart === undefined
         ? typeContext ? completionFilterText(type.name, typeContext.prefix) : undefined
         : document.getText().slice(typeContext.replacementStart, typeContext.replacementEnd ?? offset),
-      textEdit: typeContext?.replacementStart === undefined ? undefined : {
+      textEdit: typeContext?.replacementStart === undefined ? typeContext ? {
+        range: { start: document.positionAt(offset - typeContext.prefix.length), end: document.positionAt(wordEnd) },
+        newText: `${name}${addCall ? '($0)' : ''}`,
+      } : undefined : {
         range: { start: document.positionAt(typeContext.replacementStart),
           end: document.positionAt(typeContext.replacementEnd ?? offset) },
         newText: `${name}${addCall ? '($0)' : ''}`,

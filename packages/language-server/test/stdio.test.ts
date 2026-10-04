@@ -4563,11 +4563,11 @@ function inspect(Sink $sink, ?Sink $optional): void {
       const groupImportResult = (await output.waitFor((message) => message.id === 1181)).result;
       expect(groupImportResult).toEqual([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice' })]);
       expect(groupImportResult[0]?.additionalTextEdits).toBeUndefined();
-      expect(groupImportResult[0]?.filterText).toBe('{Inv}');
+      expect(groupImportResult[0]?.filterText).toBe('Inv');
       expect(groupImportResult[0]?.textEdit).toEqual({
-        range: { start: lspPosition(groupImport, groupImport.indexOf('{Inv')),
-          end: lspPosition(groupImport, groupImport.indexOf('{Inv') + '{Inv}'.length) },
-        newText: '{Invoice}',
+        range: { start: lspPosition(groupImport, groupImport.indexOf('{Inv') + 1),
+          end: lspPosition(groupImport, groupImport.indexOf('{Inv') + '{Inv'.length) },
+        newText: 'Invoice',
       });
       const globalGroupImport = '<?php use Domain\\Billing\\{Inv}; class GlobalGroupImport {}';
       const globalGroupUri = pathToFileURL(join(root, 'src', 'GlobalGroupImport.php')).toString();
@@ -4579,8 +4579,8 @@ function inspect(Sink $sink, ?Sink $optional): void {
       } }));
       expect((await output.waitFor((message) => message.id === 11803)).result).toEqual([
         expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice',
-          textEdit: { range: { start: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv')),
-            end: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + '{Inv}'.length) }, newText: '{Invoice}' } }),
+          textEdit: { range: { start: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + 1),
+            end: lspPosition(globalGroupImport, globalGroupImport.indexOf('{Inv') + '{Inv'.length) }, newText: 'Invoice' } }),
       ]);
       const laterGroupImport = groupImport.replace('{Inv}', '{Receipt, Inv}');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
@@ -4592,10 +4592,10 @@ function inspect(Sink $sink, ?Sink $optional): void {
       } }));
       const laterGroupResult = (await output.waitFor((message) => message.id === 1182)).result;
       expect(laterGroupResult).toEqual([expect.objectContaining({ label: 'Invoice', detail: 'Domain\\Billing\\Invoice',
-        filterText: '{Receipt, Inv}',
-        textEdit: { range: { start: lspPosition(laterGroupImport, laterGroupImport.indexOf('{Receipt')),
-          end: lspPosition(laterGroupImport, laterGroupImport.indexOf('{Receipt') + '{Receipt, Inv}'.length) },
-        newText: '{Receipt, Invoice}' } })]);
+        filterText: 'Inv',
+        textEdit: { range: { start: lspPosition(laterGroupImport, laterGroupImport.indexOf('Inv}')),
+          end: lspPosition(laterGroupImport, laterGroupImport.indexOf('Inv}') + 'Inv'.length) },
+        newText: 'Invoice' } })]);
       const nestedGroupImport = '<?php namespace App; use Domain\\Billing\\{Operations\\Rec}; class NestedGroupImport {}';
       const nestedGroupUri = pathToFileURL(join(root, 'src', 'NestedGroupImport.php')).toString();
       await writeFile(join(root, 'src', 'NestedGroupImport.php'), nestedGroupImport);
@@ -4613,10 +4613,10 @@ function inspect(Sink $sink, ?Sink $optional): void {
       const receiptItems = nestedGroupItems.filter((item: { label: string }) => item.label === 'Receipt');
       expect(receiptItems).toEqual([
         expect.objectContaining({ detail: 'Domain\\Billing\\Operations\\Receipt',
-          filterText: '{Operations\\Rec}',
-          textEdit: { range: { start: lspPosition(nestedGroupImport, nestedGroupImport.indexOf('{Operations')),
-            end: lspPosition(nestedGroupImport, nestedGroupImport.indexOf('{Operations') + '{Operations\\Rec}'.length) },
-          newText: '{Operations\\Receipt}' } }),
+          filterText: 'Rec',
+          textEdit: { range: { start: lspPosition(nestedGroupImport, nestedGroupImport.indexOf('Rec}')),
+            end: lspPosition(nestedGroupImport, nestedGroupImport.indexOf('Rec}') + 'Rec'.length) },
+          newText: 'Receipt' } }),
       ]);
       expect(receiptItems[0]?.additionalTextEdits).toBeUndefined();
       const groupNamespaceImport = nestedGroupImport.replace('Operations\\Rec', 'Ope')
@@ -4632,10 +4632,10 @@ function inspect(Sink $sink, ?Sink $optional): void {
       const groupNamespaceItems = Array.isArray(groupNamespaceResult) ? groupNamespaceResult : groupNamespaceResult.items;
       expect(groupNamespaceItems).toEqual([expect.objectContaining({ label: 'Operations\\', kind: 9,
         detail: 'Domain\\Billing\\Operations\\',
-        filterText: '{Ope}',
-        textEdit: { range: { start: lspPosition(groupNamespaceImport, groupNamespaceImport.indexOf('{Ope}')),
-          end: lspPosition(groupNamespaceImport, groupNamespaceImport.indexOf('{Ope}') + '{Ope}'.length) },
-        newText: '{Operations\\}' } })]);
+        filterText: 'Ope',
+        textEdit: { range: { start: lspPosition(groupNamespaceImport, groupNamespaceImport.indexOf('Ope}')),
+          end: lspPosition(groupNamespaceImport, groupNamespaceImport.indexOf('Ope}') + 'Ope'.length) },
+        newText: 'Operations\\' } })]);
       expect(groupNamespaceItems[0]?.additionalTextEdits).toBeUndefined();
       const laterGroupNamespaceImport = groupNamespaceImport.replace('{Ope}', '{Invoice, Ope}');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
@@ -4649,10 +4649,10 @@ function inspect(Sink $sink, ?Sink $optional): void {
       const laterGroupNamespaceItems = Array.isArray(laterGroupNamespaceResult)
         ? laterGroupNamespaceResult : laterGroupNamespaceResult.items;
       expect(laterGroupNamespaceItems).toEqual([expect.objectContaining({ label: 'Operations\\',
-        filterText: '{Invoice, Ope}',
-        textEdit: { range: { start: lspPosition(laterGroupNamespaceImport, laterGroupNamespaceImport.indexOf('{Invoice')),
-          end: lspPosition(laterGroupNamespaceImport, laterGroupNamespaceImport.indexOf('{Invoice')
-            + '{Invoice, Ope}'.length) }, newText: '{Invoice, Operations\\}' } })]);
+        filterText: 'Ope',
+        textEdit: { range: { start: lspPosition(laterGroupNamespaceImport, laterGroupNamespaceImport.indexOf('Ope}')),
+          end: lspPosition(laterGroupNamespaceImport, laterGroupNamespaceImport.indexOf('Ope}')
+            + 'Ope'.length) }, newText: 'Operations\\' } })]);
       const namespaceImport = '<?php namespace App; use Dom; class NamespaceImport {}';
       const namespaceImportUri = pathToFileURL(join(root, 'src', 'NamespaceImport.php')).toString();
       await writeFile(join(root, 'src', 'NamespaceImport.php'), namespaceImport);
@@ -4663,11 +4663,17 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1183, method: 'textDocument/completion', params: {
         textDocument: { uri: namespaceImportUri }, position: lspPosition(namespaceImport, namespaceImport.indexOf('use Dom') + 'use Dom'.length),
       } }));
-      expect((await output.waitFor((message) => message.id === 1183)).result).toEqual([
+      const rootNamespaceItems = (await output.waitFor((message) => message.id === 1183)).result;
+      expect(rootNamespaceItems).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Domain\\', kind: 9,
           textEdit: { range: { start: lspPosition(namespaceImport, namespaceImport.indexOf('Dom;')),
             end: lspPosition(namespaceImport, namespaceImport.indexOf('Dom;') + 3) }, newText: 'Domain\\' } }),
-      ]);
+        expect.objectContaining({ label: 'DomainException', kind: 7, detail: 'DomainException',
+          textEdit: { range: { start: lspPosition(namespaceImport, namespaceImport.indexOf('Dom;')),
+            end: lspPosition(namespaceImport, namespaceImport.indexOf('Dom;') + 3) }, newText: 'DomainException' } }),
+      ]));
+      expect(rootNamespaceItems.every((item: { kind: number; additionalTextEdits?: unknown }) =>
+        [7, 8, 9].includes(item.kind) && item.additionalTextEdits === undefined)).toBe(true);
       const nestedNamespaceImport = namespaceImport.replace('use Dom;', 'use Domain\\Bil;');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri: namespaceImportUri, version: 2 }, contentChanges: [{ text: nestedNamespaceImport }],
@@ -19741,14 +19747,13 @@ echo ranked_lsp_over;`;
         expect(matching[0]?.additionalTextEdits).toBeUndefined();
         const groupOpener = source.indexOf('\\{', source.indexOf('use '));
         const groupStart = groupOpener === -1 ? -1 : groupOpener + 1;
-        const replacementStart = groupStart === -1 ? offset - prefix.length : groupStart;
-        const replacementEnd = groupStart !== -1 && source[offset] === '}' ? offset + 1 : offset;
-        const newText = groupStart === -1 ? expected
-          : `${source.slice(groupStart, offset - prefix.length)}${expected}${replacementEnd === offset + 1 ? '}' : ''}`;
+        const replacementStart = offset - prefix.length;
+        const replacementEnd = offset;
+        const newText = expected;
         expect(matching[0]?.textEdit).toEqual({ range: {
           start: lspPosition(source, replacementStart), end: lspPosition(source, replacementEnd),
         }, newText });
-        if (groupStart !== -1) expect(matching[0]?.filterText).toBe(source.slice(groupStart, replacementEnd));
+        if (groupStart !== -1) expect(matching[0]?.filterText).toBe(source.slice(replacementStart, replacementEnd));
         if (excluded) expect(items.map((item: { label: string }) => item.label)).not.toContain(excluded);
       }
       for (const [id, source, excluded] of [

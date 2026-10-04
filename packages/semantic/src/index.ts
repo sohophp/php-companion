@@ -570,12 +570,48 @@ function wordAt(source: string, offset: number): { text: string; start: number; 
   return end > start ? { text: source.slice(start, end), start, end } : undefined;
 }
 
-function qualifiedImportCompletion(source: string, offset: number): { qualifier: string; prefix: string; grouped: boolean } | undefined {
+function importStatementBefore(source: string, offset: number): { text: string; start: number } | undefined {
+  const boundary = source.lastIndexOf(';', offset - 1) + 1;
+  const before = source.slice(boundary, offset);
+  let use: RegExpExecArray | undefined;
+  for (const match of before.matchAll(/\buse\s+/giu)) use = match;
+  if (!use) return undefined;
+  const leading = before.slice(0, use.index), trimmed = leading.trimEnd();
+  // Check the boundary once. Trying a whitespace-spanning anchor at every
+  // masked comment newline makes a long non-import file quadratic.
+  if (trimmed && !trimmed.endsWith('<?php') && !leading.slice(trimmed.length).includes('\n')
+    && !/\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{$/iu.test(trimmed)) return undefined;
+  return { text: before.slice(use.index), start: boundary + use.index };
+}
+
+function ordinaryImportCompletion(source: string, offset: number): {
+  kind: 'class' | 'function' | 'const'; qualifier: string; prefix: string; alias: boolean;
+} | undefined {
+  const statement = importStatementBefore(source, offset);
+  const match = statement && /^use\s+(?:(function|const)\s+)?([^{};]*)$/iu.exec(statement.text);
+  if (!match) return undefined;
+  const kind = (match[1]?.toLowerCase() ?? 'class') as 'class' | 'function' | 'const';
+  const clauses = match[2]!.split(',');
+  const name = String.raw`\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*`;
+  const complete = new RegExp(String.raw`^${name}(?:\s+as\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$`, 'iu');
+  if (clauses.slice(0, -1).some(clause => !complete.test(clause.trim()))) return undefined;
+  const current = clauses.at(-1)!.trimStart();
+  if (/^(?:function|const)\b/iu.test(current)) return undefined;
+  const alias = new RegExp(String.raw`^${name}\s+as\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$`, 'iu').exec(current);
+  if (alias) return { kind, qualifier: '', prefix: alias[1] ?? '', alias: true };
+  if (current && !/^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(current)) return undefined;
+  const segments = current.replace(/^\\/u, '').split('\\'), prefix = segments.pop()!;
+  if (segments.some(segment => !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))) return undefined;
+  return { kind, qualifier: segments.join('\\'), prefix, alias: false };
+}
+
+function qualifiedImportCompletion(source: string, offset: number): { qualifier: string; prefix: string; grouped: boolean; replacementStart?: number } | undefined {
   // None of the import patterns below can cross a semicolon after their
   // opening anchor. Keep the full statement, without an arbitrary length cap.
-  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
-  const before = source.slice(completionBoundaryStart, offset);
-  const group = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/.exec(before);
+  const statement = importStatementBefore(source, offset);
+  if (!statement) return undefined;
+  const before = statement.text;
+  const group = /^use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/iu.exec(before);
   if (group) {
     const member = group[2]!.split(',').at(-1)!.trimStart();
     if (!/^(?:function|const)\b/.test(member)) {
@@ -585,36 +621,35 @@ function qualifiedImportCompletion(source: string, offset: number): { qualifier:
       if (base.split('\\').every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))
         && segments.every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))
         && (!prefix || /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(prefix))) {
-        return { qualifier: [base, ...segments].join('\\'), prefix, grouped: true };
+        return { qualifier: [base, ...segments].join('\\'), prefix, grouped: true,
+          replacementStart: offset - prefix.length };
       }
     }
   }
-  const match = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
-  if (!match) return undefined;
-  return { qualifier: match[1]!.replace(/^\\/, '').slice(0, -1), prefix: match[2] ?? '', grouped: false };
+  const ordinary = namespaceImportCompletion(source, offset);
+  return ordinary ? { ...ordinary, grouped: false } : undefined;
 }
 
 function namespaceImportCompletion(source: string, offset: number): { qualifier: string; prefix: string } | undefined {
-  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
-  const match = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?!function\b|const\b)(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)$/.exec(source.slice(completionBoundaryStart, offset));
-  if (!match) return undefined;
-  const segments = match[1]!.replace(/^\\/, '').split('\\');
-  if (segments.slice(0, -1).some((segment) => !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))) return undefined;
-  const prefix = segments.pop()!;
-  if (prefix && !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(prefix)) return undefined;
-  return { qualifier: segments.join('\\'), prefix };
+  const context = ordinaryImportCompletion(source, offset);
+  return context?.kind === 'class' && !context.alias ? { qualifier: context.qualifier, prefix: context.prefix } : undefined;
+}
+
+function groupedImportEnd(source: string, offset: number): number {
+  return offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(source.slice(offset))?.[0].length ?? 0);
 }
 
 function symbolImportCompletion(source: string, offset: number): {
   kind: 'function' | 'const'; qualifier: string; prefix: string; replacementStart?: number; replacementEnd?: number;
 } | undefined {
-  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
-  const before = source.slice(completionBoundaryStart, offset);
-  const group = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/u.exec(before);
+  const statement = importStatementBefore(source, offset);
+  if (!statement) return undefined;
+  const before = statement.text;
+  const group = /^use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/iu.exec(before);
   if (group) {
     const member = group[3]!.split(',').at(-1)!.trimStart();
-    const mixed = group[1] ? undefined : /^(function|const)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(member);
-    const kind = group[1] ?? mixed?.[1];
+    const mixed = group[1] ? undefined : /^(function|const)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/iu.exec(member);
+    const kind = group[1]?.toLowerCase() ?? mixed?.[1]?.toLowerCase();
     const path = group[1] ? member : mixed ? mixed[2] ?? '' : undefined;
     if (kind && path !== undefined && !/^(?:function|const)\b/u.test(path)) {
       const base = group[2]!.replace(/^\\/u, '').slice(0, -1);
@@ -624,27 +659,23 @@ function symbolImportCompletion(source: string, offset: number): {
         && segments.every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
         && (!prefix || /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(prefix))) {
         const qualifier = [base, ...segments].join('\\');
-        const replacementStart = completionBoundaryStart + before.lastIndexOf('{');
-        const replacementEnd = source[offset] === '}' ? offset + 1 : offset;
+        const replacementStart = offset - prefix.length;
+        const replacementEnd = groupedImportEnd(source, offset);
         return { kind: kind as 'function' | 'const', qualifier, prefix, replacementStart, replacementEnd };
       }
     }
   }
-  const match = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(function|const)\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?$/u.exec(before);
-  if (!match) return undefined;
-  const segments = (match[2] ?? '').replace(/^\\/u, '').split('\\');
-  const prefix = segments.pop()!;
-  if (segments.some((segment) => !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
-    || (prefix && !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(prefix))) return undefined;
-  return { kind: match[1] as 'function' | 'const', qualifier: segments.join('\\'), prefix };
+  const context = ordinaryImportCompletion(source, offset);
+  return context && context.kind !== 'class' && !context.alias
+    ? { kind: context.kind, qualifier: context.qualifier, prefix: context.prefix } : undefined;
 }
 
-function isFunctionOrConstantImportPosition(source: string, offset: number): boolean {
-  if (symbolImportCompletion(source, offset) !== undefined) return true;
-  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
-  const before = source.slice(completionBoundaryStart, offset);
-  return /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:(?:function|const)\s+)?(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+\{[^{};]*$/u.test(before)
-    || /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:function|const)\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s+as\s+[A-Za-z0-9_\x80-\xff]*$/u.test(before);
+function isNonExpressionImportPosition(source: string, offset: number): boolean {
+  if (ordinaryImportCompletion(source, offset) !== undefined || symbolImportCompletion(source, offset) !== undefined) return true;
+  const statement = importStatementBefore(source, offset);
+  if (!statement) return false;
+  return /^use\s+(?:(?:function|const)\s+)?(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+\{[^{};]*$/iu.test(statement.text)
+    || /^use\s+(?:function|const)\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s+as\s+[A-Za-z0-9_\x80-\xff]*$/iu.test(statement.text);
 }
 
 function isCatchTypeCompletion(source: string, offset: number): boolean {
@@ -5653,7 +5684,7 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
       || file.declarations.some((declaration) => declaration.declarationStart < offset && offset <= declaration.declarationEnd)) return undefined;
-    return namespaceImportCompletion(file.source, offset);
+    return namespaceImportCompletion(this.completionTriviaSource(file), offset);
   }
 
   symbolImportContext(uri: string, offset: number): {
@@ -5662,7 +5693,7 @@ export class SemanticWorkspace {
     const file = this.files.get(uri);
     if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
       || file.declarations.some((declaration) => declaration.declarationStart < offset && offset <= declaration.declarationEnd)) return undefined;
-    return symbolImportCompletion(file.source, offset);
+    return symbolImportCompletion(this.completionTriviaSource(file), offset);
   }
 
   private traitUseTypeCompletion(file: SemanticFile, offset: number): { prefix: string; namespace?: string } | undefined {
@@ -5923,7 +5954,7 @@ export class SemanticWorkspace {
     const docContext = phpDocTypeCompletionContext(file, offset, this.namespaceAt(file, offset));
     if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
     const traitContext = docContext ? undefined : this.traitUseTypeCompletion(file, offset);
-    const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(file.source, offset);
+    const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(this.completionTriviaSource(file), offset);
     if (importContext
       && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return undefined;
     const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
@@ -5940,8 +5971,8 @@ export class SemanticWorkspace {
     return { prefix, namespace, ...(constructKind ? { constructKind } : {}), importedTypes: docContext?.namespace !== undefined ? [] : file.imports.filter((item) => item.kind === 'class'
       && item.namespace === namespace && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end
       && item.alias.toLowerCase().startsWith(prefix.toLowerCase())).map((item) => item.fqcn),
-    ...(importContext?.grouped ? { replacementStart: file.source.lastIndexOf('{', offset),
-      replacementEnd: file.source[offset] === '}' ? offset + 1 : offset } : {}) };
+    ...(importContext?.grouped ? { replacementStart: importContext.replacementStart!,
+      replacementEnd: groupedImportEnd(file.source, offset) } : {}) };
   }
 
   completeTypes(uri: string, offset: number): TypeInfo[] {
@@ -5950,7 +5981,7 @@ export class SemanticWorkspace {
     const docContext = phpDocTypeCompletionContext(file, offset, this.namespaceAt(file, offset));
     if (!docContext && this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const traitContext = docContext ? undefined : this.traitUseTypeCompletion(file, offset);
-    const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(file.source, offset);
+    const importContext = docContext || traitContext ? undefined : qualifiedImportCompletion(this.completionTriviaSource(file), offset);
     if (importContext && file.declarations.some((declaration) => declaration.start < offset && offset <= declaration.end)) return [];
     const qualifiedContext = docContext || traitContext || importContext ? undefined : this.qualifiedNativeTypeCompletion(file, offset);
     const groupedAttribute = docContext || traitContext || importContext ? undefined : this.groupedAttributeCompletion(file, offset);
@@ -6354,7 +6385,7 @@ export class SemanticWorkspace {
     if (!prefix) return undefined;
     const start = offset - prefix.length;
     if (start > 0 && /[A-Za-z0-9_$\\\x80-\xff]/u.test(file.source[start - 1]!)) return undefined;
-    if (isFunctionOrConstantImportPosition(file.source, offset)) return undefined;
+    if (isNonExpressionImportPosition(this.completionTriviaSource(file), offset)) return undefined;
     const retainedTree = this.trees.get(uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
@@ -6419,7 +6450,7 @@ export class SemanticWorkspace {
     if (recovered) return recovered.value;
     const word = completionIdentifierPrefix(file.source, offset);
     if (typeCompletionPrefix(file.source, offset) !== undefined
-      || isFunctionOrConstantImportPosition(file.source, offset)) return [];
+      || isNonExpressionImportPosition(this.completionTriviaSource(file), offset)) return [];
     const prefixStart = offset - word.length; const context = file.source.slice(Math.max(0, prefixStart - 32), prefixStart);
     if (/(?:->|\?->|::|\$|\bfunction\s+|\bnamespace\s+|\buse(?:\s+function)?\s+)\s*$/.test(context)) return [];
     const prefix = word.toLowerCase(); const namespace = this.namespaceAt(file, offset);
@@ -6491,7 +6522,7 @@ export class SemanticWorkspace {
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
     const prefix = completionIdentifierPrefix(file.source, offset, false);
     if (typeCompletionPrefix(file.source, offset) !== undefined
-      || isFunctionOrConstantImportPosition(file.source, offset)) return [];
+      || isNonExpressionImportPosition(this.completionTriviaSource(file), offset)) return [];
     const prefixStart = offset - prefix.length; const context = file.source.slice(Math.max(0, prefixStart - 24), prefixStart);
     if (/(?:->|\?->|::|\$|\b(?:function|namespace|const)\s+|\buse(?:\s+(?:function|const))?\s+)\s*$/.test(context)) return [];
     if (!prefix) return [];

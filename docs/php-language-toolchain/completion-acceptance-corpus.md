@@ -409,3 +409,7 @@ D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法�
 ## D63 内建工厂类型的构造候选
 
 补齐 Shmop、XMLParser、FTP Connection 与三个 PgSql 句柄的已有静态构造约束。固定直接／注释／导入别名构造排除，类型／返回／instanceof 与限定导入保留，同名用户类可构造及关闭扩展；九个目标版本新 10 项、完整语义 2044 项、stubs 249 项和真实 bundle LSP 两版本各 72 状态通过。Linux 自动输入六流程／17 阶段中 new Sh 不再出现 Shmop；四种引用八次可见接受／UndoRedo与 16 次实际文本编译通过，见 [D63 记录](reports/completion-native-construction-2026-10-04.md)。六套实际 CLI 的类型缺席不当作不可构造证据；根命名空间 use 的原有候选缺口、150 ms 连续编辑预算及完整 LSP／平台／真人继续开放。
+
+## D64 根导入、逗号多项与当前词范围
+
+固定 use Shm|、绝对路径、逗号类型／function／const、大小写和注释，别名名称不混入通用候选；PHP 7.2／8.5 的 onDemand／progressive 首次冷查询保留未打开 Composer 根类型。Shm§op 与 ArrayOb§ject 的实际接受消费后半词，分组导入仅替换当前词，保留 CRLF 注释、已有成员及右花括号。16 次可见接受／UndoRedo、7 自然键入流程／19 阶段和 32 次实际文本语法检查通过。完整语义 2052 通过／2 个旧范围断言失败后整份 497 项补验通过；不记为单次最终完整绿色。见 [D64 记录](reports/completion-root-imports-2026-10-05.md)。原 D63 根导入缺口在该范围关闭；连续编辑预算、当前完整 LSP、平台及真人保持开放。

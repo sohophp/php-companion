@@ -104,6 +104,12 @@ export async function run(): Promise<void> {
   await select(valueStart, valueStart + 2); await type('$f');
   await observe('string argument', labels => labels[0]?.startsWith('$firstText') === true && labels.some(label => label.startsWith('$firstBool'))); await finish();
 
+  if (process.env.SOPHP_ROOT_IMPORT_FLOW === '1') {
+    await open('RootImport', '<?php namespace AutomaticRootImport; §;'); await type('use ArrayOb');
+    await observe('root type', labels => labels[0]?.startsWith('ArrayObject') === true);
+    await type('ject as strl'); await observe('import alias name', labels => labels.length === 0, true); await finish();
+  }
+
   const settings = vscode.workspace.getConfiguration('editor', { uri: document!.uri, languageId: 'php' });
   console.log('Automatic completion acceptance proof: ' + JSON.stringify({ platform: process.platform, vscodeVersion: vscode.version,
     context: 'ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest',
