@@ -1,0 +1,149 @@
+{
+  "sourceBytes": 242692,
+  "sourceSha256": "d302d7c8a1d95a5dda0a7eb25623317a7bfea5bebecee8eb64ae5ca16c68a2e3",
+  "baseCommit": "be9cca7",
+  "change": "unsupportedSyntax returns empty for the newest SupportedPhpVersion; all feature minima are SupportedPhpVersion",
+  "before": {
+    "root": "/tmp/sophp-edit-profile-current-h6a0o2bw",
+    "file": "/tmp/sophp-edit-profile-current-h6a0o2bw/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 254.92,
+    "all": {
+      "p50Ms": 255.16,
+      "p95Ms": 331.46,
+      "maxMs": 539.53
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 265.25,
+      "p95Ms": 331.49,
+      "maxMs": 539.53,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 251,
+      "p95Ms": 331.46,
+      "maxMs": 443.63,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "after": {
+    "root": "/tmp/sophp-edit-profile-current-h6a0o2bw",
+    "file": "/tmp/sophp-edit-profile-current-h6a0o2bw/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 167.61,
+    "all": {
+      "p50Ms": 227.58,
+      "p95Ms": 290.12,
+      "maxMs": 498.63
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 225.53,
+      "p95Ms": 267.65,
+      "maxMs": 288.58,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 230.38,
+      "p95Ms": 292.97,
+      "maxMs": 498.63,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "profiledDiagnosticRun": {
+    "root": "/tmp/sophp-edit-profile-current-h6a0o2bw",
+    "file": "/tmp/sophp-edit-profile-current-h6a0o2bw/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 161.69,
+    "all": {
+      "p50Ms": 266.24,
+      "p95Ms": 319.86,
+      "maxMs": 552.29
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 277.24,
+      "p95Ms": 319.86,
+      "maxMs": 552.29,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 259.76,
+      "p95Ms": 321.63,
+      "maxMs": 424.36,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "notes": [
+    "before and after are ordinary 100-round edit-to-completion measurements without GC or profiler",
+    "profiled run is diagnostic only and is not combined with ordinary timings",
+    "150ms budget remains unmet",
+    "each iteration asserts first/current candidate, absence of the opposite old candidate, zero incomplete lists and unchanged disk",
+    "error recovery guard sample uses the exact same source hash and ordinary settings; P95 remains above 150ms"
+  ],
+  "errorRecoveryGuardAfter": {
+    "root": "/tmp/sophp-diagnostic-recovery-edit-q5zavzcm",
+    "file": "/tmp/sophp-diagnostic-recovery-edit-q5zavzcm/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 187.31,
+    "all": {
+      "p50Ms": 208.27,
+      "p95Ms": 254.21,
+      "maxMs": 447.17
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 203.21,
+      "p95Ms": 253.85,
+      "maxMs": 277.37,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 212.89,
+      "p95Ms": 262.56,
+      "maxMs": 447.17,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  }
+}

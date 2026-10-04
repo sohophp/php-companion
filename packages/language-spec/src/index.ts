@@ -3741,6 +3741,9 @@ export function isSyntaxAvailable(target: SupportedPhpVersion, introduced: Suppo
 }
 
 export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVersion): UnsupportedSyntax[] {
+  // Every rule's minimum is a SupportedPhpVersion. The newest supported
+  // target cannot reject a known feature; syntax validity is checked separately.
+  if (target === SUPPORTED_PHP_VERSIONS.at(-1)) return [];
   const output: UnsupportedSyntax[] = [];
   const reportedVoidCasts = new Set<string>();
   const visit = (node: SyntaxNodeLike): void => {

@@ -86,3 +86,49 @@ GC 后 heapUsed 第 1／100／300 轮为 39.60／30.34／30.62 MiB，第 100–3
 重建后默认完整 LSP 原进程结束：56 文件、837 通过、1 条件跳过、零失败，退出 0，1596.52 秒；日志 `/tmp/sophp-parser-reuse-full-built-lsp.log`。结束时逐字核对 `/tmp/sophp-parser-reuse-full-built-inputs.json` 中 1727 项源码／测试／构建输入，变化为零。没有放宽原断言或 150 ms 热查询门槛；默认摘要不输出各项 P95，不能用普通编辑的 300.80 ms 或局部热样本代替它。唯一跨进程引用 bundle 条件项开始另用当前 bundle 补验，结束前不改默认 1 跳过的事实。
 
 当前 bundle 的跨进程引用条件项补验退出 0：1 个目标用例通过，498 个其它用例由 -t 筛选而未运行，84.59 秒；日志 `/tmp/sophp-parser-reuse-reference-bundle.log`。不改写默认完整回归的 1 条件跳过。解析复用与常量表达式检查、相关测试和原始内存 JSON 作为本地源码里程碑收口，提交标题 `perf(core): reuse document parses and bound constant checks`；本节此前“未提交”是当批状态。保留首次未重建包内入口的停止日志和超预算输入数据，没有打包、推送、更新 Profile 或关闭真人 WSL 验收。
+
+
+### 最高版本的无结果诊断遍历
+
+2026-10-04 在 be9cca7 源码下对同一 1500 注释／常量文件做新的 CPU 定位：`/tmp/sophp-edit-profile-current` 保留原 CPU profile；`/tmp/sophp-edit-profile-current-summary.json` 保留采样汇总。诊断的版本特性检查累计约 3.2 秒／100 轮；Profiler 时序单列，不当作普通性能。
+
+所有 `unsupportedSyntax` 特性最低版本均受 `SupportedPhpVersion` 类型约束，支持列表有序；最高支持目标不可能产生版本不支持诊断。现在该目标立即返回空结果。较低版本走原规则，语法合法性和非法常量表达式等独立诊断保持原检查。
+
+本次串行、无 profiler／显式 GC 的普通 100 轮编辑测量：优化前 P50／P95 255.16／331.46 ms，优化后 227.58／290.12 ms。首位 __callStatic／__construct、另一侧旧候选缺席、不完整列表为零与磁盘不变全部通过。它是本地样本改善，**仍超过 150 ms**；没有重复等价测量直到得到绿色。原始 [JSON](completion-version-walk-edit-2026-10-04.json) 分开记录 profiler 与普通前后样本。自己的临时 Composer fixture 已移除，原 CPU profile 和日志保留。
+
+语言规格完整 15 文件／249 项、实际文档诊断 47 项通过，日志 `/tmp/sophp-version-walk-{spec,analysis}.log`；包构建与定向 lint 通过。当前隔离 Linux 1.140.0 宿主重复补全、未保存 static 修改、Undo、精确候选和磁盘不变通过，`/tmp/sophp-version-walk-host.log` 退出 0。没有运行本增量的全量 LSP、内存或可见等待门槛，不能用历史全量结果宣称本次完整通过。
+
+本增量先留在同一开发分支，不例行提交、推送、打包或更新 Profile。原路线图继续，编辑等待和真人 WSL 保持开放。
+
+
+### 无错误树的恢复扫描前提
+
+沿前一轮 CPU 证据继续检查：分析器的 `(void)` ERROR 恢复整树扫描没有先检查树是否有错误；枚举属性 ERROR 恢复也在没有枚举、没有语法错误的普通类中遍历。现分别以 root.hasError，以及已解析枚举集合非空且 root.hasError 为入口前提。两个扫描内部、原有节点预算和范围处理不变；普通 `(void)` 括号表达式的合法性检查仍独立执行，不能因为树无 ERROR 就删除它。
+
+使用与前一轮字节 SHA256 完全一致的临时源码、同一普通 100 轮交替编辑参数，当前 P50／P95 为 208.27／254.21 ms；此前版本遍历优化后的样本为 227.58／290.12 ms。每轮首位、另一侧旧候选缺席、不完整列表为零及磁盘不变通过；**仍未达到 150 ms**。记录追加到 [同组 JSON](completion-version-walk-edit-2026-10-04.json) 的 errorRecoveryGuardAfter，不合并 profiler 时间，不重复相同测量直到绿色。自己的临时 Composer fixture 已删除。
+
+当前构建下实际分析器 47/47 通过，`/tmp/sophp-diagnostic-recovery-analysis.log`；真实 stdio F02-VERSION-01（7.2／8.1／8.5）和 PHP 8.5 NoDiscard／void-cast 两条通过，497 条未选中，`/tmp/sophp-diagnostic-recovery-protocol.log`。这是定向协议，不冒称全量 499 通过。当前隔离 Linux 1.140.0 C2 注释密集补全、未保存 static 修改、Undo 与磁盘不变通过，`/tmp/sophp-diagnostic-recovery-host.log` 退出 0。构建、定向 ESLint、diff 检查通过。
+
+此处没有重跑全量 LSP、九版本和可见等待；不把历史输入的全量结果或上一批最高版本 guard 的 249 条规格测试写成本批重新执行。两批性能增量保持同一分支尚未提交，不打包、推送或更新 Profile。原路线图和未完成预算继续保留。
+
+
+### 当前合并增量的完整 LSP 回归（进行中）
+
+2026-10-04 核验包内 language-spec／analysis／semantic／server 产物分别含最新版本遍历、ERROR 恢复入口、比较条件及 filterText 修复后，开始默认完整 `pnpm --filter @php-companion/language-server exec vitest run`。`/tmp/sophp-diagnostic-current-full-inputs.json` 冻结 1742 项源码／测试／构建输入，`/tmp/sophp-diagnostic-current-full-lsp.log` 保留原输出。进程会话 7203；启动后的轮询与实际 pnpm／Vitest worker 进程均确认仍运行。
+
+结束前不记通过，不并行启动其它测试宿主或性能测量，不改变源代码／测试／构建产物。保留默认并发、150 ms 热断言和条件跳过的原配置；终态需核对冻结输入及实际汇总。两批诊断优化尚未提交，不打包或更新 Profile。原路线图 active。
+
+
+完整回归等待期间的只读审计：原 CPU profile 的 readonlyPropertyAssignments 是另一热点。当前实现约 660 行，除了直接／间接属性修改，也处理按引用 foreach、构造初始化摘要及跨文件构造来源。因此不能用源码没有 `->` 作为快速返回条件：按引用 foreach 可以在没有该操作符时报告已初始化的 readonly 属性。后续优化须保留这些路径及摘要按需计算，先核对语义事实和对应反例。本次仅只读检查，未改变冻结源码或启动并行测试；回归原会话仍运行，未记通过。
+
+
+### 合并回归终态与枚举实参断言核对
+
+原会话 7203 已结束，默认完整回归退出 1：58 文件中 57 通过、1 失败；841 项中 839 通过、1 失败、1 条件跳过，1617.29 秒。结束后重新核验冻结输入 1742 项，零变化。原日志 `/tmp/sophp-diagnostic-current-full-lsp.log` 保留，不改写成全绿。
+
+唯一失败为 stdio.test.ts 的枚举实参旧 filterText 断言：期望 ReCompletionColor::Red，实际 Red。be9cca7 的可见列表修复已经有意将匹配文本改为大小写对齐的枚举 case 名称，显示标签、插入内容仍为完整 CompletionColor::Red。核对实现后更新旧断言，并增加未保存 re 小写输入、精确替换范围以及接受后 paint(CompletionColor::Red) 文本检查；没有改变产品实现或放宽性能门槛。
+
+目标用例补验 `/tmp/sophp-enum-argument-filter-regression.log` 退出 0：1 通过、498 未选中，5.32 秒。该结果是失败用例修正后的定向验收，不能声称重新执行后的完整 841 项全绿。默认完整回归的跨进程引用 bundle 条件跳过仍保持原事实。编辑样本 254.21 ms 仍超 150 ms，真人 WSL 与 Profile 仍未更新。
+
+
+最终补充的三文件定向协议 `/tmp/sophp-diagnostic-milestone-values.log`：9 通过、493 未选中，19.59 秒，覆盖枚举实参、PHPDoc 字面量和 match／switch 条件；定向 ESLint `/tmp/sophp-diagnostic-milestone-lint.log` 退出 0。两项诊断遍历前提、枚举实参断言与证据作为本地源码里程碑收口，提交标题 perf(core): skip provably empty diagnostic walks。前文“进行中／未提交”为当批状态；完整回归原失败及定向补验分开报告，不打包、推送、更新 Profile 或停止 goal。

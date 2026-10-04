@@ -642,7 +642,8 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
     const source = document.getText();
     const grammarGaps = newestSyntaxGrammarGapRanges(source, parser, parsed.tree.rootNode, parsed.errors);
     const grammarGapRanges = grammarGaps.ranges;
-    const grammarNodes = [parsed.tree.rootNode];
+    // ERROR-only recovery has no work in an error-free tree.
+    const grammarNodes = parsed.tree.rootNode.hasError ? [parsed.tree.rootNode] : [];
     while (grammarNodes.length > 0) {
       const node = grammarNodes.pop()!;
       if (node.type === 'ERROR' && /^\(\s*void\s*\)$/i.test(node.text)) {
@@ -660,7 +661,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
     const enumFqcns = new Set(parsed.declarations.filter((item) => item.kind === 'enum').map((item) => item.fqcn));
     const enumPropertyErrors = new Set<string>();
     const enumProperties = new Map<number, { start: number; end: number; containerFqcn: string; name: string }>();
-    if (isSyntaxAvailable(targetVersion, '8.1')) {
+    if (isSyntaxAvailable(targetVersion, '8.1') && enumFqcns.size > 0 && parsed.tree.rootNode.hasError) {
       const nodes = [parsed.tree.rootNode]; let visitedNodes = 0;
       while (nodes.length > 0 && visitedNodes < 100_000) {
         const node = nodes.pop()!; visitedNodes += 1;

@@ -126,3 +126,18 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 
 2026-10-04 [条件补全可见接受](reports/completion-comparison-visible-2026-10-04.md)：发现 Provider 通过但实际弹窗只显示函数的枚举 filterText 缺口，修复匹配文本与输入前缀大小写；隔离 Linux 1.140.0 四场景八次 Enter／Tab、可见首项、光标、Undo/Redo 和磁盘不变通过，三条当前协议通过。与 switch 增量收口提交，历史未提交为批次状态；不关闭真人 WSL、全量协议或性能资格，不更新 Profile。
+
+
+2026-10-04 注释密集编辑等待继续定位：最高支持版本下 `unsupportedSyntax` 不再遍历必然无结果的特性树；语言规格 249、实际诊断 47 和隔离宿主通过。普通串行 100 轮编辑 P95 331.46→290.12 ms，仍不满足 150 ms，保留 profiler 与普通数据的区别。见 [编辑等待记录](reports/completion-magic-modifier-2026-10-03.md#最高版本的无结果诊断遍历)。本批未提交、不更新 Profile，继续原路线图。
+
+
+2026-10-04 CPU 定位后的错误恢复入口检查：无 ERROR 的树不扫描 ERROR void 恢复，普通非枚举类不扫描枚举属性恢复。47 项分析器、两条真实版本／NoDiscard 协议、隔离 C2 宿主通过；同哈希普通样本编辑 P95 290.12→254.21 ms，仍超过 150 ms。见 [恢复扫描记录](reports/completion-magic-modifier-2026-10-03.md#无错误树的恢复扫描前提)。两批性能改动尚未提交，不更新 Profile；全量和真人资格保持原范围。
+
+
+2026-10-04 当前合并增量的默认完整 LSP 已启动，源码／测试／构建输入冻结 1742 项，日志 `/tmp/sophp-diagnostic-current-full-lsp.log`；会话 7203 实际运行，结束前不记为通过，也不改产品输入或并行性能任务。当前进度见 [合并回归记录](reports/completion-magic-modifier-2026-10-03.md#当前合并增量的完整-lsp-回归进行中)。
+
+
+2026-10-04 合并完整回归已结束：839 通过、1 旧枚举 filterText 断言失败、1 条件跳过；1742 项输入核对零变化。修正旧断言并加入大小写、替换范围和接受文本检查后，目标用例通过；原红色全量日志保留，不宣称全量重跑全绿。见 [终态记录](reports/completion-magic-modifier-2026-10-03.md#合并回归终态与枚举实参断言核对)。原路线图继续，未关闭编辑预算或真人验收。
+
+
+两项诊断遍历优化与枚举实参回归核对作为本地源码里程碑收口（perf(core): skip provably empty diagnostic walks）；补充三文件 9 项协议及定向 lint 通过。全量原失败与定向补验分别保留，不例行重跑同一 27 分钟门槛；下一轮继续依据 CPU 证据处理编辑等待，保留引用 foreach、构造摘要等诊断语义，不更新 Profile，goal active。

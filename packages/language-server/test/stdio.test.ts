@@ -2572,17 +2572,29 @@ function inspect(Sink $sink, ?Sink $optional): void {
       textDocument: { uri, languageId: 'php', version: 1, text: source },
     } }));
     for (const item of [
-      { id: 2, offset: source.indexOf('paint(Re)') + 'paint(Re'.length, expected: 'CompletionColor::Red', replacement: 'CompletionColor::Red' },
-      { id: 3, offset: source.indexOf('flag()') + 'flag('.length, expected: 'false', replacement: 'false' },
+      { id: 2, source, offset: source.indexOf('paint(Re)') + 'paint(Re'.length, expected: 'CompletionColor::Red', replacement: 'CompletionColor::Red', filterText: 'Red' },
+      { id: 3, source, offset: source.indexOf('flag()') + 'flag('.length, expected: 'false', replacement: 'false' },
+      { id: 4, source: source.replace('paint(Re)', 'paint(re)'), offset: source.indexOf('paint(Re)') + 'paint(Re'.length,
+        expected: 'CompletionColor::Red', replacement: 'CompletionColor::Red', filterText: 'red' },
     ]) {
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: item.id }, contentChanges: [{ text: item.source }],
+      } }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: item.id, method: 'textDocument/completion', params: {
-        textDocument: { uri }, position: lspPosition(source, item.offset),
+        textDocument: { uri }, position: lspPosition(item.source, item.offset),
       } }));
       const response = await output.waitFor((message) => message.id === item.id);
       const items = Array.isArray(response.result) ? response.result : response.result.items;
       const candidate = items.find((entry: { label: string }) => entry.label === item.expected);
       expect(candidate).toMatchObject({ textEdit: { newText: item.replacement } });
-      if (item.id === 2) expect(candidate.filterText).toBe('ReCompletionColor::Red');
+      if (item.filterText) {
+        expect(candidate.filterText).toBe(item.filterText);
+        expect(candidate.textEdit.range).toEqual({
+          start: lspPosition(item.source, item.offset - 2), end: lspPosition(item.source, item.offset),
+        });
+        expect(item.source.slice(0, item.offset - 2) + candidate.textEdit.newText + item.source.slice(item.offset))
+          .toContain('paint(CompletionColor::Red)');
+      }
       if (item.id === 3) expect(items.map((entry: { label: string }) => entry.label)).toContain('true');
     }
   });
