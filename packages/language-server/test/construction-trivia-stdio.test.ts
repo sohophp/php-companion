@@ -92,6 +92,33 @@ async function verify(phpVersion: '7.2' | '8.5'): Promise<void> {
         }
       }
     }
+    const complete = async (marked: string): Promise<Array<{ label: string; detail?: string; insertText?: string; textEdit?: { newText: string } }>> => {
+      const source = marked.replace('§', ''); version++;
+      notify('textDocument/didChange', { textDocument: { uri, version }, contentChanges: [{ text: source }] });
+      await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri && message.params?.version === version);
+      const result = await request('textDocument/completion', { textDocument: { uri }, position: lspPosition(source, marked.indexOf('§')) });
+      return Array.isArray(result) ? result : result?.items ?? [];
+    };
+    for (const name of ['Shmop', 'XMLParser', 'FTP\\Connection', 'PgSql\\Connection', 'PgSql\\Result', 'PgSql\\Lob']) {
+      const local = name.split('\\').at(-1)!;
+      for (const marked of ['<?php new \\' + name + '§;', '<?php new /* note */ \\' + name + '§();',
+        '<?php use ' + name + ' as NativeHandle; new NativeHan§;']) {
+        const items = await complete(marked);
+        expect(items.some(item => item.detail === name || item.label === local || item.label === 'NativeHandle'), marked).toBe(false);
+      }
+      for (const marked of ['<?php function accept(\\' + name + '§ $value):void{}',
+        '<?php function produce():\\' + name + '§{}', '<?php $value instanceof \\' + name + '§;',
+        ...(name.includes('\\') ? ['<?php namespace Consumer; use ' + name + '§;'] : [])]) {
+        const items = await complete(marked);
+        expect(items.some(item => item.label === local && item.detail === name), marked).toBe(phpVersion === '8.5');
+      }
+      const items = await complete('<?php namespace UserHandles; class ' + local + ' {} new ' + local + '§;');
+      expect(items.some(item => item.label === local && item.detail === 'UserHandles\\' + local)).toBe(true);
+    }
+    for (const name of ['ArrayObject', 'stdClass']) {
+      const item = (await complete('<?php new \\' + name + '§;')).find(item => item.label === name);
+      expect(item).toBeDefined(); expect(item!.textEdit?.newText ?? item!.insertText).toBe(`${name}($0)`);
+    }
     expect(await readFile(path, 'utf8')).toBe(original); await request('shutdown', {}); notify('exit', {});
   } finally { server?.kill(); await rm(root, { recursive: true, force: true }); }
 }

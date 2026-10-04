@@ -85,14 +85,15 @@ export async function run(): Promise<void> {
 
   await open('Types', '<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new §;}');
   await type('Sh');
-  await observe('short type', labels => labels.some(label => label.startsWith('ShortCurrent')) && labels.some(label => label.startsWith('ShallowCurrent')));
+  await observe('short type', labels => labels.some(label => label.startsWith('ShortCurrent')) && labels.some(label => label.startsWith('ShallowCurrent'))
+    && !labels.some(label => label.startsWith('Shmop')));
   const typeEnd = document!.offsetAt(editor!.selection.active);
   await select(typeEnd - 2, typeEnd); await type('Ot');
   await observe('changed type', labels => labels[0]?.startsWith('OtherCurrent') === true && !labels.some(label => /ShortCurrent|ShallowCurrent/u.test(label)));
   const otherEnd = document!.offsetAt(editor!.selection.active);
   await select(otherEnd - 2, otherEnd); await type('Sh');
   await observe('restored type', labels => labels.some(label => label.startsWith('ShortCurrent')) && labels.some(label => label.startsWith('ShallowCurrent'))
-    && !labels.some(label => label.includes('OtherCurrent')));
+    && !labels.some(label => /OtherCurrent|Shmop/u.test(label)));
   await type('o'); await observe('narrow type', labels => labels[0]?.startsWith('ShortCurrent') === true && !labels.some(label => label.includes('ShallowCurrent'))); await finish();
 
   await open('Arguments', '<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needBool(§);}');

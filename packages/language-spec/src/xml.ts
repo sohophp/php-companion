@@ -134,7 +134,7 @@ ${ordinaryHandler('xml_set_end_namespace_decl_handler')}
 /** ${php85 ? '@deprecated PHP 8.5 ' : ''}@return bool */ function xml_parser_free(${parser}$parser)${php80 ? ': bool' : ''} {}
 /** @param string|int${php83 ? '|bool' : ''} $value @return bool */ function xml_parser_set_option(${parser}$parser, ${php80 ? 'int ' : ''}$option, $value)${php80 ? ': bool' : ''} {}
 /** @return string|int${php83 ? '|bool' : ''} */ function xml_parser_get_option(${parser}$parser, ${php80 ? 'int ' : ''}$option)${php80 ? `: string|int${php83 ? '|bool' : ''}` : ''} {}
-${php80 ? 'final class XMLParser {}\n' : ''}`;
+${php80 ? 'final class XMLParser { private function __construct() {} }\n' : ''}`;
 }
 
 export function auditedXmlFoundationStub(version: SupportedPhpVersion): string {

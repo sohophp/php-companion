@@ -405,3 +405,7 @@ D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法�
 ## D62 自然键入的自动列表
 
 固定 func／function、clas／class、enu／enum 至 z 名称的可见撤回，pu 至 public function __con、Sh→Ot→Sh→Sho 的类型切换，以及 bool 调用改为 string 调用后的 $f 排序。普通逐字符 Workbench 输入，不预热 Provider 或 triggerSuggest；三个空列表各继续观察 500 ms。当前 Linux 1.140.0／PHP 8.5 的六流程／17 阶段通过，初次选择同步失败与修正保留，见 [D62 记录](reports/completion-automatic-input-2026-10-04.md)。指定 getItemsByProvider 异常零次不证明批量输入异常已修复；其它自动输入／延迟旧请求／平台及真人继续开放。new Sh 同时暴露 Shmop 的构造候选缺口，已记录实际 PHP 8.5.9 的直接 new 失败，下一源码项处理。
+
+## D63 内建工厂类型的构造候选
+
+补齐 Shmop、XMLParser、FTP Connection 与三个 PgSql 句柄的已有静态构造约束。固定直接／注释／导入别名构造排除，类型／返回／instanceof 与限定导入保留，同名用户类可构造及关闭扩展；九个目标版本新 10 项、完整语义 2044 项、stubs 249 项和真实 bundle LSP 两版本各 72 状态通过。Linux 自动输入六流程／17 阶段中 new Sh 不再出现 Shmop；四种引用八次可见接受／UndoRedo与 16 次实际文本编译通过，见 [D63 记录](reports/completion-native-construction-2026-10-04.md)。六套实际 CLI 的类型缺席不当作不可构造证据；根命名空间 use 的原有候选缺口、150 ms 连续编辑预算及完整 LSP／平台／真人继续开放。

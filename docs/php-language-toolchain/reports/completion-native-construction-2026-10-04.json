@@ -1,0 +1,1644 @@
+{
+  "milestone": "D63 native factory construction completion",
+  "baseCommit": "cb162bb27053bd8051e2bcaa517be1ef487c5913",
+  "productFiles": {
+    "packages/language-spec/src/shmop.ts": "026aa2fd73232e10e98c37ff75cf9a556561a7ee17ea641a5929d1a7a14bc5a0",
+    "packages/language-spec/src/xml.ts": "99f6244278318935df674c81341f61a1b75bc80700049189baf84e2d8d2ea4d1",
+    "packages/language-spec/src/ftp.ts": "365e9b6c659c4d6ba5c5de3b3e44fe3e6f713811265945c0e44cbf32d80abc78",
+    "packages/language-spec/src/pgsql.ts": "273508f897782fd4135c9b3b5931eb7df7c387f7e0df58eda0ed5c9403015118"
+  },
+  "productionBundle": {
+    "path": "dist/language-server.js",
+    "sha256": "5430124cda5682e1ed9b1d0c140ad1013616b11e46d82da07a7352fc9434d56e",
+    "bytes": 4170179
+  },
+  "baseline": [
+    {
+      "name": "Shmop",
+      "context": {
+        "prefix": "Shmop",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "Shmop"
+      ]
+    },
+    {
+      "name": "XMLParser",
+      "context": {
+        "prefix": "XMLParser",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "XMLParser"
+      ]
+    },
+    {
+      "name": "FTP\\Connection",
+      "context": {
+        "prefix": "Connection",
+        "namespace": "FTP",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "FTP\\Connection"
+      ]
+    },
+    {
+      "name": "PgSql\\Connection",
+      "context": {
+        "prefix": "Connection",
+        "namespace": "PgSql",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "PgSql\\Connection"
+      ]
+    },
+    {
+      "name": "PgSql\\Result",
+      "context": {
+        "prefix": "Result",
+        "namespace": "PgSql",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "PgSql\\Result"
+      ]
+    },
+    {
+      "name": "PgSql\\Lob",
+      "context": {
+        "prefix": "Lob",
+        "namespace": "PgSql",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "PgSql\\Lob"
+      ]
+    },
+    {
+      "name": "GdImage",
+      "context": {
+        "prefix": "GdImage",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": []
+    },
+    {
+      "name": "CurlHandle",
+      "context": {
+        "prefix": "CurlHandle",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": []
+    },
+    {
+      "name": "Generator",
+      "context": {
+        "prefix": "Generator",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "ClosedGeneratorException",
+        "IntlDatePatternGenerator",
+        "ReflectionGenerator"
+      ]
+    },
+    {
+      "name": "Closure",
+      "context": {
+        "prefix": "Closure",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": []
+    },
+    {
+      "name": "ArrayObject",
+      "context": {
+        "prefix": "ArrayObject",
+        "namespace": "",
+        "constructKind": "class",
+        "importedTypes": []
+      },
+      "suggested": [
+        "ArrayObject"
+      ]
+    }
+  ],
+  "nativeAudit": {
+    "scope": "Owned no-argument native constructor checks; no factory calls or external resources",
+    "classes": [
+      "Shmop",
+      "XMLParser",
+      "FTP\\Connection",
+      "PgSql\\Connection",
+      "PgSql\\Result",
+      "PgSql\\Lob",
+      "Closure",
+      "Generator",
+      "GdImage",
+      "CurlHandle",
+      "ArrayObject",
+      "stdClass",
+      "WeakMap",
+      "DelayedTargetValidation"
+    ],
+    "records": [
+      {
+        "name": "Shmop",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "XMLParser",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "FTP\\Connection",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "PgSql\\Connection",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "PgSql\\Result",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "PgSql\\Lob",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "Closure",
+        "php": "7.2.34",
+        "present": true,
+        "reflectionInstantiable": false,
+        "constructorVisibility": "private",
+        "constructed": false,
+        "error": "Instantiation of 'Closure' is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "7.2.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "GdImage",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "CurlHandle",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "ArrayObject",
+        "php": "7.2.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": "public",
+        "constructed": true
+      },
+      {
+        "name": "stdClass",
+        "php": "7.2.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "WeakMap",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "DelayedTargetValidation",
+        "php": "7.2.34",
+        "present": false
+      },
+      {
+        "name": "Shmop",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "XMLParser",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "FTP\\Connection",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "PgSql\\Connection",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "PgSql\\Result",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "PgSql\\Lob",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "Closure",
+        "php": "7.4.33",
+        "present": true,
+        "reflectionInstantiable": false,
+        "constructorVisibility": "private",
+        "constructed": false,
+        "error": "Instantiation of 'Closure' is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "7.4.33",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "GdImage",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "CurlHandle",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "ArrayObject",
+        "php": "7.4.33",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": "public",
+        "constructed": true
+      },
+      {
+        "name": "stdClass",
+        "php": "7.4.33",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "WeakMap",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "DelayedTargetValidation",
+        "php": "7.4.33",
+        "present": false
+      },
+      {
+        "name": "Shmop",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct Shmop, use shmop_open() instead"
+      },
+      {
+        "name": "XMLParser",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct XMLParser, use xml_parser_create() or xml_parser_create_ns() instead"
+      },
+      {
+        "name": "FTP\\Connection",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct FTP\\Connection, use ftp_connect() or ftp_ssl_connect() instead"
+      },
+      {
+        "name": "PgSql\\Connection",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Connection, use pg_connect() or pg_pconnect() instead"
+      },
+      {
+        "name": "PgSql\\Result",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Result, use a dedicated function instead"
+      },
+      {
+        "name": "PgSql\\Lob",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Lob, use pg_lo_open() instead"
+      },
+      {
+        "name": "Closure",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": false,
+        "constructorVisibility": "private",
+        "constructed": false,
+        "error": "Instantiation of class Closure is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "GdImage",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "You cannot initialize a GdImage object except through helper functions"
+      },
+      {
+        "name": "CurlHandle",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct CurlHandle, use curl_init() instead"
+      },
+      {
+        "name": "ArrayObject",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": "public",
+        "constructed": true
+      },
+      {
+        "name": "stdClass",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "WeakMap",
+        "php": "8.1.34",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "DelayedTargetValidation",
+        "php": "8.1.34",
+        "present": false
+      },
+      {
+        "name": "Shmop",
+        "php": "8.2.32",
+        "present": false
+      },
+      {
+        "name": "XMLParser",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct XMLParser, use xml_parser_create() or xml_parser_create_ns() instead"
+      },
+      {
+        "name": "FTP\\Connection",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct FTP\\Connection, use ftp_connect() or ftp_ssl_connect() instead"
+      },
+      {
+        "name": "PgSql\\Connection",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Connection, use pg_connect() or pg_pconnect() instead"
+      },
+      {
+        "name": "PgSql\\Result",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Result, use a dedicated function instead"
+      },
+      {
+        "name": "PgSql\\Lob",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Lob, use pg_lo_open() instead"
+      },
+      {
+        "name": "Closure",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": false,
+        "constructorVisibility": "private",
+        "constructed": false,
+        "error": "Instantiation of class Closure is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "GdImage",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "You cannot initialize a GdImage object except through helper functions"
+      },
+      {
+        "name": "CurlHandle",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct CurlHandle, use curl_init() instead"
+      },
+      {
+        "name": "ArrayObject",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": "public",
+        "constructed": true
+      },
+      {
+        "name": "stdClass",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "WeakMap",
+        "php": "8.2.32",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "DelayedTargetValidation",
+        "php": "8.2.32",
+        "present": false
+      },
+      {
+        "name": "Shmop",
+        "php": "8.4.23",
+        "present": false
+      },
+      {
+        "name": "XMLParser",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct XMLParser, use xml_parser_create() or xml_parser_create_ns() instead"
+      },
+      {
+        "name": "FTP\\Connection",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct FTP\\Connection, use ftp_connect() or ftp_ssl_connect() instead"
+      },
+      {
+        "name": "PgSql\\Connection",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Connection, use pg_connect() or pg_pconnect() instead"
+      },
+      {
+        "name": "PgSql\\Result",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Result, use a dedicated function instead"
+      },
+      {
+        "name": "PgSql\\Lob",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Lob, use pg_lo_open() instead"
+      },
+      {
+        "name": "Closure",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": false,
+        "constructorVisibility": "private",
+        "constructed": false,
+        "error": "Instantiation of class Closure is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "GdImage",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "You cannot initialize a GdImage object except through helper functions"
+      },
+      {
+        "name": "CurlHandle",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct CurlHandle, use curl_init() instead"
+      },
+      {
+        "name": "ArrayObject",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": "public",
+        "constructed": true
+      },
+      {
+        "name": "stdClass",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "WeakMap",
+        "php": "8.4.23",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "DelayedTargetValidation",
+        "php": "8.4.23",
+        "present": false
+      },
+      {
+        "name": "Shmop",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct Shmop, use shmop_open() instead"
+      },
+      {
+        "name": "XMLParser",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct XMLParser, use xml_parser_create() or xml_parser_create_ns() instead"
+      },
+      {
+        "name": "FTP\\Connection",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct FTP\\Connection, use ftp_connect() or ftp_ssl_connect() instead"
+      },
+      {
+        "name": "PgSql\\Connection",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Connection, use pg_connect() or pg_pconnect() instead"
+      },
+      {
+        "name": "PgSql\\Result",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Result, use a dedicated function instead"
+      },
+      {
+        "name": "PgSql\\Lob",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct PgSql\\Lob, use pg_lo_open() instead"
+      },
+      {
+        "name": "Closure",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": false,
+        "constructorVisibility": "private",
+        "constructed": false,
+        "error": "Instantiation of class Closure is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "GdImage",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "You cannot initialize a GdImage object except through helper functions"
+      },
+      {
+        "name": "CurlHandle",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": false,
+        "error": "Cannot directly construct CurlHandle, use curl_init() instead"
+      },
+      {
+        "name": "ArrayObject",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": "public",
+        "constructed": true
+      },
+      {
+        "name": "stdClass",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "WeakMap",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      },
+      {
+        "name": "DelayedTargetValidation",
+        "php": "8.5.9",
+        "present": true,
+        "reflectionInstantiable": true,
+        "constructorVisibility": null,
+        "constructed": true
+      }
+    ]
+  },
+  "upstream": {
+    "revision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+    "scope": "Immutable upstream class declaration headers; runtime construction restrictions audited separately",
+    "records": [
+      {
+        "path": "shmop/shmop.php",
+        "name": "Shmop",
+        "header": "final class Shmop {",
+        "sourceLine": 117
+      },
+      {
+        "path": "xml/xml.php",
+        "name": "XMLParser",
+        "header": "final class XMLParser {",
+        "sourceLine": 615
+      },
+      {
+        "path": "ftp/Connection.php",
+        "name": "Connection",
+        "header": "final class Connection {",
+        "sourceLine": 10
+      },
+      {
+        "path": "pgsql/pgsql_c.php",
+        "name": "Connection",
+        "header": "final class Connection {",
+        "sourceLine": 24
+      },
+      {
+        "path": "pgsql/pgsql_c.php",
+        "name": "Result",
+        "header": "final class Result {",
+        "sourceLine": 10
+      },
+      {
+        "path": "pgsql/pgsql_c.php",
+        "name": "Lob",
+        "header": "final class Lob {",
+        "sourceLine": 17
+      }
+    ]
+  },
+  "importBoundary": {
+    "scope": "Same semantic consumer; prior six construction-only contracts restored in a disposable stub, no historical binary claim",
+    "rows": [
+      {
+        "model": "prior-construction-model",
+        "marked": "<?php use Shmop§;",
+        "candidates": []
+      },
+      {
+        "model": "prior-construction-model",
+        "marked": "<?php namespace Consumer; use \\Shmop§;",
+        "candidates": []
+      },
+      {
+        "model": "prior-construction-model",
+        "marked": "<?php namespace Consumer; use FTP\\Con§;",
+        "candidates": [
+          "FTP\\Connection"
+        ]
+      },
+      {
+        "model": "current",
+        "marked": "<?php use Shmop§;",
+        "candidates": []
+      },
+      {
+        "model": "current",
+        "marked": "<?php namespace Consumer; use \\Shmop§;",
+        "candidates": []
+      },
+      {
+        "model": "current",
+        "marked": "<?php namespace Consumer; use FTP\\Con§;",
+        "candidates": [
+          "FTP\\Connection"
+        ]
+      }
+    ]
+  },
+  "semantic": {
+    "focused": 10,
+    "supportedTargets": [
+      "7.2",
+      "7.3",
+      "7.4",
+      "8.0",
+      "8.1",
+      "8.2",
+      "8.3",
+      "8.4",
+      "8.5"
+    ],
+    "fullFiles": 98,
+    "fullTests": 2044,
+    "log": "/tmp/sophp-d63-full-semantic.log",
+    "durationSeconds": 72.46
+  },
+  "languageSpec": {
+    "files": 15,
+    "tests": 249,
+    "durationSeconds": 15.2,
+    "log": "/tmp/sophp-d63-spec-tests-final.log"
+  },
+  "protocol": {
+    "targetPhpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "files": 1,
+    "tests": 2,
+    "completionStatesPerTarget": 72,
+    "scope": "24 existing construction/comment/call states plus 48 native and user-type states per target; bundle stdio and unsaved changes; disk unchanged",
+    "durationSeconds": 9.81,
+    "log": "/tmp/sophp-d63-protocol.log"
+  },
+  "automaticUi": {
+    "platform": "linux",
+    "vscodeVersion": "1.140.0",
+    "context": "ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest",
+    "settings": {
+      "quickSuggestions": {
+        "other": "offWhenInlineCompletions",
+        "comments": "off",
+        "strings": "off"
+      },
+      "wordBasedSuggestions": "off",
+      "snippetSuggestions": "none",
+      "basicPhpSuggestions": false
+    },
+    "results": [
+      {
+        "name": "Function",
+        "observations": [
+          {
+            "phase": "func",
+            "afterLastKeyMs": 251,
+            "transitions": [
+              {
+                "elapsedMs": 44,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 251,
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "function",
+              "function blockPHP declaration or block"
+            ]
+          },
+          {
+            "phase": "function",
+            "afterLastKeyMs": 18,
+            "transitions": [
+              {
+                "elapsedMs": 18,
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "function",
+              "function blockPHP declaration or block"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 696,
+            "transitions": [
+              {
+                "elapsedMs": 23,
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              },
+              {
+                "elapsedMs": 193,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php\nfunction z\n",
+        "version": 11,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Class",
+        "observations": [
+          {
+            "phase": "clas",
+            "afterLastKeyMs": 209,
+            "transitions": [
+              {
+                "elapsedMs": 24,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 209,
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "class"
+            ]
+          },
+          {
+            "phase": "class",
+            "afterLastKeyMs": 23,
+            "transitions": [
+              {
+                "elapsedMs": 23,
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "class"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 521,
+            "transitions": [
+              {
+                "elapsedMs": 10,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php\nclass z\n",
+        "version": 8,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Enum",
+        "observations": [
+          {
+            "phase": "enu",
+            "afterLastKeyMs": 215,
+            "transitions": [
+              {
+                "elapsedMs": 42,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 215,
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "enum"
+            ]
+          },
+          {
+            "phase": "enum",
+            "afterLastKeyMs": 18,
+            "transitions": [
+              {
+                "elapsedMs": 18,
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "enum"
+            ]
+          },
+          {
+            "phase": "declaration name",
+            "afterLastKeyMs": 527,
+            "transitions": [
+              {
+                "elapsedMs": 12,
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "visible": false,
+            "labels": []
+          }
+        ],
+        "text": "<?php\nenum z\n",
+        "version": 7,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Member",
+        "observations": [
+          {
+            "phase": "public",
+            "afterLastKeyMs": 231,
+            "transitions": [
+              {
+                "elapsedMs": 53,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 231,
+                "visible": true,
+                "labels": [
+                  "public"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "public"
+            ]
+          },
+          {
+            "phase": "magic name",
+            "afterLastKeyMs": 219,
+            "transitions": [
+              {
+                "elapsedMs": 10,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 219,
+                "visible": true,
+                "labels": [
+                  "__construct"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "__construct"
+            ]
+          }
+        ],
+        "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+        "version": 23,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Types",
+        "observations": [
+          {
+            "phase": "short type",
+            "afterLastKeyMs": 224,
+            "transitions": [
+              {
+                "elapsedMs": 11,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 224,
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+              "ShortCurrentAutomaticTypes\\ShortCurrent",
+              "SessionHandlerSessionHandler"
+            ]
+          },
+          {
+            "phase": "changed type",
+            "afterLastKeyMs": 220,
+            "transitions": [
+              {
+                "elapsedMs": 16,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 220,
+                "visible": true,
+                "labels": [
+                  "OtherCurrentAutomaticTypes\\OtherCurrent",
+                  "OverrideTargetApp\\Service\\OverrideTarget"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "OtherCurrentAutomaticTypes\\OtherCurrent",
+              "OverrideTargetApp\\Service\\OverrideTarget"
+            ]
+          },
+          {
+            "phase": "restored type",
+            "afterLastKeyMs": 181,
+            "transitions": [
+              {
+                "elapsedMs": 14,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 181,
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+              "ShortCurrentAutomaticTypes\\ShortCurrent",
+              "SessionHandlerSessionHandler"
+            ]
+          },
+          {
+            "phase": "narrow type",
+            "afterLastKeyMs": 52,
+            "transitions": [
+              {
+                "elapsedMs": 10,
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              },
+              {
+                "elapsedMs": 51,
+                "visible": true,
+                "labels": [
+                  "ShortCurrentAutomaticTypes\\ShortCurrent"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "ShortCurrentAutomaticTypes\\ShortCurrent"
+            ]
+          }
+        ],
+        "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+        "version": 8,
+        "diskUnchanged": true
+      },
+      {
+        "name": "Arguments",
+        "observations": [
+          {
+            "phase": "bool argument",
+            "afterLastKeyMs": 231,
+            "transitions": [
+              {
+                "elapsedMs": 60,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 231,
+                "visible": true,
+                "labels": [
+                  "$firstBool$firstBool: bool",
+                  "$firstText",
+                  "$_FILES"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "$firstBool$firstBool: bool",
+              "$firstText",
+              "$_FILES"
+            ]
+          },
+          {
+            "phase": "string argument",
+            "afterLastKeyMs": 216,
+            "transitions": [
+              {
+                "elapsedMs": 12,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 216,
+                "visible": true,
+                "labels": [
+                  "$firstText$firstText: string",
+                  "$firstBool",
+                  "$_FILES"
+                ]
+              }
+            ],
+            "visible": true,
+            "labels": [
+              "$firstText$firstText: string",
+              "$firstBool",
+              "$_FILES"
+            ]
+          }
+        ],
+        "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+        "version": 13,
+        "diskUnchanged": true
+      }
+    ],
+    "rendererExceptions": 0
+  },
+  "referenceUi": {
+    "platform": "linux",
+    "context": "native-handle-type-references",
+    "results": [
+      {
+        "label": "Shmop",
+        "key": "Enter",
+        "visibleMs": 268,
+        "visibleLabels": [
+          "ShmopShmop",
+          "SessionHandlerSessionHandler",
+          "SessionHandlerInterfaceSessionHandlerInterface",
+          "SplHeapSplHeap"
+        ],
+        "acceptedText": "<?php function choose0Enter(\\Shmop $value):void{}",
+        "caretOffset": 34,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Shmop",
+        "key": "Tab",
+        "visibleMs": 124,
+        "visibleLabels": [
+          "ShmopShmop",
+          "SessionHandlerSessionHandler",
+          "SessionHandlerInterfaceSessionHandlerInterface",
+          "SplHeapSplHeap"
+        ],
+        "acceptedText": "<?php function choose0Tab(\\Shmop $value):void{}",
+        "caretOffset": 32,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "XMLParser",
+        "key": "Enter",
+        "visibleMs": 176,
+        "visibleLabels": [
+          "XMLParserXMLParser"
+        ],
+        "acceptedText": "<?php function choose1Enter(\\XMLParser $value):void{}",
+        "caretOffset": 38,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "XMLParser",
+        "key": "Tab",
+        "visibleMs": 141,
+        "visibleLabels": [
+          "XMLParserXMLParser"
+        ],
+        "acceptedText": "<?php function choose1Tab(\\XMLParser $value):void{}",
+        "caretOffset": 36,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Connection",
+        "key": "Enter",
+        "visibleMs": 152,
+        "visibleLabels": [
+          "ConnectionFTP\\Connection"
+        ],
+        "acceptedText": "<?php function choose2Enter():\\FTP\\Connection{}",
+        "caretOffset": 45,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Connection",
+        "key": "Tab",
+        "visibleMs": 180,
+        "visibleLabels": [
+          "ConnectionFTP\\Connection"
+        ],
+        "acceptedText": "<?php function choose2Tab():\\FTP\\Connection{}",
+        "caretOffset": 43,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Lob",
+        "key": "Enter",
+        "visibleMs": 194,
+        "visibleLabels": [
+          "LobPgSql\\Lob"
+        ],
+        "acceptedText": "<?php namespace Consumer; use PgSql\\Lob;",
+        "caretOffset": 39,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "Lob",
+        "key": "Tab",
+        "visibleMs": 216,
+        "visibleLabels": [
+          "LobPgSql\\Lob"
+        ],
+        "acceptedText": "<?php namespace Consumer; use PgSql\\Lob;",
+        "caretOffset": 39,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "acceptedTextCompile": {
+    "scope": "Owned accepted UI texts; compile only, no execution",
+    "records": [
+      {
+        "label": "Shmop",
+        "key": "Enter",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "dd3d64f608ab845f0c562fb31d9a00a7602334bd6ce7676bc0f3b910e7b6ad39",
+        "exitCode": 0
+      },
+      {
+        "label": "Shmop",
+        "key": "Enter",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "dd3d64f608ab845f0c562fb31d9a00a7602334bd6ce7676bc0f3b910e7b6ad39",
+        "exitCode": 0
+      },
+      {
+        "label": "Shmop",
+        "key": "Tab",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "43f993642bb8c750dd8642daa98640bf0d959cfebe4831dac042afbbcba206c7",
+        "exitCode": 0
+      },
+      {
+        "label": "Shmop",
+        "key": "Tab",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "43f993642bb8c750dd8642daa98640bf0d959cfebe4831dac042afbbcba206c7",
+        "exitCode": 0
+      },
+      {
+        "label": "XMLParser",
+        "key": "Enter",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "9e1a82c74f2d3f5c9fc439f243a86592ecf65725f9a035b52b08a87bbc8ed9b9",
+        "exitCode": 0
+      },
+      {
+        "label": "XMLParser",
+        "key": "Enter",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "9e1a82c74f2d3f5c9fc439f243a86592ecf65725f9a035b52b08a87bbc8ed9b9",
+        "exitCode": 0
+      },
+      {
+        "label": "XMLParser",
+        "key": "Tab",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "09108aaead54d58f7cd43352648781b0bffd579739d23465f8098dca6cfc6a1c",
+        "exitCode": 0
+      },
+      {
+        "label": "XMLParser",
+        "key": "Tab",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "09108aaead54d58f7cd43352648781b0bffd579739d23465f8098dca6cfc6a1c",
+        "exitCode": 0
+      },
+      {
+        "label": "Connection",
+        "key": "Enter",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "868fd25b73d8dcbd2c0ebb6bed9f23c105b898553fd9549a4c520ed957951f27",
+        "exitCode": 0
+      },
+      {
+        "label": "Connection",
+        "key": "Enter",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "868fd25b73d8dcbd2c0ebb6bed9f23c105b898553fd9549a4c520ed957951f27",
+        "exitCode": 0
+      },
+      {
+        "label": "Connection",
+        "key": "Tab",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "ddc93525d357e533c631c89b65bd768f0638c6fb749128d845a77ea403a4293d",
+        "exitCode": 0
+      },
+      {
+        "label": "Connection",
+        "key": "Tab",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "ddc93525d357e533c631c89b65bd768f0638c6fb749128d845a77ea403a4293d",
+        "exitCode": 0
+      },
+      {
+        "label": "Lob",
+        "key": "Enter",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "005c1b5ec24b1e0e3e38fa2e3b8864b5fdfc6d817d78decca093eaba6c50989d",
+        "exitCode": 0
+      },
+      {
+        "label": "Lob",
+        "key": "Enter",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "005c1b5ec24b1e0e3e38fa2e3b8864b5fdfc6d817d78decca093eaba6c50989d",
+        "exitCode": 0
+      },
+      {
+        "label": "Lob",
+        "key": "Tab",
+        "target": "7.2",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "sourceSha256": "005c1b5ec24b1e0e3e38fa2e3b8864b5fdfc6d817d78decca093eaba6c50989d",
+        "exitCode": 0
+      },
+      {
+        "label": "Lob",
+        "key": "Tab",
+        "target": "8.5",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sourceSha256": "005c1b5ec24b1e0e3e38fa2e3b8864b5fdfc6d817d78decca093eaba6c50989d",
+        "exitCode": 0
+      }
+    ]
+  },
+  "initialFailures": [
+    {
+      "log": "/tmp/sophp-d63-red-semantic.log",
+      "scope": "Six actual missing native construction constraints plus one overly strict test expectation rejecting unrelated valid mysqli_result"
+    },
+    {
+      "logs": [
+        "/tmp/sophp-d63-focused.log",
+        "/tmp/sophp-d63-focused-correct-context.log"
+      ],
+      "scope": "Root-global use had no completeTypes candidates in either prior or current model; assert qualified namespace imports only and record existing missing behavior separately"
+    },
+    {
+      "log": "/tmp/sophp-d63-spec-tests.log",
+      "scope": "Four existing empty class-body expectations updated for new construction contracts; disabled-extension assertion strengthened to exclude declaration rather than obsolete text"
+    }
+  ],
+  "limits": [
+    "No current full LSP qualification; older 870-result input is different",
+    "No new P95 or repeated equivalent timing gate; prior ordinary editing P95 251.71 ms exceeds 150 ms",
+    "Root-global use type candidates remain missing in the tested semantic API",
+    "Native audit absence is not proof of a construction prohibition; no actual PHP 7.3, 8.0 or 8.3 runtime claim",
+    "No installed Profile, real WSL UI or Windows/macOS qualification for this product input",
+    "No packaging, push or release; active goal continues"
+  ]
+}

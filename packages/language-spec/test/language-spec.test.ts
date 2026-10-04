@@ -113,7 +113,7 @@ describe('PHP language specification', () => {
       expect([...stub.matchAll(/\bfunction (shmop_\w+)\(/g)].map((match) => match[1]))
         .toEqual(['shmop_open', 'shmop_read', 'shmop_close', 'shmop_size', 'shmop_write', 'shmop_delete']);
       if (Number(version.replace('.', '')) >= 80) {
-        expect(stub).toContain('final class Shmop {}');
+        expect(stub).toContain('final class Shmop { private function __construct() {} }');
         expect(stub).toContain('function shmop_open(int $key, string $mode, int $permissions, int $size): Shmop|false');
         expect(stub).toContain('function shmop_read(Shmop $shmop, int $offset, int $size): string');
         expect(stub).toContain('@deprecated PHP 8.0');
@@ -126,7 +126,7 @@ describe('PHP language specification', () => {
     }
     const disabled = builtinPhpStub('8.5', { disabledExtensions: ['shmop'] });
     expect(disabled).not.toContain('function shmop_open(');
-    expect(disabled).not.toContain('final class Shmop {}');
+    expect(disabled).not.toContain('class Shmop');
   });
   it('models System V IPC handles separately for each extension and PHP version', () => {
     const names = new Map([
@@ -335,7 +335,7 @@ describe('PHP language specification', () => {
     expect(builtinPhpExtensionStub('7.3', 'ftp')).toContain('function ftp_get($ftp, $local_file, $remote_file, $mode = FTP_BINARY, $resume_pos = 0)');
     expect(builtinPhpExtensionStub('8.0', 'ftp')).not.toContain('class Connection');
     expect(builtinPhpExtensionStub('8.1', 'ftp')).toContain('function ftp_connect(string $hostname, int $port = 21, int $timeout = 90): \\FTP\\Connection|false');
-    expect(builtinPhpExtensionStub('8.1', 'ftp')).toContain('namespace FTP { final class Connection {} }');
+    expect(builtinPhpExtensionStub('8.1', 'ftp')).toContain('namespace FTP { final class Connection { private function __construct() {} } }');
     expect(builtinPhpExtensionStub('8.5', 'ftp')).toContain('function ftp_set_option(\\FTP\\Connection $ftp, int $option, $value): true');
   });
   it('removes the complete Session declaration group when the project lacks the extension', () => {
@@ -384,7 +384,7 @@ describe('PHP language specification', () => {
     expect(php72).toContain('/** @return resource|false */ function pg_connect($connection_string, $flags = 0)');
     expect(php72).not.toContain('class Connection');
     expect(php81).toContain('function pg_connect(string $connection_string, int $flags = 0): PgSql\\Connection|false');
-    expect(php81).toContain('namespace PgSql { final class Connection {} final class Result {} final class Lob {} }');
+    expect(php81).toContain('namespace PgSql { final class Connection { private function __construct() {} } final class Result { private function __construct() {} } final class Lob { private function __construct() {} } }');
     expect(php81).not.toContain('function pg_jit(');
     expect(php83).toContain('function pg_set_error_context_visibility(');
     expect(php83).toContain('const PGSQL_SHOW_CONTEXT_NEVER = 0;');
@@ -3142,7 +3142,7 @@ describe('PHP language specification', () => {
     expect(php80).toContain('class SimpleXMLElement implements Stringable, Countable, RecursiveIterator');
     expect(php80).toContain('function xml_parser_create(?string $encoding = null): XMLParser');
     expect(php80).toContain('function xml_parse_into_struct(XMLParser $parser, string $data, &$values, &$index = null): int');
-    expect(php80).toContain('final class XMLParser {}');
+    expect(php80).toContain('final class XMLParser { private function __construct() {} }');
     expect(php80).toContain('public function xpath(string $expression) {}');
     expect(php81).toContain('public int $level;');
     expect(php81).toContain('public function xpath(string $expression): array|null|false');

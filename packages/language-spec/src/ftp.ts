@@ -116,5 +116,5 @@ function ftp_quit(${ftp}$ftp): bool {}
 export function auditedFtpStub(version: SupportedPhpVersion): string {
   const target = Number(version.replace('.', ''));
   return constants + (target < 80 ? php7Functions(target >= 73) : php8Functions(target))
-    + (target >= 81 ? '\nnamespace FTP { final class Connection {} }\n' : '');
+    + (target >= 81 ? '\nnamespace FTP { final class Connection { private function __construct() {} } }\n' : '');
 }

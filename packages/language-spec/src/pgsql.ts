@@ -93,6 +93,6 @@ export function auditedPgsqlStub(version: SupportedPhpVersion, runtime?: PgsqlRu
     .filter(([name]) => target >= 73 || !['PGSQL_DIAG_SEVERITY_NONLOCALIZED', 'PGSQL_DIAG_SCHEMA_NAME',
       'PGSQL_DIAG_TABLE_NAME', 'PGSQL_DIAG_COLUMN_NAME', 'PGSQL_DIAG_DATATYPE_NAME', 'PGSQL_DIAG_CONSTRAINT_NAME'].includes(name))
     .map(([name, value]) => `const ${name} = ${valueText(value)};`).join('\n');
-  const classes = target >= 81 ? '\nnamespace PgSql { final class Connection {} final class Result {} final class Lob {} }' : '';
+  const classes = target >= 81 ? '\nnamespace PgSql { final class Connection { private function __construct() {} } final class Result { private function __construct() {} } final class Lob { private function __construct() {} } }' : '';
   return `${constants}\n${functions}${classes}\n`;
 }

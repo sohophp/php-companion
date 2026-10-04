@@ -5,7 +5,8 @@ import type { SupportedPhpVersion } from './index.js';
 export function auditedShmopStub(version: SupportedPhpVersion): string {
   const php80 = Number(version.replace('.', '')) >= 80;
   const handle = php80 ? 'Shmop ' : '';
-  return `${php80 ? 'final class Shmop {}\n' : ''}
+  // Static no-new contract: native handles are created by shmop_open().
+  return `${php80 ? 'final class Shmop { private function __construct() {} }\n' : ''}
 /** @return ${php80 ? 'Shmop|false' : 'resource|false'} */ function shmop_open(int $key, string $mode, int $permissions, int $size)${php80 ? ': Shmop|false' : ''} {}
 /** @param ${php80 ? 'Shmop' : 'resource'} $shmop
  * @return ${php80 ? 'string' : 'string|false'} */ function shmop_read(${handle}$shmop, int $offset, int $size)${php80 ? ': string' : ''} {}

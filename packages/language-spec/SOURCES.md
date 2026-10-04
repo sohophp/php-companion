@@ -1,5 +1,7 @@
 # 数据来源
 
+Shmop／XMLParser（PHP 8.0 起）、FTP Connection／PgSql Connection、Result、Lob（PHP 8.1 起）的类型声明核对固定 phpstorm-stubs 修订 `e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681` 的 `shmop/shmop.php`、`xml/xml.php`、`ftp/Connection.php`、`pgsql/pgsql_c.php`。禁止直接构造的合同另以六套本机 PHP 检查；只检查自己的空构造表达式，不调用工厂或使用外部资源。沿用已有 opaque 类型的私有构造静态模型，供语义层过滤 `new`；这不表示原生 Reflection 暴露了该方法，也不复制上游空类体为“允许构造”的证据。保留类型引用、版本及扩展可用性边界，见 [D63 记录](../../docs/php-language-toolchain/reports/completion-native-construction-2026-10-04.md)。
+
 Intl／DOM／SimpleXML 已有签名及原生迭代合同的消费修复位于 SoPHP 语义层：按实际传入参数识别引用风险，固定父类类型事实可传给无独立泛型参数的子类；不更换 stubs 来源、不复制上游说明文本。完整语义、LSP、六版实际 PHP（PHP 7.4 缺 intl 单列）及 Linux／Windows 当前宿主证据见 [记录](../../docs/php-language-toolchain/reports/phpstorm-stubs-call-and-inherited-flow-2026-10-03.md)与 [Windows 验收](../../docs/php-language-toolchain/reports/phpstorm-stubs-current-windows-2026-10-03.md)。
 
 `array_reverse`、`array_slice`、`array_chunk` 的原生签名核对固定 phpstorm-stubs 修订 standard/standard_8.php／standard_9.php；键域传递与分块 preserve_keys 条件合同按 PHP 官方手册独立补充，并经六版运行时核验。PHP 7 slice 的 length 显式保持可空。见 [接入记录](../../docs/php-language-toolchain/reports/phpstorm-stubs-array-key-preservation-2026-10-03.md)。未复制说明文本。

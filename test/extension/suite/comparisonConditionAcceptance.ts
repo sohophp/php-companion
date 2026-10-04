@@ -26,8 +26,14 @@ export async function run(): Promise<void> {
   const shapeValues = process.env.PHP_COMPANION_TEST_SHAPE_VALUE_ONLY === '1';
   const namedAttributeValues = process.env.PHP_COMPANION_TEST_NAMED_ATTRIBUTE_VALUE_ONLY === '1';
   const importPrefixes = process.env.PHP_COMPANION_TEST_IMPORT_PREFIX_ONLY === '1';
+  const nativeHandles = process.env.PHP_COMPANION_TEST_NATIVE_HANDLE_ONLY === '1';
   const importHeader = '<?php namespace ImportCatalog; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text="literal;😀"; /* 中文; trivia */\r\n';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = importPrefixes ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = nativeHandles ? [
+    {prefix:'Sh',label:'Shmop',forbidden:'shmop_open',addCall:false,marked:'<?php function choose(\\Sh§ $value):void{}'},
+    {prefix:'XMLP',label:'XMLParser',forbidden:'xml_parser_create',addCall:false,marked:'<?php function choose(\\XMLP§ $value):void{}'},
+    {prefix:'Con',label:'Connection',forbidden:'ftp_connect',addCall:false,marked:'<?php function choose():\\FTP\\Con§{}'},
+    {prefix:'Lo',label:'Lob',forbidden:'pg_lo_open',addCall:false,marked:'<?php namespace Consumer; use PgSql\\Lo§;'},
+  ] : importPrefixes ? [
     {prefix:'Inv',label:'Invoice',forbidden:'createInvoice',addCall:false,marked:importHeader+'use ImportCatalog\\Inv§;'},
     {prefix:'Inv',label:'Invoice',forbidden:'createInvoice',addCall:false,suffix:'}',consume:1,marked:importHeader+'use ImportCatalog\\{Inv§};'},
     {prefix:'crea',label:'createInvoice',forbidden:'API_KEY',addCall:false,suffix:'}',consume:1,marked:importHeader+'use ImportCatalog\\{Invoice, function crea§};'},
@@ -210,6 +216,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }
