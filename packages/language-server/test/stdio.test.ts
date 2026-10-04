@@ -2559,6 +2559,156 @@ function inspect(Sink $sink, ?Sink $optional): void {
       expect(keyword.sortText < template.sortText).toBe(true);
     }
   });
+  it.each(['8.1', '8.5'])('completes named attribute values through grouping and trivia on PHP %s', async phpVersion => {
+    const uri = 'file:///NamedAttributeValues.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const header = '<?php enum State { case Ready; } const PICK_TEXT = "x", PICK_FLAG = true; function send(string $text, bool $flag): void {} #[\\Attribute] class Host { public function __construct(string $text, bool $flag, ?State $state = null) {} } ';
+    const rows = [
+      { tail: '#[Host(flag: (tr§), text: "x")] class Tagged {}', label: 'true', active: 1 },
+      { tail: '#[Host /* ctor */ (flag: tr§, text: "x")] class Tagged {}', label: 'true', active: 1 },
+      { tail: '#[Host(text: "x", flag: true), Host(flag: tr§, text: "x")] class Tagged {}', label: 'true', active: 1 },
+      { tail: '#[Host(state: rea§, text: "x", flag: true)] class Tagged {}', label: 'State::Ready', active: 2 },
+      { tail: '#[Host(flag: PICK_§, text: "x")] class Tagged {}', label: 'PICK_FLAG', active: 1 },
+      { tail: '#[Host(state: nu§, text: "x", flag: true)] class Tagged {}', label: 'null', active: 2 },
+      { tail: '#[Host(flag: send(flag: tr§, text: "x"), text: "x")] class Tagged {}', label: 'true', active: 1 },
+      { tail: '#[Host(flag: tr§', label: 'true', active: 1 },
+      { tail: '#[Host /* ctor */ (flag: tr§', label: 'true', active: 1 },
+    ];
+    for (const [index, row] of rows.entries()) {
+      const marked = header + row.tail, offset = marked.indexOf('§'), source = marked.replace('§', '');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+        ? { textDocument: { uri, version: index + 1 }, contentChanges: [{ text: source }] }
+        : { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 100 + index, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === 100 + index);
+      expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      expect(items[0]?.label, row.tail).toBe(row.label);
+      expect(items.some((item: { label: string }) => item.label === 'flag:'), row.tail).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 200 + index, method: 'textDocument/signatureHelp', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const help = (await output.waitFor(message => message.id === 200 + index)).result;
+      expect(help?.activeParameter, row.tail).toBe(row.active);
+    }
+    for (const [index, type] of ['bool', 'string', '?bool', 'bool'].entries()) {
+      const marked = `<?php const PICK_TEXT = "x", PICK_FLAG = true; #[\\Attribute] class Host { public function __construct(${type} $value) {} } #[Host(value: PICK_§)] class Tagged {}`;
+      const offset = marked.indexOf('§'), source = marked.replace('§', '');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 20 + index }, contentChanges: [{ text: source }],
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 300 + index, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === 300 + index);
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      expect(items[0]?.label, type).toBe(type === 'string' ? 'PICK_TEXT' : 'PICK_FLAG');
+    }
+  }, 30_000);
+  it.each(['7.2', '8.5'])('replaces the whole function identifier across digits and middle cursors on PHP %s', async phpVersion => {
+    const uri = 'file:///FunctionIdentifier.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const header = '<?php function demo2_optional($value = null) {} function méthode2($value = null) {} ';
+    const rows = [
+      { tail: '$value = sha1§;', label: 'sha1', prefix: 'sha1', suffix: '', call: false, first: true },
+      { tail: '$value = sha1§("x");', label: 'sha1', prefix: 'sha1', suffix: '', call: true, first: true },
+      { tail: 'use function sha1 as hash2; $value = hash2§("x");', label: 'hash2', prefix: 'hash2', suffix: '', call: true, first: true },
+      { tail: '$value = sha1§_file("x");', label: 'sha1_file', prefix: 'sha1', suffix: '_file', call: true, first: true },
+      { tail: '$value = sha1_f§ile;', label: 'sha1_file', prefix: 'sha1_f', suffix: 'ile', call: false, first: true },
+      { tail: '$value = sha1_f§wrong;', label: 'sha1_file', prefix: 'sha1_f', suffix: 'wrong', call: false, first: false },
+      { tail: 'demo2§_optional;', label: 'demo2_optional', prefix: 'demo2', suffix: '_optional', call: false, first: true },
+      { tail: 'méth§ode2;', label: 'méthode2', prefix: 'méth', suffix: 'ode2', call: false, first: true },
+    ];
+    if (phpVersion === '8.5') rows.push(
+      { tail: 'const CALLBACK = demo2§_optional;', label: 'demo2_optional', prefix: 'demo2', suffix: '_optional', call: false, first: true },
+      { tail: 'const CALLBACK = demo2§_optional();', label: 'demo2_optional', prefix: 'demo2', suffix: '_optional', call: false, first: true },
+      { tail: 'const CALLBACK = demo2§_optional(...);', label: 'demo2_optional', prefix: 'demo2', suffix: '_optional', call: true, first: true },
+    );
+    for (const [index, row] of rows.entries()) {
+      const marked = header + row.tail, offset = marked.indexOf('§'), source = marked.replace('§', ''), version = index + 1;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+        ? { textDocument: { uri, version }, contentChanges: [{ text: source }] }
+        : { textDocument: { uri, languageId: 'php', version, text: source } } }));
+      const id = 100 + index;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id);
+      expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      const candidate = items.find((item: { label: string }) => item.label === row.label);
+      expect(candidate, row.tail).toBeDefined();
+      if (row.first) expect(items[0].label, row.tail).toBe(row.label);
+      if (row.suffix && row.suffix !== 'wrong') expect(candidate.filterText, row.tail).toBe(row.prefix);
+      expect(candidate.textEdit.range.start, row.tail).toEqual(lspPosition(source, offset - row.prefix.length));
+      const consumed = row.tail.includes('const CALLBACK') && row.tail.endsWith('();') ? 2 : 0;
+      expect(candidate.textEdit.range.end, row.tail).toEqual(lspPosition(source, offset + row.suffix.length + consumed));
+      if (row.call) expect(candidate.textEdit.newText).toBe(row.label);
+      const accepted = source.slice(0, lspOffset(source, candidate.textEdit.range.start))
+        + candidate.textEdit.newText + source.slice(lspOffset(source, candidate.textEdit.range.end));
+      expect(accepted.slice(header.length)).toContain(row.label);
+      expect(accepted.slice(header.length)).not.toContain(row.prefix + row.label);
+      if (row.tail.includes('const CALLBACK')) {
+        expect(accepted.slice(header.length)).toBe('const CALLBACK = demo2_optional(...);');
+      }
+    }
+  }, 30_000);
+  it.each(['8.1', '8.5'])('preserves comments when accepting constant callable references on PHP %s', async phpVersion => {
+    const uri = 'file:///ConstantCallableTrivia.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const rows = [
+      { tail: 'const CALLBACK = digit2§ /* before */ ();', label: 'digit2', accepted: 'const CALLBACK = digit2 /* before */ (...);' },
+      { tail: 'const CALLBACK = digit2§(/* inside */);', label: 'digit2', accepted: 'const CALLBACK = digit2(/* inside */...);' },
+      { tail: 'const CALLBACK = digit2§ /* before */ ( /* inside */ ... /* after */ );', label: 'digit2', accepted: 'const CALLBACK = digit2 /* before */ ( /* inside */ ... /* after */ );' },
+      { tail: 'const CALLBACK = digit2§ // before\n ();', label: 'digit2', accepted: 'const CALLBACK = digit2 // before\n (...);' },
+      { tail: 'const CALLBACK = digit2§(/* argument */ 1);', label: 'digit2', accepted: undefined },
+      { tail: 'class Host { private static function target2() {} const CALLBACK = self::target2§ /* before */ (/* inside */); }', label: 'target2',
+        accepted: 'class Host { private static function target2() {} const CALLBACK = self::target2 /* before */ (/* inside */...); }' },
+      { tail: 'class Host { private static function target2() {} const CALLBACK = self::target2§(/* before */ ... /* after */); }', label: 'target2',
+        accepted: 'class Host { private static function target2() {} const CALLBACK = self::target2(/* before */ ... /* after */); }' },
+      { tail: 'class Host { private static function target2() {} const CALLBACK = self::target2§(/* argument */ 1); }', label: 'target2', accepted: undefined },
+    ];
+    const header = '<?php function digit2($value = null) {} ';
+    for (const [index, row] of rows.entries()) {
+      const marked = header + row.tail, offset = marked.indexOf('§'), source = marked.replace('§', ''), version = index + 1;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+        ? { textDocument: { uri, version }, contentChanges: [{ text: source }] }
+        : { textDocument: { uri, languageId: 'php', version, text: source } } }));
+      const id = 100 + index;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id);
+      expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      const candidate = items.find((item: { label: string }) => item.label === row.label);
+      if (phpVersion === '8.1' || !row.accepted) expect(candidate, row.tail).toBeUndefined();
+      else {
+        expect(candidate, row.tail).toBeDefined();
+        expect(candidate.insertTextFormat).toBe(1);
+        const accepted = source.slice(0, lspOffset(source, candidate.textEdit.range.start))
+          + candidate.textEdit.newText + source.slice(lspOffset(source, candidate.textEdit.range.end));
+        expect(accepted, row.tail).toBe(header + row.accepted);
+      }
+    }
+  }, 30_000);
   it.each(['7.2', '8.1', '8.3', '8.5'])('limits initializer expression candidates by position and PHP version %s', async phpVersion => {
     const uri = 'file:///InitializerLegality.php';
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });

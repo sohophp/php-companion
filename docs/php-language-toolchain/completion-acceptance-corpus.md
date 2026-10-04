@@ -337,3 +337,11 @@ D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法�
 ## D46 初始化表达式候选
 
 统一参数／属性、全局／类常量、枚举、attribute 与 static local 的位置和版本边界。覆盖 fn／static fun 不完整 AST、恢复不发布事实、self:: 私有成员、普通闭包体、PHP 8.3+ static local 的调用／变量／闭包，以及实际可见接受文本。见 [D46 记录](reports/completion-initializer-legality-2026-10-04.md)。保留全部原资格与文档恢复预算，不将四版本协议或 Linux 八次 UI 推导为整体完成。
+
+## D47 函数名称接受
+
+覆盖带数字和 Latin1 字母的完整前缀、alias、词中光标、已确认和未知后缀、已有括号、带注释的常量 callable 空括号／占位符，以及真实实参负例。实际 Workbench 较短名称抢首位的失败与修复单列，八次可见 Enter／Tab、精确文本、光标、Undo／Redo、磁盘不变通过。见 [D47 记录](reports/completion-function-identifiers-2026-10-04.md)。不作为所有 Unicode 名称、全部平台或真人验收。
+
+## D48 命名实参值与 Attribute
+
+固定命名值与名称、内层调用和运算的区别；修复 Attribute 分组括号、类名后的注释、未闭合值位置。48 项语义、PHP 8.1／8.5 44 次新补全及签名查询、未保存参数类型切换、八次 Linux 可见首项与接受证据见 [D48 记录](reports/completion-named-attribute-values-2026-10-04.md)。保留既有错误文档恢复上限和全部原资格。

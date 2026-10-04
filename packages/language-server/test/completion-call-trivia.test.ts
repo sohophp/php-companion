@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { hasFollowingCallParenthesis } from '../src/completionCallTrivia.js';
+import { hasFollowingCallParenthesis, nextPhpTokenOffset } from '../src/completionCallTrivia.js';
 
 it.each([
   ['()', true], [' \t\r\n()', true], ['/* annotation ( */ ()', true],
@@ -11,6 +11,7 @@ it.each([
 ])('distinguishes a following PHP parenthesis in %j', (tail, expected) => {
   const prefix = '<?php $object->render';
   expect(hasFollowingCallParenthesis(prefix + tail, prefix.length)).toBe(expected);
+  if (expected) expect(nextPhpTokenOffset(prefix + tail, prefix.length)).toBe(prefix.length + tail.lastIndexOf('('));
 });
 
 it('keeps hash-bracket comments for PHP 7 and attribute boundaries for PHP 8', () => {

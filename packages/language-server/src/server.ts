@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { hasFollowingCallParenthesis } from './completionCallTrivia.js';
+import { hasFollowingCallParenthesis, nextPhpTokenOffset } from './completionCallTrivia.js';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
 import { SemanticWorkspace, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type PhpInitializerCompletionKind, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -6850,12 +6850,21 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     ? undefined : initializer;
   const constantCallable = Boolean(constantInitializer && isSyntaxAvailable(phpVersionForUri(document.uri), '8.5'));
   const constantCallableEdit = (name: string, start: number, end: number): TextEdit | undefined => {
-    const tail = document.getText().slice(end);
-    const emptyCall = /^\s*\(\s*\)/u.exec(tail);
-    const placeholder = /^\s*\(\s*\.\.\.\s*\)/u.test(tail);
-    if (hasFollowingCallParenthesis(document.getText(), end, true) && !emptyCall && !placeholder) return undefined;
-    return { range: { start: document.positionAt(start), end: document.positionAt(end + (emptyCall?.[0].length ?? 0)) },
-      newText: placeholder ? name : `${name}(...)` };
+    const source = document.getText(), opening = nextPhpTokenOffset(source, end);
+    if (opening === undefined || source[opening] !== '(') return {
+      range: { start: document.positionAt(start), end: document.positionAt(end) }, newText: `${name}(...)`,
+    };
+    const argument = nextPhpTokenOffset(source, opening + 1);
+    if (argument !== undefined && source[argument] === ')') return {
+      range: { start: document.positionAt(start), end: document.positionAt(argument + 1) },
+      newText: name + source.slice(end, argument) + '...)',
+    };
+    const closing = argument !== undefined && source.startsWith('...', argument)
+      ? nextPhpTokenOffset(source, argument + 3) : undefined;
+    if (closing !== undefined && source[closing] === ')') return {
+      range: { start: document.positionAt(start), end: document.positionAt(end) }, newText: name,
+    };
+    return undefined;
   };
   if (completionContext.kind === 'declaration-name') {
     const declaration = completionContext.declaration;
@@ -7076,7 +7085,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const templates = constantInitializer ? [] : phpCompletionTemplates(document, completionContext.keywordContext, keywords);
   // Declaration keyword intent is shared by every named declaration and
   // modifier. A partial keyword can otherwise prefix hundreds of builtins.
-  const functionWord = /([A-Za-z_]+)$/u.exec(document.getText().slice(0, offset))?.[1];
+  const functionWord = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)$/u.exec(document.getText().slice(0, offset))?.[1];
   const declarationKeywordIntent = Boolean(completionContext.keywordContext
     && completionContext.keywordContext.kind !== 'expression'
     && (functionWord?.length ?? 0) >= 2
@@ -7087,26 +7096,34 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (completeDeclarationKeyword) typeContext = undefined;
   // A proven blank value already has scoped values. Enumerating every function
   // without a prefix floods large Composer projects; typing a prefix restores them.
-  const functions = (typeContext || declarationKeywordIntent || blankTypedExpression || constantInitializer && !constantCallable ? []
+  const functionSuffix = /^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0] ?? '';
+  const functionCandidates = (typeContext || declarationKeywordIntent || blankTypedExpression || constantInitializer && !constantCallable ? []
     : workspace.completeFunctions(document.uri, offset)).filter(callable => !constantCallable
-      || constantCallableEdit(callable.name, offset - (functionWord?.length ?? 0), offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0)))
-    .map((callable, index) => {
+      || constantCallableEdit(callable.name, offset - (functionWord?.length ?? 0), offset + functionSuffix.length));
+  const wholeFunctionWord = (functionWord ?? '') + functionSuffix;
+  const functionRankingWord = functionSuffix && functionCandidates.some(callable => callable.name.toLowerCase() === wholeFunctionWord.toLowerCase())
+    ? wholeFunctionWord : functionWord ?? '';
+  // Preserve a known identifier at a middle cursor; a misspelled suffix must not
+  // withdraw prefix matches or guess another function's spelling.
+  const functions = functionCandidates.sort((left, right) => (completionMatchRank(left.name, functionRankingWord) ?? 5)
+    - (completionMatchRank(right.name, functionRankingWord) ?? 5)).map((callable, index) => {
     const insertion = callable.importFqfn ? workspace.importInsertion(document.uri, offset, callable.importFqfn, 'function') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
-    const wordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
+    const wordEnd = offset + functionSuffix.length;
     const hasCall = hasFollowingCallParenthesis(document.getText(), wordEnd, Number(phpVersionForUri(document.uri)) >= 8);
     return {
       ...deprecation(callable),
       label: callable.name,
       kind: CompletionItemKind.Function,
-      filterText: completionFilterText(callable.name, functionWord ?? ''),
+      filterText: functionSuffix && callable.name.toLowerCase() === wholeFunctionWord.toLowerCase()
+        ? functionWord : completionFilterText(callable.name, functionWord ?? ''),
       insertTextFormat: hasCall || constantCallable ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
       textEdit: constantCallable ? constantCallableEdit(callable.name, offset - (functionWord?.length ?? 0), wordEnd) : { range: { start: document.positionAt(offset - (functionWord?.length ?? 0)), end: document.positionAt(wordEnd) },
         newText: hasCall ? callable.name : constantCallable ? `${callable.name}(...)` : completionCallSnippet(callable.name, callable.parameters) },
       detail: `${callable.fqcn}(${callable.parameters.map(displayPhpParameter).join(', ')})${callable.returnType ? `: ${callable.returnType}` : ''}`,
       sortText: callable.compatibilityRank === undefined
         ? `0${String(index).padStart(6, '0')}`
-        : `0${completionMatchRank(callable.name, functionWord ?? '') ?? 5}${callable.compatibilityRank}0${String(index).padStart(6, '0')}`,
+        : `0${completionMatchRank(callable.name, functionRankingWord) ?? 5}${callable.compatibilityRank}0${String(index).padStart(6, '0')}`,
       additionalTextEdits: insertion && position ? [{ range: { start: position, end: position }, newText: insertion.text }] : undefined,
     };
   });

@@ -4421,6 +4421,8 @@ export class SemanticWorkspace {
       const tree = (retained ?? temporary)!;
       const context = this.initializerCompletionKindAt(tree, offset);
       if (context || !tree.rootNode.hasError || file.source.length > 131_072) return context;
+      const attribute = this.attributeConstructorAt(file, offset, tree);
+      if (attribute && this.signatureContext(attribute.argumentsText, []).namedArgumentPrefix === undefined) return 'attribute';
       // Reserved words can remove the entire initializer from an incomplete AST.
       // Replace only the current closure prefix in a disposable tree; never publish facts.
       const from = Math.max(0, offset - 160);
@@ -6230,10 +6232,10 @@ export class SemanticWorkspace {
       ?? this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'switch');
     if (trailing) return trailing.value;
     const before = file.source.slice(0, offset);
-    const match = /([A-Za-z_][A-Za-z0-9_]*)$/u.exec(before);
+    const match = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)$/u.exec(before);
     if (!match) return undefined;
     const start = offset - match[1]!.length;
-    if (start > 0 && /[A-Za-z0-9_$\\]/u.test(file.source[start - 1]!)) return undefined;
+    if (start > 0 && /[A-Za-z0-9_$\\\x80-\xff]/u.test(file.source[start - 1]!)) return undefined;
     if (isFunctionOrConstantImportPosition(file.source, offset)) return undefined;
     const retainedTree = this.trees.get(uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
@@ -10569,9 +10571,30 @@ export class SemanticWorkspace {
     return file && context ? this.resolveSourceType(file, context.name, this.namespaceAt(file, offset), undefined, offset) : undefined;
   }
 
-  private attributeConstructorAt(file: SemanticFile, offset: number): { name: string; argumentsText: string; argumentsStart: number } | undefined {
+  private attributeConstructorAt(file: SemanticFile, offset: number,
+    parsedTree?: ReturnType<PhpSyntaxParser['parseTree']>): { name: string; argumentsText: string; argumentsStart: number } | undefined {
     const source = file.source;
     if (source.lastIndexOf('#[', offset) < 0) return undefined;
+    const retainedTree = parsedTree ?? this.trees.get(file.uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(source);
+    try {
+      let node = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1), offset);
+      let remaining = 256;
+      while (node && remaining-- > 0) {
+        // A nested invocation owns its signature; grouping parentheses do not.
+        if (['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression',
+          'scoped_call_expression', 'object_creation_expression', 'anonymous_function', 'arrow_function'].includes(node.type)) return undefined;
+        if (node.type === 'attribute') {
+          const name = node.childForFieldName('name') ?? node.namedChildren[0];
+          const args = node.namedChildren.find(child => child.type === 'arguments');
+          if (name && args && offset > args.startIndex && offset < args.endIndex) return {
+            name: name.text, argumentsText: source.slice(args.startIndex + 1, offset), argumentsStart: args.startIndex + 1,
+          };
+          break;
+        }
+        node = node.parent;
+      }
+    } finally { temporaryTree?.delete(); }
     const trivia = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
     const rangeAt = (index: number): SourceRange | undefined => {
       let low = 0; let high = trivia.length;
@@ -10595,7 +10618,7 @@ export class SemanticWorkspace {
       else if (depth === 0 && char === ';') return undefined;
     }
     if (opening < 0) return undefined;
-    const match = /(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*)\s*$/u.exec(source.slice(0, opening));
+    const match = /(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*)\s*$/u.exec(declarationHeader(file, opening));
     if (!match) return undefined;
     const nameStart = match.index; const marker = source.lastIndexOf('#[', nameStart);
     if (marker < 0 || rangeAt(marker)) return undefined;

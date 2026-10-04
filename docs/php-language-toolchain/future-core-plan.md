@@ -6,9 +6,9 @@
 
 | 项目 | 当前事实 |
 | --- | --- |
-| 源码检查点 | `4d52f320`：声明默认值的原生类型、合法候选、PHP 8.5 callable 插入、属性 self:: 权限和 Closure 排序；同一开发分支 |
-| 当前源码增量 | [D45 常量值类型](reports/completion-constant-initializers-2026-10-04.md)＋[D46 初始化候选](reports/completion-initializer-legality-2026-10-04.md)：声明类型、初始化全族的位置／版本、fn／static fun 恢复、Closure 身份与 self:: 权限；合为同一分支必要源码检查点 |
-| 当前自动化 | 当前完整语义 84 文件／1539 项；D44–D46 定向 stdio 11 项／234 次查询；D46 Linux PHP 8.5 八次可见 Enter／Tab、Undo／Redo，PHP 8.5.9 接受／8.1.34 拒绝实际文本共 16 次编译通过。见 [D46](reports/completion-initializer-legality-2026-10-04.md)；此前各批证据按输入分列 |
+| 源码检查点 | D47／D48 本地组合里程碑，同一开发分支；前一检查点 `bc8ec94c` 为 D45 常量值类型与 D46 初始化全族的位置／版本 |
+| 当前源码增量 | [D47 函数名称接受](reports/completion-function-identifiers-2026-10-04.md)＋[D48 命名 Attribute 值](reports/completion-named-attribute-values-2026-10-04.md)：完整名称、词中光标、注释 callable 接受；Attribute 分组／注释／未闭合上下文与类型排序；合为一次必要源码检查点 |
+| 当前自动化 | 当前完整语义 85 文件／1588 项；D48 本批定向 stdio 13 项（含 44 次新补全／签名查询），Linux PHP 8.5 八次可见 Enter／Tab、Undo／Redo、实际接受文本编译通过。见 [D48](reports/completion-named-attribute-values-2026-10-04.md)；D47 及更早证据按输入分列 |
 | 完整 LSP | 4d52f320 默认整套回归退出 0：58 文件、845 通过／1 条件跳过，共 846 项，1636.62 秒；1743 项冻结输入终态全部一致。条件跳过不记通过，完整版本／平台资格另列 |
 | 性能 | 同哈希 242 KB 文件普通 100 轮编辑样本 P95 254.21 ms，仍超 150 ms；readonly 两种试验没有证明改善，代码已撤回。热查询与编辑、可见弹窗样本分开报告 |
 | 真人候选 | 本轮源码没有更新 Profile、打包或推送；既有候选交付见 [安装记录](reports/core-manual-candidate-2026-10-03.md)。安装记录不证明当前扩展宿主版本或真人使用通过 |
@@ -56,7 +56,7 @@
 ## 当前执行顺序
 
 1. 4d52f320 的原完整回归已结束：退出 0、58 文件、845 通过／1 条件跳过，1743 项冻结输入一致；释放本轮冻结，保留条件跳过和性能／真人边界。
-2. D45／D46 定向类型与候选矩阵完成；继续连续输入与接受范围，先核对带数字的函数名、词中光标、已有括号与 callable 接受文本，另保留超恢复预算、命名参数与 attribute 类型等未证明边界。PHP 8.3+ static local 的动态表达式和闭包体不能退回默认值过滤。
+2. D45／D46 定向类型与候选矩阵、D47 函数接受范围、D48 命名 Attribute 值已有证据；继续连续输入和相关性，保留超恢复预算、其它未闭合组合、泛型 Attribute、其它标识符家族及 Unicode 等未证明边界。PHP 8.3+ static local 的动态表达式和闭包体不能退回默认值过滤。
 3. 保持原 C1–C4 支持范围和退出条件；同时接收用户反馈。性能优化只在有新定位依据时继续，不重复已撤回的两种微调；人工使用和 Profile 更新按用户通知。
 
 ### 已有进度与历史执行依据

@@ -1,0 +1,248 @@
+{
+  "platform": "linux",
+  "context": "named-attribute-values",
+  "results": [
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 276,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php #[\\Attribute] class Host0Enter { public function __construct(string $text, bool $flag) {} } #[Host0Enter(flag: (true), text: \"x\")] class Tagged {}",
+      "caretOffset": 122,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 155,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php #[\\Attribute] class Host0Tab { public function __construct(string $text, bool $flag) {} } #[Host0Tab(flag: (true), text: \"x\")] class Tagged {}",
+      "caretOffset": 118,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 183,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php #[\\Attribute] class Host1Enter { public function __construct(string $text, bool $flag) {} } #[Host1Enter /* ctor */ (flag: true, text: \"x\")] class Tagged {}",
+      "caretOffset": 133,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 162,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php #[\\Attribute] class Host1Tab { public function __construct(string $text, bool $flag) {} } #[Host1Tab /* ctor */ (flag: true, text: \"x\")] class Tagged {}",
+      "caretOffset": 129,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current2Enter::Ready",
+      "key": "Enter",
+      "visibleMs": 191,
+      "visibleLabels": [
+        "Current2Enter::ReadyCompatible value",
+        "readdirreaddir(resource|null $dir_handle = null): string|false",
+        "readfilereadfile(string $filename, bool $use_include_path = false, resource|null $context = null): int|false",
+        "readgzfilereadgzfile(string $filename, bool $use_include_path = false): int|false",
+        "readlinereadline(?string $prompt = null): string|false",
+        "readline_add_historyreadline_add_history(string $prompt): true",
+        "readline_callback_handler_installreadline_callback_handler_install(string $prompt, callable $callback): true",
+        "readline_callback_handler_removereadline_callback_handler_remove(): bool",
+        "readline_callback_read_charreadline_callback_read_char(): void",
+        "readline_clear_historyreadline_clear_history(): true",
+        "readline_completion_functionreadline_completion_function(callable $callback): bool",
+        "readline_inforeadline_info(?string $var_name = null, $value = null): mixed"
+      ],
+      "acceptedText": "<?php enum Current2Enter { case Ready; } #[\\Attribute] class Host2Enter { public function __construct(string $text, Current2Enter $state) {} } #[Host2Enter(state: Current2Enter::Ready, text: \"x\")] class Tagged {}",
+      "caretOffset": 183,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current2Tab::Ready",
+      "key": "Tab",
+      "visibleMs": 190,
+      "visibleLabels": [
+        "Current2Tab::ReadyCompatible value",
+        "readdirreaddir(resource|null $dir_handle = null): string|false",
+        "readfilereadfile(string $filename, bool $use_include_path = false, resource|null $context = null): int|false",
+        "readgzfilereadgzfile(string $filename, bool $use_include_path = false): int|false",
+        "readlinereadline(?string $prompt = null): string|false",
+        "readline_add_historyreadline_add_history(string $prompt): true",
+        "readline_callback_handler_installreadline_callback_handler_install(string $prompt, callable $callback): true",
+        "readline_callback_handler_removereadline_callback_handler_remove(): bool",
+        "readline_callback_read_charreadline_callback_read_char(): void",
+        "readline_clear_historyreadline_clear_history(): true",
+        "readline_completion_functionreadline_completion_function(callable $callback): bool",
+        "readline_inforeadline_info(?string $var_name = null, $value = null): mixed"
+      ],
+      "acceptedText": "<?php enum Current2Tab { case Ready; } #[\\Attribute] class Host2Tab { public function __construct(string $text, Current2Tab $state) {} } #[Host2Tab(state: Current2Tab::Ready, text: \"x\")] class Tagged {}",
+      "caretOffset": 173,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK3Enter_FLAG",
+      "key": "Enter",
+      "visibleMs": 186,
+      "visibleLabels": [
+        "PICK3Enter_FLAGPICK3Enter_FLAG = true",
+        "PICK3Enter_TEXTPICK3Enter_TEXT = \"x\""
+      ],
+      "acceptedText": "<?php const PICK3Enter_TEXT = \"x\", PICK3Enter_FLAG = true; #[\\Attribute] class Host3Enter { public function __construct(bool $flag) {} } #[Host3Enter(flag: PICK3Enter_FLAG)] class Tagged {}",
+      "caretOffset": 171,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "PICK3Tab_FLAG",
+      "key": "Tab",
+      "visibleMs": 151,
+      "visibleLabels": [
+        "PICK3Tab_FLAGPICK3Tab_FLAG = true",
+        "PICK3Tab_TEXTPICK3Tab_TEXT = \"x\""
+      ],
+      "acceptedText": "<?php const PICK3Tab_TEXT = \"x\", PICK3Tab_FLAG = true; #[\\Attribute] class Host3Tab { public function __construct(bool $flag) {} } #[Host3Tab(flag: PICK3Tab_FLAG)] class Tagged {}",
+      "caretOffset": 161,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "qualification": {
+    "vscode": "1.140.0",
+    "phpVersion": "8.5",
+    "isolatedHost": true,
+    "manualWsl": false,
+    "trigger": "explicit after provider ready",
+    "waitIsP95Gate": false
+  },
+  "compileChecks": {
+    "engine": "PHP 8.5.9 (cli) (built: Jul 28 2026 13:06:52) (NTS gcc x86_64)",
+    "checks": [
+      {
+        "index": 0,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-0.php\n"
+      },
+      {
+        "index": 1,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-1.php\n"
+      },
+      {
+        "index": 2,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-2.php\n"
+      },
+      {
+        "index": 3,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-3.php\n"
+      },
+      {
+        "index": 4,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-4.php\n"
+      },
+      {
+        "index": 5,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-5.php\n"
+      },
+      {
+        "index": 6,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-6.php\n"
+      },
+      {
+        "index": 7,
+        "exitCode": 0,
+        "output": "No syntax errors detected in /tmp/sophp-named-value-accepted-7.php\n"
+      }
+    ],
+    "executedBusinessCode": false
+  }
+}

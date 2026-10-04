@@ -15,7 +15,28 @@ export async function run(): Promise<void> {
   const defaultCallables = process.env.PHP_COMPANION_TEST_DEFAULT_CALLABLE_ONLY === '1';
   const constantInitializers = process.env.PHP_COMPANION_TEST_CONSTANT_INITIALIZER_ONLY === '1';
   const initializerExpressions = process.env.PHP_COMPANION_TEST_INITIALIZER_EXPRESSION_ONLY === '1';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = initializerExpressions ? [
+  const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
+  const namedAttributeValues = process.env.PHP_COMPANION_TEST_NAMED_ATTRIBUTE_VALUE_ONLY === '1';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = namedAttributeValues ? [
+    {prefix:'tr',label:'true',forbidden:'flag:',addCall:false,
+      marked:'<?php #[\\Attribute] class Host { public function __construct(string $text, bool $flag) {} } #[Host(flag: (tr§), text: "x")] class Tagged {}'},
+    {prefix:'tr',label:'true',forbidden:'flag:',addCall:false,
+      marked:'<?php #[\\Attribute] class Host { public function __construct(string $text, bool $flag) {} } #[Host /* ctor */ (flag: tr§, text: "x")] class Tagged {}'},
+    {prefix:'rea',label:'Current::Ready',forbidden:'state:',addCall:false,
+      marked:'<?php enum Current { case Ready; } #[\\Attribute] class Host { public function __construct(string $text, Current $state) {} } #[Host(state: rea§, text: "x")] class Tagged {}'},
+    {prefix:'PICK_',label:'PICK_FLAG',forbidden:'flag:',addCall:false,
+      marked:'<?php const PICK_TEXT = "x", PICK_FLAG = true; #[\\Attribute] class Host { public function __construct(bool $flag) {} } #[Host(flag: PICK_§)] class Tagged {}'},
+  ] : functionIdentifiers ? [
+    {prefix:'demo2',label:'demo2',forbidden:'',addCall:true,
+      marked:'<?php function demo2($value = null) {} demo2§;'},
+    {prefix:'demo2',label:'demo2_optional',forbidden:'',addCall:true,consume:'_optional'.length,
+      marked:'<?php function demo2_optional($value = null) {} demo2§_optional;'},
+    {prefix:'méth',label:'méthode2',forbidden:'throw',addCall:true,consume:'ode2'.length,
+      marked:'<?php function méthode2($value = null) {} méth§ode2;'},
+    {prefix:'demo2',label:'demo2_optional',forbidden:'',addCall:false,
+      suffix:' /* before */ (/* inside */...)',consume:'_optional /* before */ (/* inside */)'.length,
+      marked:'<?php function demo2_optional($value = null) {} const CALLBACK = demo2§_optional /* before */ (/* inside */);'},
+  ] : initializerExpressions ? [
     {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
       marked:'<?php const CALLBACK = strl§;'},
     {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
@@ -66,8 +87,9 @@ export async function run(): Promise<void> {
     console.log('Comparison condition case: ' + JSON.stringify({ index: cases.indexOf(item), key, marked: item.marked }));
     const uri = vscode.Uri.joinPath(folder.uri, 'src', `ComparisonCondition${cases.indexOf(item)}${key}.php`);
     const suffix = `${cases.indexOf(item)}${key}`;
-    const marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
+    let marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
       .replaceAll('PICK_', `PICK${suffix}_`);
+    if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`);
     const prefix = item.prefix.replace('PICK_', `PICK${suffix}_`);
@@ -98,6 +120,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

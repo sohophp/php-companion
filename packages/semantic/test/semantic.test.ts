@@ -1951,6 +1951,19 @@ class Context {
       expect(workspace.phpKeywordCompletionContext(uri, source.length), source).toBeUndefined();
     }
   });
+  it('keeps digits and Latin1 letters in the whole keyword prefix', () => {
+    const uri = 'file:///WholeKeywordPrefix.php';
+    for (const prefix of ['sha1', 'méth', 'méthode2', 'throw2']) {
+      const source = `<?php $value = ${prefix};`;
+      workspace.update(uri, source);
+      expect(workspace.phpKeywordCompletionContext(uri, source.length - 1)?.prefix).toBe(prefix);
+    }
+    for (const prefix of ['$méth', '$sha1', '$object->méth']) {
+      const source = `<?php ${prefix}`;
+      workspace.update(uri, source);
+      expect(workspace.phpKeywordCompletionContext(uri, source.length)).toBeUndefined();
+    }
+  });
   it('classifies mutually exclusive completion positions before collecting candidates', () => {
     const uri = 'file:///CompletionContexts.php';
     const cases = [
