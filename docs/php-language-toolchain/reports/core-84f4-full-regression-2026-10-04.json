@@ -1,0 +1,147 @@
+{
+  "productCommit": "84f4000d6bce541fc58308d791d10578aab12fa0",
+  "originalFullRun": {
+    "metadata": {
+      "commit": "84f4000d6bce541fc58308d791d10578aab12fa0",
+      "inputCount": 2980,
+      "createdAtUtc": "2026-10-04T13:10:55.369463+00:00",
+      "log": "/tmp/sophp-core-84f4-full-lsp.log",
+      "status": "finished",
+      "runtimePaths": {
+        "7.2": "/opt/remi/php72/root/usr/bin/php",
+        "7.4": "/opt/remi/php74/root/usr/bin/php",
+        "8.1": "/opt/remi/php81/root/usr/bin/php",
+        "8.2": "/opt/remi/php82/root/usr/bin/php",
+        "8.4": "/opt/remi/php84/root/usr/bin/php",
+        "8.5": "/opt/remi/php85/root/usr/bin/php"
+      },
+      "runtimeVersions": {
+        "7.2": "7.2.34",
+        "7.4": "7.4.33",
+        "8.1": "8.1.34",
+        "8.2": "8.2.32",
+        "8.4": "8.4.23",
+        "8.5": "8.5.9"
+      },
+      "referenceBundle": "/var/www/node/php-companion/dist/language-server.js",
+      "freeze": "src, test, scripts, dist, packages and root build configuration; no mutations until terminal verification",
+      "exitCode": 1,
+      "finishedAtUtc": "2026-10-04T13:39:52.304269+00:00",
+      "inputsUnchanged": true
+    },
+    "inputVerification": {
+      "commit": "84f4000d6bce541fc58308d791d10578aab12fa0",
+      "inputCount": 2980,
+      "changedInputs": [],
+      "unchanged": true,
+      "verifiedAtUtc": "2026-10-04T13:39:52.303664+00:00",
+      "testExitCode": 1
+    },
+    "files": {
+      "passed": 57,
+      "failed": 1,
+      "total": 58
+    },
+    "tests": {
+      "passed": 868,
+      "failed": 2,
+      "skipped": 0,
+      "total": 870
+    },
+    "durationSeconds": 1734.12,
+    "assignmentHotQueryP95Ms": {
+      "7.2": 192.35484899999938,
+      "8.5": 171.95661699999982
+    },
+    "failureAssertion": "assignmentP95Ms <= 150 at magic-modifier-stdio.test.ts:150",
+    "result": "failed; retain this result"
+  },
+  "controlledIsolatedRun": {
+    "log": "/tmp/sophp-core-84f4-isolated-performance.log",
+    "exitCode": 0,
+    "testCount": 2,
+    "durationSeconds": 12.41,
+    "changedProductInputs": [],
+    "timings": [
+      {
+        "phpVersion": "7.2",
+        "sourceBytes": 242907,
+        "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+        "comments": 1503,
+        "warmSamples": 20,
+        "firstQueryMs": 137.59818200000018,
+        "p95Ms": 102.33672400000069,
+        "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+      },
+      {
+        "phpVersion": "8.5",
+        "sourceBytes": 242907,
+        "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+        "comments": 1503,
+        "warmSamples": 20,
+        "firstQueryMs": 192.05948100000023,
+        "p95Ms": 106.53583299999991,
+        "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+      },
+      {
+        "phpVersion": "7.2",
+        "sourceBytes": 242729,
+        "comments": 1500,
+        "warmSamples": 20,
+        "firstQueryMs": 50.04835099999991,
+        "p95Ms": 18.889464999999745,
+        "scope": "isolated real stdio, 1500-comment document"
+      },
+      {
+        "phpVersion": "8.5",
+        "sourceBytes": 242729,
+        "comments": 1500,
+        "warmSamples": 20,
+        "firstQueryMs": 50.30657799999972,
+        "p95Ms": 20.848073000001023,
+        "scope": "isolated real stdio, 1500-comment document"
+      }
+    ],
+    "limit": "One run with the same product source after the full run ended; different worker load, not a product fix or full default-run pass"
+  },
+  "schedulerChange": {
+    "onlyChangedFrozenInput": [
+      "packages/language-server/vitest.config.ts"
+    ],
+    "beforeConfigSha256": "700555ebba7e944e2bca360cf629a2da6027827308cb5b1e023f5ed3d42de2dd",
+    "afterConfigSha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad",
+    "collection": {
+      "beforeFiles": 58,
+      "afterFiles": 58,
+      "sameFiles": true,
+      "duplicates": false,
+      "projects": {
+        "lsp": 57,
+        "completion-performance": 1
+      }
+    },
+    "probe": {
+      "scope": "actual installed Vitest 4.1.10 using current language-server config and three temporary scheduling fixtures; not PHP/LSP acceptance",
+      "configSha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad",
+      "exitCode": 0,
+      "events": [
+        "b:start",
+        "a:start",
+        "b:end",
+        "a:end",
+        "performance:start"
+      ],
+      "allIntegrationFinishedBeforePerformance": true,
+      "duplicateFixtureExecutions": false
+    },
+    "initialProbeIssue": "root include inherited into performance project caused duplicate fixtures; fixed before qualification",
+    "references": [
+      "https://v4.vitest.dev/config/sequence",
+      "https://v4.vitest.dev/guide/projects"
+    ],
+    "newDefaultFullRun": "pending; not qualified by isolated results"
+  },
+  "frozenManifestSha256": "52c5d1e7e511bed6ccab17d648a3b4bca9f10c8e380dc8bf90502aaf5c2ad298",
+  "budgetMs": 150,
+  "continuousEditBudgetStillOpen": true
+}
