@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { hasFollowingCallParenthesis, nextPhpTokenOffset } from './completionCallTrivia.js';
 import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
-import { SemanticWorkspace, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type PhpInitializerCompletionKind, type TypeInfo, type TypeRename } from '@php-companion/semantic';
+import { SemanticWorkspace, completionIdentifierPrefix, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type PhpInitializerCompletionKind, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { lstat, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
@@ -7085,7 +7085,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const templates = constantInitializer ? [] : phpCompletionTemplates(document, completionContext.keywordContext, keywords);
   // Declaration keyword intent is shared by every named declaration and
   // modifier. A partial keyword can otherwise prefix hundreds of builtins.
-  const functionWord = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)$/u.exec(document.getText().slice(0, offset))?.[1];
+  const functionWord = completionIdentifierPrefix(document.getText(), offset);
   const declarationKeywordIntent = Boolean(completionContext.keywordContext
     && completionContext.keywordContext.kind !== 'expression'
     && (functionWord?.length ?? 0) >= 2

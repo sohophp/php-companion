@@ -5,10 +5,12 @@ import { displayPhpDocType, parsePhpDoc, parsePhpDocType, type ParsedPhpDoc, typ
 import { arrayType, callableType, classString, compatibility, displayType, generic, integerRange, intersection, listType, literal, named, nullable, primitive, shape, union, unknown, type Compatibility, type GenericVariance, type PhpType, type PrimitiveName, type TypeRelationContext } from '@php-companion/type-system';
 import { isSemanticFactsContribution, semanticFacts, type ExternalLiteralMethodReturnFact, type ExternalMethodFact, type ExternalPropertyFact, type SemanticFactsContribution } from '@php-companion/semantic-provider';
 import { completionMatchRank } from './completionMatching.js';
+import { completionIdentifierPrefix } from './completionIdentifier.js';
 
 export type { ExternalLiteralMethodReturnFact, ExternalMethodFact, ExternalPropertyFact, SemanticFactsContribution } from '@php-companion/semantic-provider';
 export { quoteCompletionLiteral } from './quotedCompletion.js';
 export { completionMatchRank } from './completionMatching.js';
+export { completionIdentifierPrefix } from './completionIdentifier.js';
 
 function nativeParameterType(parameter: ParsedParameter, uri: string): string | undefined {
   const type = parameter.nativeType;
@@ -6231,10 +6233,9 @@ export class SemanticWorkspace {
     const trailing = this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'match')
       ?? this.trailingCallableQuery(file, offset, fork => fork.phpKeywordCompletionContext(uri, offset), 'switch');
     if (trailing) return trailing.value;
-    const before = file.source.slice(0, offset);
-    const match = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)$/u.exec(before);
-    if (!match) return undefined;
-    const start = offset - match[1]!.length;
+    const prefix = completionIdentifierPrefix(file.source, offset);
+    if (!prefix) return undefined;
+    const start = offset - prefix.length;
     if (start > 0 && /[A-Za-z0-9_$\\\x80-\xff]/u.test(file.source[start - 1]!)) return undefined;
     if (isFunctionOrConstantImportPosition(file.source, offset)) return undefined;
     const retainedTree = this.trees.get(uri);
@@ -6288,21 +6289,21 @@ export class SemanticWorkspace {
         && this.initializerCompletionContext(uri, offset)) kind = 'expression';
       if (insideError && (!kind || kind === 'top-level')) {
         const recovered = recoverPhpKeywordCompletionContext(file.source, start, retainedTree ?? temporaryTree);
-        return recovered ? { prefix: match[1]!, start, ...recovered } : undefined;
+        return recovered ? { prefix, start, ...recovered } : undefined;
       }
-      return kind ? { prefix: match[1]!, start, kind, inCallable, ...(propertyHookKind ? { propertyHookKind } : {}), inLoop, inSwitch, inEnum } : undefined;
+      return kind ? { prefix, start, kind, inCallable, ...(propertyHookKind ? { propertyHookKind } : {}), inLoop, inSwitch, inEnum } : undefined;
     } finally { temporaryTree?.delete(); }
   }
 
   completeFunctions(uri: string, offset: number): FunctionCompletionInfo[] {
     const file = this.files.get(uri); if (!file) return [];
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
-    const before = file.source.slice(0, offset); const match = /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/.exec(before);
-    if (!match || typeCompletionPrefix(file.source, offset) !== undefined
+    const word = completionIdentifierPrefix(file.source, offset);
+    if (typeCompletionPrefix(file.source, offset) !== undefined
       || isFunctionOrConstantImportPosition(file.source, offset)) return [];
-    const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 32), prefixStart);
+    const prefixStart = offset - word.length; const context = file.source.slice(Math.max(0, prefixStart - 32), prefixStart);
     if (/(?:->|\?->|::|\$|\bfunction\s+|\bnamespace\s+|\buse(?:\s+function)?\s+)\s*$/.test(context)) return [];
-    const prefix = (match[1] ?? '').toLowerCase(); const namespace = this.namespaceAt(file, offset);
+    const prefix = word.toLowerCase(); const namespace = this.namespaceAt(file, offset);
     const scope = this.importScope(file, offset);
     const imports = file.imports.filter((item) => item.kind === 'function' && item.namespace === namespace
       && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end);
@@ -6371,12 +6372,12 @@ export class SemanticWorkspace {
   completeConstants(uri: string, offset: number): ConstantCompletionInfo[] {
     const file = this.files.get(uri); if (!file) return [];
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return [];
-    const before = file.source.slice(0, offset); const match = /([A-Z_][A-Z0-9_]*)?$/i.exec(before);
-    if (!match || typeCompletionPrefix(file.source, offset) !== undefined
+    const prefix = completionIdentifierPrefix(file.source, offset, false);
+    if (typeCompletionPrefix(file.source, offset) !== undefined
       || isFunctionOrConstantImportPosition(file.source, offset)) return [];
-    const prefixStart = offset - (match[1]?.length ?? 0); const context = before.slice(Math.max(0, prefixStart - 24), prefixStart);
+    const prefixStart = offset - prefix.length; const context = file.source.slice(Math.max(0, prefixStart - 24), prefixStart);
     if (/(?:->|\?->|::|\$|\b(?:function|namespace|const)\s+|\buse(?:\s+(?:function|const))?\s+)\s*$/.test(context)) return [];
-    const prefix = match[1] ?? ''; if (!prefix) return [];
+    if (!prefix) return [];
     const namespace = this.namespaceAt(file, offset); const scope = this.importScope(file, offset);
     const imports = file.imports.filter((item) => item.kind === 'const' && item.namespace === namespace
       && scope && item.statementStart >= scope.start && item.statementEnd <= scope.end);

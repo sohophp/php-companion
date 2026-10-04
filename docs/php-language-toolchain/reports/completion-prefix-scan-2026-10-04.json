@@ -1,0 +1,91 @@
+{
+  "baseCommit": "c8989f3b",
+  "baselineIncludesUncommittedD49": true,
+  "sourceBytes": 242692,
+  "sourceSha256": "d302d7c8a1d95a5dda0a7eb25623317a7bfea5bebecee8eb64ae5ca16c68a2e3",
+  "scope": "one serial 100-round edit measurement per input; no profiler or explicit GC",
+  "before": {
+    "root": "/tmp/sophp-edit-prefix-65txuwpq",
+    "file": "/tmp/sophp-edit-prefix-65txuwpq/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 289.12,
+    "all": {
+      "p50Ms": 202.65,
+      "p95Ms": 243.7,
+      "maxMs": 396.24
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 204.01,
+      "p95Ms": 237.44,
+      "maxMs": 289.12,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 198.61,
+      "p95Ms": 256.28,
+      "maxMs": 396.24,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "after": {
+    "root": "/tmp/sophp-edit-prefix-65txuwpq",
+    "file": "/tmp/sophp-edit-prefix-65txuwpq/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 155.93,
+    "all": {
+      "p50Ms": 205.66,
+      "p95Ms": 245.93,
+      "maxMs": 365.19
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 211.58,
+      "p95Ms": 248.3,
+      "maxMs": 365.19,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 196.16,
+      "p95Ms": 245.93,
+      "maxMs": 304.69,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "localPrefixProbe": {
+    "scope": "local identifier extraction only, same 242KB source",
+    "old": {
+      "p50Ms": 4.890937000000008,
+      "p95Ms": 5.995290000000011,
+      "samples": 100
+    },
+    "current": {
+      "p50Ms": 0.0008820000000469008,
+      "p95Ms": 0.0024829999999838037,
+      "samples": 100
+    }
+  },
+  "overallImprovementProven": false,
+  "gatePassed": false,
+  "manualWsl": false
+}

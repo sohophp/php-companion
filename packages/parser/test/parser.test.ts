@@ -39,6 +39,34 @@ describe('@php-companion/parser', () => {
     } finally { repeat.tree.delete(); }
   });
 
+  it('isolates scalar fact arrays and nested declarations across cached parses', () => {
+    const uri = 'file:///ScalarFactIsolation.php';
+    const source = '<?php namespace App; use Domain\\Service as Alias; /** @param Alias $arg */ #[Tag("text")] class C { public const TOKEN = "value"; public function run(Alias $arg): Alias { return $arg; } }';
+    const first = parser.parse(source, undefined, uri);
+    const { tree, ...facts } = first;
+    const expected = structuredClone(facts);
+    facts.constants[0]!.value = 'caller';
+    facts.imports[0]!.alias = 'CallerAlias';
+    facts.rawNames[0]!.text = 'caller';
+    facts.commentRanges[0]!.start = -1;
+    facts.stringRanges[0]!.end = -1;
+    facts.typeReferences[0]!.start = -1;
+    facts.errors.push({ start: -1, end: -1 });
+    facts.declarations[0]!.attributeMarkers![0]!.name = 'CallerTag';
+    facts.callables[0]!.parameters[0]!.type = 'CallerType';
+    tree.delete();
+    const second = parser.parse(source, undefined, uri);
+    try {
+      const { tree: secondTree, ...again } = second;
+      expect(again).toEqual(expected);
+      expect(secondTree.rootNode.text).toBe(source);
+      again.constants.length = 0; again.rawNames.length = 0;
+    } finally { second.tree.delete(); }
+    const third = parser.parse(source, undefined, uri);
+    try { const { tree: thirdTree, ...finalFacts } = third; expect(finalFacts).toEqual(expected); expect(thirdTree.rootNode.text).toBe(source); }
+    finally { third.tree.delete(); }
+  });
+
   it('keeps anonymous identities separate across repeated documents', () => {
     const source = '<?php $value = new class { public function run() {} };';
     for (const uri of ['file:///First.php', 'file:///Second.php', 'file:///Second.php', 'file:///First.php']) {

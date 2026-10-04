@@ -1,0 +1,180 @@
+{
+  "platform": "linux",
+  "context": "function-identifiers",
+  "results": [
+    {
+      "label": "demo2",
+      "key": "Enter",
+      "visibleMs": 449,
+      "visibleLabels": [
+        "demo2FunctionGate0Enter\\demo2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate0Enter; function demo2($value = null) {} demo2();",
+      "caretOffset": 75,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "demo2",
+      "key": "Tab",
+      "visibleMs": 242,
+      "visibleLabels": [
+        "demo2FunctionGate0Tab\\demo2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate0Tab; function demo2($value = null) {} demo2();",
+      "caretOffset": 73,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "demo2_optional",
+      "key": "Enter",
+      "visibleMs": 272,
+      "visibleLabels": [
+        "demo2_optionalFunctionGate1Enter\\demo2_optional($value = null)",
+        "demo2FunctionGate0Enter\\demo2($value = null)",
+        "demo2FunctionGate0Tab\\demo2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate1Enter; function demo2_optional($value = null) {} demo2_optional();",
+      "caretOffset": 93,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "demo2_optional",
+      "key": "Tab",
+      "visibleMs": 169,
+      "visibleLabels": [
+        "demo2_optionalFunctionGate1Tab\\demo2_optional($value = null)",
+        "demo2FunctionGate0Enter\\demo2($value = null)",
+        "demo2FunctionGate0Tab\\demo2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate1Tab; function demo2_optional($value = null) {} demo2_optional();",
+      "caretOffset": 91,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "méthode2",
+      "key": "Enter",
+      "visibleMs": 268,
+      "visibleLabels": [
+        "méthode2FunctionGate2Enter\\méthode2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate2Enter; function méthode2($value = null) {} méthode2();",
+      "caretOffset": 81,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "méthode2",
+      "key": "Tab",
+      "visibleMs": 153,
+      "visibleLabels": [
+        "méthode2FunctionGate2Tab\\méthode2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate2Tab; function méthode2($value = null) {} méthode2();",
+      "caretOffset": 79,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "demo2_optional",
+      "key": "Enter",
+      "visibleMs": 194,
+      "visibleLabels": [
+        "demo2_optionalFunctionGate3Enter\\demo2_optional($value = null)",
+        "demo2FunctionGate0Enter\\demo2($value = null)",
+        "demo2FunctionGate0Tab\\demo2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate3Enter; function demo2_optional($value = null) {} const CALLBACK3Enter = demo2_optional /* before */ (/* inside */...);",
+      "caretOffset": 146,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "demo2_optional",
+      "key": "Tab",
+      "visibleMs": 133,
+      "visibleLabels": [
+        "demo2_optionalFunctionGate3Tab\\demo2_optional($value = null)",
+        "demo2FunctionGate0Enter\\demo2($value = null)",
+        "demo2FunctionGate0Tab\\demo2($value = null)"
+      ],
+      "acceptedText": "<?php namespace FunctionGate3Tab; function demo2_optional($value = null) {} const CALLBACK3Tab = demo2_optional /* before */ (/* inside */...);",
+      "caretOffset": 142,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "qualification": {
+    "vscode": "1.140.0",
+    "phpVersion": "8.5",
+    "isolatedHost": true,
+    "manualWsl": false,
+    "trigger": "explicit after provider ready",
+    "waitIsP95Gate": false
+  },
+  "compileChecks": {
+    "engine": "PHP 8.5.9 (cli) (built: Jul 28 2026 13:06:52) (NTS gcc x86_64)",
+    "checks": [
+      {
+        "index": 0,
+        "exitCode": 0
+      },
+      {
+        "index": 1,
+        "exitCode": 0
+      },
+      {
+        "index": 2,
+        "exitCode": 0
+      },
+      {
+        "index": 3,
+        "exitCode": 0
+      },
+      {
+        "index": 4,
+        "exitCode": 0
+      },
+      {
+        "index": 5,
+        "exitCode": 0
+      },
+      {
+        "index": 6,
+        "exitCode": 0
+      },
+      {
+        "index": 7,
+        "exitCode": 0
+      }
+    ],
+    "executedBusinessCode": false
+  }
+}

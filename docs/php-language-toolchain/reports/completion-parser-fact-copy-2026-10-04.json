@@ -1,0 +1,118 @@
+{
+  "baseCommit": "c8989f3b",
+  "sourceBytes": 242692,
+  "sourceSha256": "d302d7c8a1d95a5dda0a7eb25623317a7bfea5bebecee8eb64ae5ca16c68a2e3",
+  "scope": "one serial 100-round ordinary edit measurement per input; no profiler or explicit GC",
+  "before": {
+    "root": "/tmp/sophp-edit-clone-16alzqcx",
+    "file": "/tmp/sophp-edit-clone-16alzqcx/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 182.06,
+    "all": {
+      "p50Ms": 229.39,
+      "p95Ms": 282.25,
+      "maxMs": 446.87
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 231.08,
+      "p95Ms": 267.59,
+      "maxMs": 308.94,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 225.78,
+      "p95Ms": 294.46,
+      "maxMs": 446.87,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "after": {
+    "root": "/tmp/sophp-edit-clone-16alzqcx",
+    "file": "/tmp/sophp-edit-clone-16alzqcx/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 276.28,
+    "all": {
+      "p50Ms": 192.55,
+      "p95Ms": 239.01,
+      "maxMs": 396.89
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 192.3,
+      "p95Ms": 239.17,
+      "maxMs": 276.28,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 192.55,
+      "p95Ms": 238.46,
+      "maxMs": 396.89,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "currentCpuProfile": {
+    "path": "/tmp/sophp-edit-clone-current-cpu-valid",
+    "structuredCloneSelfMs": 1952.28,
+    "measurement": {
+      "root": "/tmp/sophp-edit-clone-16alzqcx",
+      "file": "/tmp/sophp-edit-clone-16alzqcx/src/Editing.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 100,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 190.2,
+      "all": {
+        "p50Ms": 211.94,
+        "p95Ms": 267.55,
+        "maxMs": 524.03
+      },
+      "a": {
+        "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+        "expected": "__callStatic",
+        "p50Ms": 210.9,
+        "p95Ms": 268.82,
+        "maxMs": 281.57,
+        "incomplete": 0
+      },
+      "b": {
+        "fragment": "private function __con{{cursor}}(){} }",
+        "expected": "__construct",
+        "p50Ms": 216.29,
+        "p95Ms": 264.85,
+        "maxMs": 524.03,
+        "incomplete": 0
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    },
+    "timingIsOrdinaryBaseline": false
+  },
+  "excludedPreliminary": "/tmp/sophp-edit-clone-plain-before.json overlapped parser build/tests",
+  "parserSourceSha256": "6d44a54ae0916317a82cd294615f6c964d7fbcb3630e2e62effc579d3d1411ba",
+  "gatePassed": false,
+  "fullVersionPlatformQualification": false,
+  "manualWsl": false
+}

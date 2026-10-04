@@ -234,6 +234,19 @@ export interface ParsedPhpDocument {
 export type ParsedPhpDeclarationDocument = Pick<ParsedPhpDocument,
   'namespace' | 'declarations' | 'callables' | 'properties' | 'constants' | 'imports' | 'commentRanges' | 'tree'>;
 
+// These records contain only scalar fields. The constraint rejects a future
+// nested field instead of silently sharing it with a cache consumer.
+function cloneFlatFact<T extends { [K in keyof T]: string | number | boolean | undefined }>(fact: T): T {
+  return { ...fact };
+}
+
+function cloneDocumentFacts(facts: Omit<ParsedPhpDocument, 'tree'>): Omit<ParsedPhpDocument, 'tree'> {
+  const { rawNames, constants, imports, typeReferences, errors, commentRanges, stringRanges, ...nested } = facts;
+  return { ...structuredClone(nested), rawNames: rawNames.map(cloneFlatFact), constants: constants.map(cloneFlatFact),
+    imports: imports.map(cloneFlatFact), typeReferences: typeReferences.map(cloneFlatFact), errors: errors.map(cloneFlatFact),
+    commentRanges: commentRanges.map(cloneFlatFact), stringRanges: stringRanges.map(cloneFlatFact) };
+}
+
 /** Tree-free facts that can cross a worker boundary. The consumer owns source identity. */
 export interface ParsedNamespaceScope {
   namespace: string;
@@ -541,7 +554,7 @@ export class PhpSyntaxParser {
     if (!oldTree && documentIdentity && cached?.source === source && cached.identity === documentIdentity) {
       const tree = cached.tree.copy();
       if (this.recoveredSyntaxTrees.has(cached.tree)) this.recoveredSyntaxTrees.add(tree);
-      return { ...structuredClone(cached.facts), tree };
+      return { ...cloneDocumentFacts(cached.facts), tree };
     }
     const parsed = this.parseDocument(source, oldTree, documentIdentity);
     if (documentIdentity) {
@@ -549,7 +562,7 @@ export class PhpSyntaxParser {
       const copy = tree.copy();
       if (this.recoveredSyntaxTrees.has(tree)) this.recoveredSyntaxTrees.add(copy);
       this.lastDocument?.tree.delete();
-      this.lastDocument = { source, identity: documentIdentity, facts: structuredClone(facts), tree: copy };
+      this.lastDocument = { source, identity: documentIdentity, facts: cloneDocumentFacts(facts), tree: copy };
     }
     return parsed;
   }
