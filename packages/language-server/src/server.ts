@@ -76,6 +76,7 @@ declare const __PHP_COMPANION_ENGINE_BUILD__: string;
 
 const connection = createConnection(ProposedFeatures.all);
 const documents = new TextDocuments(TextDocument);
+let openDocumentPathRevision = 0;
 const completionDocumentIdentities = new WeakMap<TextDocument, number>();
 let nextCompletionDocumentIdentity = 0;
 let parserPromise: Promise<PhpSyntaxParser> | undefined;
@@ -1449,16 +1450,28 @@ function isPlannedSafeMovePath(path: string): boolean {
   return Boolean(expiresAt && expiresAt > now);
 }
 
+function indexedUriResolver(root: string): (path: string) => string {
+  let locations: typeof workspaceFolderLocations | undefined;
+  let location: (typeof workspaceFolderLocations)[number] | undefined;
+  let baseUri = '';
+  return (path: string): string => {
+    if (locations !== workspaceFolderLocations) {
+      locations = workspaceFolderLocations;
+      location = locations.filter((candidate) => pathWithin(candidate.path, root))
+        .sort((left, right) => right.path.length - left.path.length)[0];
+      if (location) { const uri = new URL(location.uri); uri.search = ''; uri.hash = ''; baseUri = uri.toString(); }
+    }
+    const workspacePath = workspaceAliasPath(path);
+    if (!location) return pathToFileURL(path).toString();
+    const suffix = relative(location.path, workspacePath);
+    if (!suffix) return baseUri;
+    const encodedSuffix = suffix.split(sep).map((segment) => encodeURIComponent(segment)).join('/');
+    return `${baseUri.replace(/\/?$/, '/')}${encodedSuffix}`;
+  };
+}
+
 function indexedUriForPath(root: string, path: string): string {
-  const workspacePath = workspaceAliasPath(path);
-  const location = workspaceFolderLocations.filter((candidate) => pathWithin(candidate.path, root))
-    .sort((left, right) => right.path.length - left.path.length)[0];
-  if (!location) return pathToFileURL(path).toString();
-  const uri = new URL(location.uri); uri.search = ''; uri.hash = '';
-  const suffix = relative(location.path, workspacePath);
-  if (!suffix) return uri.toString();
-  const encodedSuffix = suffix.split(sep).map((segment) => encodeURIComponent(segment)).join('/');
-  return `${uri.toString().replace(/\/?$/, '/')}${encodedSuffix}`;
+  return indexedUriResolver(root)(path);
 }
 
 function workspaceUriAlias(uri: string): string {
@@ -5682,6 +5695,7 @@ async function supersedeOpenPhysicalAliases(document: TextDocument, root: string
 }
 
 documents.onDidOpen(async ({ document }) => {
+  openDocumentPathRevision += 1;
   if (document.languageId !== 'php') return;
   openPhysicalTopologyRevision += 1;
   const sequence = ++nextOpenContentSequence;
@@ -5901,6 +5915,7 @@ async function closeDocument(document: TextDocument): Promise<void> {
 }
 
 documents.onDidClose(({ document }) => {
+  openDocumentPathRevision += 1;
   const root = rootForUri(document.uri);
   const closing = closeDocument(document);
   if (!root) { void closing.catch((error: unknown) => connection.console.warn(String(error))); return; }
@@ -7857,6 +7872,24 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
   await watchedFileChanges;
   await applyPendingFiles();
   const epoch = projectEpochs.get(root) ?? 0;
+  const uriForSourcePath = indexedUriResolver(root);
+  let openPathsRevision = -1;
+  let openPathLocations: typeof workspaceFolderLocations | undefined;
+  const openUrisByPath = new Map<string, string>();
+  const openDocumentForPath = (path: string): TextDocument | undefined => {
+    if (openPathsRevision !== openDocumentPathRevision || openPathLocations !== workspaceFolderLocations) {
+      openPathsRevision = openDocumentPathRevision; openPathLocations = workspaceFolderLocations;
+      openUrisByPath.clear();
+      for (const document of documents.all()) {
+        const documentPath = pathForUri(document.uri); if (!documentPath) continue;
+        const key = filesystemPathKey(workspaceAliasPath(documentPath));
+        if (!openUrisByPath.has(key)) openUrisByPath.set(key, document.uri);
+      }
+    }
+    const uri = openUrisByPath.get(filesystemPathKey(workspaceAliasPath(path)));
+    // Resolve the live document each time: cached URIs never cache unsaved text.
+    return uri ? documents.get(uri) : undefined;
+  };
   const current = new Set<string>();
   const changedUris = new Set<string>();
   let changedUri: string | undefined;
@@ -7886,7 +7919,7 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       const known = previousChecks?.get(path); if (known) return known.hash;
       // Already indexed text is only a candidate: the worker must still hash
       // the current disk bytes before the first refactor can reuse it.
-      const source = workspace.source(indexedUriForPath(root, path));
+      const source = workspace.source(uriForSourcePath(path));
       if (source === undefined) return undefined;
       const candidate = { source, hash: createHash('sha256').update(source).digest('hex') };
       loadedChecks.set(path, candidate); return candidate.hash;
@@ -7907,8 +7940,8 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       // Reuse only after the worker verifies the actual bytes as well.
       if (inspected.get(path)?.matchesHash !== true) return false;
       if (known.size !== info.size || known.mtimeMs !== info.mtimeMs || known.ctimeMs !== info.ctimeMs) return false;
-      const uri = indexedUriForPath(root, path);
-      const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
+      const uri = uriForSourcePath(path);
+      const open = openDocumentForPath(path);
       if (workspace.source(uri) !== known.source || open && open.getText() !== known.source) return false;
       if (!selectedNames && workspace.implementationState(uri) !== 'loaded') return false;
       rememberProjectSource(uri, path, known.source);
@@ -7916,10 +7949,10 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
       return true;
     } : undefined,
     shouldContinue: () => !cancelled() && (projectEpochs.get(root) ?? 0) === epoch,
-    uriForPath: path => indexedUriForPath(root, path),
+    uriForPath: uriForSourcePath,
     onSource: ({ uri, path, source }) => {
       current.add(uri);
-      const open = documents.all().find(document => sameFilesystemPath(pathForUri(document.uri), path));
+      const open = openDocumentForPath(path);
       const effective = open?.getText() ?? source;
       const previous = workspace.source(uri);
       const normalizedSource = selectedNames ? effective.toLowerCase() : undefined;
@@ -8069,6 +8102,49 @@ connection.onRenameRequest(async (params, token) => {
   ], phpCompanion: { sourceHashes } };
 });
 
+function interfaceExtractionHash(plan: NonNullable<ReturnType<SemanticWorkspace['extractInterface']>>, targetUri: string): string {
+  return createHash('sha256').update(JSON.stringify({ classFqcn: plan.classFqcn, interfaceFqcn: plan.interfaceFqcn,
+    insertOffset: plan.insertOffset, insertText: plan.insertText, interfaceSource: plan.interfaceSource, targetUri })).digest('hex');
+}
+
+async function checkedInterfaceExtraction(workspace: SemanticWorkspace, document: TextDocument,
+  position: { line: number; character: number }, phpVersion: string, cancelled: () => boolean): Promise<ReturnType<SemanticWorkspace['extractInterface']>> {
+  const selectedClass = workspace.typeAt(document.uri, document.offsetAt(position));
+  const root = selectedClass?.kind === 'class' && selectedClass.uri === document.uri ? rootForUri(document.uri) : undefined;
+  if (!root || !selectedClass || !await ensureProjectCompleteRoot(root, cancelled)) return undefined;
+  let plan = workspace.extractInterface(document.uri, document.offsetAt(position), phpVersion);
+  const ready = await refreshRefactorDiskSources(workspace, root, cancelled, 'extractInterfaceDiskRefresh',
+    new Set([selectedClass.name.toLowerCase(), `${selectedClass.name}Interface`.toLowerCase()]), () => {
+      plan = workspace.extractInterface(document.uri, document.offsetAt(position), phpVersion);
+    });
+  return ready && !cancelled() ? plan : undefined;
+}
+
+connection.onRequest('phpCompanion/validateInterfaceExtraction', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: { line?: unknown; character?: unknown }; planHash?: unknown;
+}, token) => {
+  const uri = params.textDocument?.uri;
+  const document = typeof uri === 'string' ? documents.get(uri) : undefined;
+  const position = params.position;
+  if (!document || params.textDocument?.version !== document.version || typeof params.planHash !== 'string'
+    || !/^[a-f0-9]{64}$/.test(params.planHash) || !position || typeof position.line !== 'number'
+    || typeof position.character !== 'number' || !Number.isSafeInteger(position.line) || !Number.isSafeInteger(position.character)
+    || position.line < 0 || position.character < 0 || token.isCancellationRequested) return false;
+  const version = document.version; const phpVersion = phpVersionForUri(document.uri);
+  const root = rootForUri(document.uri); if (!root) return false;
+  const workspace = await semanticForUri(document.uri);
+  const plan = await checkedInterfaceExtraction(workspace, document, position as { line: number; character: number },
+    phpVersion, () => token.isCancellationRequested);
+  const mappings = projectMappingsByRoot.get(root) ?? [];
+  const sourcePath = pathForUri(document.uri);
+  const sourceMatches = plan && sourcePath && resolvePsr4Class(plan.classFqcn, mappings).some(path => resolve(path) === resolve(sourcePath));
+  const targetPaths = plan ? [...new Set(resolvePsr4Class(plan.interfaceFqcn, mappings).map(path => resolve(path)))] : [];
+  const targetUri = targetPaths.length === 1 ? indexedUriForPath(root, targetPaths[0]!) : undefined;
+  return Boolean(plan && sourceMatches && targetUri && rootForUri(document.uri) === root
+    && interfaceExtractionHash(plan, targetUri) === params.planHash
+    && phpVersionForUri(document.uri) === phpVersion && currentQueryDocument(document, token, version));
+});
+
 connection.onCodeAction(async (params, token) => {
   const { textDocument, range, context } = params;
   const requestedImportSort = (params as typeof params & { phpCompanion?: { importSort?: unknown } }).phpCompanion?.importSort;
@@ -8181,9 +8257,9 @@ connection.onCodeAction(async (params, token) => {
       actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractMethod', method.methodName), kind: CodeActionKind.RefactorExtract,
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
-    const extractedInterface = localWorkspace.extractInterface(document.uri, document.offsetAt(range.start), targetPhpVersion);
+    const extractedInterface = await checkedInterfaceExtraction(localWorkspace, document, range.start, targetPhpVersion, () => token.isCancellationRequested);
     const interfaceRoot = extractedInterface && rootForUri(document.uri);
-    if (extractedInterface && interfaceRoot && await ensureProjectCompleteRoot(interfaceRoot, () => token.isCancellationRequested)) {
+    if (extractedInterface && interfaceRoot) {
       const mappings = projectMappingsByRoot.get(interfaceRoot) ?? [];
       const sourcePath = pathForUri(document.uri);
       const sourceCandidates = new Set(resolvePsr4Class(extractedInterface.classFqcn, mappings).map((path) => resolve(path)));
@@ -8201,6 +8277,7 @@ connection.onCodeAction(async (params, token) => {
               { uri: targetUri, start: 0, end: 0, newText: extractedInterface.interfaceSource }],
             [{ kind: 'create', uri: targetUri }]);
           actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'extractInterface', extractedInterface.interfaceName), kind: CodeActionKind.RefactorExtract,
+            data: { phpCompanion: { interfaceExtraction: { position: range.start, planHash: interfaceExtractionHash(extractedInterface, targetUri) } } },
             edit: { documentChanges: [
               { kind: 'create', uri: targetUri, options: { overwrite: false, ignoreIfExists: false } },
               { textDocument: { uri: targetUri, version: null }, edits: plan.textEdits.filter((edit) => edit.uri === targetUri).map((edit) => ({ range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }, newText: edit.newText })) },
@@ -8376,7 +8453,8 @@ connection.onCodeAction(async (params, token) => {
   if (phpVersionForUri(document.uri) !== targetPhpVersion) return [];
   for (const action of actions) {
     if (action.edit && action.kind?.startsWith(CodeActionKind.Refactor))
-      action.data = { phpCompanion: { phpVersion: targetPhpVersion } };
+      action.data = { phpCompanion: { ...(action.data as { phpCompanion?: Record<string, unknown> } | undefined)?.phpCompanion,
+        phpVersion: targetPhpVersion } };
   }
   return currentQueryDocument(document, token, queryVersion) ? actions : [];
 });

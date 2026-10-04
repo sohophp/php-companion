@@ -106,3 +106,37 @@ Language Server／扩展构建、宿主编译、根 typecheck、修改文件 ESL
 onDemand／progressive 串行隔离宿主各通过原有五类生成：纯当前文件构造、接口方法、抽象方法、访问器、覆盖方法。新构造场景固定版本设置 8.5，分别在预览之前及应用之前更换运行程序设置，旧编辑均被拒绝；恢复后同一建议正常应用、一次 Undo/Redo 和旧文档版本拒绝继续通过。每次只改宿主自己的临时工作区设置，并在 finally 恢复；日志 `/tmp/sophp-generation-executable-host-{onDemand,progressive}.log` 均退出 0。七条既有局部提取流程的预览／取消／应用和一次 Undo/Redo 也通过（`/tmp/sophp-generation-executable-local-extraction.log`）。
 
 根 TypeScript、扩展构建、宿主编译、修改的扩展／宿主源文件 ESLint 与 diff 检查通过。初次 lint 的测试回调缺少返回类型已补注解，最终日志 `/tmp/sophp-generation-executable-lint-final.log` 无错误；宿主重新编译后 JS SHA-256 与完成上述验证时逐字一致（`/tmp/sophp-generation-executable-host-emitted-before.sha256`）。本批保留同一分支未提交，没有打包、更新用户 Profile、推送或发布，不是用户真人 WSL 验收。
+
+## 接口提取前的当前类型冲突
+
+在 `a4f300a` 及未提交的路径查找增量之后，复现 onDemand／progressive 均在同名 `BuilderInterface` 被写入另一个文件、未收到 watcher 时仍提供提取建议。目标文件 `BuilderInterface.php` 不存在，因此仅检查目标文件不能发现这种冲突。两个定向测试均失败，保留 `/tmp/sophp-extract-conflict-red.log`。
+
+接口提取入口按当前文件中被选中的 class 请求项目准备，再复用受检磁盘扫描，检查 class 与拟生成接口名称。只在当前声明核对后的同步回调重新计算接口计划；即使旧缓存已有冲突也重新检查，删除冲突文件后可以恢复。扫描取消、不完整或超预算均不提供接口提取建议。其它局部变量／方法提取继续走原路径；公共预览源文档、运行程序、PHP 版本及新建文件保护保持既有机制。
+
+最终协议 7 项通过、480 未运行：两模式 × 正常／单文件预算四例，核对初始建议、无 watcher 的异文件冲突拒绝、删除后的恢复、不写盘；其余三例沿用 PHP 7.2／8.0／8.5 的 late-static 及未保存签名更新。日志 `/tmp/sophp-extract-conflict-protocol-final.log`，初版五例通过日志另保留 `/tmp/sophp-extract-conflict-protocol.log`。原始支持域与完整套件边界不变。
+
+测试 runner 增加 `PHP_COMPANION_TEST_EXTRACT_INTERFACE_ONLY=1`，仅选择已有独立接口提取宿主模块。模块补充异文件冲突拒绝、删除恢复及预览取消，继续验证 static 返回类型、实际应用、单次 Undo 恢复源码并删除接口、Redo 恢复两份文本和目标 EOL。两个默认模式串行通过，日志 `/tmp/sophp-extract-conflict-host-{onDemand,progressive}.log`，均退出 0：
+
+```sh
+pnpm --filter @php-companion/language-server build
+node esbuild.mjs --production
+pnpm exec tsc -p test/extension/tsconfig.json
+PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_EXTRACT_INTERFACE_ONLY=1 PHP_COMPANION_TEST_C3_INDEXING_MODE=onDemand node scripts/run-extension-test.mjs ./dist-test/runTest.js
+# 然后串行执行 progressive。
+```
+
+构建、根 TypeScript、宿主编译、修改文件 ESLint 和 diff 检查通过。这是建议生成前的当前声明核对；预览打开期间才新增的异文件同名声明仍需单独验证，不能由上述新建目标文件保护推出它已完成。大规模等待、Remote／Windows、真实 WSL 及完整 C3 继续开放。本增量与前批路径查找保留同一分支未提交，不打包、更新 Profile、推送或发布；goal 继续执行。
+
+## 接口提取预览的重新核验与源码检查点
+
+后续隔离 onDemand 宿主已复现预览阶段的独立缺口：取得原建议并打开预览后，在异文件创建同名接口，确认应用仍返回 true。失败 `/tmp/sophp-extract-preview-red.log` 保留，不能用建议生成前的检查代替它。
+
+接口建议现在通过标准 CodeAction.data 携带选择位置与计划 SHA-256，覆盖类型全名、插入位置／文本、接口源码及目标 URI。Core 中间件将它送入已有公共预览流程，打开预览前及确认后的应用检查调用 `phpCompanion/validateInterfaceExtraction`。语言服务重新核对当前项目／依赖、活动缓冲区、class 的 PSR-4 来源与唯一目标，然后重新生成并比较原计划。文档版本、PHP 版本、根、映射或计划不匹配，以及预算不足／服务不可用／请求失败，均拒绝应用。原设置、源码哈希、新文件存在性、预览完整性及 Undo/Redo 机制继续有效；语言服务检查之后还核对当前活动源码的版本／文本。没有新增产品设置。
+
+最终 **24 项组合协议通过、463 未运行**，67.57 秒：`/tmp/sophp-extract-preview-combined-final.log`。七项接口测试扩充校验 true、错误哈希／旧版本 false、无 watcher 的磁盘冲突与删除恢复、仅未保存的新声明及关闭恢复、正常／单文件预算，以及 Composer PSR-4 映射改变后原计划拒绝。组合还复用远程 URI、Import 内容变化、旧后台快照、首次准备交错、Import 超预算、PSR-4 Rename 与不完整依赖。初版 24 项日志 `/tmp/sophp-extract-preview-combined-protocol.log` 另保留，最终目标 URI 哈希增量以 final 为准。
+
+最终 bundle 的 onDemand／progressive 串行独立宿主均通过：预览期间创建同名磁盘接口拒绝、`testBeforeApply` 时在另一个活动文件中仅作未保存同名声明拒绝、保留两份源码／没有孤立目标文件、撤销测试冲突后原建议正常应用、原取消／static 返回类型／单次 Undo/Redo 与目标 EOL 仍通过。磁盘冲突文件与未保存编辑互不混用，后者核对磁盘原文未变。日志 `/tmp/sophp-extract-preview-target-host-{onDemand,progressive}.log` 均退出 0；早期未绑定目标 URI的两模式通过日志仍保留 `...-host-{onDemand,progressive}-final.log`。
+
+公共流程最终构建的 onDemand 七条局部提取回归也通过预览、取消／应用及一次 Undo/Redo：`/tmp/sophp-extract-preview-local-host.log`。语言服务／扩展构建、根 TypeScript、宿主编译、六个修改源码／宿主文件 ESLint、diff 检查通过。没有重跑完整语义／LSP，原全量两项魔术方法性能失败、条件跳过及大规模／跨平台／真实 WSL 边界保持开放。
+
+扫描路径查找、提取前冲突检查及本次预览重新核验整理为一个必要本地源码里程碑，提交标题 `fix(refactor): revalidate extracted interface previews`。本节更新前节未提交状态和预览缺口；不将该局部证明扩展为完整 C3，不打包、更新 Profile、推送或发布。goal 保持 active，继续原路线图。

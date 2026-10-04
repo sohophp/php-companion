@@ -525,7 +525,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   };
   register('phpCompanion.applyPreviewedExtract', async (
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
-      sourceDiskHash?: string; targetHashes?: Record<string, string>; sourcePhpVersion?: string; sourceVersionSetting?: string; sourceExecutableSetting?: string | null },
+      sourceDiskHash?: string; targetHashes?: Record<string, string>; sourcePhpVersion?: string; sourceVersionSetting?: string; sourceExecutableSetting?: string | null;
+      interfaceExtraction?: { position: { line: number; character: number }; planHash: string } },
     options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeApply?: () => Promise<void>;
       testBeforeOpen?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> },
   ): Promise<boolean> => {
@@ -603,7 +604,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
         }
       }
-      return environmentUnchanged();
+      if (request.interfaceExtraction) {
+        try {
+          const client = await languageServer;
+          if (!client || await client.sendRequest<boolean>('phpCompanion/validateInterfaceExtraction', {
+            textDocument: { uri: sourceUri.toString(), version: sourceVersion }, ...request.interfaceExtraction,
+          }) !== true) return false;
+        } catch { return false; }
+      }
+      return environmentUnchanged() && !source.isClosed && source.version === sourceVersion && source.getText() === sourceText;
     };
     if (!await unchanged()) { void vscode.window.showWarningMessage(t(environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
     const previewUris = new Set<string>();

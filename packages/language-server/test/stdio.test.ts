@@ -120,6 +120,62 @@ function messagesFrom(process: ChildProcessWithoutNullStreams): {
 describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
   afterEach(() => server?.kill());
+  it.each(['onDemand', 'progressive'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))(
+    'checks current disk type conflicts before extracting an interface in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
+    const root = await mkdtemp(join(tmpdir(), 'sophp-extract-conflict-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const path = join(root, 'src', 'Builder.php'); const uri = pathToFileURL(path).toString();
+      const source = '<?php namespace App; class Builder { public function run(): int { return 1; } }';
+      await writeFile(path, source);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server); let id = 1;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor(message => message.id === requestId);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion: '8.5', indexingMode,
+          ...(limited ? { indexLimits: { maxFiles: 1, maxFileSizeBytes: 524_288, maxTotalBytes: 1_048_576 } } : {}) } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text: source },
+      } }));
+      const position = lspPosition(source, source.indexOf('Builder') + 1);
+      const extraction = async (): Promise<any> => (await request('textDocument/codeAction', {
+        textDocument: { uri }, range: { start: position, end: position }, context: { diagnostics: [], only: ['refactor.extract'] },
+      })).find((action: { title: string }) => action.title.includes('BuilderInterface'));
+      const firstAction = await extraction(); expect(firstAction).toBeDefined();
+      const validation = { textDocument: { uri, version: 1 }, ...firstAction.data.phpCompanion.interfaceExtraction };
+      expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(true);
+      expect(await request('phpCompanion/validateInterfaceExtraction', { ...validation, planHash: '0'.repeat(64) })).toBe(false);
+      expect(await request('phpCompanion/validateInterfaceExtraction', { ...validation, textDocument: { uri, version: 2 } })).toBe(false);
+      const collision = join(root, 'src', 'DifferentFilename.php');
+      await writeFile(collision, '<?php namespace App; interface BuilderInterface {}');
+      expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(false);
+      expect(await extraction()).toBeUndefined(); // No watcher: the current type, not only the destination file, must be checked.
+      await rm(collision);
+      expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(true);
+      expect(await extraction()).toBeDefined();
+      const collisionUri = pathToFileURL(collision).toString();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: collisionUri, languageId: 'php', version: 1, text: '<?php namespace App; interface BuilderInterface {}' },
+      } }));
+      expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: collisionUri } } }));
+      expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(true);
+      await mkdir(join(root, 'other'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'other/' } } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(join(root, 'composer.json')).toString(), type: 2 }],
+      } }));
+      expect(await request('phpCompanion/validateInterfaceExtraction', validation)).toBe(false);
+      expect(await readFile(path, 'utf8')).toBe(source);
+      await expect(stat(join(root, 'src', 'BuilderInterface.php'))).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
   it.each(['7.2', '8.0', '8.5'])('gates extracted late-static interfaces and refreshes unsaved contracts for PHP %s', async phpVersion => {
     const root = await mkdtemp(join(tmpdir(), 'sophp-extract-static-'));
     try {
@@ -11404,8 +11460,9 @@ function values(): array { return []; }
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
 
-  it.each(['onDemand', 'progressive'])('checks loaded disk declarations before the first copied import in %s mode', async indexingMode => {
-    const root = await mkdtemp(join(tmpdir(), 'php-companion-first-import-'));
+  it.each(['onDemand', 'progressive'].flatMap(indexingMode => [false, true].map(remote => ({ indexingMode, remote }))))(
+    'checks loaded disk declarations and live buffers for copied imports in $indexingMode mode (remote=$remote)', async ({ indexingMode, remote }) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-first import #-'));
     try {
       await mkdir(join(root, 'src'));
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -11415,7 +11472,11 @@ function values(): array { return []; }
       const source = '<?php namespace App; use App\\Receipt as ProjectReceipt; function copied(ProjectReceipt $value) {}';
       await writeFile(declarationPath, declaration); await writeFile(sourcePath, source);
       await utimes(declarationPath, 1700000000, 1700000000);
-      const uri = pathToFileURL(sourcePath).toString();
+      const uriForPath = (path: string): string => {
+        if (!remote) return pathToFileURL(path).toString();
+        const result = new URL('vscode-remote://test/'); result.pathname = path.split(sep).join('/'); return result.toString();
+      };
+      const uri = uriForPath(sourcePath);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server); let id = 101;
       const request = async (method: string, params: unknown): Promise<any> => {
@@ -11423,7 +11484,7 @@ function values(): array { return []; }
         const response = await output.waitFor(message => message.id === requestId, 20_000);
         expect(response.error).toBeUndefined(); return response.result;
       };
-      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+      await request('initialize', { processId: null, capabilities: {}, rootUri: uriForPath(root),
         initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true } });
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
@@ -11447,6 +11508,26 @@ function values(): array { return []; }
       expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([
         expect.objectContaining({ fqcn: 'App\\Receipt', alias: 'ProjectReceipt' }),
       ]);
+      const declarationUri = uriForPath(declarationPath);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: declarationUri, languageId: 'php', version: 1, text: declaration.replace('Receipt', 'Removed') },
+      } }));
+      expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: declarationUri, version: 2 }, contentChanges: [{ text: declaration }],
+      } }));
+      expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([
+        expect.objectContaining({ fqcn: 'App\\Receipt', alias: 'ProjectReceipt' }),
+      ]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri: declarationUri, version: 3 }, contentChanges: [{ text: declaration.replace('Receipt', 'Removed') }],
+      } }));
+      expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([]);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: declarationUri } } }));
+      expect(await request('phpCompanion/copyTypeSymbols', params)).toEqual([
+        expect.objectContaining({ fqcn: 'App\\Receipt', alias: 'ProjectReceipt' }),
+      ]);
+      expect(await readFile(declarationPath, 'utf8')).toBe(declaration);
       expect(await readFile(sourcePath, 'utf8')).toBe(source.replaceAll('ProjectReceipt', 'ChangedReceipt'));
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 60_000);
