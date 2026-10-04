@@ -23,6 +23,7 @@ import { buildAddImportEdit, buildOptimizeImportsEdit, rankedImportCandidates } 
 import { ImportClassCodeActions, typeNameAt } from '../imports/providers.js';
 import { withBoundedRetry } from '../refactor/retry.js';
 import { moveFileExists } from '../refactor/moveFileState.js';
+import { captureRuntimeFileGuard } from '../refactor/runtimeFiles.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { composerRequiresSymfony } from './languageServerPolicy.js';
 import { BCMATH_NUMBER_DOCUMENT_URI, BUILTIN_DOCUMENT_URI, FILTER_CLASSES_DOCUMENT_URI, bcmathNumberPhpStub, builtinPhpStub, filterClassesPhpStub, parseBcmathNumberDocumentUri, parseBuiltinDocumentUri, parseFilterClassesDocumentUri, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
@@ -61,7 +62,7 @@ async function captureDocumentSourceGuard(document: vscode.TextDocument): Promis
   };
 }
 
-function captureRefactorEnvironmentGuard(uris: readonly vscode.Uri[], versions: VersionManager): () => boolean {
+async function captureRefactorEnvironmentGuard(uris: readonly vscode.Uri[], versions: VersionManager): Promise<() => Promise<boolean>> {
   const snapshot = (): string => JSON.stringify(uris.map(uri => {
     const current = vscode.workspace.getConfiguration('phpCompanion', uri);
     const state = versions.stateForUri(uri);
@@ -75,7 +76,11 @@ function captureRefactorEnvironmentGuard(uris: readonly vscode.Uri[], versions: 
     };
   }));
   const planned = snapshot();
-  return () => snapshot() === planned;
+  const runtimeUnchanged = await captureRuntimeFileGuard(uris.flatMap(uri => {
+    const path = versions.stateForUri(uri)?.runtime?.path;
+    return path ? [path] : [];
+  }));
+  return async () => snapshot() === planned && await runtimeUnchanged() && snapshot() === planned;
 }
 
 async function captureDirtyOpenDiskSnapshots(): Promise<Map<string, string | undefined>> {
@@ -578,6 +583,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       void vscode.window.showWarningMessage(t('extractCancelled')); return false;
     }
     const targets = edit.entries().filter(([uri]) => uri.toString() !== sourceUri.toString());
+    const participantUris = [sourceUri, ...targets.map(([uri]) => uri)];
+    await Promise.all(participantUris.map(uri => versions.ensureForUri(uri)));
+    const runtimeEnvironmentUnchanged = await captureRefactorEnvironmentGuard(participantUris, versions);
     const existingTargets = new Map<string, { document?: vscode.TextDocument; version?: number; text: string; diskHash: string }>();
     if (request.targetHashes) {
       if (targets.some(([uri]) => !request.targetHashes?.[uri.toString()])) {
@@ -598,7 +606,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           diskHash: createHash('sha256').update(bytes).digest('hex') });
       }
     }
-    const environmentUnchanged = (): boolean => {
+    const environmentUnchanged = async (): Promise<boolean> => {
+      if (!await runtimeEnvironmentUnchanged()) return false;
       const configuration = vscode.workspace.getConfiguration('phpCompanion', sourceUri);
       const setting = configuration.get<string>('phpVersion', 'auto');
       const executableSetting = configuration.get<string | null>('phpExecutablePath') ?? null;
@@ -612,7 +621,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           && effective === request.sourcePhpVersion));
     };
     const unchanged = async (): Promise<boolean> => {
-      if (!environmentUnchanged()) return false;
+      if (!await environmentUnchanged()) return false;
       if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
       if (!await sameDiskHash(sourceUri, sourceDiskHash)) return false;
       for (const [uriText, existing] of existingTargets) {
@@ -646,9 +655,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           }) !== true) return false;
         } catch { return false; }
       }
-      return environmentUnchanged() && !source.isClosed && source.version === sourceVersion && source.getText() === sourceText;
+      return await environmentUnchanged() && !source.isClosed && source.version === sourceVersion && source.getText() === sourceText;
     };
-    if (!await unchanged()) { void vscode.window.showWarningMessage(t(environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
+    if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
     const previewUris = new Set<string>();
     try {
       const showDiff = async (uri: vscode.Uri, previous: string, next: string): Promise<void> => {
@@ -666,7 +675,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return false;
       if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
-      if (!await unchanged()) { void vscode.window.showWarningMessage(t(environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
+      if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
       if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
       const expectedSource = applyTextEdits(sourceText, edit.get(sourceUri));
       const expectedTargets = targets.map(([uri, edits]) => ({ uri,
@@ -791,7 +800,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const sourceUnchanged = await captureDocumentSourceGuard(sourceDocument);
       const dirtyDiskSnapshots = await captureDirtyOpenDiskSnapshots();
       await Promise.all([versions.ensureForUri(source), versions.ensureForUri(target)]);
-      const environmentUnchanged = captureRefactorEnvironmentGuard([source, target], versions);
+      const environmentUnchanged = await captureRefactorEnvironmentGuard([source, target], versions);
       const manager = selfLanguageServer ? undefined : await workspace();
       if (manager) await manager.refreshProjectIndexes([source]);
       const serverPlan = selfLanguageServer ? await requestSafeMovePlan([{ oldUri: source, newUri: target }], true) : undefined;
@@ -799,7 +808,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         ? serverPlan!.edit
         : await buildMoveEdits(manager!.index, [{ oldUri: source, newUri: target }], (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []);
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!environmentUnchanged() || !await sourceUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
+      if (!await environmentUnchanged() || !await sourceUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       if (serverPlan && !await dirtyOpenDisksUnchanged(dirtyDiskSnapshots, Object.keys(serverPlan.sources))) {
         throw new MoveError(t('moveParticipantsChanged'));
       }
@@ -834,7 +843,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           || !participant.document.isDirty && planned !== participant.disk.toString('utf8'));
       })) throw new MoveError(t('moveParticipantsChanged'));
       const participantsUnchanged = async (): Promise<boolean> => {
-        if (!environmentUnchanged()) return false;
+        if (!await environmentUnchanged()) return false;
         for (const participant of participants) {
           const current = participant.document.isClosed ? await vscode.workspace.openTextDocument(participant.uri) : participant.document;
           if (current.getText() !== participant.text || (current === participant.document && current.version !== participant.version)) return false;
@@ -844,7 +853,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           } catch { return false; }
         }
         try { await vscode.workspace.fs.stat(target); return false; }
-        catch (error) { return error instanceof vscode.FileSystemError && error.code === 'FileNotFound' && environmentUnchanged(); }
+        catch (error) { return error instanceof vscode.FileSystemError && error.code === 'FileNotFound' && await environmentUnchanged(); }
       };
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       const previewRequired = options?.preview ?? configuration.get<boolean>('move.preview', true);
@@ -1333,7 +1342,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const sourceUnchanged = await captureDocumentSourceGuard(document);
       const dirtyDiskSnapshots = await captureDirtyOpenDiskSnapshots();
       await versions.ensureForUri(uri);
-      const environmentUnchanged = captureRefactorEnvironmentGuard([uri], versions);
+      const environmentUnchanged = await captureRefactorEnvironmentGuard([uri], versions);
       const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
       if (!prepared) return false;
       const previous = prepared instanceof vscode.Range ? document.getText(prepared) : prepared.placeholder;
@@ -1350,7 +1359,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       // confirms the preview. An Explorer rename during preview is a separate action.
       if (staged && pendingTypeRenameEdits.get(staged.key) === staged.edit) pendingTypeRenameEdits.delete(staged.key);
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!environmentUnchanged() || !await sourceUnchanged()) throw new Error(t('renameSourceChanged'));
+      if (!await environmentUnchanged() || !await sourceUnchanged()) throw new Error(t('renameSourceChanged'));
       if (!await dirtyOpenDisksUnchanged(dirtyDiskSnapshots, Object.keys(plan.protocol.phpCompanion?.sourceHashes ?? {}))) {
         throw new Error(t('renameDiskChanged'));
       }
@@ -1417,13 +1426,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       };
       if (!previewComplete()) throw new Error(t('renamePreviewClosed'));
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
-      if (!environmentUnchanged()) throw new Error(t('renameSourceChanged'));
+      if (!await environmentUnchanged()) throw new Error(t('renameSourceChanged'));
       await verifyRenameSources(plan.protocol);
       for (const [uri, hash] of diskHashes) {
         const current = createHash('sha256').update(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).digest('hex');
         if (current !== hash) throw new Error(t('renameDiskChanged'));
       }
-      if (!environmentUnchanged()) throw new Error(t('renameSourceChanged'));
+      if (!await environmentUnchanged()) throw new Error(t('renameSourceChanged'));
       if (!previewComplete()) throw new Error(t('renamePreviewClosed'));
       if (staged) pendingTypeRenameEdits.set(staged.key, staged.edit);
       let applied = false;

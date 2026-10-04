@@ -55,3 +55,9 @@ onDemand 隔离 Linux VS Code 宿主退出 0：循环及悬空目标均在预览
 这是默认 Safe Rename 命令（当前 F2／Shift+F6 所有者）的限定证明，不是直接 LSP Rename、Explorer、所有批量／平台或真实 WSL 验收。同路径二进制外部替换而未重新探测的情形继续开放；不更新 Profile，不打包或推送。
 
 共用守卫后的 `/tmp/sophp-rename-runtime-shared-move-regression.log` 退出 0：onDemand 的四项 Move 环境变化拒绝、构造生成查询、过期预览拒绝、恢复后四文件应用及单次 Undo／Redo 保持通过。先前双模式 Move 环境证明见 Safe Move 报告；此次不重跑无具体风险的完整矩阵。
+
+### 同路径运行程序变化的 Rename 拒绝
+
+Safe Rename 与 Safe Move 共享已选运行程序的文件身份守卫，等待实际文件元数据核验，配置快照前后保持一致。两默认模式的 Linux 隔离 VS Code 1.140.0 均通过保持 PHP 设置不变的 after-plan／before-apply 程序替换拒绝，源文件与调用者原文保留，恢复后应用及一次 Undo/Redo 通过；六项实际文件系统回归、noEmit／Lint／构建通过。严格旧 Move 返回 true 的失败、早期配置快照假通过及清理问题保留，详见[共同证据](safe-move-source-coverage-2026-10-04.md#同路径运行程序替换)。这不扩张到其它命令、所有平台或真人 WSL；当前增量未提交、不更新 Profile。
+
+当前共享守卫已扩至构造生成、方法／接口提取预览，三操作的两个默认模式拒绝、取消／应用和一次 Undo/Redo 见[生成与提取证据](default-indexing-generation-2026-10-04.md#生成与提取预览的运行程序核验)。Move／Rename 自己的实际证明继续按上文范围保留，合并为本地可靠性检查点 `fix(core): guard executable changes across previewed refactors`；此前“未提交”是当批状态。没有打包、推送或更新 Profile。

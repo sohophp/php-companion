@@ -103,3 +103,15 @@ Core Safe Move 现在在初始版本解析后，捕获源和目标 URI 的资源
 - 扩展 bundle、根 TypeScript、宿主编译和定向 ESLint 通过。
 
 证明限于上述实际设置变更和当前默认模式。外部替换同一路径的 PHP 二进制且没有重新探测、Explorer／批量路径、Rename 的运行环境保护、其它平台及真实 WSL 待核对；没有把本次 Safe Move 保护写为这些入口完成。增量未提交、不更新 Profile、不打包或推送。
+
+### 同路径运行程序替换
+
+当前新增 `captureRuntimeFileGuard`，在已选运行程序的同一路径下核对实际文件 dev／ino／size／mode／mtimeNs／ctimeNs；丢失、不可读取或变为目录都拒绝旧计划。未选运行程序的项目仍可使用 Core，不新增 PHP CLI 必须依赖。Safe Move／Safe Rename 的共享配置守卫等待文件核验，并在核验后再次检查配置快照；规划后、预览和最终应用检查保留，不静默替换计划。
+
+严格旧逻辑复现 `/tmp/sophp-runtime-file-baseline-proof-host.log` 退出 1：保持 phpVersion 与 phpExecutablePath 不变，仅原子替换独立临时启动程序，Move after-plan 返回 true 并应用，断言 `move accepted a replaced runtime after-plan` 失败。系统 PHP 和业务项目未改动。第一次宿主 exit 0 是测试假通过：配置对象保留旧快照，回调断言被命令转为拒绝；不计验收。第二轮严格复现的清理打开已移动源文件遮盖主断言，也不作为最终失败证据。修正实时配置读取、回调错误外传及清理后取得上述明确失败；所有原始日志保留。首个模块解析编译失败及随后编译日志也保留。
+
+修复后 onDemand／progressive 两个 Linux 隔离 VS Code 1.140.0 宿主均退出 0。每模式严格核对 Move／Rename after-plan 与 before-apply 四次 result=false、源文件和调用者缓冲区／磁盘原文、无目标文件；恢复临时程序并重新探测后，两操作正常应用和一次 Undo/Redo 通过。日志 `/tmp/sophp-runtime-file-fixed-onDemand-host.log` 与 `/tmp/sophp-runtime-file-fixed-progressive-host.log`。
+
+根实际文件系统测试六项通过：稳定及无运行程序、同内容同修改时间原子替换、修改／删除／恢复、丢失／目录、恢复 mtime 的等长编辑、符号链接换向／损坏；最后两项是 POSIX 用例。根 noEmit、定向 ESLint、构建通过。只证明已选路径在守卫捕获后的文件变化；不将其外推为任意启动脚本依赖、预先发生的变更、所有命令入口／平台或真人 WSL 已验收。当前修复与可复用回归保留在同一分支未提交，临时准备目录已移除；不打包、推送或更新 Profile。
+
+当前共享守卫已扩至构造生成、方法／接口提取预览，三操作的两个默认模式拒绝、取消／应用和一次 Undo/Redo 见[生成与提取证据](default-indexing-generation-2026-10-04.md#生成与提取预览的运行程序核验)。Move／Rename 自己的实际证明继续按上文范围保留，合并为本地可靠性检查点 `fix(core): guard executable changes across previewed refactors`；此前“未提交”是当批状态。没有打包、推送或更新 Profile。

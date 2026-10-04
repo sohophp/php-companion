@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, readlink, rm, stat, symlink, writeFile } from
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
+import { verifyRuntimeExecutableReplacement } from './runtimeExecutable.js';
 
 async function verifyMultiplePasteAliases(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
   for (const name of ['C3AliasFirst', 'C3AliasSecond']) {
@@ -765,6 +766,10 @@ export async function run(): Promise<void> {
     ?.some((entry) => entry.key === 'ctrl+l'), 'Ctrl+L must retain VS Code line selection');
   const api = await extension.activate() as TestApi;
   assert.strictEqual(typeof api.requestLanguageServer, 'function');
+  if (process.env.PHP_COMPANION_TEST_C3_RUNTIME_FILE_ONLY === '1' || process.env.PHP_COMPANION_TEST_C3_RUNTIME_PREVIEW_ONLY === '1') {
+    await verifyRuntimeExecutableReplacement(folder, process.env.PHP_COMPANION_TEST_C3_RUNTIME_PREVIEW_ONLY === '1');
+    return;
+  }
   if (process.env.PHP_COMPANION_TEST_C3_MULTI_ALIAS_ONLY === '1') {
     await verifyMultiplePasteAliases(folder, api);
     console.log('C3 focused multiple Paste aliases completed; this is not the full C3 suite');

@@ -170,3 +170,13 @@ onDemand／progressive 隔离 Linux 宿主原五类生成通过，`/tmp/sophp-ge
 语言服务构建、根 TypeScript、宿主编译、五文件 ESLint 与 diff 检查通过。此增量未扩展生成方法的语义支持域，没有全量 LSP、规模等待／内存、其他平台或真实 WSL 证据。源码留在同一分支，未打包或更新 Profile；goal 继续。
 
 最终 bundle 的 progressive 同五类宿主退出 0，`/tmp/sophp-generation-competing-host-progressive-final.log`；预览竞争声明拒绝、恢复应用及一次 Undo/Redo 继续通过。无根分支只具有上述协议证据，未据此声称独立文件真实 UI 已验收。
+
+### 生成与提取预览的运行程序核验
+
+复用 Move／Rename 的实际运行程序文件身份守卫，applyPreviewedExtract 确认源及目标资源的版本状态后捕获共享守卫；原请求版本／运行程序设置合同保留，预览前和最终应用的核验等待实际文件检查。覆盖构造函数生成、方法提取及跨文件接口提取。未新增设置或 PHP CLI 必须依赖。
+
+旧逻辑的独立 Linux 隔离宿主 `/tmp/sophp-runtime-preview-baseline-host.log` 退出 1：Core 确认选中临时 PHP 8.5 启动程序，设置保持不变，仅在预览确认中原子替换程序；generation in-preview 返回 true，严格断言 `generation accepted a replaced runtime in-preview` 失败。不修改系统 PHP 或业务项目。
+
+修复后的两个默认模式均通过三操作 × 两替换时点（in-preview／before-apply）的六项拒绝；文档与原磁盘字节保留，接口目标不存在。恢复程序并重新探测后，取消无修改、正常应用及一次 Undo/Redo 通过；接口目标实际声明与 handle(string $value): string 非空合同核对，Undo 删除目标，Redo 逐字恢复接口内容。最终日志 `/tmp/sophp-runtime-preview-final-onDemand-host.log` 与 `/tmp/sophp-runtime-preview-final-progressive-host.log`，两者退出 0；根 noEmit、独立宿主编译、定向 ESLint 均通过。早先只构造／方法提取的日志及接口增量日志保留，不代替最终含三操作的验证。
+
+证明限于已选程序在守卫捕获后的文件变化、这三类实际操作和 Linux VS Code 1.140.0。新类型创建、导入、其它命令、启动脚本依赖、捕获前发生的变化、其它平台及真人 WSL 尚未由此关闭；完整 LSP 837 项仍属于此前补全源码检查点，不冒称此客户端增量的整仓验收。与 Move／Rename 的同路径保护统一收口，提交标题 `fix(core): guard executable changes across previewed refactors`；旧报告中的“未提交”指当批状态。没有打包、推送或更新 Profile。
