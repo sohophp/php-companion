@@ -21,6 +21,7 @@ export async function run(): Promise<void> {
   const blankInitializerTypes = process.env.PHP_COMPANION_TEST_BLANK_INITIALIZER_TYPE_ONLY === '1';
   const largeRanking = process.env.PHP_COMPANION_TEST_LARGE_RANKING_ONLY === '1';
   const largeLocalRanking = process.env.PHP_COMPANION_TEST_LARGE_LOCAL_RANKING_ONLY === '1';
+  const reassignedParameters = process.env.PHP_COMPANION_TEST_REASSIGNED_PARAMETER_ONLY === '1';
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
   const typeTails = process.env.PHP_COMPANION_TEST_TYPE_TAIL_ONLY === '1';
   const unclosedCallables = process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_ONLY === '1';
@@ -48,7 +49,13 @@ export async function run(): Promise<void> {
     return { prefix: fixture.prefix, label: fixture.target, forbidden: '$offerOutside', addCall: kind === 'construction',
       marked: fixture.source.slice(0, fixture.offset) + '§' + fixture.source.slice(fixture.offset) };
   });
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = largeLocalRanking ? largeLocalCases : largeRanking ? largeRankingCases : blankInitializerTypes ? [
+  const reassignedHeader = '<?php function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA="changed";$offerZ=42;';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = reassignedParameters ? [
+    {prefix:'$offer',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'send($offer§);}'},
+    {prefix:'',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'send(value: §);}'},
+    {prefix:'',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'return §;}'},
+    {prefix:'',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:'<?php function send(string $value):void{} function run(string $offerA,int $offerZ){$offerA=unknown();send(§);}'},
+  ] : largeLocalRanking ? largeLocalCases : largeRanking ? largeRankingCases : blankInitializerTypes ? [
     {prefix:'',label:'false',forbidden:'strlen',addCall:false,marked:'<?php function choose(bool $value = §) {}'},
     {prefix:'',label:'Current::Ready',forbidden:'strlen',addCall:false,marked:'<?php enum Current { case Ready; case Waiting; } function choose(Current $value = /* value */ §) {}'},
     {prefix:'',label:'false',forbidden:'new',addCall:false,marked:'<?php class Host { public bool $value = // value\n §; }'},
@@ -237,7 +244,7 @@ export async function run(): Promise<void> {
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     if (blankInitializers || blankInitializerTypes) marked = marked.replace('<?php ', `<?php namespace BlankInitializerGate${suffix}; `);
-    if (largeRanking || largeLocalRanking) marked = marked.replace('<?php ', `<?php namespace LargeRankingGate${suffix}; `);
+    if (largeRanking || largeLocalRanking || reassignedParameters) marked = marked.replace('<?php ', `<?php namespace LargeRankingGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`)
       .replace('NamespaceUi', `NamespaceUi${suffix}`);
@@ -277,6 +284,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

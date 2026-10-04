@@ -1,0 +1,528 @@
+{
+  "unit": "D82",
+  "baseCommit": "55f25bc069801000d9e80a3de110f3eaab37cd5f",
+  "scope": "Current value types replace declared entry types for completed assignments to parameters in the same scope; shared fact drives variable ranking and detail",
+  "productInputs": {
+    "packages/semantic/src/index.ts": "47a164cc5682f3984333eb4a0e78f478fae9e50bdb1ffff5e5d1b1dc5a0ce5f0",
+    "packages/semantic/dist/index.js": "abd90bd8944f8975545c3706ff8b3ec345714185d9eb131763fa0773ae2e84f9",
+    "packages/language-server/src/server.ts": "5fd8dd29825d52e21e6f956435937022f730931d096ab76865d2edf18611338f",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "6f4786d27403f5d7ac38370166e69392ac82c51e19798472a1de3aa8a3872e10",
+    "packages/semantic/test/reassigned-parameter-completion.test.ts": "99e5705bdc23322ed4005230bd9d9dd31b1483818e2c82c9a5badae636bedc9b",
+    "packages/language-server/test/reassigned-parameter-completion-stdio.test.ts": "72e2f3504363c1ddeed7e5bd17e327bf66359d92a3ac3ed160e5a9d7351ceeac",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "a23fb7a8ca8ab1ab3a466787e185341077bef7f6e6ce9d30e12fc3c862378e1a"
+  },
+  "newSemanticTests": 26,
+  "redRegression": {
+    "validInitialCases": 20,
+    "failed": 20,
+    "initialFixtureCorrection": "Refresh replacement originally hit the send declaration; corrected to the run body before accepting red evidence. Initial 18 failed / 2 passed is not the valid refresh qualification."
+  },
+  "focusedSemanticTests": 134,
+  "fullSemantic": {
+    "files": 103,
+    "tests": 2272,
+    "passed": 2272,
+    "failed": 0,
+    "pending": 0,
+    "maxWorkers": 2,
+    "durationMs": 131301.7353515625
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "newTests": 2,
+    "completionQueries": 38,
+    "detailResolveQueries": 24,
+    "previousUnitCompletionQueries": 90,
+    "scope": "Six scenarios with initial/current/restored source, current value hints and stale resolved hint rejection; named-argument input under PHP 7.2 is error recovery, not legal syntax"
+  },
+  "visibleHost": {
+    "version": "1.140.0",
+    "platform": "linux",
+    "explicitTrigger": true,
+    "prewarmedProvider": true,
+    "results": [
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 267,
+        "visibleLabels": [
+          "$offerA$offerA: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate0Enter; function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA=\"changed\";$offerZ=42;send($offerA);}",
+        "caretOffset": 165,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 134,
+        "visibleLabels": [
+          "$offerA$offerA: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate0Tab; function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA=\"changed\";$offerZ=42;send($offerA);}",
+        "caretOffset": 163,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 153,
+        "visibleLabels": [
+          "$offerA",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate1Enter; function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA=\"changed\";$offerZ=42;send(value: $offerA);}",
+        "caretOffset": 172,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 197,
+        "visibleLabels": [
+          "$offerA",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate1Tab; function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA=\"changed\";$offerZ=42;send(value: $offerA);}",
+        "caretOffset": 170,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 156,
+        "visibleLabels": [
+          "$offerA",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate2Enter; function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA=\"changed\";$offerZ=42;return $offerA;}",
+        "caretOffset": 167,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 188,
+        "visibleLabels": [
+          "$offerA",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate2Tab; function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA=\"changed\";$offerZ=42;return $offerA;}",
+        "caretOffset": 165,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 179,
+        "visibleLabels": [
+          "$offerA",
+          "value:value: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate3Enter; function send(string $value):void{} function run(string $offerA,int $offerZ){$offerA=unknown();send($offerA);}",
+        "caretOffset": 147,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 169,
+        "visibleLabels": [
+          "$offerA",
+          "value:value: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate3Tab; function send(string $value):void{} function run(string $offerA,int $offerZ){$offerA=unknown();send($offerA);}",
+        "caretOffset": 145,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "hotPerformance": {
+    "scope": "Serial real production stdio; 100 parameters, 99 reassigned to proven scalar values; no edits during warm samples; not continuous-edit or Composer-scale qualification",
+    "bundleSha256": "6f4786d27403f5d7ac38370166e69392ac82c51e19798472a1de3aa8a3872e10",
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "kind": "variable",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 76.43272700000034,
+        "samples": [
+          67.03810900000008,
+          65.68535299999985,
+          95.68864299999996,
+          61.183058000000074,
+          59.604151,
+          61.14296599999989,
+          73.9741939999999,
+          57.60511899999983,
+          56.53416500000003,
+          54.74449100000038,
+          56.59729300000026,
+          57.77998300000036,
+          61.21308999999974,
+          76.43272700000034,
+          61.82425299999977,
+          57.6828230000001,
+          56.553327999999965,
+          60.790903999999955,
+          57.76790600000004,
+          57.10920099999976
+        ],
+        "sourceSha256": "4ed1b3044a0f0a2daa50f91e6c21026d5ac6992590cb3252e4850a0399b46061",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "7.2",
+        "kind": "blank",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 60.68059399999947,
+        "samples": [
+          58.517701000000216,
+          56.14416699999947,
+          57.68157699999938,
+          59.87509200000022,
+          58.929165999999896,
+          57.23835599999984,
+          58.13311000000067,
+          57.032830000000104,
+          59.41823299999942,
+          59.74134700000013,
+          76.16878400000041,
+          60.04544199999964,
+          57.8940190000003,
+          58.403040000000146,
+          60.68059399999947,
+          58.054901999999856,
+          57.92703900000015,
+          55.943341000000146,
+          59.89633799999956,
+          57.34755899999982
+        ],
+        "sourceSha256": "32217e14db0183eb9520d1247f4b658583722becbc7309a47eb8451a9bdcd09a",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "variable",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 77.08816300000035,
+        "samples": [
+          61.63537499999984,
+          68.9940230000002,
+          70.65253100000064,
+          64.1505100000004,
+          61.28228200000012,
+          60.55663800000002,
+          62.24474800000007,
+          67.2937120000006,
+          66.55804499999977,
+          69.75972400000137,
+          63.17351500000041,
+          58.881461000000854,
+          60.40433600000142,
+          91.55934700000034,
+          77.08816300000035,
+          62.5379439999997,
+          63.32084300000133,
+          65.88823000000048,
+          62.42918499999905,
+          60.23800899999878
+        ],
+        "sourceSha256": "4ed1b3044a0f0a2daa50f91e6c21026d5ac6992590cb3252e4850a0399b46061",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "blank",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 87.50260499999968,
+        "samples": [
+          61.333293000001504,
+          56.75107500000013,
+          62.025015000001076,
+          59.6193289999992,
+          59.76269700000012,
+          60.09684000000016,
+          58.82622100000117,
+          59.15585099999953,
+          58.28998400000091,
+          59.710141999999905,
+          87.50260499999968,
+          72.37218899999971,
+          59.5312529999992,
+          98.3063140000013,
+          63.32794599999943,
+          60.16465799999969,
+          61.809212000000116,
+          61.2563140000002,
+          60.203944999999294,
+          58.98126199999933
+        ],
+        "sourceSha256": "32217e14db0183eb9520d1247f4b658583722becbc7309a47eb8451a9bdcd09a",
+        "topCandidate": "$offer099"
+      }
+    ]
+  },
+  "syntaxCompilation": {
+    "scope": "Syntax compilation only; no execution, 8 accepted UI texts x 2 actual CLI versions. Named arguments require PHP 8; two PHP 7.2 negative controls intentionally fail.",
+    "positivePasses": 14,
+    "expectedVersionRejections": 2,
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "case": 0,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "c7474ed383e64f3a96f65b9ff1f3e91b2b76f1a7b5147d664f8443195c2093ee"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 0,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "c7474ed383e64f3a96f65b9ff1f3e91b2b76f1a7b5147d664f8443195c2093ee"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 1,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "7858a78ba3694b17821580683ee20475cae0846c96526fae72d5dc4aa956644f"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 1,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "7858a78ba3694b17821580683ee20475cae0846c96526fae72d5dc4aa956644f"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 2,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": false,
+        "exitCode": 255,
+        "expectedOutcome": true,
+        "sourceSha256": "500b7926cd87e045b47d26447cf0fa9f42280b089b98437fd24f178ea657e136"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 2,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "500b7926cd87e045b47d26447cf0fa9f42280b089b98437fd24f178ea657e136"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 3,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": false,
+        "exitCode": 255,
+        "expectedOutcome": true,
+        "sourceSha256": "2fc3ef0d533b1c8c1f60bab392aa5a2e5ea1b5dd9d8cf25fb715cb2928aa99c9"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 3,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "2fc3ef0d533b1c8c1f60bab392aa5a2e5ea1b5dd9d8cf25fb715cb2928aa99c9"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 4,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "7c4883d434cae09225f35e326132b4c2859d091b9fde77b028806d9bb3519a42"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 4,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "7c4883d434cae09225f35e326132b4c2859d091b9fde77b028806d9bb3519a42"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 5,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "ed89d6dd83900ae5a3496946e6043115d17afaf7fe7735e1474e5ff812b0cf05"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 5,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "ed89d6dd83900ae5a3496946e6043115d17afaf7fe7735e1474e5ff812b0cf05"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 6,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "9843f3ac63d99ed09007df75a64d4c0ef1b6c0c4b5deb120ef44050cdae367a2"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 6,
+        "key": "Enter",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "9843f3ac63d99ed09007df75a64d4c0ef1b6c0c4b5deb120ef44050cdae367a2"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 7,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "a26c557fdccff7a7553763b6b51234fcb16e3ca7bc0d4b8fd26be4b91baadb6e"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 7,
+        "key": "Tab",
+        "label": "$offerA",
+        "supportedSyntax": true,
+        "exitCode": 0,
+        "expectedOutcome": true,
+        "sourceSha256": "a26c557fdccff7a7553763b6b51234fcb16e3ca7bc0d4b8fd26be4b91baadb6e"
+      }
+    ]
+  },
+  "failuresRetained": [
+    "Valid initial 20 semantic cases fail on previous product; red regression retained.",
+    "Additional scope test initially demanded a type hint despite existing conservative nested/in-progress mutation guards. Corrected expectation to the existing no-hint behavior; rank isolation asserted separately, no guard relaxed.",
+    "First protocol expected immediate detail, but variables use standard completionItem/resolve. Query the resolver and verify current plus stale results; product protocol unchanged.",
+    "Initial compilation treated PHP 7.2 named arguments as valid; corrected to two expected PHP 7.2 syntax rejections, with fourteen positive compilations."
+  ],
+  "boundaries": [
+    "Only completed same-scope parameter assignments trigger the new current-value branch; unrelated non-assigned parameter stability and flow narrowing are not fully closed",
+    "Existing detail suppression for nested/in-progress mutations remains; do not infer that all parameter hints and sorting share proof on every dynamic path",
+    "No complete current LSP rerun; D79 binds preceding aae39a54 only",
+    "Fixed-document hot samples do not prove continuous-edit performance or larger Composer scale",
+    "Explicit Linux UI gate is not automatic suggestion or real WSL acceptance",
+    "No packaging, Profile update, push or release"
+  ],
+  "artifacts": {
+    "/tmp/sophp-d82-qualified-inputs.json": "19ed7cd5b1af1e72553eec04ecc097ae8ea1dffc9bdb823b472b4cd3946328dc",
+    "/tmp/sophp-d82-semantic-red.log": "9add0fcc1e491b608d65a87a8e52b733e62d7870c10fa6cfd64709d1fad07f2d",
+    "/tmp/sophp-d82-semantic-red-valid.log": "399f0801cd4d5b3a1666916b954039825356670e8b4906a2163cbd39b9cdc59b",
+    "/tmp/sophp-d82-semantic-green.log": "24a2446bab54699ba1a109f99021977fb73c352a0f2770efb28aa17386ace57d",
+    "/tmp/sophp-d82-semantic-green-final.log": "ff2a8db8d29a5d8999adcc90e12ab1a7a3b0dbb4af0305c5ebc0d9112347dbce",
+    "/tmp/sophp-d82-semantic-green-corrected.log": "217069cca6b500831eb0692f9495b2c37e317472a48a8e6ebc466ae4048dcd76",
+    "/tmp/sophp-d82-protocol.log": "b2890543672165be027eea05727ab8bee62e07beb0ddbc8e222b1da705359fba",
+    "/tmp/sophp-d82-protocol-green.log": "37f99c9b84875f889db3cf84cec821446d6a4ab8665c0e80580754c9a8ec002e",
+    "/tmp/sophp-d82-protocol-resolve.log": "d564eb3678aa841e586336f315253bb760c0bc30b09bf97fc5953998ea2e44e9",
+    "/tmp/sophp-d82-host.log": "1ba5b90d205d560aee8f86f01f4cc6ddece2603c1e3748ddca201c27f59597e7",
+    "/tmp/sophp-d82-host-proof.json": "64c1eb033b6e2b05071ffd845e357ae2f8566c2808af793a633e3e751fa69793",
+    "/tmp/sophp-d82-semantic-full.log": "738075f2d4a16acab4592404369fcc5449692340af2aee2dbc04a9361a7644b4",
+    "/tmp/sophp-d82-semantic-full.json": "74c490a0479e07465dc2f406d64ce604a9166103886aa6152168d7a055d0d39a",
+    "/tmp/sophp-d82-ranking-performance.mjs": "015a5980a52063ea4467c8232dc7e02f27b8c46110d42a38d5636102cd1a4484",
+    "/tmp/sophp-d82-ranking-performance.log": "200feaa28bfd23c13060c1d0dcdc9708c807a900f147fd4b4a04e161e7be9883",
+    "/tmp/sophp-d82-ranking-performance.json": "322639f59d6f8a30fa0751891e829e17d9d86d559b729fc8b5a2117425f577fc",
+    "/tmp/sophp-d82-compile-proof.json": "f11dfa648e94e0b01e52cdb99acced9f48ff291b0d64072f0162d5dd40fbc1ef",
+    "/tmp/sophp-d82-build-semantic.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    "/tmp/sophp-d82-build-server.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    "/tmp/sophp-d82-build-production.log": "1cced36db1338185939a7ba58304c8f8090c1ac54dc13972e5b56ee5351997f1",
+    "/tmp/sophp-d82-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d82-eslint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d82-extension-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

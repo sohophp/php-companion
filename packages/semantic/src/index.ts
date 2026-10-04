@@ -5262,6 +5262,11 @@ export class SemanticWorkspace {
       ? named(scope.containerFqcn) : undefined;
     const parameter = scope.parameters.find((item) => `$${item.name}` === variable);
     if (parameter) {
+      // A parameter's declaration constrains entry to the callable, not later
+      // local assignments. Use the same current-value proof as its detail.
+      if (file.assignments.some(assignment => assignment.scopeId === scope.id
+        && assignment.variable === variable && assignment.end <= offset))
+        return this.linearLocalValueType(file, variable, offset, true);
       const documented = parameter.type ? parsePhpDocType(parameter.type).type : undefined;
       return documented ? this.phpDocDiagnosticType(file, documented, scope.containerFqcn ?? scope.id)
         : parameter.nativeType ? this.nativeSourceType(file, nativeParameterType(parameter, file.uri), scope.containerFqcn)
@@ -5318,8 +5323,7 @@ export class SemanticWorkspace {
           && call.arguments.some((argument) => file.source.slice(argument.start, argument.end).trim()
             .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
           && this.signatures(file.uri, call.argumentsStart + 1).length === 0))) return undefined;
-    const type = assigned && parameter ? this.linearLocalValueType(file, variable, offset, true)
-      : parameter || variable === '$this' ? this.completionVariableType(file, scope, variable, offset)
+    const type = parameter || variable === '$this' ? this.completionVariableType(file, scope, variable, offset)
         : this.completionVariableType(file, scope, variable, offset) ?? this.iterationVariableType(file, variable, offset, scope);
     return type && type.kind !== 'unknown' ? `${variable}: ${displayType(type)}` : undefined;
   }
