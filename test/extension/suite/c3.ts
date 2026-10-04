@@ -100,10 +100,15 @@ async function verifyConstructorImportAccept(folder: vscode.WorkspaceFolder, api
 }
 
 async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> {
+  const unreadableOnly = process.env.PHP_COMPANION_TEST_C3_UNREADABLE_WATCH_ONLY === '1';
+  const withGeneration = unreadableOnly || process.env.PHP_COMPANION_TEST_C3_MOVE_WITH_GENERATION === '1';
+  if (unreadableOnly) assert.notStrictEqual(process.platform, 'win32', 'Unreadable watcher fixture requires POSIX symlinks');
   const oldUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CurrentMove.php');
   const newUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'C3CurrentMove.php');
   const consumerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3CurrentMoveConsumer.php');
-  const source = '<?php namespace App\\Service; final class C3CurrentMove {}';
+  const source = withGeneration
+    ? '<?php namespace App\\Service; final class C3CurrentMove { private string $name; }'
+    : '<?php namespace App\\Service; final class C3CurrentMove {}';
   const consumer = '<?php namespace App\\Service; function currentMove(C3CurrentMove $value): C3CurrentMove { return $value; }';
   await vscode.workspace.fs.writeFile(oldUri, Buffer.from(source));
   await vscode.workspace.fs.writeFile(consumerUri, Buffer.from(consumer));
@@ -122,9 +127,55 @@ async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> 
       assert.strictEqual(invalidPreview, false, 'Safe Move opened a preview for an occupied symlink');
       assert.strictEqual(await readlink(newUri.fsPath), link);
       assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
+      const position = document.positionAt(source.indexOf('C3CurrentMove') + 2);
+      for (let attempt = 0; withGeneration && attempt < 2; attempt++) {
+        const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>('vscode.executeCodeActionProvider',
+          oldUri, new vscode.Range(position, position));
+        assert.ok(actions?.some(action => {
+          const preview = action.command?.command === 'phpCompanion.applyPreviewedExtract'
+            ? action.command.arguments?.[0] as { edit?: vscode.WorkspaceEdit } | undefined : undefined;
+          const edit = action.edit ?? preview?.edit;
+          return !action.disabled && edit?.entries().some(([, edits]) =>
+            edits.some(item => item.newText.includes('function __construct(')));
+        }),
+        `A ${link === 'C3CurrentMove.php' ? 'cyclic' : 'dangling'} target poisoned current-file Code Actions`);
+        await new Promise(done => setTimeout(done, 50));
+      }
       await rm(newUri.fsPath);
     }
     console.log('C3 default Safe Move: loop and dangling targets declined before preview');
+  }
+  if (unreadableOnly) {
+    console.log('C3 unreadable watcher proof: cyclic/dangling targets rejected; four current-file constructor Code Actions remained usable');
+    return;
+  }
+  if (process.env.PHP_COMPANION_TEST_C3_MOVE_RUNTIME_ONLY === '1') {
+    const config = vscode.workspace.getConfiguration('phpCompanion', oldUri);
+    for (const key of ['phpVersion', 'phpExecutablePath'] as const) {
+      const previous = config.inspect<string | null>(key)?.workspaceFolderValue;
+      for (const phase of ['after-plan', 'before-apply'] as const) {
+        let changed = false;
+        const change = async (): Promise<void> => {
+          await config.update(key, key === 'phpVersion' ? '8.4' : vscode.Uri.joinPath(folder.uri, 'unavailable-move-php').fsPath,
+            vscode.ConfigurationTarget.WorkspaceFolder);
+          changed = true;
+        };
+        try {
+          assert.strictEqual(await vscode.commands.executeCommand('phpCompanion.safeMove', oldUri, newUri, {
+            preview: true, testPreviewAction: async () => 'apply',
+            ...(phase === 'after-plan' ? { testAfterPlan: change } : { testBeforeApply: change }),
+          }), false, `Safe Move accepted changed ${key} ${phase}`);
+          assert.ok(changed, `Safe Move did not reach ${key} ${phase}`);
+          assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
+          assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(oldUri)).toString('utf8'), source);
+          await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
+        } finally {
+          await config.update(key, previous, vscode.ConfigurationTarget.WorkspaceFolder);
+          await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+        }
+      }
+    }
+    console.log('C3 Safe Move runtime proof: PHP target and executable changes rejected after planning and before applying');
   }
   assert.strictEqual(await move(async () => {
     const previews = vscode.window.tabGroups.all.flatMap(group => group.tabs).filter(tab => tab.input instanceof vscode.TabInputTextDiff);
@@ -134,20 +185,65 @@ async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> 
   assert.ok(sawPreview, 'Safe Move never reached preview');
   assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
   await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
-  assert.strictEqual(await move(async () => 'apply'), true);
+  const lateUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3LateMoveConsumer.php');
+  const lateSource = '<?php namespace App\\Service; function lateMove(C3CurrentMove $value): void {}';
+  const lateConsumers = [{ uri: lateUri, source: lateSource }];
+  assert.strictEqual(await move(async () => {
+    await vscode.workspace.fs.writeFile(lateUri, Buffer.from(lateSource));
+    return 'apply';
+  }), false, 'Safe Move applied a preview that omitted a new consumer');
+  assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(lateUri)).toString('utf8'), lateSource);
+  await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
+  for (const scenario of ['destination-conflict', 'before-apply-consumer'] as const) {
+    const additionalUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', `C3Move_${scenario}.php`);
+    const additionalSource = scenario === 'destination-conflict'
+      ? '<?php namespace App\\Controller; class C3CurrentMove {}'
+      : '<?php namespace App\\Service; function applyLateMove(C3CurrentMove $value): void {}';
+    try {
+      const writeAdditional = async (): Promise<void> => { await vscode.workspace.fs.writeFile(additionalUri, Buffer.from(additionalSource)); };
+      assert.strictEqual(await vscode.commands.executeCommand<boolean>('phpCompanion.safeMove', oldUri, newUri, {
+        preview: true,
+        testPreviewAction: async () => { if (scenario === 'destination-conflict') await writeAdditional(); return 'apply'; },
+        ...(scenario === 'before-apply-consumer' ? { testBeforeApply: writeAdditional } : {}),
+      }), false, `Safe Move accepted ${scenario} after planning`);
+      assert.strictEqual(document.getText(), source); assert.strictEqual(consumerDocument.getText(), consumer);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(additionalUri)).toString('utf8'), additionalSource);
+      await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
+    } finally {
+      if (scenario === 'destination-conflict') await vscode.workspace.fs.delete(additionalUri, { useTrash: false });
+    }
+    if (scenario === 'before-apply-consumer') lateConsumers.push({ uri: additionalUri, source: additionalSource });
+  }
+  console.log('C3 Safe Move preview: new consumer, destination declaration and before-apply consumer declined without edits');
+  assert.strictEqual(await move(async () => {
+    const previews = vscode.window.tabGroups.all.flatMap(group => group.tabs).filter(tab => tab.input instanceof vscode.TabInputTextDiff);
+    for (const item of lateConsumers) {
+      const name = item.uri.path.split('/').pop()!;
+      assert.ok(previews.some(tab => tab.label.includes(name)), `Fresh Safe Move preview omitted ${name}`);
+    }
+    return 'apply';
+  }), true);
   const movedDocument = await vscode.workspace.openTextDocument(newUri);
   const movedSource = movedDocument.getText(); const editedConsumer = consumerDocument.getText();
   assert.ok(movedSource.includes('namespace App\\Controller;'));
   assert.ok(editedConsumer.includes('\\App\\Controller\\C3CurrentMove'));
+  const lateDocuments = await Promise.all(lateConsumers.map(async item => ({ ...item,
+    document: await vscode.workspace.openTextDocument(item.uri) })));
+  const lateResults = lateDocuments.map(item => item.document.getText());
+  assert.ok(lateResults.every(text => text.includes('\\App\\Controller\\C3CurrentMove')),
+    'A fresh Safe Move plan must include all new consumers');
   await assert.rejects(async () => vscode.workspace.fs.stat(oldUri));
   await vscode.window.showTextDocument(movedDocument);
   await vscode.commands.executeCommand('undo');
   assert.strictEqual((await vscode.workspace.openTextDocument(oldUri)).getText(), source);
   assert.strictEqual(consumerDocument.getText(), consumer);
+  assert.deepStrictEqual(lateDocuments.map(item => item.document.getText()), lateConsumers.map(item => item.source));
   await assert.rejects(async () => vscode.workspace.fs.stat(newUri));
   await vscode.commands.executeCommand('redo');
   assert.strictEqual((await vscode.workspace.openTextDocument(newUri)).getText(), movedSource);
   assert.strictEqual(consumerDocument.getText(), editedConsumer);
+  assert.deepStrictEqual(lateDocuments.map(item => item.document.getText()), lateResults);
   await assert.rejects(async () => vscode.workspace.fs.stat(oldUri));
   console.log('C3 default Safe Move: source and consumer preview, cancel/apply and one Undo/Redo passed');
 }
@@ -549,6 +645,33 @@ async function verifyRenameDestination(folder: vscode.WorkspaceFolder): Promise<
   } while (Date.now() < deadline);
   assert.ok(ready, 'The missing destination did not produce a baseline Rename plan');
   try {
+    if (process.env.PHP_COMPANION_TEST_C3_RENAME_RUNTIME === '1') {
+      const config = vscode.workspace.getConfiguration('phpCompanion', uri);
+      for (const key of ['phpVersion', 'phpExecutablePath'] as const) {
+        const previous = config.inspect<string | null>(key)?.workspaceFolderValue;
+        for (const phase of ['after-plan', 'before-apply'] as const) {
+          let changed = false;
+          const change = async (): Promise<void> => {
+            await config.update(key, key === 'phpVersion' ? '8.4' : vscode.Uri.joinPath(folder.uri, 'unavailable-rename-php').fsPath,
+              vscode.ConfigurationTarget.WorkspaceFolder);
+            changed = true;
+          };
+          try {
+            assert.strictEqual(await vscode.commands.executeCommand('phpCompanion.safeRename', {
+              uri, position, newName, testPreviewAction: async () => 'apply',
+              ...(phase === 'after-plan' ? { testAfterPlan: change } : { testBeforeApply: change }),
+            }), false, `Safe Rename accepted changed ${key} ${phase}`);
+            assert.ok(changed, `Safe Rename did not reach ${key} ${phase}`);
+            assert.strictEqual(document.getText(), source); assert.strictEqual(await readFile(uri.fsPath, 'utf8'), source);
+            await assert.rejects(stat(target.fsPath), { code: 'ENOENT' });
+          } finally {
+            await config.update(key, previous, vscode.ConfigurationTarget.WorkspaceFolder);
+            await vscode.commands.executeCommand('phpCompanion.detectPhpVersions');
+          }
+        }
+      }
+      console.log('C3 Safe Rename runtime proof: PHP target and executable changes rejected after planning and before applying');
+    }
     for (const link of [`${newName}.php`, 'absent.php']) {
       await symlink(link, target.fsPath);
       let previewed = false;

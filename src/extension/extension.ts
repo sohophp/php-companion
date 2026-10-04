@@ -61,6 +61,23 @@ async function captureDocumentSourceGuard(document: vscode.TextDocument): Promis
   };
 }
 
+function captureRefactorEnvironmentGuard(uris: readonly vscode.Uri[], versions: VersionManager): () => boolean {
+  const snapshot = (): string => JSON.stringify(uris.map(uri => {
+    const current = vscode.workspace.getConfiguration('phpCompanion', uri);
+    const state = versions.stateForUri(uri);
+    return {
+      versionSetting: current.get<string>('phpVersion', 'auto'),
+      executableSetting: current.get<string | null>('phpExecutablePath') ?? null,
+      indexingMode: current.get<string>('indexing.mode', 'onDemand'),
+      includeDev: current.get<boolean>('composer.includeDevAutoload', true),
+      projectRoot: state?.projectRoot, phpVersion: state?.resolution.target,
+      runtimePath: state?.runtime?.path, runtimeVersion: state?.runtime?.version,
+    };
+  }));
+  const planned = snapshot();
+  return () => snapshot() === planned;
+}
+
 async function captureDirtyOpenDiskSnapshots(): Promise<Map<string, string | undefined>> {
   const dirty = vscode.workspace.textDocuments.filter((document) => document.isDirty
     && (document.uri.scheme === 'file' || document.uri.scheme === 'vscode-remote'));
@@ -301,7 +318,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       symbols: symbols.map((symbol) => ({ fqcn: symbol.fqcn, sourceAlias: symbol.alias, alias: symbol.selectedAlias })),
     });
   };
-  const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; sources: Record<string, string>; reconciliation: ServerMoveReconciliation[] }> => {
+  const requestSafeMovePlan = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri; source?: string }[], includeFileOperations: boolean, requireCompleteIndex = false): Promise<{ edit: vscode.WorkspaceEdit; sources: Record<string, string>; reconciliation: ServerMoveReconciliation[]; fingerprint: string }> => {
     const client = await languageServer;
     if (!client) throw new MoveError(t('languageServerUnavailable'));
     const moveId = ++moveSequence; const started = performance.now();
@@ -318,7 +335,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     })));
     if (snapshots.some(({ document, source }) => document.getText() !== source)) throw new MoveError(t('moveParticipantsChanged'));
     output.info(`[move:${moveId}] planned elapsedMs=${Math.round(performance.now() - started)} editedFiles=${edit.entries().length}`);
-    return { edit, sources: result.sources ?? {}, reconciliation: result.reconciliation ?? [] };
+    const sources = result.sources ?? {}; const reconciliation = result.reconciliation ?? [];
+    const fingerprint = createHash('sha256').update(JSON.stringify({
+      sources: Object.entries(sources).sort(([left], [right]) => left.localeCompare(right)),
+      edits: edit.entries().map(([uri, edits]) => [uri.toString(), edits.map(item => ({ range: item.range, newText: item.newText }))])
+        .sort(([left], [right]) => String(left).localeCompare(String(right))),
+      moves: reconciliation.map(move => ({ ...move, sourceUris: [...move.sourceUris].sort() }))
+        .sort((left, right) => left.oldUri.localeCompare(right.oldUri)),
+    })).digest('hex');
+    return { edit, sources, reconciliation, fingerprint };
   };
   const requestSafeMove = async (files: readonly { oldUri: vscode.Uri; newUri: vscode.Uri }[], includeFileOperations: boolean): Promise<vscode.WorkspaceEdit> =>
     (await requestSafeMovePlan(files, includeFileOperations)).edit;
@@ -766,6 +791,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const sourceUnchanged = await captureDocumentSourceGuard(sourceDocument);
       const dirtyDiskSnapshots = await captureDirtyOpenDiskSnapshots();
       await Promise.all([versions.ensureForUri(source), versions.ensureForUri(target)]);
+      const environmentUnchanged = captureRefactorEnvironmentGuard([source, target], versions);
       const manager = selfLanguageServer ? undefined : await workspace();
       if (manager) await manager.refreshProjectIndexes([source]);
       const serverPlan = selfLanguageServer ? await requestSafeMovePlan([{ oldUri: source, newUri: target }], true) : undefined;
@@ -773,8 +799,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         ? serverPlan!.edit
         : await buildMoveEdits(manager!.index, [{ oldUri: source, newUri: target }], (uri) => versions.stateForUri(uri)?.composer?.psr4 ?? []);
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!await sourceUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
+      if (!environmentUnchanged() || !await sourceUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       if (serverPlan && !await dirtyOpenDisksUnchanged(dirtyDiskSnapshots, Object.keys(serverPlan.sources))) {
+        throw new MoveError(t('moveParticipantsChanged'));
+      }
+      if (serverPlan && (await requestSafeMovePlan([{ oldUri: source, newUri: target }], true)).fingerprint !== serverPlan.fingerprint) {
         throw new MoveError(t('moveParticipantsChanged'));
       }
       const edit = selfLanguageServer ? textEdits : new vscode.WorkspaceEdit();
@@ -805,6 +834,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           || !participant.document.isDirty && planned !== participant.disk.toString('utf8'));
       })) throw new MoveError(t('moveParticipantsChanged'));
       const participantsUnchanged = async (): Promise<boolean> => {
+        if (!environmentUnchanged()) return false;
         for (const participant of participants) {
           const current = participant.document.isClosed ? await vscode.workspace.openTextDocument(participant.uri) : participant.document;
           if (current.getText() !== participant.text || (current === participant.document && current.version !== participant.version)) return false;
@@ -814,7 +844,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           } catch { return false; }
         }
         try { await vscode.workspace.fs.stat(target); return false; }
-        catch (error) { return error instanceof vscode.FileSystemError && error.code === 'FileNotFound'; }
+        catch (error) { return error instanceof vscode.FileSystemError && error.code === 'FileNotFound' && environmentUnchanged(); }
       };
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       const previewRequired = options?.preview ?? configuration.get<boolean>('move.preview', true);
@@ -843,6 +873,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         if (!previewDiffsComplete(previewUris)) throw new MoveError(t('previewClosed'));
       }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
+      if (serverPlan && (await requestSafeMovePlan([{ oldUri: source, newUri: target }], true)).fingerprint !== serverPlan.fingerprint) {
+        throw new MoveError(t('moveParticipantsChanged'));
+      }
       if (!await participantsUnchanged()) throw new MoveError(t('moveParticipantsChanged'));
       if (previewRequired && !previewDiffsComplete(previewUris)) throw new MoveError(t('previewClosed'));
       const key = fileRenameKey(source, target);
@@ -875,6 +908,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       output.warn(`${applied ? 'Safe Move index refresh failed' : 'Safe Move rejected'}: ${message}`);
+      if (context.extensionMode === vscode.ExtensionMode.Test) console.log(`C3 Safe Move rejection proof: ${message}`);
       void vscode.window.showWarningMessage(applied ? t('safeMoveIndexRefreshFailed', message)
         : error instanceof MoveError ? message : t('safeMoveFailed', message));
       return applied;
@@ -1298,6 +1332,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     try {
       const sourceUnchanged = await captureDocumentSourceGuard(document);
       const dirtyDiskSnapshots = await captureDirtyOpenDiskSnapshots();
+      await versions.ensureForUri(uri);
+      const environmentUnchanged = captureRefactorEnvironmentGuard([uri], versions);
       const prepared = await lazyRename.prepareRename?.(document, position, cancellation.token);
       if (!prepared) return false;
       const previous = prepared instanceof vscode.Range ? document.getText(prepared) : prepared.placeholder;
@@ -1314,7 +1350,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       // confirms the preview. An Explorer rename during preview is a separate action.
       if (staged && pendingTypeRenameEdits.get(staged.key) === staged.edit) pendingTypeRenameEdits.delete(staged.key);
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testAfterPlan?.();
-      if (!await sourceUnchanged()) throw new Error(t('renameSourceChanged'));
+      if (!environmentUnchanged() || !await sourceUnchanged()) throw new Error(t('renameSourceChanged'));
       if (!await dirtyOpenDisksUnchanged(dirtyDiskSnapshots, Object.keys(plan.protocol.phpCompanion?.sourceHashes ?? {}))) {
         throw new Error(t('renameDiskChanged'));
       }
@@ -1381,11 +1417,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       };
       if (!previewComplete()) throw new Error(t('renamePreviewClosed'));
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
+      if (!environmentUnchanged()) throw new Error(t('renameSourceChanged'));
       await verifyRenameSources(plan.protocol);
       for (const [uri, hash] of diskHashes) {
         const current = createHash('sha256').update(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))).digest('hex');
         if (current !== hash) throw new Error(t('renameDiskChanged'));
       }
+      if (!environmentUnchanged()) throw new Error(t('renameSourceChanged'));
       if (!previewComplete()) throw new Error(t('renamePreviewClosed'));
       if (staged) pendingTypeRenameEdits.set(staged.key, staged.edit);
       let applied = false;

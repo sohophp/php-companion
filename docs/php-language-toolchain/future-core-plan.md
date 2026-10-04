@@ -39,6 +39,16 @@
 
 ## 当前执行顺序
 
+最新 C3 Rename 增量：[Safe Rename 运行环境变化保护](reports/rename-destination-preflight-2026-10-04.md#safe-rename-运行环境变化保护)。与 Safe Move 共用资源配置／有效运行环境守卫；两个默认模式均通过 PHP 目标及运行程序变化的四项拒绝，以及恢复后普通／大小写改名、预览取消与一次 UndoRedo。默认命令之外的直接 LSP／Explorer／平台／真实 WSL 继续开放。
+
+最新 C3 运行环境增量：[Safe Move 运行环境变化保护](reports/safe-move-source-coverage-2026-10-04.md#safe-move-运行环境变化保护)。隔离编辑器复现规划后改 PHP 目标仍应用旧计划，现核对源／目标资源配置与有效运行环境。两个默认模式均通过四项版本／运行程序路径变化拒绝，以及恢复后完整 Move、构造生成建议和单次 UndoRedo。Rename／Explorer／批量、同路径二进制替换未由本次证明；不更新 Profile、未提交。
+
+最新 C3 重验增量：[生成与 Move 交错后的扫描重验](reports/safe-move-source-coverage-2026-10-04.md#生成与-move-交错后的扫描重验)。将已有一次失效重验扩展至普通受检 Rename／Safe Move；单次变更重读最新源码，连续变更或取消继续拒绝。两项受控协议、12 项相关回归和一项 Rename 回归通过；两个默认模式恢复带构造生成的完整 Move 组合，预览／应用／一次 UndoRedo 通过。下文组合缺口描述为历史批次状态；未测大型项目等待、完整性能或真人 WSL，不更新 Profile，增量未提交。
+
+最新 C4 增量：[不可读文件通知与 Code Action](reports/safe-move-source-coverage-2026-10-04.md#不可读文件通知不再反复阻断-code-action)。已稳定复现并修复循环文件 readFile 失败重新进入队列，导致后续请求反复 ELOOP 的问题；撤回旧磁盘事实、保留当前打开文档，正常文件恢复后刷新。六项定向协议与两默认模式隔离宿主的四次构造函数 Code Action 查询通过。组合生成／Move 的扫描失效拒绝另保留为缺口；专门宿主通过不代替该组合、全量性能或真人 WSL。增量未提交、不更新 Profile。
+
+最新 C3 增量：[Safe Move 预览期间的新声明与调用者](reports/safe-move-source-coverage-2026-10-04.md#safe-move-预览期间的新声明和调用者)。预览前与应用前重新受检规划并核对计划指纹，拒绝新引用遗漏、目标同名声明及确认后新增调用者；不偷偷替换已确认的编辑。八项原规划协议回归通过，onDemand／progressive 隔离宿主的新预览、四文件应用和一次 Undo/Redo 通过。保留原失败与测试清理问题；中间循环目标曾触发独立后台 codeAction ELOOP，尚需核对。批量／Explorer／平台／运行设置／规模等待和真实 WSL 继续开放；增量未提交，不更新 Profile。
+
 最新 C2 增量：[readonly 初始化版本与类族权限](reports/readonly-family-version-2026-10-04.md)。补齐 PHP 8.1–8.3 与 8.4+ 的初始化权限差异及显式 private(set) 限制，并让已有完整继承依据的诊断在默认 onDemand 模式可用。全量语义 1,364 项、五项定向 LSP 和隔离编辑器未保存文件的 PHP 8.1→8.5→8.1 诊断刷新通过；缺失父类反例仍保守。首次宿主失败及原因保留；本增量未提交、不更新 Profile，真实 WSL 与组合性能门槛开放。
 
 1. 先收集当前真人候选的使用反馈；有可复现错误时按补全相关性、接受文本、版本一致性及等待时间排序。原有 60 场景与 D01–D42 正反例继续作为固定门槛，见[冻结补全语料](completion-acceptance-corpus.md)。本次整理不减少场景或放宽预算。
@@ -52,6 +62,8 @@
 2026-10-04 本地源码检查点合并接口提取的全局源类型歧义保护、格式化候选的文件夹配置隔离／双 PHP 运行程序验证、严格渲染异常探针及受检扫描有界并行；提交标题 `fix(toolchain): isolate formatter settings and parallelize verified scans`。各报告保留原始失败与测量限制，旧“未提交”叙述是当批状态；该检查点不关闭 C1–C4、未修复的 Workbench 异常或真人门槛。不更新 Profile；goal 继续。
 
 ## 历史记录与材料管理
+
+本地重构可靠性检查点汇总 Safe Move 预览的新调用者／声明重验、不可读 watcher 的过期事实撤回、受检扫描的一次失效重验，以及 Safe Move／Safe Rename 共用运行环境保护。提交标题 `fix(core): revalidate refactor previews and recover watched sources`。历史报告中的“未提交”指当批状态；保留原始失败与定向证据，不据此关闭大规模性能、Explorer／批量／平台或真人 WSL。没有打包、更新 Profile 或推送，goal 继续 active。
 
 最新本地 Core 源码里程碑收拢生成预览的竞争声明保护、protected 类族补全，以及 readonly 初始化版本／默认模式／重复赋值诊断。最终全量语义 1,365 项、readonly 五项定向协议及隔离宿主通过，生成与 protected 的各自证据继续按报告限定范围；没有据此关闭完整 LSP 性能、真人或平台门槛。提交标题 `fix(core): guard generation hierarchy and readonly family diagnostics`；此前“未提交”文字是历史批次状态。本轮不更新 Profile，goal 继续。
 

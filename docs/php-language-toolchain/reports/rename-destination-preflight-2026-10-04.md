@@ -43,3 +43,15 @@
 onDemand 隔离 Linux VS Code 宿主退出 0：循环及悬空目标均在预览前拒绝，源、消费者和链接保持原状；移除目标链接后正常 Move 的预览取消、应用、单次 Undo/Redo 通过。日志 `/tmp/sophp-move-target-onDemand-20261004.log`。通过根 TypeScript noEmit、语言服务器构建、宿主编译、相关 ESLint 及 diff 空白检查。
 
 上述证明不包含 Windows 大小写不敏感文件系统、Remote 提供者或真实 WSL 窗口。没有打包、安装或更新用户 Profile。
+
+## Safe Rename 运行环境变化保护
+
+在 Safe Move 的环境保护后核对同类入口。`/tmp/sophp-rename-runtime-red.log` 真实 onDemand 隔离编辑器复现：规划后把 PHP 目标从 8.5 改为 8.4，Safe Rename 仍返回 true 并应用旧计划。该失败日志保留。
+
+现提取 Safe Move 已有快照逻辑为内部 captureRefactorEnvironmentGuard；Safe Rename 在版本解析后、prepareRename 前捕获源码资源的 PHP 配置、有效版本、项目根和运行程序路径／版本。规划后、预览确认后和最终磁盘核对后检查环境；配置直接读取，不等待异步刷新。失效时清除暂存的文件改名编辑并关闭预览；既有源码哈希、目标占用和单次资源编辑流程不改变。
+
+`/tmp/sophp-rename-runtime-fixed-onDemand.log`、`/tmp/sophp-rename-runtime-fixed-progressive.log` 均退出 0：PHP 目标与运行程序路径分别在规划后、应用前变化，四项均拒绝；每项确认到达变更回调，原文档／磁盘不变且没有创建目标。恢复配置并检测后，同一夹具继续循环／悬空目标拒绝、独立大小写目标拒绝，以及普通／大小写改名的预览取消、应用和一次 Undo／Redo。扩展 bundle、根 TypeScript、宿主编译与定向 ESLint 通过。
+
+这是默认 Safe Rename 命令（当前 F2／Shift+F6 所有者）的限定证明，不是直接 LSP Rename、Explorer、所有批量／平台或真实 WSL 验收。同路径二进制外部替换而未重新探测的情形继续开放；不更新 Profile，不打包或推送。
+
+共用守卫后的 `/tmp/sophp-rename-runtime-shared-move-regression.log` 退出 0：onDemand 的四项 Move 环境变化拒绝、构造生成查询、过期预览拒绝、恢复后四文件应用及单次 Undo／Redo 保持通过。先前双模式 Move 环境证明见 Safe Move 报告；此次不重跑无具体风险的完整矩阵。

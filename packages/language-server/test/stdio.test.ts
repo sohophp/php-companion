@@ -12043,6 +12043,130 @@ function values(): array { return []; }
     }
   });
 
+  it.each(['onDemand', 'progressive'])('revalidates a superseded Safe Move scan once in %s', async (indexingMode) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-move-superseded-'));
+    try {
+      await mkdir(join(root, 'src', 'Moved'), { recursive: true });
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const path = join(root, 'src', 'Own.php'); const uri = pathToFileURL(path).toString();
+      const newUri = pathToFileURL(join(root, 'src', 'Moved', 'Own.php')).toString();
+      const callerPath = join(root, 'src', 'Caller.php'); const callerUri = pathToFileURL(callerPath).toString();
+      const source = '<?php namespace App; class Own {}';
+      await writeFile(path, source); await writeFile(callerPath, '<?php namespace App; function call(Own $value): void {}');
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); const output = messagesFrom(server);
+      let id = 100;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode, testMode: true } });
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const moveParams = { moves: [{ oldUri: uri, newUri }], includeFileOperations: true };
+      expect((await request('phpCompanion/planSafeMove', moveParams)).edit).toBeDefined();
+      const method = 'safeMoveDiskRefresh';
+      const waitState = async (predicate: (state: any) => boolean): Promise<any> => {
+        const deadline = Date.now() + 5_000;
+        while (Date.now() < deadline) {
+          const state = await request('phpCompanion/testQueryState', { method, uri });
+          if (predicate(state)) return state;
+          await new Promise(done => setTimeout(done, 10));
+        }
+        throw new Error('Safe Move scan did not reach the controlled state');
+      };
+      const change = async (text: string): Promise<void> => {
+        const before = await request('phpCompanion/testQueryState', { method, uri });
+        await writeFile(callerPath, text);
+        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: callerUri, type: 2 }] } }));
+        await waitState(state => state.epoch !== before.epoch);
+      };
+      expect(await request('phpCompanion/testPauseNextQuery', { method })).toBe(true);
+      const held = request('phpCompanion/planSafeMove', moveParams); await waitState(state => state.paused);
+      const changed = '<?php namespace App; function call(Own $value): Own { return new Own(); }';
+      await change(changed); expect(await request('phpCompanion/testReleaseQuery', { method })).toBe(true);
+      const result = await held; expect(result.error).toBeUndefined(); expect(result.sources[callerUri]).toBe(changed);
+      const retries = (): Promise<any> => request('phpCompanion/testQueryTimings', {});
+      expect((await retries()).safeMoveDiskRefreshEpochRetry).toHaveLength(1);
+      expect(await request('phpCompanion/testPauseNextQuery', { method })).toBe(true);
+      const unstable = request('phpCompanion/planSafeMove', moveParams); await waitState(state => state.paused);
+      await change(changed + ' // first change');
+      expect(await request('phpCompanion/testPauseNextQuery', { method })).toBe(true);
+      expect(await request('phpCompanion/testReleaseQuery', { method })).toBe(true);
+      await waitState(state => state.paused); await change(changed + ' // second change');
+      expect(await request('phpCompanion/testReleaseQuery', { method })).toBe(true);
+      expect((await unstable).edit).toBeUndefined(); expect((await retries()).safeMoveDiskRefreshEpochRetry).toHaveLength(2);
+      expect(await request('phpCompanion/testPauseNextQuery', { method })).toBe(true);
+      const cancelledId = id; const cancelled = request('phpCompanion/planSafeMove', moveParams); await waitState(state => state.paused);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: cancelledId } }));
+      expect(await request('phpCompanion/testReleaseQuery', { method })).toBe(true);
+      expect((await cancelled).edit).toBeUndefined(); expect((await retries()).safeMoveDiskRefreshEpochRetry).toHaveLength(2);
+      expect(await readFile(path, 'utf8')).toBe(source); await expect(readFile(join(root, 'src', 'Moved', 'Own.php'))).rejects.toThrow();
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
+  it.skipIf(process.platform === 'win32').each(['onDemand', 'progressive', 'experimental'])('keeps code actions usable after an unreadable watched PHP source in %s', async (indexingMode) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-unreadable-watch-'));
+    try {
+      await mkdir(join(root, 'src'));
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      const path = join(root, 'src', 'Own.php'); const uri = pathToFileURL(path).toString();
+      const auxiliaryPath = join(root, 'src', 'Auxiliary.php'); const auxiliaryUri = pathToFileURL(auxiliaryPath).toString();
+      const source = '<?php namespace App; class Own { private string $name; } function call(Auxiliary $value): void { $value->fi; }';
+      await writeFile(path, source);
+      await writeFile(auxiliaryPath, '<?php namespace App; class Auxiliary { public function prior(): void {} }');
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 101, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion: '8.5', indexingMode },
+      } }));
+      await output.waitFor(message => message.id === 101);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      let id = 200;
+      const actions = async (): Promise<any[]> => {
+        const requestId = id++; const position = lspPosition(source, source.indexOf('Own') + 1);
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/codeAction', params: {
+          textDocument: { uri }, range: { start: position, end: position }, context: { diagnostics: [] },
+        } }));
+        const response = await output.waitFor(message => message.id === requestId, 20_000);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      const members = async (): Promise<string[]> => {
+        const requestId = id++;
+        server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, source.indexOf('$value->fi') + '$value->'.length),
+        } }));
+        const response = await output.waitFor(message => message.id === requestId);
+        expect(response.error).toBeUndefined();
+        expect(response.result === null || Array.isArray(response.result) || Array.isArray(response.result?.items)).toBe(true);
+        const items = Array.isArray(response.result) ? response.result : response.result?.items ?? [];
+        return items.map((item: { label: string }) => item.label);
+      };
+      expect((await actions()).some(action => action.title === 'Generate constructor for 1 property')).toBe(true);
+      await rm(auxiliaryPath); await symlink('Auxiliary.php', auxiliaryPath);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: auxiliaryUri, type: 2 }] } }));
+      for (let attempt = 0; attempt < 2; attempt++) {
+        expect((await actions()).some(action => action.title === 'Generate constructor for 1 property')).toBe(true);
+      }
+      expect(await members()).not.toContain('prior');
+      const unsaved = '<?php namespace App; class Auxiliary { public function unsaved(): void {} }';
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri: auxiliaryUri, languageId: 'php', version: 1, text: unsaved },
+      } }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: auxiliaryUri, type: 2 }] } }));
+      expect((await actions()).some(action => action.title === 'Generate constructor for 1 property')).toBe(true);
+      expect(await members()).toContain('unsaved');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: auxiliaryUri } } }));
+      await rm(auxiliaryPath); await writeFile(auxiliaryPath, '<?php namespace App; class Auxiliary { public function fixed(): void {} }');
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: auxiliaryUri, type: 2 }] } }));
+      expect((await actions()).some(action => action.title === 'Generate constructor for 1 property')).toBe(true);
+      const repairedMembers = await members();
+      expect(repairedMembers).toContain('fixed'); expect(repairedMembers).not.toContain('prior'); expect(repairedMembers).not.toContain('unsaved');
+      expect(await readFile(path, 'utf8')).toBe(source);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 60_000);
+
   it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('plans Safe Move with current project and dependency consumers in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-current-move-'));
     try {

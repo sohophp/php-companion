@@ -4194,7 +4194,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -4202,7 +4202,7 @@ connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unkn
 connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown; uri?: unknown }): { paused: boolean; version: number | null; epoch?: number } | null => {
   if (!testMode || typeof params?.method !== 'string' || typeof params.uri !== 'string') return null;
   return { paused: testPausedQueries.has(params.method), version: documents.get(params.uri)?.version ?? null,
-    ...(params.method === 'indexProjectSource' ? { epoch: projectEpochs.get(rootForUri(params.uri) ?? '') ?? 0 } : {}) };
+    ...(['indexProjectSource', 'safeMoveDiskRefresh'].includes(params.method) ? { epoch: projectEpochs.get(rootForUri(params.uri) ?? '') ?? 0 } : {}) };
 });
 
 connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknown }): boolean => {
@@ -5420,7 +5420,13 @@ async function applyPendingFiles(containerRefreshRoots = new Set<string>()): Pro
     const workspace = await semanticForRoot(root);
     let source: string | undefined;
     try { source = await readFile(path, 'utf8'); }
-    catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        connection.console.warn(`[index:delta] unavailable uri=${uri}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      // An unavailable disk source must not poison the coalesced watcher queue.
+      // Remove its old facts below, or retain a current open buffer if present.
+    }
     const currentRoot = rootForUri(uri);
     if (!currentRoot) return;
     if (currentRoot !== root) {
@@ -7975,7 +7981,7 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
     },
   }).finally(() => statBatches.close());
   recordTestQueryDuration(timing, refreshStarted);
-  if (reuseChecks && testPauseNextQueries.has(timing)) await pauseTestQuery(timing);
+  if (testPauseNextQueries.has(timing)) await pauseTestQuery(timing);
   let sourceSuperseded = false;
   for (const [uri, source] of verifiedSources ?? []) {
     if (workspace.source(uri) !== source || !selectedNames && workspace.implementationState(uri) !== 'loaded') { sourceSuperseded = true; break; }
@@ -7984,9 +7990,9 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
   const superseded = epochSuperseded || sourceSuperseded;
   if (!scan.complete || cancelled() || superseded) {
     if (changedUri) invalidateCandidates(changedUri);
-    // Watchers or a background snapshot can supersede checked Import facts.
+    // Watchers or a background snapshot can supersede checked refactor facts.
     // Refresh once; cancellation, further supersession and budgets fail closed.
-    if (reuseChecks && superseded && retries > 0 && !cancelled()) {
+    if (superseded && retries > 0 && !cancelled()) {
       recordTestQueryDuration(`${timing}${epochSuperseded ? 'EpochRetry' : 'SourceRetry'}`, refreshStarted);
       return refreshRefactorDiskSources(workspace, root, cancelled, timing, typeNames, captureVerifiedSource, retries - 1);
     }
