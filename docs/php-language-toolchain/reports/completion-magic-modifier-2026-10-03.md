@@ -132,3 +132,12 @@ GC 后 heapUsed 第 1／100／300 轮为 39.60／30.34／30.62 MiB，第 100–3
 
 
 最终补充的三文件定向协议 `/tmp/sophp-diagnostic-milestone-values.log`：9 通过、493 未选中，19.59 秒，覆盖枚举实参、PHPDoc 字面量和 match／switch 条件；定向 ESLint `/tmp/sophp-diagnostic-milestone-lint.log` 退出 0。两项诊断遍历前提、枚举实参断言与证据作为本地源码里程碑收口，提交标题 perf(core): skip provably empty diagnostic walks。前文“进行中／未提交”为当批状态；完整回归原失败及定向补验分开报告，不打包、推送、更新 Profile 或停止 goal。
+
+
+### readonly 遍历试验收口（代码已撤回）
+
+在 b89c00e 上分别试验：一、将外层方法收集合入已有本地诊断遍历；二、恢复前者后，仅在通用 walkLocalSyntax 中每个父节点读取一次 namedChildren。当前解析器 0.26.11 的 namedChildren getter 自带缓存，第二种不存在重复构造完整数组的预期收益。两种方案独立执行完整语义 81 文件／1393 项通过，日志 `/tmp/sophp-readonly-traversal-semantic.log`、`/tmp/sophp-local-walk-children-semantic.log`。
+
+同 SHA 的 242692 字节独立 Composer fixture，串行普通 100 轮测量，不加 profiler／显式 GC。现有基线 P50／P95 208.27／254.21 ms；方案一 205.26／259.66 ms，方案二 222.17／260.32 ms。每轮当前首位、旧候选撤回、不完整为零及磁盘不变通过，但没有证明编辑等待改善。两处试验源码全部撤回，不继续等价试验，也不声称达到 150 ms。原始 [试验 JSON](completion-readonly-traversal-trials-2026-10-04.json) 分开保存基线及试验；日志 `/tmp/sophp-{readonly-traversal,local-walk-children}-edit.json` 保留。本轮未做宿主／全量 LSP，也不冒称当前新产品功能；自己的临时 fixture 核对哈希后已移除。
+
+下一步转向其它独立路线图项目；readonly 的进一步结构性优化需新的 CPU 证据与覆盖引用 foreach、跨文件构造摘要的设计。保留已经提交的诊断入口优化，不更新 Profile，不暂停 goal。

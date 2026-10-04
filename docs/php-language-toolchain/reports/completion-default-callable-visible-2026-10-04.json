@@ -1,0 +1,208 @@
+{
+  "platform": "linux",
+  "context": "declaration-callables",
+  "results": [
+    {
+      "label": "strlen",
+      "key": "Enter",
+      "visibleMs": 289,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php function choose0Enter($callback = strlen(...)) {}",
+      "caretOffset": 51,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Tab",
+      "visibleMs": 157,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php function choose0Tab($callback = strlen(...)) {}",
+      "caretOffset": 49,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Enter",
+      "visibleMs": 140,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php class Host1Enter { public $callback = strlen(...); }",
+      "caretOffset": 55,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Tab",
+      "visibleMs": 183,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php class Host1Tab { public $callback = strlen(...); }",
+      "caretOffset": 53,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "target",
+      "key": "Enter",
+      "visibleMs": 161,
+      "visibleLabels": [
+        "targetHost2Enter::target()"
+      ],
+      "acceptedText": "<?php class Host2Enter { private static function target() {} public $callback = self::target(...); }",
+      "caretOffset": 97,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "target",
+      "key": "Tab",
+      "visibleMs": 187,
+      "visibleLabels": [
+        "targetHost2Tab::target()"
+      ],
+      "acceptedText": "<?php class Host2Tab { private static function target() {} public $callback = self::target(...); }",
+      "caretOffset": 95,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Enter",
+      "visibleMs": 171,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php function choose3Enter($callback = strlen(...)) {}",
+      "caretOffset": 51,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "strlen",
+      "key": "Tab",
+      "visibleMs": 181,
+      "visibleLabels": [
+        "strlenstrlen(string $string): int",
+        "grapheme_strlengrapheme_strlen(string $string): int|false|null",
+        "iconv_strleniconv_strlen(string $string, ?string $encoding = null): int|false",
+        "mb_strlenmb_strlen(string $string, ?string $encoding = null): int"
+      ],
+      "acceptedText": "<?php function choose3Tab($callback = strlen(...)) {}",
+      "caretOffset": 49,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "vscodeVersion": "1.140.0",
+  "scope": "isolated Linux PHP 8.5, warmed Provider and explicit trigger; not automatic popup or WSL manual acceptance",
+  "phpAcceptedTextLint": {
+    "runtime": "8.5.9",
+    "executable": "/usr/bin/php85",
+    "scope": "compile-only accepted UI text; no PHP business code executed",
+    "results": [
+      {
+        "label": "strlen",
+        "key": "Enter",
+        "exitCode": 0
+      },
+      {
+        "label": "strlen",
+        "key": "Tab",
+        "exitCode": 0
+      },
+      {
+        "label": "strlen",
+        "key": "Enter",
+        "exitCode": 0
+      },
+      {
+        "label": "strlen",
+        "key": "Tab",
+        "exitCode": 0
+      },
+      {
+        "label": "target",
+        "key": "Enter",
+        "exitCode": 0
+      },
+      {
+        "label": "target",
+        "key": "Tab",
+        "exitCode": 0
+      },
+      {
+        "label": "strlen",
+        "key": "Enter",
+        "exitCode": 0
+      },
+      {
+        "label": "strlen",
+        "key": "Tab",
+        "exitCode": 0
+      }
+    ]
+  },
+  "visibleWaitSummaryMs": {
+    "samples": [
+      140,
+      157,
+      161,
+      171,
+      181,
+      183,
+      187,
+      289
+    ],
+    "median": 176.0,
+    "maximum": 289,
+    "notPerformanceGate": true
+  }
+}

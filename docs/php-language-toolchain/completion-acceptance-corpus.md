@@ -321,3 +321,11 @@ D16／D43 的条件表达式补充：switch case 与 match 条件现在均使用
 
 
 D16／D43 可见接受补充：枚举 case 前缀曾被 Workbench 隐藏，修复 filterText 与前缀大小写后，match／switch 枚举与 bool 共八次可见首项和 Enter／Tab 精确文本、光标、Undo/Redo 通过。见 [可见证据](reports/completion-comparison-visible-2026-10-04.md)。此处仍是隔离 Linux，不算真人 WSL。
+
+
+## D44 声明默认值表达式
+
+原生参数、属性及 promoted parameter 类型驱动默认值 bool／nullable／枚举建议；参数名称与类型过滤不扩散到默认值，默认值不误归 class-member。包括多属性、未声明类型、union、括号、coalesce 左侧和内层调用／运算负例。语义、两版真实协议及 Linux 八次可见接受的范围见 [D44 记录](reports/completion-declaration-defaults-2026-10-04.md)。保留未闭合声明恢复、合法默认值候选过滤及真人／平台资格，不用本次关闭原 60 项。
+
+
+D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法关键词，PHP 8.5 函数与 static 方法接受为第一类可调用对象，空括号与已有占位符不重复；属性 self:: 权限与 Closure 身份排序均有正反例。当前完整语义 1451、5 项定向协议共 58 查询、八次 Linux 可见接受及 PHP 8.5.9 编译通过，详见 [当前组合](reports/completion-declaration-defaults-2026-10-04.md#最终组合源码里程碑)。不关闭平台／真人或完整 LSP 资格。

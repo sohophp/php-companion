@@ -2559,6 +2559,112 @@ function inspect(Sink $sink, ?Sink $optional): void {
       expect(keyword.sortText < template.sortText).toBe(true);
     }
   });
+  it.each(['7.2', '8.5'])('refreshes declaration default completion from native types on PHP %s', async phpVersion => {
+    const root = await mkdtemp(join(tmpdir(), 'sophp-declaration-default-lsp-'));
+    const path = join(root, 'Defaults.php'), uri = pathToFileURL(path).toString();
+    const original = '<?php function run(bool $flag = false): void {}';
+    try {
+      await writeFile(path, original);
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { files: ['Defaults.php'] } }));
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+      } }));
+      await output.waitFor(message => message.id === 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const cases: [string, string | undefined][] = [
+        ['function run(bool $flag = tr§): void {}', 'true'],
+        ['function run(string $flag = tr§): void {}', undefined],
+        ['function run(?bool $flag = nu§): void {}', 'null'],
+        ['function run(bool $flag = nu§ ?? true): void {}', 'null'],
+        ['class Host { public bool $flag = fa§; }', 'false'],
+        ['class Host { public bool $flag = !fa§; }', undefined],
+      ];
+      if (phpVersion === '8.5') cases.push(
+        ['enum State { case Ready; } class Host { public State $state = rea§dy; }', 'State::Ready'],
+        ['enum State { case Ready; } class Host { public string $state = rea§dy; }', undefined],
+        ['class Host { public function __construct(public bool $flag = tr§) {} }', 'true'],
+      );
+      for (const [index, [tail, expected]] of cases.entries()) {
+        const marked = '<?php ' + tail, offset = marked.indexOf('§'), source = marked.replace('§', ''), version = index + 1;
+        server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+          ? { textDocument: { uri, version }, contentChanges: [{ text: source }] }
+          : { textDocument: { uri, languageId: 'php', version, text: source } } }));
+        await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === version);
+        const id = 100 + index;
+        server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(source, offset),
+        } }));
+        const response = await output.waitFor(message => message.id === id);
+        expect(response.error).toBeUndefined();
+        const items = Array.isArray(response.result) ? response.result : response.result.items;
+        const compatible = items.filter((item: { detail?: string }) => item.detail === 'Compatible value');
+        expect(items.some((item: { label: string }) => item.label === 'readonly')).toBe(false);
+        if (expected) {
+          expect(items.filter((item: { label: string }) => item.label === expected)).toHaveLength(1);
+          expect(items[0].label).toBe(expected);
+          const candidate = items.find((item: { label: string }) => item.label === expected), prefixLength = expected.includes('::') ? 3 : 2;
+          expect(candidate.textEdit).toEqual({ newText: expected, range: {
+            start: lspPosition(source, offset - prefixLength), end: lspPosition(source, offset + (expected.includes('::') ? 2 : 0)),
+          } });
+        } else expect(compatible).toEqual([]);
+      }
+      expect(await readFile(path, 'utf8')).toBe(original);
+    } finally { server?.kill(); await rm(root, { recursive: true, force: true }); }
+  }, 30_000);
+  it.each(['7.2', '8.1', '8.5'])('limits declaration default candidates to supported expressions on PHP %s', async phpVersion => {
+    const uri = 'file:///DefaultLegality.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const rows: Array<{ source: string; label: string; allowed: boolean; callable?: boolean; insert?: string }> = [
+      { source: 'function run($callback = strl§) {}', label: 'strlen', allowed: phpVersion === '8.5', callable: true },
+      { source: 'class Host { public $callback = strl§; }', label: 'strlen', allowed: phpVersion === '8.5', callable: true },
+      { source: 'function run($object = n§) {}', label: 'new', allowed: phpVersion !== '7.2' },
+      { source: 'class Host { public $object = n§; }', label: 'new', allowed: false },
+      { source: 'function run($callback = fn§) {}', label: 'fn', allowed: false },
+      { source: 'function run($callback = fun§) {}', label: 'function', allowed: false },
+      { source: 'function run($callback = stat§) {}', label: 'static', allowed: phpVersion === '8.5' },
+      { source: 'function run($callback = static fun§) {}', label: 'function', allowed: phpVersion === '8.5' },
+      { source: 'function run($callback = strl§()) {}', label: 'strlen', allowed: phpVersion === '8.5', callable: true },
+      { source: 'function run($callback = strl§(...)) {}', label: 'strlen', allowed: phpVersion === '8.5', callable: true, insert: 'strlen' },
+      { source: 'function run($callback = strl§(42)) {}', label: 'strlen', allowed: false },
+      { source: 'class Host { public static function target() {} public $callback = self::tar§; }', label: 'target', allowed: phpVersion === '8.5', callable: true, insert: 'target(...)' },
+      { source: 'class Host { public function run($flag = $th§) {} }', label: '$this', allowed: false },
+      { source: 'function run(): void { $value = strl§; }', label: 'strlen', allowed: true, callable: false },
+    ];
+    if (phpVersion === '8.5') rows.push({ source: 'class Host { public $callback = static function() { return strl§; }; }', label: 'strlen', allowed: true, callable: false });
+    for (const [index, row] of rows.entries()) {
+      const marked = '<?php ' + row.source, offset = marked.indexOf('§'), source = marked.replace('§', ''), version = index + 1;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: index ? 'textDocument/didChange' : 'textDocument/didOpen', params: index
+        ? { textDocument: { uri, version }, contentChanges: [{ text: source }] }
+        : { textDocument: { uri, languageId: 'php', version, text: source } } }));
+      const id = 100 + index;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id);
+      expect(response.error).toBeUndefined();
+      const items = Array.isArray(response.result) ? response.result : response.result.items;
+      const candidate = items.find((item: { label: string }) => item.label === row.label);
+      if (!row.allowed) expect(candidate, row.source).toBeUndefined();
+      else {
+        expect(candidate, row.source).toBeDefined();
+        if (row.callable === true) {
+          expect(candidate.textEdit.newText).toBe(row.insert ?? 'strlen(...)');
+          const accepted = source.slice(0, lspOffset(source, candidate.textEdit.range.start))
+            + candidate.textEdit.newText + source.slice(lspOffset(source, candidate.textEdit.range.end));
+          expect(accepted).toContain(`${row.label}(...)`);
+          expect(accepted).not.toContain('(...)(...)');
+        }
+        if (row.callable === false) expect(candidate.textEdit.newText).not.toBe('strlen(...)');
+      }
+    }
+  });
   it('offers proven enum cases and scalar values in argument expressions', async () => {
     const source = '<?php enum CompletionColor { case Red; case Blue; } function paint(CompletionColor $color): void {} function flag(bool $value): void {} paint(Re); flag();';
     const uri = 'file:///CompletionExpectedValues.php';

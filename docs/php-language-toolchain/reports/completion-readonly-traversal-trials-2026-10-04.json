@@ -1,0 +1,109 @@
+{
+  "baseCommit": "b89c00e",
+  "sourceBytes": 242692,
+  "sourceSha256": "d302d7c8a1d95a5dda0a7eb25623317a7bfea5bebecee8eb64ae5ca16c68a2e3",
+  "baseline": {
+    "root": "/tmp/sophp-diagnostic-recovery-edit-q5zavzcm",
+    "file": "/tmp/sophp-diagnostic-recovery-edit-q5zavzcm/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 187.31,
+    "all": {
+      "p50Ms": 208.27,
+      "p95Ms": 254.21,
+      "maxMs": 447.17
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 203.21,
+      "p95Ms": 253.85,
+      "maxMs": 277.37,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 212.89,
+      "p95Ms": 262.56,
+      "maxMs": 447.17,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "mergedMethodTraversal": {
+    "root": "/tmp/sophp-readonly-traversal-edit-gj6epii6",
+    "file": "/tmp/sophp-readonly-traversal-edit-gj6epii6/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 187.34,
+    "all": {
+      "p50Ms": 205.26,
+      "p95Ms": 259.66,
+      "maxMs": 358.72
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 203.39,
+      "p95Ms": 246.9,
+      "maxMs": 358.72,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 205.7,
+      "p95Ms": 265.43,
+      "maxMs": 295.9,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "cachedChildrenAccess": {
+    "root": "/tmp/sophp-readonly-traversal-edit-gj6epii6",
+    "file": "/tmp/sophp-readonly-traversal-edit-gj6epii6/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": false,
+    "resolveDetails": false,
+    "firstMs": 176.14,
+    "all": {
+      "p50Ms": 222.17,
+      "p95Ms": 260.32,
+      "maxMs": 414.26
+    },
+    "a": {
+      "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+      "expected": "__callStatic",
+      "p50Ms": 218.22,
+      "p95Ms": 260.74,
+      "maxMs": 414.26,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "private function __con{{cursor}}(){} }",
+      "expected": "__construct",
+      "p50Ms": 222.84,
+      "p95Ms": 258.26,
+      "maxMs": 367.03,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "decision": "Both trial changes withdrawn; no demonstrated improvement; no further equivalent trials at this hotspot",
+  "verification": "Each trial passed 81 semantic files / 1393 tests; ordinary 100-round benchmark assertions passed; no host or full LSP qualification for these withdrawn changes"
+}

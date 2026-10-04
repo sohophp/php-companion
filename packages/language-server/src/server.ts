@@ -6692,12 +6692,16 @@ function phpMagicMethodNameCompletions(document: TextDocument, offset: number,
 }
 
 function phpKeywordCompletions(document: TextDocument, offset: number, typeContext: boolean,
-  context: PhpKeywordCompletionContext | undefined): CompletionItem[] {
+  context: PhpKeywordCompletionContext | undefined, declarationDefault?: 'parameter' | 'property'): CompletionItem[] {
   if (document.languageId !== 'php') return [];
-  if (!context || typeContext && context.kind !== 'class-member') return [];
+  if (!context || typeContext && context.kind !== 'class-member' && !declarationDefault) return [];
   const before = document.getText().slice(0, context.start);
   const statementStart = context.kind === 'statement' || context.kind === 'top-level';
-  const candidates = context.kind === 'class-member' ? PHP_CLASS_MEMBER_KEYWORDS
+  const defaultKeywords = ['array', 'true', 'false', 'null',
+    ...(declarationDefault === 'parameter' && isSyntaxAvailable(phpVersionForUri(document.uri), '8.1') ? ['new'] : []),
+    ...(isSyntaxAvailable(phpVersionForUri(document.uri), '8.5')
+      ? /\bstatic\s+$/u.test(before) ? ['function'] : ['static'] : [])];
+  const candidates = declarationDefault ? defaultKeywords : context.kind === 'class-member' ? PHP_CLASS_MEMBER_KEYWORDS
     : context.kind === 'expression' ? PHP_EXPRESSION_KEYWORDS
       : context.kind === 'statement' ? PHP_STATEMENT_KEYWORDS
         : [...PHP_TOP_LEVEL_KEYWORDS, ...PHP_STATEMENT_KEYWORDS];
@@ -6720,7 +6724,8 @@ function phpKeywordCompletions(document: TextDocument, offset: number, typeConte
     && (!['break', 'continue'].includes(keyword) || context.inLoop || keyword === 'break' && context.inSwitch)
     && (keyword !== 'throw' || statementStart || supported('8.0'))
     && (keyword !== 'static' || context.kind !== 'statement' || context.inCallable)
-    && (keyword !== 'function' || context.kind !== 'expression' || /(?:=|\(|,|\breturn|\bthrow)\s*$/iu.test(before)));
+    && (keyword !== 'function' || context.kind !== 'expression' || /(?:=|\(|,|\breturn|\bthrow)\s*$/iu.test(before)
+      || declarationDefault && /\bstatic\s+$/u.test(before)));
   if (context.inSwitch && statementStart) for (const keyword of ['case', 'default']) {
     if (keyword.startsWith(prefix)) names.push(keyword);
   }
@@ -6840,6 +6845,16 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     if (!currentQueryDocument(document, token, queryVersion)) return [];
     completionContext = workspace.completionContext(document.uri, offset, supportsPhp80);
   }
+  const declarationDefault = workspace.declarationDefaultCompletionContext(document.uri, offset);
+  const defaultCallable = Boolean(declarationDefault && isSyntaxAvailable(phpVersionForUri(document.uri), '8.5'));
+  const defaultCallableEdit = (name: string, start: number, end: number): TextEdit | undefined => {
+    const tail = document.getText().slice(end);
+    const emptyCall = /^\s*\(\s*\)/u.exec(tail);
+    const placeholder = /^\s*\(\s*\.\.\.\s*\)/u.test(tail);
+    if (hasFollowingCallParenthesis(document.getText(), end, true) && !emptyCall && !placeholder) return undefined;
+    return { range: { start: document.positionAt(start), end: document.positionAt(end + (emptyCall?.[0].length ?? 0)) },
+      newText: placeholder ? name : `${name}(...)` };
+  };
   if (completionContext.kind === 'declaration-name') {
     const declaration = completionContext.declaration;
     if (declaration.kind === 'function')
@@ -6913,7 +6928,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (completionContext.kind === 'general' && completionContext.quotedValue) return expectedValues;
   const blankTypedExpression = (completionContext.kind === 'named-argument' || completionContext.kind === 'general')
     && completionContext.bareVariables !== undefined;
-  const bareVariables = ((completionContext.kind === 'named-argument' || completionContext.kind === 'general'
+  const bareVariables = (declarationDefault ? [] : (completionContext.kind === 'named-argument' || completionContext.kind === 'general'
     ? completionContext.bareVariables : undefined) ?? []).map((variable, index) => ({
     label: variable.name,
     kind: CompletionItemKind.Variable,
@@ -6966,6 +6981,9 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const memberHasCall = hasFollowingCallParenthesis(document.getText(), memberEnd, Number(phpVersionForUri(document.uri)) >= 8);
   const members = resolvedMembers.filter((member) => supportsEnums
     || member.constantKind !== 'enum-case' && workspace.typeByFqcn(member.calledOnFqcn)?.kind !== 'enum')
+    .filter(member => !declarationDefault || member.kind === 'constant'
+      || member.synthetic === 'enum-native' && isSyntaxAvailable(phpVersionForUri(document.uri), '8.2')
+      || defaultCallable && member.kind === 'method' && member.static && defaultCallableEdit(member.name, memberStart, memberEnd))
     .map((member, index) => ({
     ...deprecation(member),
     label: member.kind === 'property' && member.static ? `$${member.name}` : member.name,
@@ -6973,10 +6991,10 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       : member.constantKind === 'enum-case' ? CompletionItemKind.EnumMember : CompletionItemKind.Constant,
     sortText: `0${String(index).padStart(6, '0')}`,
     filterText: completionFilterText(member.name, memberPrefix),
-    insertTextFormat: member.kind === 'method' && !memberHasCall ? InsertTextFormat.Snippet : InsertTextFormat.PlainText,
-    textEdit: { range: { start: document.positionAt(memberStart), end: document.positionAt(memberEnd) },
+    insertTextFormat: member.kind === 'method' && !memberHasCall && !defaultCallable ? InsertTextFormat.Snippet : InsertTextFormat.PlainText,
+    textEdit: defaultCallable && member.kind === 'method' ? defaultCallableEdit(member.name, memberStart, memberEnd) : { range: { start: document.positionAt(memberStart), end: document.positionAt(memberEnd) },
       newText: member.kind === 'method' && !memberHasCall
-        ? completionCallSnippet(member.name, member.parameters)
+        ? defaultCallable ? `${member.name}(...)` : completionCallSnippet(member.name, member.parameters)
         : member.kind === 'property' && member.static ? `$${member.name}` : member.name },
     detail: member.kind === 'method'
       ? `${member.fqcn}(${member.parameters.map(displayPhpParameter).join(', ')})${member.returnType ? `: ${member.returnType}` : ''}`
@@ -6984,6 +7002,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   }));
   if (completionContext.kind === 'member') return members;
   if (completionContext.kind === 'variable') {
+    if (declarationDefault) return [];
     let documentIdentity = completionDocumentIdentities.get(document);
     if (documentIdentity === undefined) {
       documentIdentity = ++nextCompletionDocumentIdentity; completionDocumentIdentities.set(document, documentIdentity);
@@ -7051,8 +7070,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   const readonlyClassKeyword = completionContext.keywordContext?.kind === 'top-level'
     && /\breadonly\s+$/u.test(document.getText().slice(0, completionContext.keywordContext.start));
   if (readonlyClassKeyword) typeContext = undefined;
-  const keywords = phpKeywordCompletions(document, offset, Boolean(typeContext), completionContext.keywordContext);
-  const templates = phpCompletionTemplates(document, completionContext.keywordContext, keywords);
+  const keywords = phpKeywordCompletions(document, offset, Boolean(typeContext), completionContext.keywordContext, declarationDefault);
+  const templates = declarationDefault ? [] : phpCompletionTemplates(document, completionContext.keywordContext, keywords);
   // Declaration keyword intent is shared by every named declaration and
   // modifier. A partial keyword can otherwise prefix hundreds of builtins.
   const functionWord = /([A-Za-z_]+)$/u.exec(document.getText().slice(0, offset))?.[1];
@@ -7066,8 +7085,10 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (completeDeclarationKeyword) typeContext = undefined;
   // A proven blank value already has scoped values. Enumerating every function
   // without a prefix floods large Composer projects; typing a prefix restores them.
-  const functions = (typeContext || declarationKeywordIntent || blankTypedExpression ? []
-    : workspace.completeFunctions(document.uri, offset)).map((callable, index) => {
+  const functions = (typeContext || declarationKeywordIntent || blankTypedExpression || declarationDefault && !defaultCallable ? []
+    : workspace.completeFunctions(document.uri, offset)).filter(callable => !defaultCallable
+      || defaultCallableEdit(callable.name, offset - (functionWord?.length ?? 0), offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0)))
+    .map((callable, index) => {
     const insertion = callable.importFqfn ? workspace.importInsertion(document.uri, offset, callable.importFqfn, 'function') : undefined;
     const position = insertion ? document.positionAt(insertion.offset) : undefined;
     const wordEnd = offset + (/^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0].length ?? 0);
@@ -7077,9 +7098,9 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
       label: callable.name,
       kind: CompletionItemKind.Function,
       filterText: completionFilterText(callable.name, functionWord ?? ''),
-      insertTextFormat: hasCall ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
-      textEdit: { range: { start: document.positionAt(offset - (functionWord?.length ?? 0)), end: document.positionAt(wordEnd) },
-        newText: hasCall ? callable.name : completionCallSnippet(callable.name, callable.parameters) },
+      insertTextFormat: hasCall || defaultCallable ? InsertTextFormat.PlainText : InsertTextFormat.Snippet,
+      textEdit: defaultCallable ? defaultCallableEdit(callable.name, offset - (functionWord?.length ?? 0), wordEnd) : { range: { start: document.positionAt(offset - (functionWord?.length ?? 0)), end: document.positionAt(wordEnd) },
+        newText: hasCall ? callable.name : defaultCallable ? `${callable.name}(...)` : completionCallSnippet(callable.name, callable.parameters) },
       detail: `${callable.fqcn}(${callable.parameters.map(displayPhpParameter).join(', ')})${callable.returnType ? `: ${callable.returnType}` : ''}`,
       sortText: callable.compatibilityRank === undefined
         ? `0${String(index).padStart(6, '0')}`

@@ -11,7 +11,27 @@ export async function run(): Promise<void> {
   const core = vscode.extensions.getExtension('sohophp.php-companion'); assert.ok(core); await core.activate();
   const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder);
   const port = Number(process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT); assert.ok(port > 0);
-  const cases = [
+  const declarationDefaults = process.env.PHP_COMPANION_TEST_DECLARATION_DEFAULT_ONLY === '1';
+  const defaultCallables = process.env.PHP_COMPANION_TEST_DEFAULT_CALLABLE_ONLY === '1';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = defaultCallables ? [
+    {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
+      marked:'<?php function choose($callback = strl§) {}'},
+    {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',
+      marked:'<?php class Host { public $callback = strl§; }'},
+    {prefix:'tar',label:'target',forbidden:'',addCall:false,suffix:'(...)',
+      marked:'<?php class Host { private static function target() {} public $callback = self::tar§; }'},
+    {prefix:'strl',label:'strlen',forbidden:'',addCall:false,suffix:'(...)',consume:2,
+      marked:'<?php function choose($callback = strl§()) {}'},
+  ] : declarationDefaults ? [
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:'<?php function choose(bool $flag = tr§): void {}'},
+    {prefix:'fa',label:'false',forbidden:'',addCall:false,
+      marked:'<?php class Host { public bool $flag = fa§; }'},
+    {prefix:'rea',label:'Current::Ready',forbidden:'',addCall:false,
+      marked:'<?php enum Current { case Ready; } class Host { public Current $state = rea§; }'},
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:'<?php class Host { public function __construct(public bool $flag = tr§) {} }'},
+  ] : [
     {prefix:'rea',label:'Current::Ready',forbidden:'try',addCall:false,
       marked:'<?php enum Current { case Ready; } function choose(Current $status): string { return match($status) { rea§ => "yes", default => "no" }; }'},
     {prefix:'rea',label:'Current::Ready',forbidden:'try',addCall:false,
@@ -26,10 +46,10 @@ export async function run(): Promise<void> {
     console.log('Comparison condition case: ' + JSON.stringify({ index: cases.indexOf(item), key, marked: item.marked }));
     const uri = vscode.Uri.joinPath(folder.uri, 'src', `ComparisonCondition${cases.indexOf(item)}${key}.php`);
     const suffix = `${cases.indexOf(item)}${key}`;
-    const marked = item.marked.replace(/\b(Current|choose)\b/g, name => `${name}${suffix}`);
+    const marked = item.marked.replace(/\b(Current|choose|Host)\b/g, name => `${name}${suffix}`);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`);
-    const accepted = source.slice(0, offset - item.prefix.length) + label + (item.addCall ? '()' : '') + source.slice(offset);
+    const accepted = source.slice(0, offset - item.prefix.length) + label + (item.suffix ?? (item.addCall ? '()' : '')) + source.slice(offset + (item.consume ?? 0));
     await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
     const document = await vscode.workspace.openTextDocument(uri); const editor = await vscode.window.showTextDocument(document);
     const position = document.positionAt(offset); editor.selection = new vscode.Selection(position, position);
@@ -47,12 +67,14 @@ export async function run(): Promise<void> {
     assert.equal(labels.findIndex(value => value.startsWith(label)), 0, `Expected first visible candidate ${label}, got ${JSON.stringify(labels)}`);
     if (key === 'Enter') await pressWorkbenchEnter(port); else await pressWorkbenchTab(port);
     await until(async () => document.getText(), text => text === accepted);
-    assert.equal(document.offsetAt(editor.selection.active), offset - item.prefix.length + label.length + (item.addCall ? 1 : 0));
+    assert.equal(document.offsetAt(editor.selection.active), offset - item.prefix.length + label.length + (item.suffix?.length ?? (item.addCall ? 1 : 0)));
     assert.equal(editor.selection.isEmpty, true);
     await vscode.commands.executeCommand('undo'); await until(async () => document.getText(), text => text === source);
     await vscode.commands.executeCommand('redo'); await until(async () => document.getText(), text => text === accepted);
     assert.equal(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), source);
-    results.push({ label, key, visibleMs, visibleLabels: labels, exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
+    results.push({ label, key, visibleMs, visibleLabels: labels, acceptedText: accepted,
+      caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
-  console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform, results }));
+  console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
+    context: defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

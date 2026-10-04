@@ -1,0 +1,209 @@
+{
+  "platform": "linux",
+  "context": "declaration-defaults",
+  "results": [
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 270,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 175,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "false",
+      "key": "Enter",
+      "visibleMs": 216,
+      "visibleLabels": [
+        "false",
+        "falsyTruthPathApp\\Controller\\falsyTruthPath(?string $falsyText): void",
+        "ftp_allocftp_alloc(\\FTP\\Connection $ftp, int $size, &$response = null): bool",
+        "ftp_appendftp_append(\\FTP\\Connection $ftp, string $remote_filename, string $local_filename, int $mode = FTP_BINARY): bool",
+        "FILE_APPENDFILE_APPEND = 8",
+        "FILEINFO_APPLEFILEINFO_APPLE = 2048",
+        "FTP_ASCIIFTP_ASCII = 1",
+        "FTP_AUTORESUMEFTP_AUTORESUME = -1",
+        "FTP_AUTOSEEKFTP_AUTOSEEK = 1"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "false",
+      "key": "Tab",
+      "visibleMs": 178,
+      "visibleLabels": [
+        "false",
+        "falsyTruthPathApp\\Controller\\falsyTruthPath(?string $falsyText): void",
+        "ftp_allocftp_alloc(\\FTP\\Connection $ftp, int $size, &$response = null): bool",
+        "ftp_appendftp_append(\\FTP\\Connection $ftp, string $remote_filename, string $local_filename, int $mode = FTP_BINARY): bool",
+        "FILE_APPENDFILE_APPEND = 8",
+        "FILEINFO_APPLEFILEINFO_APPLE = 2048",
+        "FTP_ASCIIFTP_ASCII = 1",
+        "FTP_AUTORESUMEFTP_AUTORESUME = -1",
+        "FTP_AUTOSEEKFTP_AUTOSEEK = 1"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current2Enter::Ready",
+      "key": "Enter",
+      "visibleMs": 177,
+      "visibleLabels": [
+        "Current2Enter::ReadyCompatible value",
+        "readdirreaddir(resource|null $dir_handle = null): string|false",
+        "readfilereadfile(string $filename, bool $use_include_path = false, resource|null $context = null): int|false",
+        "readgzfilereadgzfile(string $filename, bool $use_include_path = false): int|false",
+        "readlinereadline(?string $prompt = null): string|false",
+        "readline_add_historyreadline_add_history(string $prompt): true",
+        "readline_callback_handler_installreadline_callback_handler_install(string $prompt, callable $callback): true",
+        "readline_callback_handler_removereadline_callback_handler_remove(): bool",
+        "readline_callback_read_charreadline_callback_read_char(): void",
+        "readline_clear_historyreadline_clear_history(): true",
+        "readline_completion_functionreadline_completion_function(callable $callback): bool",
+        "readline_inforeadline_info(?string $var_name = null, $value = null): mixed"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "Current2Tab::Ready",
+      "key": "Tab",
+      "visibleMs": 166,
+      "visibleLabels": [
+        "Current2Tab::ReadyCompatible value",
+        "readdirreaddir(resource|null $dir_handle = null): string|false",
+        "readfilereadfile(string $filename, bool $use_include_path = false, resource|null $context = null): int|false",
+        "readgzfilereadgzfile(string $filename, bool $use_include_path = false): int|false",
+        "readlinereadline(?string $prompt = null): string|false",
+        "readline_add_historyreadline_add_history(string $prompt): true",
+        "readline_callback_handler_installreadline_callback_handler_install(string $prompt, callable $callback): true",
+        "readline_callback_handler_removereadline_callback_handler_remove(): bool",
+        "readline_callback_read_charreadline_callback_read_char(): void",
+        "readline_clear_historyreadline_clear_history(): true",
+        "readline_completion_functionreadline_completion_function(callable $callback): bool",
+        "readline_inforeadline_info(?string $var_name = null, $value = null): mixed"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 171,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 208,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "vscodeVersion": "1.140.0",
+  "scope": "isolated Linux PHP 8.5; warmed Provider and explicit trigger; before coalescing-left nullable supplement",
+  "visibleWaitSummaryMs": {
+    "samples": [
+      166,
+      171,
+      175,
+      177,
+      178,
+      208,
+      216,
+      270
+    ],
+    "median": 177.5,
+    "maximum": 270,
+    "notPerformanceGate": true
+  }
+}

@@ -141,3 +141,12 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 
 两项诊断遍历优化与枚举实参回归核对作为本地源码里程碑收口（perf(core): skip provably empty diagnostic walks）；补充三文件 9 项协议及定向 lint 通过。全量原失败与定向补验分别保留，不例行重跑同一 27 分钟门槛；下一轮继续依据 CPU 证据处理编辑等待，保留引用 foreach、构造摘要等诊断语义，不更新 Profile，goal active。
+
+
+2026-10-04 readonly 热点的两种遍历调整均完成语义与普通编辑测量，P95 259.66／260.32 ms 未证明优于 254.21 ms；试验代码均撤回，保留 [负向证据](reports/completion-magic-modifier-2026-10-03.md#readonly-遍历试验收口代码已撤回)，停止等价微调，转向独立项。编辑预算仍未满足，goal active。
+
+
+2026-10-04 C2 新增 [D44 声明默认值补全](reports/completion-declaration-defaults-2026-10-04.md)：原生参数／属性／promoted 参数类型驱动值建议，默认值不再误归类成员；完整语义 1421、两版独立 Composer 定向协议、Linux 八次可见 Enter／Tab 和 Undo／Redo 通过。最后 coalesce 补充证据另列，不倒算全量。未关闭默认值合法表达式过滤、完整 LSP、九版本、平台／真人或性能，增量不更新 Profile，goal active。
+
+
+D44 与 readonly 负向试验材料作为本地源码里程碑收口（feat(core): complete declaration defaults with valid expressions）：参数／属性默认值的类型与合法候选、PHP 8.5 callable 插入、self:: 权限、Closure 排序均有当前证据；完整语义 1451、两种协议矩阵共 58 查询、八次当前可见接受及独立 PHP 8.5.9 编译通过。全量 LSP、性能／平台／真人、未闭合恢复及其它常量表达式位置仍保留。此前“未提交”是当批状态，继续原路线图，不更新 Profile。
