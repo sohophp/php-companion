@@ -18,7 +18,7 @@ if (process.argv.length > 4) throw new Error('Usage: check-cold-import-completio
 const results = [];
 for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand', 'progressive'])
   for (const autoloadKind of ['psr4', 'psr0', 'classmap', 'files'])
-  for (const scenario of ['cancel', 'consumer-edit', 'consumer-reopen', 'candidate-open']) {
+  for (const scenario of ['cancel', 'consumer-edit', 'consumer-reopen', 'candidate-open', 'candidate-close-disk-replacement']) {
     if (process.env.SOPHP_COLD_IMPORT_CASE && process.env.SOPHP_COLD_IMPORT_CASE !== `${phpVersion}/${indexingMode}/${autoloadKind}/${scenario}`) continue;
     const root = await mkdtemp(join(tmpdir(), 'sophp-cold-import-race-'));
     let child;
@@ -27,6 +27,9 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
       const candidatePath = join(root, 'src', 'RootCandidate.php');
       const candidate = '<?php class RootCandidate {}';
       const liveCandidate = '<?php interface RootCandidate {}';
+      const closingCandidate = '<?php class RootCandidate { public function bufferMethod(): void {} }';
+      const replacementCandidate = '<?php interface RootCandidate { public function currentMethod(): void; }';
+      const closesCandidate = scenario === 'candidate-close-disk-replacement';
       const source = '<?php namespace Consumer; use RootCand;';
       const changed = '<?php namespace Consumer; use RootRepl;';
       const consumerPath = join(root, 'Consumer.php');
@@ -77,10 +80,14 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
       send({ method: 'initialized', params: {} });
       send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
       await wait(message => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
-      child.send({ kind: 'arm', path: candidatePath }); await wait(message => message.ipc?.kind === 'armed');
+      child.send({ kind: 'arm', path: candidatePath, afterRead: closesCandidate }); await wait(message => message.ipc?.kind === 'armed');
       const completionParams = text => ({ textDocument: { uri }, position: { line: 0, character: text.lastIndexOf(';') } });
       send({ id: 10, method: 'textDocument/completion', params: completionParams(source) });
       const held = await wait(message => message.ipc?.kind === 'held'); assert.equal(held.ipc.path, candidatePath);
+      if (closesCandidate) {
+        assert.equal(held.ipc.phase, 'after-read');
+        assert.equal(held.ipc.capturedSource, candidate);
+      }
       assert.equal(messages.some(message => message.id === 10), false);
       let current = source;
       if (scenario === 'cancel') send({ method: '$/cancelRequest', params: { id: 10 } });
@@ -93,9 +100,16 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
         send({ method: 'textDocument/didClose', params: { textDocument: { uri } } });
         send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: current } } });
       }
-      if (scenario === 'candidate-open') {
-        send({ method: 'textDocument/didOpen', params: { textDocument: { uri: candidateUri, languageId: 'php', version: 1, text: liveCandidate } } });
+      if (scenario === 'candidate-open' || closesCandidate) {
+        send({ method: 'textDocument/didOpen', params: { textDocument: { uri: candidateUri, languageId: 'php', version: 1,
+          text: closesCandidate ? closingCandidate : liveCandidate } } });
         await wait(message => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === candidateUri);
+      }
+      if (closesCandidate) {
+        await writeFile(candidatePath, replacementCandidate);
+        send({ method: 'textDocument/didClose', params: { textDocument: { uri: candidateUri } } });
+        await wait(message => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === candidateUri
+          && message.params.version === undefined && message.params.diagnostics.length === 0);
       }
       const state = await request(11, 'phpCompanion/testQueryState', { method: 'completion', uri });
       assert.equal(state.version, scenario === 'consumer-edit' ? 2 : 1);
@@ -103,19 +117,21 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
       const old = await wait(message => message.id === 10); assert.equal(old.error, undefined);
       const items = result => Array.isArray(result) ? result : result?.items ?? [];
       const labels = result => items(result).map(item => item.label);
-      if (scenario === 'candidate-open') assert.ok(items(old.result).every(item => item.kind === 8), JSON.stringify(old.result));
+      if (scenario === 'candidate-open' || closesCandidate) assert.ok(items(old.result).every(item => item.kind === 8), JSON.stringify(old.result));
       else assert.deepEqual(old.result, []);
       const fresh = await request(12, 'textDocument/completion', completionParams(current));
       const expected = current === changed ? 'RootReplacement' : 'RootCandidate';
       assert.deepEqual(labels(fresh), [expected]);
-      assert.equal(items(fresh)[0].kind, scenario === 'candidate-open' ? 8 : 7);
+      assert.equal(items(fresh)[0].kind, scenario === 'candidate-open' || closesCandidate ? 8 : 7);
       assert.equal(items(fresh)[0].textEdit.newText, expected);
       assert.equal(items(fresh)[0].additionalTextEdits, undefined);
-      assert.equal(await readFile(candidatePath, 'utf8'), candidate);
+      assert.equal(await readFile(candidatePath, 'utf8'), closesCandidate ? replacementCandidate : candidate);
       assert.equal(await readFile(consumerPath, 'utf8'), source);
-      results.push({ phpVersion, indexingMode, autoloadKind, scenario, heldAt: 'cold import readFile', oldLabels: labels(old.result),
+      results.push({ phpVersion, indexingMode, autoloadKind, scenario, heldAt: held.ipc.phase,
+        capturedSource: held.ipc.capturedSource, oldLabels: labels(old.result),
         oldKinds: items(old.result).map(item => item.kind), freshLabels: labels(fresh), freshKinds: items(fresh).map(item => item.kind),
-        consumerVersion: state.version, disksUnchanged: true });
+        consumerVersion: state.version, consumerDiskUnchanged: true, candidateDiskChangedAsExpected: closesCandidate,
+        candidateDiskUnchanged: !closesCandidate });
       if (reportPath) await writeFile(reportPath, JSON.stringify(results, null, 2) + '\n');
       console.log(JSON.stringify(results.at(-1)));
       await request(13, 'phpCompanion/testReleaseQuery', { method: 'indexProjectSource' });
@@ -126,5 +142,5 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
       await rm(root, { recursive: true, force: true });
     }
   }
-assert.equal(results.length, process.env.SOPHP_COLD_IMPORT_CASE ? 1 : 64,
+assert.equal(results.length, process.env.SOPHP_COLD_IMPORT_CASE ? 1 : 80,
   'Every selected cold-import case must complete; an unknown filter must not pass.');

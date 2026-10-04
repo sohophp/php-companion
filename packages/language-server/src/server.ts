@@ -3936,6 +3936,36 @@ function hasNewerOpenTypeSource(workspace: SemanticWorkspace, fqcn: string): boo
   return Boolean(opened && workspace.source(indexed.uri) !== opened.getText());
 }
 
+type TypeSourceSnapshot = { source: string; revision: number; fromBuffer: boolean };
+
+async function readTypeSourceSnapshot(path: string, uri: string): Promise<TypeSourceSnapshot | undefined> {
+  // This per-document revision survives close and advances on open/change/close.
+  // Looking only for a currently open buffer misses an entire buffer lifecycle
+  // while readFile still holds bytes from before a disk replacement.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const revision = referencePrewarmRevisions.get(uri) ?? 0;
+    const opened = documents.get(uri);
+    if (opened) return { source: opened.getText(), revision, fromBuffer: true };
+    if (attempt > 0) {
+      const information = await stat(path);
+      if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) return undefined;
+    }
+    const source = await readFile(path, 'utf8');
+    if (documents.get(uri) || (referencePrewarmRevisions.get(uri) ?? 0) === revision)
+      return { source, revision, fromBuffer: false };
+  }
+  return undefined;
+}
+
+function selectTypeSourceSnapshot(uri: string, snapshot: TypeSourceSnapshot | undefined):
+  { source: string; opened: TextDocument | undefined } | undefined {
+  // Select again synchronously after the caller's await, before parsing/updating.
+  const opened = documents.get(uri);
+  if (opened) return { source: opened.getText(), opened };
+  if (!snapshot || snapshot.fromBuffer || (referencePrewarmRevisions.get(uri) ?? 0) !== snapshot.revision) return undefined;
+  return { source: snapshot.source, opened: undefined };
+}
+
 async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string, typeNames: readonly string[], declarationsOnly = false,
   completeCandidateLimit = 16): Promise<boolean> {
   let evidence = referenceDependencyEvidence.get(workspace);
@@ -3964,10 +3994,10 @@ async function hydrateCanonicalTypes(workspace: SemanticWorkspace, root: string,
       const information = await stat(path);
       if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { evidence.reject(); continue; }
       const targetUri = indexedUriForPath(root, path);
-      const diskSource = documents.get(targetUri)?.getText() ?? await readFile(path, 'utf8');
-      // A buffer may open or change while the disk read is pending.
-      const opened = documents.get(targetUri);
-      const source = opened?.getText() ?? diskSource;
+      const snapshot = await readTypeSourceSnapshot(path, targetUri);
+      const current = selectTypeSourceSnapshot(targetUri, snapshot);
+      if (!current) { evidence.reject(); continue; }
+      const { source, opened } = current;
       if (declarationsOnly && !opened) workspace.updateDeclarations(targetUri, source);
       else workspace.update(targetUri, source, Boolean(opened));
       if (!declarationsOnly && workspace.typeByFqcn('Doctrine\\ORM\\EntityRepository')?.uri === targetUri)
@@ -6307,9 +6337,10 @@ async function hydrateNonPsr4TypeSource(workspace: SemanticWorkspace, root: stri
       ...project.dependencies.flatMap((dependency) => [...dependency.classmap, ...dependency.files])]
       .some((entry) => path === resolve(entry) || path.startsWith(`${resolve(entry)}${sep}`));
     const syntaxParser = classmapOrFile ? undefined : await parser();
-    const diskSource = documents.get(uri)?.getText() ?? await readFile(path, 'utf8');
-    const opened = documents.get(uri);
-    const source = opened?.getText() ?? diskSource;
+    const snapshot = await readTypeSourceSnapshot(path, uri);
+    const current = selectTypeSourceSnapshot(uri, snapshot);
+    if (!current) return false;
+    const { source, opened } = current;
     if (!classmapOrFile) {
       const mappings = [...project.psr0, ...project.dependencies.flatMap((dependency) => dependency.psr0)];
       const parsed = syntaxParser!.parseDeclarations(source, uri);
@@ -6578,9 +6609,10 @@ async function importNamespaceSegments(workspace: SemanticWorkspace, root: strin
         const information = await stat(path);
         if (!information.isFile() || information.size > indexLimits.maxFileSizeBytes) { complete = false; continue; }
         const uri = indexedUriForPath(root, path);
-        const diskSource = documents.get(uri)?.getText() ?? await readFile(path, 'utf8');
-        const opened = documents.get(uri);
-        const source = opened?.getText() ?? diskSource;
+        const snapshot = await readTypeSourceSnapshot(path, uri);
+        const current = selectTypeSourceSnapshot(uri, snapshot);
+        if (!current) return 'stale';
+        const { source, opened } = current;
         if (stale()) return 'stale';
         if (opened && documents.get(uri)?.getText() !== source) return 'stale';
         const parsed = syntaxParser.parseDeclarations(source, uri);

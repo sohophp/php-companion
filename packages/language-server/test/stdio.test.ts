@@ -5503,7 +5503,7 @@ return array(
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri }, position: lspPosition(text, text.indexOf(importText) + importText.length),
         } }));
-        return (await output.waitFor((message) => message.id === id)).result;
+        return completionItems((await output.waitFor((message) => message.id === id)).result);
       };
       expect(await complete(133, source, 'use Acm')).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'Acme\\', kind: 9 }),
@@ -5883,8 +5883,8 @@ dispatch(array('x'), 'dev');`;
       const callLocation = { uri, range: {
         start: lspPosition(consumerSource, call), end: lspPosition(consumerSource, call + 'render'.length),
       } };
-      const completion = await query(941, 'textDocument/completion', consumerSource,
-        consumerSource.indexOf('$printer->ren') + '$printer->ren'.length);
+      const completion = completionItems(await query(941, 'textDocument/completion', consumerSource,
+        consumerSource.indexOf('$printer->ren') + '$printer->ren'.length));
       expect(completion.map((item: { label: string }) => item.label)).toContain('render');
       const hover = await query(942, 'textDocument/hover', consumerSource, call + 1);
       expect(JSON.stringify(hover)).toContain('render');
@@ -5985,7 +5985,7 @@ dispatch(array('x'), 'dev');`;
         textDocument: { uri, version: 6 }, contentChanges: [{ text: incompleteContractSource }],
       } }));
       const incompleteOffset = incompleteContractSource.indexOf('$printer->re;') + '$printer->re'.length;
-      const latestCompletion = await query(956, 'textDocument/completion', incompleteContractSource, incompleteOffset);
+      const latestCompletion = completionItems(await query(956, 'textDocument/completion', incompleteContractSource, incompleteOffset));
       const latestLabels = latestCompletion.map((item: { label: string }) => item.label);
       expect(latestLabels).toContain('render');
       expect(latestLabels).not.toContain('reset');
@@ -6000,8 +6000,8 @@ dispatch(array('x'), 'dev');`;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
         textDocument: { uri, version: 7 }, contentChanges: [{ text: incompleteOtherSource }],
       } }));
-      const otherCompletion = await query(958, 'textDocument/completion', incompleteOtherSource,
-        incompleteOtherSource.indexOf('$printer->re;') + '$printer->re'.length);
+      const otherCompletion = completionItems(await query(958, 'textDocument/completion', incompleteOtherSource,
+        incompleteOtherSource.indexOf('$printer->re;') + '$printer->re'.length));
       expect(otherCompletion.map((item: { label: string }) => item.label)).toContain('reset');
       expect(await query(959, 'textDocument/definition', incompleteOtherSource, call + 1)).toEqual([{
         uri: otherUri, range: {
@@ -6081,7 +6081,7 @@ function run(Alias $report, Other $other): string {
       await restart(9605);
       expect(await query(966, 'textDocument/implementation', call + 1)).toEqual([]);
       await restart(9606);
-      const completion = await query(961, 'textDocument/completion', consumerSource.indexOf('$report->form') + '$report->form'.length);
+      const completion = completionItems(await query(961, 'textDocument/completion', consumerSource.indexOf('$report->form') + '$report->form'.length));
       expect(completion.map((item: { label: string }) => item.label)).toContain('format');
       await restart(9607);
       expect(await query(965, 'textDocument/references', call + 1, { context: { includeDeclaration: false } })).toEqual([{
@@ -6100,7 +6100,7 @@ function run(Alias $report, Other $other): string {
         },
       }]);
       await restart(9609);
-      const traitCompletion = await query(968, 'textDocument/completion', consumerSource.indexOf('$report->form') + '$report->form'.length);
+      const traitCompletion = completionItems(await query(968, 'textDocument/completion', consumerSource.indexOf('$report->form') + '$report->form'.length));
       expect(traitCompletion.map((item: { label: string }) => item.label)).toContain('format');
       await restart(9610);
       expect(JSON.stringify(await query(969, 'textDocument/hover', call + 1))).toContain('format(string $value): string');
@@ -6157,11 +6157,11 @@ function run(Formatter $local, External $remote): void {
       const localCall = consumerSource.indexOf('$local->format(1)') + '$local->'.length;
       const remoteDeclaration = remoteSource.indexOf('function format') + 'function '.length;
       const localDeclaration = localSource.indexOf('function format') + 'function '.length;
-      const remoteCompletion = await query(973, 'textDocument/completion', consumerSource.indexOf('$remote->f;') + '$remote->f'.length);
+      const remoteCompletion = completionItems(await query(973, 'textDocument/completion', consumerSource.indexOf('$remote->f;') + '$remote->f'.length));
       const remoteLabels = remoteCompletion.map((item: { label: string }) => item.label);
       expect(remoteLabels).toContain('fromRemote');
       expect(remoteLabels).not.toContain('fromLocal');
-      const localCompletion = await query(974, 'textDocument/completion', consumerSource.indexOf('$local->f;') + '$local->f'.length);
+      const localCompletion = completionItems(await query(974, 'textDocument/completion', consumerSource.indexOf('$local->f;') + '$local->f'.length));
       const localLabels = localCompletion.map((item: { label: string }) => item.label);
       expect(localLabels).toContain('fromLocal');
       expect(localLabels).not.toContain('fromRemote');
@@ -6217,7 +6217,7 @@ function run(Formatter $local, External $remote): void {
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method, params: { textDocument: { uri }, position: lspPosition(source, offset), ...options } }));
         return (await output.waitFor((message) => message.id === id, 15_000)).result;
       };
-      const completion = await query(984, 'textDocument/completion', source.indexOf('$report->for;') + '$report->for'.length);
+      const completion = completionItems(await query(984, 'textDocument/completion', source.indexOf('$report->for;') + '$report->for'.length));
       expect(completion.map((item: { label: string }) => item.label)).toEqual(expect.arrayContaining(['format', 'formatNumber']));
       const primaryCall = source.indexOf("$report->format('x')") + '$report->'.length;
       const aliasCall = source.indexOf('$report->formatNumber(2)') + '$report->'.length;
@@ -8741,12 +8741,12 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 223, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));
-      expect((await hot.waitFor((message) => message.id === 223)).result).toContainEqual(expect.objectContaining({ label: 'send' }));
+      expect(completionItems((await hot.waitFor((message) => message.id === 223)).result)).toContainEqual(expect.objectContaining({ label: 'send' }));
       const bundledOffset = source.lastIndexOf('->se') + 4;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 227, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, bundledOffset),
       } }));
-      expect((await hot.waitFor((message) => message.id === 227)).result).toContainEqual(expect.objectContaining({ label: 'send' }));
+      expect(completionItems((await hot.waitFor((message) => message.id === 227)).result)).toContainEqual(expect.objectContaining({ label: 'send' }));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 225, method: 'textDocument/references', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, source.indexOf('class Mailer') + 7), context: { includeDeclaration: false },
       } }));
@@ -8764,7 +8764,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       server.stdin.write(encode({ jsonrpc: '2.0', id: 226, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));
-      expect((await hot.waitFor((message) => message.id === 226)).result ?? []).not.toContainEqual(expect.objectContaining({ label: 'send' }));
+      expect(completionItems((await hot.waitFor((message) => message.id === 226)).result) ?? []).not.toContainEqual(expect.objectContaining({ label: 'send' }));
       await stop(hot, 224);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
@@ -11747,7 +11747,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri);
       const completion = async (id: number, marker: string): Promise<any[]> => {
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(openSource, openSource.indexOf(marker) + marker.length) } }));
-        return (await output.waitFor((message) => message.id === id)).result;
+        return completionItems((await output.waitFor((message) => message.id === id)).result);
       };
       expect(await completion(215, 'fromOpenB')).toMatchObject([{ label: 'fromOpenBuffer' }]);
 
@@ -13877,7 +13877,7 @@ namespace Second {
         server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
           textDocument: { uri: consumerUri }, position,
         } }));
-        return (await output.waitFor((message) => message.id === id)).result;
+        return completionItems((await output.waitFor((message) => message.id === id)).result);
       };
       expect((await complete(901)).map((item) => item.label)).toContain('find');
       const entityUri = pathToFileURL(entityPath).toString();
@@ -14638,9 +14638,9 @@ namespace Second {
         const builtinSource = '<?php namespace App; function probe(): void { str_con }';
         const builtinUri = pathToFileURL(join(fixture.root, 'src', 'BuiltinVersion.php')).toString();
         await open(builtinUri, builtinSource, 1);
-        const completion = await request('textDocument/completion', { textDocument: { uri: builtinUri },
+        const completion = completionItems(await request('textDocument/completion', { textDocument: { uri: builtinUri },
           position: lspPosition(builtinSource, builtinSource.indexOf('str_con') + 'str_con'.length),
-        });
+        }));
         expect(completion.some((item: { label: string }) => item.label === 'str_contains')).toBe(index === 1);
       }
       const verify = async (fixture: typeof fixtures[number]): Promise<void> => {
@@ -14648,9 +14648,9 @@ namespace Second {
         const call = source.consumer.indexOf('$value->render(') + '$value->'.length;
         const position = lspPosition(source.consumer, call + 1);
         const params = { textDocument: { uri: uris.consumer }, position };
-        const completion = await request('textDocument/completion', { ...params,
+        const completion = completionItems(await request('textDocument/completion', { ...params,
           position: lspPosition(source.consumer, source.consumer.indexOf('$value->ren;') + '$value->ren'.length),
-        });
+        }));
         expect(completion.filter((item: { label: string }) => item.label === 'render')).toHaveLength(1);
         expect(JSON.stringify(completion.find((item: { label: string }) => item.label === 'render'))).toContain(signature);
         expect(JSON.stringify(await request('textDocument/hover', params))).toContain(signature);
@@ -15632,7 +15632,7 @@ namespace Second {
       } }));
       return (await output.waitFor((message) => message.id === id)).result;
     };
-    expect(await query(30, 'textDocument/completion', source)).toEqual([]);
+    expect(completionItems(await query(30, 'textDocument/completion', source))).toEqual([]);
     expect(await query(31, 'textDocument/definition', source)).toEqual([]);
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
       textDocument: { uri, version: 2 }, contentChanges: [{ text: updated }],
@@ -15640,7 +15640,7 @@ namespace Second {
     const revised = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
       && message.params.uri === uri && message.params.version === 2)).params.diagnostics;
     expect(revised.some((diagnostic: { code?: string }) => diagnostic.code === 'php.variable.unbound-this')).toBe(false);
-    expect((await query(32, 'textDocument/completion', updated)).map((item: { label: string }) => item.label)).toContain('ready');
+    expect((completionItems(await query(32, 'textDocument/completion', updated))).map((item: { label: string }) => item.label)).toContain('ready');
     expect(await query(33, 'textDocument/definition', updated)).toEqual([{
       uri, range: { start: lspPosition(updated, updated.indexOf('function ready') + 'function '.length),
         end: lspPosition(updated, updated.indexOf('function ready') + 'function ready'.length) },
