@@ -3010,6 +3010,48 @@ function inspect(Sink $sink, ?Sink $optional): void {
       }
     }
   }, 60_000);
+  it.each(['7.2', '8.1', '8.3', '8.5'])('keeps blank initializer candidates legal before typing a value on PHP %s', async phpVersion => {
+    const uri = 'file:///BlankInitializer.php';
+    server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+    const output = messagesFrom(server);
+    server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+      processId: null, capabilities: {}, rootUri: null, initializationOptions: { phpVersion },
+    } }));
+    await output.waitFor(message => message.id === 1);
+    const rows = [
+      { source: 'function run($value = §) {}', newAllowed: phpVersion !== '7.2' },
+      { source: 'class Host { public $value = §; }', newAllowed: false },
+      { source: 'const VALUE = §;', newAllowed: phpVersion !== '7.2' },
+      { source: 'class Host { const VALUE = §; }', newAllowed: false },
+      { source: 'function run($value =§) {}', newAllowed: phpVersion !== '7.2' },
+      { source: 'function run($value = §', newAllowed: phpVersion !== '7.2' },
+    ];
+    if (phpVersion !== '7.2') rows.push(
+      { source: 'enum Host: int { case Value = §; }', newAllowed: false },
+    );
+    let version = 0;
+    for (const row of rows) for (const trivia of ['', '/* default */ ', '// default\n ']) {
+      const marked = '<?php ' + row.source.replace('§', trivia + '§');
+      const offset = marked.indexOf('§'), source = marked.replace('§', ''); version++;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: version === 1 ? 'textDocument/didOpen' : 'textDocument/didChange', params: version === 1
+        ? { textDocument: { uri, languageId: 'php', version, text: source } }
+        : { textDocument: { uri, version }, contentChanges: [{ text: source }] } }));
+      const id = version + 100;
+      server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: {
+        textDocument: { uri }, position: lspPosition(source, offset),
+      } }));
+      const response = await output.waitFor(message => message.id === id);
+      expect(response.error).toBeUndefined();
+      const items = completionItems(response.result);
+      for (const label of ['true', 'false', 'null', 'array']) expect(items.some(item => item.label === label), marked).toBe(true);
+      expect(items.some(item => item.label === 'new'), marked).toBe(row.newAllowed);
+      expect(items.some(item => item.label === 'strlen'), marked).toBe(false);
+      const accepted = items.find(item => item.label === 'true')!;
+      expect(lspOffset(source, accepted.textEdit.range.start)).toBe(offset);
+      expect(lspOffset(source, accepted.textEdit.range.end)).toBe(offset);
+      expect(accepted.textEdit.newText).toBe('true');
+    }
+  }, 60_000);
   it.each(['8.3', '8.5'])('refreshes constant initializer types without reusing enum identity on PHP %s', async phpVersion => {
     const uri = 'file:///ConstantInitializer.php';
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });

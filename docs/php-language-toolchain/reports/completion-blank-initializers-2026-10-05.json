@@ -1,0 +1,407 @@
+{
+  "scope": "D77 blank initializer completion",
+  "date": "2026-10-05",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "9877767c78e517c98491126c60a17ecfedbd357e8ebc1f03a4607df4a22a6232",
+    "packages/semantic/test/initializer-completion-context.test.ts": "569f0f401079a5fdcdd0ad6c15c1fc329a4cb94bd812baaf4f7b090ed334d395",
+    "packages/language-server/src/server.ts": "a6c674451521a8732d2515dcc18aad2e00c8cf23188b7672923192d9d5884145",
+    "packages/language-server/test/stdio.test.ts": "cc2e29f95919e24b8bb61c9a627fb3dbba264c6cb74d267b171011f2f32e127e",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "994ccd1c1739806a27f2dc879446327882d04448f7a1250ed7322b472a0e445e",
+    "dist/language-server.js": "3fce1f2ebe21eb8b86e9588a99c05b1bc5f5fb5a6d7d31644b37e15a7229c685",
+    "packages/semantic/dist/index.js": "6c2a96a65a67b8b2f583d2c7a74c2fa722c6c5c682e385f487c7dcdc81ece349",
+    "packages/language-server/dist/server.js": "fbbd7e54c7988dc6ed62671dfeb391e3b12d7668ae9904e3d4fd49c8256883f2"
+  },
+  "semantic": {
+    "targetedFiles": 3,
+    "targetedPassed": 186,
+    "newCases": 40,
+    "fullRunPassed": 2087,
+    "fullRunFailed": 1,
+    "failure": "PHP 7.2 native construction test timed out at unchanged 5000 ms",
+    "focusedConstructionPassed": 10,
+    "sixRecoverySafetyCasesAddedAfterFullRun": true,
+    "fullRunRepeated": false
+  },
+  "protocol": {
+    "newPhpVersions": [
+      "7.2",
+      "8.1",
+      "8.3",
+      "8.5"
+    ],
+    "newUnsavedQueries": 81,
+    "targetedPassed": 15,
+    "unselected": 512,
+    "durationSeconds": 40.81,
+    "fullLspRun": false
+  },
+  "visible": {
+    "platform": "linux",
+    "context": "blank-initializers",
+    "results": [
+      {
+        "label": "true",
+        "key": "Enter",
+        "visibleMs": 197,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate0Enter; function choose0Enter($value = true) {}",
+        "caretOffset": 79,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Tab",
+        "visibleMs": 154,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate0Tab; function choose0Tab($value = true) {}",
+        "caretOffset": 75,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Enter",
+        "visibleMs": 184,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate1Enter; class Host1Enter { public $value = /* default */ true; }",
+        "caretOffset": 97,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Tab",
+        "visibleMs": 149,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate1Tab; class Host1Tab { public $value = /* default */ true; }",
+        "caretOffset": 93,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Enter",
+        "visibleMs": 160,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate2Enter; const VALUE = // default\n true;",
+        "caretOffset": 74,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Tab",
+        "visibleMs": 141,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "new",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate2Tab; const VALUE = // default\n true;",
+        "caretOffset": 72,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Enter",
+        "visibleMs": 162,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate3Enter; class Host3Enter { const VALUE = true; }",
+        "caretOffset": 81,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Tab",
+        "visibleMs": 140,
+        "visibleLabels": [
+          "array",
+          "true",
+          "false",
+          "null",
+          "static"
+        ],
+        "acceptedText": "<?php namespace BlankInitializerGate3Tab; class Host3Tab { const VALUE = true; }",
+        "caretOffset": 77,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "compilation": [
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "10f6ae7a06b68a15865c26da81957c53f7bbd4e20e06677da2fb38ee158b23cc"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "76c51a019d629b151e23e9d0f930e8727e7405f06e59387903f8c1ac27a939c7"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "8bdc1b07df28dabe8585f3c6fcb616225822243994cb683c255d73ef12b9b1f3"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "1d24f87e9ba0891c1735bb8260e1345fc30e9bf668ce242c6f1d0badb5d0e104"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "aea34cafc16c8f48295375ab31cce119f414d54f1a2ac52f84baa0218d270c57"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "b00b863583b38a11257dcf743686b0feea071d36a75892e310d0126bbf4ea7fa"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "77364d397d40c761354a4b66665517515cbcad848269137d845daa5ccdbd0a2e"
+    },
+    {
+      "runtime": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "9aaaba44a26aee2e7c26fca6fa5a3e7716ff8c1c7ba851bde9454a906f45117d"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "10f6ae7a06b68a15865c26da81957c53f7bbd4e20e06677da2fb38ee158b23cc"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "76c51a019d629b151e23e9d0f930e8727e7405f06e59387903f8c1ac27a939c7"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "8bdc1b07df28dabe8585f3c6fcb616225822243994cb683c255d73ef12b9b1f3"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "1d24f87e9ba0891c1735bb8260e1345fc30e9bf668ce242c6f1d0badb5d0e104"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "aea34cafc16c8f48295375ab31cce119f414d54f1a2ac52f84baa0218d270c57"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "b00b863583b38a11257dcf743686b0feea071d36a75892e310d0126bbf4ea7fa"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "77364d397d40c761354a4b66665517515cbcad848269137d845daa5ccdbd0a2e"
+    },
+    {
+      "runtime": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "9aaaba44a26aee2e7c26fca6fa5a3e7716ff8c1c7ba851bde9454a906f45117d"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "10f6ae7a06b68a15865c26da81957c53f7bbd4e20e06677da2fb38ee158b23cc"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "76c51a019d629b151e23e9d0f930e8727e7405f06e59387903f8c1ac27a939c7"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "8bdc1b07df28dabe8585f3c6fcb616225822243994cb683c255d73ef12b9b1f3"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "1d24f87e9ba0891c1735bb8260e1345fc30e9bf668ce242c6f1d0badb5d0e104"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "aea34cafc16c8f48295375ab31cce119f414d54f1a2ac52f84baa0218d270c57"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "b00b863583b38a11257dcf743686b0feea071d36a75892e310d0126bbf4ea7fa"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sourceSha256": "77364d397d40c761354a4b66665517515cbcad848269137d845daa5ccdbd0a2e"
+    },
+    {
+      "runtime": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sourceSha256": "9aaaba44a26aee2e7c26fca6fa5a3e7716ff8c1c7ba851bde9454a906f45117d"
+    }
+  ],
+  "commands": {
+    "semantic": "pnpm --dir packages/semantic exec vitest run test/initializer-completion-context.test.ts test/declaration-default-completion.test.ts test/constant-initializer-completion.test.ts",
+    "lsp": "pnpm --dir packages/language-server exec vitest run test/stdio.test.ts -t \"keeps blank initializer candidates|limits initializer expression candidates|refreshes constant initializer types|refreshes declaration default completion|limits declaration default candidates\"",
+    "host": "PHP_COMPANION_TEST_BLANK_INITIALIZER_ONLY=1 node scripts/check-comparison-condition-acceptance.mjs /tmp/sophp-d77-blank-host-proof-green.json"
+  },
+  "boundaries": [
+    "No Profile update, VSIX packaging, push or publication",
+    "Explicit visible trigger; not automatic popup or P95 gate",
+    "Original complete LSP qualification does not cover D77",
+    "WSL human and other platforms unverified",
+    "Recovery budgets and complex unfinished combinations remain",
+    "Blank native-type ranking remains a separate qualification"
+  ]
+}

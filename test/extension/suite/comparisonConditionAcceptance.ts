@@ -15,6 +15,7 @@ export async function run(): Promise<void> {
   const defaultCallables = process.env.PHP_COMPANION_TEST_DEFAULT_CALLABLE_ONLY === '1';
   const constantInitializers = process.env.PHP_COMPANION_TEST_CONSTANT_INITIALIZER_ONLY === '1';
   const initializerExpressions = process.env.PHP_COMPANION_TEST_INITIALIZER_EXPRESSION_ONLY === '1';
+  const blankInitializers = process.env.PHP_COMPANION_TEST_BLANK_INITIALIZER_ONLY === '1';
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
   const typeTails = process.env.PHP_COMPANION_TEST_TYPE_TAIL_ONLY === '1';
   const unclosedCallables = process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_ONLY === '1';
@@ -31,7 +32,12 @@ export async function run(): Promise<void> {
   const namespaceSeparators = process.env.PHP_COMPANION_TEST_NAMESPACE_SEPARATOR_ONLY === '1';
   const importHeader = '<?php namespace ImportCatalog; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text="literal;😀"; /* 中文; trivia */\r\n';
   const separatorHeader = '<?php namespace App\\NamespaceUi; function nestedFn():void{} namespace Consumer; ';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = namespaceSeparators ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = blankInitializers ? [
+    {prefix:'',label:'true',forbidden:'strlen',addCall:false,marked:'<?php function choose($value = §) {}'},
+    {prefix:'',label:'true',forbidden:'new',addCall:false,marked:'<?php class Host { public $value = /* default */ §; }'},
+    {prefix:'',label:'true',forbidden:'strlen',addCall:false,marked:'<?php const VALUE = // default\n §;'},
+    {prefix:'',label:'true',forbidden:'new',addCall:false,marked:'<?php class Host { const VALUE = §; }'},
+  ] : namespaceSeparators ? [
     {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'use App\\Name§spaceUi\\Child;'},
     {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'use App\\{Name§spaceUi\\Child};'},
     {prefix:'Name',label:'NamespaceUi\\',forbidden:'strlen',addCall:false,marked:separatorHeader+'use function App\\Name§spaceUi\\nestedFn;'},
@@ -209,6 +215,7 @@ export async function run(): Promise<void> {
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
+    if (blankInitializers) marked = marked.replace('<?php ', `<?php namespace BlankInitializerGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`)
       .replace('NamespaceUi', `NamespaceUi${suffix}`);
@@ -230,7 +237,12 @@ export async function run(): Promise<void> {
     const labels = await until(async () => { const next = await visibleCompletionLabels(port); if (JSON.stringify(next) !== JSON.stringify(lastLabels)) console.log('Comparison visible labels: ' + JSON.stringify(next)); lastLabels = next; return lastLabels; }, values => values.some(value => value.startsWith(label)));
     if (item.forbidden) assert.equal(labels.some(value => value.startsWith(item.forbidden)), false);
     const visibleMs = Date.now() - visibleStarted;
-    assert.equal(labels.findIndex(value => value.startsWith(label)), 0, `Expected first visible candidate ${label}, got ${JSON.stringify(labels)}`);
+    const visibleIndex = labels.findIndex(value => value.startsWith(label));
+    if (blankInitializers) {
+      assert.equal(labels[0], 'array');
+      assert.ok(visibleIndex > 0, `Expected visible literal ${label}, got ${JSON.stringify(labels)}`);
+      for (let index = 0; index < visibleIndex; index++) await vscode.commands.executeCommand('selectNextSuggestion');
+    } else assert.equal(visibleIndex, 0, `Expected first visible candidate ${label}, got ${JSON.stringify(labels)}`);
     if (key === 'Enter') await pressWorkbenchEnter(port); else await pressWorkbenchTab(port);
     await until(async () => document.getText(), text => text === accepted);
     const caretExtra = (rootImports || importPrefixes) && item.suffix === '}' ? 0 : item.suffix?.length ?? (item.addCall ? 1 : 0);
@@ -243,6 +255,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

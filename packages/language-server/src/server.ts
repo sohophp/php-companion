@@ -6747,7 +6747,7 @@ function phpKeywordCompletions(document: TextDocument, offset: number, typeConte
   const supported = (minimum: SupportedPhpVersion): boolean => SUPPORTED_PHP_VERSIONS.indexOf(version) >= SUPPORTED_PHP_VERSIONS.indexOf(minimum);
   const prefix = context.prefix.toLowerCase();
   const names: string[] = [...new Set<string>(candidates)].filter((keyword) => keyword.startsWith(prefix)
-    && (prefix.length > 1 || PHP_DECLARATION_KEYWORDS.has(keyword)
+    && (prefix.length > 1 || constantInitializer && prefix.length === 0 || PHP_DECLARATION_KEYWORDS.has(keyword)
       && ['top-level', 'class-member'].includes(context.kind)
       || keyword === 'new' && context.kind !== 'class-member'
       || keyword === 'function' && ['top-level', 'class-member'].includes(context.kind)
@@ -7142,7 +7142,8 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   // A proven blank value already has scoped values. Enumerating every function
   // without a prefix floods large Composer projects; typing a prefix restores them.
   const functionSuffix = /^[A-Za-z0-9_\x80-\xff]*/u.exec(document.getText().slice(offset))?.[0] ?? '';
-  const functionCandidates = (typeContext || declarationKeywordIntent || blankTypedExpression || constantInitializer && !constantCallable ? []
+  const functionCandidates = (typeContext || declarationKeywordIntent || blankTypedExpression
+    || constantInitializer && (!constantCallable || !functionWord) ? []
     : workspace.completeFunctions(document.uri, offset)).filter(callable => !constantCallable
       || constantCallableEdit(callable.name, offset - (functionWord?.length ?? 0), offset + functionSuffix.length));
   const wholeFunctionWord = (functionWord ?? '') + functionSuffix;

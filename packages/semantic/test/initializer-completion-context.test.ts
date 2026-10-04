@@ -7,6 +7,23 @@ beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
 afterAll(() => parser.dispose());
 
 for (const retained of [true, false]) it.each([
+  ['function run($value = §) {}', 'parameter'],
+  ['class Host { public function __construct(public $value = §) {} }', 'parameter'],
+  ['class Host { public $value = §; }', 'property'],
+  ['const VALUE = §;', 'global-constant'],
+  ['class Host { const VALUE = §; }', 'class-constant'],
+  ['enum Host: int { case Value = §; }', 'enum-case'],
+  ['function run() { static $value = §; }', 'static-local'],
+  ['function run($value = /* default */ §) {}', 'parameter'],
+  ['class Host { const VALUE = // default\n §; }', 'class-constant'],
+  ['const VALUE = # default\r\n §;', 'global-constant'],
+  ['function run($value =§) {}', 'parameter'],
+  ['function run($value = §', 'parameter'],
+  ['function run() { $value = §; }', undefined],
+  ['function run() { if ($value == §) {} }', undefined],
+  ['function run() { $value += §; }', undefined],
+  ['const VALUE = // equal = §\n 1;', undefined],
+  ['const VALUE = /* equal = § */ 1;', undefined],
   ['const VALUE = strl§;', 'global-constant'],
   ['const VALUE = fn§;', 'global-constant'],
   ['const VALUE = static fun§;', 'global-constant'],
@@ -42,18 +59,31 @@ for (const retained of [true, false]) it.each([
   } finally { workspace.dispose(); }
 });
 
-for (const retained of [true, false]) it(`does not publish recovered initializer facts with retained tree=${retained}`, () => {
+for (const retained of [true, false]) it.each([
+  'class Host { const VALUE = static fun§; }',
+  'class Host { const VALUE = /* value */ §; }',
+  'function run($value = §',
+])(`does not publish recovered initializer facts with retained tree=${retained}: %s`, tail => {
   const workspace = new SemanticWorkspace(parser), uri = 'file:///InitializerRecovery.php';
   try {
-    const marked = '<?php class Host { const VALUE = static fun§; }', offset = marked.indexOf('§');
+    const marked = '<?php ' + tail, offset = marked.indexOf('§');
     const source = marked.replace('§', ''); workspace.update(uri, source, retained);
     const before = workspace.snapshot(uri);
-    expect(workspace.initializerCompletionContext(uri, offset)).toBe('class-constant');
+    expect(workspace.initializerCompletionContext(uri, offset)).toBe(tail.startsWith('function') ? 'parameter' : 'class-constant');
     expect(workspace.phpKeywordCompletionContext(uri, offset)?.kind).toBe('expression');
     expect(workspace.source(uri)).toBe(source);
     expect(workspace.snapshot(uri)).toEqual(before);
     workspace.update(uri, '<?php function run() { return strlen("x"); }', retained);
     expect(workspace.initializerCompletionContext(uri, '<?php function run() { return strl'.length)).toBeUndefined();
+  } finally { workspace.dispose(); }
+});
+
+for (const retained of [true, false]) it(`keeps the existing recovery size budget for blank values with retained tree=${retained}`, () => {
+  const workspace = new SemanticWorkspace(parser), uri = 'file:///InitializerBudget.php';
+  try {
+    const marked = '<?php /* ' + 'x'.repeat(131_072) + ' */ function run($value = §) {}';
+    workspace.update(uri, marked.replace('§', ''), retained);
+    expect(workspace.initializerCompletionContext(uri, marked.indexOf('§'))).toBeUndefined();
   } finally { workspace.dispose(); }
 });
 

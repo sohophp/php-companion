@@ -6,11 +6,12 @@
 
 | 项目 | 当前事实 |
 | --- | --- |
-| 源码检查点 | 当前分支 `work/sophp-next`；本次本地里程碑收口 D75 [按需 Autowire 扫描](reports/completion-autowire-scan-cost-2026-10-05.md)与 D76 [自动修复文档／版本保护](reports/c4-formatter-auto-fix-state-2026-10-05.md)，基于 `fec034ee` 的 D74；当前 Profile 与源码分开验收 |
+| 源码检查点 | 当前分支 `work/sophp-next`；`dde611a2` 收口 D75 按需 Autowire 扫描与 D76 自动修复文档／版本保护；本轮 [D77 空初始化值](reports/completion-blank-initializers-2026-10-05.md)作为下一本地补全里程碑，当前 Profile 与源码分开验收 |
 | 当前源码增量 | [D57 属性赋值注释](reports/completion-assignment-comments-2026-10-04.md)、[D58 未闭合 callable 值](reports/completion-unclosed-callable-values-2026-10-04.md)、[D59 PHP/HTML 区块恢复](reports/completion-mixed-callable-recovery-2026-10-04.md)：保持当前作用域、最近契约及真实编辑范围；原长度和定界符预算不变 |
 | 当前优化增量 | [D61 导入前缀](reports/completion-import-prefixes-2026-10-04.md)：只缩短可证明不跨分号的导入正则片段，分组范围保持绝对位置，普通参数类型上下文不截断；此前 [D60 当前词／注释遮罩](reports/completion-trivia-editing-2026-10-04.md)继续保留 |
 | 当前自动化 | D69 前检查点完整 LSP 875 项、完整语义 2054 项通过，零跳过；D70 已修复服务器匹配列表的连续输入缓存，169 个相关命名用例分段覆盖、4 项／84 个新增状态及两模式各 12 条自然流程通过；详见 [D70 记录](reports/completion-progressive-matching-2026-10-05.md)。D71 完整组合为 869 通过／10 个旧数组读取失败，10 项适配复测已通过，此为分段记录；D72 [候选关闭保护](reports/completion-closed-candidate-snapshots-2026-10-05.md)已完成 80＋6 组交错、84 状态及两模式自然 UI，D73 的 D72 产品完整 LSP 60 文件／879 项已通过，输入保持；D74 [原生错误恢复](reports/completion-native-error-recovery-2026-10-05.md)改后完整语义 2054 项、解析器 105 项、定向 LSP／诊断 59 项及两模式可见 UI 通过。D75 [按需 Autowire 扫描](reports/completion-autowire-scan-cost-2026-10-05.md)完整框架 70 项、2 项选定综合 LSP、84 状态及两模式可见 UI 通过；D73 完整 LSP 不覆盖 D74／D75，其它自动输入、平台及真人仍开放 |
 | D52 自动化 | 新增 17 项，当前完整语义 88 文件／1683 项、定向 stdio 6 项、Linux 八次可见首项／接受／UndoRedo 与 PHP 8.5.9 编译通过；构建／Lint 通过 |
+| D77 自动化 | 新增 40 项语义、四版本 81 次空值查询，相关三文件 186 项／定向协议 15 项通过；Linux 八次可见接受与 24 次实际 CLI 编译通过。完整语义 2087 通过／1 项 5 秒超时，该构造文件单独 10 项通过；恢复事实／预算六项另列，不冒称完整重新全绿 |
 | D53 自动化 | 新增 15 项，当前完整语义 89 文件／1698 项、定向 stdio 11 项、Linux 四种类型位置八次可见首项／接受／UndoRedo 与 PHP 8.5.9 编译通过；构建／Lint 通过 |
 | D54 自动化 | [注释字段补全](reports/completion-shape-comments-2026-10-04.md)：新增 34 项、当前完整语义 90 文件／1732 项、定向 PHP 7.2／8.5 stdio 42 次查询、隔离 Linux 八次可见首项／接受／UndoRedo 与 PHP 8.5.9 编译通过；构建／Lint 通过；真人 WSL 未验证 |
 | D55 自动化 | [尾部注释后的空值补全](reports/completion-blank-comments-2026-10-04.md)：新增 42 项、当前完整语义 91 文件／1774 项、PHP 7.2／8.5 stdio 50 次查询、隔离 Linux 八次可见首项／接受／UndoRedo 与 PHP 8.5.9 编译通过；构建／Lint 通过；保留首次服务器提前返回失败及修复证据 |
