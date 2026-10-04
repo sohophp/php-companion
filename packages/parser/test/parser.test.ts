@@ -6,6 +6,18 @@ describe('@php-companion/parser', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('keeps recovered namespace ownership across PHP/HTML and UTF-16 trivia', () => {
+    const source = '<?php\r\nnamespace A; class C {} $text="namespace StringFake;"; /* namespace CommentFake; */ ?>'
+      + '\r\n<div>namespace HtmlFake;🙂</div>\r\n<?php namespace B; class D {} function unfinished(';
+    const parsed = parser.parse(source);
+    try {
+      expect(parsed.tree.rootNode.hasError).toBe(true);
+      expect(parsed.declarations.map(item => item.fqcn)).toEqual(['A\\C', 'B\\D']);
+      expect(parsed.declarations.map(item => source.slice(item.start, item.end))).toEqual(['C', 'D']);
+      expect(parsed.errors.map(item => source.slice(item.start, item.end))).toEqual(['function unfinished(']);
+    } finally { parsed.tree.delete(); }
+  });
+
   it('keeps repeated document parses independent through mutation, deletion and edits', () => {
     const uri = 'file:///Cached.php'; const source = '<?php class C { public function value(): int { return 1; } }';
     const first = parser.parse(source, undefined, uri);

@@ -1,0 +1,5299 @@
+{
+  "milestone": "D74",
+  "date": "2026-10-05",
+  "previousCheckpoint": "1c6bf9a6",
+  "change": "Native namespace/error descendant queries replace JS recovery walks; no new cache, diagnostics suppression or completion category.",
+  "productionInputs": {
+    "packages/parser/src/index.ts": "3931da5f557d6d4c8b4f10e8acb5e27b08eaac43aa0023067f6c725b3e12da32",
+    "packages/parser/dist/index.js": "8a17d443cc8866e4b3f57bed1c7ea1809a8cbba8abb49f2a8e179a957d168888",
+    "packages/language-server/src/analysis.ts": "732b5d4eec7d8266f313dd922099b909e6cb631b44096a03559f779624e08394",
+    "packages/parser/test/parser.test.ts": "c1de8a498d632b6ee7df89cc12f8845fa8c6f3f0ccd0f12586bbf4f5a4ce545b",
+    "packages/language-server/test/analysis.test.ts": "9d1daa301814eaebf0bc8f9c386be47b1e5e4e2a955c996efa9f688e04c9c6e0",
+    "dist/language-server.js": "c9ea3d15eed69831666c484ee3ec45de5d9382866ea1e36e393fecaa0576040b"
+  },
+  "profiling": {
+    "counter": {
+      "calls": 205,
+      "hits": 99,
+      "collections": 106,
+      "stacks": [
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at updateBuiltinForRoot (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:105632:13)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:106530:15\n    at async Promise.all (index 0)\n    at async /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:109537:3",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at updateBuiltinForRoot (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:105634:31)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:106530:15\n    at async Promise.all (index 0)\n    at async /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:109537:3",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at updateBuiltinForRoot (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:105638:32)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:106530:15\n    at async Promise.all (index 0)\n    at async /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:109537:3",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at updateBuiltinForRoot (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:105640:32)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:106530:15\n    at async Promise.all (index 0)\n    at async /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:109537:3",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:111069:28",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:111118:28",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:111118:28\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:459:9)",
+        "Error\n    at _PhpSyntaxParser.parseDocument (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22607:68)\n    at _PhpSyntaxParser.parse (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:22568:25)\n    at _SemanticWorkspace.updateSource (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28099:21)\n    at _SemanticWorkspace.update (/tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:28067:17)\n    at /tmp/sophp-d74-edit-counter-iMJdK3/engine.cjs:111118:28\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processImmediate (node:internal/timers:459:9)"
+      ]
+    },
+    "latenciesNotQualification": true,
+    "scope": "Owned isolated instrumented process; some early profiling ran while D73 was live; different fixtures from D65."
+  },
+  "prototypeParity": {
+    "cases": 17,
+    "versions": [
+      "7.2",
+      "7.3",
+      "7.4",
+      "8.0",
+      "8.1",
+      "8.2",
+      "8.3",
+      "8.4",
+      "8.5"
+    ],
+    "diagnosticComparisons": 306,
+    "rawFactsEqual": true,
+    "diagnosticsAndSymbolsEqual": true,
+    "evidence": [
+      {
+        "label": "incomplete parameter",
+        "sourceBytes": 39,
+        "sourceSha256": "d583c185bf501ffededebe9d4a79772fdedbb29f84f9229551224a33898051d7",
+        "factsSha256": "89fc419bb2debc6709812a4f4dcdecaf62196cbe74e80c49d4923d910a9d12d7",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "d600e17947f9365a2bac99c6281b92f49dca095aa06f9d755dc689febfe91f45"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b4f5a8150b930229554ef0e471c4e682b8bc162aa39ce391b9d5ed390264daa4"
+          }
+        ]
+      },
+      {
+        "label": "namespace recovery",
+        "sourceBytes": 82,
+        "sourceSha256": "bf3d651822e06c4a0d940f929d4a9c68847741ac10aa26756b9189135f833dca",
+        "factsSha256": "b1e6e3ccb552b997ee4841e9a696d4732da5bd900af1250b23c8b31881c703ee",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "21797f85ec030477193bc5dc25f48fe28a4a07db057264862e3a617639287c88"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a732bd5ab97e6d594da9392344eb2d2bc00d2ac1afcca97a8a946bb96a4de02a"
+          }
+        ]
+      },
+      {
+        "label": "braced recovery",
+        "sourceBytes": 65,
+        "sourceSha256": "3a5da539d25375a39954b2e5a115cb54cfd478aef1ee77ab766ae9f215e8ee3f",
+        "factsSha256": "891016e039ace10bd72c33198be68a61d67ace397f26baa4206e806911c126da",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "36f7f5120f390b29e5a424f5db54c3a20ad1d2d095c28f691c4633255473fda1"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "d7b52e558ba02318f7ed71acad7ca8aef74eaff823f9c9d0e8d7aef769d3b9f4"
+          }
+        ]
+      },
+      {
+        "label": "namespace words in trivia",
+        "sourceBytes": 89,
+        "sourceSha256": "c54cf65640c8c165dc00fd8738a4ff148012f8f6a7fe155fabec297d1cbb4587",
+        "factsSha256": "8a82aab23634b554920a73a9a66e9bf521072081d8ac579204ceb3a9c5e9ca80",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "8f54c1e0c0291e9454c0b5cc423505138d3f0314dffddd9905933ba377a18218"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "4056f76aeebe1c56890bca733a455c0722e0f2fe46883a32825968b25cdb52aa"
+          }
+        ]
+      },
+      {
+        "label": "unicode CRLF",
+        "sourceBytes": 88,
+        "sourceSha256": "0ca43f790a687fa13246b0481ab1377837c1d858a93615bad241bbdcb56e843e",
+        "factsSha256": "4e73c3304898b9da1cd168538f691b592b0d5997d344446b65e2de4addb89eea",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "71f5a16b352b436101be93649b7ff026f0c833a4dd9c8745a99e37f62f56787d"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "b145016c48dd29bf365c58766599aedf8c9a70a79bbf5352e24bf5f9e6f6c32f"
+          }
+        ]
+      },
+      {
+        "label": "void assignment",
+        "sourceBytes": 43,
+        "sourceSha256": "f8ce548574e0141165f28e6b8e152e54898218d03f2d11cb9aa3c10f093d2c77",
+        "factsSha256": "12680a3d549231c502aab2f98e6e8dd8e24aa10bdf70a33a252407e1cfd4ff1b",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "814fb54f50f918f8ecb0ad90023a7d6528d3b18158fc070fbf90257b2daa0266"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "164ca347de637d302231a61fc39e74647005a78cf935c41eb75ee0655a0aaa3b"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "6f46cbe025a324e1d4c6589dca278c31ab7a5d27bff9c8e2c4d4b80f3c015cdd"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "dd068a7c6ce36166a0d5e0b7624e8858cbeafa8853de893256633e9cf56c8f99"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "50fa1b0abd8c42878f71867fa9b342bc7f8a7d0bfde733ec037a542adb612d1f"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "97fd46436e86d76b6efbe77d59fd967eb4b56bd5712e03d1a962cfc8c38ce8bc"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "ddf4f19b523427ae32dc4c1a2170b01745a6f81f43573cf814d509fbd3508b0c"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "7377f99bab2cad0c0f5b406450ee3f6f0dfdbcfa93749d5ce30f94be914f2fea"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "bb97912d4ab9da575f2936277da7a5e78b616f81dcad61834bbb1a46a37c379b"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "1c49220f30216a3bc5d7858723ee672c7c6a93e77f6805a2a19e95621685e5ee"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "a8527f3ec06a64f76f62abfe6a93874db511a509d9ae80f97894f44f2b577075"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "b474c792e7265f9188aa28e7501c1c7c52db79545318ad0ff315ab58298b60f1"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "ae90841a1e0c4dc77b810bd4aa98ef04c55791b53ffc1b89bc3b94e0fe3d30a4"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "0367961d066ef45043246395c0ef55e1c3265e908f55e69984609bf6f5673dcf"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "f213fa2545134a818f830b07221bcbeb994d2ac5c8bb8c88d5c1bce621ac9fb0"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "58210833de79caca9744835f156a01364095f97eea816c5670df079e25a04be9"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "7f182f190fb1fb78890f99858e915f56ffe5980de90751686581b5670c71629e"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "433f6eda9bbf191441d32b0df4d8621a42802ca44b1f76a236704c233bbd8b87"
+          }
+        ]
+      },
+      {
+        "label": "void for",
+        "sourceBytes": 68,
+        "sourceSha256": "29ed809bd62f6ec3dd14920e700d8dda604b8fceec289d9d22c65fed4a38937f",
+        "factsSha256": "5d42de0470c884f16da58830428b4e4e49989df414ca67dd51549712bf774101",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "96fd0390efff32a32a4833ddef640b2814ef05f0656e364407aa917b844a6d77"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "cb3274061de875157526f865dc2a5a86bdda7b30d9f9a2cfeeda4ce81eee6757"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "fd7e0ed20360d4c723964d7078cbfea8c0820e25152e3267b77fd1d096532da3"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "58cb3f6fbe578729338fe8389ea07118648cae4c1c0e74ae0d6ae05a721bc9af"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "6015b901e65b75fc049364f7013fb33d9afd81954f397101a49ee8b866f02441"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "ca2c67af146565e0a1ef1394d6f2899db0cc4163b12d2738490bb14a86db78b8"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "228c46c0b48f3dc9e251af989e8965b0899ceb401c1ea8c00174a6f1f1402d25"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "e6a4c544a3321e8f5b6d8942797973cbd542868177c7050886d42c6b9311a68a"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "27895ab0e98dfc59fde3b15dbd0434c292fbba7cc8b2a43df58f0e8b57e778cb"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "fad8f87975a960d327e236cc8c45fffea50ca2d91de0e6623ee6d7daf87167e7"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "8387fa5c8d7df1527acab40e577ec1953e90637ffa22301f70e53164e992b4d2"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "708913a493eb80d2f1ba022f5ea8c3ce6e460e46cffeb3a10575c3f02bea42d1"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "3b300417256ccc4c17c0da10862c2e23dcca06006d8691f2501357bca2eeca4f"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "3e6a592d71ee2f611071970beb5125e27ae7d5177595966566da79e1d22e9925"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "deaf2c63efcfab3743ac808f9a22c604b208a4ee936395d858640a803b8d60a8"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "ac9b07dbf8bb151c9556caeb3935f12803fdbd17a084363fb9d5245d7f89745b"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "54cde84eb012b0e5ab432bc7c93f54998f1129985ea67a20ad4bb4a14dbd4588"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "9939aa2484767aaa821b1486626d2eac7c9f8c674d31387207fedfbd78ae1a75"
+          }
+        ]
+      },
+      {
+        "label": "void for condition",
+        "sourceBytes": 51,
+        "sourceSha256": "ad5493b4c8d059760c27532035be0b319ea47b72d9eb228bf2113b50b9e8825c",
+        "factsSha256": "e4e4c388bf3ba868a0420ab951d65193637d87b99018413596c7edd777b0ab26",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "867a65a40e57dfb05249d36c2374c8906b8ba8cfcf39aaf1a32da2aacd2f5e5f"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "28348a1fc0f8a7d138d2297e325884e4848915c48bfbce31dbf0d6bb1f76ef1a"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "034368c5bfc24e6fed4ea223c831e819d7d002ed3c024bfe2ccbfbc5ae89e63e"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "69ad14610bd4db9b9abf7f38bd8ef809b05efc52599c6fe58049e6f438d8de3c"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "6bc5d738948ff0dbbd79a3289fe6a7ead5fc1e41db40e94101ee8a92d59a3b34"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "c5e7cf007a43fa5f5e46d4f55e7e505b9d42078f289fb533cdbd2acf3a3e315f"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "f7105aebca1defbfe1e9b0591245b0d2f4c36193f8e7e917507e6f7f41e35719"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "3be30e0205ba76d8aa9017560b41ab3e4e453acb72798d829d2fc74dcb106826"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "bf9a17cac75c30802cdf20ef4c1ea7533485ee9dea63230e86703d3402d0415d"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "32dcf929cebe32e8986939f603f5c90b1c9772807f345cc7fe05a27d122542a7"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "c45c6df338bc126e31beb594c9a10d13b649cabe180d3985054fcd71565a561c"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "fea271aa661ebd27cc80d9eaee4c0221a712e6bf835b3e4d33875c5093ac3573"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "493672039d43998abbf23318b15b9841a7c74fca4e54f36a4875a132ef809ba0"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "ce195dd42334b79bee85b79a7899a66573c7b1fec6c6ae54b5af8fb3a4fd4bcd"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "3db024875df00133acb64ca52c2655b52cac7a45512a514ec3070637968b32be"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 0,
+            "resultSha256": "a5c37da4e466e842f44566205dce465107ebbf42968edc4b9aa3da411154e87c"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "9015d068ac7c3df0e65ebae6bb592d27c5d2e6ccfaa2f04d5a07fd231560608c"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 0,
+            "resultSha256": "80c30e286ad23fd07976695a398705e50cc1be0d5954c48e32219fa97c9d7cbf"
+          }
+        ]
+      },
+      {
+        "label": "nested void errors",
+        "sourceBytes": 81,
+        "sourceSha256": "764bdc110b5dc898602073343b9da6c87ec0909364f8bc0248c83c56b5ccdb13",
+        "factsSha256": "0163d76ddf688d9f98b95e142d954feb888fac856e05a2b1e71c6ed08434ab82",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "5ea2389930a0b9d7bbe3e7615e2cac6ba25f707726dad40bbc6b2bd3debf51db"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "1df8fc03af0944e37b97e608560710abc83aa2f764d1904f936271b6bdcad926"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "1a093fd2868c99c1c3951905c6d56d95d17d1c97b527f51d32f0d3828561b88c"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "ab934a0a8d65a7e92fbdd3195fcf4554157b0fd3ba4227608920134f9103c78b"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "de4c9bd2df070c3c5084e7c375478f008fab358706ad3de39973b68db945f901"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "88184674d5004647b001d25e29b8be238217f88d79c04d956913f437fa813e46"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "4a6679c71d89d60b0f53b523f518a7e45e7de4b89780dd199ed3c3d31150c746"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "da2999f69ce4e3aa4070519f3586e2fe4a7d87c2b464f1aeaaa78420b3f2236a"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "ea6e1b8285c33c8120ec5b17420c9e94e5694d84ab8bc57c618bd8b1663d5221"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "fc0593e2369950144332859b01ead7329c2a75cff7f20456a8a53152f40ecc98"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "50258369b9a14aaaaf85db1fd4c6f64b7f8b34ebbbd92af5fd90b62927a2963b"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "c5384223016f56ca1d1aef44333a9189e56afd84b9f03bd056da937c7c8ecac4"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "be2a2a4bb3946e5aeac5d7eb8a74cc2fb4e9d87fe2c491bb969fbd528b70be8c"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "b517590fb8fbf272f872b68ee74dfa5153eb5b12b085cda33fe309fda0b1c674"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "f0e49c39b5596604934bbb8102532c8406598f973a37087d437a82aa49428b48"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "93cd683e32e8e7690cd056160d717c477cbd5d5820a98da53f0f941275a56cd4"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "f2eea55a99d6cd5c28f9f0924856a1b2bd1983cb7ba74b0b079cf20fb2e4a065"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "b4772293320a7eddf4a1a77953523ac1d07a0bb64e746f3e0c934e69fd4b0d15"
+          }
+        ]
+      },
+      {
+        "label": "clone and void",
+        "sourceBytes": 84,
+        "sourceSha256": "11d9ccedcb230548028d47768bc94cdc7dca09c01073dd13927637fb98484dba",
+        "factsSha256": "fa055571c6742c0340e8d1a1e536ea05dfea75fb5ab57288fed033b2bd1696fb",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "ffcbfb432de0edde11bacdb8d64ca50a4c192dbd5b0e5ce13945248e5985e99c"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "30518ce4d2421c3333e784f9ed4f4ff385adccad7f454e8657cbab23ae07fcb7"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "cead7e39a7b144b17f8c22dc67c7d0729b3776aa17d9dc80bbe2bbfb118a0de1"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "7a7974a175ee4f6d60433c447a5c86b6977f40383b6d8a4ddbfe072f0469d14c"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "d2ed32ab6ffcf3f181c286f670e2a5626bdd58968cad607143cb968164f34cbd"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "8c785c5cc47287b3c7f5d8df7aae7e77191f6d08516bc7b6799c063652e87128"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "a58e4faa693648d39d917906818574333fb139b33267a627b33d4572a5480784"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "75e213f86b02c31ebb9e8e64e2a5b3ca32f8cda2f9198d3862e8bf523a8297c7"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "6e6687f6f9e48af6559df4296e182d3e2abfe45a29b8877d34a8d617428565cc"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "695752d02885c253b5cd56a1f2c27c2e8d1a5d5079f65079a2e260495b6d667c"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "41da0332d2d2d2f604df185a1de003269df7ca7cc701fd173837bfacefca0b9e"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "f4812f38cf9ea050439a549959adccd545f56e0f216aaf5b4797964ee76f2d75"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "43d70415f55a9847ce4d4743d799c4897c456a3cbad6e69da6ca1c7ef2205925"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "42783db337d4bb1073ec85edd8d1d75ab07ff766feb96a145908d27a7e103ece"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "bd8949a996a7257b090d503a6241b0467a9970ff4a39ff497e7d50ac4b543348"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "bd9fec46571d65ca4bf0729c4f0f566111f9a9bb74231c239c519ddb500734d7"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "0299bf444d8a88b8ed16396aa421285c5b22ab32f0cae78a2f322adf1b08665b"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "8888c0f8553ea28c20498d5c920b07ad8514e06798693414a3f66bdd6b1855c6"
+          }
+        ]
+      },
+      {
+        "label": "trivia clone void",
+        "sourceBytes": 90,
+        "sourceSha256": "9260e5140154d6d36a366ac3a498d41e4f9d9cc1d902fbdac4c8e198173c6fc5",
+        "factsSha256": "c5f5f835d405e28282b5c0780c175124d6b51b5314417f0b5c00f003aac2b850",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "efdb2510e2505c4c715976a691ca146482113f209a4c1dc48ea5484bce3f2ce8"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 0,
+            "resultSha256": "66b16f490d0a622a6df9978feb0e5fa1673001d7709205b2ff6ccbfafc8a9bba"
+          }
+        ]
+      },
+      {
+        "label": "enum recovered property",
+        "sourceBytes": 79,
+        "sourceSha256": "00bde68b64d4d948784e0b81f5bebc971ce58f1af409260d9cdcb4e7a2642593",
+        "factsSha256": "3a66f340ed5817603ef05e4213abe5403869e24d09a164549a38c48a4f7eb042",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "b345eb73075cd21fc9a64988e8830856cfc0698ea7029a9cc813cecf891c0c43"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "3da6e72f569390e843e3d3527ab3dc51c6a1b39777dfea561489075e56066293"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "540989bdb33bed2973f863b4891a16198285bd0977384fec57deb85b5a8e2c14"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "59c8e7fb0875bceb97173d5cb8befce5033faefe51cc5019534ec2a64d92be98"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "cb8ee031e7046058db5bb023fed99ef349d701d254eabadb594391e2140dfa4a"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "83b85e66a3840a323810add2cac357f9e243bee865efa72700944bcefefab6fa"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "7502b6f022672b22e89c633177a341577355db567758cf1dc0af913d444cc559"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 1,
+            "resultSha256": "01457184453efef6c97f30fff03953969779d144f2275831d294b1ef42fd8b61"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "512e32f209dc7a3913d4f7a047bfb3e102efbc4102def9e7024fe0089fe8a94d"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "cf3e032dfbd149c7aad8fe31eaab79c1f0ef2389a89c85199b235f6103b16af4"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "4178b0bedb7728c79c405d83571fa9cb90ba19d7504064add3d532171246aa6d"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "7e5ceb6fe9cb646909c8979aa5ba78495d3b8b045a967efc92ec820603d84514"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "03a0cc9bbfe8c55cc2ce0c1a4cd9e3d53013935c818ec12e7cbaa3da7fd87dd6"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "0507e254c98614fa2fed834f9a4c517ed04eb437a114ced36cf30d3ba125444e"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "de11bbe69d1cd293fd8a702a7f15033649f8fb28b3dc2bcdf51a7b320860d227"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "e8a3f609ae20b172121f6d92021f4269bf9243148c779b8b5183b635ffd84319"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "085d955ee06b43c34f450b42a34e440375d7e52cb83371dc8c843f4c9089462c"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 1,
+            "resultSha256": "58c87cbef2da388027e2ce85a3327ca9200ec30c3f14b61f6eef185af46ef2ff"
+          }
+        ]
+      },
+      {
+        "label": "legacy repaired names",
+        "sourceBytes": 67,
+        "sourceSha256": "6b0410ac1e5cf90b38ecd9006aec1c507cac1002f3750cef671381c993851266",
+        "factsSha256": "00e25e8969d77e94c464cf83d7227faf9fe857ba563f439aba02bf3d501f7d42",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a094438412f9726cb1c50399e6cb9f2badb21931c89d102ffb6bc5272cd0785d"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "451baf3930c8b38b97c6e9e8f8a03eb4a847e293b6d12e3922398fc3136986d1"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a094438412f9726cb1c50399e6cb9f2badb21931c89d102ffb6bc5272cd0785d"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "451baf3930c8b38b97c6e9e8f8a03eb4a847e293b6d12e3922398fc3136986d1"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "a094438412f9726cb1c50399e6cb9f2badb21931c89d102ffb6bc5272cd0785d"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "451baf3930c8b38b97c6e9e8f8a03eb4a847e293b6d12e3922398fc3136986d1"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "b4a39060121096c79783e0b8c6f0485099fa94015af4b022eb4ec375e76835e4"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "21f60a0d77dfe0de078237f6490e8a86df1d5160f90ef25746b00b6c482256ae"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "64392534d55f26e2198054a779581b3559703f84d8575d37e4ea93785405e405"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "8fcf92a1c26311fe053a574be76f42a36aad535345e8cf2255a666eca34d06cd"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "64392534d55f26e2198054a779581b3559703f84d8575d37e4ea93785405e405"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "8fcf92a1c26311fe053a574be76f42a36aad535345e8cf2255a666eca34d06cd"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "64392534d55f26e2198054a779581b3559703f84d8575d37e4ea93785405e405"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "8fcf92a1c26311fe053a574be76f42a36aad535345e8cf2255a666eca34d06cd"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "64392534d55f26e2198054a779581b3559703f84d8575d37e4ea93785405e405"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "8fcf92a1c26311fe053a574be76f42a36aad535345e8cf2255a666eca34d06cd"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "64392534d55f26e2198054a779581b3559703f84d8575d37e4ea93785405e405"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 3,
+            "symbols": 2,
+            "resultSha256": "8fcf92a1c26311fe053a574be76f42a36aad535345e8cf2255a666eca34d06cd"
+          }
+        ]
+      },
+      {
+        "label": "final trait alias",
+        "sourceBytes": 105,
+        "sourceSha256": "8bf34028ee4f303b97112761adf7940c909500403a03cee78593382d8ab38b37",
+        "factsSha256": "221fecbca8c712826fa949575c7a543a137287e266ca6ac881554f170f13b585",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "fc2f7b2536aba83f7f7b44ec451fd7206c8f56f4d3ee6c8d754ffd9119c09c66"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "2c46e333fe67b23f9188271b679d4f18ba2f715f3eea54fc821afb6731cf1b23"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "0909ecc927ad8281b6d2a6d1ab3b8bb58ef0e7bfb0d2ff7751da607c3761acc8"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "da2df81c6420a75cb9194f47d10134cf636d0aaf0977b12a88a10fcd1fac6e40"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "087d66c6bec2cd453155667027fa36747a545e37688a309ab70f45908fe7250c"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "fb7089488fa891fcc217e2a1adc68e63b9448807c3cda1b4f68b291905f7a75e"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "ad31b79efbb07f3f6f7ce8d089820b30ac6473d75ad278592b10cef7f739c735"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "2b37415756acefbaa30c27531a6fba6fc5a1c4aa3339c0d72750decbb76db59b"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "cdbce9670a0a9363f35db00e494d40f88ae7ef74457aff7deab53c65cc72e417"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "4d8ba4d5301641a85c91cbcea8ff29e9963b91115bf70a8cc9aec7e8f7b9c690"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "89ab87c4ef695d8f175bb9872d3e59d607d1d91a3f978463704a3548beeac741"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 2,
+            "resultSha256": "f08dcf55e63a16287420e30ff0631fcd226960309da66157d98a1cbc7510421d"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "5598b02560dd51324a3f71bbbe485209f6a27e1e01bfa21b4d913319b760f8db"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "e0ae7dfce53be1976c6642e0383f65e01f061782619abc00ca5237f6cdddf93e"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "5598b02560dd51324a3f71bbbe485209f6a27e1e01bfa21b4d913319b760f8db"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "e0ae7dfce53be1976c6642e0383f65e01f061782619abc00ca5237f6cdddf93e"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "5598b02560dd51324a3f71bbbe485209f6a27e1e01bfa21b4d913319b760f8db"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 2,
+            "resultSha256": "e0ae7dfce53be1976c6642e0383f65e01f061782619abc00ca5237f6cdddf93e"
+          }
+        ]
+      },
+      {
+        "label": "missing named and unnamed",
+        "sourceBytes": 54,
+        "sourceSha256": "17d2043290cfe54f38e8ee10e61055df71d3f64afb9478f280e6fd2af7a15e66",
+        "factsSha256": "00244c13592b874d9a4efea941ff02f6398773b36788b1cde05b0728d0cf3279",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "6ce838b868bba10b9865b59b69e05fe416dc84803d1f8f5d77216896b0024328"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 2,
+            "symbols": 1,
+            "resultSha256": "ba973b4fa54f2d44d3a4de21aca7b069870efa75c2ac07fd647b304be95482bc"
+          }
+        ]
+      },
+      {
+        "label": "valid controls",
+        "sourceBytes": 101,
+        "sourceSha256": "053048dd5f356fdab672e8d6a99d000dc9968e7652fb9507dcb4cbd4e63be796",
+        "factsSha256": "548a679ea372dad56dcc91f03c58bcc358e249b81078b395cb949d445780d30c",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 0,
+            "symbols": 2,
+            "resultSha256": "db6067872cc89ee61161cb518411d046f445842596a4e302f0d60cee3977255e"
+          }
+        ]
+      },
+      {
+        "label": "large incomplete shape",
+        "sourceBytes": 242907,
+        "sourceSha256": "e49369f262d7f2570a46e699e9be7104b50d3171981cd13ccfb9b5824360cd13",
+        "factsSha256": "3d20e95b19d93fb7f2a14f745fe0af2a14267f34cb350923b04fbc7513ade41c",
+        "outcomes": [
+          {
+            "version": "7.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "7.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "7.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "7.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "7.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "7.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "8.0",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "8.0",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "8.1",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "8.1",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "8.2",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "8.2",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "8.3",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "8.3",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "8.4",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "8.4",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          },
+          {
+            "version": "8.5",
+            "language": "en",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "001d8a9aab00ee1365ae68680acf46e9152979099da068146f483e3ca32daa03"
+          },
+          {
+            "version": "8.5",
+            "language": "zh",
+            "diagnostics": 1,
+            "symbols": 4,
+            "resultSha256": "c0c8249c4011d9e5fb7ea175aef970c9cf40c99a6103fa43b5fadbad03909044"
+          }
+        ]
+      }
+    ]
+  },
+  "prototypeUnitTests": {
+    "parser": {
+      "files": 3,
+      "passed": 104
+    },
+    "analysis": {
+      "files": 1,
+      "passed": 47
+    },
+    "actualNativeSyntax": {
+      "files": 1,
+      "passed": 7,
+      "comparisons": 140
+    }
+  },
+  "productionBundleBinding": {
+    "productionSha256": "c9ea3d15eed69831666c484ee3ec45de5d9382866ea1e36e393fecaa0576040b",
+    "prototypeSha256": "c9ea3d15eed69831666c484ee3ec45de5d9382866ea1e36e393fecaa0576040b",
+    "equal": true
+  },
+  "ordinaryBeforeAfter": {
+    "startedAtUtc": "2026-10-04T21:04:21.083917+00:00",
+    "D73": {
+      "finishedAtUtc": "2026-10-04T21:03:26.259336+00:00",
+      "exitCode": 0
+    },
+    "fixture": {
+      "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+      "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "comments": 1500,
+      "constants": 1500,
+      "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "rounds": 100,
+      "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+    },
+    "engines": {
+      "baseline": {
+        "path": "/var/www/node/php-companion/dist/language-server.js",
+        "sha256": "b1fe940db22c6085fe39a995f9853c8abe4b6884b5f9d911bf364c4a70445dfd"
+      },
+      "prototype": {
+        "path": "/tmp/sophp-d74-error-recovery/prototype-dist/language-server.js",
+        "sha256": "c9ea3d15eed69831666c484ee3ec45de5d9382866ea1e36e393fecaa0576040b"
+      }
+    },
+    "stages": [
+      {
+        "version": "7.2",
+        "label": "baseline",
+        "exitCode": 0,
+        "log": "/tmp/sophp-d74-ordinary-baseline-7.2.log",
+        "command": [
+          "node",
+          "scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 213.7,
+          "all": {
+            "p50Ms": 153.85,
+            "p95Ms": 203.68,
+            "maxMs": 320.16
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 158.71,
+            "p95Ms": 207.76,
+            "maxMs": 213.7,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 150.54,
+            "p95Ms": 193.52,
+            "maxMs": 320.16,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        }
+      },
+      {
+        "version": "7.2",
+        "label": "prototype",
+        "exitCode": 0,
+        "log": "/tmp/sophp-d74-ordinary-prototype-7.2.log",
+        "command": [
+          "node",
+          "scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/tmp/sophp-d74-error-recovery/prototype-dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 190.56,
+          "all": {
+            "p50Ms": 136.58,
+            "p95Ms": 193.07,
+            "maxMs": 252.56
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 133.02,
+            "p95Ms": 190.56,
+            "maxMs": 252.56,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 138.46,
+            "p95Ms": 198.11,
+            "maxMs": 231.49,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "baseline",
+        "exitCode": 0,
+        "log": "/tmp/sophp-d74-ordinary-baseline-8.5.log",
+        "command": [
+          "node",
+          "scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 506.16,
+          "all": {
+            "p50Ms": 130.31,
+            "p95Ms": 176.92,
+            "maxMs": 506.16
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 129.27,
+            "p95Ms": 182.43,
+            "maxMs": 506.16,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 135.59,
+            "p95Ms": 176.92,
+            "maxMs": 260.01,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        }
+      },
+      {
+        "version": "8.5",
+        "label": "prototype",
+        "exitCode": 0,
+        "log": "/tmp/sophp-d74-ordinary-prototype-8.5.log",
+        "command": [
+          "node",
+          "scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/tmp/sophp-d74-error-recovery/prototype-dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 220.9,
+          "all": {
+            "p50Ms": 112.98,
+            "p95Ms": 151.42,
+            "maxMs": 220.9
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 112.98,
+            "p95Ms": 152.06,
+            "maxMs": 220.9,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 112.63,
+            "p95Ms": 146.25,
+            "maxMs": 214.27,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        }
+      }
+    ],
+    "latencyQualification": "current production versus isolated prospective prototype; not yet final production performance qualification",
+    "finishedAtUtc": "2026-10-04T21:05:25.705083+00:00",
+    "fixtureUnchanged": true
+  },
+  "stableFixtureGenerator": {
+    "header": "<?php namespace Editing; class Bulk {\n",
+    "rows": 1500,
+    "rowTemplate": "/** comment ${i} ${\"documentation \".repeat(8)} */ public const VALUE${i} = ${i};\n",
+    "footer": "}\nfunction shapePickA(): string {return \"value\";}\nfunction shapePickZ(): bool {return true;}\n",
+    "encoding": "UTF-8",
+    "lineEnding": "LF"
+  },
+  "productionGates": {
+    "summary": {
+      "semantic": {
+        "files": 99,
+        "passed": 2054,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "success": true,
+        "filesDetail": [
+          {
+            "file": "packages/semantic/test/acceptance-f04-references.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+            "passed": true,
+            "cases": 6
+          },
+          {
+            "file": "packages/semantic/test/acceptance-f08-extract-method.test.ts",
+            "passed": true,
+            "cases": 3
+          },
+          {
+            "file": "packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+            "passed": true,
+            "cases": 6
+          },
+          {
+            "file": "packages/semantic/test/add-method-family-parameter.test.ts",
+            "passed": true,
+            "cases": 8
+          },
+          {
+            "file": "packages/semantic/test/add-private-parameter.test.ts",
+            "passed": true,
+            "cases": 8
+          },
+          {
+            "file": "packages/semantic/test/array-access-key-completion.test.ts",
+            "passed": true,
+            "cases": 79
+          },
+          {
+            "file": "packages/semantic/test/array-column-properties.test.ts",
+            "passed": true,
+            "cases": 6
+          },
+          {
+            "file": "packages/semantic/test/array-column-return-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/array-combine-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/array-count-values-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/array-fill-keys-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/array-flip-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/array-inline-doc-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/array-key-preservation.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/assignment-comment-completion.test.ts",
+            "passed": true,
+            "cases": 30
+          },
+          {
+            "file": "packages/semantic/test/blank-comment-variable-completion.test.ts",
+            "passed": true,
+            "cases": 42
+          },
+          {
+            "file": "packages/semantic/test/branch-shape-completion.test.ts",
+            "passed": true,
+            "cases": 34
+          },
+          {
+            "file": "packages/semantic/test/branch-value-completion.test.ts",
+            "passed": true,
+            "cases": 17
+          },
+          {
+            "file": "packages/semantic/test/builtin-array-callback-completion.test.ts",
+            "passed": true,
+            "cases": 5
+          },
+          {
+            "file": "packages/semantic/test/builtin-construction-completion.test.ts",
+            "passed": true,
+            "cases": 10
+          },
+          {
+            "file": "packages/semantic/test/cached-array-access-recovery.test.ts",
+            "passed": true,
+            "cases": 12
+          },
+          {
+            "file": "packages/semantic/test/callback-completion-details.test.ts",
+            "passed": true,
+            "cases": 12
+          },
+          {
+            "file": "packages/semantic/test/callback-return-completion.test.ts",
+            "passed": true,
+            "cases": 26
+          },
+          {
+            "file": "packages/semantic/test/completion-identifier.test.ts",
+            "passed": true,
+            "cases": 14
+          },
+          {
+            "file": "packages/semantic/test/completion-trivia-offsets.test.ts",
+            "passed": true,
+            "cases": 16
+          },
+          {
+            "file": "packages/semantic/test/completion-type-tail.test.ts",
+            "passed": true,
+            "cases": 15
+          },
+          {
+            "file": "packages/semantic/test/completionMatching.test.ts",
+            "passed": true,
+            "cases": 1
+          },
+          {
+            "file": "packages/semantic/test/conditional-completion-context.test.ts",
+            "passed": true,
+            "cases": 14
+          },
+          {
+            "file": "packages/semantic/test/constant-initializer-completion.test.ts",
+            "passed": true,
+            "cases": 24
+          },
+          {
+            "file": "packages/semantic/test/construction-trivia-completion.test.ts",
+            "passed": true,
+            "cases": 8
+          },
+          {
+            "file": "packages/semantic/test/csv-fields-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/declaration-default-completion.test.ts",
+            "passed": true,
+            "cases": 58
+          },
+          {
+            "file": "packages/semantic/test/declaration-hierarchy-sources.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/declaration-variable-boundaries.test.ts",
+            "passed": true,
+            "cases": 7
+          },
+          {
+            "file": "packages/semantic/test/existing-array-arrow-completion.test.ts",
+            "passed": true,
+            "cases": 24
+          },
+          {
+            "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+            "passed": true,
+            "cases": 13
+          },
+          {
+            "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+            "passed": true,
+            "cases": 27
+          },
+          {
+            "file": "packages/semantic/test/extract-method-local-return.test.ts",
+            "passed": true,
+            "cases": 18
+          },
+          {
+            "file": "packages/semantic/test/extract-nested-call.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/extract-shared-bindings.test.ts",
+            "passed": true,
+            "cases": 9
+          },
+          {
+            "file": "packages/semantic/test/getrusage-contract.test.ts",
+            "passed": true,
+            "cases": 5
+          },
+          {
+            "file": "packages/semantic/test/headers-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/highlight-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/image-size-contract.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/implicit-nullable-parameter.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/import-completion-boundaries.test.ts",
+            "passed": true,
+            "cases": 8
+          },
+          {
+            "file": "packages/semantic/test/inheritance-list-completion.test.ts",
+            "passed": true,
+            "cases": 8
+          },
+          {
+            "file": "packages/semantic/test/inheritance-trivia-completion.test.ts",
+            "passed": true,
+            "cases": 22
+          },
+          {
+            "file": "packages/semantic/test/inheritance-validity-completion.test.ts",
+            "passed": true,
+            "cases": 7
+          },
+          {
+            "file": "packages/semantic/test/inherited-final-magic.test.ts",
+            "passed": true,
+            "cases": 18
+          },
+          {
+            "file": "packages/semantic/test/initializer-completion-context.test.ts",
+            "passed": true,
+            "cases": 64
+          },
+          {
+            "file": "packages/semantic/test/inline-shared-bindings.test.ts",
+            "passed": true,
+            "cases": 11
+          },
+          {
+            "file": "packages/semantic/test/iterator-apply-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/legacy-builtin-constructor.test.ts",
+            "passed": true,
+            "cases": 5
+          },
+          {
+            "file": "packages/semantic/test/local-prefix-syntax.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/local-range-completion.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/magic-declaration-completion.test.ts",
+            "passed": true,
+            "cases": 9
+          },
+          {
+            "file": "packages/semantic/test/magic-modifier-completion.test.ts",
+            "passed": true,
+            "cases": 32
+          },
+          {
+            "file": "packages/semantic/test/match-condition-completion.test.ts",
+            "passed": true,
+            "cases": 16
+          },
+          {
+            "file": "packages/semantic/test/middle-array-access-completion.test.ts",
+            "passed": true,
+            "cases": 26
+          },
+          {
+            "file": "packages/semantic/test/middle-array-literal-completion.test.ts",
+            "passed": true,
+            "cases": 24
+          },
+          {
+            "file": "packages/semantic/test/mixed-callable-recovery.test.ts",
+            "passed": true,
+            "cases": 76
+          },
+          {
+            "file": "packages/semantic/test/named-value-completion.test.ts",
+            "passed": true,
+            "cases": 48
+          },
+          {
+            "file": "packages/semantic/test/native-array-template.test.ts",
+            "passed": true,
+            "cases": 5
+          },
+          {
+            "file": "packages/semantic/test/native-generic-parent.test.ts",
+            "passed": true,
+            "cases": 6
+          },
+          {
+            "file": "packages/semantic/test/nested-call-never.test.ts",
+            "passed": true,
+            "cases": 1
+          },
+          {
+            "file": "packages/semantic/test/nested-intrinsic-argument.test.ts",
+            "passed": true,
+            "cases": 1
+          },
+          {
+            "file": "packages/semantic/test/operand-completion-context.test.ts",
+            "passed": true,
+            "cases": 9
+          },
+          {
+            "file": "packages/semantic/test/parameter-references.test.ts",
+            "passed": true,
+            "cases": 3
+          },
+          {
+            "file": "packages/semantic/test/parsed-call-feedback.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/pathinfo-contract.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/property-hook-keyword-context.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/protected-family-completion.test.ts",
+            "passed": true,
+            "cases": 10
+          },
+          {
+            "file": "packages/semantic/test/quoted-prefix-completion.test.ts",
+            "passed": true,
+            "cases": 58
+          },
+          {
+            "file": "packages/semantic/test/readonly-anonymous.test.ts",
+            "passed": true,
+            "cases": 5
+          },
+          {
+            "file": "packages/semantic/test/remove-method-family-parameter.test.ts",
+            "passed": true,
+            "cases": 6
+          },
+          {
+            "file": "packages/semantic/test/reorder-method-family-parameter.test.ts",
+            "passed": true,
+            "cases": 7
+          },
+          {
+            "file": "packages/semantic/test/reorder-optional-method-parameters.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/restored-signature-cache.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/root-import-completion.test.ts",
+            "passed": true,
+            "cases": 10
+          },
+          {
+            "file": "packages/semantic/test/semantic.test.ts",
+            "passed": true,
+            "cases": 497
+          },
+          {
+            "file": "packages/semantic/test/shape-comment-completion.test.ts",
+            "passed": true,
+            "cases": 34
+          },
+          {
+            "file": "packages/semantic/test/shape-value-candidate-completion.test.ts",
+            "passed": true,
+            "cases": 64
+          },
+          {
+            "file": "packages/semantic/test/signature-prefix-range.test.ts",
+            "passed": true,
+            "cases": 17
+          },
+          {
+            "file": "packages/semantic/test/simplexml-factory-contract.test.ts",
+            "passed": true,
+            "cases": 3
+          },
+          {
+            "file": "packages/semantic/test/stat-contract.test.ts",
+            "passed": true,
+            "cases": 2
+          },
+          {
+            "file": "packages/semantic/test/static-scope.test.ts",
+            "passed": true,
+            "cases": 1
+          },
+          {
+            "file": "packages/semantic/test/string-replacement-contract.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/semantic/test/switch-condition-completion.test.ts",
+            "passed": true,
+            "cases": 11
+          },
+          {
+            "file": "packages/semantic/test/trailing-callback-members.test.ts",
+            "passed": true,
+            "cases": 13
+          },
+          {
+            "file": "packages/semantic/test/trait-final-cache.test.ts",
+            "passed": true,
+            "cases": 8
+          },
+          {
+            "file": "packages/semantic/test/unclosed-callable-value-completion.test.ts",
+            "passed": true,
+            "cases": 76
+          },
+          {
+            "file": "packages/semantic/test/unclosed-shape-value-completion.test.ts",
+            "passed": true,
+            "cases": 54
+          },
+          {
+            "file": "packages/semantic/test/unfinished-shape-completion.test.ts",
+            "passed": true,
+            "cases": 58
+          },
+          {
+            "file": "packages/semantic/test/union-shape-completion.test.ts",
+            "passed": true,
+            "cases": 27
+          },
+          {
+            "file": "packages/semantic/test/unknown-collection-template.test.ts",
+            "passed": true,
+            "cases": 6
+          },
+          {
+            "file": "packages/semantic/test/value-call-binding.test.ts",
+            "passed": true,
+            "cases": 11
+          },
+          {
+            "file": "packages/semantic/test/word-middle-shape-completion.test.ts",
+            "passed": true,
+            "cases": 40
+          }
+        ]
+      },
+      "parser": {
+        "files": 3,
+        "passed": 105,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "success": true,
+        "filesDetail": [
+          {
+            "file": "packages/parser/test/parser.test.ts",
+            "passed": true,
+            "cases": 94
+          },
+          {
+            "file": "packages/parser/test/readonly-anonymous.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/parser/test/trait-final-adaptation.test.ts",
+            "passed": true,
+            "cases": 7
+          }
+        ]
+      },
+      "analysis": {
+        "files": 3,
+        "passed": 59,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "success": true,
+        "filesDetail": [
+          {
+            "file": "packages/language-server/test/analysis.test.ts",
+            "passed": true,
+            "cases": 48
+          },
+          {
+            "file": "packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+            "passed": true,
+            "cases": 4
+          },
+          {
+            "file": "packages/language-server/test/php-runtime-syntax.test.ts",
+            "passed": true,
+            "cases": 7
+          }
+        ]
+      },
+      "performance": {
+        "files": 1,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "todo": 0,
+        "success": true,
+        "filesDetail": [
+          {
+            "file": "packages/language-server/test/magic-modifier-stdio.test.ts",
+            "passed": true,
+            "cases": 2
+          }
+        ]
+      }
+    },
+    "inputCount": 2987,
+    "inputsUnchanged": true,
+    "stages": [
+      {
+        "name": "semantic",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/semantic",
+          "exec",
+          "vitest",
+          "run",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d74-production-semantic-results.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "parser",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/parser",
+          "exec",
+          "vitest",
+          "run",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d74-production-parser-results.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "analysis-and-native",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/analysis.test.ts",
+          "test/php-runtime-syntax.test.ts",
+          "test/completion-prefix-refresh-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d74-production-analysis-results.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "performance",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/magic-modifier-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d74-production-performance-results.json"
+        ],
+        "exitCode": 0
+      }
+    ]
+  },
+  "hotPerformance": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 135.789984,
+      "p95Ms": 69.39062000000013,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 115.28682900000058,
+      "p95Ms": 90.70773399999962,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 38.109159999999974,
+      "p95Ms": 29.547005000000354,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 43.83419700000013,
+      "p95Ms": 18.830645000000004,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "visible": {
+    "onDemand": {
+      "platform": "linux",
+      "vscodeVersion": "1.140.0",
+      "context": "ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest",
+      "indexingMode": "onDemand",
+      "workspaceIndexingMode": "onDemand",
+      "settings": {
+        "quickSuggestions": {
+          "other": "offWhenInlineCompletions",
+          "comments": "off",
+          "strings": "off"
+        },
+        "wordBasedSuggestions": "off",
+        "snippetSuggestions": "none",
+        "basicPhpSuggestions": false
+      },
+      "results": [
+        {
+          "name": "Function",
+          "observations": [
+            {
+              "phase": "func",
+              "afterLastKeyMs": 552,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 552,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "function",
+              "afterLastKeyMs": 16,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 545,
+              "transitions": [
+                {
+                  "elapsedMs": 27,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nfunction z\n",
+          "version": 11,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Class",
+          "observations": [
+            {
+              "phase": "clas",
+              "afterLastKeyMs": 197,
+              "transitions": [
+                {
+                  "elapsedMs": 19,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 197,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "class",
+              "afterLastKeyMs": 13,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 513,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nclass z\n",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Enum",
+          "observations": [
+            {
+              "phase": "enu",
+              "afterLastKeyMs": 188,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 188,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "enum",
+              "afterLastKeyMs": 15,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 544,
+              "transitions": [
+                {
+                  "elapsedMs": 10,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nenum z\n",
+          "version": 7,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Member",
+          "observations": [
+            {
+              "phase": "public",
+              "afterLastKeyMs": 227,
+              "transitions": [
+                {
+                  "elapsedMs": 21,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 227,
+                  "visible": true,
+                  "labels": [
+                    "public"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "public"
+              ]
+            },
+            {
+              "phase": "magic name",
+              "afterLastKeyMs": 221,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 221,
+                  "visible": true,
+                  "labels": [
+                    "__construct"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "__construct"
+              ]
+            }
+          ],
+          "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+          "version": 23,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Types",
+          "observations": [
+            {
+              "phase": "short type",
+              "afterLastKeyMs": 192,
+              "transitions": [
+                {
+                  "elapsedMs": 19,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 192,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "changed type",
+              "afterLastKeyMs": 216,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 216,
+                  "visible": true,
+                  "labels": [
+                    "OtherCurrentAutomaticTypes\\OtherCurrent",
+                    "OverrideTargetApp\\Service\\OverrideTarget"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "OtherCurrentAutomaticTypes\\OtherCurrent",
+                "OverrideTargetApp\\Service\\OverrideTarget"
+              ]
+            },
+            {
+              "phase": "restored type",
+              "afterLastKeyMs": 178,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 178,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "narrow type",
+              "afterLastKeyMs": 56,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                },
+                {
+                  "elapsedMs": 56,
+                  "visible": true,
+                  "labels": [
+                    "ShortCurrentAutomaticTypes\\ShortCurrent"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShortCurrentAutomaticTypes\\ShortCurrent"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Arguments",
+          "observations": [
+            {
+              "phase": "bool argument",
+              "afterLastKeyMs": 227,
+              "transitions": [
+                {
+                  "elapsedMs": 22,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 227,
+                  "visible": true,
+                  "labels": [
+                    "$firstBool$firstBool: bool",
+                    "$firstText",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstBool$firstBool: bool",
+                "$firstText",
+                "$_FILES"
+              ]
+            },
+            {
+              "phase": "string argument",
+              "afterLastKeyMs": 193,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 193,
+                  "visible": true,
+                  "labels": [
+                    "$firstText$firstText: string",
+                    "$firstBool",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstText$firstText: string",
+                "$firstBool",
+                "$_FILES"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+          "version": 13,
+          "diskUnchanged": true
+        },
+        {
+          "name": "RootImport",
+          "observations": [
+            {
+              "phase": "root type",
+              "afterLastKeyMs": 222,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 222,
+                  "visible": true,
+                  "labels": [
+                    "ArrayObjectArrayObject"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ArrayObjectArrayObject"
+              ]
+            },
+            {
+              "phase": "import alias name",
+              "afterLastKeyMs": 539,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticRootImport; use ArrayObject as strl;",
+          "version": 24,
+          "diskUnchanged": true
+        },
+        {
+          "name": "LiveType",
+          "observations": [
+            {
+              "phase": "cold class",
+              "afterLastKeyMs": 222,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 222,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+              ]
+            },
+            {
+              "phase": "unsaved interface withdraws construction",
+              "afterLastKeyMs": 545,
+              "transitions": [
+                {
+                  "elapsedMs": 40,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            },
+            {
+              "phase": "restored class",
+              "afterLastKeyMs": 229,
+              "transitions": [
+                {
+                  "elapsedMs": 25,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 229,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+              ]
+            }
+          ],
+          "text": "<?php namespace App; function buildLive():void{new AutomaticLiveDep;}",
+          "version": 49,
+          "diskUnchanged": true,
+          "dependencyDiskUnchanged": true,
+          "dependencyFinalText": "<?php namespace App; class AutomaticLiveDependency {}"
+        },
+        {
+          "name": "Namespaceclass",
+          "observations": [
+            {
+              "phase": "namespace segment",
+              "afterLastKeyMs": 199,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 199,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticImportTree\\App\\AutomaticImportTree\\"
+              ]
+            },
+            {
+              "phase": "accept AutomaticImportTree\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\;",
+              "caretOffset": 218
+            },
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 211,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 211,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\;",
+              "caretOffset": 225
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 218,
+              "transitions": [
+                {
+                  "elapsedMs": 9,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 217,
+                  "visible": true,
+                  "labels": [
+                    "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+              ]
+            },
+            {
+              "phase": "changed segment",
+              "afterLastKeyMs": 214,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 214,
+                  "visible": true,
+                  "labels": [
+                    "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+              ]
+            },
+            {
+              "phase": "restored segment",
+              "afterLastKeyMs": 210,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 209,
+                  "visible": true,
+                  "labels": [
+                    "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+              ]
+            },
+            {
+              "phase": "accept ChildEntity",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity;",
+              "caretOffset": 236
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 529,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity as strl;",
+          "version": 41,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Namespacegroup",
+          "observations": [
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 191,
+              "transitions": [
+                {
+                  "elapsedMs": 27,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 191,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\};",
+              "caretOffset": 82
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 220,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 220,
+                  "visible": true,
+                  "labels": [
+                    "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+              ]
+            },
+            {
+              "phase": "accept ChildEntity",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity};",
+              "caretOffset": 93
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 545,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity as strl};",
+          "version": 18,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Namespacefunction",
+          "observations": [
+            {
+              "phase": "namespace segment",
+              "afterLastKeyMs": 197,
+              "transitions": [
+                {
+                  "elapsedMs": 21,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 197,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticImportTree\\App\\AutomaticImportTree\\"
+              ]
+            },
+            {
+              "phase": "accept AutomaticImportTree\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\;",
+              "caretOffset": 86
+            },
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 222,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 222,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\;",
+              "caretOffset": 93
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 189,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 189,
+                  "visible": true,
+                  "labels": [
+                    "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+              ]
+            },
+            {
+              "phase": "accept childFactory",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory;",
+              "caretOffset": 105
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 532,
+              "transitions": [
+                {
+                  "elapsedMs": 17,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory as strl;",
+          "version": 38,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Namespaceconst",
+          "observations": [
+            {
+              "phase": "namespace segment",
+              "afterLastKeyMs": 232,
+              "transitions": [
+                {
+                  "elapsedMs": 21,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 232,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticImportTree\\App\\AutomaticImportTree\\"
+              ]
+            },
+            {
+              "phase": "accept AutomaticImportTree\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\;",
+              "caretOffset": 80
+            },
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 226,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 226,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\;",
+              "caretOffset": 87
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 221,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 221,
+                  "visible": true,
+                  "labels": [
+                    "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+              ]
+            },
+            {
+              "phase": "accept CHILD_FLAG",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG;",
+              "caretOffset": 97
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 525,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG as strl;",
+          "version": 38,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    "progressive": {
+      "platform": "linux",
+      "vscodeVersion": "1.140.0",
+      "context": "ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest",
+      "indexingMode": "progressive",
+      "workspaceIndexingMode": "progressive",
+      "settings": {
+        "quickSuggestions": {
+          "other": "offWhenInlineCompletions",
+          "comments": "off",
+          "strings": "off"
+        },
+        "wordBasedSuggestions": "off",
+        "snippetSuggestions": "none",
+        "basicPhpSuggestions": false
+      },
+      "results": [
+        {
+          "name": "Function",
+          "observations": [
+            {
+              "phase": "func",
+              "afterLastKeyMs": 389,
+              "transitions": [
+                {
+                  "elapsedMs": 17,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 389,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "function",
+              "afterLastKeyMs": 19,
+              "transitions": [
+                {
+                  "elapsedMs": 18,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 545,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nfunction z\n",
+          "version": 11,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Class",
+          "observations": [
+            {
+              "phase": "clas",
+              "afterLastKeyMs": 190,
+              "transitions": [
+                {
+                  "elapsedMs": 21,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 190,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "class",
+              "afterLastKeyMs": 25,
+              "transitions": [
+                {
+                  "elapsedMs": 25,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 532,
+              "transitions": [
+                {
+                  "elapsedMs": 11,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nclass z\n",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Enum",
+          "observations": [
+            {
+              "phase": "enu",
+              "afterLastKeyMs": 180,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 180,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "enum",
+              "afterLastKeyMs": 13,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 509,
+              "transitions": [
+                {
+                  "elapsedMs": 8,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nenum z\n",
+          "version": 7,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Member",
+          "observations": [
+            {
+              "phase": "public",
+              "afterLastKeyMs": 205,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 205,
+                  "visible": true,
+                  "labels": [
+                    "public"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "public"
+              ]
+            },
+            {
+              "phase": "magic name",
+              "afterLastKeyMs": 190,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 190,
+                  "visible": true,
+                  "labels": [
+                    "__construct"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "__construct"
+              ]
+            }
+          ],
+          "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+          "version": 23,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Types",
+          "observations": [
+            {
+              "phase": "short type",
+              "afterLastKeyMs": 194,
+              "transitions": [
+                {
+                  "elapsedMs": 19,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 194,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "changed type",
+              "afterLastKeyMs": 181,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 181,
+                  "visible": true,
+                  "labels": [
+                    "OtherCurrentAutomaticTypes\\OtherCurrent",
+                    "OverrideTargetApp\\Service\\OverrideTarget"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "OtherCurrentAutomaticTypes\\OtherCurrent",
+                "OverrideTargetApp\\Service\\OverrideTarget"
+              ]
+            },
+            {
+              "phase": "restored type",
+              "afterLastKeyMs": 209,
+              "transitions": [
+                {
+                  "elapsedMs": 9,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 209,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "narrow type",
+              "afterLastKeyMs": 53,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "SessionHandlerSessionHandler"
+                  ]
+                },
+                {
+                  "elapsedMs": 53,
+                  "visible": true,
+                  "labels": [
+                    "ShortCurrentAutomaticTypes\\ShortCurrent"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShortCurrentAutomaticTypes\\ShortCurrent"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Arguments",
+          "observations": [
+            {
+              "phase": "bool argument",
+              "afterLastKeyMs": 225,
+              "transitions": [
+                {
+                  "elapsedMs": 48,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 225,
+                  "visible": true,
+                  "labels": [
+                    "$firstBool$firstBool: bool",
+                    "$firstText",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstBool$firstBool: bool",
+                "$firstText",
+                "$_FILES"
+              ]
+            },
+            {
+              "phase": "string argument",
+              "afterLastKeyMs": 185,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 184,
+                  "visible": true,
+                  "labels": [
+                    "$firstText$firstText: string",
+                    "$firstBool",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstText$firstText: string",
+                "$firstBool",
+                "$_FILES"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+          "version": 13,
+          "diskUnchanged": true
+        },
+        {
+          "name": "RootImport",
+          "observations": [
+            {
+              "phase": "root type",
+              "afterLastKeyMs": 242,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 242,
+                  "visible": true,
+                  "labels": [
+                    "ArrayObjectArrayObject"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ArrayObjectArrayObject"
+              ]
+            },
+            {
+              "phase": "import alias name",
+              "afterLastKeyMs": 544,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticRootImport; use ArrayObject as strl;",
+          "version": 24,
+          "diskUnchanged": true
+        },
+        {
+          "name": "LiveType",
+          "observations": [
+            {
+              "phase": "cold class",
+              "afterLastKeyMs": 182,
+              "transitions": [
+                {
+                  "elapsedMs": 18,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 182,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+              ]
+            },
+            {
+              "phase": "unsaved interface withdraws construction",
+              "afterLastKeyMs": 546,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            },
+            {
+              "phase": "restored class",
+              "afterLastKeyMs": 179,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 179,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+              ]
+            }
+          ],
+          "text": "<?php namespace App; function buildLive():void{new AutomaticLiveDep;}",
+          "version": 49,
+          "diskUnchanged": true,
+          "dependencyDiskUnchanged": true,
+          "dependencyFinalText": "<?php namespace App; class AutomaticLiveDependency {}"
+        },
+        {
+          "name": "Namespaceclass",
+          "observations": [
+            {
+              "phase": "namespace segment",
+              "afterLastKeyMs": 182,
+              "transitions": [
+                {
+                  "elapsedMs": 24,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 182,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticImportTree\\App\\AutomaticImportTree\\"
+              ]
+            },
+            {
+              "phase": "accept AutomaticImportTree\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\;",
+              "caretOffset": 218
+            },
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 210,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 210,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\;",
+              "caretOffset": 225
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 215,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 215,
+                  "visible": true,
+                  "labels": [
+                    "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+              ]
+            },
+            {
+              "phase": "changed segment",
+              "afterLastKeyMs": 211,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 211,
+                  "visible": true,
+                  "labels": [
+                    "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+              ]
+            },
+            {
+              "phase": "restored segment",
+              "afterLastKeyMs": 210,
+              "transitions": [
+                {
+                  "elapsedMs": 10,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 210,
+                  "visible": true,
+                  "labels": [
+                    "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+              ]
+            },
+            {
+              "phase": "accept ChildEntity",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity;",
+              "caretOffset": 236
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 521,
+              "transitions": [
+                {
+                  "elapsedMs": 8,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity as strl;",
+          "version": 41,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Namespacegroup",
+          "observations": [
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 199,
+              "transitions": [
+                {
+                  "elapsedMs": 31,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 199,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\};",
+              "caretOffset": 82
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 214,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 214,
+                  "visible": true,
+                  "labels": [
+                    "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+              ]
+            },
+            {
+              "phase": "accept ChildEntity",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity};",
+              "caretOffset": 93
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 528,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity as strl};",
+          "version": 18,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Namespacefunction",
+          "observations": [
+            {
+              "phase": "namespace segment",
+              "afterLastKeyMs": 228,
+              "transitions": [
+                {
+                  "elapsedMs": 21,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 228,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticImportTree\\App\\AutomaticImportTree\\"
+              ]
+            },
+            {
+              "phase": "accept AutomaticImportTree\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\;",
+              "caretOffset": 86
+            },
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 213,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 213,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\;",
+              "caretOffset": 93
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 216,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 216,
+                  "visible": true,
+                  "labels": [
+                    "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+              ]
+            },
+            {
+              "phase": "accept childFactory",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory;",
+              "caretOffset": 105
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 551,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory as strl;",
+          "version": 38,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Namespaceconst",
+          "observations": [
+            {
+              "phase": "namespace segment",
+              "afterLastKeyMs": 218,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 218,
+                  "visible": true,
+                  "labels": [
+                    "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "AutomaticImportTree\\App\\AutomaticImportTree\\"
+              ]
+            },
+            {
+              "phase": "accept AutomaticImportTree\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\;",
+              "caretOffset": 80
+            },
+            {
+              "phase": "nested namespace",
+              "afterLastKeyMs": 217,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 217,
+                  "visible": true,
+                  "labels": [
+                    "Nested\\App\\AutomaticImportTree\\Nested\\"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "Nested\\App\\AutomaticImportTree\\Nested\\"
+              ]
+            },
+            {
+              "phase": "accept Nested\\",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\;",
+              "caretOffset": 87
+            },
+            {
+              "phase": "next segment symbol",
+              "afterLastKeyMs": 177,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 177,
+                  "visible": true,
+                  "labels": [
+                    "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+              ]
+            },
+            {
+              "phase": "accept CHILD_FLAG",
+              "exactText": true,
+              "caretMatched": true,
+              "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG;",
+              "caretOffset": 97
+            },
+            {
+              "phase": "namespace import alias name",
+              "afterLastKeyMs": 522,
+              "transitions": [
+                {
+                  "elapsedMs": 10,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG as strl;",
+          "version": 38,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    }
+  },
+  "visibleSummary": {
+    "onDemand": {
+      "flows": 12,
+      "visibleObservations": 39,
+      "acceptances": 11,
+      "visibleWaitMs": [
+        13,
+        552
+      ]
+    },
+    "progressive": {
+      "flows": 12,
+      "visibleObservations": 39,
+      "acceptances": 11,
+      "visibleWaitMs": [
+        13,
+        389
+      ]
+    }
+  },
+  "visibleInputVerification": {
+    "inputs": {
+      "dist/language-server.js": "c9ea3d15eed69831666c484ee3ec45de5d9382866ea1e36e393fecaa0576040b",
+      "scripts/check-comparison-condition-acceptance.mjs": "67a7417ceda2654f92461d2be856018ef9bb761d3bb0edbfb4491c1d4a7fb8c2",
+      "test/extension/suite/automaticCompletionAcceptance.ts": "4b566e0cd695723fef8a6fba4f2f0034197e07a1953c0fbcebb2932aa2de8c6c"
+    },
+    "stages": [
+      {
+        "mode": "onDemand",
+        "exitCode": 0
+      },
+      {
+        "mode": "progressive",
+        "exitCode": 0
+      }
+    ],
+    "inputsUnchanged": true
+  },
+  "open": [
+    "PHP 7.2 ordinary P95 193.07 ms > 150 ms",
+    "PHP 8.5 ordinary P95 151.42 ms > 150 ms",
+    "D73 full 879-case LSP binds the preceding product, not D74",
+    "Original D65 fixture differs from this 242801-byte 1500-constant input",
+    "Missing actual PHP 7.3/8.0/8.3 CLI and other platforms/scale/long sessions",
+    "Human WSL acceptance"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}

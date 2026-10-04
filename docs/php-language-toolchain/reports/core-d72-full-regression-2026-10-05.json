@@ -1,0 +1,601 @@
+{
+  "milestone": "D73",
+  "date": "2026-10-05",
+  "checkpoint": "1c6bf9a6512e4aa9e16a181b87b027e8d44be28a",
+  "qualification": "One complete run on the D72 product, before the later D74 parser/analysis changes.",
+  "productInputs": {
+    "packages/language-server/src/server.ts": "66f660c5dd29b967b35832e7cd8a980d867b5e66ab7f2827c9947cd7096c30bf",
+    "packages/language-server/src/analysis.ts": "8254fd3a315a400061a7b4f64dbae2f4d4113b18b1ac9de54d6c233b9d2c1633",
+    "packages/parser/src/index.ts": "6d44a54ae0916317a82cd294615f6c964d7fbcb3630e2e62effc579d3d1411ba",
+    "packages/parser/dist/index.js": "2c1ff9250e3be48cd4b6fa37e5abee558947e0ed548218feb99c990ac63cf4c1",
+    "packages/semantic/src/index.ts": "f0aa96bef7e6b09456d78a905f7fac4fd3a26d10bde0d687c09ea1526fa4de32",
+    "packages/semantic/dist/index.js": "c64d7eac231cbfda033026ce827e3410382e99e66d127585581d01af9f3ae951",
+    "dist/language-server.js": "b1fe940db22c6085fe39a995f9853c8abe4b6884b5f9d911bf364c4a70445dfd"
+  },
+  "meta": {
+    "commit": "1c6bf9a6512e4aa9e16a181b87b027e8d44be28a",
+    "createdAtUtc": "2026-10-04T20:34:46.519717+00:00",
+    "status": "finished",
+    "inputCount": 2987,
+    "runtimePaths": {
+      "7.2": "/opt/remi/php72/root/usr/bin/php",
+      "7.4": "/opt/remi/php74/root/usr/bin/php",
+      "8.1": "/opt/remi/php81/root/usr/bin/php",
+      "8.2": "/opt/remi/php82/root/usr/bin/php",
+      "8.4": "/opt/remi/php84/root/usr/bin/php",
+      "8.5": "/opt/remi/php85/root/usr/bin/php"
+    },
+    "runtimeVersions": {
+      "7.2": "7.2.34",
+      "7.4": "7.4.33",
+      "8.1": "8.1.34",
+      "8.2": "8.2.32",
+      "8.4": "8.4.23",
+      "8.5": "8.5.9"
+    },
+    "runtimeSha256": {
+      "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "referenceBundle": "/var/www/node/php-companion/dist/language-server.js",
+    "performanceTimingDirectory": "/tmp/sophp-d73-full-timings",
+    "freeze": "src, test, scripts, dist, packages and root build/workspace configuration; no mutations until terminal verification",
+    "log": "/tmp/sophp-d73-full-lsp.log",
+    "runnerPid": 2088208,
+    "collectedCases": 879,
+    "collectedFiles": 60,
+    "collectionSha256": "f0173ad7acb9bd376b228287b3257291531b2ea213be2da505a3dadce70575ec",
+    "startedAtUtc": "2026-10-04T20:34:57.506857+00:00",
+    "command": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d73-full-results.json"
+    ],
+    "finishedAtUtc": "2026-10-04T21:03:26.259336+00:00",
+    "exitCode": 0,
+    "inputsUnchanged": true
+  },
+  "verification": {
+    "originalCount": 2987,
+    "finalCount": 2987,
+    "inputsUnchanged": true,
+    "changes": {
+      "changed": [],
+      "missing": [],
+      "added": []
+    },
+    "runtimeChanges": [],
+    "initialSha256": "216e442d31c3a8c1c701d83649d96a3571f71f74444cc34cf6c20782b18758d4"
+  },
+  "canonicalProof": {
+    "cases": 879,
+    "files": 60,
+    "canonicalNamesMatch": true,
+    "zeroFailedAndSkipped": true
+  },
+  "lsp": {
+    "files": 60,
+    "passed": 879,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "success": true,
+    "filesDetail": [
+      {
+        "file": "packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+        "passed": true,
+        "cases": 1
+      },
+      {
+        "file": "packages/language-server/test/analysis.test.ts",
+        "passed": true,
+        "cases": 47
+      },
+      {
+        "file": "packages/language-server/test/array-column-return-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-combine-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-count-values-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-fill-keys-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-flip-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-inline-doc-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-key-preservation-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/call-trivia-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/callable-facts-cache.test.ts",
+        "passed": true,
+        "cases": 1
+      },
+      {
+        "file": "packages/language-server/test/candidate-worker-project-facts.test.ts",
+        "passed": true,
+        "cases": 1
+      },
+      {
+        "file": "packages/language-server/test/candidate-workers.test.ts",
+        "passed": true,
+        "cases": 5
+      },
+      {
+        "file": "packages/language-server/test/code-action-messages.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/completion-call-trivia.test.ts",
+        "passed": true,
+        "cases": 18
+      },
+      {
+        "file": "packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/construction-trivia-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+        "passed": true,
+        "cases": 6
+      },
+      {
+        "file": "packages/language-server/test/csv-fields-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+        "passed": true,
+        "cases": 3
+      },
+      {
+        "file": "packages/language-server/test/diagnostic-messages.test.ts",
+        "passed": true,
+        "cases": 5
+      },
+      {
+        "file": "packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+        "passed": true,
+        "cases": 3
+      },
+      {
+        "file": "packages/language-server/test/getrusage-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/headers-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/highlight-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/image-size-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/implicit-nullable-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/inheritance-list-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/inheritance-trivia-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/inheritance-validity-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/inherited-final-magic-stdio.test.ts",
+        "passed": true,
+        "cases": 3
+      },
+      {
+        "file": "packages/language-server/test/iterator-apply-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/magic-declaration-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/match-condition-completion-stdio.test.ts",
+        "passed": true,
+        "cases": 1
+      },
+      {
+        "file": "packages/language-server/test/native-array-template-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/output-messages.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/php-runtime-syntax.test.ts",
+        "passed": true,
+        "cases": 7
+      },
+      {
+        "file": "packages/language-server/test/portableCandidatePaths.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/progress-messages.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/project-facts.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/project-index.test.ts",
+        "passed": true,
+        "cases": 133
+      },
+      {
+        "file": "packages/language-server/test/property-hook-keywords-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/protocol-messages.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/readonly-anonymous-stdio.test.ts",
+        "passed": true,
+        "cases": 3
+      },
+      {
+        "file": "packages/language-server/test/readonly-anonymous.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/reference-candidate-evidence.test.ts",
+        "passed": true,
+        "cases": 1
+      },
+      {
+        "file": "packages/language-server/test/reference-dependency-evidence.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/reference-engine-identity.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/reference-input-snapshot.test.ts",
+        "passed": true,
+        "cases": 15
+      },
+      {
+        "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/reference-result-store.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/root-import-stdio.test.ts",
+        "passed": true,
+        "cases": 4
+      },
+      {
+        "file": "packages/language-server/test/sourceStatBatches.test.ts",
+        "passed": true,
+        "cases": 6
+      },
+      {
+        "file": "packages/language-server/test/stdio.test.ts",
+        "passed": true,
+        "cases": 523
+      },
+      {
+        "file": "packages/language-server/test/string-replacement-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/switch-condition-completion-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      },
+      {
+        "file": "packages/language-server/test/trait-final-cache-stdio.test.ts",
+        "passed": true,
+        "cases": 1
+      },
+      {
+        "file": "packages/language-server/test/magic-modifier-stdio.test.ts",
+        "passed": true,
+        "cases": 2
+      }
+    ]
+  },
+  "actualNativeSyntax": {
+    "configuredCliVersions": {
+      "7.2": "7.2.34",
+      "7.4": "7.4.33",
+      "8.1": "8.1.34",
+      "8.2": "8.2.32",
+      "8.4": "8.4.23",
+      "8.5": "8.5.9"
+    },
+    "comparisons": 140,
+    "missingActualCliVersions": [
+      "7.3",
+      "8.0",
+      "8.3"
+    ]
+  },
+  "referenceCacheProcesses": [
+    {
+      "run": 1,
+      "durationMs": 2342
+    },
+    {
+      "run": 2,
+      "durationMs": 2072
+    },
+    {
+      "run": 3,
+      "durationMs": 2224
+    },
+    {
+      "run": 4,
+      "durationMs": 2456
+    },
+    {
+      "run": 5,
+      "durationMs": 2035
+    },
+    {
+      "run": 6,
+      "durationMs": 2401
+    },
+    {
+      "run": 7,
+      "durationMs": 2180
+    },
+    {
+      "run": 8,
+      "durationMs": 2317
+    },
+    {
+      "run": 9,
+      "durationMs": 2301
+    },
+    {
+      "run": 10,
+      "durationMs": 2190
+    },
+    {
+      "run": 11,
+      "durationMs": 2309
+    },
+    {
+      "run": 12,
+      "durationMs": 2269
+    },
+    {
+      "run": 13,
+      "durationMs": 2191
+    },
+    {
+      "run": 14,
+      "durationMs": 2567
+    },
+    {
+      "run": 15,
+      "durationMs": 2536
+    },
+    {
+      "run": 16,
+      "durationMs": 4046
+    },
+    {
+      "run": 17,
+      "durationMs": 2629
+    },
+    {
+      "run": 18,
+      "durationMs": 2729
+    },
+    {
+      "run": 19,
+      "durationMs": 2631
+    },
+    {
+      "run": 20,
+      "durationMs": 2113
+    },
+    {
+      "run": 21,
+      "durationMs": 2134
+    },
+    {
+      "run": 22,
+      "durationMs": 2271
+    },
+    {
+      "run": 23,
+      "durationMs": 2231
+    },
+    {
+      "run": 24,
+      "durationMs": 2682
+    },
+    {
+      "run": 25,
+      "durationMs": 2617
+    },
+    {
+      "run": 26,
+      "durationMs": 2274
+    },
+    {
+      "run": 27,
+      "durationMs": 2610
+    },
+    {
+      "run": 28,
+      "durationMs": 2007
+    },
+    {
+      "run": 29,
+      "durationMs": 2596
+    },
+    {
+      "run": 30,
+      "durationMs": 2107
+    },
+    {
+      "run": 31,
+      "durationMs": 2571
+    },
+    {
+      "run": 32,
+      "durationMs": 2452
+    }
+  ],
+  "performance": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 122.65386500000022,
+      "p95Ms": 84.59833499999968,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 118.67936999999984,
+      "p95Ms": 92.78107000000091,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 48.59350799999993,
+      "p95Ms": 17.891466999999466,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 49.965074000000186,
+      "p95Ms": 23.68737800000008,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "artifactsSha256": {
+    "-inputs.json": "216e442d31c3a8c1c701d83649d96a3571f71f74444cc34cf6c20782b18758d4",
+    "-collection.json": "f0173ad7acb9bd376b228287b3257291531b2ea213be2da505a3dadce70575ec",
+    "-results.json": "b8c0cb41e17eb455595d2f9c507dc3d0e5648bb096f4415d4f63d1176d21221c",
+    "-lsp.log": "287f61ce6282988b9cfa8d3e3531df00224c7b3b264ea7b1cec4433f57dcd0cb"
+  },
+  "open": [
+    "Ordinary serial editing latency",
+    "D74 new parser/analysis product is not covered by this full LSP run",
+    "Human WSL acceptance",
+    "Other platforms, scale and long sessions"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}

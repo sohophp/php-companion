@@ -26,6 +26,20 @@ describe('PHP document analysis', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('preserves nested void recovery and the unrelated unfinished declaration', () => {
+    const source = '<?php function run(){ (void)one(); if($ok){ (void)two(); }'
+      + ' for((void)init(); $ok; (void)step()) {} } function unfinished(';
+    const document = TextDocument.create('file:///NestedVoid.php', 'php', 1, source);
+    for (const version of ['8.4', '8.5'] as const) {
+      const diagnostics = analyzePhpDocument(document, parser, version).diagnostics;
+      expect(diagnostics.filter(item => item.code === 'php.syntax').map(item =>
+        source.slice(document.offsetAt(item.range.start), document.offsetAt(item.range.end))))
+        .toEqual(['function unfinished(']);
+      expect(diagnostics.filter(item => item.code === 'php.version.unsupported'))
+        .toHaveLength(version === '8.4' ? 4 : 0);
+    }
+  });
+
   it('localizes syntax and target-version diagnostics without changing their codes', () => {
     const incomplete = TextDocument.create('file:///Incomplete.php', 'php', 1, '<?php class Incomplete { public function');
     const syntax = analyzePhpDocument(incomplete, parser, '8.5', undefined, [], 'zh').diagnostics.find((item) => item.code === 'php.syntax');

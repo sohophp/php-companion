@@ -645,11 +645,9 @@ export class PhpSyntaxParser {
     };
 
     const namespaceNodes: SyntaxNode[] = [];
-    // Valid PHP namespace declarations are top-level. Keep a full recovery
-    // walk for incomplete edits whose error nodes may contain a namespace.
-    if (hasSyntaxErrors) walk(tree.rootNode, (node) => {
-      if (node.type === 'namespace_definition') namespaceNodes.push(node);
-    });
+    // Valid PHP namespaces are top-level. In error trees, find every namespace
+    // natively without materializing unrelated nodes in a JS recovery walk.
+    if (hasSyntaxErrors) namespaceNodes.push(...tree.rootNode.descendantsOfType('namespace_definition'));
     else for (const node of tree.rootNode.namedChildren) {
       if (node.type === 'namespace_definition') namespaceNodes.push(node);
     }
