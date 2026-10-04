@@ -571,7 +571,10 @@ function wordAt(source: string, offset: number): { text: string; start: number; 
 }
 
 function qualifiedImportCompletion(source: string, offset: number): { qualifier: string; prefix: string; grouped: boolean } | undefined {
-  const before = source.slice(0, offset);
+  // None of the import patterns below can cross a semicolon after their
+  // opening anchor. Keep the full statement, without an arbitrary length cap.
+  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
+  const before = source.slice(completionBoundaryStart, offset);
   const group = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?!function\b|const\b)((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/.exec(before);
   if (group) {
     const member = group[2]!.split(',').at(-1)!.trimStart();
@@ -592,7 +595,8 @@ function qualifiedImportCompletion(source: string, offset: number): { qualifier:
 }
 
 function namespaceImportCompletion(source: string, offset: number): { qualifier: string; prefix: string } | undefined {
-  const match = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?!function\b|const\b)(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)$/.exec(source.slice(0, offset));
+  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
+  const match = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?!function\b|const\b)(\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)$/.exec(source.slice(completionBoundaryStart, offset));
   if (!match) return undefined;
   const segments = match[1]!.replace(/^\\/, '').split('\\');
   if (segments.slice(0, -1).some((segment) => !/^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(segment))) return undefined;
@@ -604,7 +608,8 @@ function namespaceImportCompletion(source: string, offset: number): { qualifier:
 function symbolImportCompletion(source: string, offset: number): {
   kind: 'function' | 'const'; qualifier: string; prefix: string; replacementStart?: number; replacementEnd?: number;
 } | undefined {
-  const before = source.slice(0, offset);
+  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
+  const before = source.slice(completionBoundaryStart, offset);
   const group = /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:(function|const)\s+)?((?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+)\{([^{};]*)$/u.exec(before);
   if (group) {
     const member = group[3]!.split(',').at(-1)!.trimStart();
@@ -619,7 +624,7 @@ function symbolImportCompletion(source: string, offset: number): {
         && segments.every((segment) => /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(segment))
         && (!prefix || /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(prefix))) {
         const qualifier = [base, ...segments].join('\\');
-        const replacementStart = before.lastIndexOf('{');
+        const replacementStart = completionBoundaryStart + before.lastIndexOf('{');
         const replacementEnd = source[offset] === '}' ? offset + 1 : offset;
         return { kind: kind as 'function' | 'const', qualifier, prefix, replacementStart, replacementEnd };
       }
@@ -636,7 +641,8 @@ function symbolImportCompletion(source: string, offset: number): {
 
 function isFunctionOrConstantImportPosition(source: string, offset: number): boolean {
   if (symbolImportCompletion(source, offset) !== undefined) return true;
-  const before = source.slice(0, offset);
+  const completionBoundaryStart = source.lastIndexOf(';', offset - 1) + 1;
+  const before = source.slice(completionBoundaryStart, offset);
   return /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:(?:function|const)\s+)?(?:\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\\)+\{[^{};]*$/u.test(before)
     || /(?:^|[;\n]|<\?php\s+|\bnamespace(?:\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)?\s*\{)\s*use\s+(?:function|const)\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s+as\s+[A-Za-z0-9_\x80-\xff]*$/u.test(before);
 }

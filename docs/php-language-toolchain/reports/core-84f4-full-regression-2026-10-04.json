@@ -143,5 +143,101 @@
   },
   "frozenManifestSha256": "52c5d1e7e511bed6ccab17d648a3b4bca9f10c8e380dc8bf90502aaf5c2ad298",
   "budgetMs": 150,
-  "continuousEditBudgetStillOpen": true
+  "continuousEditBudgetStillOpen": true,
+  "scheduledFullRun": {
+    "metadata": {
+      "commit": "db8596ee0033c3b87a9a3ff7c8e9f0c850f13fec",
+      "productCommit": "84f4000d6bce541fc58308d791d10578aab12fa0",
+      "inputCount": 2980,
+      "createdAtUtc": "2026-10-04T14:02:00.507469+00:00",
+      "log": "/tmp/sophp-core-db85-full-lsp.log",
+      "status": "finished",
+      "runtimePaths": {
+        "7.2": "/opt/remi/php72/root/usr/bin/php",
+        "7.4": "/opt/remi/php74/root/usr/bin/php",
+        "8.1": "/opt/remi/php81/root/usr/bin/php",
+        "8.2": "/opt/remi/php82/root/usr/bin/php",
+        "8.4": "/opt/remi/php84/root/usr/bin/php",
+        "8.5": "/opt/remi/php85/root/usr/bin/php"
+      },
+      "runtimeVersions": {
+        "7.2": "7.2.34",
+        "7.4": "7.4.33",
+        "8.1": "8.1.34",
+        "8.2": "8.2.32",
+        "8.4": "8.4.23",
+        "8.5": "8.5.9"
+      },
+      "referenceBundle": "/var/www/node/php-companion/dist/language-server.js",
+      "performanceTimingDirectory": "/tmp/sophp-core-db85-timings",
+      "scheduler": "57 integration files group 1, one performance file group 2, original 58 files, unchanged 150 ms assertions",
+      "freeze": "src, test, scripts, dist, packages and root build configuration; no mutations until terminal verification",
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-04T14:31:42.909938+00:00",
+      "inputsUnchanged": true
+    },
+    "inputVerification": {
+      "commit": "db8596ee0033c3b87a9a3ff7c8e9f0c850f13fec",
+      "inputCount": 2980,
+      "changedInputs": [],
+      "unchanged": true,
+      "verifiedAtUtc": "2026-10-04T14:31:42.909541+00:00",
+      "testExitCode": 0
+    },
+    "inputManifestSha256": "9457910c99b8bf5d7adadd9527c14d39fcce62b854aa94aeabb42835d0d8a66e",
+    "files": {
+      "passed": 58,
+      "failed": 0,
+      "total": 58
+    },
+    "tests": {
+      "passed": 870,
+      "failed": 0,
+      "skipped": 0,
+      "total": 870
+    },
+    "durationSeconds": 1779.71,
+    "timings": [
+      {
+        "phpVersion": "7.2",
+        "sourceBytes": 242907,
+        "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+        "comments": 1503,
+        "warmSamples": 20,
+        "firstQueryMs": 153.5856189999995,
+        "p95Ms": 108.30971500000032,
+        "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+      },
+      {
+        "phpVersion": "8.5",
+        "sourceBytes": 242907,
+        "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+        "comments": 1503,
+        "warmSamples": 20,
+        "firstQueryMs": 156.29116799999974,
+        "p95Ms": 114.3657490000005,
+        "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+      },
+      {
+        "phpVersion": "7.2",
+        "sourceBytes": 242729,
+        "comments": 1500,
+        "warmSamples": 20,
+        "firstQueryMs": 50.8543810000001,
+        "p95Ms": 23.311167999999725,
+        "scope": "isolated real stdio, 1500-comment document"
+      },
+      {
+        "phpVersion": "8.5",
+        "sourceBytes": 242729,
+        "comments": 1500,
+        "warmSamples": 20,
+        "firstQueryMs": 49.16105299999981,
+        "p95Ms": 19.802684999998746,
+        "scope": "isolated real stdio, 1500-comment document"
+      }
+    ],
+    "productChanged": false,
+    "scope": "Original 58 files with performance group after integration; 150 ms assertions unchanged; not continuous-edit, visible UI or real WSL acceptance"
+  }
 }

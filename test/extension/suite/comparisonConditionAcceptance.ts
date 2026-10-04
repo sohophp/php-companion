@@ -25,7 +25,14 @@ export async function run(): Promise<void> {
   const shapeComments = process.env.PHP_COMPANION_TEST_SHAPE_COMMENT_ONLY === '1';
   const shapeValues = process.env.PHP_COMPANION_TEST_SHAPE_VALUE_ONLY === '1';
   const namedAttributeValues = process.env.PHP_COMPANION_TEST_NAMED_ATTRIBUTE_VALUE_ONLY === '1';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = typeTails ? [
+  const importPrefixes = process.env.PHP_COMPANION_TEST_IMPORT_PREFIX_ONLY === '1';
+  const importHeader = '<?php namespace ImportCatalog; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text="literal;😀"; /* 中文; trivia */\r\n';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = importPrefixes ? [
+    {prefix:'Inv',label:'Invoice',forbidden:'createInvoice',addCall:false,marked:importHeader+'use ImportCatalog\\Inv§;'},
+    {prefix:'Inv',label:'Invoice',forbidden:'createInvoice',addCall:false,suffix:'}',consume:1,marked:importHeader+'use ImportCatalog\\{Inv§};'},
+    {prefix:'crea',label:'createInvoice',forbidden:'API_KEY',addCall:false,suffix:'}',consume:1,marked:importHeader+'use ImportCatalog\\{Invoice, function crea§};'},
+    {prefix:'API_',label:'API_KEY',forbidden:'createInvoice',addCall:false,suffix:'}',consume:1,marked:importHeader+'use ImportCatalog\\{function createInvoice, const API_§};'},
+  ] : typeTails ? [
     {prefix:'Cur',label:'Current',forbidden:'',addCall:false,
       marked:'<?php class Current {} class Other {} class Host { public Other|Cur§ $value; }'},
     {prefix:'Cur',label:'Current',forbidden:'',addCall:false,
@@ -169,6 +176,7 @@ export async function run(): Promise<void> {
     const suffix = `${cases.indexOf(item)}${key}`;
     let marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
       .replaceAll('PICK_', `PICK${suffix}_`);
+    if (importPrefixes) marked = marked.replaceAll('ImportCatalog', `ImportCatalog${suffix}`);
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);

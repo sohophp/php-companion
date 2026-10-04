@@ -19686,7 +19686,7 @@ echo ranked_lsp_over;`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('completes class, function, and constant imports from unopened Composer autoload files', async () => {
+  it.each(['7.2', '8.5'])('completes class, function, and constant imports from unopened Composer autoload files for PHP %s', async (phpVersion) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symbol-import-completion-'));
     try {
       await mkdir(join(root, 'src'), { recursive: true });
@@ -19718,7 +19718,7 @@ echo ranked_lsp_over;`;
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 115, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
-        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' },
+        initializationOptions: { phpVersion, indexingMode: 'onDemand' },
       } }));
       await output.waitFor((message) => message.id === 115);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));

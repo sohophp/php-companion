@@ -1,0 +1,452 @@
+{
+  "createdAtUtc": "2026-10-04T14:43:45.806530+00:00",
+  "parentCommit": "db8596ee0033c3b87a9a3ff7c8e9f0c850f13fec",
+  "scope": "D61 semicolon-bounded import regexes; preserve absolute group replacement positions; unchanged native parameter scanning",
+  "sourceBytes": 241283,
+  "sourceSha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+  "ordinaryPerformance": {
+    "before": {
+      "root": "/tmp/sophp-d61-edit-hcv3v5ux",
+      "file": "/tmp/sophp-d61-edit-hcv3v5ux/src/Editing.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 100,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": true,
+      "resolveDetails": false,
+      "firstMs": 317.09,
+      "all": {
+        "p50Ms": 226.36,
+        "p95Ms": 286.5,
+        "maxMs": 413.33
+      },
+      "a": {
+        "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+        "expected": "shapePickZ",
+        "p50Ms": 231.08,
+        "p95Ms": 300.42,
+        "maxMs": 317.09,
+        "incomplete": 0
+      },
+      "b": {
+        "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+        "expected": "shapePickA",
+        "p50Ms": 223.28,
+        "p95Ms": 284.54,
+        "maxMs": 413.33,
+        "incomplete": 0
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    },
+    "after": {
+      "root": "/tmp/sophp-d61-edit-hcv3v5ux",
+      "file": "/tmp/sophp-d61-edit-hcv3v5ux/src/Editing.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 100,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": true,
+      "resolveDetails": false,
+      "firstMs": 223.89,
+      "all": {
+        "p50Ms": 203.4,
+        "p95Ms": 251.71,
+        "maxMs": 373.23
+      },
+      "a": {
+        "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+        "expected": "shapePickZ",
+        "p50Ms": 205.51,
+        "p95Ms": 249.89,
+        "maxMs": 283.68,
+        "incomplete": 0
+      },
+      "b": {
+        "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+        "expected": "shapePickA",
+        "p50Ms": 198.82,
+        "p95Ms": 252.18,
+        "maxMs": 373.23,
+        "incomplete": 0
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    },
+    "runsPerSide": 100,
+    "profiler": false,
+    "explicitGc": false,
+    "budgetMs": 150,
+    "budgetPassed": false,
+    "scope": "Each once, serial, no own build, regression or editor host parallel; completion response includes preceding didChange work, not editor rendering or client serialization",
+    "logs": [
+      "/tmp/sophp-d61-before-performance.log",
+      "/tmp/sophp-d61-after-performance.log"
+    ]
+  },
+  "preProductEquivalence": {
+    "comparisons": 3472,
+    "matched": true,
+    "scope": "Temporary old compiled helper versus transformed helper; not editor or latency acceptance",
+    "reportSha256": "47a933a1e5ae2a4846d11917afe9c6c1f70b176aeff50f1d412db6dc044b648a"
+  },
+  "beforeInputSha256": {
+    "packages/semantic/src/index.ts": "333afa790b396303de91427a236642a71126226f03b679c4142a5782a66d102a",
+    "packages/language-server/test/stdio.test.ts": "91f09d590093621745b1605b39ae46e91cd94d09e6ecb7c91041f50a84362f9e",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "472fb454bc1d6e64a4e1a839088992394371a6a1c9a58b4b7eb909f71ce14a7b",
+    "dist/language-server.js": "e0d80d70bf8484bfc42f519bf8b59f150fb5881f0412be108198407bf5c06d40",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "afterInputSha256": {
+    "packages/semantic/src/index.ts": "c00d00634043afa0dd097892d8c10998567a7fa98cae1a9e0ca3a4de50009dc9",
+    "packages/semantic/test/import-completion-boundaries.test.ts": "daec1832d91183df102ee3aa0899d2e1a751179706b5e15aa1eee6622278fd51",
+    "packages/language-server/test/stdio.test.ts": "1466856f81f3de13cd244024e2dd255ec6c84df845e9ce06f571fa992b8d1a8b",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "a512301a43503acb74c70ec70ca31536da117226bb392ce1f69b054c068a559c",
+    "dist/language-server.js": "312ca7a8ae44b1741760a6e244eca36a39b4fe91838668fd4e58d90d5e28bd23",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "semantic": {
+    "focusedTests": 8,
+    "focusedDurationSeconds": 2.31,
+    "files": 97,
+    "tests": 2034,
+    "failed": 0,
+    "durationSeconds": 66.8,
+    "log": "/tmp/sophp-d61-full-semantic.log"
+  },
+  "lsp": {
+    "selected": 4,
+    "unselected": 519,
+    "collected": 523,
+    "failed": 0,
+    "durationSeconds": 13.48,
+    "importTargets": [
+      "7.2",
+      "8.5"
+    ],
+    "log": "/tmp/sophp-d61-protocol.log",
+    "scope": "Imports including groups, aliases and unsaved declarations plus PSR-0 namespace and native/PHPDoc type reference; not entire LSP suite"
+  },
+  "visible": {
+    "vscodeVersion": "1.140.0",
+    "configuredPhpVersion": "8.5",
+    "proof": {
+      "platform": "linux",
+      "context": "comparison-conditions",
+      "results": [
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 435,
+          "visibleLabels": [
+            "InvoiceImportCatalog0Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog0Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog0Enter\\Invoice;",
+          "caretOffset": 192,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 134,
+          "visibleLabels": [
+            "InvoiceImportCatalog0Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog0Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog0Tab\\Invoice;",
+          "caretOffset": 188,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 151,
+          "visibleLabels": [
+            "InvoiceImportCatalog1Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog1Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog1Enter\\{Invoice};",
+          "caretOffset": 194,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 157,
+          "visibleLabels": [
+            "InvoiceImportCatalog1Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog1Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog1Tab\\{Invoice};",
+          "caretOffset": 190,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "createInvoice",
+          "key": "Enter",
+          "visibleMs": 155,
+          "visibleLabels": [
+            "createInvoiceImportCatalog2Enter\\createInvoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog2Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog2Enter\\{Invoice, function createInvoice};",
+          "caretOffset": 218,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "createInvoice",
+          "key": "Tab",
+          "visibleMs": 165,
+          "visibleLabels": [
+            "createInvoiceImportCatalog2Tab\\createInvoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog2Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog2Tab\\{Invoice, function createInvoice};",
+          "caretOffset": 214,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "API_KEY",
+          "key": "Enter",
+          "visibleMs": 177,
+          "visibleLabels": [
+            "API_KEYImportCatalog3Enter\\API_KEY"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog3Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog3Enter\\{function createInvoice, const API_KEY};",
+          "caretOffset": 224,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "API_KEY",
+          "key": "Tab",
+          "visibleMs": 144,
+          "visibleLabels": [
+            "API_KEYImportCatalog3Tab\\API_KEY"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog3Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog3Tab\\{function createInvoice, const API_KEY};",
+          "caretOffset": 220,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "log": "/tmp/sophp-d61-visible-host.log",
+    "scope": "Explicit trigger, real Enter/Tab, first label, text, caret, undo/redo, disk unchanged; not automatic popup or real WSL"
+  },
+  "acceptedSyntax": {
+    "scope": "Actual accepted complete texts, compile only, no execution",
+    "records": [
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Enter",
+        "sha256": "9ebb1043f108236c57148b3a3f0efaa191ce57671c56a909b1956add0ce5b27a",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Tab",
+        "sha256": "4e9faec3ef6740189f420cbccf3f4a9eccec913bdd8c85cf068c78eef14d21dd",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Enter",
+        "sha256": "1db6d96b81be9d72b1d328a67487c0fee7c192d4f2970e0b5b5682135af675e0",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Tab",
+        "sha256": "4c8c5ac7604f8162827f8780c76da8cf7060eaca051d7a87268c3fee40b548e2",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "createInvoice",
+        "key": "Enter",
+        "sha256": "0cdf32ea00915811e9869ac1bfaf97c02d958576f404d58b74fbf7bc64bf3c03",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "createInvoice",
+        "key": "Tab",
+        "sha256": "d5c67c01a8707770134e8992c8867f949a270b896922efee8a09f805a56f482f",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "API_KEY",
+        "key": "Enter",
+        "sha256": "6ee23a4bf5788a73af37cca59863e840a802d451c7f935533e123a4f8bd5ac47",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "runtime": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "API_KEY",
+        "key": "Tab",
+        "sha256": "704a7cde117c8e4d50a377b8ffda8f9d87e4bcda82da0b31f183a16ad5d8712f",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Enter",
+        "sha256": "9ebb1043f108236c57148b3a3f0efaa191ce57671c56a909b1956add0ce5b27a",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Tab",
+        "sha256": "4e9faec3ef6740189f420cbccf3f4a9eccec913bdd8c85cf068c78eef14d21dd",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Enter",
+        "sha256": "1db6d96b81be9d72b1d328a67487c0fee7c192d4f2970e0b5b5682135af675e0",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "Invoice",
+        "key": "Tab",
+        "sha256": "4c8c5ac7604f8162827f8780c76da8cf7060eaca051d7a87268c3fee40b548e2",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "createInvoice",
+        "key": "Enter",
+        "sha256": "0cdf32ea00915811e9869ac1bfaf97c02d958576f404d58b74fbf7bc64bf3c03",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "createInvoice",
+        "key": "Tab",
+        "sha256": "d5c67c01a8707770134e8992c8867f949a270b896922efee8a09f805a56f482f",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "API_KEY",
+        "key": "Enter",
+        "sha256": "6ee23a4bf5788a73af37cca59863e840a802d451c7f935533e123a4f8bd5ac47",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "runtime": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "API_KEY",
+        "key": "Tab",
+        "sha256": "704a7cde117c8e4d50a377b8ffda8f9d87e4bcda82da0b31f183a16ad5d8712f",
+        "exitCode": 0
+      }
+    ]
+  },
+  "fullBaseline": {
+    "commit": "db8596ee0033c3b87a9a3ff7c8e9f0c850f13fec",
+    "productCommit": "84f4000d6bce541fc58308d791d10578aab12fa0",
+    "files": 58,
+    "tests": 870,
+    "failed": 0,
+    "skipped": 0,
+    "inputsUnchanged": true,
+    "scope": "Before D61; no full LSP rerun claimed for this increment"
+  },
+  "remaining": [
+    "continuous-edit P95 <= 150 ms",
+    "automatic popup and visible stale retraction",
+    "recovery above existing length bound",
+    "complete platform/runtime/scale matrix",
+    "real WSL acceptance"
+  ],
+  "delivery": {
+    "vsix": false,
+    "profile": false,
+    "push": false
+  },
+  "fixtureCleanup": {
+    "root": "/tmp/sophp-d61-edit-hcv3v5ux",
+    "file": "/tmp/sophp-d61-edit-hcv3v5ux/src/Editing.php",
+    "bytes": 241283,
+    "sha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+    "expectedFiles": [
+      "composer.json",
+      "src/Editing.php"
+    ],
+    "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+    "expectedA": "shapePickZ",
+    "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+    "expectedB": "shapePickA",
+    "runs": 100,
+    "status": "cleaned after matching the exact two-file list and source SHA-256",
+    "cleanedAtUtc": "2026-10-04T14:46:32.308209+00:00"
+  }
+}
