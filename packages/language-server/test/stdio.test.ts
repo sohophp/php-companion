@@ -2578,12 +2578,20 @@ function inspect(Sink $sink, ?Sink $optional): void {
     const rows = [
       { tail: "send(['enabled'=>shapePick§]);", label: 'shapePickZ', other: 'shapePickA' },
       { tail: "send(['enabled'=>(shapePick§)]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled' /* key */ => /* value */ shapePick§]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['nested' /* key */ => ['enabled' => /* value */ shapePick§]]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled' // key\n => tr§]);", label: 'true', other: '' },
+      { tail: "send(['enabled' => /* value */ innerText(shapePick§)]);", label: 'shapePickA', other: 'shapePickZ' },
       { tail: "send(['nested'=>['enabled'=>shapePick§]]);", label: 'shapePickZ', other: 'shapePickA' },
       { tail: "send(['enabled'=>innerText(shapePick§)]);", label: 'shapePickA', other: 'shapePickZ' },
       { tail: "send(['enabled'=>PICK_§]);", label: 'PICK_Z_BOOL', other: 'PICK_A_TEXT' },
       { tail: "send(['enabled'=>(tr§)]);", label: 'true', other: '' },
       { tail: "send(['enabled'=>innerBool(tr§)]);", label: 'true', other: '' },
-      { tail: "function run(string $shapeAText,bool $shapeZBool){send(['enabled'=>$shape§]);}", label: '$shapeZBool', other: '$shapeAText' },
+      { tail: "function run(string $shapeAText,bool $shapeZBool){send(['enabled'=>$shape§]);}", label: '$shapeZBool', other: '$shapeAText', clientSorted: true },
+      { tail: "function run(string $shapeAText,bool $shapeZBool){send(['enabled'=> /* value */ §]);}", label: '$shapeZBool', other: '$shapeAText', clientSorted: true },
+      { tail: "function run(string $shapeAText,bool $shapeZBool):bool{return /* value */ §;}", label: '$shapeZBool', other: '$shapeAText', clientSorted: true },
+      { tail: "function run(string $shapeAText,bool $shapeZBool){innerBool(/* value */ §);}", label: '$shapeZBool', other: '$shapeAText', clientSorted: true },
+      { tail: "function run(string $shapeAText,bool $shapeZBool){innerBool(flag: /* value */ §);}", label: '$shapeZBool', other: '$shapeAText', clientSorted: true },
       { tail: "function run(Builder $builder){send(['enabled'=>$builder->make§]);}", label: 'makeZ', other: 'makeA' },
       { tail: "build(['object'=>new Choice§]);", label: 'ChoiceZ', other: 'ChoiceA' },
     ];
@@ -2606,7 +2614,11 @@ function inspect(Sink $sink, ?Sink $optional): void {
     };
     for (const [index, row] of rows.entries()) {
       const items = await query(header + row.tail, 100 + index);
-      expect(items[0]?.label, row.tail).toBe(row.label);
+      const ranked = 'clientSorted' in row && row.clientSorted ? [...items].sort((left, right) => {
+        const a = left.sortText ?? left.label, b = right.sortText ?? right.label;
+        return a < b ? -1 : a > b ? 1 : 0;
+      }) : items;
+      expect(ranked[0]?.label, row.tail).toBe(row.label);
       if (row.other) expect(items.some(item => item.label === row.other), row.tail).toBe(true);
       if (row.label === 'shapePickZ') expect(items[0]?.textEdit?.newText).toContain('shapePickZ(');
     }

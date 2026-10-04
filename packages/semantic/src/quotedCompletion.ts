@@ -47,14 +47,27 @@ export function quoteCompletionLiteral(value: string, quote: "'" | '"'): string 
 }
 
 /** Decode the key of one array element, requiring its following arrow. */
-export function quotedArrayKey(source: string, start: number, end: number, onlyArrow = false): string | undefined {
-  const text = source.slice(start, end);
+export function quotedArrayKey(source: string, start: number, end: number, onlyArrow = false,
+  comments: readonly { start: number; end: number }[] = []): string | undefined {
+  // Mask only parser-confirmed trivia in this element. Keep offsets and literal
+  // contents intact; comment-looking text in a quoted key is ordinary text.
+  const ranges = comments.filter(range => range.start < end && range.end > start)
+    .sort((left, right) => left.start - right.start);
+  const parts: string[] = []; let cursor = start;
+  for (const range of ranges) {
+    const from = Math.max(cursor, range.start), to = Math.min(end, range.end);
+    if (to <= from) continue;
+    parts.push(source.slice(cursor, from), source.slice(from, to).replace(/[^\r\n]/g, ' '));
+    cursor = to;
+  }
+  parts.push(source.slice(cursor, end));
+  const text = parts.join('');
   const first = text.search(/\S/u);
   if (first < 0) return undefined;
   const opening = start + first;
   const initial = quotedCompletion(source, opening, opening + 1);
   if (!initial?.closed || initial.end > end) return undefined;
-  const remainder = source.slice(initial.end, end);
+  const remainder = text.slice(initial.end - start);
   if (!(onlyArrow ? /^\s*=>\s*$/u : /^\s*=>/u).test(remainder)) return undefined;
   return quotedCompletion(source, opening, initial.end - 1)?.word;
 }

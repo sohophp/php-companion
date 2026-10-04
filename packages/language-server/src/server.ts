@@ -6956,7 +6956,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     sortText: `1${String(index).padStart(6, '0')}`,
     detail: parameter.type ? `${parameter.name}: ${parameter.type}` : parameter.name,
   }));
-  if (completionContext.kind === 'named-argument') return /(?:\(|,)\s*$/u.test(document.getText().slice(0, offset))
+  if (completionContext.kind === 'named-argument') return completionContext.blankValue
     ? [...expectedValues, ...bareVariables, ...namedArguments] : namedArguments;
   const memberRoot = rootForUri(document.uri);
   if (memberRoot && completionContext.kind === 'member') {

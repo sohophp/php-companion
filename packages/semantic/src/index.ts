@@ -267,7 +267,7 @@ export type SemanticCompletionContext =
   | { kind: 'declaration-name'; declaration: PhpDeclarationNameCompletionContext }
   | { kind: 'array-access-key'; arrayKeys: NonNullable<ReturnType<SemanticWorkspace['completeArrayAccessKeys']>> }
   | { kind: 'shape-key'; shapeKeys: NonNullable<ReturnType<SemanticWorkspace['completeArrayShapeKeys']>> }
-  | { kind: 'named-argument'; namedArguments: NamedArgumentInfo[]; expectedValues: ReturnType<SemanticWorkspace['completeExpectedValues']>;
+  | { kind: 'named-argument'; namedArguments: NamedArgumentInfo[]; blankValue: boolean; expectedValues: ReturnType<SemanticWorkspace['completeExpectedValues']>;
     bareVariables: ReturnType<SemanticWorkspace['completeBareExpressionVariables']> }
   | { kind: 'member' }
   | { kind: 'variable'; variables: NonNullable<ReturnType<SemanticWorkspace['completeVariables']>> }
@@ -4190,7 +4190,9 @@ export class SemanticWorkspace {
     const shapeKeys = this.completeArrayShapeKeys(uri, offset);
     if (shapeKeys) return { kind: 'shape-key', shapeKeys };
     const namedArguments = supportsNamedArguments ? this.completeNamedArguments(uri, offset) : [];
+    const file = this.files.get(uri);
     if (namedArguments.length) return { kind: 'named-argument', namedArguments,
+      blankValue: !!file && /(?:\(|,)\s*$/u.test(file.source.slice(0, this.completionTriviaEnd(file, offset))),
       expectedValues: this.completeExpectedValues(uri, offset), bareVariables: this.completeBareExpressionVariables(uri, offset) };
     if (this.isMemberCompletionContext(uri, offset)) return { kind: 'member' };
     const variables = this.completeVariables(uri, offset);
@@ -4639,7 +4641,8 @@ export class SemanticWorkspace {
     allowArgument: boolean): PhpType | undefined {
     const argument = allowArgument ? this.expectedArgumentCompletionType(file, offset) : undefined;
     if (argument) return argument;
-    const statement = file.source.slice(Math.max(0, start - 160), start);
+    const statementEnd = this.completionTriviaEnd(file, start);
+    const statement = file.source.slice(Math.max(0, statementEnd - 160), statementEnd);
     if (scope.kind === 'closure' || scope.kind === 'arrow') {
       let returning = /(?:^|[;{}])\s*return\s*$/u.test(statement);
       if (scope.kind === 'arrow') {
@@ -4669,7 +4672,7 @@ export class SemanticWorkspace {
     }
     const propertyAssignment = /(?:^|[;{}])\s*(?:\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*->\s*|[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*\s*::\s*\$)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*=\s*$/u.exec(statement);
     if (propertyAssignment) {
-      const propertyOffset = start - statement.length + propertyAssignment.index
+      const propertyOffset = statementEnd - statement.length + propertyAssignment.index
         + propertyAssignment[0].lastIndexOf(propertyAssignment[1]!) + 1;
       const member = this.memberAt(file.uri, propertyOffset);
       const owner = member && this.files.get(member.uri);
@@ -4826,7 +4829,7 @@ export class SemanticWorkspace {
     const path: string[] = [];
     let current = array;
     for (let parent = this.enclosingArrayElement(current); parent; parent = this.enclosingArrayElement(current)) {
-      const key = quotedArrayKey(file.source, parent.element.startIndex, current.startIndex);
+      const key = quotedArrayKey(file.source, parent.element.startIndex, current.startIndex, false, file.commentRanges);
       if (key === undefined || path.length >= 64) return undefined;
       path.push(key);
       current = parent.outerArray;
@@ -4995,7 +4998,7 @@ export class SemanticWorkspace {
       const element = array.namedChildren.find((child) => child.type === 'array_element_initializer'
         && child.startIndex <= offset && offset <= child.endIndex);
       const start = element?.startIndex ?? Math.max(array.startIndex + 1, file.source.lastIndexOf(',', offset - 1) + 1);
-      const key = quotedArrayKey(file.source, start, valueStart, true);
+      const key = quotedArrayKey(file.source, start, valueStart, true, file.commentRanges);
       if (key === undefined) return { insideArray: true };
       const type = this.expectedShapeAtArray(file, array, expectedRoot)?.fields.find((field) => field.key === key)?.type;
       return { insideArray: true, type: type && position.start > array.startIndex && position.allowsNull ? nullable(type) : type };
@@ -5149,7 +5152,7 @@ export class SemanticWorkspace {
       const used = new Set<string>();
       for (const sibling of array.namedChildren) {
         if (sibling.type !== 'array_element_initializer' || sibling === element) continue;
-        const key = quotedArrayKey(file.source, sibling.startIndex, sibling.endIndex);
+        const key = quotedArrayKey(file.source, sibling.startIndex, sibling.endIndex, false, file.commentRanges);
         if (key !== undefined) used.add(key);
       }
       const keys = expected.fields.filter((field) => typeof field.key === 'string'
@@ -5380,8 +5383,9 @@ export class SemanticWorkspace {
 
   completeBareExpressionVariables(uri: string, offset: number): { name: string; compatibilityRank: number }[] | undefined {
     const file = this.files.get(uri);
-    if (!file || this.isNonCodeExpressionPosition(uri, file, offset)
-      || !/(?:=>|\(|,|:|=|\breturn)\s*$/u.test(file.source.slice(0, offset))) return undefined;
+    if (!file || this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
+    const prefixEnd = this.completionTriviaEnd(file, offset);
+    if (!/(?:=>|\(|,|:|=|\breturn)\s*$/u.test(file.source.slice(0, prefixEnd))) return undefined;
     const scope = this.containingScope(file, offset);
     if (!scope) return undefined;
     const expected = this.expectedCandidateCompletionType(file, offset, offset);
@@ -5394,6 +5398,17 @@ export class SemanticWorkspace {
       const relation = actual && compatibility(actual, expected, relationContext);
       return { name, compatibilityRank: relation === 'yes' ? 0 : relation === 'no' ? 2 : 1 };
     }).sort((left, right) => left.compatibilityRank - right.compatibilityRank || left.name.localeCompare(right.name));
+  }
+
+  private completionTriviaEnd(file: SemanticFile, offset: number): number {
+    let end = offset;
+    while (end > 0) {
+      while (end > 0 && /\s/u.test(file.source[end - 1]!)) end--;
+      const comment = file.commentRanges.find(range => range.start < end && end <= range.end);
+      if (!comment) break;
+      end = comment.start;
+    }
+    return end;
   }
 
   private trailingCallableQuery<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T, comparisonCondition: 'match' | 'switch' | false = false): { value: T } | undefined {

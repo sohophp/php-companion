@@ -1,0 +1,162 @@
+{
+  "platform": "linux",
+  "context": "blank-comment-variables",
+  "results": [
+    {
+      "label": "$shapeZBool",
+      "key": "Enter",
+      "visibleMs": 506,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Enter; /** @param array{enabled:bool} $config */ function send(array $config):void{} function run(string $shapeAText,bool $shapeZBool){send(['enabled'=> /* value */ $shapeZBool]);}",
+      "caretOffset": 202,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Tab",
+      "visibleMs": 175,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Tab; /** @param array{enabled:bool} $config */ function send(array $config):void{} function run(string $shapeAText,bool $shapeZBool){send(['enabled'=> /* value */ $shapeZBool]);}",
+      "caretOffset": 200,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Enter",
+      "visibleMs": 191,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Enter; function run(string $shapeAText,bool $shapeZBool):bool{return /* value */ $shapeZBool;}",
+      "caretOffset": 118,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Tab",
+      "visibleMs": 209,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Tab; function run(string $shapeAText,bool $shapeZBool):bool{return /* value */ $shapeZBool;}",
+      "caretOffset": 116,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Enter",
+      "visibleMs": 190,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "flag:flag: bool",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Enter; function inner(bool $flag):void{} function run(string $shapeAText,bool $shapeZBool){inner(/* value */ $shapeZBool);}",
+      "caretOffset": 146,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Tab",
+      "visibleMs": 160,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "flag:flag: bool",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Tab; function inner(bool $flag):void{} function run(string $shapeAText,bool $shapeZBool){inner(/* value */ $shapeZBool);}",
+      "caretOffset": 144,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Enter",
+      "visibleMs": 175,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Enter; function inner(bool $flag):void{} function run(string $shapeAText,bool $shapeZBool){inner(flag: /* value */ $shapeZBool);}",
+      "caretOffset": 152,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    },
+    {
+      "label": "$shapeZBool",
+      "key": "Tab",
+      "visibleMs": 119,
+      "visibleLabels": [
+        "$shapeZBool",
+        "falseCompatible value",
+        "trueCompatible value",
+        "$shapeAText"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Tab; function inner(bool $flag):void{} function run(string $shapeAText,bool $shapeZBool){inner(flag: /* value */ $shapeZBool);}",
+      "caretOffset": 150,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true,
+      "php85Lint": true
+    }
+  ],
+  "phpRuntime": "8.5.9",
+  "scope": "Isolated Linux host, explicit trigger; not real WSL or automatic-popup acceptance"
+}

@@ -17,6 +17,8 @@ export async function run(): Promise<void> {
   const initializerExpressions = process.env.PHP_COMPANION_TEST_INITIALIZER_EXPRESSION_ONLY === '1';
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
   const typeTails = process.env.PHP_COMPANION_TEST_TYPE_TAIL_ONLY === '1';
+  const blankComments = process.env.PHP_COMPANION_TEST_BLANK_COMMENT_ONLY === '1';
+  const shapeComments = process.env.PHP_COMPANION_TEST_SHAPE_COMMENT_ONLY === '1';
   const shapeValues = process.env.PHP_COMPANION_TEST_SHAPE_VALUE_ONLY === '1';
   const namedAttributeValues = process.env.PHP_COMPANION_TEST_NAMED_ATTRIBUTE_VALUE_ONLY === '1';
   const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = typeTails ? [
@@ -28,6 +30,24 @@ export async function run(): Promise<void> {
       marked:'<?php class Current {} class Other {} function choose():Other|Cur§ {return new Current;}'},
     {prefix:'Cur',label:'Current',forbidden:'',addCall:false,
       marked:'<?php class Current {} class Other {} class Host { public function __construct(public Other|Cur§ $value) {} }'},
+  ] : blankComments ? [
+    {prefix:'',label:'$shapeZBool',forbidden:'',addCall:false,
+      marked:"<?php /** @param array{enabled:bool} $config */ function send(array $config):void{} function run(string $shapeAText,bool $shapeZBool){send(['enabled'=> /* value */ §]);}"},
+    {prefix:'',label:'$shapeZBool',forbidden:'',addCall:false,
+      marked:"<?php function run(string $shapeAText,bool $shapeZBool):bool{return /* value */ §;}"},
+    {prefix:'',label:'$shapeZBool',forbidden:'',addCall:false,
+      marked:"<?php function inner(bool $flag):void{} function run(string $shapeAText,bool $shapeZBool){inner(/* value */ §);}"},
+    {prefix:'',label:'$shapeZBool',forbidden:'flag:',addCall:false,
+      marked:"<?php function inner(bool $flag):void{} function run(string $shapeAText,bool $shapeZBool){inner(flag: /* value */ §);}"},
+  ] : shapeComments ? [
+    {prefix:'shapePick',label:'shapePickZ',forbidden:'',addCall:true,
+      marked:"<?php function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled' /* key */ => /* value */ shapePick§]);"},
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:"<?php /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled' // key\n => tr§]);"},
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,
+      marked:"<?php /** @param array{nested:array{enabled:bool}} $config */ function send(array $config):void{} send(['nested' /* key */ => ['enabled' => /* value */ tr§]]);"},
+    {prefix:'PICK_',label:'PICK_Z_BOOL',forbidden:'',addCall:false,
+      marked:"<?php const PICK_A_TEXT='x', PICK_Z_BOOL=true; /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled' /* key */ => PICK_§]);"},
   ] : shapeValues ? [
     {prefix:'shapePick',label:'shapePickZ',forbidden:'',addCall:true,
       marked:"<?php function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick§]);"},
@@ -110,7 +130,7 @@ export async function run(): Promise<void> {
     let marked = item.marked.replace(/\b(Current|choose|Host|CALLBACK)\b/g, name => `${name}${suffix}`)
       .replaceAll('PICK_', `PICK${suffix}_`);
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
-    if (shapeValues) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
+    if (shapeValues || shapeComments || blankComments) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`);
@@ -142,6 +162,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }
