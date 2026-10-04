@@ -401,3 +401,7 @@ D44 候选收口补充：三版本默认值位置过滤 runtime 变量／非法�
 ## D61 导入前缀扫描与绝对编辑位置
 
 固定普通／分组类型、命名空间、函数与常量导入，前置分号、长注释、中文／emoji／CRLF、词中光标和别名名称撤回；分组替换起点必须保持绝对位置。参数默认字符串中的分号不截断原生参数类型上下文。完整语义 2034 项、PHP 7.2／8.5 导入及两项引用入口的定向协议、八次可见 Enter／Tab 接受和实际文本编译通过，见 [D61 记录](reports/completion-import-prefixes-2026-10-04.md)。同输入普通连续编辑各一次 100 轮 P95 286.50→251.71 ms，预算仍超 150 ms；当前源码完整 LSP、自动弹出／可见撤回和真人 WSL 仍待证，不能沿用上一产品输入的 870 项完整资格。
+
+## D62 自然键入的自动列表
+
+固定 func／function、clas／class、enu／enum 至 z 名称的可见撤回，pu 至 public function __con、Sh→Ot→Sh→Sho 的类型切换，以及 bool 调用改为 string 调用后的 $f 排序。普通逐字符 Workbench 输入，不预热 Provider 或 triggerSuggest；三个空列表各继续观察 500 ms。当前 Linux 1.140.0／PHP 8.5 的六流程／17 阶段通过，初次选择同步失败与修正保留，见 [D62 记录](reports/completion-automatic-input-2026-10-04.md)。指定 getItemsByProvider 异常零次不证明批量输入异常已修复；其它自动输入／延迟旧请求／平台及真人继续开放。new Sh 同时暴露 Shmop 的构造候选缺口，已记录实际 PHP 8.5.9 的直接 new 失败，下一源码项处理。

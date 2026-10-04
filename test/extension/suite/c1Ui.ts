@@ -68,6 +68,18 @@ export async function visibleCompletionLabels(port: number): Promise<string[]> {
   } finally { socket.close(); }
 }
 
+export async function visibleCompletionState(port: number): Promise<{ visible: boolean; labels: string[] }> {
+  const socket = await connect(await cdpPage(port));
+  try {
+    return await evaluate(socket, `(() => {
+      const widget = document.querySelector('.suggest-widget.visible');
+      const visible = Boolean(widget && widget.getBoundingClientRect().width > 0);
+      return { visible, labels: visible ? [...widget.querySelectorAll('.monaco-list-row')]
+        .map(row => row.textContent?.trim() ?? '').filter(Boolean) : [] };
+    })()`, 1) as { visible: boolean; labels: string[] };
+  } finally { socket.close(); }
+}
+
 async function pressWorkbenchKey(port: number, key: 'Tab' | 'Enter'): Promise<void> {
   const socket = await connect(await cdpPage(port));
   try {

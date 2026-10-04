@@ -1,0 +1,694 @@
+{
+  "createdAtUtc": "2026-10-04T15:12:24.803296+00:00",
+  "productCommit": "d8f16307",
+  "productUnchanged": true,
+  "productSha256": {
+    "dist/language-server.js": "312ca7a8ae44b1741760a6e244eca36a39b4fe91838668fd4e58d90d5e28bd23",
+    "dist/extension.js": "a01b90ba11fa1691a2c084dc85cbdb945694c1ff86f7ee58e7db223a940e8427",
+    "packages/semantic/src/index.ts": "c00d00634043afa0dd097892d8c10998567a7fa98cae1a9e0ca3a4de50009dc9",
+    "packages/language-server/src/server.ts": "8003f932f68ea9bc837234368731bdea46024e3dfbfdd3374424e7b5fa6e5d53"
+  },
+  "automatic": {
+    "proof": {
+      "platform": "linux",
+      "vscodeVersion": "1.140.0",
+      "context": "ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest",
+      "settings": {
+        "quickSuggestions": {
+          "other": "offWhenInlineCompletions",
+          "comments": "off",
+          "strings": "off"
+        },
+        "wordBasedSuggestions": "off",
+        "snippetSuggestions": "none",
+        "basicPhpSuggestions": false
+      },
+      "results": [
+        {
+          "name": "Function",
+          "observations": [
+            {
+              "phase": "func",
+              "afterLastKeyMs": 638,
+              "transitions": [
+                {
+                  "elapsedMs": 24,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 638,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "function",
+              "afterLastKeyMs": 13,
+              "transitions": [
+                {
+                  "elapsedMs": 12,
+                  "visible": true,
+                  "labels": [
+                    "function",
+                    "function blockPHP declaration or block"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "function",
+                "function blockPHP declaration or block"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 518,
+              "transitions": [
+                {
+                  "elapsedMs": 10,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nfunction z\n",
+          "version": 11,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Class",
+          "observations": [
+            {
+              "phase": "clas",
+              "afterLastKeyMs": 187,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 187,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "class",
+              "afterLastKeyMs": 20,
+              "transitions": [
+                {
+                  "elapsedMs": 20,
+                  "visible": true,
+                  "labels": [
+                    "class"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "class"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 517,
+              "transitions": [
+                {
+                  "elapsedMs": 14,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nclass z\n",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Enum",
+          "observations": [
+            {
+              "phase": "enu",
+              "afterLastKeyMs": 199,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 199,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "enum",
+              "afterLastKeyMs": 15,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": true,
+                  "labels": [
+                    "enum"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "enum"
+              ]
+            },
+            {
+              "phase": "declaration name",
+              "afterLastKeyMs": 544,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                }
+              ],
+              "visible": false,
+              "labels": []
+            }
+          ],
+          "text": "<?php\nenum z\n",
+          "version": 7,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Member",
+          "observations": [
+            {
+              "phase": "public",
+              "afterLastKeyMs": 190,
+              "transitions": [
+                {
+                  "elapsedMs": 19,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 190,
+                  "visible": true,
+                  "labels": [
+                    "public"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "public"
+              ]
+            },
+            {
+              "phase": "magic name",
+              "afterLastKeyMs": 185,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 185,
+                  "visible": true,
+                  "labels": [
+                    "__construct"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "__construct"
+              ]
+            }
+          ],
+          "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+          "version": 23,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Types",
+          "observations": [
+            {
+              "phase": "short type",
+              "afterLastKeyMs": 218,
+              "transitions": [
+                {
+                  "elapsedMs": 49,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 218,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "ShmopShmop",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "ShmopShmop",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "changed type",
+              "afterLastKeyMs": 229,
+              "transitions": [
+                {
+                  "elapsedMs": 13,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 229,
+                  "visible": true,
+                  "labels": [
+                    "OtherCurrentAutomaticTypes\\OtherCurrent",
+                    "OverrideTargetApp\\Service\\OverrideTarget"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "OtherCurrentAutomaticTypes\\OtherCurrent",
+                "OverrideTargetApp\\Service\\OverrideTarget"
+              ]
+            },
+            {
+              "phase": "restored type",
+              "afterLastKeyMs": 200,
+              "transitions": [
+                {
+                  "elapsedMs": 15,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 200,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "ShmopShmop",
+                    "SessionHandlerSessionHandler"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                "ShortCurrentAutomaticTypes\\ShortCurrent",
+                "ShmopShmop",
+                "SessionHandlerSessionHandler"
+              ]
+            },
+            {
+              "phase": "narrow type",
+              "afterLastKeyMs": 61,
+              "transitions": [
+                {
+                  "elapsedMs": 21,
+                  "visible": true,
+                  "labels": [
+                    "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                    "ShortCurrentAutomaticTypes\\ShortCurrent",
+                    "ShmopShmop",
+                    "SessionHandlerSessionHandler"
+                  ]
+                },
+                {
+                  "elapsedMs": 61,
+                  "visible": true,
+                  "labels": [
+                    "ShortCurrentAutomaticTypes\\ShortCurrent"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "ShortCurrentAutomaticTypes\\ShortCurrent"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+          "version": 8,
+          "diskUnchanged": true
+        },
+        {
+          "name": "Arguments",
+          "observations": [
+            {
+              "phase": "bool argument",
+              "afterLastKeyMs": 189,
+              "transitions": [
+                {
+                  "elapsedMs": 16,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 189,
+                  "visible": true,
+                  "labels": [
+                    "$firstBool$firstBool: bool",
+                    "$firstText",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstBool$firstBool: bool",
+                "$firstText",
+                "$_FILES"
+              ]
+            },
+            {
+              "phase": "string argument",
+              "afterLastKeyMs": 188,
+              "transitions": [
+                {
+                  "elapsedMs": 9,
+                  "visible": false,
+                  "labels": []
+                },
+                {
+                  "elapsedMs": 188,
+                  "visible": true,
+                  "labels": [
+                    "$firstText$firstText: string",
+                    "$firstBool",
+                    "$_FILES"
+                  ]
+                }
+              ],
+              "visible": true,
+              "labels": [
+                "$firstText$firstText: string",
+                "$firstBool",
+                "$_FILES"
+              ]
+            }
+          ],
+          "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+          "version": 13,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    "flowCount": 6,
+    "phaseCount": 17,
+    "log": "/tmp/sophp-d62-automatic-final.log",
+    "scope": "PHP 8.5 target, Linux 1.140.0, natural per-character input; no provider warmup or explicit triggerSuggest; three clear-list observations stable for 500 ms; not all languages/platforms or delayed responses"
+  },
+  "initialFailure": {
+    "log": "/tmp/sophp-d62-automatic-initial.log",
+    "exitCode": 1,
+    "phase": "Arguments replacing value after callee edit",
+    "actualTail": "needText$($f);",
+    "expectedTail": "needText($);",
+    "change": "Flush Extension Host selection using focusActiveEditorGroup before CDP input; no product change or manual completion request"
+  },
+  "legacyRunner": {
+    "proof": {
+      "platform": "linux",
+      "context": "comparison-conditions",
+      "results": [
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 314,
+          "visibleLabels": [
+            "InvoiceImportCatalog0Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog0Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog0Enter\\Invoice;",
+          "caretOffset": 192,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 174,
+          "visibleLabels": [
+            "InvoiceImportCatalog0Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog0Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog0Tab\\Invoice;",
+          "caretOffset": 188,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Enter",
+          "visibleMs": 165,
+          "visibleLabels": [
+            "InvoiceImportCatalog1Enter\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog1Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog1Enter\\{Invoice};",
+          "caretOffset": 194,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "Invoice",
+          "key": "Tab",
+          "visibleMs": 150,
+          "visibleLabels": [
+            "InvoiceImportCatalog1Tab\\Invoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog1Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog1Tab\\{Invoice};",
+          "caretOffset": 190,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "createInvoice",
+          "key": "Enter",
+          "visibleMs": 181,
+          "visibleLabels": [
+            "createInvoiceImportCatalog2Enter\\createInvoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog2Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog2Enter\\{Invoice, function createInvoice};",
+          "caretOffset": 218,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "createInvoice",
+          "key": "Tab",
+          "visibleMs": 207,
+          "visibleLabels": [
+            "createInvoiceImportCatalog2Tab\\createInvoice"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog2Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog2Tab\\{Invoice, function createInvoice};",
+          "caretOffset": 214,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "API_KEY",
+          "key": "Enter",
+          "visibleMs": 143,
+          "visibleLabels": [
+            "API_KEYImportCatalog3Enter\\API_KEY"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog3Enter; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog3Enter\\{function createInvoice, const API_KEY};",
+          "caretOffset": 224,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "API_KEY",
+          "key": "Tab",
+          "visibleMs": 142,
+          "visibleLabels": [
+            "API_KEYImportCatalog3Tab\\API_KEY"
+          ],
+          "acceptedText": "<?php namespace ImportCatalog3Tab; class Invoice {} function createInvoice():void{} const API_KEY=1; namespace Consumer; $text=\"literal;😀\"; /* 中文; trivia */\r\nuse ImportCatalog3Tab\\{function createInvoice, const API_KEY};",
+          "caretOffset": 220,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "log": "/tmp/sophp-d62-legacy-mode.log",
+    "resultCount": 8,
+    "scope": "Existing import acceptance mode using modified runner; compatibility only"
+  },
+  "checks": {
+    "typecheckExit": 0,
+    "lintExit": 0,
+    "logs": [
+      "/tmp/sophp-d62-typecheck-final.log",
+      "/tmp/sophp-d62-lint.log"
+    ],
+    "backendRepeated": false,
+    "reason": "No product code or production bundle changed"
+  },
+  "nativeConstructorAudit": {
+    "runtime": "8.5.9",
+    "reflection": [
+      {
+        "name": "Shmop",
+        "php": "8.5.9",
+        "instantiable": true,
+        "abstract": false,
+        "constructor": null
+      },
+      {
+        "name": "GdImage",
+        "php": "8.5.9",
+        "instantiable": true,
+        "abstract": false,
+        "constructor": null
+      },
+      {
+        "name": "CurlHandle",
+        "php": "8.5.9",
+        "instantiable": true,
+        "abstract": false,
+        "constructor": null
+      },
+      {
+        "name": "Closure",
+        "php": "8.5.9",
+        "instantiable": false,
+        "abstract": false,
+        "constructor": "private"
+      },
+      {
+        "name": "Generator",
+        "php": "8.5.9",
+        "instantiable": true,
+        "abstract": false,
+        "constructor": null
+      },
+      {
+        "name": "ArrayObject",
+        "php": "8.5.9",
+        "instantiable": true,
+        "abstract": false,
+        "constructor": "public"
+      }
+    ],
+    "directNew": [
+      {
+        "name": "Shmop",
+        "php": "8.5.9",
+        "constructed": false,
+        "error": "Cannot directly construct Shmop, use shmop_open() instead"
+      },
+      {
+        "name": "GdImage",
+        "php": "8.5.9",
+        "constructed": false,
+        "error": "You cannot initialize a GdImage object except through helper functions"
+      },
+      {
+        "name": "CurlHandle",
+        "php": "8.5.9",
+        "constructed": false,
+        "error": "Cannot directly construct CurlHandle, use curl_init() instead"
+      },
+      {
+        "name": "Closure",
+        "php": "8.5.9",
+        "constructed": false,
+        "error": "Instantiation of class Closure is not allowed"
+      },
+      {
+        "name": "Generator",
+        "php": "8.5.9",
+        "constructed": false,
+        "error": "The \"Generator\" class is reserved for internal use and cannot be manually instantiated"
+      },
+      {
+        "name": "ArrayObject",
+        "php": "8.5.9",
+        "constructed": true
+      }
+    ],
+    "scope": "Only owned constructor checks; no factory invocation, files, sockets, network or database use; not all actual PHP versions",
+    "sourceOfGap": "Shmop visible in new Sh type list; native direct-new error despite ReflectionClass isInstantiable true",
+    "status": "Unfixed next source task"
+  },
+  "remaining": [
+    "native opaque class new completion",
+    "automatic popup beyond these six flows",
+    "long sessions, all platforms/runtime versions and delayed stale requests",
+    "continuous-edit P95 <= 150 ms",
+    "real WSL acceptance"
+  ],
+  "delivery": {
+    "profile": false,
+    "vsix": false,
+    "push": false
+  }
+}
