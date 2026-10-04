@@ -6,7 +6,7 @@
 
 | 项目 | 当前事实 |
 | --- | --- |
-| 源码检查点 | 当前分支 `work/sophp-next`；`aae39a54` 收口 D78 并通过 [D79 完整 LSP](reports/core-aae39a54-full-regression-2026-10-05.md)；本轮 [D80 大候选排序](reports/completion-large-candidate-ranking-2026-10-05.md)与验证材料合为下一本地里程碑，当前 Profile 与源码分开验收 |
+| 源码检查点 | 当前分支 `work/sophp-next`；`aae39a54` 收口 D78 并通过 [D79 完整 LSP](reports/core-aae39a54-full-regression-2026-10-05.md)；`61b792cb` 收口 [D80 大候选排序](reports/completion-large-candidate-ranking-2026-10-05.md)；[D81 局部变量与构造类型](reports/completion-large-local-ranking-2026-10-05.md)及验证材料合为当前本地里程碑，当前 Profile 与源码分开验收 |
 | 当前源码增量 | [D57 属性赋值注释](reports/completion-assignment-comments-2026-10-04.md)、[D58 未闭合 callable 值](reports/completion-unclosed-callable-values-2026-10-04.md)、[D59 PHP/HTML 区块恢复](reports/completion-mixed-callable-recovery-2026-10-04.md)：保持当前作用域、最近契约及真实编辑范围；原长度和定界符预算不变 |
 | 当前优化增量 | [D61 导入前缀](reports/completion-import-prefixes-2026-10-04.md)：只缩短可证明不跨分号的导入正则片段，分组范围保持绝对位置，普通参数类型上下文不截断；此前 [D60 当前词／注释遮罩](reports/completion-trivia-editing-2026-10-04.md)继续保留 |
 | 当前自动化 | D69 前检查点完整 LSP 875 项、完整语义 2054 项通过，零跳过；D70 已修复服务器匹配列表的连续输入缓存，169 个相关命名用例分段覆盖、4 项／84 个新增状态及两模式各 12 条自然流程通过；详见 [D70 记录](reports/completion-progressive-matching-2026-10-05.md)。D71 完整组合为 869 通过／10 个旧数组读取失败，10 项适配复测已通过，此为分段记录；D72 [候选关闭保护](reports/completion-closed-candidate-snapshots-2026-10-05.md)已完成 80＋6 组交错、84 状态及两模式自然 UI，D73 的 D72 产品完整 LSP 60 文件／879 项已通过，输入保持；D74 [原生错误恢复](reports/completion-native-error-recovery-2026-10-05.md)改后完整语义 2054 项、解析器 105 项、定向 LSP／诊断 59 项及两模式可见 UI 通过。D75 [按需 Autowire 扫描](reports/completion-autowire-scan-cost-2026-10-05.md)完整框架 70 项、2 项选定综合 LSP、84 状态及两模式可见 UI 通过；D73 完整 LSP 不覆盖 D74／D75，其它自动输入、平台及真人仍开放 |
@@ -17,8 +17,9 @@
 | D54 自动化 | [注释字段补全](reports/completion-shape-comments-2026-10-04.md)：新增 34 项、当前完整语义 90 文件／1732 项、定向 PHP 7.2／8.5 stdio 42 次查询、隔离 Linux 八次可见首项／接受／UndoRedo 与 PHP 8.5.9 编译通过；构建／Lint 通过；真人 WSL 未验证 |
 | D55 自动化 | [尾部注释后的空值补全](reports/completion-blank-comments-2026-10-04.md)：新增 42 项、当前完整语义 91 文件／1774 项、PHP 7.2／8.5 stdio 50 次查询、隔离 Linux 八次可见首项／接受／UndoRedo 与 PHP 8.5.9 编译通过；构建／Lint 通过；保留首次服务器提前返回失败及修复证据 |
 | D56 自动化 | [未闭合数组字段](reports/completion-unclosed-shape-values-2026-10-04.md)：新增 54 项、当前完整语义 92 文件／1828 项、PHP 7.2／8.5 stdio 58 次查询、Linux 八次可见首项／接受／UndoRedo；构建／Lint 通过，保留原 callback 超时与可见 try 失败；新源码完整 LSP 和真人 WSL 仍未验收 |
-| 最近完整 LSP | [D79 aae39a54 完整组合](reports/core-aae39a54-full-regression-2026-10-05.md)：60 文件／888 项全部通过，零跳过；2990 输入与六 CLI 摘要保持，完整名称／数量一致，32 次跨进程引用通过。四组热 P95 15.08／19.00／77.45／89.24 ms；该资格绑定 `aae39a54`，不覆盖随后 D80 |
+| 最近完整 LSP | [D79 aae39a54 完整组合](reports/core-aae39a54-full-regression-2026-10-05.md)：60 文件／888 项全部通过，零跳过；2990 输入与六 CLI 摘要保持，完整名称／数量一致，32 次跨进程引用通过。四组热 P95 15.08／19.00／77.45／89.24 ms；该资格绑定 `aae39a54`，不覆盖随后 D80／D81 |
 | D80 自动化 | 当前完整语义 101 文件／2194 项通过；三类候选的数量断点修复新增 60 项，两版协议 48 查询、八次可见首位接受、16 次实际 CLI 编译通过；500 候选六组热 P95 10.15–30.24 ms。更大规模、连续编辑、当前完整 LSP和真人边界保留 |
+| D81 自动化 | 新增 52 项语义；首次完整 2245 通过／1 项超时，单文件 10 项复测及两个 Worker 的独立完整 102 文件／2246 项全部通过。新增两版 42 次协议，与 D80 合计 90 查询；八次可见接受及 16 次实际编译通过。500 参数／类型和 100 局部赋值十组热 P95 12.94–83.64 ms；排序后才截断前缀变量／构造类型输出，未知与作用域边界保持。完整当前 LSP、连续编辑、规模与真人继续开放 |
 | 前次完整 LSP D69 | [D69 当前完整组合](reports/core-current-full-regression-2026-10-05.md)：59 文件／875 项全部通过，零失败和跳过，1764.34 秒；2,986 输入及六实际运行时二进制摘要保持。四组固定文档热 P95 21.14／21.84／85.52／102.08 ms；普通连续编辑预算另列 |
 | 前次完整 LSP | [84f4000d 完整组合](reports/core-84f4-full-regression-2026-10-04.md)原会话 50307 退出 1：868 通过、两项属性赋值热查询 P95 失败，870 项、零跳过，2980 份输入终态一致。相同产品源码单独运行两项通过，102.34／106.54 ms；`db8596ee` 将性能文件安排在其它文件结束后，新完整组合原会话 32152 退出 0，58 文件／870 项全部通过、零跳过；属性赋值热 P95 108.31／114.37 ms，2980 份输入终态一致。产品输入未变，连续编辑门槛仍开放 |
 | 前一完整绿色 | [a3678016 组合回归](reports/core-a367-full-regression-2026-10-04.md)：58 文件／866 项通过、零跳过；2970 份输入终态一致。该资格绑定当时输入，不能证明后续增量或当前性能组合 |

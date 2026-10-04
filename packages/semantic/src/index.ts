@@ -5485,7 +5485,6 @@ export class SemanticWorkspace {
     const expected = this.expectedCandidateCompletionType(file, offset, offset);
     if (!expected) return undefined;
     const names = this.visibleVariableNames(file, scope, offset, false);
-    if (names.length > 64) return [];
     const relationContext = this.typeRelationContext();
     return names.map((name) => {
       const actual = this.completionVariableType(file, scope, name, offset);
@@ -5633,7 +5632,7 @@ export class SemanticWorkspace {
     const names = this.visibleVariableNames(file, scope, offset, true);
     const prefix = match[0].toLowerCase();
     const matching = names.filter((name) => completionMatchRank(name, prefix) !== undefined && (name !== match[0] || end !== offset));
-    const expected = matching.length <= 32 ? this.expectedCandidateCompletionType(file, start, offset) : undefined;
+    const expected = this.expectedCandidateCompletionType(file, start, offset);
     const relationContext = expected ? this.typeRelationContext() : undefined;
     const typeRanks = new Map<string, number>();
     if (expected) for (const name of matching) {
@@ -6111,7 +6110,7 @@ export class SemanticWorkspace {
         importFqcn: qualifiedNamespace !== undefined || visibleName || candidateNamespace === namespace ? undefined : candidate.fqcn });
     }
     const constructStart = constructKind === 'class' ? constructContext?.start : undefined;
-    const expected = constructStart !== undefined && results.length <= 64
+    const expected = constructStart !== undefined
       ? this.expectedCandidateCompletionType(file, constructStart, offset) : undefined;
     const relationContext = expected ? this.typeRelationContext() : undefined;
     const typeRanks = new Map<string, number>();
