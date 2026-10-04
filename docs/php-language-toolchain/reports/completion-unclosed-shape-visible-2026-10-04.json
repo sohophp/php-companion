@@ -1,0 +1,155 @@
+{
+  "platform": "linux",
+  "context": "unclosed-shape-values",
+  "results": [
+    {
+      "label": "shapePickZ",
+      "key": "Enter",
+      "visibleMs": 263,
+      "visibleLabels": [
+        "shapePickZShapeGate0Enter\\shapePickZ($value = null): bool",
+        "shapePickAShapeGate0Enter\\shapePickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Enter; function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePickZ()",
+      "caretOffset": 244,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "shapePickZ",
+      "key": "Tab",
+      "visibleMs": 180,
+      "visibleLabels": [
+        "shapePickZShapeGate0Tab\\shapePickZ($value = null): bool",
+        "shapePickAShapeGate0Tab\\shapePickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate0Tab; function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePickZ()",
+      "caretOffset": 242,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Enter",
+      "visibleMs": 175,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Enter; /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=> /* value */ true",
+      "caretOffset": 145,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "true",
+      "key": "Tab",
+      "visibleMs": 208,
+      "visibleLabels": [
+        "true",
+        "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+        "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+        "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+        "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+        "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+        "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+        "transliterator_list_idstransliterator_list_ids(): array|false",
+        "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+        "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+        "translatedLabelApp\\Controller\\translatedLabel(): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate1Tab; /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=> /* value */ true",
+      "caretOffset": 143,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": false,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "shapePickZ",
+      "key": "Enter",
+      "visibleMs": 194,
+      "visibleLabels": [
+        "shapePickZShapeGate2Enter\\shapePickZ($value = null): bool",
+        "shapePickAShapeGate2Enter\\shapePickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Enter; function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{nested:array{enabled:bool}} $config */ function send(array $config):void{} send(['nested'=>['enabled'=>shapePickZ()",
+      "caretOffset": 269,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "shapePickZ",
+      "key": "Tab",
+      "visibleMs": 198,
+      "visibleLabels": [
+        "shapePickZShapeGate2Tab\\shapePickZ($value = null): bool",
+        "shapePickAShapeGate2Tab\\shapePickA($value = null): string"
+      ],
+      "acceptedText": "<?php namespace ShapeGate2Tab; function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} /** @param array{nested:array{enabled:bool}} $config */ function send(array $config):void{} send(['nested'=>['enabled'=>shapePickZ()",
+      "caretOffset": 267,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "shapePickA",
+      "key": "Enter",
+      "visibleMs": 160,
+      "visibleLabels": [
+        "shapePickAShapeGate3Enter\\shapePickA($value = null): string",
+        "shapePickZShapeGate3Enter\\shapePickZ($value = null): bool"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Enter; function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} function inner(string $value):void{} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>inner(shapePickA()",
+      "caretOffset": 287,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    },
+    {
+      "label": "shapePickA",
+      "key": "Tab",
+      "visibleMs": 132,
+      "visibleLabels": [
+        "shapePickAShapeGate3Tab\\shapePickA($value = null): string",
+        "shapePickZShapeGate3Tab\\shapePickZ($value = null): bool"
+      ],
+      "acceptedText": "<?php namespace ShapeGate3Tab; function shapePickA($value=null):string{return 'x';} function shapePickZ($value=null):bool{return true;} function inner(string $value):void{} /** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>inner(shapePickA()",
+      "caretOffset": 285,
+      "exactText": true,
+      "caretMatched": true,
+      "addCall": true,
+      "undoRedo": true,
+      "diskUnchanged": true
+    }
+  ],
+  "scope": "Isolated Linux VS Code 1.140.0, explicit trigger; deliberately incomplete PHP source. Not real WSL, automatic-popup or PHP compilation acceptance."
+}

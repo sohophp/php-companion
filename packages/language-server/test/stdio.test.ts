@@ -2577,6 +2577,10 @@ function inspect(Sink $sink, ?Sink $optional): void {
       /** @param array{object:Contract} $config */ function build(array $config):void {} `;
     const rows = [
       { tail: "send(['enabled'=>shapePick§]);", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled'=>shapePick§", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled'=>tr§", label: 'true', other: '' },
+      { tail: "send(['nested'=>['enabled'=>shapePick§", label: 'shapePickZ', other: 'shapePickA' },
+      { tail: "send(['enabled'=>innerText(shapePick§", label: 'shapePickA', other: 'shapePickZ' },
       { tail: "send(['enabled'=>(shapePick§)]);", label: 'shapePickZ', other: 'shapePickA' },
       { tail: "send(['enabled' /* key */ => /* value */ shapePick§]);", label: 'shapePickZ', other: 'shapePickA' },
       { tail: "send(['nested' /* key */ => ['enabled' => /* value */ shapePick§]]);", label: 'shapePickZ', other: 'shapePickA' },

@@ -4964,7 +4964,7 @@ export class SemanticWorkspace {
     let completedTree: ReturnType<typeof this.parser.parseTree> | undefined;
     try {
       const tree = (retainedTree ?? temporaryTree)!;
-      const position = this.completionValuePosition(file, valueStart, offset, file.syntaxErrors.length ? undefined : tree);
+      let position = this.completionValuePosition(file, valueStart, offset, file.syntaxErrors.length ? undefined : tree);
       if (!position || position.comparisonCondition || position.declarationDefault || position.constantInitializer)
         return { insideArray: false };
       const initialValueStart = valueStart;
@@ -4983,10 +4983,26 @@ export class SemanticWorkspace {
         array = array.parent;
       }
       if (remaining <= 0) return { insideArray: true };
-      if (!array && unclosedQuote) {
-        completedTree = this.completedUnclosedArrayTree(file, offset, valueStart, unclosedQuote, (retainedTree ?? temporaryTree)!);
+      if (!array && (unclosedQuote || file.syntaxErrors.length)) {
+        completedTree = this.completedUnclosedArrayTree(file, offset, valueStart, unclosedQuote ?? '', (retainedTree ?? temporaryTree)!);
+        if (completedTree) {
+          position = this.completionValuePosition(file, initialValueStart, offset, completedTree);
+          if (!position || position.comparisonCondition || position.declarationDefault || position.constantInitializer)
+            return { insideArray: false };
+          valueStart = position.start;
+        }
         array = completedTree?.rootNode.namedDescendantForIndex(Math.max(0, offset - 1)) ?? null;
-        while (array && array.type !== 'array_creation_expression') array = array.parent;
+        remaining = 256;
+        while (array && array.type !== 'array_creation_expression' && remaining-- > 0) {
+          if (['arguments', 'compound_statement', 'anonymous_function', 'arrow_function',
+            'function_definition', 'method_declaration'].includes(array.type)) return { insideArray: false };
+          if (['member_access_expression', 'nullsafe_member_access_expression', 'member_call_expression',
+            'nullsafe_member_call_expression', 'scoped_call_expression', 'scoped_property_access_expression',
+            'class_constant_access_expression', 'object_creation_expression', 'function_call_expression'].includes(array.type))
+            valueStart = Math.min(valueStart, array.startIndex);
+          array = array.parent;
+        }
+        if (remaining <= 0) return { insideArray: true };
       }
       if (!array) return { insideArray: false };
       // At a missing value the CST can put the arrow in ERROR directly under
@@ -6327,7 +6343,7 @@ export class SemanticWorkspace {
       if ((retainedTree ?? temporaryTree)!.rootNode.hasError && kind !== 'expression'
         && this.initializerCompletionContext(uri, offset)) kind = 'expression';
       if (insideError && (!kind || kind === 'top-level')) {
-        const recovered = recoverPhpKeywordCompletionContext(file.source, start, retainedTree ?? temporaryTree);
+        const recovered = recoverPhpKeywordCompletionContext(file.source, this.completionTriviaEnd(file, start), retainedTree ?? temporaryTree);
         return recovered ? { prefix, start, ...recovered } : undefined;
       }
       return kind ? { prefix, start, kind, inCallable, ...(propertyHookKind ? { propertyHookKind } : {}), inLoop, inSwitch, inEnum } : undefined;
