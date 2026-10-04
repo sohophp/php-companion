@@ -1,5 +1,5 @@
 import { compositeTypeCompletionTail } from './completionTypeTail.js';
-import { commentMaskedSlice } from './completionTrivia.js';
+import { commentMaskedSlice, maskCompletionTrivia } from './completionTrivia.js';
 import { quotedCompletion, trailingQuotedOpening, quoteCompletionLiteral, quotedArrayKey } from './quotedCompletion.js';
 import { createIncrementalEdit, controlFlowAssignmentStarts, phpNamespaceScopes, type PreparedPhpDocument, type ParsedAssignment, type ParsedCall, type ParsedCallableDeclaration, type ParsedConstantDeclaration, type ParsedDeclaration, type ParsedImport, type ParsedMemberAccess, type ParsedParameter, type ParsedPropertyDeclaration, type ParsedReturnStatement, type ParsedScope, type ParsedTraitAdaptation, type ParsedTypeNarrowing, type ParsedTypeReference, type ParsedVariableReference, type PhpSyntaxParser, type RawName, type SourceRange } from '@php-companion/parser';
 import { DocumentDependencyGraph, DocumentKeyIndex, type DependencyNode } from '@php-companion/index';
@@ -5075,7 +5075,7 @@ export class SemanticWorkspace {
     const unclosedQuoted = quoted && !quoted.closed ? quoted : undefined;
     if (quoted ? !this.isPhpCodeContext(uri, offset)
       : this.isNonCodeExpressionPosition(uri, file, offset) || this.isMemberCompletionContext(uri, offset)) return [];
-    const word = quoted?.word ?? /([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u.exec(file.source.slice(0, offset))?.[1] ?? '';
+    const word = quoted?.word ?? completionIdentifierPrefix(file.source, offset);
     const start = quoted?.start ?? offset - word.length;
     const before = file.source.slice(Math.max(0, start - 1), start);
     if (!quoted && before && !/[\s(,=:?]/u.test(before) && file.source.slice(start - 2, start) !== '=>') return [];
@@ -5706,7 +5706,7 @@ export class SemanticWorkspace {
     if (cached !== undefined) return cached;
     let start = 0; const parts: string[] = [];
     for (const range of [...file.commentRanges].sort((left, right) => left.start - right.start)) {
-      parts.push(file.source.slice(start, range.start), file.source.slice(range.start, range.end).replace(/[^\r\n]/g, ' '));
+      parts.push(file.source.slice(start, range.start), maskCompletionTrivia(file.source.slice(range.start, range.end)));
       start = range.end;
     }
     parts.push(file.source.slice(start));

@@ -1,0 +1,252 @@
+{
+  "baseCommit": "ea92790c",
+  "sourceBytes": 241283,
+  "sourceSha256": "6822eac6c769a7b97bc577e1eb8c6a8b637a4eeffe00683bed0d2a13d9f6e071",
+  "scope": "one serial 100-round ordinary run before and after on identical input, no profiler or explicit GC; completion response includes queued didChange server work, excludes client serialization and UI",
+  "budgetMs": 150,
+  "budgetPassed": false,
+  "before": {
+    "root": "/tmp/sophp-d60-edit-zhkbhm5f",
+    "file": "/tmp/sophp-d60-edit-zhkbhm5f/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 350.61,
+    "all": {
+      "p50Ms": 251.2,
+      "p95Ms": 301.44,
+      "maxMs": 447.29
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 247.16,
+      "p95Ms": 301.44,
+      "maxMs": 350.61,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 251.6,
+      "p95Ms": 302.99,
+      "maxMs": 447.29,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "after": {
+    "root": "/tmp/sophp-d60-edit-zhkbhm5f",
+    "file": "/tmp/sophp-d60-edit-zhkbhm5f/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 376.55,
+    "all": {
+      "p50Ms": 210.2,
+      "p95Ms": 284.86,
+      "maxMs": 418.36
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 210.2,
+      "p95Ms": 284.86,
+      "maxMs": 376.55,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 209.08,
+      "p95Ms": 285.41,
+      "maxMs": 418.36,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  },
+  "currentInputSha256": {
+    "packages/semantic/src/completionTrivia.ts": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196",
+    "packages/semantic/src/index.ts": "333afa790b396303de91427a236642a71126226f03b679c4142a5782a66d102a",
+    "packages/semantic/test/completion-trivia-offsets.test.ts": "8ce19f96266be52ab8347d0f436114256e14587a2c393e730e8b95108e0abdc7",
+    "dist/language-server.js": "e0d80d70bf8484bfc42f519bf8b59f150fb5881f0412be108198407bf5c06d40",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "profiler": {
+    "profile": "/tmp/sophp-d60-current-cpu/CPU.20261004.210015.1604479.0.001.cpuprofile",
+    "totalSampleMs": 28069.642,
+    "topSelf": [
+      {
+        "name": "",
+        "selfMs": 4213.31,
+        "inclusiveMs": 24527.19
+      },
+      {
+        "name": "(garbage collector)",
+        "selfMs": 1546.55,
+        "inclusiveMs": 1546.55
+      },
+      {
+        "name": "wasm-function[37]",
+        "selfMs": 1337.78,
+        "inclusiveMs": 1337.78
+      },
+      {
+        "name": "pE",
+        "selfMs": 1158.92,
+        "inclusiveMs": 1403.7
+      },
+      {
+        "name": "completionTriviaSource",
+        "selfMs": 1140.93,
+        "inclusiveMs": 1393.11
+      },
+      {
+        "name": "get type",
+        "selfMs": 1128.83,
+        "inclusiveMs": 2841.18
+      },
+      {
+        "name": "RegExp: ([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+        "selfMs": 1076.76,
+        "inclusiveMs": 1076.76
+      },
+      {
+        "name": "setValue",
+        "selfMs": 1027.52,
+        "inclusiveMs": 1027.52
+      },
+      {
+        "name": "wasm-function[224]",
+        "selfMs": 845.87,
+        "inclusiveMs": 1000.7
+      },
+      {
+        "name": "ma",
+        "selfMs": 690.1,
+        "inclusiveMs": 3694.76
+      },
+      {
+        "name": "$4",
+        "selfMs": 667.32,
+        "inclusiveMs": 669.8
+      },
+      {
+        "name": "wasm-function[70]",
+        "selfMs": 626.37,
+        "inclusiveMs": 1378.76
+      },
+      {
+        "name": "wasm-function[192]",
+        "selfMs": 532.0,
+        "inclusiveMs": 2755.92
+      },
+      {
+        "name": "RegExp: [^\\r\\n]",
+        "selfMs": 492.21,
+        "inclusiveMs": 492.21
+      },
+      {
+        "name": "RegExp: (?:^|[;\\n]|<\\?php\\s+|\\bnamespace(?:\\s+[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)?\\s*\\{)\\s*use\\s+(?!function\\b|const\\b)((?:\\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*\\\\)+)([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+        "selfMs": 485.89,
+        "inclusiveMs": 485.89
+      },
+      {
+        "name": "xt",
+        "selfMs": 470.03,
+        "inclusiveMs": 1403.97
+      },
+      {
+        "name": "RegExp: \\bclone\\s*\\(",
+        "selfMs": 457.94,
+        "inclusiveMs": 457.94
+      },
+      {
+        "name": "wasm-function[71]",
+        "selfMs": 452.88,
+        "inclusiveMs": 1003.54
+      },
+      {
+        "name": "RegExp: (?:^|[;\\n]|<\\?php\\s+|\\bnamespace(?:\\s+[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)?\\s*\\{)\\s*use\\s+(?!function\\b|const\\b)((?:\\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*\\\\)+)\\{([^{};]*)$",
+        "selfMs": 419.62,
+        "inclusiveMs": 419.62
+      },
+      {
+        "name": "parseDocument",
+        "selfMs": 340.27,
+        "inclusiveMs": 4344.04
+      },
+      {
+        "name": "wasm-function[24]",
+        "selfMs": 313.62,
+        "inclusiveMs": 313.62
+      },
+      {
+        "name": "RegExp: ((?:\\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*\\\\)+)([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+        "selfMs": 296.35,
+        "inclusiveMs": 296.35
+      },
+      {
+        "name": "get namedChildren",
+        "selfMs": 295.92,
+        "inclusiveMs": 6927.7
+      },
+      {
+        "name": "getValue",
+        "selfMs": 292.48,
+        "inclusiveMs": 292.48
+      },
+      {
+        "name": "RegExp: (?:^|[;\\n]|<\\?php\\s+|\\bnamespace(?:\\s+[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)?\\s*\\{)\\s*use\\s+(function|const)\\s+([\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)?$",
+        "selfMs": 255.83,
+        "inclusiveMs": 255.83
+      }
+    ],
+    "identifierRegexCallers": {
+      "completeExpectedValues": 1076.7559999999999
+    }
+  },
+  "profilerMeasurement": {
+    "root": "/tmp/sophp-d60-edit-zhkbhm5f",
+    "file": "/tmp/sophp-d60-edit-zhkbhm5f/src/Editing.php",
+    "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+    "rounds": 100,
+    "expectFirst": true,
+    "expectEmptyForDash": false,
+    "sharedCandidates": true,
+    "resolveDetails": false,
+    "firstMs": 244.97,
+    "all": {
+      "p50Ms": 245.14,
+      "p95Ms": 315.27,
+      "maxMs": 582.77
+    },
+    "a": {
+      "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickZ",
+      "p50Ms": 249.16,
+      "p95Ms": 315.27,
+      "maxMs": 358.09,
+      "incomplete": 0
+    },
+    "b": {
+      "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]);",
+      "expected": "shapePickA",
+      "p50Ms": 238.25,
+      "p95Ms": 330.01,
+      "maxMs": 582.77,
+      "incomplete": 0
+    },
+    "readOnly": true,
+    "diskUnchanged": true
+  }
+}

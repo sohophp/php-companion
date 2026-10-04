@@ -1,3 +1,8 @@
+/** Preserve UTF-16 offsets and line endings without one replacement per character. */
+export function maskCompletionTrivia(source: string): string {
+  return source.replace(/[^\r\n]+/g, part => ' '.repeat(part.length));
+}
+
 /** Preserve source offsets while masking only parser-confirmed comments in a slice. */
 export function commentMaskedSlice(source: string, start: number, end: number,
   comments: readonly { start: number; end: number }[]): string {
@@ -8,7 +13,7 @@ export function commentMaskedSlice(source: string, start: number, end: number,
   for (const range of ranges) {
     const from = Math.max(cursor, range.start), to = Math.min(end, range.end);
     if (to <= from) continue;
-    parts.push(source.slice(cursor, from), source.slice(from, to).replace(/[^\r\n]/g, ' '));
+    parts.push(source.slice(cursor, from), maskCompletionTrivia(source.slice(from, to)));
     cursor = to;
   }
   parts.push(source.slice(cursor, end));
