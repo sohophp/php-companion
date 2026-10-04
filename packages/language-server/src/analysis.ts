@@ -637,7 +637,7 @@ function invalidNativeTypeDeclarations(root: ReturnType<PhpSyntaxParser['parse']
 
 export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxParser, targetVersion: SupportedPhpVersion = '8.5', expectedNamespace?: string,
   terminatingCalls: SourceRange[] = [], language: DiagnosticLanguage = 'en'): PhpDocumentAnalysis {
-  const parsed = parser.parse(document.getText());
+  const parsed = parser.parse(document.getText(), undefined, document.uri);
   try {
     const source = document.getText();
     const grammarGaps = newestSyntaxGrammarGapRanges(source, parser, parsed.tree.rootNode, parsed.errors);

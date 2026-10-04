@@ -3685,16 +3685,20 @@ function isWithinConstantExpression(node: SyntaxNodeLike): boolean {
 export function invalidConstantExpressionCallables(root: SyntaxNodeLike): InvalidConstantExpressionCallable[] {
   const output: InvalidConstantExpressionCallable[] = [];
   const visit = (node: SyntaxNodeLike): void => {
-    if (isWithinConstantExpression(node)) {
-      if (node.type === 'arrow_function') output.push({ reason: 'arrow', start: node.startIndex, end: node.endIndex });
-      if (node.type === 'anonymous_function') {
+    const type = node.type;
+    // Only callable expressions need an ancestry check. Walking parents for
+    // every constant name, comment and literal dominates large declarations.
+    if ((type === 'arrow_function' || type === 'anonymous_function' || type === 'variadic_placeholder')
+      && isWithinConstantExpression(node)) {
+      if (type === 'arrow_function') output.push({ reason: 'arrow', start: node.startIndex, end: node.endIndex });
+      if (type === 'anonymous_function') {
         if (!node.namedChildren.some((child) => child.type === 'static_modifier')) {
           output.push({ reason: 'non-static', start: node.startIndex, end: node.endIndex });
         } else if (node.namedChildren.some((child) => child.type === 'anonymous_function_use_clause')) {
           output.push({ reason: 'capture', start: node.startIndex, end: node.endIndex });
         }
       }
-      if (node.type === 'variadic_placeholder') {
+      if (type === 'variadic_placeholder') {
         const call = node.parent?.type === 'arguments' ? node.parent.parent : undefined;
         const callable = call && (call.type === 'function_call_expression'
           ? syntaxField(call, 'function') ?? syntaxField(call, 'name') ?? call.namedChildren[0]

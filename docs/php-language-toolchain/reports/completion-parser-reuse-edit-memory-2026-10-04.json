@@ -1,0 +1,89 @@
+{
+  "root": "/tmp/sophp-parser-reuse-memory-n3_7z9c7",
+  "file": "/tmp/sophp-parser-reuse-memory-n3_7z9c7/src/Editing.php",
+  "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+  "rounds": 300,
+  "expectFirst": true,
+  "expectEmptyForDash": false,
+  "sharedCandidates": false,
+  "resolveDetails": false,
+  "firstMs": 206.19,
+  "all": {
+    "p50Ms": 279.83,
+    "p95Ms": 338.97,
+    "maxMs": 641.18
+  },
+  "a": {
+    "fragment": "public static function __ca{{cursor}}($name,$args){} }",
+    "expected": "__callStatic",
+    "p50Ms": 281.25,
+    "p95Ms": 340.17,
+    "maxMs": 379.85,
+    "incomplete": 0
+  },
+  "b": {
+    "fragment": "private function __con{{cursor}}(){} }",
+    "expected": "__construct",
+    "p50Ms": 278.89,
+    "p95Ms": 338.97,
+    "maxMs": 641.18,
+    "incomplete": 0
+  },
+  "memory": {
+    "collectedGc": true,
+    "metric": "Node memory after explicit GC",
+    "samples": [
+      {
+        "round": 1,
+        "rssMiB": 244.13,
+        "heapUsedMiB": 34.3,
+        "externalMiB": 34.92,
+        "arrayBuffersMiB": 0.02
+      },
+      {
+        "round": 50,
+        "rssMiB": 285.77,
+        "heapUsedMiB": 31.08,
+        "externalMiB": 34,
+        "arrayBuffersMiB": 0.02
+      },
+      {
+        "round": 100,
+        "rssMiB": 288.22,
+        "heapUsedMiB": 31.23,
+        "externalMiB": 34,
+        "arrayBuffersMiB": 0.02
+      },
+      {
+        "round": 150,
+        "rssMiB": 279.71,
+        "heapUsedMiB": 31.31,
+        "externalMiB": 33.99,
+        "arrayBuffersMiB": 0.02
+      },
+      {
+        "round": 200,
+        "rssMiB": 285.26,
+        "heapUsedMiB": 31.45,
+        "externalMiB": 33.99,
+        "arrayBuffersMiB": 0.02
+      },
+      {
+        "round": 250,
+        "rssMiB": 281.6,
+        "heapUsedMiB": 31.5,
+        "externalMiB": 33.99,
+        "arrayBuffersMiB": 0.02
+      },
+      {
+        "round": 300,
+        "rssMiB": 285.38,
+        "heapUsedMiB": 31.51,
+        "externalMiB": 34,
+        "arrayBuffersMiB": 0.02
+      }
+    ]
+  },
+  "readOnly": true,
+  "diskUnchanged": true
+}

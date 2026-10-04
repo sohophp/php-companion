@@ -58,3 +58,31 @@ PHP 实际加载和独立原型历史见[审计](completion-magic-static-audit-2
 GC 后 heapUsed 第 1／100／300 轮为 39.60／30.34／30.62 MiB，第 100–300 轮增加 0.28 MiB；external 约 34 MiB、arrayBuffers 约 0.02 MiB。RSS 从 228.89 MiB 增至 311.16 MiB，不能把该数字隐去或直接当成保留对象泄漏。这是单文档 300 轮短时证明，不关闭两小时、多文档、全部缓存或平台的内存验收。
 
 连续编辑后立即请求补全的全链路 P95 为 383.56 ms，包含源码解析／语义更新；即使候选断言通过和堆增长趋缓，也不能称该路径满足 150 ms。GC 会改变运行状态，此数字用于定位剩余编辑成本，不替代普通运行性能门禁。下一项核对该注释密集文档的更新成本；不改写上文已有同一文档未修改时的热查询改善。
+
+### 更新成本采样与常量表达式诊断
+
+后续沿用同一夹具，100 轮 CPU 采样（无显式 GC）确认：publishDocumentDiagnostics／analyzePhpDocument 的解析及语法检查占主要调用链，semantic update 也有独立成本；候选并非主要等待来源。`/tmp/sophp-magic-update-profile.json` 的 P95 为 376.19 ms，带 profiler，不作为普通运行基线。当前诊断已经有 25 ms 合并窗口，本次不通过延迟或删除诊断来获取更好的测量数字。
+
+明确发现 invalidConstantExpressionCallables 在每个常量名、注释和字面量上追溯父节点，而只有 arrow_function、anonymous_function 和 variadic_placeholder 能产生该类诊断。现先判断节点类别再检查 ancestry，所有子节点仍遍历，原 callable 限制、范围及诊断内容保留。单独对同一真实语法树的 20 热样本测量，检查器 P95 从 50.02 ms 降为 10.13 ms（`/tmp/sophp-constant-callable-walk-before.json`、`/tmp/sophp-constant-callable-walk-after.json`）；这是局部检查成本，不是整个补全链路。
+
+当前普通运行 100 轮 P95 为 341.63 ms，P50 276.89 ms；每轮首位候选、旧候选缺席及磁盘不变通过，不完整列表为零，见 `/tmp/sophp-magic-update-plain-after.json`。仍未达到 150 ms，不能与上轮显式 GC 或 profiler 数字混用以声称严格同比改善。语言规格 15 文件／249 项、实际文档分析 47 项通过，包含 PHP 8.5 常量表达式 callable 正反例；构建、根 TypeScript 和定向 ESLint 通过。之前完整 LSP 837 项属于 863c74c 输入，未用它冒称本次增量后的完整验收。
+
+当前 bundle 的 `/tmp/sophp-constant-callable-host.log` 隔离 VS Code 宿主退出 0：注释密集文档重复查询、未保存 static 修改、Undo 和精确候选／编辑继续通过，磁盘不变。没有可见弹窗等待、真实 WSL 或完整长期使用声明。临时项目已移除，原始测量与 CPU profile 保留；本增量未提交、不更新 Profile。
+
+### 同一文档解析结果复用
+
+语义更新和诊断先后消费相同源码时，后者原来再次提取完整解析事实。解析器现在最多保留一个带文档身份的结果，仅在 URI 与源码完全一致、且未传入增量语法树时复用。事实深复制、语法树独立复制；调用方修改事实、编辑或释放树不会改变其它调用方结果。替换缓存及 dispose 会释放缓存自己的树；错误恢复树的标记保留。诊断传入文档 URI，避免匿名类身份跨文档混用。
+
+普通、无 profiler／显式 GC 的同类 1500 注释输入，100 轮交替编辑后立即补全 P95 300.80 ms、P50 247.63 ms（`/tmp/sophp-parser-reuse-edit.json`）；上一版同类普通测量为 341.63／276.89 ms。这是本地样本观察，仍超 150 ms，不宣称完整性能门禁通过。首位 __callStatic／__construct、旧候选缺席、不完整列表为零及磁盘不变均通过；临时 Composer 项目已移除。
+
+解析器 3 文件／103 项通过，包括事实修改、树释放、增量编辑、旧源码恢复、legacy 恢复树和不同 URI 的匿名类隔离；语义全量 79 文件／1366 项、实际诊断 47 项、定向声明／枚举／魔术方法协议 3 文件／8 项通过。根 TypeScript、定向 ESLint 通过。日志保留为 `/tmp/sophp-parser-reuse-{tests-final,semantic,analysis,protocol,typecheck,lint}.log`。先前完整 LSP 837 项仍属于 863c74c 输入，未冒称本增量完整验收。
+
+同一输入另做 300 轮显式 GC 内存检查，每轮候选／排序／撤回及磁盘不变通过。GC 后堆第 100／300 轮为 31.23／31.51 MiB，后 200 轮增量 0.28 MiB；external 约 34 MiB，arrayBuffers 0.02 MiB，RSS 第 1／300 轮为 244.13／285.38 MiB。这只覆盖单文档交替编辑的有界样本，不证明长期使用无泄漏。该 GC 运行的 P95 338.97 ms 不混入普通性能样本，仍超 150 ms。[原始 JSON](completion-parser-reuse-edit-memory-2026-10-04.json)保留全部采样；临时项目已移除。
+
+当前 bundle 的隔离 VS Code 宿主 `/tmp/sophp-parser-reuse-host.log` 退出 0：注释密集文档重复查询、未保存 static 修改、Undo 及精确当前候选通过；没有将 Provider 自动化冒称可见列表等待或真人 WSL 验收。开始当前增量的默认完整 LSP 回归，日志 `/tmp/sophp-parser-reuse-full-lsp.log`；结束前不记为通过、不提交此增量、不更新 Profile。
+
+完整回归输入纠正：首轮 `/tmp/sophp-parser-reuse-full-lsp.log` 在约五分钟时主动 SIGINT 停止（Vitest 130，命令包装退出 1），未获完整终态，不计为通过。部分用例启动 packages/language-server/dist/server.js，而其 analysis.js 原来仍是 11:06 的旧构建、没有 document.uri 参数；根 bundle 与此前魔术方法协议／宿主对应当前源码，但不足以证明包内入口。已执行 language-server build 并检查编译入口现包含 document.uri，构建日志 `/tmp/sophp-parser-reuse-server-build.log`。纠正构建输入后另开完整回归，保留首轮日志，不覆盖或将首轮冒称当前验收。
+
+重建后默认完整 LSP 原进程结束：56 文件、837 通过、1 条件跳过、零失败，退出 0，1596.52 秒；日志 `/tmp/sophp-parser-reuse-full-built-lsp.log`。结束时逐字核对 `/tmp/sophp-parser-reuse-full-built-inputs.json` 中 1727 项源码／测试／构建输入，变化为零。没有放宽原断言或 150 ms 热查询门槛；默认摘要不输出各项 P95，不能用普通编辑的 300.80 ms 或局部热样本代替它。唯一跨进程引用 bundle 条件项开始另用当前 bundle 补验，结束前不改默认 1 跳过的事实。
+
+当前 bundle 的跨进程引用条件项补验退出 0：1 个目标用例通过，498 个其它用例由 -t 筛选而未运行，84.59 秒；日志 `/tmp/sophp-parser-reuse-reference-bundle.log`。不改写默认完整回归的 1 条件跳过。解析复用与常量表达式检查、相关测试和原始内存 JSON 作为本地源码里程碑收口，提交标题 `perf(core): reuse document parses and bound constant checks`；本节此前“未提交”是当批状态。保留首次未重建包内入口的停止日志和超预算输入数据，没有打包、推送、更新 Profile 或关闭真人 WSL 验收。

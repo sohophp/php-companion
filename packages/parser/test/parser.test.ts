@@ -6,6 +6,51 @@ describe('@php-companion/parser', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('keeps repeated document parses independent through mutation, deletion and edits', () => {
+    const uri = 'file:///Cached.php'; const source = '<?php class C { public function value(): int { return 1; } }';
+    const first = parser.parse(source, undefined, uri);
+    first.declarations[0]!.name = 'ChangedByCaller'; first.tree.delete();
+    const second = parser.parse(source, undefined, uri);
+    try {
+      expect(second.declarations[0]!.name).toBe('C'); expect(second.tree.rootNode.text).toBe(source);
+      const next = source.replace('return 1;', 'return 2;');
+      second.tree.edit(createIncrementalEdit(source, next));
+      const edited = parser.parse(next, second.tree, uri);
+      edited.tree.delete();
+      const repeat = parser.parse(next, undefined, uri);
+      try { expect(repeat.tree.rootNode.text).toBe(next); expect(repeat.errors).toEqual([]); }
+      finally { repeat.tree.delete(); }
+      const original = parser.parse(source, undefined, uri);
+      try { expect(original.tree.rootNode.text).toBe(source); expect(original.declarations[0]!.name).toBe('C'); }
+      finally { original.tree.delete(); }
+    } finally { second.tree.delete(); }
+  });
+
+  it('preserves recovered-tree ownership when repeated legacy documents are edited', () => {
+    const uri = 'file:///LegacyCached.php'; const source = '<?php class mixed {}';
+    const first = parser.parse(source, undefined, uri); first.tree.delete();
+    const repeat = parser.parse(source, undefined, uri);
+    const next = '<?php class never {}';
+    try {
+      repeat.tree.edit(createIncrementalEdit(source, next));
+      const edited = parser.parse(next, repeat.tree, uri);
+      try { expect(edited.declarations[0]!.name).toBe('never'); }
+      finally { edited.tree.delete(); }
+    } finally { repeat.tree.delete(); }
+  });
+
+  it('keeps anonymous identities separate across repeated documents', () => {
+    const source = '<?php $value = new class { public function run() {} };';
+    for (const uri of ['file:///First.php', 'file:///Second.php', 'file:///Second.php', 'file:///First.php']) {
+      const parsed = parser.parse(source, undefined, uri);
+      try {
+        const declaration = parsed.declarations.find((item) => item.anonymous)!;
+        expect(declaration.fqcn).toContain(encodeURIComponent(uri));
+        expect(parsed.callables[0]!.containerFqcn).toBe(declaration.fqcn);
+      } finally { parsed.tree.delete(); }
+    }
+  });
+
   it('reports an anonymous missing delimiter before later PHP tokens', () => {
     const source = '<?php function syntaxProbe(: void {}';
     const parsed = parser.parse(source);

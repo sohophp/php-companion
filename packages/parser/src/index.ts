@@ -480,6 +480,9 @@ const LEGACY_CLASS_ERROR = new RegExp(`^(?:(?:final|abstract)${LEGACY_CLASS_TRIV
 
 export class PhpSyntaxParser {
   private readonly recoveredSyntaxTrees = new WeakSet<Tree>();
+  // Semantic updates and diagnostics can consume the same document in succession.
+  // Keep one independently owned result; callers may enrich facts or edit/delete trees.
+  private lastDocument?: { source: string; identity: string; facts: Omit<ParsedPhpDocument, 'tree'>; tree: Tree };
   private constructor(private readonly parser: Parser) {}
 
   static async create(paths: PhpParserPaths): Promise<PhpSyntaxParser> {
@@ -534,7 +537,21 @@ export class PhpSyntaxParser {
   }
 
   parse(source: string, oldTree?: Tree, documentIdentity = ''): ParsedPhpDocument {
-    return this.parseDocument(source, oldTree, documentIdentity);
+    const cached = this.lastDocument;
+    if (!oldTree && documentIdentity && cached?.source === source && cached.identity === documentIdentity) {
+      const tree = cached.tree.copy();
+      if (this.recoveredSyntaxTrees.has(cached.tree)) this.recoveredSyntaxTrees.add(tree);
+      return { ...structuredClone(cached.facts), tree };
+    }
+    const parsed = this.parseDocument(source, oldTree, documentIdentity);
+    if (documentIdentity) {
+      const { tree, ...facts } = parsed;
+      const copy = tree.copy();
+      if (this.recoveredSyntaxTrees.has(tree)) this.recoveredSyntaxTrees.add(copy);
+      this.lastDocument?.tree.delete();
+      this.lastDocument = { source, identity: documentIdentity, facts: structuredClone(facts), tree: copy };
+    }
+    return parsed;
   }
 
   /** Extract declarations throughout the tree, including declarations nested inside bodies. */
@@ -1806,6 +1823,8 @@ export class PhpSyntaxParser {
   }
 
   dispose(): void {
+    this.lastDocument?.tree.delete();
+    this.lastDocument = undefined;
     this.parser.delete();
   }
 }
