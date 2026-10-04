@@ -204,6 +204,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
             catch { action.edit = undefined; action.disabled = { reason: t('extractCancelled') }; continue; }
           }
           const protocolData = (action as vscode.CodeAction & { data?: { phpCompanion?: { phpVersion?: unknown;
+            generation?: { classFqcn: string; sourcesHash: string };
             interfaceExtraction?: { position: { line: number; character: number }; planHash: string } } } }).data?.phpCompanion;
           const protocolVersion = protocolData?.phpVersion;
           const edit = action.edit;
@@ -212,6 +213,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
             arguments: [{ edit, title: action.title, sourceUri: document.uri, sourceVersion, sourceText,
               sourceDiskHash, targetHashes: rewriteSnapshots, sourceVersionSetting, sourceExecutableSetting,
               interfaceExtraction: protocolData?.interfaceExtraction,
+              generation: protocolData?.generation,
               sourcePhpVersion: typeof protocolVersion === 'string' ? protocolVersion : sourcePhpVersion }] };
         }
         return actions;

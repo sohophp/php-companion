@@ -106,8 +106,9 @@ async function main(): Promise<void> {
     || process.env.PHP_COMPANION_TEST_CORE_ONLY === '1';
   const c1PhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const c1ValidatePhp = c1Only ? process.env.PHP_COMPANION_TEST_C1_VALIDATE_PHP : undefined;
-  const c1DebugPort = c1Only || routeStatusOnly
-    ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' || routeStatusOnly ? String(await availableDebugPort()) : undefined)
+  const protectedFamilyOnly = c2Only && process.env.PHP_COMPANION_TEST_C2_PROTECTED_FAMILY_ONLY === '1';
+  const c1DebugPort = c1Only || routeStatusOnly || protectedFamilyOnly
+    ? process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT ?? (process.env.PHP_COMPANION_TEST_C1_UI === '1' || routeStatusOnly || protectedFamilyOnly ? String(await availableDebugPort()) : undefined)
     : undefined;
   if (c1Only && process.env.PHP_COMPANION_TEST_C1_UI === '1') {
     const bulk = join(fixture, 'vendor', 'acme', 'c1-library', 'src', 'Bulk');

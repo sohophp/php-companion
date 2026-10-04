@@ -295,6 +295,21 @@ async function verifyDefaultGeneration(serviceDirectory: vscode.Uri): Promise<vo
     }
 
     if (item.relation) {
+      const competing = vscode.Uri.joinPath(serviceDirectory, 'C3GenerationCompetingDeclaration.php');
+      try {
+        assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {
+          testPreviewAction: async () => 'apply',
+          testBeforeApply: async () => {
+            await vscode.workspace.fs.writeFile(competing, Buffer.from(item.relation.includes('implements')
+              ? '<?php namespace App\\Service; interface C3GenerationContractBridge {}'
+              : '<?php namespace App\\Service; abstract class C3GenerationBaseBridge {}'));
+          },
+        }), false, 'A generation action accepted a new competing hierarchy declaration during preview');
+        assert.strictEqual(document.getText(), source);
+      } finally {
+        // Preserve the primary assertion; the runner also removes the entire temporary fixture.
+        await Promise.resolve(vscode.workspace.fs.delete(competing, { useTrash: false })).catch(() => undefined);
+      }
       const bridge = vscode.Uri.joinPath(serviceDirectory, item.relation.includes('implements') ? 'C3GenerationContractBridge.php' : 'C3GenerationBaseBridge.php');
       const bridgeSource = item.relation.includes('implements') ? contractBridge : baseBridge;
       assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [], {

@@ -6,6 +6,74 @@ import * as vscode from 'vscode';
 import { unfinishedShapeContexts, unfinishedShapeSource, unfinishedShapeTail } from './unfinishedShapeFixture.js';
 import { existingShapeArrowCases } from './existingShapeArrowFixture.js';
 import { wordMiddleShapeCases } from './wordMiddleShapeFixture.js';
+import { visibleCompletionLabels } from './c1Ui.js';
+
+async function verifyProtectedFamily(root: vscode.Uri): Promise<void> {
+  const port = Number(process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT); assert.ok(port);
+  const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'ProtectedFamily.php');
+  await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php\n'));
+  const target = await vscode.workspace.openTextDocument(uri); const editor = await vscode.window.showTextDocument(target);
+  for (const scope of ['ProtectedParent', 'ProtectedSibling', 'ProtectedOutside', 'ProtectedParent']) {
+    const body = 'public function inspect(ProtectedChild $value): void { $value->child; }';
+    const source = `<?php class ProtectedParent { ${scope === 'ProtectedParent' ? body : ''} }
+class ProtectedChild extends ProtectedParent { protected function childMethod(): string { return ''; } protected $childProperty;
+private function childHidden(): void {} private $childHiddenProperty; }
+class ProtectedSibling extends ProtectedParent { ${scope === 'ProtectedSibling' ? body : ''} }
+class ProtectedOutside { ${scope === 'ProtectedOutside' ? body : ''} }`;
+    const edit = new vscode.WorkspaceEdit();
+    edit.replace(uri, new vscode.Range(target.positionAt(0), target.positionAt(target.getText().length)), source);
+    assert.ok(await vscode.workspace.applyEdit(edit));
+    const position = target.positionAt(source.indexOf('$value->child') + '$value->child'.length);
+    editor.selection = new vscode.Selection(position, position);
+    const expected = scope === 'ProtectedParent' ? ['childMethod', 'childProperty'] : [];
+    const response = await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, position);
+    assert.deepStrictEqual(response?.items.map(item => item.label).sort() ?? [], expected);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const deadline = Date.now() + 10_000; let labels: string[] = [];
+    const matches = (): boolean => labels.length === expected.length && expected.every(name =>
+      labels.some(label => label === name || label.startsWith(`${name}ProtectedChild::`)));
+    do {
+      labels = await visibleCompletionLabels(port);
+      if (matches()) break;
+      await new Promise(done => setTimeout(done, 40));
+    } while (Date.now() < deadline);
+    assert.ok(matches(), `Visible protected-family candidates are incorrect in ${scope}: ${JSON.stringify(labels)}`);
+    assert.ok(!labels.some(label => label.includes('Hidden')));
+  }
+  assert.ok(target.isDirty); // All context changes remained unsaved.
+  assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), '<?php\n');
+  console.log('C2 protected-family UI proof: parent candidates, sibling/outside rejection, unsaved return-to-parent and no disk write passed');
+  await vscode.commands.executeCommand('hideSuggestWidget');
+  const configuration = vscode.workspace.getConfiguration('phpCompanion', root);
+  const initialVersion = configuration.get('phpVersion');
+  const readonlySource = `<?php
+class ReadonlyParent { function initialize(ReadonlyChild $value): void { $value->id = 1; } }
+class ReadonlyChild extends ReadonlyParent { public readonly int $id; }
+class ReadonlyGrandchild extends ReadonlyChild { function initializeSelf(): void { $this->id = 2; } }
+function readonlyOutside(ReadonlyChild $value): void { $value->id = 3; }
+class ReadonlyRepeated extends ReadonlyChild { function initializeTwice(): void { $this->id = 4; $this->id = 5; } }
+`;
+  const readonlyEdit = new vscode.WorkspaceEdit();
+  readonlyEdit.replace(uri, new vscode.Range(target.positionAt(0), target.positionAt(target.getText().length)), readonlySource);
+  assert.ok(await vscode.workspace.applyEdit(readonlyEdit));
+  try {
+    for (const version of ['8.1', '8.5', '8.1']) {
+      await configuration.update('phpVersion', version, vscode.ConfigurationTarget.WorkspaceFolder);
+      const expectedLines = version === '8.1' ? [1, 3, 4, 5, 5] : [4, 5];
+      const lines = (): number[] => vscode.languages.getDiagnostics(uri)
+        .filter(item => item.source === 'SoPHP' && item.code === 'php.assignment.readonly-property')
+        .map(item => item.range.start.line).sort();
+      const deadline = Date.now() + 10_000;
+      while (Date.now() < deadline && JSON.stringify(lines()) !== JSON.stringify(expectedLines)) {
+        await new Promise(done => setTimeout(done, 50));
+      }
+      assert.deepStrictEqual(lines(), expectedLines, `Readonly initialization diagnostics for PHP ${version}: ${JSON.stringify(vscode.languages.getDiagnostics(uri).map(item => ({ code: item.code, message: item.message, line: item.range.start.line })))}`);
+    }
+    assert.ok(target.isDirty);
+    assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString('utf8'), '<?php\n');
+    console.log('C2 readonly-family diagnostics: PHP 8.1/8.5/8.1 refreshed in an unsaved editor without disk writes');
+  } finally { await configuration.update('phpVersion', initialVersion, vscode.ConfigurationTarget.WorkspaceFolder); }
+}
 
 async function verifyVersionedBuiltinConstructors(root: vscode.Uri): Promise<void> {
   const uri = vscode.Uri.joinPath(root, 'src', 'Service', 'C2FileinfoConstructor.php');
@@ -1422,6 +1490,9 @@ export async function run(): Promise<void> {
   assert.strictEqual(vscode.workspace.getConfiguration('phpCompanion', root.uri).get('phpVersion'), '8.5');
   const extension = vscode.extensions.getExtension('sohophp.php-companion');
   assert.ok(extension, 'SoPHP Core did not load.');
+  if (process.env.PHP_COMPANION_TEST_C2_PROTECTED_FAMILY_ONLY === '1') {
+    await extension.activate(); await verifyProtectedFamily(root.uri); return;
+  }
   if (process.env.PHP_COMPANION_TEST_C2_OPEN_SOURCE_PROFILE === '1') {
     const profileIds = ['sohophp.php-companion-symfony', 'sohophp.php-companion-open-source-pack',
       'sohophp.twig-plus', 'redhat.vscode-yaml', 'redhat.vscode-xml', 'xdebug.php-debug',

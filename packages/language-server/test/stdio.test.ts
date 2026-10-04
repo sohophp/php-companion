@@ -15434,6 +15434,34 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
+  it.each(['8.1', '8.3', '8.4', '8.5'])('checks readonly family initialization for PHP %s', async (phpVersion) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-readonly-family-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      const uri = pathToFileURL(join(root, 'Family.php')).toString();
+      const source = `<?php namespace App;
+        class Base { function initialize(Child $value): void { $value->id = 1; } }
+        class Child extends Base { public readonly int $id; }
+        class Grandchild extends Child { function initializeSelf(): void { $this->id = 2; } }
+        function outside(Child $value): void { $value->id = 3; }
+        class Repeated extends Child { function initializeTwice(): void { $this->id = 4; $this->id = 5; } }
+      `;
+      await writeFile(join(root, 'Family.php'), source);
+      const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      server = running; const output = messagesFrom(running);
+      running.stdin.write(encode({ jsonrpc: '2.0', id: 37, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion, indexingMode: 'onDemand' },
+      } }));
+      await output.waitFor((message) => message.id === 37);
+      running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
+      const notification = await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const diagnostics = notification.params.diagnostics.filter((item: { code?: string }) => item.code === 'php.assignment.readonly-property');
+      expect(diagnostics.map((item: { range: { start: { line: number } } }) => item.range.start.line)).toEqual(
+        ['8.1', '8.3'].includes(phpVersion) ? [1, 3, 4, 5, 5] : [4, 5]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it('enables implicit readonly-class property diagnostics only for PHP 8.2 and newer', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-readonly-class-version-'));
     try {
@@ -15994,6 +16022,74 @@ class Example {}`;
   });
 
 
+  it.each(['7.2', '8.5'])('completes protected child members in parent scope without exposing them to siblings in PHP %s', async phpVersion => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-protected-family-'));
+    try {
+      const uri = pathToFileURL(join(root, 'Family.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { processId: null, capabilities: {},
+        rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion, indexingMode: 'onDemand' } } }));
+      await output.waitFor(message => message.id === 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      let id = 2; let version = 0;
+      for (const [scope, expression, expected] of [
+        ['ParentFamily', '$value->child§;', ['childMethod', 'childProperty']],
+        ['ParentFamily', 'ChildFamily::child§;', ['$childCounter', 'CHILD_CONST', 'childStatic']],
+        ['SiblingFamily', '$value->child§;', []],
+        ['OutsideFamily', '$value->child§;', []],
+        ['ParentFamily', '$value->child§;', ['childMethod', 'childProperty']],
+      ] as const) {
+        const body = `public function probe(ChildFamily $value): void { ${expression} }`;
+        const marked = `<?php class ParentFamily { ${scope === 'ParentFamily' ? body : ''} }
+class ChildFamily extends ParentFamily { protected function childMethod(): string { return ''; } protected $childProperty;
+protected static function childStatic(): string { return ''; } protected static $childCounter; protected const CHILD_CONST = 1;
+private function childHidden(): void {} private $childHiddenProperty; private const CHILD_HIDDEN = 2; }
+class SiblingFamily extends ParentFamily { ${scope === 'SiblingFamily' ? body : ''} }
+class OutsideFamily { ${scope === 'OutsideFamily' ? body : ''} }`;
+        const text = marked.replace('§', ''); version += 1;
+        server.stdin.write(encode(version === 1
+          ? { jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version, text } } }
+          : { jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri, version }, contentChanges: [{ text }] } }));
+        const requestId = id++;
+        server.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/completion', params: {
+          textDocument: { uri }, position: lspPosition(text, marked.indexOf('§')),
+        } }));
+        const response = await output.waitFor(message => message.id === requestId); expect(response.error).toBeUndefined();
+        const items = Array.isArray(response.result) ? response.result : response.result.items;
+        expect(items.map((item: { label: string }) => item.label).sort(), scope).toEqual([...expected].sort());
+      }
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it('revalidates local accessor generation outside workspace roots without requiring a Composer project', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-loose-generation-'));
+    try {
+      const source = '<?php class Standalone { private int $id; }';
+      const uri = pathToFileURL(join(root, 'Standalone.php')).toString();
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { processId: null, capabilities: {},
+        initializationOptions: { phpVersion: '8.5', indexingMode: 'onDemand' } } }));
+      await output.waitFor(message => message.id === 1);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: {
+        uri, languageId: 'php', version: 1, text: source,
+      } } }));
+      const position = lspPosition(source, source.indexOf('Standalone') + 2);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/codeAction', params: {
+        textDocument: { uri }, range: { start: position, end: position }, context: { diagnostics: [], only: ['refactor.rewrite'] },
+      } }));
+      const actions = (await output.waitFor(message => message.id === 2)).result;
+      const action = actions.find((item: { title: string }) => item.title === 'Generate 1 property accessor');
+      expect(action?.data?.phpCompanion?.generation).toBeDefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 3, method: 'phpCompanion/validateGenerationHierarchy', params: {
+        textDocument: { uri, version: 1 }, ...action.data.phpCompanion.generation,
+      } }));
+      expect((await output.waitFor(message => message.id === 3)).result).toBe(true);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   it.each(['onDemand', 'progressive', 'experimental'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))('generates local and inherited members with current sources in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-default-generation-'));
     try {
@@ -16020,7 +16116,7 @@ class Example {}`;
         const requestId = id++; server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: `phpCompanion/${method}`, params }));
         const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
       };
-      const actionsAt = async (name: string): Promise<Array<{ title: string; edit?: { changes?: Record<string, Array<{ newText: string }>> } }>> => {
+      const actionsAt = async (name: string): Promise<Array<{ title: string; edit?: { changes?: Record<string, Array<{ newText: string }>> }; data?: { phpCompanion?: { generation?: { classFqcn: string; sourcesHash: string } } } }>> => {
         const requestId = id++; const position = lspPosition(text, text.indexOf(`class ${name}`) + 7);
         server!.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method: 'textDocument/codeAction', params: { textDocument: { uri }, range: { start: position, end: position }, context: { diagnostics: [], only: ['refactor.rewrite'] } } }));
         const response = await output.waitFor(message => message.id === requestId, 20_000); expect(response.error).toBeUndefined(); return response.result;
@@ -16032,6 +16128,27 @@ class Example {}`;
       const worker = await actionsAt('Worker');
       const implemented = worker.find(action => action.title === 'Implement 1 interface method');
       if (limited) expect(implemented).toBeUndefined(); else expect(implemented?.edit?.changes?.[uri]?.[0]?.newText).toContain('public function accept(string $value): int');
+      if (!limited) {
+        const check = implemented?.data?.phpCompanion?.generation; expect(check).toBeDefined();
+        const request = { textDocument: { uri, version: 1 }, ...check };
+        expect(await control('validateGenerationHierarchy', request)).toBe(true);
+        expect(await control('validateGenerationHierarchy', { ...request, sourcesHash: '0'.repeat(64) })).toBe(false);
+        expect(await control('validateGenerationHierarchy', { ...request, textDocument: { uri, version: 0 } })).toBe(false);
+        const competing = join(root, 'src', 'Competing.php');
+        for (const declaration of ['namespace Acme; interface cOnTrAcT {}', 'namespace App; class wOrKeR {}']) {
+          await writeFile(competing, `<?php ${declaration}`);
+          expect(await control('validateGenerationHierarchy', request)).toBe(false);
+          await rm(competing);
+          expect(await control('validateGenerationHierarchy', request)).toBe(true);
+        }
+        const competingUri = pathToFileURL(competing).toString();
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: {
+          uri: competingUri, languageId: 'php', version: 1, text: '<?php namespace Acme; interface Contract {}',
+        } } }));
+        expect(await control('validateGenerationHierarchy', request)).toBe(false);
+        server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: competingUri } } }));
+        expect(await control('validateGenerationHierarchy', request)).toBe(true);
+      }
       if (!limited) expect(implemented).toMatchObject({ command: {
         command: 'phpCompanion.refactorSnapshots', arguments: [{
           [uri]: createHash('sha256').update(source).digest('hex'),

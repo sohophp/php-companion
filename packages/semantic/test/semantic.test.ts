@@ -11943,9 +11943,11 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
       function mutate(State $state, Status $status): void { $state->id = 3; $status->value = 'other'; $status->name = 'Other'; }
     `;
     workspace.update('file:///ReadonlyWrites.php', source);
-    expect(workspace.readonlyPropertyAssignments('file:///ReadonlyWrites.php').map((item) => [item.ownerFqcn, item.name])).toEqual([
+    const writes = workspace.readonlyPropertyAssignments('file:///ReadonlyWrites.php');
+    expect(writes.filter(item => item.maximumPhpVersion === undefined).map((item) => [item.ownerFqcn, item.name])).toEqual([
       ['ReadonlyWrites\\State', 'id'], ['ReadonlyWrites\\State', 'id'], ['ReadonlyWrites\\Status', 'value'], ['ReadonlyWrites\\Status', 'name'],
     ]);
+    expect(writes.filter(item => item.maximumPhpVersion !== undefined)).toMatchObject([{ name: 'id', maximumPhpVersion: '8.3' }]);
   });
   it('uses readonly class facts for member metadata and external write diagnostics', () => {
     const source = `<?php namespace ReadonlyClassWrites;

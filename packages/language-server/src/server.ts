@@ -2388,16 +2388,6 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'dynamicProperty', property.ownerFqcn, property.name),
     })));
-    result.diagnostics.push(...workspace.readonlyPropertyAssignments(document.uri)
-      .filter((assignment) => SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(assignment.minimumPhpVersion)).map((assignment) => ({
-      range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
-      severity: DiagnosticSeverity.Error,
-      code: 'php.assignment.readonly-property',
-      source: 'SoPHP',
-      message: assignment.operation === 'reference-iteration'
-        ? `Cannot iterate ${assignment.ownerFqcn} by reference because these visible properties are already initialized and readonly: ${(assignment.propertyNames ?? [assignment.name]).map((name) => `$${name}`).join(', ')}.`
-        : diagnosticMessage(clientDiagnosticLanguage, 'readonlyPropertyModify', assignment.ownerFqcn, assignment.name),
-      })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
@@ -2617,6 +2607,19 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'inaccessibleConstructor', item.visibility, item.constructor, item.target),
     })));
+  }
+  if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')) {
+    result.diagnostics.push(...workspace.readonlyPropertyAssignments(document.uri)
+      .filter((assignment) => SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf(assignment.minimumPhpVersion)
+        && (assignment.maximumPhpVersion === undefined || SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) <= SUPPORTED_PHP_VERSIONS.indexOf(assignment.maximumPhpVersion))).map((assignment) => ({
+      range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.assignment.readonly-property',
+      source: 'SoPHP',
+      message: assignment.operation === 'reference-iteration'
+        ? `Cannot iterate ${assignment.ownerFqcn} by reference because these visible properties are already initialized and readonly: ${(assignment.propertyNames ?? [assignment.name]).map((name) => `$${name}`).join(', ')}.`
+        : diagnosticMessage(clientDiagnosticLanguage, 'readonlyPropertyModify', assignment.ownerFqcn, assignment.name),
+      })));
   }
   if (documents.get(document.uri) === document && document.version === version) {
     const diagnostics = configuredDiagnostics(result.diagnostics);
@@ -8124,6 +8127,51 @@ async function checkedInterfaceExtraction(workspace: SemanticWorkspace, document
   return ready && !cancelled() ? plan : undefined;
 }
 
+function generationHierarchySnapshots(workspace: SemanticWorkspace, fqcn: string): Record<string, string> | undefined {
+  const uris = workspace.declarationHierarchySourceUris(fqcn); if (!uris) return undefined;
+  const entries: Array<[string, string]> = [];
+  for (const uri of uris) {
+    if (isBuiltinDocumentUri(uri)) continue;
+    const text = documents.get(uri)?.getText() ?? workspace.source(uri); if (text === undefined) return undefined;
+    entries.push([uri, createHash('sha256').update(text).digest('hex')]);
+  }
+  return Object.fromEntries(entries);
+}
+
+function generationHierarchyHash(fqcn: string, snapshots: Record<string, string>): string {
+  return createHash('sha256').update(JSON.stringify([fqcn.toLowerCase(), Object.entries(snapshots)
+    .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)])).digest('hex');
+}
+
+connection.onRequest('phpCompanion/validateGenerationHierarchy', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; classFqcn?: unknown; sourcesHash?: unknown;
+}, token) => {
+  const document = typeof params.textDocument?.uri === 'string' ? documents.get(params.textDocument.uri) : undefined;
+  if (!document || params.textDocument?.version !== document.version || typeof params.classFqcn !== 'string'
+    || !params.classFqcn || params.classFqcn.length > 1024 || typeof params.sourcesHash !== 'string'
+    || !/^[a-f0-9]{64}$/.test(params.sourcesHash) || token.isCancellationRequested) return false;
+  const fqcn = params.classFqcn; const version = document.version; const phpVersion = phpVersionForUri(document.uri);
+  const root = rootForUri(document.uri);
+  const workspace = await semanticForUri(document.uri);
+  if (root && !await ensureProjectCompleteRoot(root, () => token.isCancellationRequested)) return false;
+  let valid = false;
+  const capture = (): void => {
+    const local = workspace.typeDeclarationsNamed(fqcn.slice(fqcn.lastIndexOf('\\') + 1))
+      .some(type => type.uri === document.uri && type.kind === 'class' && type.fqcn.toLowerCase() === fqcn.toLowerCase());
+    const snapshots = local ? generationHierarchySnapshots(workspace, fqcn) : undefined;
+    valid = Boolean(snapshots && generationHierarchyHash(fqcn, snapshots) === params.sourcesHash);
+  };
+  let ready: boolean;
+  if (root) ready = await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'generationHierarchyDiskRefresh', undefined, capture);
+  else {
+    // Loose files retain their existing known-document scope; there is no project
+    // inventory to scan. Pending open/close/edit events must still invalidate it.
+    await watchedFileChanges; await applyPendingFiles(); capture(); ready = !token.isCancellationRequested;
+  }
+  return ready && valid && rootForUri(document.uri) === root && phpVersionForUri(document.uri) === phpVersion
+    && currentQueryDocument(document, token, version);
+});
+
 connection.onRequest('phpCompanion/validateInterfaceExtraction', async (params: {
   textDocument?: { uri?: unknown; version?: unknown }; position?: { line?: unknown; character?: unknown }; planHash?: unknown;
 }, token) => {
@@ -8356,20 +8404,13 @@ connection.onCodeAction(async (params, token) => {
       }
     }
     const hierarchySnapshots = new Map<string, NonNullable<CodeAction['command']> | undefined>();
+    const generationChecks = new Map<string, { classFqcn: string; sourcesHash: string }>();
     const generationSnapshots = (fqcn: string): NonNullable<CodeAction['command']> | undefined => {
       if (hierarchySnapshots.has(fqcn)) return hierarchySnapshots.get(fqcn);
-      const uris = workspace.declarationHierarchySourceUris(fqcn);
-      if (!uris) return undefined;
-      const entries: Array<[string, string]> = [];
-      for (const uri of uris) {
-        // Bundled versioned facts are immutable filesystem-independent inputs.
-        if (isBuiltinDocumentUri(uri)) continue;
-        const text = documents.get(uri)?.getText() ?? workspace.source(uri);
-        if (text === undefined) return undefined;
-        entries.push([uri, createHash('sha256').update(text).digest('hex')]);
-      }
+      const snapshots = generationHierarchySnapshots(workspace, fqcn); if (!snapshots) return undefined;
+      generationChecks.set(fqcn, { classFqcn: fqcn, sourcesHash: generationHierarchyHash(fqcn, snapshots) });
       const command = { title: 'Refactor source snapshots', command: 'phpCompanion.refactorSnapshots',
-        arguments: [Object.fromEntries(entries)] };
+        arguments: [snapshots] };
       hierarchySnapshots.set(fqcn, command); return command;
     };
     const missing = workspace.missingInterfaceImplementation(document.uri, document.offsetAt(range.start));
@@ -8387,6 +8428,7 @@ connection.onCodeAction(async (params, token) => {
       if (generationSnapshots(missing.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
         missing.methods.length === 1 ? 'implementInterfaceMethod' : 'implementInterfaceMethods', String(missing.methods.length)), kind: CodeActionKind.RefactorRewrite,
         command: generationSnapshots(missing.classFqcn),
+        data: { phpCompanion: { generation: generationChecks.get(missing.classFqcn) } },
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
     const abstractMissing = workspace.missingAbstractImplementation(document.uri, document.offsetAt(range.start));
@@ -8407,6 +8449,7 @@ connection.onCodeAction(async (params, token) => {
         if (generationSnapshots(abstractMissing.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
           required.length === 1 ? 'implementAbstractMethod' : 'implementAbstractMethods', String(required.length)), kind: CodeActionKind.RefactorRewrite,
           command: generationSnapshots(abstractMissing.classFqcn),
+          data: { phpCompanion: { generation: generationChecks.get(abstractMissing.classFqcn) } },
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
       }
     }
@@ -8425,6 +8468,7 @@ connection.onCodeAction(async (params, token) => {
       if (generationSnapshots(accessor.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage,
         accessor.accessors.length === 1 ? 'generateAccessor' : 'generateAccessors', String(accessor.accessors.length)), kind: CodeActionKind.RefactorRewrite,
         command: generationSnapshots(accessor.classFqcn),
+        data: { phpCompanion: { generation: generationChecks.get(accessor.classFqcn) } },
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
     }
     const overrides = workspace.overrideGeneration(document.uri, document.offsetAt(range.start));
@@ -8442,6 +8486,7 @@ connection.onCodeAction(async (params, token) => {
         ]);
         if (generationSnapshots(overrides.classFqcn)) actions.push({ title: codeActionTitle(clientDiagnosticLanguage, 'overrideMethod', method.fqcn), kind: CodeActionKind.RefactorRewrite,
           command: generationSnapshots(overrides.classFqcn),
+          data: { phpCompanion: { generation: generationChecks.get(overrides.classFqcn) } },
         edit: { changes: { [document.uri]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } } });
       }
     }

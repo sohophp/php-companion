@@ -154,3 +154,19 @@ PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C3_ONLY=1 PHP_COMPANION_TEST_E
 最新 bundle 的 onDemand／progressive 串行隔离宿主额外验证异文件 `bUiLdEr` 对当前 Builder 的计划／建议拒绝，以及删除后的建议恢复；原目标接口冲突、预览中磁盘／未保存冲突、取消、正常应用、一次 Undo/Redo 和 EOL 继续通过。日志 `/tmp/sophp-extract-ambiguous-host-{onDemand,progressive}.log` 均退出 0。语义／语言服务／扩展构建、根 TypeScript、宿主编译、六个修改文件 ESLint 和 diff 检查通过。
 
 本批没有重跑全量 LSP 或性能测量，不关闭先前组合负载的两项魔术方法性能失败、10k Import 成本、跨平台或真实 WSL。源码与回归材料留在同一分支未提交，不打包、更新 Profile、推送或发布；goal 继续执行。
+
+## 生成预览中的新竞争声明
+
+检查点 a3e7fcf 后新增独立宿主用例：消费者文本及原继承文件不变，在预览应用前通过另一个文件新增同名 Bridge interface。原实现仍应用旧生成建议，onDemand 失败 `/tmp/sophp-generation-competing-red.log` 明确为 true !== false。初始语料 teardown 调用 VS Code Thenable.catch 导致 TypeScript 错误，但编译器仍输出测试代码，实际宿主取得上述失败；随后修正为 Promise.resolve，保留原断言。之后修正 teardown 的 no-unsafe-finally 诊断，不用清理错误替换主要断言；runner 仍删除整个临时 fixture。
+
+接口实现、抽象方法实现、属性访问器和重写建议现在通过标准 CodeAction.data 携带 classFqcn 及当前继承输入的稳定 SHA-256。原 refactorSnapshots 的具体文件哈希检查继续保留。公共预览开始前及应用前调用 validateGenerationHierarchy：在所属 Composer 项目内先保证源码准备完成，再按现有受检扫描／字节预算／取消及单次失效重扫流程刷新当前来源，在同步捕获点重新核对唯一、完整、有界的继承图及全部实际来源哈希。新增同名声明、声明移动或来源变化不能仅因旧文件哈希未变而通过。
+
+校验同时绑定当前源文档版本、所属根及 PHP 版本；缺失／错误哈希或旧版本拒绝。只依赖当前文件的构造函数沿用原流程，不增加项目扫描。独立的无 workspace 根文件保留已知 loose 文档范围，先应用待处理的开关／编辑事件再核对当前继承图；这里没有 Composer inventory，不把它描述为完整项目发现。
+
+定向真实协议 **7 项通过、481 未运行**，23.27 秒，`/tmp/sophp-generation-competing-protocol-final.log`：三索引模式及原预算限制下的生成门槛，正常哈希通过／错误哈希及旧版本拒绝，磁盘无 watcher 的大小写竞争 parent／消费者 class 拒绝、删除后同一建议恢复，新未保存竞争来源拒绝／关闭恢复，既有当前签名／版本更新，以及独立文件本地访问器验证通过。
+
+onDemand／progressive 隔离 Linux 宿主原五类生成通过，`/tmp/sophp-generation-competing-host-{onDemand,progressive}.log`。继承四类新增预览中竞争 Bridge 声明拒绝；删除后原建议继续走中间关系变化、磁盘／未保存签名变化拒绝，正常取消／应用、一次 Undo/Redo 和旧建议拒绝。独立构造函数的 PHP 版本／程序路径变化保护继续通过。这两轮在增加无根文件分支前执行；最终分支的协议回归通过后，重新构建 bundle 并进行最终 progressive 宿主核对。
+
+语言服务构建、根 TypeScript、宿主编译、五文件 ESLint 与 diff 检查通过。此增量未扩展生成方法的语义支持域，没有全量 LSP、规模等待／内存、其他平台或真实 WSL 证据。源码留在同一分支，未打包或更新 Profile；goal 继续。
+
+最终 bundle 的 progressive 同五类宿主退出 0，`/tmp/sophp-generation-competing-host-progressive-final.log`；预览竞争声明拒绝、恢复应用及一次 Undo/Redo 继续通过。无根分支只具有上述协议证据，未据此声称独立文件真实 UI 已验收。

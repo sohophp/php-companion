@@ -375,6 +375,7 @@ export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
   ownerFqcn: string;
   minimumPhpVersion: '7.2' | '8.1' | '8.2' | '8.3';
+  maximumPhpVersion?: '8.3';
   operation?: 'reference-iteration';
   propertyNames?: string[];
 }
@@ -7501,19 +7502,28 @@ export class SemanticWorkspace {
     this.readonlyAnalysisInProgress.add(uri);
     try {
     const results: ReadonlyPropertyAssignment[] = [];
-    const reported = new Set<string>();
+    const reported = new Map<string, ReadonlyPropertyAssignment | undefined>();
     const consider = (propertyStart: number, propertyEnd: number, alwaysModification: boolean): void => {
       const member = this.memberAt(uri, propertyStart + 1);
       if (member?.kind !== 'property' || !member.readonly || !this.hasCompleteHierarchy(member.calledOnFqcn)) return;
       const accessFrom = this.containingCallable(file, propertyStart)?.containerFqcn;
-      const insideWritableFamily = member.synthetic !== 'enum-native' && member.synthetic !== 'phpdoc-magic' && accessFrom !== undefined
-        && (accessFrom.toLowerCase() === member.typeScopeFqcn.toLowerCase() || this.isSubclassOf(accessFrom, member.typeScopeFqcn));
-      if (!alwaysModification && insideWritableFamily) return;
-      const key = `${propertyStart}:${propertyEnd}`; if (reported.has(key)) return; reported.add(key);
-      results.push({
+      const insideWritableFamily = member.synthetic !== 'enum-native' && member.synthetic !== 'phpdoc-magic'
+        && this.memberVisibilityAllowed(member.writeVisibility ?? (member.visibility === 'private' ? 'private' : 'protected'), member.typeScopeFqcn, accessFrom);
+      const versionRestrictedInitialization = !alwaysModification && insideWritableFamily && member.writeVisibility === undefined
+        && accessFrom?.toLowerCase() !== member.typeScopeFqcn.toLowerCase();
+      if (!alwaysModification && insideWritableFamily && !versionRestrictedInitialization) return;
+      const key = `${propertyStart}:${propertyEnd}`;
+      if (reported.has(key)) {
+        const existing = reported.get(key);
+        if (alwaysModification && existing) delete existing.maximumPhpVersion;
+        return;
+      }
+      const assignment: ReadonlyPropertyAssignment = {
         uri, start: propertyStart, end: propertyEnd, name: member.name, ownerFqcn: member.typeScopeFqcn,
         minimumPhpVersion: member.synthetic === 'phpdoc-magic' ? '7.2' : this.readonlyPropertyMinimumVersion(member),
-      });
+        ...(versionRestrictedInitialization ? { maximumPhpVersion: '8.3' as const } : {}),
+      };
+      reported.set(key, assignment); results.push(assignment);
     };
     const pattern = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*->\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*=(?!=|>|&)/giu;
     for (const match of file.source.matchAll(pattern)) {
@@ -7844,8 +7854,8 @@ export class SemanticWorkspace {
         const processAssignment = (node: SyntaxNode, state: FlowState, repeated: boolean): FlowState => {
           const property = directProperty(node); if (!property) return state;
           const { member, name } = property;
-          const insideWritableFamily = callable.containerFqcn!.toLowerCase() === member.typeScopeFqcn.toLowerCase()
-            || this.isSubclassOf(callable.containerFqcn!, member.typeScopeFqcn);
+          const insideWritableFamily = this.memberVisibilityAllowed(member.writeVisibility ?? (member.visibility === 'private' ? 'private' : 'protected'),
+            member.typeScopeFqcn, callable.containerFqcn);
           if (!insideWritableFamily) return state;
           const key = member.fqcn.toLowerCase();
           const promotedConstructorWrite = member.promoted === true && callable.name.toLowerCase() === '__construct'
@@ -7905,7 +7915,7 @@ export class SemanticWorkspace {
               .map((member) => member.name))].sort();
             if (!names.length) continue;
             const key = `reference-iteration:${iterable.startIndex}:${iterable.endIndex}:${minimumPhpVersion}`;
-            if (reported.has(key)) continue; reported.add(key);
+            if (reported.has(key)) continue; reported.set(key, undefined);
             results.push({ uri, start: iterable.startIndex, end: iterable.endIndex, name: names[0]!, ownerFqcn: receiverFqcn,
               minimumPhpVersion, operation: 'reference-iteration', propertyNames: names });
           }
@@ -12258,7 +12268,7 @@ export class SemanticWorkspace {
     if (visibility === 'public') return true;
     if (!accessFrom) return false;
     if (accessFrom.toLowerCase() === ownerFqcn.toLowerCase()) return true;
-    return visibility === 'protected' && this.isSubclassOf(accessFrom, ownerFqcn);
+    return visibility === 'protected' && (this.isSubclassOf(accessFrom, ownerFqcn) || this.isSubclassOf(ownerFqcn, accessFrom));
   }
 
   private propertyAccessModes(file: SemanticFile, access: ParsedMemberAccess): { read: boolean; write: boolean; indirectWrite?: boolean; referenceAssignment?: boolean } {
@@ -17038,7 +17048,7 @@ export class SemanticWorkspace {
       if (includeInvisible) return true;
       if (item.visibility === 'public') return true;
       if (accessFrom?.toLowerCase() === key) return true;
-      return item.visibility === 'protected' && accessFrom !== undefined && (protectedVisible ??= this.isSubclassOf(accessFrom, fqcn));
+      return item.visibility === 'protected' && accessFrom !== undefined && (protectedVisible ??= this.memberVisibilityAllowed('protected', fqcn, accessFrom));
     };
     const specializedReturn = (value: string | undefined): string | undefined => specializeTemplateType(value, templateArguments);
     const magicMembers: MemberInfo[] = ownerFile.magicMembers.filter((item) => item.ownerFqcn.toLowerCase() === key)

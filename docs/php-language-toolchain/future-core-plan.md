@@ -30,12 +30,16 @@
 - [小项目受检读取与核心热查询／峰值内存](reports/default-indexing-core-memory-2026-10-04.md)：修复小库存／并发 1 跳过显式 inspector 的读取路径。索引全量 47 项、协议／Worker 20 项及双模式小项目实际首次粘贴／应用／Undo/Redo 通过。1k／10k、两默认模式各五轮、每轮每类 100 次核心查询，6,000 次结果断言通过且各轮 P95 满足 150 ms；峰值 RSS 分别最高 314.54／465.23 MiB，低于 384／768 MiB 预算。此处只覆盖局部变量补全、别名 Hover、vendor 跳转；10k Import 控制 P95 409–445 ms 仍是缺口，完整 R1、真实 WSL、组合负载和先前全量魔术方法性能失败继续开放。本批不更新 Profile。
 - [Import 扫描的路径查找](reports/default-indexing-core-memory-2026-10-04.md#后续扫描中的-uri-与活动文档查找)：复用根 URI 转换及活动文档路径映射，不缓存未保存文本或省略字节核验。17 项组合协议、两默认模式实际首次粘贴／应用／Undo/Redo 通过；10k 各五轮 Import 控制 P95 降至 321–375 ms，仍未达到 150 ms 参考目标。3,000 次核心查询及 RSS 保持预算内；原始数据追加到既有 JSON。本增量留在同一分支未提交，不更新 Profile；不重复等价测量，保留大项目磁盘成本与其余 C3 范围。
 - [受检扫描的有界并行](reports/default-indexing-core-memory-2026-10-04.md#后续受检扫描的有界-worker-并行)：最多四个共享 Worker，取消／回复归属独立，逐文件字节核验不省略。15 项定向协议／Worker 与 1k progressive 首次 Paste／Undo/Redo 宿主通过；单组 10k 热 Import P95 275–303 ms 仍超参考目标，首次 1k Provider 等待 1,888 ms 仍待改善。不把单组探针外推为正式性能通过，原样保留旧数据。
+- [生成预览中新竞争声明](reports/default-indexing-generation-2026-10-04.md#生成预览中的新竞争声明)：接口／抽象实现、访问器和重写在预览前与应用前重新受检扫描并核对唯一继承图及来源哈希。7 项定向协议和两模式宿主通过，最终 bundle progressive 复测通过；独立文件保留已知文档范围，构造函数不增加项目扫描。规模成本、其他平台与真实 WSL 保持开放，本增量暂未提交。
+- [S03／S04 的 protected 类族补全](reports/completion-protected-family-2026-10-04.md)：补齐父类访问子类声明成员的可见性，保留 private 和兄弟类边界。8 项专门语义、1,363 项全量语义、PHP 7.2／8.5 两项 LSP 与隔离编辑器四次实际可见列表刷新通过；真实 WSL、完整冻结矩阵和组合性能不由此关闭。本增量暂未提交。
 - [接口提取前的当前类型冲突](reports/default-indexing-generation-2026-10-04.md#接口提取前的当前类型冲突)：两默认模式已复现并修复异文件同名接口无 watcher 时仍给出建议的问题；受检扫描后重新计算计划，删除恢复、超预算拒绝及三 PHP 版本共 7 项协议通过。双模式隔离宿主的冲突拒绝／恢复、预览取消／应用、单次 Undo/Redo 和 EOL 保持通过；预览期间新出现的异文件声明仍需独立核对。增量保留未提交，不更新 Profile，完整 C3 与真人验收不关闭。
 - [接口预览重新核验源码检查点](reports/default-indexing-generation-2026-10-04.md#接口提取预览的重新核验与源码检查点)：已独立复现并修复预览期间异文件同名类型仍被应用的问题；原计划绑定生成文本与目标 URI，打开预览前和应用前重新检查当前声明、缓冲区与 PSR-4。最终 24 项组合协议、双模式预览磁盘／未保存冲突拒绝、删除恢复、正常应用／Undo/Redo，以及七条局部提取通过。前批路径查找与提取前检查合并为必要本地里程碑，更新未提交状态；完整 C3、性能组合、跨平台和真人使用继续开放，不更新 Profile。
 - [源 class 歧义拒绝与恢复](reports/default-indexing-generation-2026-10-04.md#源-class-歧义的拒绝与恢复)：补齐异文件同名源 class 的提取拒绝；扫描仍以当前文件 class 为锚点，旧外部冲突删除后能够恢复。语义全量 1,355 项、定向协议 7 项与双模式大小写冲突／恢复及原预览／Undo/Redo 通过；修正一条旧契约测试的共享工作区污染，未放宽产品规则。增量未提交，不更新 Profile；全量 LSP／性能和真人边界保持开放。
 - 外部格式化修补仍为可选开发候选；默认 Profile 格式化缺口及 VS Code 批量输入异常仍未收口。
 
 ## 当前执行顺序
+
+最新 C2 增量：[readonly 初始化版本与类族权限](reports/readonly-family-version-2026-10-04.md)。补齐 PHP 8.1–8.3 与 8.4+ 的初始化权限差异及显式 private(set) 限制，并让已有完整继承依据的诊断在默认 onDemand 模式可用。全量语义 1,364 项、五项定向 LSP 和隔离编辑器未保存文件的 PHP 8.1→8.5→8.1 诊断刷新通过；缺失父类反例仍保守。首次宿主失败及原因保留；本增量未提交、不更新 Profile，真实 WSL 与组合性能门槛开放。
 
 1. 先收集当前真人候选的使用反馈；有可复现错误时按补全相关性、接受文本、版本一致性及等待时间排序。原有 60 场景与 D01–D42 正反例继续作为固定门槛，见[冻结补全语料](completion-acceptance-corpus.md)。本次整理不减少场景或放宽预算。
 2. C1 继续核对真实 WSL 的引用准备终态、冷启动、未保存编辑与长期使用。两版冷／缓存／取消已有[自动化进度记录](reports/reference-progress-lifecycle-2026-10-03.md)；实项目缓存启动未明显加速，真实 WSL 与 Symfony 组合仍开放。完整 LSP 510 项已由[Core 里程碑](reports/core-source-checkpoint-2026-10-03.md)覆盖，不能替代真人验收。
@@ -48,6 +52,8 @@
 2026-10-04 本地源码检查点合并接口提取的全局源类型歧义保护、格式化候选的文件夹配置隔离／双 PHP 运行程序验证、严格渲染异常探针及受检扫描有界并行；提交标题 `fix(toolchain): isolate formatter settings and parallelize verified scans`。各报告保留原始失败与测量限制，旧“未提交”叙述是当批状态；该检查点不关闭 C1–C4、未修复的 Workbench 异常或真人门槛。不更新 Profile；goal 继续。
 
 ## 历史记录与材料管理
+
+最新本地 Core 源码里程碑收拢生成预览的竞争声明保护、protected 类族补全，以及 readonly 初始化版本／默认模式／重复赋值诊断。最终全量语义 1,365 项、readonly 五项定向协议及隔离宿主通过，生成与 protected 的各自证据继续按报告限定范围；没有据此关闭完整 LSP 性能、真人或平台门槛。提交标题 `fix(core): guard generation hierarchy and readonly family diagnostics`；此前“未提交”文字是历史批次状态。本轮不更新 Profile，goal 继续。
 
 本轮各批次事实仍保留在必要验收报告和版本控制测试中。重复历史流水与不被正式文档引用的报告已经备份归档；完整旧路线图也有逐字备份，见[材料收口索引](worktree-cleanup-2026-10-03.md)。保留长期 P0–P9 [路线图](roadmap.md)、支持矩阵、编号 fixtures 与未完成事项，不把归档当作功能完成。
 

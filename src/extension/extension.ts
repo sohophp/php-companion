@@ -526,6 +526,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   register('phpCompanion.applyPreviewedExtract', async (
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
       sourceDiskHash?: string; targetHashes?: Record<string, string>; sourcePhpVersion?: string; sourceVersionSetting?: string; sourceExecutableSetting?: string | null;
+      generation?: { classFqcn: string; sourcesHash: string };
       interfaceExtraction?: { position: { line: number; character: number }; planHash: string } },
     options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeApply?: () => Promise<void>;
       testBeforeOpen?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> },
@@ -603,6 +604,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         catch (error) {
           if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
         }
+      }
+      if (request.generation) {
+        try {
+          const client = await languageServer;
+          if (!client || await client.sendRequest<boolean>('phpCompanion/validateGenerationHierarchy', {
+            textDocument: { uri: sourceUri.toString(), version: sourceVersion }, ...request.generation,
+          }) !== true) return false;
+        } catch { return false; }
       }
       if (request.interfaceExtraction) {
         try {
