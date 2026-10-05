@@ -5258,6 +5258,27 @@ export class SemanticWorkspace {
 
   private completionVariableType(file: SemanticFile, scope: ParsedScope, variable: string, offset: number, depth = 0): PhpType | undefined {
     if (depth > 32) return undefined;
+    const base = this.completionVariableBaseType(file, scope, variable, offset, depth);
+    const narrowings = file.narrowings.filter(item => item.scopeId === scope.id && item.variable === variable
+      && !item.propertyPath?.length && !item.arrayPath?.length && offset >= item.start && offset <= item.end
+      && this.variableFlowFactStable(file, item, offset, scope)
+      && !file.calls.some(call => call.end <= offset && this.containingScope(file, call.start)?.id === scope.id
+        && this.flowFactInspectionRanges(item, offset).some(range => call.start >= range.start && call.end <= range.end)
+        && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
+          .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
+        && this.signatures(file.uri, call.argumentsStart + 1).length === 0)
+      && !file.assignments.some(assignment => assignment.scopeId === scope.id && assignment.variable === variable
+        && assignment.end >= item.start && assignment.end <= offset))
+      .sort((left, right) => left.end - left.start - (right.end - right.start));
+    if (!narrowings.length) return base;
+    const positive = narrowings.some(item => item.kind === 'instanceof'
+      || item.kind === 'type-predicate' && !item.negated || item.kind === 'boolean-literal' && !item.negated);
+    const narrowed = this.applyDirectFlowNarrowings(file, narrowings, base ?? (positive ? primitive('mixed') : undefined), offset, scope);
+    return !base && narrowed?.kind === 'primitive' && narrowed.name === 'mixed' ? undefined : narrowed;
+  }
+
+  private completionVariableBaseType(file: SemanticFile, scope: ParsedScope, variable: string, offset: number, depth = 0): PhpType | undefined {
+    if (depth > 32) return undefined;
     if (variable === '$this') return scope.containerFqcn && this.canUseThisInScope(file, scope)
       ? named(scope.containerFqcn) : undefined;
     const parameter = scope.parameters.find((item) => `$${item.name}` === variable);
@@ -5267,6 +5288,12 @@ export class SemanticWorkspace {
       if (file.assignments.some(assignment => assignment.scopeId === scope.id
         && assignment.variable === variable && assignment.end <= offset))
         return this.linearLocalValueType(file, variable, offset, true);
+      if (parameter.byReference || this.priorReferenceMutations(file, scope, variable, offset).length) return undefined;
+      if (file.calls.some(call => call.end <= offset && call.start >= scope.start
+        && this.containingScope(file, call.start)?.id === scope.id
+        && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
+          .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
+        && this.signatures(file.uri, call.argumentsStart + 1).length === 0)) return undefined;
       const documented = parameter.type ? parsePhpDocType(parameter.type).type : undefined;
       return documented ? this.phpDocDiagnosticType(file, documented, scope.containerFqcn ?? scope.id)
         : parameter.nativeType ? this.nativeSourceType(file, nativeParameterType(parameter, file.uri), scope.containerFqcn)

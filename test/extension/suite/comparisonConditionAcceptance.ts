@@ -22,6 +22,7 @@ export async function run(): Promise<void> {
   const largeRanking = process.env.PHP_COMPANION_TEST_LARGE_RANKING_ONLY === '1';
   const largeLocalRanking = process.env.PHP_COMPANION_TEST_LARGE_LOCAL_RANKING_ONLY === '1';
   const reassignedParameters = process.env.PHP_COMPANION_TEST_REASSIGNED_PARAMETER_ONLY === '1';
+  const flowValues = process.env.PHP_COMPANION_TEST_FLOW_VALUE_ONLY === '1';
   const functionIdentifiers = process.env.PHP_COMPANION_TEST_FUNCTION_IDENTIFIER_ONLY === '1';
   const typeTails = process.env.PHP_COMPANION_TEST_TYPE_TAIL_ONLY === '1';
   const unclosedCallables = process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_ONLY === '1';
@@ -50,7 +51,12 @@ export async function run(): Promise<void> {
       marked: fixture.source.slice(0, fixture.offset) + '§' + fixture.source.slice(fixture.offset) };
   });
   const reassignedHeader = '<?php function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA="changed";$offerZ=42;';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = reassignedParameters ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = flowValues ? [
+    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,marked:'<?php function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offer§);}}'},
+    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,marked:'<?php function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offer§);}}'},
+    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,marked:'<?php function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offer§);}}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offer§);}}'},
+  ] : reassignedParameters ? [
     {prefix:'$offer',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'send($offer§);}'},
     {prefix:'',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'send(value: §);}'},
     {prefix:'',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'return §;}'},
@@ -244,7 +250,7 @@ export async function run(): Promise<void> {
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     if (blankInitializers || blankInitializerTypes) marked = marked.replace('<?php ', `<?php namespace BlankInitializerGate${suffix}; `);
-    if (largeRanking || largeLocalRanking || reassignedParameters) marked = marked.replace('<?php ', `<?php namespace LargeRankingGate${suffix}; `);
+    if (largeRanking || largeLocalRanking || reassignedParameters || flowValues) marked = marked.replace('<?php ', `<?php namespace LargeRankingGate${suffix}; `);
     const offset = marked.indexOf('§'); const source = marked.replace('§', '');
     const label = item.label.replace('Current', `Current${suffix}`).replace('PICK_', `PICK${suffix}_`)
       .replace('NamespaceUi', `NamespaceUi${suffix}`);
@@ -284,6 +290,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

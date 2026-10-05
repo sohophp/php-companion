@@ -1,0 +1,491 @@
+{
+  "unit": "D83",
+  "baseCommit": "3fc8024308746563e0c34c99aff39cc38fb957d9",
+  "productInputs": {
+    "packages/semantic/src/index.ts": "28cc87809dd17da92a9a0f0c87c1551eb38af7e065418862600890b9ae24e74f",
+    "packages/semantic/dist/index.js": "bf61f5f4a38f8f045f56c5ce07ebe2bf448d94f4a94fd052d402101f72abb81f",
+    "packages/language-server/src/server.ts": "5fd8dd29825d52e21e6f956435937022f730931d096ab76865d2edf18611338f",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "83a7a6b6330246e3d454ceba18d1e73fd112d97d3766323919932f56eb17208c",
+    "packages/semantic/test/flow-value-completion.test.ts": "0a3d3d5abab40536ba071424fb7a554aec314b1179b0046e42bd64d515190bd9",
+    "packages/language-server/test/flow-value-completion-stdio.test.ts": "3cd050438618e18a94794d718c42190fc33ba61197fc20a46e6c73c5f9fcbde6",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "f49a1f6414d38bb4cb18458fda31e7752a98a10d4f40c2102f0da7e17c3f550b"
+  },
+  "newSemanticTests": 20,
+  "targetedSemanticPassed": 72,
+  "fullSemantic": {
+    "files": 104,
+    "tests": 2288,
+    "passed": 2288,
+    "failed": 0,
+    "pending": 0,
+    "maxWorkers": 2,
+    "durationMs": 131416.3359375,
+    "sourceSha256": "28cc87809dd17da92a9a0f0c87c1551eb38af7e065418862600890b9ae24e74f",
+    "flowFixtureSha256": "5deb2aa851f5e087f18e742dd1585a08e73783d474e8bc47e2ca742d4b05cea9",
+    "scope": "Includes first 16 flow cases. Four business/reference adversarial cases added later and passed in the 72-case focused run; product source unchanged. Do not call this a single 2292-case full run."
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "newTests": 2,
+    "completionQueries": 28,
+    "resolveQueries": 26,
+    "relatedTests": 6,
+    "relatedCompletionQueries": 108,
+    "relatedResolveQueries": 50,
+    "scope": "nonnull and early-return guards, native type predicates, mixed, true, instanceof, assignment, unknown/known reference calls, exited guards, shadowed business predicates, unsaved removal/restoration and stale hint rejection"
+  },
+  "visibleHost": {
+    "version": "1.140.0",
+    "explicitTrigger": true,
+    "prewarmedProvider": true,
+    "proof": {
+      "platform": "linux",
+      "context": "control-flow-variable-values",
+      "results": [
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 307,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate0Enter; function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offerA);}}",
+          "caretOffset": 152,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 162,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate0Tab; function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offerA);}}",
+          "caretOffset": 150,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 169,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate1Enter; function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offerA);}}",
+          "caretOffset": 148,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 153,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate1Tab; function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offerA);}}",
+          "caretOffset": 146,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 118,
+          "visibleLabels": [
+            "$offerA$offerA: true",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate2Enter; function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offerA);}}",
+          "caretOffset": 144,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 161,
+          "visibleLabels": [
+            "$offerA$offerA: true",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate2Tab; function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offerA);}}",
+          "caretOffset": 142,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 147,
+          "visibleLabels": [
+            "$offerZ$offerZ: string",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate3Enter; function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offerZ);}}",
+          "caretOffset": 200,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 157,
+          "visibleLabels": [
+            "$offerZ$offerZ: string",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace LargeRankingGate3Tab; function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offerZ);}}",
+          "caretOffset": 198,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  },
+  "hotPerformance": {
+    "scope": "Serial real production stdio; 100 parameters, one nullable parameter proven non-null by a stable guard; no edits during warm samples; not continuous-edit or Composer-scale qualification",
+    "bundleSha256": "83a7a6b6330246e3d454ceba18d1e73fd112d97d3766323919932f56eb17208c",
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "kind": "variable",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 11.569146000000046,
+        "samples": [
+          10.402483000000075,
+          9.66456600000015,
+          14.943862999999965,
+          11.569146000000046,
+          8.713817999999947,
+          7.3155470000001515,
+          4.580631000000039,
+          3.8128230000002077,
+          4.19926200000009,
+          4.031206999999995,
+          4.828759999999875,
+          4.262706999999864,
+          3.7389149999999063,
+          3.695516999999654,
+          4.983655999999883,
+          3.222667999999885,
+          3.3109879999997247,
+          3.7278190000001814,
+          3.3203449999996337,
+          3.665783000000374
+        ],
+        "sourceSha256": "71b61e3134ad41f7d5c58b3f85bad1666f989f913e774aa3367995543d43fa01",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "7.2",
+        "kind": "blank",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 7.671622000000298,
+        "samples": [
+          4.987034000000222,
+          4.431307999999717,
+          4.2998249999996005,
+          5.643058999999994,
+          4.789890999999898,
+          5.029661999999917,
+          5.09308800000008,
+          4.923399000000245,
+          4.7373499999998785,
+          4.749810000000252,
+          5.131844999999885,
+          6.7344020000000455,
+          4.03937599999972,
+          4.381268000000091,
+          7.671622000000298,
+          8.076898000000256,
+          5.614430999999968,
+          4.811568999999963,
+          3.7758739999999307,
+          3.8961779999999635
+        ],
+        "sourceSha256": "d602d991040d307e7d473b6bd2eff37df139bcc2e45d75572b6ab18ed8cec419",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "variable",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 9.031423000000359,
+        "samples": [
+          5.209341000000677,
+          4.475645000000441,
+          10.695222999999714,
+          6.76767000000018,
+          5.577492999999777,
+          5.068720000000212,
+          9.031423000000359,
+          3.986689000000297,
+          3.846176000000014,
+          3.6617699999997058,
+          4.362095999999838,
+          3.4550859999999375,
+          3.3425509999997303,
+          3.3749830000006114,
+          3.409111999999368,
+          3.4974969999993846,
+          3.5334550000006857,
+          4.073406999999861,
+          3.3944469999996727,
+          3.2686869999997725
+        ],
+        "sourceSha256": "71b61e3134ad41f7d5c58b3f85bad1666f989f913e774aa3367995543d43fa01",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "blank",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 4.280872999999701,
+        "samples": [
+          4.280872999999701,
+          16.18291600000066,
+          3.4086809999998877,
+          2.9802239999999074,
+          2.929141999999956,
+          2.8974200000002384,
+          3.3454929999998058,
+          3.025061000000278,
+          3.4392029999999068,
+          3.028537999999571,
+          3.114545999999791,
+          2.937955999999758,
+          3.4883060000001933,
+          3.4353069999997388,
+          4.118870000000243,
+          3.0858479999997144,
+          3.192066999999952,
+          3.424025999999685,
+          2.841186999999991,
+          2.9486260000003313
+        ],
+        "sourceSha256": "d602d991040d307e7d473b6bd2eff37df139bcc2e45d75572b6ab18ed8cec419",
+        "topCandidate": "$offer099"
+      }
+    ]
+  },
+  "syntaxCompilation": {
+    "scope": "Syntax compilation only; no execution, 8 accepted UI texts x 2 actual CLI versions",
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "case": 0,
+        "key": "Enter",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "e2a165b0f9ed6e48afc3626b2672d31adc52c2c10a7fc129c5cf8a2adbffcd0f"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 0,
+        "key": "Enter",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "e2a165b0f9ed6e48afc3626b2672d31adc52c2c10a7fc129c5cf8a2adbffcd0f"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 1,
+        "key": "Tab",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "03ebfdad306c43bd42ea8d9cbe7913d39d9fd411a0b2eff31dde7e3d05371867"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 1,
+        "key": "Tab",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "03ebfdad306c43bd42ea8d9cbe7913d39d9fd411a0b2eff31dde7e3d05371867"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 2,
+        "key": "Enter",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "82b994877d12005f176989e310660fb0bc4858c5cc4297fbd37748fc4565e2da"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 2,
+        "key": "Enter",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "82b994877d12005f176989e310660fb0bc4858c5cc4297fbd37748fc4565e2da"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 3,
+        "key": "Tab",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "9fb1f9f4e1da1d59f12f4721ae15df4aaaa92b4fd1ebdad9bd351d1b41f80710"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 3,
+        "key": "Tab",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "9fb1f9f4e1da1d59f12f4721ae15df4aaaa92b4fd1ebdad9bd351d1b41f80710"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 4,
+        "key": "Enter",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "68e303c02095eab6bf50884ed41df2911dd7353759c1e17fb63910ccf8d5644d"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 4,
+        "key": "Enter",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "68e303c02095eab6bf50884ed41df2911dd7353759c1e17fb63910ccf8d5644d"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 5,
+        "key": "Tab",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "4c7c29603ad58d4f2bd0f6e2aae856f05739b574c66ffc232e3ad8c672aa276a"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 5,
+        "key": "Tab",
+        "label": "$offerA",
+        "exitCode": 0,
+        "sourceSha256": "4c7c29603ad58d4f2bd0f6e2aae856f05739b574c66ffc232e3ad8c672aa276a"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 6,
+        "key": "Enter",
+        "label": "$offerZ",
+        "exitCode": 0,
+        "sourceSha256": "71aebabdf14cc7fd9329c8cc30bc1920246f27b126f851630f4ce2d2aa7cb01c"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 6,
+        "key": "Enter",
+        "label": "$offerZ",
+        "exitCode": 0,
+        "sourceSha256": "71aebabdf14cc7fd9329c8cc30bc1920246f27b126f851630f4ce2d2aa7cb01c"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": 7,
+        "key": "Tab",
+        "label": "$offerZ",
+        "exitCode": 0,
+        "sourceSha256": "646529e581304f6a5061fd055d13e6963b6f2e7d7671052574a4b729cae462c8"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": 7,
+        "key": "Tab",
+        "label": "$offerZ",
+        "exitCode": 0,
+        "sourceSha256": "646529e581304f6a5061fd055d13e6963b6f2e7d7671052574a4b729cae462c8"
+      }
+    ]
+  },
+  "failuresRetained": [
+    "Initial 14 semantic cases: 10 fail / 4 pass; complete gate log retained.",
+    "First new wrapper leaves four failures: standalone type-predicate tests lacked builtin signature facts; unknown argument calls still incorrectly retain narrowed facts.",
+    "Builtin predicate declaration facts added to standalone test. Parameter known-reference and unknown-call guards added, including named arguments. Second two unknown-call failures retained; third 66 and final named-argument 68 focused cases pass.",
+    "Adversarial business predicate and explicit reference mutation cases added without changing product after complete semantic gate; 72 focused cases pass."
+  ],
+  "boundaries": [
+    "Not all control flow, hidden aliasing or dynamic binding is proven; existing bounded readers and conservative detail guards remain",
+    "No complete current LSP rerun; D79 binds aae39a54 only",
+    "Hot queries are fixed-document scope, not continuous edits or larger Composer scale",
+    "Visible Linux gate is explicit suggestion, not natural typing or real WSL acceptance",
+    "No packaging/Profile update/push/release"
+  ],
+  "artifacts": {
+    "/tmp/sophp-d83-progress.json": "a23627e62dcef70ad5bbbcaae5b762cd49a1c2077daae0f41012f6dc5e969d3c",
+    "/tmp/sophp-d83-flow-red.log": "a5d75397e530f6d1ea73bb4c01f8b6caf21a444f3200bd06fb8c378fc3797666",
+    "/tmp/sophp-d83-flow-first.log": "3c3aa4b9278231d297dfb9ec21310544641861cd7d3253fee5022da555d57c04",
+    "/tmp/sophp-d83-flow-second.log": "5f3289e49e23b3133434f4ad13b53846a40143d219b7ad84457b993c8083761a",
+    "/tmp/sophp-d83-flow-third.log": "56dd9e129ff13dab1c9ccb8705851d6fed4ed67ef9ff2772daf819e40727f3bd",
+    "/tmp/sophp-d83-flow-final.log": "dc7cf2c362a40c6a7dc8f607fa156b58b596771ac5bf2681d0befb2b00253ef7",
+    "/tmp/sophp-d83-adversarial.log": "dc8f5c91f96cd2402622d472253087be5406a7ed48a61de779b70a2bb25f7f0e",
+    "/tmp/sophp-d83-semantic-full.log": "bbfb3b4745b8342083581869a94c4f07df1efd333e73ed287c0b4433705bd345",
+    "/tmp/sophp-d83-semantic-full.json": "1615f64b5bce9866fd09c1d003e9d360504cc9e0f858432c844572e6e405a765",
+    "/tmp/sophp-d83-protocol.log": "78b7dabf4fc6cc52264f69b7b229b2f3f467960166a28d2530c66982b79a125a",
+    "/tmp/sophp-d83-host.log": "62c07b47afde74343139f90738e59295ba116893293ec88a5dfbf8d9013e2fdd",
+    "/tmp/sophp-d83-host-proof.json": "1294af7e238c30a058e0be44caece6ad239a51a83db9a7434c7cd2a5ea430644",
+    "/tmp/sophp-d83-compile-proof.json": "3b3d0adacc8f9519f6c84f4880e3e7af3ded7374cb37a2348255cee65842b21f",
+    "/tmp/sophp-d83-ranking-performance.mjs": "cfb58d1370a18d0fc2f498c21c8374e2b53fe095944952a6f78d57e7afcf4fe0",
+    "/tmp/sophp-d83-ranking-performance.log": "38215972685f70550e51c0af867b5579363886def124c964f83e0dd2507db31a",
+    "/tmp/sophp-d83-ranking-performance.json": "387dbae44312193fafb960e23e9d68d7a1140722775025a1ad6ade8bcfd4dd46",
+    "/tmp/sophp-d83-build-semantic.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    "/tmp/sophp-d83-build-server.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    "/tmp/sophp-d83-build-production.log": "8579a4d91e5b888c777a0ccaf7d0b53026f1e33102a6b4d2e98670fefa08c0d2",
+    "/tmp/sophp-d83-eslint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d83-extension-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
