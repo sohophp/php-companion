@@ -1133,7 +1133,10 @@ function newestSyntaxGrammarGapRanges(source: string, parser: PhpSyntaxParser,
   root: ReturnType<PhpSyntaxParser['parseTree']>['rootNode'], errors: SourceRange[]): { ranges: SourceRange[]; cloneCalls: SourceRange[] } {
   const ranges: SourceRange[] = [];
   const cloneCalls: SourceRange[] = [];
-  for (const match of source.matchAll(/\bclone\s*\(/giu)) {
+  // These literal probes only avoid unnecessary whole-source recovery scans.
+  // A possible spelling still runs the complete syntax and ownership checks.
+  const cloneMatches = /clone/i.test(source) ? source.matchAll(/\bclone\s*\(/giu) : [];
+  for (const match of cloneMatches) {
     let node = root.descendantForIndex(match.index);
     let code = false;
     while (node) {
@@ -1187,7 +1190,8 @@ function newestSyntaxGrammarGapRanges(source: string, parser: PhpSyntaxParser,
       } finally { repaired.tree.delete(); }
     }
   }
-  for (const constructor of source.matchAll(/\bfunction\s+__construct\s*\(/gi)) {
+  const constructors = /__construct/i.test(source) ? source.matchAll(/\bfunction\s+__construct\s*\(/gi) : [];
+  for (const constructor of constructors) {
     const parametersStart = constructor.index + constructor[0].length;
     let depth = 1; let quote = ''; let escaped = false; let index = parametersStart;
     for (; index < source.length && depth > 0; index += 1) {
