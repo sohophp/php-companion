@@ -6,7 +6,7 @@
 
 | 项目 | 当前事实 |
 | --- | --- |
-| 源码检查点 | 当前分支 `work/sophp-next`；`aae39a54` 通过 [D79 完整 LSP](reports/core-aae39a54-full-regression-2026-10-05.md)；`21dfbed6` 收口 D80–D87 并留下 [D88 完整失败记录](reports/core-21df-full-regression-2026-10-05.md)；`34c15010` 收口 [D89 XMLReader](reports/native-xmlreader-invocations-2026-10-05.md)；[D90 函数查找与闭包超时](reports/completion-function-lookup-cost-2026-10-05.md)为此前检查点；[D99 继承构造泛型](reports/completion-inherited-constructor-generics-2026-10-05.md)收口本批源码。当前 Profile 与源码分开验收 |
+| 源码检查点 | 当前分支 `work/sophp-next`；`aae39a54` 通过 [D79 完整 LSP](reports/core-aae39a54-full-regression-2026-10-05.md)；`21dfbed6` 收口 D80–D87 并留下 [D88 完整失败记录](reports/core-21df-full-regression-2026-10-05.md)；`34c15010` 收口 [D89 XMLReader](reports/native-xmlreader-invocations-2026-10-05.md)；[D90 函数查找与闭包超时](reports/completion-function-lookup-cost-2026-10-05.md)为此前检查点；[D99 继承构造泛型](reports/completion-inherited-constructor-generics-2026-10-05.md)为此前检查点；[D100 旧版版本检查成本](reports/completion-version-traversal-cost-2026-10-05.md)收口本批源码。当前 Profile 与源码分开验收 |
 | 当前源码增量 | [D57 属性赋值注释](reports/completion-assignment-comments-2026-10-04.md)、[D58 未闭合 callable 值](reports/completion-unclosed-callable-values-2026-10-04.md)、[D59 PHP/HTML 区块恢复](reports/completion-mixed-callable-recovery-2026-10-04.md)：保持当前作用域、最近契约及真实编辑范围；原长度和定界符预算不变 |
 | 当前优化增量 | [D61 导入前缀](reports/completion-import-prefixes-2026-10-04.md)：只缩短可证明不跨分号的导入正则片段，分组范围保持绝对位置，普通参数类型上下文不截断；此前 [D60 当前词／注释遮罩](reports/completion-trivia-editing-2026-10-04.md)继续保留 |
 | 当前自动化 | D69 前检查点完整 LSP 875 项、完整语义 2054 项通过，零跳过；D70 已修复服务器匹配列表的连续输入缓存，169 个相关命名用例分段覆盖、4 项／84 个新增状态及两模式各 12 条自然流程通过；详见 [D70 记录](reports/completion-progressive-matching-2026-10-05.md)。D71 完整组合为 869 通过／10 个旧数组读取失败，10 项适配复测已通过，此为分段记录；D72 [候选关闭保护](reports/completion-closed-candidate-snapshots-2026-10-05.md)已完成 80＋6 组交错、84 状态及两模式自然 UI，D73 的 D72 产品完整 LSP 60 文件／879 项已通过，输入保持；D74 [原生错误恢复](reports/completion-native-error-recovery-2026-10-05.md)改后完整语义 2054 项、解析器 105 项、定向 LSP／诊断 59 项及两模式可见 UI 通过。D75 [按需 Autowire 扫描](reports/completion-autowire-scan-cost-2026-10-05.md)完整框架 70 项、2 项选定综合 LSP、84 状态及两模式可见 UI 通过；D73 完整 LSP 不覆盖 D74／D75，其它自动输入、平台及真人仍开放 |
@@ -28,7 +28,7 @@
 | D87 自动化 | [赋值目标补全](reports/completion-assignment-targets-2026-10-05.md)：赋值 AST 与共享表达式接收者支持链式属性、函数返回对象、括号和集合元素属性；新增 60 项，完整 107 文件／2424 项通过，首次 25 处已有回归保留原断言修复。三文件八项协议，新增两版 34 查询／12 Hover／12 精确跳转与诊断版本检查；八次可见接受／UndoRedo、八次 PHP 8.5 编译通过。100 参数四组固定热 P95 5.02–9.57 ms；普通连续编辑、当前完整 LSP、动态／规模与真人仍开放，不更新 Profile |
 | D89 自动化 | [XMLReader 调用契约](reports/native-xmlreader-invocations-2026-10-05.md)：六 CLI 证明 XML／open 实例 bool、静态对象契约；保持真实声明与 override。新增 19 项、完整 108 文件／2443 项通过，原失败跳转定向通过；两版真实 stdio 20 查询／12 当前诊断版本、八次可见接受／UndoRedo、八次 PHP 8.5 编译通过。闭包超时、普通连续编辑与真人仍开放，不更新 Profile |
 | D90 自动化 | [函数声明查找成本](reports/completion-function-lookup-cost-2026-10-05.md)：CPU 采样定位诊断／闭包推断反复扫描内建声明；声明数组索引保留重复、顺序、大小写与更新／恢复失效。D88 原闭包场景在未改 15 秒门槛下 9.55 秒通过；七新语义、完整 109 文件／2450 项、八次可见接受／UndoRedo 与八次实际编译通过。当前完整 LSP 尚待组合复核，不拼接定向绿色，普通连续编辑与真人仍开放 |
-| 当前连续编辑 D92 | [未完成输入的解析检查成本](reports/completion-incomplete-parser-cost-2026-10-05.md)：只对含错误节点检查匿名缺失括号；565 次全部事实对照相同，新增 12 项、完整解析 117／语义 2450、分析 49／定向协议 7＋2、16 次可见接受与 UndoRedo 通过。同一夹具正式普通 P95 200.65／154.04→186.39／137.74 ms；7.2 仍超 150 ms、P50 未全面改善，整体性能未完成。两组插件未替换实际依赖的测量排除；更复杂原型不进入产品，源码改变后的完整 LSP 与真人仍开放，不更新 Profile |
+| 连续编辑历史 D92 | [未完成输入的解析检查成本](reports/completion-incomplete-parser-cost-2026-10-05.md)：只对含错误节点检查匿名缺失括号；565 次全部事实对照相同，新增 12 项、完整解析 117／语义 2450、分析 49／定向协议 7＋2、16 次可见接受与 UndoRedo 通过。同一夹具正式普通 P95 200.65／154.04→186.39／137.74 ms；7.2 仍超 150 ms、P50 未全面改善，整体性能未完成。两组插件未替换实际依赖的测量排除；更复杂原型不进入产品，源码改变后的完整 LSP 与真人仍开放，不更新 Profile |
 | D93 自动化 | [Reflection 构造版本合同](reports/completion-reflection-construction-2026-10-05.md)：96 条六 CLI 核对；PHP 7 ReflectionType 恢复构造候选、PHP 8 抽象基类继续排除，类型引用与合法子类型／集合保持。新增九版、完整规格 249／语义 2459、两版双模式 172 次协议与 16 次可见接受／UndoRedo／实际编译通过。省略括号构造没有调用事实的语义与协议失败已确认、下一批 D94 处理；完整根诊断门槛保留，当前完整 LSP／性能／真人未关闭 |
 | D94 自动化 | [省略括号构造事实](reports/completion-bare-construction-2026-10-05.md)：具名 `new Type;` 记录空参数范围并独立绑定构造；缓存 84 拒绝旧实现。解析 123／语义 2474／分析 48、两版双模式 184 状态、24 次可见接受及实际编译通过。普通用户 PHP 7 旧式构造与原 magic 参数重构边界保留；D95 接着统一复核完整 LSP，性能与真人仍开放 |
 | D95 完整组合 | [当前完整 LSP](reports/core-9cce-full-regression-2026-10-05.md)：`9cce9302` 的 67 文件／906 项全部通过，零跳过；3012 输入与六 CLI 保持，32 次实际跨进程引用与四组原 150 ms 热查询门槛通过。D92–D94 组合完整资格收口；普通连续编辑性能、完整自然输入覆盖、平台／规模／长会话与真人仍开放，不更新 Profile |
@@ -36,6 +36,7 @@
 | D97 自动化 | [Trait 构造合同](reports/completion-trait-construction-2026-10-05.md)：按类／Trait／父类优先级恢复嵌套、构造别名、继承和可见性；冲突／未解析组合撤回证明，原生类型分开绑定源 import 与消费类 self／parent。新 24 项、完整语义 2517、六 CLI 144 条、两版双模式 116 状态、16 次最终可见接受／UndoRedo／实际编译通过；跨命名空间 PHPDoc 精化、当前完整 LSP、编辑预算与真人仍开放 |
 | D98 自动化 | [Trait PHPDoc 与嵌套签名](reports/completion-trait-phpdoc-2026-10-05.md)：按原声明 import 与消费类 self／parent 绑定，模板不误借同名类，未知精化撤回；闭包原生类型沿实际声明位置，关闭内层调用后切回外层。新增 50 项，完整语义 2567、定向服务器 57、两版双模式新 136 状态、16 次最终可见接受／UndoRedo／编译及独立 PHPStan 22 条分类通过；完整 LSP、普通编辑预算、全部 Trait 泛型与真人仍开放 |
 | D99 自动化 | [继承构造泛型](reports/completion-inherited-constructor-generics-2026-10-05.md)：沿既有 @extends 绑定构造参数、排序和诊断，保护方法模板、原生合同与实际声明；泛型实参／上界保留组合分组，缓存 85／源码声明 3 拒绝旧合同。新增 38 项、完整语义 2605、定向服务器 63、三版双模式 210 新状态、24 次最终可见接受／UndoRedo／实际编译及独立 PHPStan 32 条分类通过；Trait @use、完整 LSP、普通编辑预算与真人仍开放 |
+| 当前连续编辑 D100 | [版本检查成本](reports/completion-version-traversal-cost-2026-10-05.md)：每个节点读取一次类型；3051 次九版本诊断／范围／顺序对照一致，完整语言规格 249／语义 2605、定向 LSP 57、16 次当前可见接受及实际 CLI 语法通过。同一输入各版各一次普通对照，PHP 7.2 P95 188.53→155.06 ms，8.5 124.83→123.99 ms；7.2 仍超 150 ms，整体普通编辑预算未完成，不重复等价测量求绿色。完整当前 LSP 与真人继续开放，不更新 Profile |
 | 前次完整 LSP D69 | [D69 当前完整组合](reports/core-current-full-regression-2026-10-05.md)：59 文件／875 项全部通过，零失败和跳过，1764.34 秒；2,986 输入及六实际运行时二进制摘要保持。四组固定文档热 P95 21.14／21.84／85.52／102.08 ms；普通连续编辑预算另列 |
 | 前次完整 LSP | [84f4000d 完整组合](reports/core-84f4-full-regression-2026-10-04.md)原会话 50307 退出 1：868 通过、两项属性赋值热查询 P95 失败，870 项、零跳过，2980 份输入终态一致。相同产品源码单独运行两项通过，102.34／106.54 ms；`db8596ee` 将性能文件安排在其它文件结束后，新完整组合原会话 32152 退出 0，58 文件／870 项全部通过、零跳过；属性赋值热 P95 108.31／114.37 ms，2980 份输入终态一致。产品输入未变，连续编辑门槛仍开放 |
 | 前一完整绿色 | [a3678016 组合回归](reports/core-a367-full-regression-2026-10-04.md)：58 文件／866 项通过、零跳过；2970 份输入终态一致。该资格绑定当时输入，不能证明后续增量或当前性能组合 |
@@ -204,3 +205,8 @@ PHPDoc 注释生成和标签输入可由独立 VS Code 扩展提供；Core 已�
 
 
 D44 与 readonly 负向试验材料作为本地源码里程碑收口（feat(core): complete declaration defaults with valid expressions）：参数／属性默认值的类型与合法候选、PHP 8.5 callable 插入、self:: 权限、Closure 排序均有当前证据；完整语义 1451、两种协议矩阵共 58 查询、八次当前可见接受及独立 PHP 8.5.9 编译通过。全量 LSP、性能／平台／真人、未闭合恢复及其它常量表达式位置仍保留。此前“未提交”是当批状态，继续原路线图，不更新 Profile。
+
+
+## D100 旧版版本检查的遍历成本
+
+[版本检查记录](reports/completion-version-traversal-cost-2026-10-05.md)：优先处理 C2 普通连续编辑，在不改变规则、诊断顺序／范围和恢复的情况下，减少旧版 PHP 版本检查的重复 WASM getter 调用。3051 次对照、语言规格 249／语义 2605／定向 LSP 57、两版 16 次最终可见接受及实际 CLI 语法通过，708 个输入摘要保持。同一大文件普通对照 PHP 7.2 P95 188.53→155.06 ms；仍超 150 ms，不宣称整体性能达标。完整 LSP、Trait @use、规模／平台／长会话与真人继续开放；本地收口，不更新 Profile。

@@ -1,0 +1,1203 @@
+{
+  "milestone": "D100",
+  "date": "2026-10-05",
+  "baseSourceCheckpoint": "4328eaa3",
+  "productChange": "Read each syntax node type once during target-version validation; hoist immutable target numeric version. Keep every rule, traversal, output order, range and latest-version early return.",
+  "profile": {
+    "scope": "Exploratory PHP 7.2 CPU samples only, not ordinary latency qualification",
+    "mappingProof": {
+      "productionSha256": "8acda3b9dfb0f42e39612ce265bd7165dd72451263cb8ba70c0a0415cf9d0ed3",
+      "mappedBodySha256": "8acda3b9dfb0f42e39612ce265bd7165dd72451263cb8ba70c0a0415cf9d0ed3",
+      "exactProductionBody": true,
+      "buildId": "77c86e7a589d3e753cac30b9dbd1d0c64fc193f1edc561ee257a5950ba8d04f1"
+    },
+    "artifactSha256": "03c8f9738e2bee40c088111730da51a2e31a2cfa11232a517bab42cd4f1fc5d1"
+  },
+  "ordinaryBaseline": {
+    "checkpoint": "4328eaa3",
+    "currentFullQualification": false,
+    "fixture": {
+      "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+      "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "comments": 1500,
+      "constants": 1500,
+      "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "rounds": 100,
+      "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+    },
+    "engine": {
+      "path": "/tmp/sophp-d100-baseline/language-server.js",
+      "sha256": "8acda3b9dfb0f42e39612ce265bd7165dd72451263cb8ba70c0a0415cf9d0ed3"
+    },
+    "label": "baseline",
+    "started": "2026-10-05T08:02:58.248Z",
+    "profiled": false,
+    "explicitGc": false,
+    "runs": [
+      {
+        "version": "7.2",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/tmp/sophp-d100-baseline/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 176.88,
+          "all": {
+            "p50Ms": 109.05,
+            "p95Ms": 188.53,
+            "maxMs": 218.5
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 109.2,
+            "p95Ms": 180.15,
+            "maxMs": 194.21,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 108.36,
+            "p95Ms": 191.39,
+            "maxMs": 218.5,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      },
+      {
+        "version": "8.5",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/tmp/sophp-d100-baseline/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 302.68,
+          "all": {
+            "p50Ms": 84.32,
+            "p95Ms": 124.83,
+            "maxMs": 302.68
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 84.28,
+            "p95Ms": 124.83,
+            "maxMs": 302.68,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 84.9,
+            "p95Ms": 125.62,
+            "maxMs": 152.68,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      }
+    ]
+  },
+  "ordinaryCandidate": {
+    "checkpoint": "4328eaa3",
+    "currentFullQualification": false,
+    "fixture": {
+      "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+      "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "comments": 1500,
+      "constants": 1500,
+      "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "rounds": 100,
+      "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+    },
+    "engine": {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "712ecdccb266d561b965fb4322aaa6c74ad99795d144bbac73f363a1a511d5ea"
+    },
+    "label": "candidate",
+    "started": "2026-10-05T08:04:02.692Z",
+    "profiled": false,
+    "explicitGc": false,
+    "runs": [
+      {
+        "version": "7.2",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 173.45,
+          "all": {
+            "p50Ms": 94.34,
+            "p95Ms": 155.06,
+            "maxMs": 181.99
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 93.09,
+            "p95Ms": 150.17,
+            "maxMs": 173.45,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 96.13,
+            "p95Ms": 156.64,
+            "maxMs": 181.99,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      },
+      {
+        "version": "8.5",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 302.27,
+          "all": {
+            "p50Ms": 84.74,
+            "p95Ms": 123.99,
+            "maxMs": 302.27
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 81.61,
+            "p95Ms": 123.99,
+            "maxMs": 302.27,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 86.78,
+            "p95Ms": 140.73,
+            "maxMs": 148.83,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      }
+    ]
+  },
+  "measurementScope": "Same frozen 242801-byte input, 1500 constants/comments; one ordinary serial 100-round run per stage/version. No CPU profiler, explicit GC or RSS; all first/shared-candidate and disk checks kept. Single paired experiment, not a claim about all percentiles or long sessions.",
+  "budgetMs": 150,
+  "overallOrdinaryBudgetPassed": false,
+  "parity": {
+    "fixtureCount": 90,
+    "adversarial": 22,
+    "longEditingFixture": 1,
+    "versions": [
+      "7.2",
+      "7.3",
+      "7.4",
+      "8.0",
+      "8.1",
+      "8.2",
+      "8.3",
+      "8.4",
+      "8.5"
+    ],
+    "comparisons": 3051,
+    "equalAllDiagnosticsIncludingRangesAndOrder": true,
+    "inputHashes": [
+      {
+        "file": "test/extension/baseline/config/services.php",
+        "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+      },
+      {
+        "file": "test/extension/baseline/src/Broken.php",
+        "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+      },
+      {
+        "file": "test/extension/baseline/src/Contract/ExportContract.php",
+        "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+      },
+      {
+        "file": "test/extension/baseline/src/Contract/Mailer.php",
+        "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+      },
+      {
+        "file": "test/extension/baseline/src/Contract/MessageHandler.php",
+        "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+      },
+      {
+        "file": "test/extension/baseline/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "file": "test/extension/baseline/src/Contract/Traceable.php",
+        "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+        "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+        "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+        "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+        "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+        "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+        "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+        "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+        "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+        "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+        "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+        "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+        "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/OptimizeImports.php",
+        "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+        "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/RouteConsumer.php",
+        "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+        "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+        "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+      },
+      {
+        "file": "test/extension/baseline/src/Controller/UserController.php",
+        "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+      },
+      {
+        "file": "test/extension/baseline/src/Legacy/Duplicate.php",
+        "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ActivityService.php",
+        "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/AliasConsumer.php",
+        "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/AlternateFeature.php",
+        "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/AssertionConsumer.php",
+        "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/AttributeConsumer.php",
+        "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+        "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/BaseService.php",
+        "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/CompletionService.php",
+        "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ConstantBase.php",
+        "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ConstantChild.php",
+        "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+        "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ConstructorTarget.php",
+        "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ContainerConsumer.php",
+        "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+        "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/DeliveryState.php",
+        "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+        "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+        "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/DynamicProperties.php",
+        "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ExportService.php",
+        "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/ImplicitNullable.php",
+        "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/Mailer.php",
+        "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/MessageHandler.php",
+        "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/MissingRunner.php",
+        "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/OverrideTarget.php",
+        "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+        "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+        "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+        "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+        "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+        "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/RunnerImplementation.php",
+        "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/SharedFeature.php",
+        "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+        "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+        "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+        "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/UnusedImport.php",
+        "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+      },
+      {
+        "file": "test/extension/baseline/src/Service/UserService.php",
+        "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+      },
+      {
+        "file": "test/extension/baseline/src/Support/Constants.php",
+        "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+      },
+      {
+        "file": "test/extension/baseline/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "file": "test/extension/baseline/src/WrongNamespace.php",
+        "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+      },
+      {
+        "file": "test/extension/fixture/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "file": "test/extension/fixture/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "file": "test/extension/fixture/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "file": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+        "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+      },
+      {
+        "file": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "file": "test/extension/fixture/src/Controller/UserController.php",
+        "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+      },
+      {
+        "file": "test/extension/fixture/src/Service/AliasConsumer.php",
+        "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+      },
+      {
+        "file": "test/extension/fixture/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "file": "test/extension/fixture/src/Service/UserService.php",
+        "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+      },
+      {
+        "file": "test/extension/fixture/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "file": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+        "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+      },
+      {
+        "file": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+        "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+      },
+      {
+        "file": "test/extension/real-psr0/src/Consumer.php",
+        "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+      },
+      {
+        "file": "adversarial-0.php",
+        "sha256": "cd64c6bb5f767982b5dae1f1b239dd42f4d96045562370cb1b17e54d00d2d9d8"
+      },
+      {
+        "file": "adversarial-1.php",
+        "sha256": "87d5c595c3d8c3b60c173a2d26e25bc994a5691966d07079311a48b5e1009707"
+      },
+      {
+        "file": "adversarial-2.php",
+        "sha256": "5a27402c394b1f57e383c877d2998b064fabb06c057758c7bf7d8eb91642f889"
+      },
+      {
+        "file": "adversarial-3.php",
+        "sha256": "45a23b56dd95c45ab725e5b98fc3c1340970688f5a01a71ad4e2a359b724c127"
+      },
+      {
+        "file": "adversarial-4.php",
+        "sha256": "b8dc38effa0d43be2299b8bde1d886a3dff036e93d4a5c5bf8f868b96ec3b599"
+      },
+      {
+        "file": "adversarial-5.php",
+        "sha256": "90d2e704fe8af12339d61427414386bd92e0ba7d6d9dc8ab182db8bea3346417"
+      },
+      {
+        "file": "adversarial-6.php",
+        "sha256": "4e5f48dc3ab19bb70f19fcf93273863bfb2751dc5be9b02fde31b83fc805a9e0"
+      },
+      {
+        "file": "adversarial-7.php",
+        "sha256": "bb70e54c06eed668fc3553242ef34fff7644caef68738e21fddf7af217fc5e86"
+      },
+      {
+        "file": "adversarial-8.php",
+        "sha256": "27f5ff04abd818e1470ceb550ddf64b3c1fe025ce82a84deaffdf1fe4c61ecf4"
+      },
+      {
+        "file": "adversarial-9.php",
+        "sha256": "bae6f34b6738ebef6a852ecf32bbc61066090b096cf1585a23a9b58b92019d97"
+      },
+      {
+        "file": "adversarial-10.php",
+        "sha256": "09523d18c2c587d17c4fac8cc652477f7289d0af0e1f8bc79093ca180693142e"
+      },
+      {
+        "file": "adversarial-11.php",
+        "sha256": "8512f1277387e9247452a741a913a0ab4fb17c0d0376973793317a2f637e8f80"
+      },
+      {
+        "file": "adversarial-12.php",
+        "sha256": "66e9f695cd381234ac77beecd9dbb201ad8dff522a122d1447c3310c8b27c14f"
+      },
+      {
+        "file": "adversarial-13.php",
+        "sha256": "5011a8a83c79d8717b4d60a989aaf619100c7baffe3916ba46eb346d315a948e"
+      },
+      {
+        "file": "adversarial-14.php",
+        "sha256": "058843823823a5831255a536a43db967dca2969bb15b615a5107b11ff9004ee3"
+      },
+      {
+        "file": "adversarial-15.php",
+        "sha256": "c88303c13d7c742d0b1086a45f30686381333c4211c09f660ccbc42c1f90a209"
+      },
+      {
+        "file": "adversarial-16.php",
+        "sha256": "9fe30beaec8ffbfb17d718eb81cfa8eddf9075401897b77265043f11f63bf828"
+      },
+      {
+        "file": "adversarial-17.php",
+        "sha256": "3dcc448934c5ab68d9f620558ad68b753dce8732e190cd211d997b3d1e401377"
+      },
+      {
+        "file": "adversarial-18.php",
+        "sha256": "8acb330d2af80042d7467ca2d997ec3cdc181ce2e881cbc439cab0f55f89e0e6"
+      },
+      {
+        "file": "adversarial-19.php",
+        "sha256": "da27516c16244231fecb59c3e24c147bd1d74e719be452fd38566ea33a229faa"
+      },
+      {
+        "file": "adversarial-20.php",
+        "sha256": "dc57b1b0a9f2ad5806e5d8e35987b07c3b4dae922d1125e441349bd3ea8825e9"
+      },
+      {
+        "file": "adversarial-21.php",
+        "sha256": "7b0026795681686145cb8450cdf9621273fa0b94fafef7a53f3c7443d5f46128"
+      },
+      {
+        "file": "large-editing.php",
+        "sha256": "6e3ead1a92490d66cd4f8efb6edece5c88f86857f9b9ca88411746dd8743d1c3"
+      }
+    ]
+  },
+  "tests": {
+    "spec": {
+      "files": 15,
+      "total": 249,
+      "passed": 249,
+      "failed": 0,
+      "skipped": 0,
+      "artifactSha256": "a824ce1a9b8ad6f462449f2eca11355195a50b2ccd9fae6a234b25b4535b6905"
+    },
+    "semantic": {
+      "files": 115,
+      "total": 2605,
+      "passed": 2605,
+      "failed": 0,
+      "skipped": 0,
+      "artifactSha256": "ee2ed6476c04f8bd8cd5471d6608a11e934e495950a039f3bb812de778db96f5"
+    },
+    "lsp": {
+      "files": 4,
+      "total": 57,
+      "passed": 57,
+      "failed": 0,
+      "skipped": 0,
+      "artifactSha256": "502bac5f41587810e711872afab6d9ee12f83ef836b0d50f4d22f58d581fdb49"
+    }
+  },
+  "visibleHostProofs": {
+    "7.2": {
+      "platform": "linux",
+      "context": "inherited-construction-7.2",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 242,
+          "visibleLabels": [
+            "$offerZ",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} /** @extends \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ class C extends \\OriginGate0Enter\\Box {} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 358,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 134,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate0Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} /** @extends \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ class C extends \\OriginGate0Tab\\Box {} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 346,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 132,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} /** @extends \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ class C extends \\OriginGate1Enter\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 434,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 125,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} /** @extends \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ class C extends \\OriginGate1Tab\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 422,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 136,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} /** @extends \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ class C extends \\OriginGate2Enter\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 476,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 116,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} /** @extends \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ class C extends \\OriginGate2Tab\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 464,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 126,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Enter\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Enter; class User {} /** @extends \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ class C extends \\OriginGate3Enter\\Middle {} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 430,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 121,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Tab; class User {} /** @extends \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ class C extends \\OriginGate3Tab\\Middle {} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 418,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "8.5": {
+      "platform": "linux",
+      "context": "inherited-construction-8.5",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 254,
+          "visibleLabels": [
+            "$offerZ",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} /** @extends \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ class C extends \\OriginGate0Enter\\Box {} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 358,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 143,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate0Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} /** @extends \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ class C extends \\OriginGate0Tab\\Box {} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 346,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 130,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} /** @extends \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ class C extends \\OriginGate1Enter\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 434,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 179,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} /** @extends \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ class C extends \\OriginGate1Tab\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 422,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 117,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} /** @extends \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ class C extends \\OriginGate2Enter\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 476,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 118,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} /** @extends \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ class C extends \\OriginGate2Tab\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 464,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 155,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Enter\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Enter; class User {} /** @extends \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ class C extends \\OriginGate3Enter\\Middle {} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 430,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 125,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Tab; class User {} /** @extends \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ class C extends \\OriginGate3Tab\\Middle {} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 418,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  },
+  "acceptedCliSyntax": [
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "2b576f7c7770d089da21b5c6f30a3fb30d2ed988b185e96936719b79257dd937",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-0.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "f665f314c52778605c904943076e7f012d54fe8a81ab4715ac08e61313da1ec3",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-1.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "4413451129d0f51256f1ccf3a92bc57e75f62cf1cb9d2965ca282cbdb25d58a8",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-2.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "4b955641f08c2e87134622ef7db80fdb6c92823d76d19aa6dea14eaec3fe30d6",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-3.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "337efce5dd3dbb860857bba1c37599fc73e06358ec863efc457f752ea76e0269",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-4.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "959709ff49615f9c12ec2fa970eb7d9f5c447238b1e49bf2d860de1016508125",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-5.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "9f1c01f979e141d62bdbf8e4e653c65b7cd37469e6012f85c06e7775b622fa7a",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-6.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "actualVersion": "7.2.34",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "d04b571ffe7e0983cf75118b4f99ecc97e6e589bb2cf855d69f891b18335cc9c",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/7.2-7.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "2b576f7c7770d089da21b5c6f30a3fb30d2ed988b185e96936719b79257dd937",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-0.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "f665f314c52778605c904943076e7f012d54fe8a81ab4715ac08e61313da1ec3",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-1.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "4413451129d0f51256f1ccf3a92bc57e75f62cf1cb9d2965ca282cbdb25d58a8",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-2.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "4b955641f08c2e87134622ef7db80fdb6c92823d76d19aa6dea14eaec3fe30d6",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-3.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "337efce5dd3dbb860857bba1c37599fc73e06358ec863efc457f752ea76e0269",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-4.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "959709ff49615f9c12ec2fa970eb7d9f5c447238b1e49bf2d860de1016508125",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-5.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "9f1c01f979e141d62bdbf8e4e653c65b7cd37469e6012f85c06e7775b622fa7a",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-6.php\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "actualVersion": "8.5.9",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "d04b571ffe7e0983cf75118b4f99ecc97e6e589bb2cf855d69f891b18335cc9c",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d100-accepted-3gftm00d/8.5-7.php\n",
+      "stderr": ""
+    }
+  ],
+  "frozenInputs": {
+    "count": 708,
+    "artifactSha256": "918c33446377c9e0d2eea9735ce851f080aba162323c4b062edad3c3205691b7",
+    "checkedUnchangedAfterTestsAndHosts": true
+  },
+  "sourceHashes": {
+    "packages/language-spec/src/index.ts": "1aecaf1c8940cc8f41c2e3a984224c990e17a6d34e0751078aea2dd2c896eb64",
+    "packages/language-spec/dist/index.js": "eba2a587c03a29767765b97cf4fb4853208d56ecef2ee2f943ccb201c3964a5c",
+    "packages/semantic/dist/index.js": "df95aacfced87150b33cb8e3c266001c770429153ff3e732840e98e70aca68b3",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "712ecdccb266d561b965fb4322aaa6c74ad99795d144bbac73f363a1a511d5ea",
+    "dist/extension.js": "ee9c0720f8ceec9d11b052cf2deaa85f090e02a43f509570fdcfecd3aec912db",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "scripts/benchmark-project-completion.mjs": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "f5331f4d515c374930756c4a674e8bd3a3525fe26447b78872786b2fc2df3a15"
+  },
+  "currentFullLspQualification": false,
+  "previousFullLspQualification": "D95: 67 files / 906 on 9cce9302; not transferred to this source. Current 4 files / 57 targeted only.",
+  "processNotes": [
+    "First preparation script expected 28 textual node.type occurrences; actual count was 23. Assertion stopped before a source write. Corrected preparation count only; no invalid benchmark or changed rules."
+  ],
+  "remaining": [
+    "PHP 7.2 ordinary edit P95 155.06ms exceeds 150ms",
+    "Full current LSP combination",
+    "Trait @use generic contracts",
+    "Other platforms, scale, long sessions, peak memory, real WSL"
+  ],
+  "noPackageProfilePushOrRelease": true,
+  "goalStatus": "active"
+}

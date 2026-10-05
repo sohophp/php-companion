@@ -3744,10 +3744,13 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
   // Every rule's minimum is a SupportedPhpVersion. The newest supported
   // target cannot reject a known feature; syntax validity is checked separately.
   if (target === SUPPORTED_PHP_VERSIONS.at(-1)) return [];
+  const targetVersion = versionNumber(target);
   const output: UnsupportedSyntax[] = [];
   const reportedVoidCasts = new Set<string>();
   const visit = (node: SyntaxNodeLike): void => {
-    if (versionNumber(target) < versionNumber('8.5') && /^\(\s*void\s*\)$/i.test(node.text)) {
+    // Tree-sitter type getters cross the WASM boundary. Read once per visited node.
+    const nodeType = node.type;
+    if (targetVersion < versionNumber('8.5') && /^\(\s*void\s*\)$/i.test(node.text)) {
       const key = `${node.startIndex}:${node.endIndex}`;
       if (!reportedVoidCasts.has(key)) {
         const suffix = root.text.slice(Math.max(0, node.endIndex - root.startIndex)).trimStart();
@@ -3757,14 +3760,14 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
         }
       }
     }
-    let rule = FEATURE_VERSIONS[node.type];
+    let rule = FEATURE_VERSIONS[nodeType];
     let range = node;
     const fieldNode = (name: string): SyntaxNodeLike | null | undefined => syntaxField(node, name);
-    if (node.type === 'argument') {
+    if (nodeType === 'argument') {
       const name = fieldNode('name');
       if (name) { rule = { feature: 'named argument', version: '8.0' }; range = name; }
     }
-    if (node.type === 'arguments') {
+    if (nodeType === 'arguments') {
       const significant = node.children?.filter((child) => child.type !== 'comment');
       const comma = significant?.at(-2);
       if (significant?.at(-1)?.type === ')' && comma?.type === ',') {
@@ -3772,17 +3775,17 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
         range = comma;
       }
     }
-    if (node.type === 'augmented_assignment_expression') {
+    if (nodeType === 'augmented_assignment_expression') {
       const operator = fieldNode('operator');
       if (operator?.text === '??=') {
         rule = { feature: 'null coalescing assignment', version: '7.4' };
         range = operator;
       }
     }
-    if (node.type === 'integer' && node.text.includes('_')) rule = { feature: 'numeric literal separator', version: '7.4' };
-    if (node.type === 'property_declaration' && fieldNode('type')) rule = { feature: 'typed property', version: '7.4' };
-    if (node.type === 'disjunctive_normal_form_type') rule = { feature: 'DNF type', version: '8.2' };
-    if (node.type === 'primitive_type') {
+    if (nodeType === 'integer' && node.text.includes('_')) rule = { feature: 'numeric literal separator', version: '7.4' };
+    if (nodeType === 'property_declaration' && fieldNode('type')) rule = { feature: 'typed property', version: '7.4' };
+    if (nodeType === 'disjunctive_normal_form_type') rule = { feature: 'DNF type', version: '8.2' };
+    if (nodeType === 'primitive_type') {
       const type = node.text.toLowerCase();
       if (type === 'mixed') rule = { feature: 'mixed type', version: '8.0' };
       if (type === 'never') rule = { feature: 'never type', version: '8.1' };
@@ -3791,15 +3794,15 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
         rule = { feature: `standalone ${type} type`, version: '8.2' };
       }
     }
-    if (node.type === 'named_type' && node.text.toLowerCase() === 'static'
+    if (nodeType === 'named_type' && node.text.toLowerCase() === 'static'
       && ['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function'].includes(node.parent?.type ?? '')) {
       const returnType = (node.parent as SyntaxNodeLike & { childForFieldName?: (field: string) => SyntaxNodeLike | null }).childForFieldName?.('return_type');
       if (returnType?.startIndex === node.startIndex && returnType.endIndex === node.endIndex) rule = { feature: 'static return type', version: '8.0' };
     }
-    if (node.type === 'optional_type' && node.namedChildren.length === 1 && node.namedChildren[0]!.text.toLowerCase() === 'false') {
+    if (nodeType === 'optional_type' && node.namedChildren.length === 1 && node.namedChildren[0]!.text.toLowerCase() === 'false') {
       rule = { feature: 'standalone false type', version: '8.2' };
     }
-    if (node.type === 'union_type') {
+    if (nodeType === 'union_type') {
       const atoms = node.namedChildren.map((child) => child.text.toLowerCase());
       const trueType = node.namedChildren.find((child) => child.text.toLowerCase() === 'true');
       if (trueType) { rule = { feature: 'true type', version: '8.2' }; range = trueType; }
@@ -3807,41 +3810,41 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
         rule = { feature: 'standalone false and null types', version: '8.2' };
       }
     }
-    if (node.type === 'visibility_modifier' && node.text.includes('(set)') && node.parent?.type === 'property_declaration') {
+    if (nodeType === 'visibility_modifier' && node.text.includes('(set)') && node.parent?.type === 'property_declaration') {
       rule = { feature: 'asymmetric property visibility', version: node.parent.namedChildren.some((child) => child.type === 'static_modifier') ? '8.5' : '8.4' };
     }
-    if (node.type === 'property_promotion_parameter') {
+    if (nodeType === 'property_promotion_parameter') {
       const finalModifier = node.namedChildren.find((child) => child.type === 'final_modifier'
         || child.type === 'ERROR' && child.text.toLowerCase() === 'final');
       if (finalModifier) { rule = { feature: 'final promoted property', version: '8.5' }; range = finalModifier; }
     }
-    if (node.type === 'anonymous_function' && isWithinConstantExpression(node)) rule = { feature: 'closure in constant expression', version: '8.5' };
-    if (node.type === 'variadic_placeholder') {
+    if (nodeType === 'anonymous_function' && isWithinConstantExpression(node)) rule = { feature: 'closure in constant expression', version: '8.5' };
+    if (nodeType === 'variadic_placeholder') {
       const call = node.parent?.type === 'arguments' ? node.parent.parent : undefined;
       rule = { feature: isWithinConstantExpression(node) ? 'first-class callable in constant expression' : 'first-class callable', version: isWithinConstantExpression(node) ? '8.5' : '8.1' };
       range = call ?? node;
     }
-    if (node.type === 'final_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'final property', version: '8.4' };
-    if (node.type === 'abstract_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'abstract property', version: '8.4' };
-    if (node.type === 'binary_expression') {
+    if (nodeType === 'final_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'final property', version: '8.4' };
+    if (nodeType === 'abstract_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'abstract property', version: '8.4' };
+    if (nodeType === 'binary_expression') {
       const operator = fieldNode('operator');
       if (operator?.text === '|>') {
         rule = { feature: 'pipe operator', version: '8.5' };
         range = operator;
       }
     }
-    if (node.type === 'clone_expression' && /^clone\s*\(/i.test(node.text)) rule = { feature: 'clone with properties', version: '8.5' };
-    if (node.type === 'class_constant_access_expression' && /::\s*\{/.test(node.text)) {
+    if (nodeType === 'clone_expression' && /^clone\s*\(/i.test(node.text)) rule = { feature: 'clone with properties', version: '8.5' };
+    if (nodeType === 'class_constant_access_expression' && /::\s*\{/.test(node.text)) {
       rule = { feature: 'dynamic class constant access', version: '8.3' };
       range = fieldNode('name') ?? node;
     }
-    if (node.type === 'object_creation_expression' && node.parent && ['member_call_expression', 'member_access_expression', 'nullsafe_member_call_expression', 'nullsafe_member_access_expression'].includes(node.parent.type)
+    if (nodeType === 'object_creation_expression' && node.parent && ['member_call_expression', 'member_access_expression', 'nullsafe_member_call_expression', 'nullsafe_member_access_expression'].includes(node.parent.type)
       && node.parent.namedChildren[0] === node) rule = { feature: 'new expression dereference without parentheses', version: '8.4' };
-    if (node.type === 'readonly_modifier') rule = node.parent?.type === 'anonymous_class'
+    if (nodeType === 'readonly_modifier') rule = node.parent?.type === 'anonymous_class'
       ? { feature: 'readonly anonymous class', version: '8.3' }
       : { feature: node.parent?.type === 'class_declaration' ? 'readonly class' : 'readonly property', version: node.parent?.type === 'class_declaration' ? '8.2' : '8.1' };
-    if (node.type === 'const_declaration' && fieldNode('type')) rule = { feature: 'typed class constant', version: '8.3' };
-    if (rule && versionNumber(target) < versionNumber(rule.version)) output.push({ feature: rule.feature, minimumVersion: rule.version, start: range.startIndex, end: range.endIndex });
+    if (nodeType === 'const_declaration' && fieldNode('type')) rule = { feature: 'typed class constant', version: '8.3' };
+    if (rule && targetVersion < versionNumber(rule.version)) output.push({ feature: rule.feature, minimumVersion: rule.version, start: range.startIndex, end: range.endIndex });
     for (const child of node.namedChildren) visit(child);
   };
   visit(root); return output;
