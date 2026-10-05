@@ -1487,6 +1487,7 @@ function namespaceMoveEdit(source: string, tree: ReturnType<PhpSyntaxParser['par
 
 export class SemanticWorkspace {
   private readonly files = new Map<string, SemanticFile>();
+  private readonly functionDeclarationsByArray = new WeakMap<readonly ParsedCallableDeclaration[], Map<string, ParsedCallableDeclaration[]>>();
   private readonly typeCompletionFileEntries = new WeakMap<SemanticFile, {
     declarations: readonly ParsedDeclaration[];
     entries: Array<{ declaration: ParsedDeclaration; owner: SemanticFile; namespace: string }>;
@@ -10974,12 +10975,12 @@ export class SemanticWorkspace {
     const prefix = before.slice(0, before.length - functionCall[0].length);
     if (parameterDeclaration || /\bfunction\s+&?\s*$/iu.test(prefix)) return [];
     const functionFqcn = this.resolveFunction(file, functionCall[1]!, namespace, openingOffset);
-    const members = this.filesForReferenceKeys(`declaration:function:${functionFqcn.toLowerCase()}`).flatMap((candidate) => candidate.callables.flatMap((item): MemberInfo[] =>
-      item.kind === 'function' && item.fqcn.toLowerCase() === functionFqcn?.toLowerCase() ? [{
+    const members = this.filesForReferenceKeys(`declaration:function:${functionFqcn.toLowerCase()}`).flatMap((candidate) =>
+      this.fileFunctionDeclarations(candidate, functionFqcn).map((item): MemberInfo => ({
         kind: 'function', uri: candidate.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn,
         parameters: item.parameters, returnType: item.returnType, nativeReturnType: item.nativeReturnType,
         visibility: 'public', static: false, typeScopeFqcn: item.fqcn, calledOnFqcn: item.fqcn,
-      }] : []));
+      })));
     const compatible = this.methodCandidatesForArguments(members, functionCall[2]!, completeAtCursor, file, offset - functionCall[2]!.length);
     return (compatible.length ? compatible : members).map((candidate) => {
       const member = this.withInferredGeneratorReturn(candidate);
@@ -11713,14 +11714,28 @@ export class SemanticWorkspace {
     return undefined;
   }
 
+  private fileFunctionDeclarations(file: SemanticFile, fqcn: string): ParsedCallableDeclaration[] {
+    // Declaration arrays are replaced on edits and restore. Index only those
+    // syntax facts; context-dependent argument and return inference stays live.
+    let declarations = this.functionDeclarationsByArray.get(file.callables);
+    if (!declarations) {
+      declarations = new Map();
+      for (const item of file.callables) if (item.kind === 'function') {
+        const name = item.fqcn.toLowerCase(); const matches = declarations.get(name) ?? [];
+        matches.push(item); declarations.set(name, matches);
+      }
+      this.functionDeclarationsByArray.set(file.callables, declarations);
+    }
+    return declarations.get(fqcn.toLowerCase()) ?? [];
+  }
+
   private functionDeclarations(fqcn: string): Array<{ file: SemanticFile; item: ParsedCallableDeclaration }> {
     const name = fqcn.toLowerCase();
     const candidates = new Set(this.filesForReferenceKeys(`declaration:function:${name}`));
     if (!candidates.size) return [];
     // Preserve workspace insertion order for existing first-match consumers.
     return [...this.files.values()].filter((file) => candidates.has(file)).flatMap((file) =>
-      file.callables.filter((item) => item.kind === 'function' && item.fqcn.toLowerCase() === name)
-        .map((item) => ({ file, item })));
+      this.fileFunctionDeclarations(file, name).map((item) => ({ file, item })));
   }
 
   private callableDeclarationsForSignature(signature: Pick<SignatureInfo, 'kind' | 'fqcn' | 'uri' | 'start'>): Array<{ file: SemanticFile; item: ParsedCallableDeclaration }> {

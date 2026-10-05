@@ -493,3 +493,7 @@ D79 的 `aae39a54` 完整 60 文件／888 项 LSP 全部通过，2990 输入及�
 ## D88 完整失败记录与 D89 原生 XML 调用
 
 [D88 完整 LSP](reports/core-21df-full-regression-2026-10-05.md)的 900 项有 898 通过、XMLReader 跳转和闭包超时两项失败，零跳过，3004 输入与六 CLI 保持。D89 对 XMLReader XML／open 按真实调用区分实例 bool 和静态 XMLReader|false；六 CLI、19 新语义、完整 2443 语义、两版 stdio 20 查询与八次可见接受／UndoRedo 通过。用户覆盖、声明身份、缺失扩展与词中插入范围保留。旧实例返回断言依据实际运行纠正为 bool；原失败跳转断言保持。闭包仍超时，不拼接完整绿色；详见 [D89 记录](reports/native-xmlreader-invocations-2026-10-05.md)，不更新 Profile。
+
+## D90 函数查找与闭包超时
+
+CPU 采样定位反复扫描内建 callable 的叶节点成本，按声明数组建立可失效索引，保持重复、大小写和顺序，类型推断与协议门槛不变。原闭包 stdio 的所有断言在原 15 秒门槛下通过，9.55 秒；七新语义保护源码／快照更新、重命名、删除及歧义，完整 2450 语义、八次当前可见接受／UndoRedo 与八次实际编译通过。尚未组合完整当前 LSP，不以定向结果或不同夹具耗时代替完整／连续编辑验收；见 [D90 记录](reports/completion-function-lookup-cost-2026-10-05.md)，不更新 Profile。

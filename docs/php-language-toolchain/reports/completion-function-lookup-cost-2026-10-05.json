@@ -1,0 +1,549 @@
+{
+  "milestone": "D90",
+  "date": "2026-10-05",
+  "baseCheckpoint": "34c15010",
+  "scope": "Weak declaration-array function index preserves duplicate/case/order facts and avoids repeated builtin scans; inference and protocol deadlines unchanged",
+  "sourceInputs": {
+    "packages/semantic/src/index.ts": "be7051fa30c98456fdd75bb9dfb89dee986ce88378c2ca221aeb0a1bf5562e72",
+    "packages/semantic/test/function-declaration-refresh.test.ts": "ea093877cedfb5fc5a954db18bcde3623ae0b738bf1b509667f42679f19a44db",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "db1de7f9e9de75db69754a16a0aff99692b1ccefc0e2cb6a50351adc0522865f",
+    "packages/language-server/test/stdio.test.ts": "5c47146c6613ad900d90b091cee7f6de0e34535bf12acff1168d11beee76b9de",
+    "packages/semantic/dist/index.js": "4a8661696b4fdafe252db33d5b8c7bfe64df10c1489c0471f923822a99ed1279",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "205a500303ff9a77a37dda091e8828c15f9deeaac0b7588f017308746c1ae67b",
+    "dist/extension.js": "efbe6c09c86db086ce0d66c9394f2d83dd9e0100c19aad6f73874a5ee406a765"
+  },
+  "cpuInvestigation": {
+    "samplingApiSource": "https://nodejs.org/docs/latest-v22.x/api/inspector.html",
+    "nodeVersion": "22.14.0",
+    "profileSha256": "29fec6b68b8ee0ec6982e5d13984e2b4b05d429c670df2839b795c022e45187a",
+    "samplingIntervalUs": 1000,
+    "samples": 10647,
+    "approximateAfterRequest64Samples": 719,
+    "alignmentNote": "Wallclock start-before-enable aligned approximately; 150ms margin retained; exploratory instrumented run, not a performance gate",
+    "topInclusive": [
+      {
+        "frame": [
+          "(root)",
+          "",
+          0
+        ],
+        "ms": 842.436
+      },
+      {
+        "frame": [
+          "publishDocumentDiagnostics",
+          "server.js",
+          2277
+        ],
+        "ms": 780.296
+      },
+      {
+        "frame": [
+          "provenArgumentType",
+          "index.js",
+          20137
+        ],
+        "ms": 667.275
+      },
+      {
+        "frame": [
+          "withImplementationAt",
+          "index.js",
+          1545
+        ],
+        "ms": 657.971
+      },
+      {
+        "frame": [
+          "signatures",
+          "index.js",
+          12765
+        ],
+        "ms": 654.486
+      },
+      {
+        "frame": [
+          "",
+          "index.js",
+          12766
+        ],
+        "ms": 653.379
+      },
+      {
+        "frame": [
+          "signaturesWithImplementation",
+          "index.js",
+          12881
+        ],
+        "ms": 645.169
+      },
+      {
+        "frame": [
+          "callTemplateArguments",
+          "index.js",
+          19238
+        ],
+        "ms": 551.582
+      },
+      {
+        "frame": [
+          "contextualClosureParameterType",
+          "index.js",
+          15789
+        ],
+        "ms": 500.263
+      },
+      {
+        "frame": [
+          "",
+          "index.js",
+          12996
+        ],
+        "ms": 465.1
+      },
+      {
+        "frame": [
+          "signature",
+          "index.js",
+          13110
+        ],
+        "ms": 457.608
+      },
+      {
+        "frame": [
+          "",
+          "index.js",
+          8420
+        ],
+        "ms": 400.619
+      },
+      {
+        "frame": [
+          "unresolvedMembers",
+          "index.js",
+          8416
+        ],
+        "ms": 400.619
+      },
+      {
+        "frame": [
+          "memberTarget",
+          "index.js",
+          14108
+        ],
+        "ms": 398.212
+      },
+      {
+        "frame": [
+          "linearLocalValueType",
+          "index.js",
+          17262
+        ],
+        "ms": 372.415
+      },
+      {
+        "frame": [
+          "completionArrayReceiverType",
+          "index.js",
+          5383
+        ],
+        "ms": 371.346
+      },
+      {
+        "frame": [
+          "expressionReceiverTarget",
+          "index.js",
+          14439
+        ],
+        "ms": 371.346
+      },
+      {
+        "frame": [
+          "callResultType",
+          "index.js",
+          18339
+        ],
+        "ms": 367.76
+      },
+      {
+        "frame": [
+          "resolvedCallResultType",
+          "index.js",
+          18538
+        ],
+        "ms": 358.477
+      },
+      {
+        "frame": [
+          "priorReferenceMutations",
+          "index.js",
+          20729
+        ],
+        "ms": 291.768
+      }
+    ],
+    "topSelf": [
+      {
+        "frame": [
+          "",
+          "index.js",
+          12996
+        ],
+        "ms": 465.1
+      },
+      {
+        "frame": [
+          "(garbage collector)",
+          "",
+          0
+        ],
+        "ms": 35.178
+      },
+      {
+        "frame": [
+          "",
+          "web-tree-sitter.js",
+          614
+        ],
+        "ms": 31.399
+      },
+      {
+        "frame": [
+          "wasm-function[37]",
+          "000c4cfe",
+          1
+        ],
+        "ms": 23.165
+      },
+      {
+        "frame": [
+          "signaturesWithImplementation",
+          "index.js",
+          12881
+        ],
+        "ms": 17.954
+      },
+      {
+        "frame": [
+          "methodCandidatesForArguments",
+          "index.js",
+          13501
+        ],
+        "ms": 14.958
+      },
+      {
+        "frame": [
+          "filesForReferenceKeys",
+          "index.js",
+          1626
+        ],
+        "ms": 11.727
+      },
+      {
+        "frame": [
+          "setValue",
+          "web-tree-sitter.js",
+          2570
+        ],
+        "ms": 9.362
+      },
+      {
+        "frame": [
+          "signatureContext",
+          "index.js",
+          13741
+        ],
+        "ms": 8.375
+      },
+      {
+        "frame": [
+          "",
+          "index.js",
+          13002
+        ],
+        "ms": 8.163
+      },
+      {
+        "frame": [
+          "wasm-function[72]",
+          "000c4cfe",
+          1
+        ],
+        "ms": 8.036
+      },
+      {
+        "frame": [
+          "namespaceAt",
+          "index.js",
+          12749
+        ],
+        "ms": 6.906
+      }
+    ],
+    "observation": "publishDocumentDiagnostics still occupied main thread; signaturesWithImplementation repeatedly scanned all declarations; no general performance claim",
+    "instrumentedOriginalTestRestored": {
+      "originalSha256": "5c47146c6613ad900d90b091cee7f6de0e34535bf12acff1168d11beee76b9de",
+      "restoredOriginal": true,
+      "testExitCode": 1,
+      "profilerExitCode": 0
+    },
+    "failedCaptureMethods": [
+      "NODE_OPTIONS preload produced no profile",
+      "Direct Worker connectToMainThread stalled at Profiler.enable; no usable profile; use owned loopback WebSocket inspector instead"
+    ],
+    "instrumentedRunPassed": false
+  },
+  "originalProtocolRegression": {
+    "files": 1,
+    "tests": 531,
+    "passed": 1,
+    "failed": 0,
+    "pendingOrFiltered": 530,
+    "todo": 0,
+    "reportSha256": "2a707b37f5eee9873eaea1d4a911fcbfbf22ad54e645c3d41d2477fe70abfef3",
+    "durationMs": 9553.192418999999,
+    "originalTimeoutMs": 15000,
+    "assertionsUnchanged": true,
+    "instrumented": false
+  },
+  "semanticNew": {
+    "tests": 7,
+    "modes": [
+      "update",
+      "restore",
+      "restoreDeclaration"
+    ],
+    "retainedAndTemporary": true,
+    "includes": "case-insensitive alias, same-file method exclusion, other namespace exclusion, duplicate/order preservation, rename, remove and readd"
+  },
+  "relatedSemantic": {
+    "files": 3,
+    "tests": 59,
+    "passed": 59,
+    "failed": 0,
+    "pendingOrFiltered": 0,
+    "todo": 0,
+    "reportSha256": "36b3f63b3b7a9d2f7203931f363e557b1148d693f1c81468acd60d9a0cbd3d99"
+  },
+  "semanticFull": {
+    "files": 109,
+    "tests": 2450,
+    "passed": 2450,
+    "failed": 0,
+    "pendingOrFiltered": 0,
+    "todo": 0,
+    "reportSha256": "caa0d1291d9fc95cacb1040773002d346f13b66570c1f9a92058620d8978515d",
+    "durationSeconds": 60.85,
+    "frozenTypeScriptInputs": 115,
+    "allFrozenTypeScriptInputsUnchanged": true,
+    "freezeSha256": "8e85f6622f8be10c2a2856282350ff32c5a168631a41d7c6d98cf00b88cb7047"
+  },
+  "extensionHost": {
+    "platform": "linux",
+    "context": "contextual-callable-function-lookups",
+    "results": [
+      {
+        "label": "name",
+        "key": "Enter",
+        "visibleMs": 304,
+        "visibleLabels": [
+          "nameShapeGate0Enter\\User::name(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate0Enter; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param list<User> $users */ function run(array $users){array_map(fn($user)=>$user->name(),$users);}",
+        "caretOffset": 241,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "name",
+        "key": "Tab",
+        "visibleMs": 163,
+        "visibleLabels": [
+          "nameShapeGate0Tab\\User::name(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate0Tab; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param list<User> $users */ function run(array $users){array_map(fn($user)=>$user->name(),$users);}",
+        "caretOffset": 239,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "title",
+        "key": "Enter",
+        "visibleMs": 193,
+        "visibleLabels": [
+          "titleShapeGate1Enter\\View::title(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate1Enter; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param list<User> $users */ function run(array $users){$views=array_map(fn($user)=>new View(),$users);$views[0]->title();}",
+        "caretOffset": 272,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "title",
+        "key": "Tab",
+        "visibleMs": 182,
+        "visibleLabels": [
+          "titleShapeGate1Tab\\View::title(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate1Tab; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param list<User> $users */ function run(array $users){$views=array_map(fn($user)=>new View(),$users);$views[0]->title();}",
+        "caretOffset": 270,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "name",
+        "key": "Enter",
+        "visibleMs": 210,
+        "visibleLabels": [
+          "nameShapeGate2Enter\\User::name(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate2Enter; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param callable(User):void $visit */ function visit(callable $visit):void{} visit(fn($user)=>$user->name());",
+        "caretOffset": 258,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "name",
+        "key": "Tab",
+        "visibleMs": 170,
+        "visibleLabels": [
+          "nameShapeGate2Tab\\User::name(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate2Tab; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param callable(User):void $visit */ function visit(callable $visit):void{} visit(fn($user)=>$user->name());",
+        "caretOffset": 256,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "name",
+        "key": "Enter",
+        "visibleMs": 149,
+        "visibleLabels": [
+          "nameShapeGate3Enter\\User::name(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate3Enter; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param callable(User):void $visit */ function visit(callable $visit):void{} visit(function($user){$user->name();});",
+        "caretOffset": 263,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "name",
+        "key": "Tab",
+        "visibleMs": 142,
+        "visibleLabels": [
+          "nameShapeGate3Tab\\User::name(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate3Tab; class User{public function name():string{return \"user\";}} class View{public function title():string{return \"view\";}} /** @param callable(User):void $visit */ function visit(callable $visit):void{} visit(function($user){$user->name();});",
+        "caretOffset": 261,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "actualAcceptedSyntax": {
+    "runtime": "/opt/remi/php85/root/usr/bin/php",
+    "version": "8.5.9",
+    "binarySha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+    "cases": [
+      {
+        "label": "name",
+        "key": "Enter",
+        "acceptedSha256": "81135b6725ba122fc573451c3cede32c47599238112e16abec4df237dce468e3",
+        "exitCode": 0
+      },
+      {
+        "label": "name",
+        "key": "Tab",
+        "acceptedSha256": "2670cf6fb32ca06ed961a7c51407072643b2507de241144db5d6251b692d3d06",
+        "exitCode": 0
+      },
+      {
+        "label": "title",
+        "key": "Enter",
+        "acceptedSha256": "07063a163178b018884e04fbf333fbd095c92176287a2565eb25ca6ca42ddfe3",
+        "exitCode": 0
+      },
+      {
+        "label": "title",
+        "key": "Tab",
+        "acceptedSha256": "1d8f18a17602169bcafd979acd72295e751c80218106d394c9988cd618deae28",
+        "exitCode": 0
+      },
+      {
+        "label": "name",
+        "key": "Enter",
+        "acceptedSha256": "f0a4b6564121769d5296ebaf25230d9937bc9645b0baa98e853052543bc75105",
+        "exitCode": 0
+      },
+      {
+        "label": "name",
+        "key": "Tab",
+        "acceptedSha256": "8928197a98fdecc257624badbcd28fc29d443389eda1fee5080981ad4916ed83",
+        "exitCode": 0
+      },
+      {
+        "label": "name",
+        "key": "Enter",
+        "acceptedSha256": "414a627c3638f4eb2978f2185ee8cdc699de51b22112d6e6932472910f3d465d",
+        "exitCode": 0
+      },
+      {
+        "label": "name",
+        "key": "Tab",
+        "acceptedSha256": "dafcd97eab584ed64f251872c71c03ba32a5bcd88b9ce3e23fa1a26165e8b402",
+        "exitCode": 0
+      }
+    ],
+    "executed": false
+  },
+  "gates": {
+    "semanticBuild": "passed",
+    "serverBuild": "passed",
+    "productionBuild": "passed",
+    "extensionTestsTypecheck": "passed",
+    "scopedEslint": "passed",
+    "diffCheck": "passed"
+  },
+  "initialNewTestFailure": {
+    "testsStarted": 0,
+    "existingRelatedTestsPassed": 52,
+    "cause": "New test had misplaced expect parenthesis at collection; corrected fixture without changing expectations"
+  },
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goalStatus": "active"
+  },
+  "remaining": [
+    "Current complete LSP not requalified; last complete run D88 898 passed/2 failed, both failing cases now passed separately",
+    "D86 ordinary continuous-edit P95 199.82/153.37ms remains above150ms; different fixture timings do not close it",
+    "Actual WSL, Composer-scale, other platform and lifetime/peak-memory gates remain separate"
+  ]
+}
