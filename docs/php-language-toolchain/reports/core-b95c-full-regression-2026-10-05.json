@@ -1,0 +1,1245 @@
+{
+  "verifiedAtUtc": "2026-10-05T08:46:37.171712+00:00",
+  "checkpoint": "b95c5b75047a82a65e7a4c44696e65ab673a73bd",
+  "files": 71,
+  "tests": 924,
+  "passed": 924,
+  "failed": 0,
+  "pending": 0,
+  "todo": 0,
+  "exitCode": 0,
+  "completeGreen": true,
+  "canonicalNamesMatch": true,
+  "frozenInputs": 3025,
+  "inputsAndSixRuntimesStillMatch": true,
+  "failures": [],
+  "artifacts": {
+    "-meta.json": "afb986048c5f6a0bd883e5b541d0bfafcc8fc3757b8766460e0202fd431e0b1d",
+    "-inputs.json": "fe392d799979aecec7e1ed6296ec828e6aa3f218a0c5da8d4dcc9a553ddce5f3",
+    "-collection.json": "7ad885ff65fbeb9c1df7a7e25cb7dc56edd294d77afee67472b797b42cbd2aea",
+    "-results.json": "9291401957777588ba9d782b6dc2a5bed04ea1c863069828cb1c0112a1564cea",
+    "-verification.json": "fc388bacfab4494a79bf7de9fb67065db5e434437bffadfe8c38a5e26574d048"
+  },
+  "milestone": "D101",
+  "date": "2026-10-05",
+  "durationSeconds": 1739.88,
+  "startedAtUtc": "2026-10-05T08:17:01.160208+00:00",
+  "finishedAtUtc": "2026-10-05T08:46:03.611177+00:00",
+  "runtimeVersions": {
+    "7.2": "7.2.34",
+    "7.4": "7.4.33",
+    "8.1": "8.1.34",
+    "8.2": "8.2.32",
+    "8.4": "8.4.23",
+    "8.5": "8.5.9"
+  },
+  "runtimePaths": {
+    "7.2": "/opt/remi/php72/root/usr/bin/php",
+    "7.4": "/opt/remi/php74/root/usr/bin/php",
+    "8.1": "/opt/remi/php81/root/usr/bin/php",
+    "8.2": "/opt/remi/php82/root/usr/bin/php",
+    "8.4": "/opt/remi/php84/root/usr/bin/php",
+    "8.5": "/opt/remi/php85/root/usr/bin/php"
+  },
+  "runtimeSha256": {
+    "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+    "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+    "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+    "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+    "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+    "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+  },
+  "fileResults": [
+    {
+      "file": "packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "file": "packages/language-server/test/analysis.test.ts",
+      "tests": 48,
+      "passed": 48
+    },
+    {
+      "file": "packages/language-server/test/array-column-return-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-combine-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-count-values-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-fill-keys-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-flip-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-inline-doc-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-key-preservation-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/assignment-target-completion-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/call-trivia-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/callable-facts-cache.test.ts",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "file": "packages/language-server/test/candidate-worker-project-facts.test.ts",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "file": "packages/language-server/test/candidate-workers.test.ts",
+      "tests": 5,
+      "passed": 5
+    },
+    {
+      "file": "packages/language-server/test/class-relative-construction-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/code-action-messages.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/completion-call-trivia.test.ts",
+      "tests": 18,
+      "passed": 18
+    },
+    {
+      "file": "packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/construction-trivia-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+      "tests": 6,
+      "passed": 6
+    },
+    {
+      "file": "packages/language-server/test/csv-fields-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+      "tests": 3,
+      "passed": 3
+    },
+    {
+      "file": "packages/language-server/test/diagnostic-messages.test.ts",
+      "tests": 5,
+      "passed": 5
+    },
+    {
+      "file": "packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+      "tests": 3,
+      "passed": 3
+    },
+    {
+      "file": "packages/language-server/test/flow-value-completion-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/getrusage-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/headers-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/highlight-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/image-size-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/implicit-nullable-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/inheritance-list-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/inheritance-trivia-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/inheritance-validity-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+      "tests": 6,
+      "passed": 6
+    },
+    {
+      "file": "packages/language-server/test/inherited-final-magic-stdio.test.ts",
+      "tests": 3,
+      "passed": 3
+    },
+    {
+      "file": "packages/language-server/test/iterator-apply-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/large-candidate-ranking-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/large-local-ranking-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/magic-declaration-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/match-condition-completion-stdio.test.ts",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "file": "packages/language-server/test/native-array-template-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/output-messages.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/php-runtime-syntax.test.ts",
+      "tests": 7,
+      "passed": 7
+    },
+    {
+      "file": "packages/language-server/test/portableCandidatePaths.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/progress-messages.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/project-facts.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/project-index.test.ts",
+      "tests": 133,
+      "passed": 133
+    },
+    {
+      "file": "packages/language-server/test/property-hook-keywords-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/protocol-messages.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/readonly-anonymous-stdio.test.ts",
+      "tests": 3,
+      "passed": 3
+    },
+    {
+      "file": "packages/language-server/test/readonly-anonymous.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/reassigned-parameter-completion-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/reference-candidate-evidence.test.ts",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "file": "packages/language-server/test/reference-dependency-evidence.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/reference-engine-identity.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/reference-input-snapshot.test.ts",
+      "tests": 15,
+      "passed": 15
+    },
+    {
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/reference-result-store.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/reflection-construction-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/root-import-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/sourceStatBatches.test.ts",
+      "tests": 6,
+      "passed": 6
+    },
+    {
+      "file": "packages/language-server/test/stdio.test.ts",
+      "tests": 531,
+      "passed": 531
+    },
+    {
+      "file": "packages/language-server/test/string-replacement-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/switch-condition-completion-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/trait-construction-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+      "tests": 4,
+      "passed": 4
+    },
+    {
+      "file": "packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "tests": 1,
+      "passed": 1
+    },
+    {
+      "file": "packages/language-server/test/xmlreader-invocation-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    },
+    {
+      "file": "packages/language-server/test/magic-modifier-stdio.test.ts",
+      "tests": 2,
+      "passed": 2
+    }
+  ],
+  "referenceCacheProcesses": {
+    "count": 32,
+    "durationsMs": [
+      2495,
+      2188,
+      2304,
+      2555,
+      2102,
+      2601,
+      2494,
+      2210,
+      2386,
+      2351,
+      2299,
+      3054,
+      2238,
+      2605,
+      2432,
+      4170,
+      2544,
+      2684,
+      2881,
+      2270,
+      2167,
+      2366,
+      2433,
+      2652,
+      2457,
+      2294,
+      2869,
+      2154,
+      2804,
+      2169,
+      2500,
+      2599
+    ],
+    "bundleSha256": "712ecdccb266d561b965fb4322aaa6c74ad99795d144bbac73f363a1a511d5ea"
+  },
+  "timings": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 82.44285199999968,
+      "p95Ms": 62.053374000000076,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 122.82426899999882,
+      "p95Ms": 76.00472099999934,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 28.17415400000027,
+      "p95Ms": 8.471010000000206,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 25.6129549999996,
+      "p95Ms": 8.686432999999852,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  ],
+  "ordinaryEditingBudget": {
+    "latestMeasurement": "D100",
+    "p95Ms": {
+      "7.2": 155.06,
+      "8.5": 123.99
+    },
+    "budgetMs": 150,
+    "overallPassed": false,
+    "scope": "Ordinary serial unsaved edit + immediate completion; not rerun during full LSP verification"
+  },
+  "remaining": [
+    "Ordinary editing PHP 7.2 P95 still above 150ms",
+    "Current product Trait @use contracts",
+    "Qualified absolute Trait precedence parser gap confirmed with PHP 8.5 lint",
+    "Complete natural input matrix, scale, platforms, long sessions, peak memory, real WSL"
+  ],
+  "delivery": {
+    "localDocsMilestoneOnly": true,
+    "productSourceUnchangedAfterFullVerification": true,
+    "noPackageProfilePushOrRelease": true,
+    "goal": "active"
+  },
+  "nextWorkEvidence": {
+    "scope": "Read-only baseline reproduction and isolated candidate; none of the candidate source or assertions count toward current full-product qualification",
+    "officialUseClausePlacement": "https://phpstan.org/blog/generics-by-examples#specify-template-type-variable-of-a-generic-trait-when-using-it",
+    "currentGap": {
+      "scope": "Read-only current artifact reproduction; no source patch and no fixture written to product input trees",
+      "sourceHashes": {
+        "packages/semantic/dist/index.js": "df95aacfced87150b33cb8e3c266001c770429153ff3e732840e98e70aca68b3",
+        "packages/phpdoc/dist/index.js": "2db04dcb6b0fa22488f5448c657823058176e52aa6e85d3573685b07c53e6aae",
+        "packages/parser/dist/index.js": "5101c5d4db312afa4dbe6f9e2e2d97e761aabc4fb56768832268285aea43f5aa"
+      },
+      "rows": [
+        {
+          "label": "use-statement-doc",
+          "source": "<?php namespace Consumer; use Origin\\Init as Selected; class User {} class C {/** @use \\Origin\\Init<\\Origin\\User> */ use \\Origin\\Init;} new C(new User());",
+          "expected": "\\Origin\\User",
+          "actualParameterType": null,
+          "externalBadArgumentDetected": false,
+          "variableCandidates": [
+            "$offerA",
+            "$offerZ"
+          ]
+        },
+        {
+          "label": "prefixed-use-statement-doc",
+          "source": "<?php namespace Consumer; use Origin\\Init as Selected; class User {} class C {/** @phpstan-use \\Origin\\Init<\\Origin\\User> */ use \\Origin\\Init;} new C(new User());",
+          "expected": "\\Origin\\User",
+          "actualParameterType": null,
+          "externalBadArgumentDetected": false,
+          "variableCandidates": [
+            "$offerA",
+            "$offerZ"
+          ]
+        },
+        {
+          "label": "alias-use-statement-doc",
+          "source": "<?php namespace Consumer; use Origin\\Init as Selected; class User {} class C {/** @use Selected<\\Origin\\User> */ use Selected;} new C(new User());",
+          "expected": "\\Origin\\User",
+          "actualParameterType": null,
+          "externalBadArgumentDetected": false,
+          "variableCandidates": [
+            "$offerA",
+            "$offerZ"
+          ]
+        },
+        {
+          "label": "missing-binding-control",
+          "source": "<?php namespace Consumer; use Origin\\Init as Selected; class User {} class C {use \\Origin\\Init;} new C(new User());",
+          "actualParameterType": null,
+          "externalBadArgumentDetected": false,
+          "variableCandidates": [
+            "$offerA",
+            "$offerZ"
+          ]
+        }
+      ]
+    },
+    "independentCallClassifications": {
+      "command": [
+        "/opt/remi/php85/root/usr/bin/php",
+        "/var/www/php/8.5/winstar2024/vendor/bin/phpstan.phar",
+        "analyse",
+        "--configuration=/tmp/sophp-d101-trait-use-reference/phpstan.neon",
+        "--no-progress",
+        "--error-format=json",
+        "/tmp/sophp-d101-trait-use-reference/Fixture.php"
+      ],
+      "referenceSha256": "f626b1b670ebf6570b6beb30a1085d320e01a79fad87c7ec062d27652b327ba2",
+      "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "phpVersion": "8.5.9",
+      "source": "<?php\nnamespace Origin0; class User {} /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer0; use Origin0\\Init as Selected; class User {} class C {/** @use \\Origin0\\Init<\\Origin0\\User> */ use \\Origin0\\Init;} \nnew C(new \\Origin0\\User());\nnew C(new User());\nnamespace Origin1; class User {} /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer1; use Origin1\\Init as Selected; class User {} class C {/** @phpstan-use \\Origin1\\Init<\\Origin1\\User> */ use \\Origin1\\Init;} \nnew C(new \\Origin1\\User());\nnew C(new User());\nnamespace Origin2; class User {} /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer2; use Origin2\\Init as Selected; class User {} class C {/** @use Selected<\\Origin2\\User> */ use Selected;} \nnew C(new \\Origin2\\User());\nnew C(new User());\nnamespace Origin3; class User {} /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer3; use Origin3\\Init as Selected; class User {} class C {use \\Origin3\\Init;} \nnew C(new \\Origin3\\User());\nnew C(new User());\n",
+      "sourceSha256": "6f17a00fd02d05d5cfa3ad53dfd7b2b54148a811e19d22ca5a543f7dbae11408",
+      "config": "parameters:\n    level: 8\n    phpVersion: 80500\n    tmpDir: /tmp/sophp-d101-trait-use-reference/cache\n",
+      "exitCode": 1,
+      "calls": [
+        {
+          "label": "use-statement-doc",
+          "valid": true,
+          "line": 4,
+          "expectedArgumentTypeError": false,
+          "messages": [
+            {
+              "message": "Call to new Consumer0\\C() on a separate line has no effect.",
+              "line": 4,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            }
+          ],
+          "actualArgumentTypeError": false
+        },
+        {
+          "label": "use-statement-doc",
+          "valid": false,
+          "line": 5,
+          "expectedArgumentTypeError": true,
+          "messages": [
+            {
+              "message": "Call to new Consumer0\\C() on a separate line has no effect.",
+              "line": 5,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            },
+            {
+              "message": "Parameter #1 $value of class Consumer0\\C constructor expects Origin0\\User, Consumer0\\User given.",
+              "line": 5,
+              "ignorable": true,
+              "identifier": "argument.type"
+            }
+          ],
+          "actualArgumentTypeError": true
+        },
+        {
+          "label": "prefixed-use-statement-doc",
+          "valid": true,
+          "line": 8,
+          "expectedArgumentTypeError": false,
+          "messages": [
+            {
+              "message": "Call to new Consumer1\\C() on a separate line has no effect.",
+              "line": 8,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            }
+          ],
+          "actualArgumentTypeError": false
+        },
+        {
+          "label": "prefixed-use-statement-doc",
+          "valid": false,
+          "line": 9,
+          "expectedArgumentTypeError": true,
+          "messages": [
+            {
+              "message": "Call to new Consumer1\\C() on a separate line has no effect.",
+              "line": 9,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            },
+            {
+              "message": "Parameter #1 $value of class Consumer1\\C constructor expects Origin1\\User, Consumer1\\User given.",
+              "line": 9,
+              "ignorable": true,
+              "identifier": "argument.type"
+            }
+          ],
+          "actualArgumentTypeError": true
+        },
+        {
+          "label": "alias-use-statement-doc",
+          "valid": true,
+          "line": 12,
+          "expectedArgumentTypeError": false,
+          "messages": [
+            {
+              "message": "Call to new Consumer2\\C() on a separate line has no effect.",
+              "line": 12,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            }
+          ],
+          "actualArgumentTypeError": false
+        },
+        {
+          "label": "alias-use-statement-doc",
+          "valid": false,
+          "line": 13,
+          "expectedArgumentTypeError": true,
+          "messages": [
+            {
+              "message": "Call to new Consumer2\\C() on a separate line has no effect.",
+              "line": 13,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            },
+            {
+              "message": "Parameter #1 $value of class Consumer2\\C constructor expects Origin2\\User, Consumer2\\User given.",
+              "line": 13,
+              "ignorable": true,
+              "identifier": "argument.type"
+            }
+          ],
+          "actualArgumentTypeError": true
+        },
+        {
+          "label": "missing-binding-control",
+          "valid": true,
+          "line": 16,
+          "expectedArgumentTypeError": false,
+          "messages": [
+            {
+              "message": "Call to new Consumer3\\C() on a separate line has no effect.",
+              "line": 16,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            }
+          ],
+          "actualArgumentTypeError": false
+        },
+        {
+          "label": "missing-binding-control",
+          "valid": false,
+          "line": 17,
+          "expectedArgumentTypeError": false,
+          "messages": [
+            {
+              "message": "Call to new Consumer3\\C() on a separate line has no effect.",
+              "line": 17,
+              "ignorable": true,
+              "identifier": "new.resultUnused"
+            }
+          ],
+          "actualArgumentTypeError": false
+        }
+      ],
+      "otherDiagnostics": [
+        {
+          "message": "Class Consumer3\\C uses generic trait Origin3\\Init but does not specify its types: T",
+          "line": 15,
+          "ignorable": true,
+          "identifier": "missingType.generics"
+        },
+        {
+          "message": "Constructor of class Consumer0\\C has an unused parameter $value.",
+          "line": 2,
+          "ignorable": true,
+          "identifier": "constructor.unusedParameter"
+        },
+        {
+          "message": "Constructor of class Consumer1\\C has an unused parameter $value.",
+          "line": 6,
+          "ignorable": true,
+          "identifier": "constructor.unusedParameter"
+        },
+        {
+          "message": "Constructor of class Consumer2\\C has an unused parameter $value.",
+          "line": 10,
+          "ignorable": true,
+          "identifier": "constructor.unusedParameter"
+        },
+        {
+          "message": "Constructor of class Consumer3\\C has an unused parameter $value.",
+          "line": 14,
+          "ignorable": true,
+          "identifier": "constructor.unusedParameter"
+        }
+      ],
+      "stderr": "Instructions for interpreting errors\n---------\n\nEach error has an associated identifier, like `argument.type`\nor `return.missing`.\n\nEach error identifier has documentation at URL https://phpstan.org/error-identifiers/<identifier>\nThis page contains code example, explanation why is this an error\nand instruction how to fix it.\nBefore fixing the error, fetch the documentation page for its identifier.\n\nThe error usually indicates a real bug or incorrect type in the code. Fix the underlying cause, do not just make the error go away.\nDo not add `@phpstan-ignore` comments, `@phpstan-ignore-next-line` comments, or baseline entries to suppress the error.\nDo not use assert() or inline @var PHPDoc tag to override PHPStan's inferred type.\nDo not add type casts just to silence errors.\nDo not widen parameter or return types just to make the error go away.\n"
+    },
+    "prototype": {
+      "cases": 69,
+      "matrix": {
+        "scope": "Isolated candidate, not current-product qualification",
+        "cases": 59,
+        "rows": [
+          {
+            "name": "name",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "name",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "name",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "name",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "name",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "name",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nullable",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nullable",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nullable",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nullable",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nullable",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nullable",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "array",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "array",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "array",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "array",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "array",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "array",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "list",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "list",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "list",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "list",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "list",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "list",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "shape",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "shape",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "shape",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "shape",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "shape",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "shape",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "class-string",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "class-string",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "class-string",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "class-string",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "class-string",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "class-string",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "callback",
+            "mode": "full",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "callback",
+            "mode": "declarations",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "callback",
+            "mode": "prepared",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "callback",
+            "mode": "restore",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "callback",
+            "mode": "restoreDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "callback",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndGoodBad": true
+          },
+          {
+            "name": "nested-Trait-and-parent-class",
+            "mode": "full",
+            "signatureAndBad": true
+          },
+          {
+            "name": "nested-Trait-and-parent-class",
+            "mode": "declarations",
+            "signatureAndBad": true
+          },
+          {
+            "name": "nested-Trait-and-parent-class",
+            "mode": "prepared",
+            "signatureAndBad": true
+          },
+          {
+            "name": "nested-Trait-and-parent-class",
+            "mode": "restore",
+            "signatureAndBad": true
+          },
+          {
+            "name": "nested-Trait-and-parent-class",
+            "mode": "restoreDeclaration",
+            "signatureAndBad": true
+          },
+          {
+            "name": "nested-Trait-and-parent-class",
+            "mode": "restoreSourceDeclaration",
+            "signatureAndBad": true
+          },
+          {
+            "name": "ordinary-members-and-method-template-bound",
+            "mode": "full",
+            "memberTypesAndIdentity": true
+          },
+          {
+            "name": "ordinary-members-and-method-template-bound",
+            "mode": "declarations",
+            "memberTypesAndIdentity": true
+          },
+          {
+            "name": "ordinary-members-and-method-template-bound",
+            "mode": "prepared",
+            "memberTypesAndIdentity": true
+          },
+          {
+            "name": "ordinary-members-and-method-template-bound",
+            "mode": "restore",
+            "memberTypesAndIdentity": true
+          },
+          {
+            "name": "ordinary-members-and-method-template-bound",
+            "mode": "restoreDeclaration",
+            "memberTypesAndIdentity": true
+          },
+          {
+            "name": "ordinary-members-and-method-template-bound",
+            "mode": "restoreSourceDeclaration",
+            "memberTypesAndIdentity": true
+          },
+          {
+            "name": "missing",
+            "mode": "full",
+            "bindingProof": true
+          },
+          {
+            "name": "wrong-arity",
+            "mode": "full",
+            "bindingProof": true
+          },
+          {
+            "name": "conflict",
+            "mode": "full",
+            "bindingProof": true
+          },
+          {
+            "name": "violated-bound",
+            "mode": "full",
+            "bindingProof": true
+          },
+          {
+            "name": "valid-bound",
+            "mode": "full",
+            "bindingProof": true
+          }
+        ],
+        "proof": {
+          "loads": {
+            "parser": 1,
+            "phpdoc": 1,
+            "semantic": 1
+          },
+          "sha256": "0bd8dd2c4eac25f7a725aa96a7b300273382b4278caaa54c74f834e8e43c3447",
+          "sourceHashes": {
+            "parser": "20d2348d04f0e3ec68a7ffc32066cffb9c095eb7a11883a913da658ac5a4367c",
+            "phpdoc": "3bcb4611faac225b677e4579f65f0b5e97049ffe7b912fdeab11c78e234a7848",
+            "semantic": "18ee766e28d6f8527d0d0bb9f81e1c7c1047d55b93e100852336531423f5d2ee"
+          }
+        }
+      },
+      "controls": {
+        "rows": [
+          {
+            "label": "class-doc-is-not-a-use-clause",
+            "type": null
+          },
+          {
+            "label": "tag-for-another-Trait-is-not-used",
+            "type": null
+          },
+          {
+            "label": "unresolved-type-argument-is-not-borrowed",
+            "type": null
+          },
+          {
+            "label": "native-floor-is-preserved",
+            "type": "\\Origin\\T"
+          },
+          {
+            "label": "alias-to-constructor-keeps-source-binding",
+            "type": "\\Origin\\User"
+          },
+          {
+            "label": "trait-composition-keeps-selected-source-binding",
+            "type": "\\Origin\\User"
+          },
+          {
+            "label": "method-template-shadows-Trait-template",
+            "type": "T",
+            "bound": "int"
+          }
+        ],
+        "proof": {
+          "loads": {
+            "parser": 1,
+            "phpdoc": 1,
+            "semantic": 1
+          },
+          "sha256": "0bd8dd2c4eac25f7a725aa96a7b300273382b4278caaa54c74f834e8e43c3447",
+          "sourceHashes": {
+            "parser": "20d2348d04f0e3ec68a7ffc32066cffb9c095eb7a11883a913da658ac5a4367c",
+            "phpdoc": "3bcb4611faac225b677e4579f65f0b5e97049ffe7b912fdeab11c78e234a7848",
+            "semantic": "18ee766e28d6f8527d0d0bb9f81e1c7c1047d55b93e100852336531423f5d2ee"
+          }
+        }
+      },
+      "invalidation": {
+        "rows": [
+          {
+            "target": "View",
+            "update": {
+              "incremental": true,
+              "changedRanges": 0,
+              "kind": "declaration",
+              "changedCallables": [],
+              "changedTypes": [
+                "consumer\\c"
+              ]
+            },
+            "actualType": "\\Origin\\View"
+          },
+          {
+            "target": "User",
+            "update": {
+              "incremental": true,
+              "changedRanges": 0,
+              "kind": "declaration",
+              "changedCallables": [],
+              "changedTypes": [
+                "consumer\\c"
+              ]
+            },
+            "actualType": "\\Origin\\User"
+          },
+          {
+            "target": "View",
+            "update": {
+              "incremental": true,
+              "changedRanges": 0,
+              "kind": "declaration",
+              "changedCallables": [],
+              "changedTypes": [
+                "consumer\\c"
+              ]
+            },
+            "actualType": "\\Origin\\View"
+          }
+        ],
+        "proof": {
+          "loads": {
+            "parser": 1,
+            "phpdoc": 1,
+            "semantic": 1
+          },
+          "sha256": "0bd8dd2c4eac25f7a725aa96a7b300273382b4278caaa54c74f834e8e43c3447",
+          "sourceHashes": {
+            "parser": "20d2348d04f0e3ec68a7ffc32066cffb9c095eb7a11883a913da658ac5a4367c",
+            "phpdoc": "3bcb4611faac225b677e4579f65f0b5e97049ffe7b912fdeab11c78e234a7848",
+            "semantic": "18ee766e28d6f8527d0d0bb9f81e1c7c1047d55b93e100852336531423f5d2ee"
+          }
+        }
+      },
+      "originalInvalidationFailure": {
+        "rows": [
+          {
+            "target": "View",
+            "update": {
+              "incremental": true,
+              "changedRanges": 0,
+              "kind": "implementation",
+              "changedCallables": [],
+              "changedTypes": []
+            },
+            "actualType": "\\Origin\\View"
+          },
+          {
+            "target": "User",
+            "update": {
+              "incremental": true,
+              "changedRanges": 0,
+              "kind": "implementation",
+              "changedCallables": [],
+              "changedTypes": []
+            },
+            "actualType": "\\Origin\\User"
+          },
+          {
+            "target": "View",
+            "update": {
+              "incremental": true,
+              "changedRanges": 0,
+              "kind": "implementation",
+              "changedCallables": [],
+              "changedTypes": []
+            },
+            "actualType": "\\Origin\\View"
+          }
+        ],
+        "proof": {
+          "loads": {
+            "parser": 1,
+            "phpdoc": 1,
+            "semantic": 1
+          },
+          "sha256": "e8d413a52be8c7b7e25a19c1a62b8a41d1650ed0d69015b702c94dc2c70c12da",
+          "sourceHashes": {
+            "parser": "20d2348d04f0e3ec68a7ffc32066cffb9c095eb7a11883a913da658ac5a4367c",
+            "phpdoc": "3bcb4611faac225b677e4579f65f0b5e97049ffe7b912fdeab11c78e234a7848",
+            "semantic": "4f090c64b4f80155416f5ffb7987e90516e85b7438fd96519b36a3dea3f198c5"
+          }
+        }
+      },
+      "firstMatrixAssertionCorrection": "Ordinary property PHPDoc already canonicalizes display whitespace; corrected temporary expected display only, preserving shape keys and literals.",
+      "qualifiedAdaptationGap": {
+        "scope": "Pre-existing current parser gap, not fixed by generic-binding prototype",
+        "source": "<?php class C {/** @use \\Origin\\Init<\\Origin\\User>\n * @use \\Origin\\Other<\\Origin\\View> */ use \\Origin\\Init,\\Origin\\Other {\\Origin\\Init::__construct insteadof \\Origin\\Other;}} new C(null);",
+        "currentErrors": [
+          {
+            "start": 121,
+            "end": 186
+          },
+          {
+            "start": 122,
+            "end": 174
+          }
+        ],
+        "currentAdaptations": [],
+        "actualPhp85LintPassed": true
+      },
+      "sourceChangesAppliedToProduct": false,
+      "knownScope": "Candidate retains native floors, method templates, shape keys/literals and source identity. Actual use-clause ranges shared across six loading/cache paths; structural binding changes invalidate owning type. Native qualified precedence remains a separately recorded existing parser limitation."
+    }
+  }
+}
