@@ -214,6 +214,12 @@ function memberNameEquals(kind: MemberInfo['kind'], left: string, right: string)
   return memberNameKey(kind, left) === memberNameKey(kind, right);
 }
 
+function memberFqcnKey(kind: MemberInfo['kind'], fqcn: string): string {
+  const separator = fqcn.lastIndexOf('::');
+  return separator < 0 ? memberNameKey(kind, fqcn)
+    : `${fqcn.slice(0, separator).toLowerCase()}::${memberNameKey(kind, fqcn.slice(separator + 2))}`;
+}
+
 function isDirectScalar(type: PhpType): boolean {
   return ['bool', 'int', 'float', 'string'].includes(displayType(type));
 }
@@ -7065,7 +7071,7 @@ export class SemanticWorkspace {
     for (const file of this.files.values()) for (const access of file.memberAccesses.filter((item) => item.dynamic && item.kind === kind)) {
       if (!relevant(file, access)) continue;
       const fact = this.dynamicAccessNameFact(file, access); if (!fact) return undefined;
-      if (fact.name.toLowerCase() !== name.toLowerCase()) continue;
+      if (!memberNameEquals(kind, fact.name, name)) continue;
       const members = this.dynamicAccessMembers(file, access); if (!members.length) return undefined;
       const matching = members.map(target);
       if (matching.some(Boolean) && !matching.every(Boolean)) return undefined;
@@ -10198,11 +10204,11 @@ export class SemanticWorkspace {
     const property = file.properties.find((item) => item.visibility === 'private' && !item.promoted && offset >= item.start && offset <= item.end);
     if (!property) return undefined;
     const ownerProperties = file.properties.filter((item) => item.containerFqcn.toLowerCase() === property.containerFqcn.toLowerCase());
-    if (ownerProperties.filter((item) => item.name.toLowerCase() === property.name.toLowerCase()).length !== 1) return undefined;
-    if (newName && ownerProperties.some((item) => item !== property && item.name.toLowerCase() === newName.toLowerCase())) return undefined;
+    if (ownerProperties.filter((item) => item.name === property.name).length !== 1) return undefined;
+    if (newName && ownerProperties.some((item) => item !== property && item.name === newName)) return undefined;
     const locations = this.references(uri, property.start, true); if (!locations.length) return undefined;
     const dynamicLocations = this.dynamicMemberRenameLocations('property', property.name,
-      (member) => member.fqcn.toLowerCase() === property.fqcn.toLowerCase());
+      (member) => memberFqcnKey('property', member.fqcn) === memberFqcnKey('property', property.fqcn));
     if (!dynamicLocations) return undefined;
     locations.push(...dynamicLocations);
     return { uri, start: property.start + 1, end: property.end, name: property.name, fqcn: property.fqcn, locations: locations.map((item) => item.start === property.start ? { ...item, start: item.start + 1 } : item) };
@@ -10225,8 +10231,8 @@ export class SemanticWorkspace {
     if (relatedTypes.some((declaration) => !this.hasCompleteHierarchy(declaration.fqcn))) return undefined;
     const relatedProperties = [...this.files.values()].flatMap((candidateFile) => candidateFile.properties)
       .filter((candidate) => relatedTypes.some((declaration) => candidate.containerFqcn.toLowerCase() === declaration.fqcn.toLowerCase()));
-    if (relatedProperties.some((candidate) => candidate !== property && candidate.name.toLowerCase() === property.name.toLowerCase())) return undefined;
-    if (newName && relatedProperties.some((candidate) => candidate !== property && candidate.name.toLowerCase() === newName.toLowerCase())) return undefined;
+    if (relatedProperties.some((candidate) => candidate !== property && candidate.name === property.name)) return undefined;
+    if (newName && relatedProperties.some((candidate) => candidate !== property && candidate.name === newName)) return undefined;
     const normalized = newName ? `$${newName.replace(/^\$/, '')}` : undefined;
     if (normalized && constructor.parameters.some((candidate) => candidate !== parameter && `$${candidate.name}` === normalized)) return undefined;
     if (normalized && file.variableReferences.some((reference) => reference.scopeId === constructor.fqcn && reference.variable === normalized)) return undefined;
@@ -10235,7 +10241,7 @@ export class SemanticWorkspace {
     const locations = this.promotedPropertyReferences(file, property);
     if (!locations.some((location) => location.start === property.start + 1 && location.end === property.end)) return undefined;
     const dynamicLocations = this.dynamicMemberRenameLocations('property', property.name,
-      (member) => member.fqcn.toLowerCase() === property.fqcn.toLowerCase(),
+      (member) => memberFqcnKey('property', member.fqcn) === memberFqcnKey('property', property.fqcn),
       closedPrivateOwner ? (candidateFile, access): boolean => this.containingCallable(candidateFile, access.start)?.containerFqcn?.toLowerCase()
         === property.containerFqcn.toLowerCase() : undefined);
     if (!dynamicLocations) return undefined;
@@ -10283,13 +10289,13 @@ export class SemanticWorkspace {
     }
     const escapedName = property.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
-      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
+      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'g');
       for (const match of candidateFile.source.matchAll(directAccess)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
         const resolved = this.memberAt(candidateFile.uri, start + 1);
         const lexical = !resolved && /\$this\s*(?:\?->|->)\s*$/i.test(candidateFile.source.slice(Math.max(0, match.index - 24), start))
           ? this.containingCallable(candidateFile, start) : undefined;
-        if (resolved?.kind === 'property' && resolved.fqcn.toLowerCase() === property.fqcn.toLowerCase()
+        if (resolved?.kind === 'property' && memberFqcnKey('property', resolved.fqcn) === memberFqcnKey('property', property.fqcn)
           || lexical?.containerFqcn?.toLowerCase() === property.containerFqcn.toLowerCase()) locations.push({
           uri: candidateFile.uri, start, end: start + match[1]!.length,
         });
@@ -10305,29 +10311,29 @@ export class SemanticWorkspace {
     for (const consumer of consumers) {
       const namespace = consumer.declaration.fqcn.split('\\').slice(0, -1).join('\\');
       const contributors = consumer.declaration.traitNames.map((name) => this.resolveSourceType(consumer.file, name, namespace, consumer.declaration.fqcn))
-        .filter((name): name is string => Boolean(name && this.members(name, name, new Set(), true).some((member) => member.kind === 'property' && member.name.toLowerCase() === property.name.toLowerCase())));
+        .filter((name): name is string => Boolean(name && this.members(name, name, new Set(), true).some((member) => member.kind === 'property' && member.name === property.name)));
       if (contributors.some((name) => name.toLowerCase() === property.containerFqcn.toLowerCase()) && contributors.length > 1) return undefined;
       if (consumer.file.properties.some((candidate) => candidate !== property && candidate.containerFqcn.toLowerCase() === consumer.declaration.fqcn.toLowerCase()
-        && candidate.name.toLowerCase() === property.name.toLowerCase())) return undefined;
+        && candidate.name === property.name)) return undefined;
     }
     if (newName && (file.properties.some((candidate) => candidate !== property && candidate.containerFqcn.toLowerCase() === property.containerFqcn.toLowerCase()
-      && candidate.name.toLowerCase() === newName.toLowerCase()) || consumers.some(({ declaration }) => this.members(declaration.fqcn, declaration.fqcn, new Set(), true)
-      .some((member) => member.kind === 'property' && member.name.toLowerCase() === newName.toLowerCase() && member.fqcn.toLowerCase() !== property.fqcn.toLowerCase())))) return undefined;
+      && candidate.name === newName) || consumers.some(({ declaration }) => this.members(declaration.fqcn, declaration.fqcn, new Set(), true)
+      .some((member) => member.kind === 'property' && member.name === newName && memberFqcnKey('property', member.fqcn) !== memberFqcnKey('property', property.fqcn))))) return undefined;
     const locations: SemanticLocation[] = [{ uri: file.uri, start: property.start + 1, end: property.end }];
     const dynamicLocations = this.dynamicMemberRenameLocations('property', property.name,
-      (member) => member.fqcn.toLowerCase() === property.fqcn.toLowerCase());
+      (member) => memberFqcnKey('property', member.fqcn) === memberFqcnKey('property', property.fqcn));
     if (!dynamicLocations) return undefined;
     locations.push(...dynamicLocations);
     const escapedName = property.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const relatedOwners = new Set([property.containerFqcn.toLowerCase(), ...consumers.map(({ declaration }) => declaration.fqcn.toLowerCase())]);
     for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
-      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
+      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'g');
       for (const match of candidateFile.source.matchAll(directAccess)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
         const resolved = this.memberAt(candidateFile.uri, start + 1);
         const scope = !resolved && /(?:\$this\s*(?:\?->|->)|\b(?:parent|self|static)::\s*\$?)\s*$/i.test(candidateFile.source.slice(Math.max(0, match.index - 24), start))
           ? this.containingCallable(candidateFile, start) : undefined;
-        if (resolved?.kind === 'property' && resolved.fqcn.toLowerCase() === property.fqcn.toLowerCase()
+        if (resolved?.kind === 'property' && memberFqcnKey('property', resolved.fqcn) === memberFqcnKey('property', property.fqcn)
           || scope?.containerFqcn && relatedOwners.has(scope.containerFqcn.toLowerCase())) locations.push({ uri: candidateFile.uri, start, end: start + match[1]!.length });
       }
     }
@@ -10359,7 +10365,7 @@ export class SemanticWorkspace {
     if (!property || this.fileAndDeclaration(property.containerFqcn)?.declaration.kind === 'trait'
       || !this.hasCompleteHierarchy(property.containerFqcn)) return undefined;
     const candidates = [...this.files.values()].flatMap((ownerFile) => ownerFile.properties.map((item) => ({ file: ownerFile, property: item })))
-      .filter(({ property: item }) => item.visibility !== 'private' && !item.promoted && item.name.toLowerCase() === property.name.toLowerCase());
+      .filter(({ property: item }) => item.visibility !== 'private' && !item.promoted && item.name === property.name);
     const family = candidates.filter((candidate) => this.isSubclassOf(candidate.property.containerFqcn, property.containerFqcn)
       || this.isSubclassOf(property.containerFqcn, candidate.property.containerFqcn));
     if (!family.length || family.some((member) => this.fileAndDeclaration(member.property.containerFqcn)?.declaration.kind === 'trait')) return undefined;
@@ -10370,18 +10376,18 @@ export class SemanticWorkspace {
     const relatedProperties = [...this.files.values()].flatMap((candidateFile) => candidateFile.properties)
       .filter((candidate) => family.some((member) => this.isSubclassOf(candidate.containerFqcn, member.property.containerFqcn)
         || this.isSubclassOf(member.property.containerFqcn, candidate.containerFqcn)));
-    if (relatedProperties.some((candidate) => candidate.name.toLowerCase() === property.name.toLowerCase()
+    if (relatedProperties.some((candidate) => candidate.name === property.name
       && (candidate.visibility === 'private' || candidate.promoted))) return undefined;
-    if (newName && relatedProperties.some((candidate) => candidate.name.toLowerCase() === newName.toLowerCase())) return undefined;
+    if (newName && relatedProperties.some((candidate) => candidate.name === newName)) return undefined;
     const escapedName = property.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const familyIds = new Set(family.map((member) => member.property.fqcn.toLowerCase()));
+    const familyIds = new Set(family.map((member) => memberFqcnKey('property', member.property.fqcn)));
     const locations: SemanticLocation[] = family.map((member) => ({ uri: member.file.uri, start: member.property.start + 1, end: member.property.end }));
     const dynamicLocations = this.dynamicMemberRenameLocations('property', property.name,
-      (member) => familyIds.has(member.fqcn.toLowerCase()));
+      (member) => familyIds.has(memberFqcnKey('property', member.fqcn)));
     if (!dynamicLocations) return undefined;
     locations.push(...dynamicLocations);
     for (const candidateFile of this.filesForReferenceKeys(memberCandidateKey('property', property.name))) {
-      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'gi');
+      const directAccess = new RegExp(`(?:->|::)\\s*\\$?(${escapedName})\\b(?!\\s*\\()`, 'g');
       for (const match of candidateFile.source.matchAll(directAccess)) {
         const start = match.index + match[0].lastIndexOf(match[1]!);
         const resolved = this.memberAt(candidateFile.uri, start + 1);
@@ -10389,7 +10395,7 @@ export class SemanticWorkspace {
           ? this.containingCallable(candidateFile, start) : undefined;
         const familyKeywordAccess = scope?.containerFqcn && family.some((member) => this.isSubclassOf(scope.containerFqcn!, member.property.containerFqcn)
           || this.isSubclassOf(member.property.containerFqcn, scope.containerFqcn!));
-        if (resolved && resolved.kind === 'property' && familyIds.has(resolved.fqcn.toLowerCase()) || familyKeywordAccess) {
+        if (resolved && resolved.kind === 'property' && familyIds.has(memberFqcnKey('property', resolved.fqcn)) || familyKeywordAccess) {
           locations.push({ uri: candidateFile.uri, start, end: start + match[1]!.length });
         }
       }
@@ -10795,7 +10801,7 @@ export class SemanticWorkspace {
     if (target) {
       const locations: SemanticLocation[] = includeDeclaration ? [{ uri: target.uri, start: target.start, end: target.end }] : [];
       const marker = target.kind === 'property' && target.static ? '\\$?' : '';
-      const pattern = new RegExp(`(?:->|::)\\s*${marker}(${target.name})\\b`, 'gi');
+      const pattern = new RegExp(`(?:->|::)\\s*${marker}(${target.name})\\b`, target.kind === 'method' || target.kind === 'function' ? 'gi' : 'g');
       for (const file of this.filesForReferenceKeys(memberCandidateKey(target.kind === 'function' ? 'method' : target.kind, target.name))) {
         let queryTree: SyntaxTree | undefined;
         try {
@@ -10813,7 +10819,7 @@ export class SemanticWorkspace {
               this.trees.set(file.uri, queryTree);
             }
             const resolved = this.memberAt(file.uri, start + 1);
-            if (resolved?.fqcn.toLowerCase() === target.fqcn.toLowerCase()) locations.push({ uri: file.uri, start, end });
+            if (resolved?.kind === target.kind && memberFqcnKey(target.kind, resolved.fqcn) === memberFqcnKey(target.kind, target.fqcn)) locations.push({ uri: file.uri, start, end });
           }
         } finally {
           if (queryTree) {

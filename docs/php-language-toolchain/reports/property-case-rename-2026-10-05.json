@@ -1,0 +1,400 @@
+{
+  "milestone": "D112",
+  "date": "2026-10-05",
+  "baseCheckpoint": "d399162778046fd888b4f79b17bde79dbbe44a03",
+  "scope": "property Rename/reference identity with case-sensitive member names and case-insensitive type owners",
+  "qualifiedInputsSha256": {
+    "packages/semantic/src/index.ts": "7b15997e959cb2abbe4c27bcbaee2595575ea49f4fcb9fc5103c8252a53bb7c7",
+    "packages/language-server/src/server.ts": "8556fe393d468ee0b0ff3b0d310a131a66d6ce4bd01369da47b1047dc61536d2",
+    "packages/semantic/test/property-case-rename.test.ts": "5d1a1414edeea73d9ae87294144f7a955ea6b3427a9995386a5bb6118fbef417",
+    "packages/language-server/test/property-case-rename-stdio.test.ts": "e8c3da52fe01263610e600d62b322b4e1fdf40ea7ae8414abd6af098d4e3693a",
+    "test/extension/suite/propertyCaseRename.ts": "2563e8e8319c18309dbb593bdbca775a8ea44ab5eba10a9e30eb19fac6327a90",
+    "scripts/check-property-case-rename-host.mjs": "d66cd0f60fcbccfb099392158ae2e0ab115bb4cac27fbe5a90657c76d3aa545a",
+    "dist/language-server.js": "47f8e7e261c604b940e0b8f720a998f398ef1a4728fb8a6bd62640a8254be63d",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "semantic": {
+    "files": 124,
+    "passed": 2976,
+    "failed": 0,
+    "added": 45,
+    "focusedPassed": 45,
+    "fullCommand": "pnpm --filter @php-companion/semantic exec vitest run --maxWorkers=2 --reporter=json --outputFile=/tmp/sophp-d112-semantic-full.json",
+    "raw": "/tmp/sophp-d112-semantic-full.json",
+    "durationSeconds": 151.81155737304687
+  },
+  "lsp": {
+    "files": 2,
+    "passed": 6,
+    "newTests": 4,
+    "newRenamePlans": 44,
+    "newCollisionRefusals": 44,
+    "newPrepareRequests": 44,
+    "newReferencesRequests": 44,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "progressive"
+    ],
+    "log": "/tmp/sophp-d112-lsp-focused-final.log",
+    "exactRangesAndAcceptedText": true,
+    "sourceHashesChecked": true,
+    "consumerDiskUnchanged": true,
+    "existingLegacyConstructorRenamePassed": 2
+  },
+  "host": [
+    {
+      "phpVersion": "7.2",
+      "results": [
+        {
+          "name": "CasePublic",
+          "selected": "options",
+          "source": "<?php class CasePublic {public $options=1;public $Options=2;function read(){return $this->options.':'.$this->Options;}} echo (new CasePublic())->read();",
+          "accepted": "<?php class CasePublic {public $settings=1;public $Options=2;function read(){return $this->settings.':'.$this->Options;}} echo (new CasePublic())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CasePrivate",
+          "selected": "Options",
+          "source": "<?php class CasePrivate {private $options=1;private $Options=2;function read(){return $this->options.':'.$this->Options;}} echo (new CasePrivate())->read();",
+          "accepted": "<?php class CasePrivate {private $options=1;private $settings=2;function read(){return $this->options.':'.$this->settings;}} echo (new CasePrivate())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CaseStatic",
+          "selected": "options",
+          "source": "<?php class CaseStatic {public static $options=1;public static $Options=2;function read(){return self::$options.':'.self::$Options;}} echo (new CaseStatic())->read();",
+          "accepted": "<?php class CaseStatic {public static $settings=1;public static $Options=2;function read(){return self::$settings.':'.self::$Options;}} echo (new CaseStatic())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CaseTraitHost",
+          "selected": "Options",
+          "source": "<?php trait CaseTrait {public $options=1;public $Options=2;function read(){return $this->options.':'.$this->Options;}} class CaseTraitHost {use CaseTrait;} echo (new CaseTraitHost())->read();",
+          "accepted": "<?php trait CaseTrait {public $options=1;public $settings=2;function read(){return $this->options.':'.$this->settings;}} class CaseTraitHost {use CaseTrait;} echo (new CaseTraitHost())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ],
+      "cancelled": 4,
+      "collisions": 4,
+      "staleRefusals": 1
+    },
+    {
+      "phpVersion": "8.5",
+      "results": [
+        {
+          "name": "CasePublic",
+          "selected": "options",
+          "source": "<?php class CasePublic {public $options=1;public $Options=2;function read(){return $this->options.':'.$this->Options;}} echo (new CasePublic())->read();",
+          "accepted": "<?php class CasePublic {public $settings=1;public $Options=2;function read(){return $this->settings.':'.$this->Options;}} echo (new CasePublic())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CasePrivate",
+          "selected": "Options",
+          "source": "<?php class CasePrivate {private $options=1;private $Options=2;function read(){return $this->options.':'.$this->Options;}} echo (new CasePrivate())->read();",
+          "accepted": "<?php class CasePrivate {private $options=1;private $settings=2;function read(){return $this->options.':'.$this->settings;}} echo (new CasePrivate())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CaseStatic",
+          "selected": "options",
+          "source": "<?php class CaseStatic {public static $options=1;public static $Options=2;function read(){return self::$options.':'.self::$Options;}} echo (new CaseStatic())->read();",
+          "accepted": "<?php class CaseStatic {public static $settings=1;public static $Options=2;function read(){return self::$settings.':'.self::$Options;}} echo (new CaseStatic())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CaseTraitHost",
+          "selected": "Options",
+          "source": "<?php trait CaseTrait {public $options=1;public $Options=2;function read(){return $this->options.':'.$this->Options;}} class CaseTraitHost {use CaseTrait;} echo (new CaseTraitHost())->read();",
+          "accepted": "<?php trait CaseTrait {public $options=1;public $settings=2;function read(){return $this->options.':'.$this->settings;}} class CaseTraitHost {use CaseTrait;} echo (new CaseTraitHost())->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "name": "CasePromoted",
+          "selected": "options",
+          "source": "<?php class CasePromoted {function __construct(public $options,public $Options){} function read(){return $this->options.':'.$this->Options;}} echo (new CasePromoted(options:1,Options:2))->read();",
+          "accepted": "<?php class CasePromoted {function __construct(public $settings,public $Options){} function read(){return $this->settings.':'.$this->Options;}} echo (new CasePromoted(settings:1,Options:2))->read();",
+          "exactText": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ],
+      "cancelled": 5,
+      "collisions": 5,
+      "staleRefusals": 1
+    }
+  ],
+  "actualPhpRuns": [
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CasePublic",
+      "phase": "source",
+      "sourceSha256": "3554971d3964035c007f96235a93321f324bbc42cbc5ff02230aafd2d995ba62",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CasePublic",
+      "phase": "accepted",
+      "sourceSha256": "58e2b4b92b7e6588ae2aa4476ee43b2484916930b39d2a5f52dc49ea50f2f06b",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CasePrivate",
+      "phase": "source",
+      "sourceSha256": "8366403a48b1c90688868b5247e43f90ce5c68dd6bde8f3088e9d7b5e5423b98",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CasePrivate",
+      "phase": "accepted",
+      "sourceSha256": "6d93079c9a3a668fbf7991101ffc546bdddee496a2819da3979418fecb048308",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CaseStatic",
+      "phase": "source",
+      "sourceSha256": "4990f31a9f55a0e47cf366446203d8529390d90d6f2aaee07dbc9b800bbedacd",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CaseStatic",
+      "phase": "accepted",
+      "sourceSha256": "bb1632a206cc99e00efdbf67f2e46c493c676d7366a86e2a2b3266216f8f467e",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CaseTraitHost",
+      "phase": "source",
+      "sourceSha256": "fb0a43dfa948eebe4ce5dc05db4f515832a4f407ca72eb2c083620c8e608820b",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "7.2",
+      "runtime": "7.2.34",
+      "case": "CaseTraitHost",
+      "phase": "accepted",
+      "sourceSha256": "3836a780831fa280fa17ecad1f441dd1fabebcca2bedb9eb5cc301a3b8b42958",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CasePublic",
+      "phase": "source",
+      "sourceSha256": "3554971d3964035c007f96235a93321f324bbc42cbc5ff02230aafd2d995ba62",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CasePublic",
+      "phase": "accepted",
+      "sourceSha256": "58e2b4b92b7e6588ae2aa4476ee43b2484916930b39d2a5f52dc49ea50f2f06b",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CasePrivate",
+      "phase": "source",
+      "sourceSha256": "8366403a48b1c90688868b5247e43f90ce5c68dd6bde8f3088e9d7b5e5423b98",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CasePrivate",
+      "phase": "accepted",
+      "sourceSha256": "6d93079c9a3a668fbf7991101ffc546bdddee496a2819da3979418fecb048308",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CaseStatic",
+      "phase": "source",
+      "sourceSha256": "4990f31a9f55a0e47cf366446203d8529390d90d6f2aaee07dbc9b800bbedacd",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CaseStatic",
+      "phase": "accepted",
+      "sourceSha256": "bb1632a206cc99e00efdbf67f2e46c493c676d7366a86e2a2b3266216f8f467e",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CaseTraitHost",
+      "phase": "source",
+      "sourceSha256": "fb0a43dfa948eebe4ce5dc05db4f515832a4f407ca72eb2c083620c8e608820b",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CaseTraitHost",
+      "phase": "accepted",
+      "sourceSha256": "3836a780831fa280fa17ecad1f441dd1fabebcca2bedb9eb5cc301a3b8b42958",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CasePromoted",
+      "phase": "source",
+      "sourceSha256": "b25777f0f8e7221ce52ba9b00af2d32a0634e195e09057d52e08cf83013fa23a",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    },
+    {
+      "version": "8.5",
+      "runtime": "8.5.9",
+      "case": "CasePromoted",
+      "phase": "accepted",
+      "sourceSha256": "cfbbfb1ce92902c37eee1ffd8c1fa8baf4c569509f18f294d1d05a35942bd91e",
+      "exitCode": 0,
+      "output": "1:2",
+      "stderr": ""
+    }
+  ],
+  "failuresRetained": [
+    {
+      "phase": "pre-change semantic cases",
+      "failed": 34,
+      "passed": 1,
+      "total": 35,
+      "log": "/tmp/sophp-d112-case-baseline.log"
+    },
+    {
+      "phase": "intermediate edit tool",
+      "cause": "sequential substring replacement assertion stopped before writing property section; corrected atomic exact substitutions",
+      "partialQueryLog": "/tmp/sophp-d112-case-focused.log"
+    },
+    {
+      "phase": "expanded fixture syntax",
+      "log": "/tmp/sophp-d112-case-expanded.log",
+      "cause": "missing closing parentheses; no cases ran; corrected fixture without product changes"
+    },
+    {
+      "phase": "first LSP harness",
+      "failed": 4,
+      "log": "/tmp/sophp-d112-lsp-focused.log",
+      "cause": "ordinary text-only Rename uses changes; harness incorrectly required file-operation documentChanges",
+      "productChange": false
+    },
+    {
+      "phase": "first host stale-edit injection",
+      "log": "/tmp/sophp-d112-host-72.log",
+      "cause": "expected plan-after-edit source change was not observed with original preview/editor handles; unique cause not independently proven",
+      "resolution": "pin original file tab, acquire current editor, assert hook called and exact edited text remains while command refuses; no product changes"
+    }
+  ],
+  "quality": {
+    "semanticBuild": true,
+    "productionBundleBuild": true,
+    "hostTypecheck": true,
+    "languageServerTypecheck": true,
+    "scopedEslint": true,
+    "diffCheck": true
+  },
+  "remaining": [
+    "current full LSP not run; D108 957-test qualification remains bound to d0e5466d",
+    "ordinary continuous-edit 150ms qualification remains open",
+    "host API-driven preview/apply does not establish real keyboard or WSL acceptance",
+    "unproven dynamic names remain refusal cases",
+    "platform/scale/long-session and real WSL qualification remain open"
+  ],
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "goal": "active"
+  },
+  "logsSha256": {
+    "/tmp/sophp-d112-case-baseline.log": "38eb6e96ff3d59d92369e2c19d0a98fe25dc74e5f98d555868661824837a8f67",
+    "/tmp/sophp-d112-case-focused.log": "4f4ae268e214d4b984b339d0acad5d0b141e68de67c0086abca916971c4ab1af",
+    "/tmp/sophp-d112-case-final-focused.log": "9856aa9aab7966281eb1e3e3cbf6dfc6f946f4bae4b3a2c30f1dbb8f99e229fb",
+    "/tmp/sophp-d112-case-expanded.log": "9dfe116c47e8239fca2c0e052b4bbd3c26cc8c3115c281134a0927603627078f",
+    "/tmp/sophp-d112-case-expanded-final.log": "37b5a843af9136f6f9fb54b7f1d3d0f085a85cd1dd5dcf38b31b2f55c14c513e",
+    "/tmp/sophp-d112-semantic-full.json": "cd1aabda0e473c3d00c01ad98b08a26ae150217b4dd2a715cc9db051a40db2d5",
+    "/tmp/sophp-d112-lsp-focused.log": "940e07f732b282cb80845884097fc7e83a72982e554d2c4239453d2cb39e3830",
+    "/tmp/sophp-d112-lsp-focused-final.log": "749c64858fe0f5063b4e4a0d3986da5cc2572c6c3367ac692bfc4cdb7948e4bb",
+    "/tmp/sophp-d112-host-72.log": "a4f0860d5e41ce5412e2a84c492b46042dce7947df63216de4e1978681f83ed1",
+    "/tmp/sophp-d112-host-72-final.log": "ca92b1cfdeba21c2a6f1455f274e7aa782d38ac0b5e7298c55fd709066b2c798",
+    "/tmp/sophp-d112-host-85-final.log": "23c89b7351f2c5ae3f9e559790c52569a616d4887f02c7442dee7913b5ea54a1",
+    "/tmp/sophp-d112-build.log": "f550538ce69c4513058d040b7517c09f69c4f3693fbc89bc8c5a8823fa56fa5f",
+    "/tmp/sophp-d112-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d112-host-typecheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d112-lsp-typecheck.log": "38ac890c60e7f38d59ddfb410325cdfb5fca83c9411765c5481754e01c021630"
+  }
+}
