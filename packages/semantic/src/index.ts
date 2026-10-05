@@ -4949,10 +4949,10 @@ export class SemanticWorkspace {
     return result ? {...result, end: Math.min(result.end, offset)} : undefined;
   }
 
-  /** Only the fixed static property receiver of the current array access. */
+  /** Declaration dependencies of the current array receiver and its local origins. */
   arrayAccessOwnerTypeNamesAt(uri: string, offset: number): string[] {
     const file = this.files.get(uri);
-    if (!file || !file.source.includes('::') || !this.isPhpCodeContext(uri, offset)
+    if (!file || (!file.source.includes('::') && !file.source.includes('->')) || !this.isPhpCodeContext(uri, offset)
       || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
     if (file.syntaxErrors.length) {
       const recovered = this.withRecoveredArrayAccess(file, offset, fork => fork.arrayAccessOwnerTypeNamesAt(uri, offset));
@@ -4962,16 +4962,65 @@ export class SemanticWorkspace {
     try {
       let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
       while (node && node.type !== 'subscript_expression') node = node.parent;
-      let receiver = node?.namedChildren[0]; let remaining = 16;
-      while (receiver && ['subscript_expression', 'parenthesized_expression'].includes(receiver.type) && remaining-- > 0)
-        receiver = receiver.namedChildren[0];
-      if (!receiver || remaining < 0 || receiver.type !== 'scoped_property_access_expression' || receiver.hasError) return [];
-      const owner = receiver.childForFieldName('scope') ?? receiver.namedChildren[0];
-      const name = receiver.childForFieldName('name') ?? receiver.namedChildren.at(-1);
-      if (!owner || !/^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(owner.text) || name?.type !== 'variable_name') return [];
-      const accessFrom = this.containingCallable(file, receiver.startIndex)?.containerFqcn ?? this.containingScope(file, receiver.startIndex)?.containerFqcn;
-      const fqcn = this.resolveSourceType(file, owner.text, this.namespaceAt(file, receiver.startIndex), accessFrom);
-      return fqcn ? [fqcn] : [];
+      const receiver = node?.namedChildren[0];
+      if (!receiver) return [];
+      const tree = (retainedTree ?? temporaryTree)!;
+      const owners = new Set<string>(), visited = new Set<string>(); let remaining = 128;
+      const collect = (expression: SyntaxNode, depth = 0): void => {
+        const identity = `${expression.startIndex}:${expression.endIndex}`;
+        if (depth > 16 || remaining-- <= 0 || expression.hasError || visited.has(identity)) return;
+        visited.add(identity);
+        if (['subscript_expression', 'parenthesized_expression'].includes(expression.type)) {
+          const base = expression.namedChildren[0]; if (base) collect(base, depth + 1);
+          return;
+        }
+        if (expression.type === 'variable_name') {
+          const scope = this.containingScope(file, expression.startIndex); if (!scope) return;
+          const origins = file.assignments.filter(assignment => assignment.scopeId === scope.id
+            && assignment.variable === expression.text && assignment.end <= expression.startIndex
+            && (!assignment.validRange || expression.startIndex >= assignment.validRange.start && expression.startIndex <= assignment.validRange.end))
+            .sort((left, right) => right.end - left.end).slice(0, 16);
+          for (const origin of origins) {
+            const syntax = deepestLocalSyntax(tree.rootNode, origin.start, origin.end,
+              candidate => candidate.type === 'assignment_expression' && candidate.startIndex === origin.start && candidate.endIndex === origin.end);
+            const value = syntax?.childForFieldName('right');
+            if (value) collect(value, depth + 1);
+            else if (origin.sourceIterable) {
+              const iterable = deepestLocalSyntax(tree.rootNode, origin.sourceIterable.start, origin.sourceIterable.end,
+                candidate => candidate.startIndex === origin.sourceIterable!.start && candidate.endIndex === origin.sourceIterable!.end);
+              if (iterable) collect(iterable, depth + 1);
+            }
+            if (!this.assignmentInsideControlFlow(file, origin, scope)) break;
+          }
+          return;
+        }
+        if (['member_access_expression', 'nullsafe_member_access_expression', 'member_call_expression', 'nullsafe_member_call_expression',
+          'scoped_call_expression', 'scoped_property_access_expression'].includes(expression.type)) {
+          const name = expression.childForFieldName('name') ?? expression.namedChildren.at(-1);
+          if (expression.type.startsWith('scoped_')) {
+            const owner = expression.childForFieldName('scope') ?? expression.namedChildren[0];
+            if (owner && /^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(owner.text)
+              && name && ['name', 'variable_name'].includes(name.type)
+              && !file.memberAccesses.some(access => access.start === name.startIndex && access.dynamic)) {
+              const accessFrom = this.containingScope(file, expression.startIndex)?.containerFqcn;
+              const fqcn = this.resolveSourceType(file, owner.text, this.namespaceAt(file, expression.startIndex), accessFrom);
+              if (fqcn) owners.add(fqcn);
+            }
+          } else if (name?.type === 'name') {
+            for (const owner of this.memberOwnerTypeNamesAt(uri, name.endIndex)) owners.add(owner);
+          }
+          const object = expression.childForFieldName('object'); if (object) collect(object, depth + 1);
+          return;
+        }
+        if (expression.type === 'object_creation_expression') {
+          const type = expression.namedChildren.find(child => ['name', 'qualified_name', 'relative_name'].includes(child.type));
+          const accessFrom = this.containingScope(file, expression.startIndex)?.containerFqcn;
+          const fqcn = type && this.resolveSourceType(file, type.text, this.namespaceAt(file, expression.startIndex), accessFrom);
+          if (fqcn) owners.add(fqcn);
+        }
+      };
+      collect(receiver);
+      return [...owners];
     } finally { temporaryTree?.delete(); }
   }
 

@@ -15,8 +15,18 @@ export async function run(): Promise<void> {
   const uri = vscode.Uri.joinPath(folder.uri, 'src', 'StaticPropertyConsumer.php'), original = '<?php';
   await vscode.workspace.fs.writeFile(uri, Buffer.from(original));
   const document = await vscode.workspace.openTextDocument(uri), editor = await vscode.window.showTextDocument(document);
+  const coldStatic = vscode.Uri.joinPath(folder.uri, 'src', 'ColdStaticOptions.php');
+  const coldInstance = vscode.Uri.joinPath(folder.uri, 'src', 'ColdInstanceOptions.php');
+  const coldMethod = vscode.Uri.joinPath(folder.uri, 'src', 'ColdMethodOptions.php');
+  await vscode.workspace.fs.writeFile(coldStatic, Buffer.from('<?php namespace App; class ColdStaticOptions {/** @var array{mode:string} */ public static $options;}'));
+  await vscode.workspace.fs.writeFile(coldInstance, Buffer.from('<?php namespace App; class ColdInstanceOptions {/** @var array{mode:string} */ public $options;}'));
+  await vscode.workspace.fs.writeFile(coldMethod, Buffer.from('<?php namespace App; class ColdMethodOptions {/** @return array{mode:string} */ public static function options():array{return [];} }'));
   const property = '/** @var array{mode:string,payload:array{trace:string}} */ public static $options;';
   const cases = [
+    ['cold static alias', "<?php function read(){$data=App\\ColdStaticOptions::$options; $copy=$data; $copy['mo§'];}", 'mode'],
+    ['cold instance property', "<?php function read(){$holder=new App\\ColdInstanceOptions(); $holder->options['mo§'];}", 'mode'],
+    ['cold instance local', "<?php function read(){$holder=new App\\ColdInstanceOptions(); $data=$holder->options; $data['mo§'];}", 'mode'],
+    ['cold static method', "<?php function read(){$data=App\\ColdMethodOptions::options(); $data['mo§'];}", 'mode'],
     ['direct', `<?php class Config {${property}} function read(){Config::$options['mo§'];}`, 'mode'],
     ['inherited parenthesis', `<?php class Config {${property}} class Child extends Config {} function read(){(Child::$options)['mo§'];}`, 'mode'],
     ['nested recovery', `<?php class Config {${property}} function read(){Config::$options['payload']['tr§];}`, 'trace'],
