@@ -75,6 +75,7 @@ async function mutateCacheFile(cacheFile, mutate) {
 
 const parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()
   : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });
+let report;
 try {
   await generatePhpComposerProject(root, files);
   await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);
@@ -151,7 +152,7 @@ try {
     throw new Error('Callable corruption recovery lost cross-file completion or constructor facts.');
   callableRecoveredWorkspace.dispose();
 
-  process.stdout.write(`${JSON.stringify({
+  report = {
     schema: 1, files, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
     cold: { durationMs: Math.round(cold.durationMs * 100) / 100, parsed: cold.parsed, restored: cold.result.cached, doctrineParsed: cold.doctrineParsed },
     warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, doctrineParsed: warm.doctrineParsed },
@@ -167,7 +168,14 @@ try {
       corruptLayerReparsedFiles: recovered.parsed, corruptCallableReparsedFiles: callableRecovered.parsed,
       completionAfterLayerRecovery: true, completionAfterCallableRecovery: true,
       constructorFactsAfterRecovery: true },
-  }, null, 2)}\n`);
+  };
 } finally {
   parser.dispose(); await rm(root, { recursive: true, force: true });
 }
+const processPeakRssMb = process.resourceUsage().maxRSS / 1024;
+report.loadMemory.processPeakRssMb = Math.round(processPeakRssMb * 100) / 100;
+report.loadMemory.rssMeasurement = 'process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately';
+report.loadMemory.processRssBudgetPassed = report.loadMemory.frozenScalePeakRssMb === null ? null
+  : processPeakRssMb <= report.loadMemory.frozenScalePeakRssMb;
+if (report.loadMemory.processRssBudgetPassed === false) process.exitCode = 1;
+process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

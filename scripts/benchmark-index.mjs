@@ -15,9 +15,10 @@ if (![files, repeats].every(Number.isInteger) || files < 1 || repeats < 1) throw
 if ((arguments_[2] === undefined) !== (arguments_[3] === undefined))
   throw new Error('Provide both core WASM and PHP WASM paths, or neither.');
 const root = await mkdtemp(join(tmpdir(), `php-companion-benchmark-${files}-`));
+let report; let peakRssMb = 0;
 try {
   await generatePhpComposerProject(root, files);
-  const durations = []; const firstAvailable = []; let peakRssMb = 0;
+  const durations = []; const firstAvailable = [];
   for (let run = 0; run < repeats; run += 1) {
     const parser = arguments_[2] === undefined ? await PhpSyntaxParser.createDefault()
       : await PhpSyntaxParser.create({ coreWasmPath: arguments_[2], phpWasmPath: arguments_[3] });
@@ -29,11 +30,18 @@ try {
     durations.push(performance.now() - started); firstAvailable.push(first ?? durations.at(-1)); workspace.dispose(); parser.dispose();
   }
   const scale = files === 1000 ? 'files1000' : files === 10000 ? 'files10000' : files === 50000 ? 'files50000' : undefined;
-  const report = {
+  const sampledPeakRssMb = peakRssMb;
+  report = {
     schema: 1, files, repeats, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
     coldIndexMs: summarizeDurations(durations), firstAvailableMs: summarizeDurations(firstAvailable), peakRssMb: Math.round(peakRssMb * 10) / 10,
+    coldIndexSamplesMs: durations, firstAvailableSamplesMs: firstAvailable,
+    sampledPeakRssMb: Math.round(sampledPeakRssMb * 10) / 10,
+    firstAvailableMeasurement: 'entry of first onSource callback before semantic update; not first usable editor result',
+    rssMeasurement: 'maximum of interval samples and process.resourceUsage().maxRSS; includes fixture setup and cleanup',
     frozenBudget: scale ? { coldIndexMs: R1_PERFORMANCE_BUDGETS.coldIndexMs[scale], peakRssMb: R1_PERFORMANCE_BUDGETS.peakRssMb[scale] } : undefined,
   };
-  if (scale && (report.coldIndexMs.p95 > R1_PERFORMANCE_BUDGETS.coldIndexMs[scale] || report.peakRssMb > R1_PERFORMANCE_BUDGETS.peakRssMb[scale])) process.exitCode = 1;
-  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } finally { await rm(root, { recursive: true, force: true }); }
+peakRssMb = Math.max(peakRssMb, process.resourceUsage().maxRSS / 1024);
+report.peakRssMb = Math.round(peakRssMb * 10) / 10;
+if (report.frozenBudget && (report.coldIndexMs.p95 > report.frozenBudget.coldIndexMs || peakRssMb > report.frozenBudget.peakRssMb)) process.exitCode = 1;
+process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

@@ -1,0 +1,784 @@
+{
+  "schema": 1,
+  "verifiedAtUtc": "2026-10-05T19:16:45.890011+00:00",
+  "metadata": {
+    "createdAtUtc": "2026-10-05T18:58:54.331945+00:00",
+    "documentationCheckpoint": "7a70336dd64a2ff610f8b7328b34a4c755dc6e92",
+    "productCheckpoint": "784a12f7",
+    "semanticSchema": 87,
+    "sourceHashes": {
+      "packages/semantic/src/index.ts": "550f9703c1da2cf2bb4045836246f70beae0a52e1c5d7ce33779d43aba302b9f",
+      "packages/parser/dist/index.js": "587490dacc31fbb04fd38a00453a18f160d19ede2ec9d7ba74e11e49611f9bf0",
+      "packages/semantic/dist/index.js": "b1b6988d4d5fd9ef1d4984aae4faac5ad2082452fbb099c8114cac30be6015b6",
+      "packages/index/dist/index.js": "c09188c58ed9c4161d54715ea7899108fc6d6e5c12b0759e86c5a5bf0bdc63d4",
+      "packages/testkit/dist/index.js": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f",
+      "packages/language-server/dist/projectFacts.js": "c988806aa596a162378a72fdfbcfbe2fc808f761502f829b9497bdcb25e5110c",
+      "packages/language-server/dist/callableFactsCache.js": "00052f044587108591b44835fd92fbea3f3edc5c81a1c28de6acd02ab37029b0",
+      "scripts/benchmark-index.mjs": "1d0cc130847a96f5dc2a7568b7bff35a786272fa265d73758353d30b4019fa68",
+      "scripts/benchmark-persistent-index.mjs": "ea06df3a450ae7d69961b9056bfed1319534b64e6ab07557ed6d404be74163e8",
+      ".vscode-test/d117-benchmark-rss.mjs": "5de1a3dd06e3fd1ec2a007c3c8b838b0d200e8a4691eb3d2414c130993e4197f"
+    },
+    "sourceChange": "benchmark report adds raw round durations and process RSS high water; no product/parser/cache/budget changes",
+    "baselineFullRun": {
+      "complete": true,
+      "passed": 973,
+      "failed": 4,
+      "isolatedOriginalRuntimeTestsPassed": 7,
+      "green": false
+    },
+    "measurements": "serial, index five repeats per scale, persistence once per scale; persistence durations are not five-run qualification"
+  },
+  "index": {
+    "1000": {
+      "report": {
+        "schema": 1,
+        "files": 1000,
+        "repeats": 5,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 1787.6321350000003,
+          "p95": 1819.9401189999999,
+          "maximum": 1819.9401189999999
+        },
+        "firstAvailableMs": {
+          "samples": 5,
+          "p50": 11.566020999999637,
+          "p95": 23.462215000000015,
+          "maximum": 23.462215000000015
+        },
+        "peakRssMb": 132.8,
+        "coldIndexSamplesMs": [
+          1808.6291350000001,
+          1819.9401189999999,
+          1787.6321350000003,
+          1693.0402400000003,
+          1626.11085
+        ],
+        "firstAvailableSamplesMs": [
+          23.462215000000015,
+          20.60942900000009,
+          6.559850000000097,
+          11.566020999999637,
+          7.25032900000042
+        ],
+        "sampledPeakRssMb": 132.7,
+        "rssMeasurement": "maximum of interval samples and process.resourceUsage().maxRSS; includes fixture setup",
+        "frozenBudget": {
+          "coldIndexMs": 8000,
+          "peakRssMb": 384
+        }
+      },
+      "wholeProcessRss": {
+        "exitCode": 0,
+        "maxRssKiB": 135944,
+        "highWaterRssMiB": 132.7578125,
+        "scope": "actual benchmark process resourceUsage high water, including setup and cleanup; raw interval samples reported separately"
+      },
+      "coldAndRssBudgetsPassed": true
+    },
+    "10000": {
+      "report": {
+        "schema": 1,
+        "files": 10000,
+        "repeats": 5,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 15640.619708000006,
+          "p95": 16477.678767999998,
+          "maximum": 16477.678767999998
+        },
+        "firstAvailableMs": {
+          "samples": 5,
+          "p50": 45.800678999999946,
+          "p95": 69.91753100000005,
+          "maximum": 69.91753100000005
+        },
+        "peakRssMb": 287.2,
+        "coldIndexSamplesMs": [
+          16477.678767999998,
+          16042.173741000002,
+          15640.619708000006,
+          14730.338977,
+          15028.540371999996
+        ],
+        "firstAvailableSamplesMs": [
+          69.91753100000005,
+          58.34617200000139,
+          45.800678999999946,
+          38.275487999999314,
+          37.23271699999896
+        ],
+        "sampledPeakRssMb": 287.2,
+        "rssMeasurement": "maximum of interval samples and process.resourceUsage().maxRSS; includes fixture setup",
+        "frozenBudget": {
+          "coldIndexMs": 60000,
+          "peakRssMb": 768
+        }
+      },
+      "wholeProcessRss": {
+        "exitCode": 0,
+        "maxRssKiB": 302828,
+        "highWaterRssMiB": 295.73046875,
+        "scope": "actual benchmark process resourceUsage high water, including setup and cleanup; raw interval samples reported separately"
+      },
+      "coldAndRssBudgetsPassed": true
+    },
+    "50000": {
+      "report": {
+        "schema": 1,
+        "files": 50000,
+        "repeats": 5,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 79374.47922899999,
+          "p95": 80133.980333,
+          "maximum": 80133.980333
+        },
+        "firstAvailableMs": {
+          "samples": 5,
+          "p50": 225.24134499998763,
+          "p95": 253.37357399999928,
+          "maximum": 253.37357399999928
+        },
+        "peakRssMb": 907.3,
+        "coldIndexSamplesMs": [
+          80133.980333,
+          78362.43749200001,
+          79374.47922899999,
+          78854.33072900001,
+          79888.183333
+        ],
+        "firstAvailableSamplesMs": [
+          253.37357399999928,
+          233.55652500000724,
+          215.10641999999643,
+          204.98384500000975,
+          225.24134499998763
+        ],
+        "sampledPeakRssMb": 907.3,
+        "rssMeasurement": "maximum of interval samples and process.resourceUsage().maxRSS; includes fixture setup",
+        "frozenBudget": {
+          "coldIndexMs": 300000,
+          "peakRssMb": 1536
+        }
+      },
+      "wholeProcessRss": {
+        "exitCode": 0,
+        "maxRssKiB": 957480,
+        "highWaterRssMiB": 935.0390625,
+        "scope": "actual benchmark process resourceUsage high water, including setup and cleanup; raw interval samples reported separately"
+      },
+      "coldAndRssBudgetsPassed": true
+    }
+  },
+  "persistence": {
+    "1000": {
+      "report": {
+        "schema": 1,
+        "files": 1000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 2339.12,
+          "parsed": 1000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 636.74,
+          "parsed": 0,
+          "restored": 1000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.2722,
+        "cache": {
+          "cold": {
+            "files": 2,
+            "bytes": 5728827,
+            "mebibytes": 5.46
+          },
+          "warm": {
+            "files": 2,
+            "bytes": 5728827,
+            "mebibytes": 5.46
+          },
+          "frozenBudgetMb": 64
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 143.39,
+          "warmPeakRssMb": 139.38,
+          "layerRecoveryPeakRssMb": 159.04,
+          "callableRecoveryPeakRssMb": 169.45,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 384
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 1000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 1999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "wholeProcessRss": {
+        "exitCode": 0,
+        "maxRssKiB": 189948,
+        "highWaterRssMiB": 185.49609375,
+        "scope": "actual benchmark process resourceUsage high water, including setup and cleanup; raw interval samples reported separately"
+      },
+      "functionalAndCacheVolumeChecksPassed": true,
+      "wholeProcessRssBudgetPassed": true,
+      "budgetMiB": 384,
+      "notRepeatedPerformanceQualification": true
+    },
+    "10000": {
+      "report": {
+        "schema": 1,
+        "files": 10000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 18205.92,
+          "parsed": 10000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 5855.15,
+          "parsed": 0,
+          "restored": 10000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.3216,
+        "cache": {
+          "cold": {
+            "files": 2,
+            "bytes": 57274849,
+            "mebibytes": 54.62
+          },
+          "warm": {
+            "files": 2,
+            "bytes": 57274849,
+            "mebibytes": 54.62
+          },
+          "frozenBudgetMb": 512
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 303.32,
+          "warmPeakRssMb": 387.53,
+          "layerRecoveryPeakRssMb": 599.44,
+          "callableRecoveryPeakRssMb": 733.31,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 768
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 10000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 19999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "wholeProcessRss": {
+        "exitCode": 0,
+        "maxRssKiB": 857308,
+        "highWaterRssMiB": 837.21484375,
+        "scope": "actual benchmark process resourceUsage high water, including setup and cleanup; raw interval samples reported separately"
+      },
+      "functionalAndCacheVolumeChecksPassed": true,
+      "wholeProcessRssBudgetPassed": false,
+      "budgetMiB": 768,
+      "notRepeatedPerformanceQualification": true
+    },
+    "50000": {
+      "report": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 95449.16,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 30704.71,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.3217,
+        "cache": {
+          "cold": {
+            "files": 2,
+            "bytes": 286332849,
+            "mebibytes": 273.07
+          },
+          "warm": {
+            "files": 2,
+            "bytes": 286332849,
+            "mebibytes": 273.07
+          },
+          "frozenBudgetMb": 2560
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 889.35,
+          "warmPeakRssMb": 1605.71,
+          "layerRecoveryPeakRssMb": 2807.59,
+          "callableRecoveryPeakRssMb": 2832.57,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "wholeProcessRss": {
+        "exitCode": 0,
+        "maxRssKiB": 3148624,
+        "highWaterRssMiB": 3074.828125,
+        "scope": "actual benchmark process resourceUsage high water, including setup and cleanup; raw interval samples reported separately"
+      },
+      "functionalAndCacheVolumeChecksPassed": true,
+      "wholeProcessRssBudgetPassed": false,
+      "budgetMiB": 1536,
+      "notRepeatedPerformanceQualification": true
+    }
+  },
+  "originalArtifacts": {
+    "/tmp/sophp-d118-index-1000.json": {
+      "bytes": 984,
+      "sha256": "5e53c60909f730b79364e2acd98661770648bb42132fb9fb5a824501e67dad98"
+    },
+    "/tmp/sophp-d118-index-1000.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-index-1000-rss.json": {
+      "bytes": 195,
+      "sha256": "d6c6d567964afbcd7e73213a0b6569a5ba657791f32669e98a91c8e0f8ba1d60"
+    },
+    "/tmp/sophp-d118-persistence-1000.json": {
+      "bytes": 1429,
+      "sha256": "ecefe12430718f1a5b9ccf4e3247256a7b3ca23bf57b8c47d6747f14a532b499"
+    },
+    "/tmp/sophp-d118-persistence-1000.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-persistence-1000-rss.json": {
+      "bytes": 196,
+      "sha256": "adef0e5bdf84352d46108e7296c7c4eb3bc4320c543d15e57618209f6e271639"
+    },
+    "/tmp/sophp-d118-index-10000.json": {
+      "bytes": 987,
+      "sha256": "3afabb93b3992b7a769e012fc7251d7743a5952a91036f9ccc0918c704717b5e"
+    },
+    "/tmp/sophp-d118-index-10000.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-index-10000-rss.json": {
+      "bytes": 196,
+      "sha256": "2cfced77dcbabf0f254a97d02f895f11b1f30625bda0793566b9c31d6ed63a0e"
+    },
+    "/tmp/sophp-d118-persistence-10000.json": {
+      "bytes": 1441,
+      "sha256": "5f0449b621206ebec2ff117d73e914f615f12916c5bb790df2ab8c746f96939b"
+    },
+    "/tmp/sophp-d118-persistence-10000.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-persistence-10000-rss.json": {
+      "bytes": 196,
+      "sha256": "c4608fed5d50f92e846e72eef736dd1bb6177cd560afcfe57bb2bf45ff6f8971"
+    },
+    "/tmp/sophp-d118-index-50000.json": {
+      "bytes": 972,
+      "sha256": "59dcb7dfa986660e050efa1512f360131e443f0d640423ce6edecde7bbf177f1"
+    },
+    "/tmp/sophp-d118-index-50000.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-index-50000-rss.json": {
+      "bytes": 195,
+      "sha256": "963d60a3349060505e8e07ffeab71b773c3e8863a4b23c687171d37df2de5bb5"
+    },
+    "/tmp/sophp-d118-persistence-50000.json": {
+      "bytes": 1451,
+      "sha256": "f5955a56102b443051dd6ff7720d294644f6e026a893e2bd79f32d88c3b7adcc"
+    },
+    "/tmp/sophp-d118-persistence-50000.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-persistence-50000-rss.json": {
+      "bytes": 196,
+      "sha256": "af851a8b1dc2ebd3b29678d153da3ad3c79f38b155357aa0f065538a488d5cd1"
+    },
+    "/tmp/sophp-d118-guard-index-normal.json": {
+      "bytes": 934,
+      "sha256": "91a633734f6ec2f58e2badda31129bef3ff15a2d49402f1f9b34aee2b69d5b3b"
+    },
+    "/tmp/sophp-d118-guard-index-normal.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-guard-persistence-normal.json": {
+      "bytes": 1665,
+      "sha256": "2ac735d26f4cca10007692918731d436c40cbe88f887a3020b62359d5c571601"
+    },
+    "/tmp/sophp-d118-guard-persistence-normal.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-guard-index-boundary.json": {
+      "bytes": 904,
+      "sha256": "94018e35671095b6d83e76c0e0af39e03698599015555ac7d803436fa7c9a091"
+    },
+    "/tmp/sophp-d118-guard-index-boundary.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d118-guard-persistence-boundary.json": {
+      "bytes": 1660,
+      "sha256": "f950e93d6d46db43ac6409d42d2ba7b1d4cc75709fad99570d0e0995a816e98b"
+    },
+    "/tmp/sophp-d118-guard-persistence-boundary.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "scope": {
+    "product": "784a12f7; semantic snapshot 87; compiled product unchanged",
+    "index": "five cold index rounds per scale, without builtin registration, LSP, UI or real WSL",
+    "firstAvailableMs": "entry of first onSource callback before semantic update; not first usable result",
+    "firstUsableEditorResult": "not measured",
+    "persistence": "one cold/warm/two-corruption sequence per scale in one process, not five-run performance qualification",
+    "rss": "resourceUsage maxRSS of entire process including fixture setup, all phases and cleanup; interval samples retained separately",
+    "overallMemoryQualificationPassed": false,
+    "productMemoryCause": "not established; benchmark includes full manifest mutations and several workspace lifetimes",
+    "currentFullLspGreen": false
+  },
+  "measurementInputsUnchangedBeforeGuardEdits": true,
+  "guardVerification": {
+    "verifiedAtUtc": "2026-10-05T19:18:26.535436+00:00",
+    "scope": "CLI budget guards and existing functional assertions; 1k smoke only; injected RSS is not a product measurement",
+    "results": [
+      {
+        "name": "index-normal",
+        "command": [
+          "node",
+          "scripts/benchmark-index.mjs",
+          "1000",
+          "1"
+        ],
+        "exitCode": 0,
+        "syntheticHighWater": false,
+        "report": {
+          "schema": 1,
+          "files": 1000,
+          "repeats": 1,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "coldIndexMs": {
+            "samples": 1,
+            "p50": 1941.3887229999998,
+            "p95": 1941.3887229999998,
+            "maximum": 1941.3887229999998
+          },
+          "firstAvailableMs": {
+            "samples": 1,
+            "p50": 29.50894500000004,
+            "p95": 29.50894500000004,
+            "maximum": 29.50894500000004
+          },
+          "peakRssMb": 128.4,
+          "coldIndexSamplesMs": [
+            1941.3887229999998
+          ],
+          "firstAvailableSamplesMs": [
+            29.50894500000004
+          ],
+          "sampledPeakRssMb": 128.2,
+          "firstAvailableMeasurement": "entry of first onSource callback before semantic update; not first usable editor result",
+          "rssMeasurement": "maximum of interval samples and process.resourceUsage().maxRSS; includes fixture setup and cleanup",
+          "frozenBudget": {
+            "coldIndexMs": 8000,
+            "peakRssMb": 384
+          }
+        }
+      },
+      {
+        "name": "persistence-normal",
+        "command": [
+          "node",
+          "scripts/benchmark-persistent-index.mjs",
+          "1000"
+        ],
+        "exitCode": 0,
+        "syntheticHighWater": false,
+        "report": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2145.32,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 653.87,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.3048,
+          "cache": {
+            "cold": {
+              "files": 2,
+              "bytes": 5724827,
+              "mebibytes": 5.46
+            },
+            "warm": {
+              "files": 2,
+              "bytes": 5724827,
+              "mebibytes": 5.46
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 144.47,
+            "warmPeakRssMb": 163.66,
+            "layerRecoveryPeakRssMb": 187.63,
+            "callableRecoveryPeakRssMb": 183.14,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 196.45,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        }
+      },
+      {
+        "name": "index-boundary",
+        "command": [
+          "node",
+          "--import",
+          "./.vscode-test/d118-inject-rss-boundary.mjs",
+          "scripts/benchmark-index.mjs",
+          "1000",
+          "1"
+        ],
+        "exitCode": 1,
+        "syntheticHighWater": true,
+        "report": {
+          "schema": 1,
+          "files": 1000,
+          "repeats": 1,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "coldIndexMs": {
+            "samples": 1,
+            "p50": 1899.611437,
+            "p95": 1899.611437,
+            "maximum": 1899.611437
+          },
+          "firstAvailableMs": {
+            "samples": 1,
+            "p50": 29.31738800000005,
+            "p95": 29.31738800000005,
+            "maximum": 29.31738800000005
+          },
+          "peakRssMb": 384,
+          "coldIndexSamplesMs": [
+            1899.611437
+          ],
+          "firstAvailableSamplesMs": [
+            29.31738800000005
+          ],
+          "sampledPeakRssMb": 111.5,
+          "firstAvailableMeasurement": "entry of first onSource callback before semantic update; not first usable editor result",
+          "rssMeasurement": "maximum of interval samples and process.resourceUsage().maxRSS; includes fixture setup and cleanup",
+          "frozenBudget": {
+            "coldIndexMs": 8000,
+            "peakRssMb": 384
+          }
+        }
+      },
+      {
+        "name": "persistence-boundary",
+        "command": [
+          "node",
+          "--import",
+          "./.vscode-test/d118-inject-rss-boundary.mjs",
+          "scripts/benchmark-persistent-index.mjs",
+          "1000"
+        ],
+        "exitCode": 1,
+        "syntheticHighWater": true,
+        "report": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2167.14,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 670,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.3092,
+          "cache": {
+            "cold": {
+              "files": 2,
+              "bytes": 5726827,
+              "mebibytes": 5.46
+            },
+            "warm": {
+              "files": 2,
+              "bytes": 5726827,
+              "mebibytes": 5.46
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 152.59,
+            "warmPeakRssMb": 159.67,
+            "layerRecoveryPeakRssMb": 178.57,
+            "callableRecoveryPeakRssMb": 173.87,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 384,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": false
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        }
+      }
+    ]
+  },
+  "finalScriptHashes": {
+    "scripts/benchmark-index.mjs": "a8536b29cacf38a786054871a5e0938f8d2f7d75f2feecf7f7708edbc804c5f6",
+    "scripts/benchmark-persistent-index.mjs": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef"
+  },
+  "guardHelperSha256": "e5c7288175f4f54892eebcbd9241e349a33d5e5e5005b5efe78a3bfbb02db561",
+  "validation": {
+    "nodeCheckBothScripts": true,
+    "eslintBothScripts": true,
+    "diffCheck": true,
+    "compiledProductUnchanged": true
+  },
+  "finishedAtUtc": "2026-10-05T19:20:15.180974+00:00",
+  "rootProductionBundle": {
+    "path": "dist/language-server.js",
+    "sha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c"
+  },
+  "validationNotes": [
+    "Initial bundle lookup used nonexistent dist/server.js; actual entry resolved from esbuild.mjs without rebuilding"
+  ]
+}
