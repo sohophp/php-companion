@@ -2883,7 +2883,7 @@ describe('bounded Composer indexing', () => {
       const signature = (needle: string): ReturnType<SemanticWorkspace['signature']> => semantic.signature(uri, source.indexOf(needle) + needle.length);
       semantic.update(BUILTIN_DOCUMENT_URI, builtinPhpStub('7.2'));
       expect(signature('$legacyReader->XML(')?.parameters[2]?.name).toBe('options');
-      expect(signature('$legacyReader->XML(')?.returnType).toBe('XMLReader|false');
+      expect(signature('$legacyReader->XML(')?.returnType).toBe('bool');
       expect(signature('xmlwriter_open_memory(')?.returnType).toBe('resource|false');
       expect(signature('xmlwriter_set_indent(')?.parameters[0]?.name).toBe('xmlwriter');
       expect(signature('$objectWriter->writeDtdEntity(')?.parameters).toHaveLength(2);

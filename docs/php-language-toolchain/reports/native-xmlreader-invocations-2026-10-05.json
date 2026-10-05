@@ -1,0 +1,463 @@
+{
+  "milestone": "D89",
+  "date": "2026-10-05",
+  "baseCheckpoint": "21dfbed63dcd0e75c6e8197c9aef559b4b8e7a6c",
+  "scope": "Native XMLReader XML/open instance bool and static XMLReader|false invocation views after inheritance and override resolution; declarations unchanged",
+  "sourceInputs": {
+    "packages/semantic/src/index.ts": "a625462379fcbd38ffc7fd8487bac8567d053224281695d7a357f9b3fb56be44",
+    "packages/semantic/test/xmlreader-invocation.test.ts": "4e893a23d4a1de387fac0a94011bb132fd4aeb5fdde6e343568321fe0b022217",
+    "packages/language-server/test/project-index.test.ts": "9ada31138cf27d1883acb2f71190feb83f84cdb6d0914e8d8f11cbeb2f092c64",
+    "packages/language-server/test/xmlreader-invocation-stdio.test.ts": "f936a1e9de20f92b3a18a34c19920850d1581631129ca0c846114a25e6430f7c",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "8e5cbf471338655d1fe4068ba2534f74d712b1b4abbf0b2ca9aaff444f776cde",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "ae55894d7d98ce432846f89cd373d885a724d5471df752fb0b85b196295bd382",
+    "dist/extension.js": "efbe6c09c86db086ce0d66c9394f2d83dd9e0100c19aad6f73874a5ee406a765"
+  },
+  "primarySources": [
+    "https://www.php.net/manual/en/xmlreader.xml.php",
+    "https://www.php.net/manual/en/xmlreader.open.php"
+  ],
+  "realRuntimes": {
+    "XML": [
+      {
+        "version": "7.2.34",
+        "available": true,
+        "declaredStatic": false,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "sourceUnchanged": true,
+        "errors": [
+          {
+            "level": 8192,
+            "message": "Non-static method XMLReader::XML() should not be called statically"
+          }
+        ],
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "binarySha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+      },
+      {
+        "version": "7.4.33",
+        "available": true,
+        "declaredStatic": false,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "sourceUnchanged": true,
+        "errors": [
+          {
+            "level": 8192,
+            "message": "Non-static method XMLReader::XML() should not be called statically"
+          }
+        ],
+        "binary": "/opt/remi/php74/root/usr/bin/php",
+        "binarySha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+      },
+      {
+        "version": "8.1.34",
+        "available": true,
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "sourceUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php81/root/usr/bin/php",
+        "binarySha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      {
+        "version": "8.2.32",
+        "available": true,
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "sourceUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php82/root/usr/bin/php",
+        "binarySha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      {
+        "version": "8.4.23",
+        "available": true,
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "sourceUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php84/root/usr/bin/php",
+        "binarySha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      {
+        "version": "8.5.9",
+        "available": true,
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "sourceUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "binarySha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    ],
+    "open": [
+      {
+        "version": "7.2.34",
+        "declaredStatic": false,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "uriUnchanged": true,
+        "errors": [
+          {
+            "level": 8192,
+            "message": "Non-static method XMLReader::open() should not be called statically"
+          }
+        ],
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "binarySha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+      },
+      {
+        "version": "7.4.33",
+        "declaredStatic": false,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "uriUnchanged": true,
+        "errors": [
+          {
+            "level": 8192,
+            "message": "Non-static method XMLReader::open() should not be called statically"
+          }
+        ],
+        "binary": "/opt/remi/php74/root/usr/bin/php",
+        "binarySha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+      },
+      {
+        "version": "8.1.34",
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "uriUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php81/root/usr/bin/php",
+        "binarySha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      {
+        "version": "8.2.32",
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "uriUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php82/root/usr/bin/php",
+        "binarySha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      {
+        "version": "8.4.23",
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "uriUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php84/root/usr/bin/php",
+        "binarySha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      {
+        "version": "8.5.9",
+        "declaredStatic": true,
+        "instanceType": "boolean",
+        "instanceValue": true,
+        "staticType": "XMLReader",
+        "uriUnchanged": true,
+        "errors": [],
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "binarySha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    ]
+  },
+  "semanticNew": {
+    "files": 1,
+    "tests": 19,
+    "passed": 19,
+    "failed": 0,
+    "pendingOrFiltered": 0,
+    "todo": 0,
+    "reportSha256": "d816615bc40646e4263f6d5a2102cbdf9ee51727777c5ea1c8d579093cd34487"
+  },
+  "semanticFull": {
+    "files": 108,
+    "tests": 2443,
+    "passed": 2443,
+    "failed": 0,
+    "pendingOrFiltered": 0,
+    "todo": 0,
+    "reportSha256": "a35261d4b1084a7bb75af1786c736ed1d7f6528ba6e877e7d8c2b40b63c3584d",
+    "durationSeconds": 134.22,
+    "frozenInputs": 127,
+    "allFrozenInputsUnchanged": true
+  },
+  "previousFailingIndexCase": {
+    "files": 1,
+    "tests": 133,
+    "passed": 1,
+    "failed": 0,
+    "pendingOrFiltered": 132,
+    "todo": 0,
+    "reportSha256": "73675a835884e45b3fc3acc34f66f0253880111174485504e6d291b312345f91",
+    "scope": "Selected SemanticWorkspace project-index test; not a stdio test"
+  },
+  "protocol": {
+    "files": 1,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "pendingOrFiltered": 0,
+    "todo": 0,
+    "reportSha256": "ad138337b39427ad4bb02632823647eb7b553a0baf87f67d0d8e722137c30704",
+    "scope": "Actual spawned stdio with rootUri=null; not Composer-scale",
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "queries": 20,
+    "currentDiagnosticVersionChecks": 12,
+    "fullLanguageServerSuite": false
+  },
+  "extensionHost": {
+    "platform": "linux",
+    "context": "native-xmlreader-invocations",
+    "results": [
+      {
+        "label": "XML",
+        "key": "Enter",
+        "visibleMs": 223,
+        "visibleLabels": [
+          "XMLXMLReader::XML(string $source, ?string $encoding = null, int $flags = 0): bool",
+          "xmlLangXMLReader::$xmlLang: string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate0Enter; function run(string $source){$reader=new \\XMLReader();$reader->XML($source);}",
+        "caretOffset": 99,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "XML",
+        "key": "Tab",
+        "visibleMs": 182,
+        "visibleLabels": [
+          "XMLXMLReader::XML(string $source, ?string $encoding = null, int $flags = 0): bool",
+          "xmlLangXMLReader::$xmlLang: string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate0Tab; function run(string $source){$reader=new \\XMLReader();$reader->XML($source);}",
+        "caretOffset": 97,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "XML",
+        "key": "Enter",
+        "visibleMs": 135,
+        "visibleLabels": [
+          "XMLXMLReader::XML(string $source, ?string $encoding = null, int $flags = 0): XMLReader|false",
+          "XML_DECLARATIONXMLReader::XML_DECLARATION: int = 17"
+        ],
+        "acceptedText": "<?php namespace ShapeGate1Enter; function run(string $source){\\XMLReader::XML($source);}",
+        "caretOffset": 77,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "XML",
+        "key": "Tab",
+        "visibleMs": 121,
+        "visibleLabels": [
+          "XMLXMLReader::XML(string $source, ?string $encoding = null, int $flags = 0): XMLReader|false",
+          "XML_DECLARATIONXMLReader::XML_DECLARATION: int = 17"
+        ],
+        "acceptedText": "<?php namespace ShapeGate1Tab; function run(string $source){\\XMLReader::XML($source);}",
+        "caretOffset": 75,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "open",
+        "key": "Enter",
+        "visibleMs": 153,
+        "visibleLabels": [
+          "openXMLReader::open(string $uri, ?string $encoding = null, int $flags = 0): bool"
+        ],
+        "acceptedText": "<?php namespace ShapeGate2Enter; class ChildReader extends \\XMLReader {} function run(string $source){$reader=new ChildReader();$reader->open($source);}",
+        "caretOffset": 141,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "open",
+        "key": "Tab",
+        "visibleMs": 129,
+        "visibleLabels": [
+          "openXMLReader::open(string $uri, ?string $encoding = null, int $flags = 0): bool"
+        ],
+        "acceptedText": "<?php namespace ShapeGate2Tab; class ChildReader extends \\XMLReader {} function run(string $source){$reader=new ChildReader();$reader->open($source);}",
+        "caretOffset": 139,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "open",
+        "key": "Enter",
+        "visibleMs": 159,
+        "visibleLabels": [
+          "openXMLReader::open(string $uri, ?string $encoding = null, int $flags = 0): XMLReader|false"
+        ],
+        "acceptedText": "<?php namespace ShapeGate3Enter; class ChildReader extends \\XMLReader {} function run(string $source){ChildReader::open($source);}",
+        "caretOffset": 119,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "open",
+        "key": "Tab",
+        "visibleMs": 121,
+        "visibleLabels": [
+          "openXMLReader::open(string $uri, ?string $encoding = null, int $flags = 0): XMLReader|false"
+        ],
+        "acceptedText": "<?php namespace ShapeGate3Tab; class ChildReader extends \\XMLReader {} function run(string $source){ChildReader::open($source);}",
+        "caretOffset": 117,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "actualAcceptedSyntax": {
+    "runtime": "/opt/remi/php85/root/usr/bin/php",
+    "runtimeVersion": "8.5.9",
+    "runtimeSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+    "cases": [
+      {
+        "label": "XML",
+        "key": "Enter",
+        "acceptedSha256": "b3f32f33b79ca331afdfd7acff17c4e1c03310e593566569a6ca2ded41e58318",
+        "exitCode": 0
+      },
+      {
+        "label": "XML",
+        "key": "Tab",
+        "acceptedSha256": "4a71046453e2a4dee602f790de6a8d4ffad7e8494db1331697160a1e4b5d6379",
+        "exitCode": 0
+      },
+      {
+        "label": "XML",
+        "key": "Enter",
+        "acceptedSha256": "65a5177eb19bc6f6640d0d9384fc2037ba6d0e22f7d18e17c066701e00c1ccb7",
+        "exitCode": 0
+      },
+      {
+        "label": "XML",
+        "key": "Tab",
+        "acceptedSha256": "9a8954e365cb66493a10e268ad481238747127b70ddeed49bfa5194b605702f4",
+        "exitCode": 0
+      },
+      {
+        "label": "open",
+        "key": "Enter",
+        "acceptedSha256": "2baeced38f4f05a9eb868d7a813c479df30a0b3274ee21bd623d2c2c396b0d3e",
+        "exitCode": 0
+      },
+      {
+        "label": "open",
+        "key": "Tab",
+        "acceptedSha256": "bdfb4854785071d00c8c961be9143aa95064303da48a2d9233b95f1531c4485f",
+        "exitCode": 0
+      },
+      {
+        "label": "open",
+        "key": "Enter",
+        "acceptedSha256": "54e51b0be04f26d8f2b7560e5d443d9413207345c3d31f0ecde74b407f979d02",
+        "exitCode": 0
+      },
+      {
+        "label": "open",
+        "key": "Tab",
+        "acceptedSha256": "19af89f7f7a0bb2e5ce1d6d6a68c1f3f4545917d2937e1784be53d47db72de4f",
+        "exitCode": 0
+      }
+    ],
+    "executed": false
+  },
+  "gates": {
+    "semanticBuild": "passed",
+    "serverBuild": "passed",
+    "productionBuild": "passed",
+    "extensionTestTypecheck": "passed",
+    "scopedLint": "passed"
+  },
+  "correctedExistingExpectation": {
+    "file": "packages/language-server/test/project-index.test.ts",
+    "expression": "$legacyReader->XML(",
+    "before": "XMLReader|false",
+    "after": "bool",
+    "reason": "Six actual runtimes and both official native invocation contracts; preserve call and downstream property definition assertion"
+  },
+  "callbackInvestigation": {
+    "originalTimeoutMs": 15000,
+    "standaloneReproduced": true,
+    "trace": {
+      "initializeMs": 2359,
+      "completion62Ms": 23,
+      "definition63Ms": 5,
+      "completion64": "No response before original deadline"
+    },
+    "testTraceRestored": {
+      "originalSha256": "5c47146c6613ad900d90b091cee7f6de0e34535bf12acff1168d11beee76b9de",
+      "tracedSha256": "02c7c52d69e79285fb54f264dff7cd33c3712f6cb5dfe6b888eec59e7d1f5c2c",
+      "restoredOriginal": true,
+      "exitCode": 1
+    },
+    "failedApproach": "Reference-effect knownCallHasOnlyValueArguments fast path did not fix timeout and was fully reverted",
+    "remaining": "CPU profile original query64 before changing inference"
+  },
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goalStatus": "active"
+  },
+  "remaining": [
+    "Latest complete LSP run D88: 898 passed, 2 failed; do not assemble full green from selected passes",
+    "Contextual callable stdio original deadline still fails",
+    "D86 ordinary continuous edit P95 199.82/153.37ms remains over 150ms; no performance claim from D89 visible waits",
+    "Actual PHP 7.3/8.0/8.3 runtimes, other platforms, Composer-scale and real WSL acceptance remain open"
+  ]
+}

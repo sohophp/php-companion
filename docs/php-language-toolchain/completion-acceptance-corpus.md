@@ -489,3 +489,7 @@ D79 的 `aae39a54` 完整 60 文件／888 项 LSP 全部通过，2990 输入及�
 ## D87 赋值目标与表达式接收者
 
 链式属性、函数返回对象、括号和已证明的数组元素属性使用目标自身类型排序；未知／私有／readonly／非法 nullsafe 写入不猜测，内层调用与箭头函数边界保持。新增 60 项、完整 107 文件／2424 项通过；首次 25 处旧场景回归保留原断言修复。两版新增 34 次补全、12 Hover／12 精确跳转与诊断版本检查，八次可见接受／UndoRedo 与八次 PHP 8.5 编译通过。100 参数四组固定热 P95 5.02–9.57 ms；大文件普通连续编辑、完整当前 LSP、动态／规模与真人仍开放。详见 [D87 记录](reports/completion-assignment-targets-2026-10-05.md)，不更新 Profile。
+
+## D88 完整失败记录与 D89 原生 XML 调用
+
+[D88 完整 LSP](reports/core-21df-full-regression-2026-10-05.md)的 900 项有 898 通过、XMLReader 跳转和闭包超时两项失败，零跳过，3004 输入与六 CLI 保持。D89 对 XMLReader XML／open 按真实调用区分实例 bool 和静态 XMLReader|false；六 CLI、19 新语义、完整 2443 语义、两版 stdio 20 查询与八次可见接受／UndoRedo 通过。用户覆盖、声明身份、缺失扩展与词中插入范围保留。旧实例返回断言依据实际运行纠正为 bool；原失败跳转断言保持。闭包仍超时，不拼接完整绿色；详见 [D89 记录](reports/native-xmlreader-invocations-2026-10-05.md)，不更新 Profile。

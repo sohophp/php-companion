@@ -1,0 +1,451 @@
+{
+  "checkpoint": "21dfbed63dcd0e75c6e8197c9aef559b4b8e7a6c",
+  "files": 65,
+  "tests": 900,
+  "passed": 898,
+  "failed": 2,
+  "pending": 0,
+  "todo": 0,
+  "canonicalNamesMatch": true,
+  "frozenInputs": 3004,
+  "inputsAndSixRuntimesStillMatch": true,
+  "failures": [
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/project-index.test.ts",
+      "title": "bounded Composer indexing > indexes complete XMLReader and XMLWriter procedural and object APIs",
+      "messages": [
+        "AssertionError: expected [] to match object [ Array(1) ]\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/project-index.test.ts:2900:73\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "title": "language server stdio > serves contextual closure parameter completion and definition from a unique PHPDoc callable",
+      "messages": [
+        "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at /var/www/node/php-companion/packages/language-server/test/stdio.test.ts:18706:3\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      ]
+    }
+  ],
+  "artifacts": {
+    "-meta.json": "249811cc83096a2bca9b6990a7f60c767a7b8c0e60cee5d03ab7139a3f483fe3",
+    "-inputs.json": "72423da0baf5f8af8ee49f5595f58f25a5ada8be1c219258a34cb2f9f96d3746",
+    "-collection.json": "54ff47028dda0a830256d42ea5a75277a745edb316734c1fe317e34ad4a571b2",
+    "-results.json": "4d83cf3cb3ef2a4b1f26dce7b9acaa52b618c942e8b4b57a9a5e8fadc30695df",
+    "-verification.json": "5092bc49d52900411a5433bfdb9bfd9eddf4d047e4ce8a03774427a5d0966da7"
+  },
+  "milestone": "D88",
+  "date": "2026-10-05",
+  "status": "failed",
+  "exitCode": 1,
+  "durationSeconds": 1771.98,
+  "startedAtUtc": "2026-10-05T01:48:25.386133+00:00",
+  "finishedAtUtc": "2026-10-05T02:17:59.960901+00:00",
+  "freezeVerification": {
+    "originalCount": 3004,
+    "finalCount": 3004,
+    "inputsUnchanged": true,
+    "changes": {
+      "changed": [],
+      "missing": [],
+      "added": []
+    },
+    "runtimeChanges": [],
+    "initialSha256": "72423da0baf5f8af8ee49f5595f58f25a5ada8be1c219258a34cb2f9f96d3746"
+  },
+  "runtimeVersions": {
+    "7.2": "7.2.34",
+    "7.4": "7.4.33",
+    "8.1": "8.1.34",
+    "8.2": "8.2.32",
+    "8.4": "8.4.23",
+    "8.5": "8.5.9"
+  },
+  "runtimeSha256": {
+    "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+    "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+    "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+    "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+    "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+    "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+  },
+  "fileResults": [
+    {
+      "file": "packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/analysis.test.ts",
+      "passed": 48,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-column-return-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-combine-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-count-values-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-fill-keys-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-flip-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-inline-doc-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-key-preservation-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/assignment-target-completion-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/call-trivia-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/callable-facts-cache.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/candidate-worker-project-facts.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/candidate-workers.test.ts",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/code-action-messages.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/completion-call-trivia.test.ts",
+      "passed": 18,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/construction-trivia-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/csv-fields-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/diagnostic-messages.test.ts",
+      "passed": 5,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/flow-value-completion-stdio.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/getrusage-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/headers-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/highlight-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/image-size-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/implicit-nullable-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/inheritance-list-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/inheritance-trivia-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/inheritance-validity-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/inherited-final-magic-stdio.test.ts",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/iterator-apply-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/large-candidate-ranking-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/large-local-ranking-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/magic-declaration-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/match-condition-completion-stdio.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/native-array-template-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/output-messages.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/php-runtime-syntax.test.ts",
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/portableCandidatePaths.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/progress-messages.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/project-facts.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/project-index.test.ts",
+      "passed": 132,
+      "failed": 1
+    },
+    {
+      "file": "packages/language-server/test/property-hook-keywords-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/protocol-messages.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/readonly-anonymous-stdio.test.ts",
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/readonly-anonymous.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reassigned-parameter-completion-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reference-candidate-evidence.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reference-dependency-evidence.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reference-engine-identity.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reference-input-snapshot.test.ts",
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/reference-result-store.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/root-import-stdio.test.ts",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/sourceStatBatches.test.ts",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/stdio.test.ts",
+      "passed": 530,
+      "failed": 1
+    },
+    {
+      "file": "packages/language-server/test/string-replacement-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/switch-condition-completion-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "file": "packages/language-server/test/magic-modifier-stdio.test.ts",
+      "passed": 2,
+      "failed": 0
+    }
+  ],
+  "timings": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 85.5870829999999,
+      "p95Ms": 53.86128400000052,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 94.10322199999973,
+      "p95Ms": 68.52402799999982,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 26.523431000000073,
+      "p95Ms": 18.941740999999638,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 25.528464999999414,
+      "p95Ms": 7.999905000000581,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "originalTimeoutMs": 15000,
+  "originalPerformanceBudgetMs": 150,
+  "subsequentResolution": {
+    "XMLReader": "D89 native invocation contracts; targeted regression passed",
+    "contextualClosure": "Still fails original 15000ms gate in standalone reproduction"
+  },
+  "lastCompleteGreenCheckpoint": "aae39a54",
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goalStatus": "active"
+  }
+}

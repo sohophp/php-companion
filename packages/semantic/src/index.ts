@@ -17805,7 +17805,17 @@ export class SemanticWorkspace {
           externalBaseReturnType: existing.returnType, externalBaseReturnTypeTemplates: existing.returnTypeTemplates });
       } else resolvedMembers.set(key, member);
     }
-    const result = [...resolvedMembers.values()];
+    // XMLReader's legacy loaders have two native invocation contracts. Resolve
+    // inheritance and overrides first, then expose each access form without
+    // changing the real declaration used by modifier and override checks.
+    const result = [...resolvedMembers.values()].flatMap((member): MemberInfo[] => {
+      if (declarationCheck || member.kind !== 'method' || !member.uri.startsWith('php-companion-builtin:')
+        || member.typeScopeFqcn.toLowerCase() !== 'xmlreader' || !['xml', 'open'].includes(member.name.toLowerCase())) return [member];
+      return [
+        { ...member, static: false, returnType: 'bool', nativeReturnType: undefined },
+        { ...member, static: true, returnType: 'XMLReader|false', nativeReturnType: undefined },
+      ];
+    });
     if (cacheKey) this.referenceMemberCache?.set(cacheKey, result);
     return result;
   }
