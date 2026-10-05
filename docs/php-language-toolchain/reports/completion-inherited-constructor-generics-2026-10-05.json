@@ -1,0 +1,1345 @@
+{
+  "milestone": "D99",
+  "date": "2026-10-05",
+  "base": "547b2655b9f0b73e8b12297be7b36309c2a3c8fc",
+  "scope": "Proven inherited constructor template bindings; shared signature/ranking/diagnostics; preserve grouping in generic arguments and template bounds with cache contract migration.",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "84239fbad74632ee1aa22ef4589ee37839021a56b7bf0f6666646dc3350aeaa4",
+    "packages/semantic/src/phpDocNameBinding.ts": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0",
+    "packages/semantic/dist/index.js": "df95aacfced87150b33cb8e3c266001c770429153ff3e732840e98e70aca68b3",
+    "packages/semantic/dist/phpDocNameBinding.js": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692",
+    "packages/language-server/src/projectFacts.ts": "6b5750734d7d222819df681a9ae8d293b0931c4c9f386128e70b2dba07976225",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "8acda3b9dfb0f42e39612ce265bd7165dd72451263cb8ba70c0a0415cf9d0ed3",
+    "dist/extension.js": "ee9c0720f8ceec9d11b052cf2deaa85f090e02a43f509570fdcfecd3aec912db",
+    "packages/semantic/test/inherited-constructor-generics.test.ts": "c17edc70cb28f92d053979837c44140f86e0bc8969ef40af8600641dd8a9e7ad",
+    "packages/semantic/test/semantic.test.ts": "c805b7b8f3732d0b5e419b3b6711e96dd45e0dd86c8db46875ddf311d5dcf2dd",
+    "packages/language-server/test/inherited-constructor-generics-stdio.test.ts": "7609ca598e4ac61e3d898a5c267a6b493ae55f6a34b01f14ab7a0763938811ab",
+    "packages/language-server/test/project-facts.test.ts": "84b9550dcc944eaecbb9d63e976ab214839d111e87c5141d15212a65c4f70eca",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "f5331f4d515c374930756c4a674e8bd3a3525fe26447b78872786b2fc2df3a15",
+    "packages/language-server/dist/projectFacts.js": "b0a5e6dfad9505dadeb8ff9d48f96be7a0e905439ee3dae237b5de4f66fc4e09"
+  },
+  "cacheContracts": {
+    "semantic": 85,
+    "sourceDeclaration": 3,
+    "priorSemantic84Rejected": true,
+    "priorSourceDeclaration2Rejected": true,
+    "persistentFieldsAdded": false
+  },
+  "newSemanticTests": 38,
+  "semantic": {
+    "files": 115,
+    "passed": 2605,
+    "failed": 0,
+    "skipped": 0,
+    "total": 2605,
+    "sha256": "9860449a582924b9bf5866e736235dbaf7f0f37f80afa367e113e9c249a4b515",
+    "command": "pnpm --filter @php-companion/semantic exec vitest run --maxWorkers=2 --reporter=json --outputFile=/tmp/sophp-d99-semantic-final.json",
+    "testTimeoutMs": 5000,
+    "workerLimit": 2
+  },
+  "targetedServerIncludingAnalysis": {
+    "files": 5,
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "total": 63,
+    "sha256": "89ae252db1f22bef1ec731d2e0e31f65b1c19504808497385ec4d12c334127da"
+  },
+  "strengthenedProjectCacheFollowup": {
+    "files": 1,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "total": 4,
+    "sha256": "4b8c6254fb7d7115542b477265d91724fb90d1db30e08875649eb4504abd6928",
+    "note": "Same product inputs; subsequent additional old schema 2 and 84 negative controls rechecked without removing original assertions."
+  },
+  "protocol": {
+    "servers": 6,
+    "phpVersions": [
+      "7.2",
+      "8.1",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "experimental"
+    ],
+    "newUnsavedStates": 210,
+    "newSignatureQueries": 210,
+    "php8NamedCompletionQueries": 40,
+    "variableRankingQueries": 6,
+    "currentDiagnosticVersions": true,
+    "diskUnchanged": true,
+    "d98ServersRechecked": 4
+  },
+  "independentReference": {
+    "reference": "PHPStan 2.2.9",
+    "referenceSha256": "f626b1b670ebf6570b6beb30a1085d320e01a79fad87c7ec062d27652b327ba2",
+    "phpVersion": "8.5.9",
+    "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+    "command": [
+      "/opt/remi/php85/root/usr/bin/php",
+      "/var/www/php/8.5/winstar2024/vendor/bin/phpstan.phar",
+      "analyse",
+      "--configuration=/tmp/sophp-d99-reference/phpstan.neon",
+      "--no-progress",
+      "--error-format=json",
+      "/tmp/sophp-d99-reference/Cases.php"
+    ],
+    "configuration": "parameters:\n    level: 8\n    phpVersion: 80500\n    tmpDir: /tmp/sophp-d99-reference/cache\n",
+    "configSha256": "da6db99f75ab42a5a81c563c678da2afe7c82527c82d78724b3612d4676ff2d2",
+    "source": "<?php\nnamespace Origin0;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer0;\nclass User {}\n/** @extends \\Origin0\\Box<\\Origin0\\User> */ class C extends \\Origin0\\Box {}\nnew C(new \\Origin0\\User());\nnew C(new User());\nnamespace Origin1;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param ?T $value */ public function __construct($value){}}\nnamespace Consumer1;\nclass User {}\n/** @extends \\Origin1\\Box<\\Origin1\\User> */ class C extends \\Origin1\\Box {}\nnew C(null);\nnew C(new User());\nnamespace Origin2;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param T[] $value */ public function __construct($value){}}\nnamespace Consumer2;\nclass User {}\n/** @extends \\Origin2\\Box<\\Origin2\\User> */ class C extends \\Origin2\\Box {}\nnew C([new \\Origin2\\User()]);\nnew C([new User()]);\nnamespace Origin3;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param list<T> $value */ public function __construct($value){}}\nnamespace Consumer3;\nclass User {}\n/** @extends \\Origin3\\Box<\\Origin3\\User> */ class C extends \\Origin3\\Box {}\nnew C([new \\Origin3\\User()]);\nnew C([new User()]);\nnamespace Origin4;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct($value){}}\nnamespace Consumer4;\nclass User {}\n/** @extends \\Origin4\\Box<\\Origin4\\User> */ class C extends \\Origin4\\Box {}\nnew C(['T'=>new \\Origin4\\User(),'label'=>'T']);\nnew C(['T'=>new User(),'label'=>'T']);\nnamespace Origin5;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param class-string<T> $value */ public function __construct($value){}}\nnamespace Consumer5;\nclass User {}\n/** @extends \\Origin5\\Box<\\Origin5\\User> */ class C extends \\Origin5\\Box {}\nnew C(\\Origin5\\User::class);\nnew C(User::class);\nnamespace Origin6;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param callable(T $T):T $value */ public function __construct($value){}}\nnamespace Consumer6;\nclass User {}\n/** @extends \\Origin6\\Box<\\Origin6\\User> */ class C extends \\Origin6\\Box {}\nnew C(function(\\Origin6\\User $T):\\Origin6\\User{return $T;});\nnew C(function(User $T):User{return $T;});\nnamespace Origin7;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param T[] $value */ public function __construct($value){}}\nnamespace Consumer7;\nclass User {}\n/** @extends \\Origin7\\Box<int|string> */ class C extends \\Origin7\\Box {}\nnew C([1,\"ok\"]);\nnew C([true]);\nnamespace Origin8;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param T $value */ public function __construct($value){}}\n/** @template U\n * @extends Box<U> */ class Middle extends Box {}\nnamespace Consumer8;\nclass User {}\n/** @extends \\Origin8\\Middle<\\Origin8\\User> */ class C extends \\Origin8\\Middle {}\nnew C(new \\Origin8\\User());\nnew C(new User());\nnamespace Origin9;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @template U of T\n * @param U $value */ public function __construct($value){}}\nnamespace Consumer9;\nclass User {}\n/** @extends \\Origin9\\Box<\\Origin9\\User> */ class C extends \\Origin9\\Box {}\nnew C(new \\Origin9\\User());\nnew C(new User());\nnamespace Origin10;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template Second\n * @template First */ class Box {/** @param First $value */ public function __construct($value){}}\nnamespace Consumer10;\nclass User {}\n/** @extends \\Origin10\\Box<\\Origin10\\Other,\\Origin10\\User> */ class C extends \\Origin10\\Box {}\nnew C(new \\Origin10\\User());\nnew C(new User());\nnamespace Origin11;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T of mixed */ class Box {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer11;\nclass User {}\n/** @extends \\Origin11\\Box<int> */ class C extends \\Origin11\\Box {}\nnew C(1);\nnew C(new User());\nnamespace Origin12;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T of int|float */ class Box {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer12;\nclass User {}\n/** @extends \\Origin12\\Box<float> */ class C extends \\Origin12\\Box {}\nnew C(1.5);\nnew C(new User());\nnamespace Origin13;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T of list<int> */ class Box {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer13;\nclass User {}\n/** @extends \\Origin13\\Box<list<int>> */ class C extends \\Origin13\\Box {}\nnew C([1]);\nnew C(['wrong']);\nnamespace Origin14;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T */ class Box {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer14;\nclass User {}\n/** @extends \\Origin14\\Box<(\\Origin14\\A|\\Origin14\\B)&\\Origin14\\D> */ class C extends \\Origin14\\Box {}\nnew C(new \\Origin14\\D());\nnew C(new \\Origin14\\OnlyA());\nnamespace Origin15;\nclass User {} class Other {} interface A {} interface B {} class D implements A {} class OnlyA implements A {}\n/** @template T of (A|B)&D */ class Box {/** @param T $value */ public function __construct($value){}}\nnamespace Consumer15;\nclass User {}\n/** @extends \\Origin15\\Box<\\Origin15\\D> */ class C extends \\Origin15\\Box {}\nnew C(new \\Origin15\\D());\nnew C(new \\Origin15\\OnlyA());\n",
+    "sourceSha256": "8e0889f0f25c1293b1ee32ba8438a71734b8f4a9c7a2a8735b0c79bd8fd29045",
+    "exitCode": 1,
+    "externalCallContracts": [
+      {
+        "case": "name",
+        "valid": true,
+        "line": 8,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin0\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "name",
+        "valid": false,
+        "line": 9,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin0\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer0\\C constructor expects Origin0\\User, Consumer0\\User given."
+          }
+        ]
+      },
+      {
+        "case": "nullable",
+        "valid": true,
+        "line": 16,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin1\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "nullable",
+        "valid": false,
+        "line": 17,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin1\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer1\\C constructor expects Origin1\\User|null, Consumer1\\User given."
+          }
+        ]
+      },
+      {
+        "case": "array",
+        "valid": true,
+        "line": 24,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin2\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "array",
+        "valid": false,
+        "line": 25,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin2\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer2\\C constructor expects array<Origin2\\User>, array<int, Consumer2\\User> given."
+          }
+        ]
+      },
+      {
+        "case": "list",
+        "valid": true,
+        "line": 32,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin3\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "list",
+        "valid": false,
+        "line": 33,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin3\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer3\\C constructor expects list<Origin3\\User>, array{Consumer3\\User} given."
+          }
+        ]
+      },
+      {
+        "case": "shape",
+        "valid": true,
+        "line": 40,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin4\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "shape",
+        "valid": false,
+        "line": 41,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin4\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer4\\C constructor expects array{T: Origin4\\User, label: 'T'}, array{T: Consumer4\\User, label: 'T'} given."
+          }
+        ]
+      },
+      {
+        "case": "class-string",
+        "valid": true,
+        "line": 48,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin5\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "class-string",
+        "valid": false,
+        "line": 49,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin5\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer5\\C constructor expects class-string<Origin5\\User>, string given."
+          }
+        ]
+      },
+      {
+        "case": "callback",
+        "valid": true,
+        "line": 56,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin6\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "callback",
+        "valid": false,
+        "line": 57,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin6\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer6\\C constructor expects callable(Origin6\\User): Origin6\\User, Closure(Consumer6\\User): Consumer6\\User given."
+          }
+        ]
+      },
+      {
+        "case": "union",
+        "valid": true,
+        "line": 64,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin7\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "union",
+        "valid": false,
+        "line": 65,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin7\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer7\\C constructor expects array<int|string>, array<int, true> given."
+          }
+        ]
+      },
+      {
+        "case": "two-level",
+        "valid": true,
+        "line": 74,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin8\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "two-level",
+        "valid": false,
+        "line": 75,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin8\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer8\\C constructor expects Origin8\\User, Consumer8\\User given."
+          }
+        ]
+      },
+      {
+        "case": "method-template",
+        "valid": true,
+        "line": 83,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin9\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "method-template",
+        "valid": false,
+        "line": 84,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin9\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer9\\C constructor expects Origin9\\User, Consumer9\\User given."
+          }
+        ]
+      },
+      {
+        "case": "two-template",
+        "valid": true,
+        "line": 92,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin10\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "two-template",
+        "valid": false,
+        "line": 93,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin10\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer10\\C constructor expects Origin10\\User, Consumer10\\User given."
+          }
+        ]
+      },
+      {
+        "case": "bound-mixed",
+        "valid": true,
+        "line": 100,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin11\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "bound-mixed",
+        "valid": false,
+        "line": 101,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin11\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer11\\C constructor expects int, Consumer11\\User given."
+          }
+        ]
+      },
+      {
+        "case": "bound-union",
+        "valid": true,
+        "line": 108,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin12\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "bound-union",
+        "valid": false,
+        "line": 109,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin12\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer12\\C constructor expects float, Consumer12\\User given."
+          }
+        ]
+      },
+      {
+        "case": "bound-list",
+        "valid": true,
+        "line": 116,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin13\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "bound-list",
+        "valid": false,
+        "line": 117,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin13\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer13\\C constructor expects list<int>, array{'wrong'} given."
+          }
+        ]
+      },
+      {
+        "case": "group-argument",
+        "valid": true,
+        "line": 124,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin14\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "group-argument",
+        "valid": false,
+        "line": 125,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin14\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer14\\C constructor expects Origin14\\D, Origin14\\OnlyA given."
+          }
+        ]
+      },
+      {
+        "case": "group-bound",
+        "valid": true,
+        "line": 132,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin15\\Box() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "group-bound",
+        "valid": false,
+        "line": 133,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Origin15\\Box() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer15\\C constructor expects Origin15\\D, Origin15\\OnlyA given."
+          }
+        ]
+      }
+    ],
+    "otherDiagnostics": [
+      {
+        "message": "Constructor of class Origin0\\Box has an unused parameter $value.",
+        "line": 4,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin1\\Box has an unused parameter $value.",
+        "line": 12,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin2\\Box has an unused parameter $value.",
+        "line": 20,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin3\\Box has an unused parameter $value.",
+        "line": 28,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin4\\Box has an unused parameter $value.",
+        "line": 36,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin5\\Box has an unused parameter $value.",
+        "line": 44,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin6\\Box has an unused parameter $value.",
+        "line": 52,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin7\\Box has an unused parameter $value.",
+        "line": 60,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin8\\Box has an unused parameter $value.",
+        "line": 68,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin9\\Box has an unused parameter $value.",
+        "line": 79,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin10\\Box has an unused parameter $value.",
+        "line": 88,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin11\\Box has an unused parameter $value.",
+        "line": 96,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin12\\Box has an unused parameter $value.",
+        "line": 104,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin13\\Box has an unused parameter $value.",
+        "line": 112,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin14\\Box has an unused parameter $value.",
+        "line": 120,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Origin15\\Box has an unused parameter $value.",
+        "line": 128,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      }
+    ]
+  },
+  "visibleAcceptance": {
+    "platform": "Linux isolated VS Code",
+    "phpVersions": [
+      "7.2",
+      "8.1",
+      "8.5"
+    ],
+    "reports": [
+      {
+        "platform": "linux",
+        "context": "inherited-construction-7.2",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 213,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} /** @extends \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ class C extends \\OriginGate0Enter\\Box {} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 358,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 119,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate0Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} /** @extends \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ class C extends \\OriginGate0Tab\\Box {} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 346,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 123,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} /** @extends \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ class C extends \\OriginGate1Enter\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 434,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 133,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} /** @extends \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ class C extends \\OriginGate1Tab\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 422,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 155,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} /** @extends \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ class C extends \\OriginGate2Enter\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 476,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 153,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} /** @extends \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ class C extends \\OriginGate2Tab\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 464,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 134,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Enter\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Enter; class User {} /** @extends \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ class C extends \\OriginGate3Enter\\Middle {} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 430,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 134,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Tab; class User {} /** @extends \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ class C extends \\OriginGate3Tab\\Middle {} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 418,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      {
+        "platform": "linux",
+        "context": "inherited-construction-8.1",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 221,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} /** @extends \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ class C extends \\OriginGate0Enter\\Box {} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 358,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 147,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate0Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} /** @extends \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ class C extends \\OriginGate0Tab\\Box {} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 346,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 168,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} /** @extends \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ class C extends \\OriginGate1Enter\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 434,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 145,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} /** @extends \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ class C extends \\OriginGate1Tab\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 422,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 129,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} /** @extends \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ class C extends \\OriginGate2Enter\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 476,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 128,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} /** @extends \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ class C extends \\OriginGate2Tab\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 464,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 168,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Enter\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Enter; class User {} /** @extends \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ class C extends \\OriginGate3Enter\\Middle {} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 430,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 153,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Tab; class User {} /** @extends \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ class C extends \\OriginGate3Tab\\Middle {} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 418,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      {
+        "platform": "linux",
+        "context": "inherited-construction-8.5",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 215,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} /** @extends \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ class C extends \\OriginGate0Enter\\Box {} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 358,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 157,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate0Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} /** @extends \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ class C extends \\OriginGate0Tab\\Box {} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 346,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 167,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} /** @extends \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ class C extends \\OriginGate1Enter\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 434,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 134,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ class Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} /** @extends \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ class C extends \\OriginGate1Tab\\Box {} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 422,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 134,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} /** @extends \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ class C extends \\OriginGate2Enter\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 476,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 132,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ class Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} /** @extends \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ class C extends \\OriginGate2Tab\\Box {} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+            "caretOffset": 464,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 134,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Enter\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Enter; class User {} /** @extends \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ class C extends \\OriginGate3Enter\\Middle {} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 430,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 122,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ class Box {/** @param T $value */ public function __construct($value){}} /** @template U\n * @extends Box<U> */ class Middle extends Box {} namespace ConsumerGate3Tab; class User {} /** @extends \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ class C extends \\OriginGate3Tab\\Middle {} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+            "caretOffset": 418,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      }
+    ],
+    "acceptedOperations": 24,
+    "minVisibleMs": 119,
+    "maxVisibleMs": 221,
+    "explicitPreloadedTrigger": true,
+    "ordinaryTypingPerformanceQualified": false,
+    "realWslQualified": false
+  },
+  "acceptedTextNativeSyntax": [
+    {
+      "phpVersion": "7.2",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "2b576f7c7770d089da21b5c6f30a3fb30d2ed988b185e96936719b79257dd937",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-0.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "f665f314c52778605c904943076e7f012d54fe8a81ab4715ac08e61313da1ec3",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-1.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "4413451129d0f51256f1ccf3a92bc57e75f62cf1cb9d2965ca282cbdb25d58a8",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-2.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "4b955641f08c2e87134622ef7db80fdb6c92823d76d19aa6dea14eaec3fe30d6",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-3.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "337efce5dd3dbb860857bba1c37599fc73e06358ec863efc457f752ea76e0269",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-4.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "959709ff49615f9c12ec2fa970eb7d9f5c447238b1e49bf2d860de1016508125",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-5.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "9f1c01f979e141d62bdbf8e4e653c65b7cd37469e6012f85c06e7775b622fa7a",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-6.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "d04b571ffe7e0983cf75118b4f99ecc97e6e589bb2cf855d69f891b18335cc9c",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-72-7.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "2b576f7c7770d089da21b5c6f30a3fb30d2ed988b185e96936719b79257dd937",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-0.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "f665f314c52778605c904943076e7f012d54fe8a81ab4715ac08e61313da1ec3",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-1.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "4413451129d0f51256f1ccf3a92bc57e75f62cf1cb9d2965ca282cbdb25d58a8",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-2.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "4b955641f08c2e87134622ef7db80fdb6c92823d76d19aa6dea14eaec3fe30d6",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-3.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "337efce5dd3dbb860857bba1c37599fc73e06358ec863efc457f752ea76e0269",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-4.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "959709ff49615f9c12ec2fa970eb7d9f5c447238b1e49bf2d860de1016508125",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-5.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "9f1c01f979e141d62bdbf8e4e653c65b7cd37469e6012f85c06e7775b622fa7a",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-6.php"
+    },
+    {
+      "phpVersion": "8.1",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "d04b571ffe7e0983cf75118b4f99ecc97e6e589bb2cf855d69f891b18335cc9c",
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-81-7.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "2b576f7c7770d089da21b5c6f30a3fb30d2ed988b185e96936719b79257dd937",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-0.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "f665f314c52778605c904943076e7f012d54fe8a81ab4715ac08e61313da1ec3",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-1.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "4413451129d0f51256f1ccf3a92bc57e75f62cf1cb9d2965ca282cbdb25d58a8",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-2.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "4b955641f08c2e87134622ef7db80fdb6c92823d76d19aa6dea14eaec3fe30d6",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-3.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "337efce5dd3dbb860857bba1c37599fc73e06358ec863efc457f752ea76e0269",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-4.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "959709ff49615f9c12ec2fa970eb7d9f5c447238b1e49bf2d860de1016508125",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-5.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "9f1c01f979e141d62bdbf8e4e653c65b7cd37469e6012f85c06e7775b622fa7a",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-6.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "d04b571ffe7e0983cf75118b4f99ecc97e6e589bb2cf855d69f891b18335cc9c",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d99-accepted-85-7.php"
+    }
+  ],
+  "preservedRedEvidence": {
+    "initial": {
+      "files": 1,
+      "passed": 0,
+      "failed": 20,
+      "skipped": 0,
+      "total": 20
+    },
+    "correctedBaseline": {
+      "files": 1,
+      "passed": 1,
+      "failed": 19,
+      "skipped": 0,
+      "total": 20
+    },
+    "boundBaseline": {
+      "files": 1,
+      "passed": 28,
+      "failed": 3,
+      "skipped": 0,
+      "total": 31
+    },
+    "groupingBaseline": {
+      "files": 1,
+      "passed": 33,
+      "failed": 3,
+      "skipped": 0,
+      "total": 36
+    },
+    "groupedBoundBaseline": {
+      "files": 1,
+      "passed": 37,
+      "failed": 1,
+      "skipped": 0,
+      "total": 38
+    },
+    "fixtureCorrections": [
+      "Use variable completion API instead of expected literal values API",
+      "Use an array rather than a weakly coercible string for native int mismatch",
+      "Use existing inaccessibleInstantiations and exact missing parameters array"
+    ]
+  },
+  "rawEvidenceSha256": {
+    "red": "35ec34f913c17c6143e4617b490ae7fcd19ed48781b5ddc6c38db6c8e2bd1817",
+    "corrected-red": "c133f1f08ee49f8c9df5dd932b0a6702afbb3c8866842e86bfae73797473549a",
+    "focused": "5b47fac45f86c676621d49122d8b2b29010d0de610e68399c97d601d7f0caae5",
+    "focused-qualified": "848e38cbf258d9a58ae8e259740bc68bcfb27928ad4e08bee5892d09680e2061",
+    "diagnostic-qualified": "fb1e1b7cc31eee19f95f29ec43cd24327040b6787c9ac227a7a85992accd7eb3",
+    "contracts": "53c5faf599581329f273a316fe49bb78ded2cf0b5bb70c8d0cdc66d3b5c965b2",
+    "bounds-red": "d1b9ceddea2bb920b9386127f8b963421911c57ba5b14cc540bfc2b518742ea1",
+    "final-focused": "71472cea41dc7d5e1181fed72d88bc392f97ee2e8df2325561c1fc175c92fd5a",
+    "grouping-red": "8f04b5a20b5adf3116e73039c0a6b15bc7daa127341011641b55042d6d8fdd9e",
+    "cache-qualified": "1b52cf8bedf79b7d70dd7664ab098a7671990c719e84eb60a076080fffe8a147",
+    "group-bound-red": "1e4ba9640db3c8138e7240cb4f98fcf12f7d974a7a7eb410a666f071af946c13",
+    "lsp": "054f3c44ed50853e77faa77fa82de7c834c2f7d836e8caab0bc29b0db191deee",
+    "lsp-final": "f3f2d62b06dc80e0afc3c80787856a53254f05b94ef5b7c00d98f8406fca2964",
+    "lsp-cache-final": "89ae252db1f22bef1ec731d2e0e31f65b1c19504808497385ec4d12c334127da",
+    "project-facts-final": "4b8c6254fb7d7115542b477265d91724fb90d1db30e08875649eb4504abd6928",
+    "semantic-final": "9860449a582924b9bf5866e736235dbaf7f0f37f80afa367e113e9c249a4b515",
+    "reference": "b4061bcffca90489fc748a5f9197cac624c4d2ce563a57640a43a1b8298f2009",
+    "host-7.2": "794ed8845675bd18cc54d5bebc2efc52c5563670e0c157187a6c30f7b7c217d9",
+    "host-final-7.2": "8c711234abc70bbe12d79489837f831445c11dfe9927ac943970e24176c1ccb0",
+    "host-current-7.2": "4e231208534fc7674291d5f18e11c8724cfc736ee5ecc8e9a838d58b34950a73",
+    "host-current-8.1": "28ea770392eb0c11ea609c6bcab4ce41cca7669d01fc257da7dc75196cf5694a",
+    "host-current-8.5": "4e45d3be60ce54782346c4e4a6a10bd83731c987dc2529b31faa60571de15b6d",
+    "accepted-compile": "899a9134f8229d7e0594a8b3126010754d54766b4bd01aec7e9e36ce588d0cfa"
+  },
+  "checks": {
+    "semanticBuild": true,
+    "languageServerBuild": true,
+    "productionEsbuild": true,
+    "extensionTestTypeScript": true,
+    "scopedEslint": true,
+    "diffCheck": true,
+    "allFrozenInputHashesUnchanged": true
+  },
+  "remaining": {
+    "currentFullLsp": "Not recombined; D95 qualification belongs to 9cce9302",
+    "ordinaryEditingP95LastMeasuredMs": {
+      "7.2": 186.39,
+      "8.5": 137.74
+    },
+    "overall150MsBudgetPassed": false,
+    "traitUseGenericBindings": false,
+    "allRefinementTypesAndDefaultTemplates": false,
+    "realWsl": "pending",
+    "otherPlatformsScaleLongSessions": "pending"
+  },
+  "delivery": {
+    "localSourceMilestone": true,
+    "vsixPackaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}

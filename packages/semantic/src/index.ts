@@ -63,7 +63,7 @@ export interface SemanticDeclarationSnapshot {
   magicMembers: SemanticMagicMember[];
 }
 export interface SemanticSourceDeclarationSnapshot {
-  schema: 2;
+  schema: 3;
   source: string;
   declaration: SemanticDeclarationSnapshot;
 }
@@ -105,7 +105,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 84;
+  schema: 85;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -161,6 +161,8 @@ export interface LiteralMethodArgumentCandidate extends SemanticLocation {
   methodOffset: number;
 }
 export interface MemberInfo extends SemanticLocation {
+  /** Constructor PHPDoc parameters already carry a proven inherited template binding. */
+  documentedConstructorParameters?: boolean;
   kind: 'method' | 'function' | 'property' | 'constant';
   name: string;
   fqcn: string;
@@ -2113,18 +2115,20 @@ export class SemanticWorkspace {
       const declarationTemplates = parsed.declarations.flatMap((declaration): SemanticTemplate[] => {
         if (declaration.anonymous) return [];
         return preferredDocTags(docBefore(declaration.declarationStart), (tag) => tag.name === 'template' && Boolean(tag.variable), (tag) => tag.variable!)
-          .map((tag) => ({ ownerFqcn: declaration.fqcn, name: tag.variable!, bound: tag.type ? displayPhpDocType(tag.type) : undefined, variance: tag.variance ?? 'invariant' }));
+          .map((tag) => ({ ownerFqcn: declaration.fqcn, name: tag.variable!, bound: tag.type ? source.slice(tag.type.start,tag.type.end) : undefined, variance: tag.variance ?? 'invariant' }));
       });
       const callableTemplates = callables.flatMap((callable): SemanticTemplate[] => preferredDocTags(docBefore(callable.declarationStart),
         (tag) => tag.name === 'template' && Boolean(tag.variable), (tag) => tag.variable!)
-        .map((tag) => ({ ownerFqcn: callable.fqcn, name: tag.variable!, bound: tag.type ? displayPhpDocType(tag.type) : undefined, variance: tag.variance ?? 'invariant' })));
+        .map((tag) => ({ ownerFqcn: callable.fqcn, name: tag.variable!, bound: tag.type ? source.slice(tag.type.start,tag.type.end) : undefined, variance: tag.variance ?? 'invariant' })));
       const templates = [...declarationTemplates, ...callableTemplates];
       const genericParents = parsed.declarations.flatMap((declaration): SemanticGenericParent[] => {
         if (declaration.anonymous) return [];
-        return preferredDocTags(docBefore(declaration.declarationStart), (tag) => tag.name === 'extends' || tag.name === 'implements', (tag) => tag.type ? displayPhpDocType(tag.type) : tag.name)
+        return preferredDocTags(docBefore(declaration.declarationStart), (tag) => tag.name === 'extends' || tag.name === 'implements',
+          // Type identity must preserve tree grouping while ignoring source offsets.
+          (tag) => tag.type ? JSON.stringify(tag.type,(key,value) => key === 'start' || key === 'end' ? undefined : value) : tag.name)
           .flatMap((tag): SemanticGenericParent[] => {
           if ((tag.name !== 'extends' && tag.name !== 'implements') || tag.type?.kind !== 'generic' || tag.type.base.kind !== 'name') return [];
-          return [{ ownerFqcn: declaration.fqcn, kind: tag.name, parentName: tag.type.base.name, arguments: tag.type.arguments.map(displayPhpDocType) }];
+          return [{ ownerFqcn: declaration.fqcn, kind: tag.name, parentName: tag.type.base.name, arguments: tag.type.arguments.map(argument => source.slice(argument.start,argument.end)) }];
         });
       });
       const declarationCounts = new Map<string, number>();
@@ -2446,7 +2450,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 84,
+      schema: 85,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -2458,12 +2462,12 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, true); }
   sourceDeclarationSnapshot(uri: string): SemanticSourceDeclarationSnapshot | undefined {
     const file = this.files.get(uri);
-    return file ? { schema: 2, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
+    return file ? { schema: 3, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
   }
   restoreSourceDeclaration(snapshot: unknown, expectedUri?: string): boolean {
     const value = snapshot as Partial<SemanticSourceDeclarationSnapshot> | null;
     const declaration = value?.declaration;
-    if (value?.schema !== 2 || typeof value.source !== 'string' || !declaration
+    if (value?.schema !== 3 || typeof value.source !== 'string' || !declaration
       || typeof declaration.uri !== 'string' || typeof declaration.namespace !== 'string'
       || expectedUri !== undefined && declaration.uri !== expectedUri
       || ![declaration.declarations, declaration.callables, declaration.properties, declaration.constants,
@@ -2472,7 +2476,7 @@ export class SemanticWorkspace {
     try {
       const file = semanticFileSnapshot(declaration, { uri: declaration.uri, source: value.source, file: emptyImplementationFacts(), callables: [] });
       const prepared: SemanticSnapshot = {
-        schema: 84, declaration, implementation: implementationSnapshot(file),
+        schema: 85, declaration, implementation: implementationSnapshot(file),
         layers: { referenceCandidates: { indexed: false, keys: [] }, typeDependencies: { indexed: false, nodes: [] } },
       };
       if (!this.restore(prepared, expectedUri)) return false;
@@ -2564,7 +2568,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 84 || !declaration || !implementation
+    if (value?.schema !== 85 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -2624,7 +2628,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 84 || !declaration || !implementation
+    if (value?.schema !== 85 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -7541,9 +7545,13 @@ export class SemanticWorkspace {
         const templateDocumented = parameter.type && constructorTemplates?.some(template=>
           new RegExp(`(?<![A-Za-z0-9_\\\\])${template.name}(?![A-Za-z0-9_])`).test(parameter.type!))
           ? parsePhpDocType(parameter.type).type : undefined;
+        const inheritedConstructorDoc = call.kind === 'constructor' && signature.documentedConstructorParameters
+          && parameter.type !== parameter.nativeType && parameter.type ? parsePhpDocType(parameter.type).type : undefined;
         const expected = templateDocumented ? this.phpDocDiagnosticType(declarationFile,templateDocumented,signature.typeScopeFqcn,
           {remaining:256},name=>constructorTemplates!.some(template=>template.name===name)
             ? constructorTemplateBound?.(name) ?? unknown('unresolved constructor template bound') : undefined)
+          ?? (parameter.nativeType ? this.nativeSourceType(declarationFile,nativeParameterType(parameter,declarationFile.uri),signature.typeScopeFqcn) : undefined)
+          : inheritedConstructorDoc ? this.phpDocDiagnosticType(declarationFile,inheritedConstructorDoc,signature.typeScopeFqcn)
           ?? (parameter.nativeType ? this.nativeSourceType(declarationFile,nativeParameterType(parameter,declarationFile.uri),signature.typeScopeFqcn) : undefined)
           : callableDocumented
           ? this.phpDocDiagnosticType(declarationFile, callableDocumented, signature.typeScopeFqcn)
@@ -10954,10 +10962,10 @@ export class SemanticWorkspace {
       const declaration = fqcn ? this.fileAndDeclaration(fqcn)?.declaration : undefined;
       if (!fqcn || !declaration) return [];
       const candidates = this.constructorsFor(fqcn).filter(({ callable, typeScopeFqcn }) =>
-        this.memberVisibilityAllowed(callable.visibility, typeScopeFqcn ?? callable.containerFqcn!, accessFrom)).map(({ file: declarationFile, callable: init, typeScopeFqcn, callableTemplates }): MemberInfo => ({
+        this.memberVisibilityAllowed(callable.visibility, typeScopeFqcn ?? callable.containerFqcn!, accessFrom)).map(({ file: declarationFile, callable: init, typeScopeFqcn, callableTemplates, documentedConstructorParameters }): MemberInfo => ({
           kind: 'method', uri: declarationFile.uri, start: init.start, end: init.end, name: declaration.name, fqcn: init.fqcn,
           parameters: init.parameters, returnType: fqcn, visibility: init.visibility, static: false,
-          typeScopeFqcn: typeScopeFqcn ?? init.containerFqcn!, calledOnFqcn: fqcn, callableTemplates,
+          typeScopeFqcn: typeScopeFqcn ?? init.containerFqcn!, calledOnFqcn: fqcn, callableTemplates, documentedConstructorParameters,
         }));
       const compatible = this.methodCandidatesForArguments(candidates, constructor[2]!, completeAtCursor, file, offset - constructor[2]!.length);
       return (compatible.length ? compatible : candidates).map((candidate) => ({
@@ -10970,10 +10978,10 @@ export class SemanticWorkspace {
       const owner = fqcn ? this.fileAndDeclaration(fqcn) : undefined;
       if (!fqcn || !owner || !this.isAttributeClass(owner.file, owner.declaration)) return [];
       const candidates = this.constructorsFor(fqcn).filter(({ callable }) => callable.visibility === 'public')
-        .map(({ file: declarationFile, callable: init, typeScopeFqcn, callableTemplates }): MemberInfo => ({
+        .map(({ file: declarationFile, callable: init, typeScopeFqcn, callableTemplates, documentedConstructorParameters }): MemberInfo => ({
           kind: 'method', uri: declarationFile.uri, start: init.start, end: init.end, name: owner.declaration.name,
           fqcn: init.fqcn, parameters: init.parameters, returnType: fqcn, visibility: init.visibility, static: false,
-          typeScopeFqcn: typeScopeFqcn ?? init.containerFqcn!, calledOnFqcn: fqcn, callableTemplates,
+          typeScopeFqcn: typeScopeFqcn ?? init.containerFqcn!, calledOnFqcn: fqcn, callableTemplates, documentedConstructorParameters,
         }));
       const compatible = this.methodCandidatesForArguments(candidates, attribute.argumentsText, completeAtCursor,
         file, attribute.argumentsStart);
@@ -11125,10 +11133,10 @@ export class SemanticWorkspace {
     const declaration = fqcn && this.fileAndDeclaration(fqcn)?.declaration;
     if (!fqcn || !declaration) return [];
     return this.constructorsFor(fqcn).filter(({ callable, typeScopeFqcn }) =>
-      this.memberVisibilityAllowed(callable.visibility, typeScopeFqcn ?? callable.containerFqcn!, accessFrom)).map(({ file: owner, callable, typeScopeFqcn, callableTemplates }): SignatureInfo => ({
+      this.memberVisibilityAllowed(callable.visibility, typeScopeFqcn ?? callable.containerFqcn!, accessFrom)).map(({ file: owner, callable, typeScopeFqcn, callableTemplates, documentedConstructorParameters }): SignatureInfo => ({
         kind: 'method', uri: owner.uri, start: callable.start, end: callable.end, name: declaration.name, fqcn: callable.fqcn,
         parameters: callable.parameters, returnType: fqcn, visibility: callable.visibility, static: false,
-        typeScopeFqcn: typeScopeFqcn ?? callable.containerFqcn!, calledOnFqcn: fqcn, callableTemplates, ...this.signatureContext('', callable.parameters),
+        typeScopeFqcn: typeScopeFqcn ?? callable.containerFqcn!, calledOnFqcn: fqcn, callableTemplates, documentedConstructorParameters, ...this.signatureContext('', callable.parameters),
       }));
   }
 
@@ -11809,11 +11817,100 @@ export class SemanticWorkspace {
     return this.constructorsFor(fqcn, visited)[0];
   }
 
-  private constructorsFor(fqcn: string, visited = new Set<string>()): Array<{ file: SemanticFile; callable: ParsedCallableDeclaration; typeScopeFqcn?: string; callableTemplates?: SemanticTemplate[] }> {
+  private bindConstructorType(file: SemanticFile, text: string | undefined, scope: string, offset: number,
+    templateArguments: Record<string, string>, templateNames: Set<string>, methodTemplateNames = new Set<string>(),
+    requireDeclarations = false): string | undefined {
+    if (!text) return undefined;
+    return bindPhpDocTypeNames(text, (name, role) => {
+      if (methodTemplateNames.has(name)) return name;
+      if (templateNames.has(name)) {
+        const argument = templateArguments[name]; if (!argument) return undefined;
+        const parsed = parsePhpDocType(argument);
+        if (!parsed.type || parsed.errors.length || argument.slice(parsed.consumed).trim()) return undefined;
+        // A union used as an array element must not become A|B[].
+        return ['union','intersection','conditional'].includes(parsed.type.kind) ? `(${argument})` : argument;
+      }
+      const lower = name.toLowerCase();
+      // Runtime upper bounds lose refinements such as positive/non-empty.
+      // They may be displayed, but cannot prove a generic binding constraint.
+      if (requireDeclarations && this.phpDocRuntimeUpperBound(name)
+        && !['integer','boolean','double','real','number','scalar','array-key'].includes(lower)
+        && !(role === 'generic-base' && lower === 'non-empty-array')) return undefined;
+      if (['int','float','string','bool','array','object','callable','iterable','resource','mixed','void','never','null','true','false','static'].includes(lower)
+        || this.phpDocRuntimeUpperBound(name) || name.startsWith('$') || name === '*'
+        || role === 'integer-bound' && ['min','max'].includes(lower)
+        || role === 'generic-base' && ['list','class-string','key-of','value-of'].includes(lower)) return name;
+      const [head,...constant] = name.split('::');
+      const resolved = this.resolveSourceType(file, head!, this.namespaceAt(file,offset), scope, offset);
+      if (requireDeclarations && (!resolved || !this.fileAndDeclaration(resolved))) return undefined;
+      return resolved ? `\\${resolved}${constant.length ? `::${constant.join('::')}` : ''}` : name;
+    });
+  }
+
+  private specializeInheritedConstructor(file: SemanticFile, callable: ParsedCallableDeclaration,
+    templateArguments: Record<string, string>): {file: SemanticFile; callable: ParsedCallableDeclaration; callableTemplates?: SemanticTemplate[]; documentedConstructorParameters?: boolean} {
+    const scope = callable.containerFqcn!;
+    const classTemplates = file.templates.filter(template => template.ownerFqcn.toLowerCase() === scope.toLowerCase());
+    if (!classTemplates.length) return {file,callable};
+    const templateNames = new Set(classTemplates.map(template => template.name));
+    const methodTemplates = file.templates.filter(template => template.ownerFqcn.toLowerCase() === callable.fqcn.toLowerCase());
+    const methodTemplateNames = new Set(methodTemplates.map(template => template.name));
+    const doc = adjacentPhpDoc(file, callable.declarationStart);
+    const bind = (text: string | undefined, offset: number): string | undefined => doc?.errors.length ? undefined
+      : this.bindConstructorType(file,text,scope,offset,templateArguments,templateNames,methodTemplateNames);
+    const parameters = callable.parameters.map(parameter => {
+      if (parameter.type === parameter.nativeType) return parameter;
+      const tag = preferredDocTags(doc, tag => tag.name === 'param' && tag.variable === `$${parameter.name}` && Boolean(tag.type), tag => tag.variable!).at(-1);
+      const text = tag?.type ? file.source.slice(tag.type.start,tag.type.end) : parameter.type;
+      return {...parameter,type:bind(text,parameter.start)};
+    });
+    const callableTemplates = methodTemplates.map(template => ({...template,bound:bind(template.bound,callable.start)}));
+    return {file,callable:{...callable,parameters},callableTemplates,documentedConstructorParameters:true};
+  }
+
+  private inheritedConstructorArguments(owner: {file: SemanticFile; declaration: ParsedDeclaration}, parent: string,
+    templateArguments?: Record<string, string>): Record<string, string> {
+    const {file,declaration} = owner, scope = declaration.fqcn, namespace = this.namespaceAt(file,declaration.start);
+    const doc = adjacentPhpDoc(file,declaration.declarationStart);
+    if (doc?.errors.length) return {};
+    const relations = file.genericParents.filter(relation => relation.kind === 'extends'
+      && relation.ownerFqcn.toLowerCase() === scope.toLowerCase()
+      && this.resolveSourceType(file,relation.parentName,namespace,scope,declaration.start)?.toLowerCase() === parent.toLowerCase());
+    if (relations.length !== 1) return {};
+    const relation = relations[0]!;
+    const templateNames = new Set(file.templates.filter(template => template.ownerFqcn.toLowerCase() === scope.toLowerCase()).map(template => template.name));
+    const arguments_ = relation.arguments.map(argument => this.bindConstructorType(file,argument,scope,declaration.start,
+      templateArguments ?? {},templateNames,new Set(),true));
+    if (arguments_.some(argument => argument === undefined)) return {};
+    const parentOwner = this.fileAndDeclaration(parent); if (!parentOwner) return {};
+    const templates = parentOwner.file.templates.filter(template => template.ownerFqcn.toLowerCase() === parent.toLowerCase());
+    if (!templates.length || templates.length !== arguments_.length) return {};
+    const mapping = Object.fromEntries(templates.map((template,index) => [template.name,arguments_[index]!]));
+    const parentTemplateNames = new Set(templates.map(template => template.name));
+    const relationContext = this.typeRelationContext();
+    for (let index = 0; index < templates.length; index++) {
+      const type = parsePhpDocType(arguments_[index]!).type;
+      const argument = type && this.phpDocDiagnosticType(file,type,scope);
+      if (!argument || argument.kind === 'unknown') return {};
+      const bound = templates[index]!.bound; if (!bound) continue;
+      const boundText = this.bindConstructorType(parentOwner.file,bound,parent,parentOwner.declaration.start,
+        mapping,parentTemplateNames,new Set(),true);
+      const boundType = boundText ? parsePhpDocType(boundText).type : undefined;
+      const expected = boundType && this.phpDocDiagnosticType(parentOwner.file,boundType,parent);
+      if (!expected || compatibility(argument,expected,relationContext) !== 'yes') return {};
+    }
+    // Keep parsed lexical text: display normalization omits absolute name
+    // markers and can change grouping or literal spelling.
+    return mapping;
+  }
+
+  private constructorsFor(fqcn: string, visited = new Set<string>(), templateArguments?: Record<string, string>): Array<{ file: SemanticFile; callable: ParsedCallableDeclaration; typeScopeFqcn?: string; callableTemplates?: SemanticTemplate[]; documentedConstructorParameters?: boolean }> {
     const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return []; visited.add(key);
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
     const own = owner.file.callables.filter((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === '__construct');
-    if (own.length) return own.map((callable) => ({ file: owner.file, callable }));
+    if (own.length) return own.map((callable) => templateArguments === undefined
+      ? { file: owner.file, callable }
+      : this.specializeInheritedConstructor(owner.file, callable, templateArguments));
     if (owner.declaration.traitNames.length) {
       const namespace = owner.declaration.fqcn.split('\\').slice(0,-1).join('\\');
       const entries: Array<{trait:string;member:MemberInfo}> = [];
@@ -11903,8 +12000,9 @@ export class SemanticWorkspace {
     }
     const parentName = owner.declaration.extendsNames[0]; if (!parentName) return [];
     const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
-    const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn);
-    return parent ? this.constructorsFor(parent, visited) : [];
+    const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn, owner.declaration.start);
+    return parent ? this.constructorsFor(parent, visited,
+      this.inheritedConstructorArguments(owner, parent, templateArguments)) : [];
   }
 
   private traitConsumers(traitFqcn: string): Array<{ file: SemanticFile; declaration: ParsedDeclaration }> {

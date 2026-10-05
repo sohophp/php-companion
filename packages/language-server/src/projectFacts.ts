@@ -70,7 +70,7 @@ export function compressCachedSourceDeclaration(snapshot: SemanticSourceDeclarat
 export function restoreCachedSourceDeclaration(value: unknown, uri: string, hash: string): SemanticSourceDeclarationSnapshot | undefined {
   const payload = decompressCachedProjectPhpFile(value);
   if (!isRecord(payload) || payload.schema !== 1 || payload.hash !== hash || !isChecksum(payload.checksum)
-    || !isRecord(payload.snapshot) || payload.snapshot.schema !== 2 || typeof payload.snapshot.source !== 'string'
+    || !isRecord(payload.snapshot) || payload.snapshot.schema !== 3 || typeof payload.snapshot.source !== 'string'
     || !isRecord(payload.snapshot.declaration) || payload.snapshot.declaration.uri !== uri
     || sourceChecksum(payload.snapshot.source) !== hash || recordChecksum(payload.snapshot) !== payload.checksum) return undefined;
   return payload.snapshot as unknown as SemanticSourceDeclarationSnapshot;
@@ -168,7 +168,7 @@ export function restoreCachedProjectPhpFile(value: unknown, expectedUri: string,
   const implementation = isRecord(semantic.implementation) ? semantic.implementation : undefined;
   const layers = isRecord(semantic.layers) ? semantic.layers : undefined;
   const checksums = value.checksums;
-  if (semantic.schema !== 84 || !declaration || !implementation || !layers || declaration.uri !== expectedUri || implementation.uri !== expectedUri
+  if (semantic.schema !== 85 || !declaration || !implementation || !layers || declaration.uri !== expectedUri || implementation.uri !== expectedUri
     || !isString(implementation.source, Number.MAX_SAFE_INTEGER)
     || !isRecord(implementation.file) || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
     || expectedSource !== undefined && implementation.source !== expectedSource
