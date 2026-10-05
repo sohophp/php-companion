@@ -4980,6 +4980,57 @@ export class SemanticWorkspace {
     return this.variableValueDependenciesAt(uri, offset);
   }
 
+  /** Direct named invocation source; loading it does not prove a declaration exists. */
+  directCallFunctionNamesAt(uri: string, offset: number): string[] {
+    return this.withImplementationAt(uri, offset, () => {
+      const file = this.files.get(uri);
+      if (!file || !this.isPhpCodeContext(uri, offset) || this.cursorInsideSourceTrivia(file, offset)) return [];
+      const call = file.calls.filter(item => offset >= item.nameStart && offset <= item.nameEnd
+        || item.argumentsStart < offset && offset < item.argumentsEnd)
+        .sort((a, b) => b.start - a.start || a.end - b.end)[0];
+      if (call && call.kind !== 'function') return [];
+      let nameStart = call?.nameStart, nameEnd = call?.nameEnd;
+      if (!call) {
+        const opening = this.unclosedCallOpening(file, offset);
+        if (opening === undefined || this.attributeConstructorAt(file, offset)) return [];
+        const header = declarationHeader(file, opening).trimEnd(), word = wordAt(header, header.length);
+        if (!word || /(?:\$|->|\?->|::|\bnew|\bfunction\s*&?)\s*$/u.test(header.slice(0, word.start))) return [];
+        if (['if','while','for','foreach','switch','match','isset','empty','unset','array','list','catch','declare','function','fn','use'].includes(word.text.toLowerCase())) return [];
+        nameStart = word.start; nameEnd = word.end;
+      }
+      if (nameStart === undefined || nameEnd === undefined) return [];
+      const name = file.source.slice(nameStart, nameEnd);
+      if (!/^\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*$/u.test(name)) return [];
+      return [this.resolveFunction(file, name, this.namespaceAt(file, nameStart), nameStart)];
+    });
+  }
+
+  /** Indexed function source identities; names do not create a declaration. */
+  functionSourceUrisForNames(names: readonly string[]): string[] {
+    return [...new Set(names.flatMap(name => this.functionDeclarations(name).map(item => item.file.uri)))];
+  }
+
+  /** Parameter type sources required by the currently selected direct function argument. */
+  directFunctionParameterTypeNamesAt(uri: string, offset: number): string[] {
+    const names = new Set<string>();
+    for (const signature of this.signatures(uri, offset)) {
+      if (signature.kind !== 'function') continue;
+      const file = this.files.get(signature.uri), parameter = signature.parameters[signature.activeParameter]
+        ?? (signature.parameters.at(-1)?.variadic ? signature.parameters.at(-1) : undefined);
+      if (!file || !parameter?.type) continue;
+      const templates = new Set(file.templates.filter(item => item.ownerFqcn.toLowerCase() === signature.fqcn.toLowerCase()).map(item => item.name));
+      bindPhpDocTypeNames(parameter.type, (name, role) => {
+        if (templates.has(name) || BUILTIN_PARAMETER_TYPES.has(name.toLowerCase()) || this.phpDocRuntimeUpperBound(name)
+          || name.startsWith('$') || name === '*' || role === 'integer-bound'
+          || role === 'generic-base' && ['list','class-string','key-of','value-of'].includes(name.toLowerCase())) return name;
+        const resolved = this.resolveSourceType(file, name.split('::')[0]!, this.namespaceAt(file, parameter.start), undefined, parameter.start);
+        if (resolved) names.add(resolved);
+        return name;
+      });
+    }
+    return [...names];
+  }
+
   /** Named function dependencies of a queried variable; they are not value proofs. */
   variableValueFunctionNamesAt(uri: string, offset: number): string[] {
     const names = new Set<string>();

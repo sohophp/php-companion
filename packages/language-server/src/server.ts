@@ -6398,6 +6398,15 @@ async function hydrateOnDemandSymbolImports(workspace: SemanticWorkspace, root: 
   return complete;
 }
 
+function refreshStaleOpenFunctionSourceAt(workspace: SemanticWorkspace, uri: string, offset: number): void {
+  const names = [...new Set([...workspace.directCallFunctionNamesAt(uri, offset),
+    ...workspace.variableValueFunctionNamesAt(uri, offset), ...workspace.memberReceiverFunctionNamesAt(uri, offset)])];
+  for (const target of workspace.functionSourceUrisForNames(names)) {
+    const opened = documents.get(target);
+    if (opened && workspace.source(target) !== opened.getText()) workspace.update(target, opened.getText(), true);
+  }
+}
+
 async function hydrateNamedFunctionDependencies(workspace: SemanticWorkspace, root: string,
   names: readonly string[], cancelled: () => boolean): Promise<boolean> {
   for (const name of names) {
@@ -6411,7 +6420,7 @@ async function hydrateNamedFunctionDependencies(workspace: SemanticWorkspace, ro
 
 async function hydrateQueryFunctionDependencies(workspace: SemanticWorkspace, root: string,
   uri: string, offset: number, cancelled: () => boolean): Promise<boolean> {
-  const names = [...new Set([...workspace.variableValueFunctionNamesAt(uri, offset),
+  const names = [...new Set([...workspace.directCallFunctionNamesAt(uri, offset), ...workspace.variableValueFunctionNamesAt(uri, offset),
     ...workspace.memberReceiverFunctionNamesAt(uri, offset)])];
   return hydrateNamedFunctionDependencies(workspace, root, names, cancelled);
 }
@@ -6892,6 +6901,21 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     detail: service.className,
     textEdit: { range: { start: document.positionAt(serviceReference.start), end: document.positionAt(serviceReference.end) }, newText: service.id },
   }));
+  if (serviceRoot && document.languageId === 'php') {
+    refreshStaleOpenFunctionSourceAt(workspace, document.uri, offset);
+    const names = workspace.directCallFunctionNamesAt(document.uri, offset);
+    if (names.length) {
+      if (!workspace.signatures(document.uri, offset).length
+        && !await hydrateNamedFunctionDependencies(workspace, serviceRoot, names,
+          () => !currentQueryDocument(document, token, queryVersion))) return [];
+      if (!currentQueryDocument(document, token, queryVersion)) return [];
+      const parameterTypes = workspace.directFunctionParameterTypeNamesAt(document.uri, offset);
+      if (parameterTypes.length) {
+        await hydrateCanonicalTypes(workspace, serviceRoot, parameterTypes);
+        if (!currentQueryDocument(document, token, queryVersion)) return [];
+      }
+    }
+  }
   const attributeConstructorType = document.languageId === 'php' ? workspace.attributeConstructorTypeAt(document.uri, offset) : undefined;
   if (serviceRoot && document.languageId === 'php') {
     const callOwners = workspace.memberCallOwnerTypeNamesAt(document.uri, offset);
@@ -7397,6 +7421,7 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (autowired) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony autowiring**\n\nService \`${autowired.serviceId}\` injects \`${autowired.className}\` (${autowired.kind.replace('-', ' ')}).` } };
   recordTestQueryDuration('hoverFrameworkContext', frameworkStarted);
   if (serviceRoot && document.languageId === 'php') {
+    refreshStaleOpenFunctionSourceAt(workspace, document.uri, offset);
     refreshStaleOpenTypeSourceAt(workspace, document.uri, offset);
     if (!currentQueryDocument(document, token, queryVersion)) return null;
   }
@@ -7525,6 +7550,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   }
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (root && document.languageId === 'php') {
+    refreshStaleOpenFunctionSourceAt(workspace, document.uri, offset);
     refreshStaleOpenTypeSourceAt(workspace, document.uri, offset);
     if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
@@ -7998,6 +8024,7 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return null;
   const root = rootForUri(document.uri);
   const attributeConstructorType = document.languageId === 'php' ? workspace.attributeConstructorTypeAt(document.uri, offset) : undefined;
+  if (root && document.languageId === 'php') refreshStaleOpenFunctionSourceAt(workspace, document.uri, offset);
   if (root && document.languageId === 'php') refreshStaleOpenTypeSourceAt(workspace, document.uri, offset,
     [...workspace.memberCallOwnerTypeNamesAt(document.uri, offset), ...(attributeConstructorType ? [attributeConstructorType] : [])]);
   if (root && attributeConstructorType && !workspace.typeByFqcn(attributeConstructorType))

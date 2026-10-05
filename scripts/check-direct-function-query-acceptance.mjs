@@ -1,0 +1,103 @@
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
+
+// Use the existing compiled harness without changing frozen dist-test artifacts.
+if (process.platform !== 'linux') throw new Error('This visible gate uses the Linux VS Code harness.');
+if (process.argv.length > 3) throw new Error('Usage: node scripts/check-direct-function-query-acceptance.mjs [report.json]');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const automatic = process.env.SOPHP_AUTOMATIC_COMPLETION === '1';
+const isolatedIndexingMode = process.env.SOPHP_AUTOMATIC_INDEXING_MODE;
+const firstSemanticRequest = 'signatureHelp';
+if (!automatic || !['onDemand', 'progressive'].includes(isolatedIndexingMode))
+  throw new Error('Set SOPHP_AUTOMATIC_COMPLETION=1 and select SOPHP_AUTOMATIC_INDEXING_MODE=onDemand or progressive.');
+if (isolatedIndexingMode && (process.env.PHP_COMPANION_TEST_C3_INDEXING_MODE
+  || isolatedIndexingMode === 'progressive' && process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ON_DEMAND === '1'))
+  throw new Error('Conflicting isolated indexing mode settings.');
+
+const scratch = await mkdtemp(join(root, '.vscode-test', 'direct-function-query-verification-'));
+try {
+  const suite = join(scratch, 'suite.cjs');
+  await build({ entryPoints: [join(root, 'test/extension/suite/directFunctionQueryAcceptance.ts')], outfile: suite,
+    bundle: true, platform: 'node', format: 'cjs', external: ['vscode'], logLevel: 'warning' });
+  let runner = (await readFile(join(root, 'dist-test/runTest.js'), 'utf8'))
+    .replaceAll('__dirname', JSON.stringify(join(root, 'dist-test')));
+  const pathPattern = /^([ \t]*)extensionTestsPath:[\s\S]*?(?=^[ \t]*launchArgs:)/gmu;
+  assert.equal([...runner.matchAll(pathPattern)].length, 1, 'Compiled harness must have one tests path followed by launch arguments.');
+  runner = runner.replace(pathPattern, (_value, indent) => `${indent}extensionTestsPath: ${JSON.stringify(suite)},\n`);
+  if (isolatedIndexingMode) {
+    const fixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';
+    assert.equal(runner.split(fixtureCopy).length, 2, 'Compiled harness must have one primary fixture copy.');
+    runner = runner.replace(fixtureCopy, `${fixtureCopy}
+    {
+      const fixtureSettingsPath = require('node:path').join(fixture, '.vscode', 'settings.json');
+      const fixtureSettings = JSON.parse(await (0, promises_1.readFile)(fixtureSettingsPath, 'utf8'));
+      fixtureSettings['phpCompanion.indexing.mode'] = ${JSON.stringify(isolatedIndexingMode)};
+      await (0, promises_1.writeFile)(fixtureSettingsPath, JSON.stringify(fixtureSettings, null, 2));
+    }`);
+  }
+  if (isolatedIndexingMode) {
+    const c1ModeAssignment = "settings['phpCompanion.indexing.mode'] = 'onDemand';\n        if (c1PhpVersion)";
+    assert.equal(runner.split(c1ModeAssignment).length, 2, 'One primary C1 mode override must precede PHP version setup.');
+    runner = runner.replace(c1ModeAssignment, `settings['phpCompanion.indexing.mode'] = ${JSON.stringify(isolatedIndexingMode)};\n        if (c1PhpVersion)`);
+    const workspaceReady = '        const c1ProductPaths =';
+    assert.equal(runner.split(workspaceReady).length, 2, 'Workspace file must be written before unique product path setup.');
+    runner = runner.replace(workspaceReady, `        if (workspaceFile) {
+          const modeWorkspace = JSON.parse(await require('node:fs/promises').readFile(workspaceFile, 'utf8'));
+          modeWorkspace.settings = { ...modeWorkspace.settings, 'phpCompanion.indexing.mode': ${JSON.stringify(isolatedIndexingMode)} };
+          await require('node:fs/promises').writeFile(workspaceFile, JSON.stringify(modeWorkspace, null, 2));
+        }\n` + workspaceReady);
+  }
+  const coldFixtureFiles = {"src/ColdQuery/Row.php": "<?php namespace App\\ColdQuery; class Row {}", "src/cold-query-functions.php": "<?php namespace App\\ColdQuery; function sendRow(Row $row): string { return 'row'; }", "DirectFunctionConsumer.php": "<?php\nnamespace App\\ColdQuery;\nfunction run(Row $zRow, int $aWrong): void {\n    sendRow();\n}\n"};
+  const coldFixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';
+  assert.equal(runner.split(coldFixtureCopy).length, 2, 'One fixture copy must precede editor launch');
+  runner = runner.replace(coldFixtureCopy, `${coldFixtureCopy}
+    {
+      const fixtureFs = require('node:fs/promises');
+      const fixturePath = require('node:path');
+      const coldFiles = ${JSON.stringify(coldFixtureFiles)};
+      for (const [relative, source] of Object.entries(coldFiles)) {
+        const target = fixturePath.join(fixture, relative);
+        await fixtureFs.mkdir(fixturePath.dirname(target), { recursive: true });
+        await fixtureFs.writeFile(target, source);
+      }
+      const composerFile = fixturePath.join(fixture, 'composer.json');
+      const composer = JSON.parse(await fixtureFs.readFile(composerFile, 'utf8'));
+      composer.autoload = { ...composer.autoload, files: [...(composer.autoload?.files ?? []), 'src/cold-query-functions.php'] };
+      await fixtureFs.writeFile(composerFile, JSON.stringify(composer, null, 2));
+    }`);
+  const runnerPath = join(scratch, 'runner.cjs'); await writeFile(runnerPath, runner);
+  let output = '';
+  let rendererExceptions = 0;
+  const child = spawn(process.execPath, [join(root, 'scripts/run-extension-test.mjs'), runnerPath], {
+    cwd: root, env: { ...process.env, PHP_COMPANION_TEST_CORE_ONLY: '1', PHP_COMPANION_TEST_C1_ONLY: '1', PHP_COMPANION_TEST_C1_UI: '1', PHP_COMPANION_TEST_C1_PHP_VERSION: process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5' }, stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  for (const [stream, destination] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) {
+    stream.setEncoding('utf8'); let pending = '';
+    const inspect = line => { if (line.includes("TypeError: Cannot read properties of undefined (reading 'getItemsByProvider')")) rendererExceptions++; };
+    stream.on('data', chunk => { destination.write(chunk); output = (output + chunk).slice(-131_072);
+      pending += chunk; const lines = pending.split('\n'); pending = lines.pop(); for (const line of lines) inspect(line); });
+    stream.on('end', () => { if (pending) inspect(pending); });
+  }
+  await new Promise((resolveDone, reject) => {
+    child.once('error', reject);
+    child.once('close', (code, signal) => code === 0 && !signal ? resolveDone()
+      : reject(new Error(`Direct function query host exited with code ${code}, signal ${signal}`)));
+  });
+  const match = /Direct function query acceptance proof: (\{[^\r\n]*\})/u.exec(output);
+  assert.ok(match, 'Host completed without the direct function query proof');
+  const proof = JSON.parse(match[1]);
+  assert.equal(proof.indexingMode, isolatedIndexingMode);
+  assert.equal(proof.results.length, 2);
+  assert.equal(proof.firstSemanticRequest, firstSemanticRequest);
+  assert.equal(proof.firstRequestRetried, false);
+  assert.equal(proof.definitionMatched, true);
+  assert.equal(proof.signatureMatched, true);
+  assert.equal(proof.diskUnchanged, true);
+  if (automatic) { assert.equal(rendererExceptions, 0, 'Automatic completion raised getItemsByProvider'); proof.rendererExceptions = rendererExceptions; }
+  if (process.argv[2]) await writeFile(process.argv[2], JSON.stringify(proof, null, 2) + '\n');
+} finally { await rm(scratch, { recursive: true, force: true }); }

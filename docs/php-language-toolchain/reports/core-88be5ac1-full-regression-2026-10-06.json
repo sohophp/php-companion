@@ -1,0 +1,141 @@
+{
+  "milestone": "D126",
+  "date": "2026-10-06",
+  "qualifiedProductCommit": "88be5ac1",
+  "launchRecordedBaseCommit": "c65ec454dac128414f774b3857ca943637f7e4fa",
+  "qualification": "D125 source initially uncommitted at launch; the same frozen source was committed as 88be5ac1 during this run. No frozen content changed.",
+  "bundleSha256": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+  "suite": {
+    "commit": "c65ec454dac128414f774b3857ca943637f7e4fa",
+    "createdAtUtc": "2026-10-05T22:24:41.117806+00:00",
+    "status": "finished",
+    "inputCount": 3065,
+    "runtimePaths": {
+      "7.2": "/opt/remi/php72/root/usr/bin/php",
+      "7.4": "/opt/remi/php74/root/usr/bin/php",
+      "8.1": "/opt/remi/php81/root/usr/bin/php",
+      "8.2": "/opt/remi/php82/root/usr/bin/php",
+      "8.4": "/opt/remi/php84/root/usr/bin/php",
+      "8.5": "/opt/remi/php85/root/usr/bin/php"
+    },
+    "runtimeVersions": {
+      "7.2": "7.2.34",
+      "7.4": "7.4.33",
+      "8.1": "8.1.34",
+      "8.2": "8.2.32",
+      "8.4": "8.4.23",
+      "8.5": "8.5.9"
+    },
+    "phpIniScanDirOverridden": false,
+    "bundleSha256": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+    "runtimeSha256": {
+      "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "runnerPid": 3218398,
+    "collectionSha256": "4e43f4dc5acbf95960f9a94aad63a1c2a7cb68a1acc82b5beefbcb3c69a7fbe6",
+    "collectedCases": 1005,
+    "collectedFiles": 83,
+    "command": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d126-full-results.json"
+    ],
+    "startedAtUtc": "2026-10-05T22:24:41.148288+00:00",
+    "log": "/tmp/sophp-d126-full-lsp.log",
+    "performanceTimingDirectory": "/tmp/sophp-d126-full-timings",
+    "testPid": 3221710,
+    "finishedAtUtc": "2026-10-05T22:53:27.717782+00:00",
+    "exitCode": 0,
+    "inputsUnchanged": true
+  },
+  "canonicalProof": {
+    "verifiedAtUtc": "2026-10-05T22:54:08.919900+00:00",
+    "checkpoint": "c65ec454dac128414f774b3857ca943637f7e4fa",
+    "files": 83,
+    "tests": 1005,
+    "passed": 1005,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "exitCode": 0,
+    "completeGreen": true,
+    "canonicalNamesMatch": true,
+    "frozenInputs": 3065,
+    "inputsAndSixRuntimesStillMatch": true,
+    "failures": [],
+    "artifacts": {
+      "/tmp/sophp-d126-full-meta.json": "5b8e8cb5457be434c9ef012a6a67559dd6c5fc486b63f70330a16c632919d199",
+      "/tmp/sophp-d126-full-inputs.json": "ac56b867f10874615e03df39b98900121b77c77f04389c8b8b0f6adbb0a179d6",
+      "/tmp/sophp-d126-full-collection.json": "4e43f4dc5acbf95960f9a94aad63a1c2a7cb68a1acc82b5beefbcb3c69a7fbe6",
+      "/tmp/sophp-d126-full-results.json": "34c8a7094bec9f286d143e4b136baa760f590eb5a4019ea3b4609a4580562976",
+      "/tmp/sophp-d126-full-verification.json": "8bd16948ac605227f52234f2b2b91cad24b97c8793f773cf1acd517a53ed6be6"
+    }
+  },
+  "inputVerification": {
+    "originalCount": 3065,
+    "finalCount": 3065,
+    "changed": [],
+    "added": [],
+    "runtimeChanges": [],
+    "inputsUnchanged": true,
+    "initialSha256": "ac56b867f10874615e03df39b98900121b77c77f04389c8b8b0f6adbb0a179d6"
+  },
+  "hotTimings": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 106.86010699999997,
+      "p95Ms": 51.12386600000036,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 92.03648299999986,
+      "p95Ms": 64.82507799999985,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 47.41852000000017,
+      "p95Ms": 8.581551999999647,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 24.545157000000017,
+      "p95Ms": 10.349490999999944,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "auditSource": "import json,hashlib,datetime\nfrom pathlib import Path\nfrom collections import Counter\nread=lambda p:json.loads(Path(p).read_text())\nsha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()\nm=read('/tmp/sophp-d126-full-meta.json'); assert m['status']=='finished'\nr=read('/tmp/sophp-d126-full-results.json');c=read('/tmp/sophp-d126-full-collection.json');v=read('/tmp/sophp-d126-full-verification.json')\ncollected=Counter((x['file'],x['name']) for x in c)\nactual=Counter((f['name'],' > '.join([*a['ancestorTitles'],a['title']])) for f in r['testResults'] for a in f['assertionResults'])\nassert actual==collected, {'missingCount':sum((collected-actual).values()),'unexpectedCount':sum((actual-collected).values())}\ninputs=read('/tmp/sophp-d126-full-inputs.json');changed=[p for p,h in inputs.items() if not Path(p).is_file() or sha(p)!=h]\ncliChanged=[p for ver,p in m['runtimePaths'].items() if sha(p)!=m['runtimeSha256'][ver]]\nassert not changed and not cliChanged and v['inputsUnchanged']\npassed=r['numPassedTests']; total=r['numTotalTests']; failures=[{'file':f['name'],'name':a['fullName'],'failureMessages':a.get('failureMessages',[])} for f in r['testResults'] for a in f['assertionResults'] if a['status']=='failed']\nproof={'verifiedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'checkpoint':m['commit'],'files':len(r['testResults']),'tests':total,'passed':passed,'failed':r['numFailedTests'],'pending':r['numPendingTests'],'todo':r['numTodoTests'],'exitCode':m['exitCode'],'completeGreen':bool(m['exitCode']==0 and r['success'] and passed==total==1005 and len(r['testResults'])==83 and not failures and not r['numPendingTests'] and not r['numTodoTests']),'canonicalNamesMatch':True,'frozenInputs':len(inputs),'inputsAndSixRuntimesStillMatch':True,'failures':failures,'artifacts':{p:sha(p) for p in ['/tmp/sophp-d126-full-meta.json','/tmp/sophp-d126-full-inputs.json','/tmp/sophp-d126-full-collection.json','/tmp/sophp-d126-full-results.json','/tmp/sophp-d126-full-verification.json']}}\nPath('/tmp/sophp-d126-canonical-proof.json').write_text(json.dumps(proof,ensure_ascii=False,indent=2)+'\\n');print(json.dumps(proof,ensure_ascii=False));# Record the original terminal outcome even when it is not green.\nassert proof['inputsAndSixRuntimesStillMatch']\n",
+  "boundaries": [
+    "This full green qualifies only 88be5ac1 / ed7230a3 bundle; D127 new source has separate verification",
+    "Ordinary PHP7.2 editing P95 155.06ms is not closed by fixed-document hot tests",
+    "Cache scale memory, other actual PHP CLIs/platforms, long sessions and real WSL remain open"
+  ],
+  "goal": "active"
+}

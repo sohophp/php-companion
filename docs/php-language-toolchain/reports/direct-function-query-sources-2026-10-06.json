@@ -1,0 +1,2425 @@
+{
+  "phase": "D127",
+  "generatedAtUtc": "2026-10-05T23:14:37.255634+00:00",
+  "baseCommit": "88be5ac1",
+  "productBundleSha256": "b2957d131aa1e8b2007aac074c9ca7e6be85f3a0dd736d6a32c94962dd275732",
+  "schemas": {
+    "semantic": 88,
+    "sourceDeclaration": 6,
+    "wrapper": 12,
+    "engine": "v67"
+  },
+  "implementation": "Existing named function loading shared with direct call queries; selected parameter class hydration; refresh indexed producer URIs from live buffers before querying.",
+  "preIntegrationEvidence": [
+    {
+      "source": "/tmp/sophp-d127-direct-function-baseline.json",
+      "sha256": "43fd804e2aaa4d58ba9122e291a66ce3f4442cbf53a14e522d376bc61210f069",
+      "bundleSha256": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+      "tests": 12,
+      "passed": 0,
+      "failed": 12,
+      "prototype": false,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 26.81056999999987,
+          "result": null
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "method": "hover",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 27.889620999999806,
+          "result": null
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "method": "definition",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 79.39898900000026,
+          "result": []
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 28.26968300000044,
+          "result": null
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "method": "hover",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 33.768888999999035,
+          "result": null
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "method": "definition",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 57.445144999999684,
+          "result": []
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 17.990357000000586,
+          "result": null
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "method": "hover",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 19.272704000000886,
+          "result": null
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "method": "definition",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 48.08969299999808,
+          "result": []
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 19.11833100000149,
+          "result": null
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "method": "hover",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 28.38542800000141,
+          "result": null
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "method": "definition",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 50.760205999999016,
+          "result": []
+        }
+      ]
+    },
+    {
+      "source": "/tmp/sophp-d127-direct-function-prototype.json",
+      "sha256": "41e80757be8ea37da433ac39eff79d1f359a48db2b8ef7bafc224fe6a1c9e7c9",
+      "bundleSha256": "160da922169b62078eff0f24b299bbd619e118a675694f8094540b25f48fc10d",
+      "tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "prototype": true,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 55.356624999999894,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 78.55314799999996,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 61.172459000000345,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-6uHqC2/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 83.69082699999944,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 80.15657800000008,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 74.30522700000074,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-KECndA/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 63.52125399999932,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 55.68462600000021,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 70.35633799999778,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-vhzhlm/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 54.705762000001414,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 57.41913900000145,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 73.25421199999982,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-JXoeZL/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "/tmp/sophp-d127-direct-function-family-prototype.json",
+      "sha256": "a7e57b04d98d70d551d4eca5a093e28afc342b5f5de349a90cc42c5b2e9ade21",
+      "bundleSha256": "1e5f2d69b22ba98b7321f1072fee960c41cf8f187d36418837b57f9d8d2de23d",
+      "tests": 30,
+      "passed": 22,
+      "failed": 8,
+      "prototype": true,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 83.23495099999991,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 55.76546700000017,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 68.85400100000061,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 62.71482199999991,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-w1OzQG/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 66.20131200000105,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 27.401716000000306,
+          "result": null
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 67.22129999999925,
+          "firstThreeCompletionLabels": [
+            "$_COOKIE",
+            "$_ENV",
+            "$_FILES"
+          ],
+          "completionCount": 11
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 81.75489000000016,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 72.28965199999948,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 69.01303600000028,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 68.56299199999921,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-lgTVGY/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 67.81673000000228,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 28.90858500000104,
+          "result": null
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 94.4345570000005,
+          "firstThreeCompletionLabels": [
+            "$_COOKIE",
+            "$_ENV",
+            "$_FILES"
+          ],
+          "completionCount": 11
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 65.19078499999887,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 47.457156999997096,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 47.06756799999857,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 66.86596899999859,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-V9jBod/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 58.8444559999989,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 35.256810000006226,
+          "result": null
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "named parameter",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 56.05990600000223,
+          "firstThreeCompletionLabels": [
+            "row:"
+          ],
+          "completionCount": 1
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 55.97150500000134,
+          "firstThreeCompletionLabels": [
+            "$_COOKIE",
+            "$_ENV",
+            "$_FILES"
+          ],
+          "completionCount": 11
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 65.16323400000692,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 62.64368499999546,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 81.88314199999877,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 63.82945699999982,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-FAZgoq/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 51.47813299999689,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 21.93850999999995,
+          "result": null
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "named parameter",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 62.36606700000266,
+          "firstThreeCompletionLabels": [
+            "row:"
+          ],
+          "completionCount": 1
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": false,
+          "firstRequestRetried": false,
+          "latencyMs": 84.66542699999991,
+          "firstThreeCompletionLabels": [
+            "$_COOKIE",
+            "$_ENV",
+            "$_FILES"
+          ],
+          "completionCount": 11
+        }
+      ]
+    },
+    {
+      "source": "/tmp/sophp-d127-direct-function-family-refreshed-prototype.json",
+      "sha256": "f2d042e56bca49c2f3cdc5f093eab431323595136f5aee298972a73f5d3b2962",
+      "bundleSha256": "a216a82c2fb215dd534af1c761236bb57a7ce413c4b21adccc07241910ac7e64",
+      "tests": 30,
+      "passed": 30,
+      "failed": 0,
+      "prototype": true,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.189465000000155,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.60075800000004,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 56.05666999999994,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 59.626312000000325,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-cAuGCK/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 67.96865799999978,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 49.688004999999976,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 83.64398299999993,
+          "firstThreeCompletionLabels": [
+            "$zRow",
+            "$_COOKIE",
+            "$_ENV"
+          ],
+          "completionCount": 11
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 75.2877550000012,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 72.62657300000137,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.43805000000066,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.808295999999245,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-Qx0g9A/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 72.2057789999999,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 52.74159700000018,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 99.52187599999888,
+          "firstThreeCompletionLabels": [
+            "$zRow",
+            "$_COOKIE",
+            "$_ENV"
+          ],
+          "completionCount": 11
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 52.418180000000575,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 51.08570400000099,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.074031999996805,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 51.54148200000054,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-0icJ5j/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 71.19028400000389,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 42.995631999998295,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "named parameter",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 99.18387100000109,
+          "firstThreeCompletionLabels": [
+            "row:"
+          ],
+          "completionCount": 1
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 73.95165499999712,
+          "firstThreeCompletionLabels": [
+            "$zRow",
+            "$_COOKIE",
+            "$_ENV"
+          ],
+          "completionCount": 11
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "import alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 54.395276999995986,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "qualified alias",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 55.4305250000034,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "absolute",
+          "method": "hover",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.105218999997305,
+          "hover": {
+            "kind": "markdown",
+            "value": "```php\nfunction sendRow(Row $row): string\n```"
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "relative namespace",
+          "method": "definition",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 69.19216799999413,
+          "result": [
+            {
+              "uri": "file:///tmp/sophp-direct-function-family-jGeFT7/src/functions.php",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 30
+                },
+                "end": {
+                  "line": 0,
+                  "character": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "nested inner",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 60.45494000000326,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "incomplete EOF",
+          "method": "signatureHelp",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 64.6315770000001,
+          "signatureLabels": [
+            "sendRow(Row $row): string"
+          ]
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "named parameter",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 73.36015500000212,
+          "firstThreeCompletionLabels": [
+            "row:"
+          ],
+          "completionCount": 1
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "scenario": "value ranking",
+          "method": "completion",
+          "pass": true,
+          "firstRequestRetried": false,
+          "latencyMs": 89.17493800000375,
+          "firstThreeCompletionLabels": [
+            "$zRow",
+            "$_COOKIE",
+            "$_ENV"
+          ],
+          "completionCount": 11
+        }
+      ]
+    },
+    {
+      "source": "/tmp/sophp-d127-direct-function-state-before-refresh.json",
+      "sha256": "a98903526b9cab7606cc161c98bcfa5f049d136ce3ba47ead12a1721f060ee7c",
+      "bundleSha256": "4f5e7da5266bfe1c9d58cc86d631b76a611d99a52472439e3dc4669a57ff73a2",
+      "tests": 12,
+      "passed": 10,
+      "failed": 2,
+      "prototype": true,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": false
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$aWrong",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": false
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$aWrong",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        }
+      ]
+    },
+    {
+      "source": "/tmp/sophp-d127-direct-function-state-refreshed-prototype.json",
+      "sha256": "04facc6b49a0b779f6a41a48551a838065bc0f0dd931a095d151b11aeab87d77",
+      "bundleSha256": "a216a82c2fb215dd534af1c761236bb57a7ce413c4b21adccc07241910ac7e64",
+      "tests": 20,
+      "passed": 20,
+      "failed": 0,
+      "prototype": true,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$aWrong",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "unsaved declaration removed",
+          "pass": true,
+          "hover": null,
+          "definition": []
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "state": "restored after removal",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$aWrong",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "unsaved declaration removed",
+          "pass": true,
+          "hover": null,
+          "definition": []
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "state": "restored after removal",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$aWrong",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "unsaved declaration removed",
+          "pass": true,
+          "hover": null,
+          "definition": []
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "state": "restored after removal",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "disk first",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "unsaved override",
+          "expected": "$aWrong",
+          "actual": "$aWrong",
+          "signatureExpected": "sendRow(int $changed): string",
+          "signatureActual": "sendRow(int $changed): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "unsaved restore",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "unsaved declaration removed",
+          "pass": true,
+          "hover": null,
+          "definition": []
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "state": "restored after removal",
+          "expected": "$zRow",
+          "actual": "$zRow",
+          "signatureExpected": "sendRow(Row $row): string",
+          "signatureActual": "sendRow(Row $row): string",
+          "pass": true
+        }
+      ]
+    }
+  ],
+  "originalToolFailures": [
+    "CJS debug top-level await build rejected before running; corrected IIFE",
+    "Wrong private attribute helper name in second prototype caused request error; corrected to existing attributeConstructorAt",
+    "Scratch test runtime could not resolve phpdoc before scratch package node_modules link; no test executed"
+  ],
+  "semantic": {
+    "source": "/tmp/sophp-d127-semantic-full.json",
+    "sha256": "2bfafc15eff3924cd7bce8d500fbcbce33e5aebb66fba356c4e498e9512b4137",
+    "files": 130,
+    "tests": 3233,
+    "passed": 3233,
+    "failed": 0,
+    "pending": 0
+  },
+  "selectedProtocol": {
+    "source": "/tmp/sophp-d127-protocol-final.json",
+    "sha256": "1756639cc1c6a516b7bfe0bfb41c177d8e1e28cf3c6b602255a4507e6b4eb489",
+    "files": 3,
+    "tests": 52,
+    "passed": 52,
+    "failed": 0,
+    "pending": 0,
+    "cases": [
+      {
+        "file": "packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+        "cases": [
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/onDemand with first memberHover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/progressive with first memberHover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/onDemand with first memberHover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/progressive with first memberHover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/onDemand with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/progressive with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/onDemand with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/progressive with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/onDemand with first typeDefinition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/progressive with first typeDefinition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/onDemand with first typeDefinition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/progressive with first typeDefinition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/onDemand with first implementation",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/progressive with first implementation",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/onDemand with first implementation",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/progressive with first implementation",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "packages/language-server/test/direct-function-queries-stdio.test.ts",
+        "cases": [
+          {
+            "name": "resolves direct function queries at PHP 7.2/onDemand with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/onDemand with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/onDemand with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/onDemand with first completion",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/progressive with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/progressive with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/progressive with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 7.2/progressive with first completion",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/onDemand with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/onDemand with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/onDemand with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/onDemand with first completion",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/progressive with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/progressive with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/progressive with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.1/progressive with first completion",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/onDemand with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/onDemand with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/onDemand with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/onDemand with first completion",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/progressive with first hover",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/progressive with first definition",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/progressive with first signatureHelp",
+            "status": "passed"
+          },
+          {
+            "name": "resolves direct function queries at PHP 8.5/progressive with first completion",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "packages/language-server/test/variable-value-hover-stdio.test.ts",
+        "cases": [
+          {
+            "name": "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+            "status": "passed"
+          },
+          {
+            "name": "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+            "status": "passed"
+          },
+          {
+            "name": "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+            "status": "passed"
+          },
+          {
+            "name": "hydrates first variable Hover sources at PHP '8.5' in 'progressive'",
+            "status": "passed"
+          }
+        ]
+      }
+    ]
+  },
+  "hotAndCache": {
+    "source": "/tmp/sophp-d127-hot-cache.json",
+    "sha256": "caf73ded7346db2eb28abf87baec5a9e608115579fab3cbcb5fed286f48dabea",
+    "files": 3,
+    "tests": 7,
+    "passed": 7,
+    "failed": 0,
+    "pending": 0,
+    "cases": [
+      {
+        "file": "packages/language-server/test/trait-construction-stdio.test.ts",
+        "cases": [
+          {
+            "name": "keeps effective Trait construction contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+            "status": "passed"
+          },
+          {
+            "name": "keeps effective Trait construction contracts in an unsaved Composer document at PHP 7.2 (experimental)",
+            "status": "passed"
+          },
+          {
+            "name": "keeps effective Trait construction contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+            "status": "passed"
+          },
+          {
+            "name": "keeps effective Trait construction contracts in an unsaved Composer document at PHP 8.5 (experimental)",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "packages/language-server/test/trait-final-cache-stdio.test.ts",
+        "cases": [
+          {
+            "name": "keeps final trait aliases across persisted restarts, old cache fallback and disk edits",
+            "status": "passed"
+          }
+        ]
+      },
+      {
+        "file": "packages/language-server/test/magic-modifier-stdio.test.ts",
+        "cases": [
+          {
+            "name": "respects magic method modifiers and static edits at PHP 7.2",
+            "status": "passed"
+          },
+          {
+            "name": "respects magic method modifiers and static edits at PHP 8.5",
+            "status": "passed"
+          }
+        ]
+      }
+    ]
+  },
+  "hotQueryTimings": [
+    {
+      "source": "/tmp/sophp-d127-hot-timings/assignment-comment-stdio-7.2.json",
+      "sha256": "0c7df411e8fbce3d729e12c9d9968ffe09b7861e077b31264f98cfeb53329f57",
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 87.34296300000005,
+      "p95Ms": 46.80105299999968,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    {
+      "source": "/tmp/sophp-d127-hot-timings/assignment-comment-stdio-8.5.json",
+      "sha256": "68c6bb096e93f0c8dd0e3d5b4f5c3ba222a7a9d330857dacd27879da2001a21f",
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 101.64689799999996,
+      "p95Ms": 75.1672469999994,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    {
+      "source": "/tmp/sophp-d127-hot-timings/magic-modifier-stdio-7.2.json",
+      "sha256": "5a24373d30867c7b76f48f93f9ecf362ecce7e5b90a174818470167cc9aee37e",
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 30.312867000000097,
+      "p95Ms": 9.884130999999797,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    {
+      "source": "/tmp/sophp-d127-hot-timings/magic-modifier-stdio-8.5.json",
+      "sha256": "4b0fba144787ce3e4471c899e6f39d62ec567a1b768862cae53ab6d90bb7082b",
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 28.94252399999914,
+      "p95Ms": 11.836403000000246,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  ],
+  "linuxHosts": [
+    {
+      "source": "/tmp/sophp-d127-host-7.2-onDemand.json",
+      "sha256": "699994b0e874aa2d64974464fcb039c6ee00653d5e39de4b6ee60520050af17d",
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "firstSemanticRequest": "signatureHelp",
+      "firstRequestRetried": false,
+      "signatureMatched": true,
+      "definitionMatched": true,
+      "completionProviderPrewarm": false,
+      "otherQueriesBeforeTyping": [
+        "signatureHelp",
+        "definition"
+      ],
+      "explicitTriggerSuggest": false,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 333,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 193,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    {
+      "source": "/tmp/sophp-d127-host-7.2-progressive.json",
+      "sha256": "2ef2a612006c41a8476b6736fed2f3ad71516f09ee797fb5cc956a9c47515ca1",
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "firstSemanticRequest": "signatureHelp",
+      "firstRequestRetried": false,
+      "signatureMatched": true,
+      "definitionMatched": true,
+      "completionProviderPrewarm": false,
+      "otherQueriesBeforeTyping": [
+        "signatureHelp",
+        "definition"
+      ],
+      "explicitTriggerSuggest": false,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 281,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 226,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    {
+      "source": "/tmp/sophp-d127-host-8.1-onDemand.json",
+      "sha256": "f070be7284086a9a2e68e6dc434b734502bbb45512a689f730880d65f2166fdb",
+      "platform": "linux",
+      "phpVersion": "8.1",
+      "indexingMode": "onDemand",
+      "firstSemanticRequest": "signatureHelp",
+      "firstRequestRetried": false,
+      "signatureMatched": true,
+      "definitionMatched": true,
+      "completionProviderPrewarm": false,
+      "otherQueriesBeforeTyping": [
+        "signatureHelp",
+        "definition"
+      ],
+      "explicitTriggerSuggest": false,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 227,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 200,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    {
+      "source": "/tmp/sophp-d127-host-8.1-progressive.json",
+      "sha256": "cf6c8457425e326650a170a56cc7c3346bc4bc81ac43bd08029a4e5a632e5dda",
+      "platform": "linux",
+      "phpVersion": "8.1",
+      "indexingMode": "progressive",
+      "firstSemanticRequest": "signatureHelp",
+      "firstRequestRetried": false,
+      "signatureMatched": true,
+      "definitionMatched": true,
+      "completionProviderPrewarm": false,
+      "otherQueriesBeforeTyping": [
+        "signatureHelp",
+        "definition"
+      ],
+      "explicitTriggerSuggest": false,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 290,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 228,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    {
+      "source": "/tmp/sophp-d127-host-8.5-onDemand.json",
+      "sha256": "ce7cd20116ab76f74229b157ca5b0c65ae3ff44c029b366c2d65044e3db9a36f",
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "firstSemanticRequest": "signatureHelp",
+      "firstRequestRetried": false,
+      "signatureMatched": true,
+      "definitionMatched": true,
+      "completionProviderPrewarm": false,
+      "otherQueriesBeforeTyping": [
+        "signatureHelp",
+        "definition"
+      ],
+      "explicitTriggerSuggest": false,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 349,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 196,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    {
+      "source": "/tmp/sophp-d127-host-8.5-progressive.json",
+      "sha256": "01d65eebdf21852524fea30f1462fe077f32c0880ef8d218169075745b049f9c",
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "firstSemanticRequest": "signatureHelp",
+      "firstRequestRetried": false,
+      "signatureMatched": true,
+      "definitionMatched": true,
+      "completionProviderPrewarm": false,
+      "otherQueriesBeforeTyping": [
+        "signatureHelp",
+        "definition"
+      ],
+      "explicitTriggerSuggest": false,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 230,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "$zRow$zRow: App\\ColdQuery\\Row",
+              "$_COOKIE",
+              "$_ENV",
+              "$_FILES",
+              "$_GET",
+              "$_POST",
+              "$_REQUEST",
+              "$_SERVER",
+              "$_SESSION",
+              "$GLOBALS",
+              "$aWrong"
+            ]
+          },
+          "visibleWaitMs": 207,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "rendererExceptions": 0
+    }
+  ],
+  "hostInputVerification": {
+    "manifestSource": "/tmp/sophp-d127-host-inputs.json",
+    "manifestSha256": "a2fc51bd5cdcf663bbb7b127fa99754d84f55ab23aa2568fbf7c4415605dcb2f",
+    "inputCount": 3149,
+    "remainingFiveGroupsBatch": {
+      "startedAtUtc": "2026-10-05T23:10:49.062911+00:00",
+      "status": "finished",
+      "firstGroupBeforeFreeze": "7.2/onDemand",
+      "bundleSha256": "b2957d131aa1e8b2007aac074c9ca7e6be85f3a0dd736d6a32c94962dd275732",
+      "inputCount": 3149,
+      "groups": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "exitCode": 0,
+          "report": "/tmp/sophp-d127-host-7.2-progressive.json",
+          "log": "/tmp/sophp-d127-host-7.2-progressive.log"
+        },
+        {
+          "phpVersion": "8.1",
+          "indexingMode": "onDemand",
+          "exitCode": 0,
+          "report": "/tmp/sophp-d127-host-8.1-onDemand.json",
+          "log": "/tmp/sophp-d127-host-8.1-onDemand.log"
+        },
+        {
+          "phpVersion": "8.1",
+          "indexingMode": "progressive",
+          "exitCode": 0,
+          "report": "/tmp/sophp-d127-host-8.1-progressive.json",
+          "log": "/tmp/sophp-d127-host-8.1-progressive.log"
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "exitCode": 0,
+          "report": "/tmp/sophp-d127-host-8.5-onDemand.json",
+          "log": "/tmp/sophp-d127-host-8.5-onDemand.log"
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "exitCode": 0,
+          "report": "/tmp/sophp-d127-host-8.5-progressive.json",
+          "log": "/tmp/sophp-d127-host-8.5-progressive.log"
+        }
+      ],
+      "finishedAtUtc": "2026-10-05T23:12:13.087782+00:00",
+      "changedInputs": [],
+      "inputsUnchanged": true
+    },
+    "firstGroupBeforeFreeze": true,
+    "finalInputsStillMatch": true
+  },
+  "runtimeSha256VerifiedAgainstD126": {
+    "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+    "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+    "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+    "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+    "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+    "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+  },
+  "currentSourceSha256": {
+    "packages/semantic/src/index.ts": "2ca4c4066a0a048ced4e8c40f0f066427c736a0fb1fb3f3490698f3991fed829",
+    "packages/language-server/src/server.ts": "83939fe93f4b42f2210735a1db403d8b41d4d5cb4003c8a32ad49ccb55673bdf",
+    "packages/semantic/test/direct-function-query-dependencies.test.ts": "973126bb40e98a97285e8e72b60ee1d82c927b1f27a174c81af78df9da96b134",
+    "packages/language-server/test/direct-function-queries-stdio.test.ts": "3a25b03b087bcc2372b791a69fda4ceb5111684c855500cc462454e04904b4a3",
+    "test/extension/suite/directFunctionQueryAcceptance.ts": "ce6700a7599c17e5bb273a0c80847547f21ef3c6ccdc95055c8a126d5eb6e26e",
+    "scripts/check-direct-function-query-acceptance.mjs": "f77c0f8246e3d669d2dc0e43606a0cd3d717553cfa52d5e88bbe4f591e1316c0"
+  },
+  "commands": [
+    "pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/language-server build && pnpm build",
+    "pnpm --filter @php-companion/semantic exec vitest run --reporter=json --outputFile=/tmp/sophp-d127-semantic-full.json",
+    "pnpm --filter @php-companion/language-server exec vitest run test/direct-function-queries-stdio.test.ts test/cold-function-result-queries-stdio.test.ts test/variable-value-hover-stdio.test.ts --reporter=json --outputFile=/tmp/sophp-d127-protocol-final.json",
+    "PHP_COMPANION_TEST_MAGIC_MODIFIER_TIMING_DIR=/tmp/sophp-d127-hot-timings PHP_COMPANION_TEST_ASSIGNMENT_COMMENT_TIMING_DIR=/tmp/sophp-d127-hot-timings pnpm --filter @php-companion/language-server exec vitest run test/magic-modifier-stdio.test.ts test/trait-final-cache-stdio.test.ts test/trait-construction-stdio.test.ts --reporter=json --outputFile=/tmp/sophp-d127-hot-cache.json",
+    "SOPHP_AUTOMATIC_COMPLETION=1 SOPHP_AUTOMATIC_INDEXING_MODE=<onDemand|progressive> SOPHP_VISIBLE_PHP_VERSION=<7.2|8.1|8.5> node scripts/check-direct-function-query-acceptance.mjs <report.json>"
+  ],
+  "boundaries": [
+    "D126 full LSP 1005 only qualifies prior bundle ed7230a3; current D127 full LSP not rerun.",
+    "UI first signatureHelp is single query; typing completion follows signatureHelp, definition and opened definition document. No claim of fully cold completion UI.",
+    "Visible waits start after typed document validation, not process start or end-to-end first usable editor result.",
+    "Ordinary PHP7.2 edit P95 155.06ms remains open. Fixed document hot measurements do not close it.",
+    "D117 bare-variable detail gaps, scale cache RSS, other CLIs/platforms, producer edits mid asynchronous hydration, long sessions and real WSL acceptance remain open.",
+    "No VSIX, Profile update, push or release. Goal remains active."
+  ],
+  "rawArtifacts": {
+    "/tmp/sophp-d127-host-7.2-onDemand.json": "699994b0e874aa2d64974464fcb039c6ee00653d5e39de4b6ee60520050af17d",
+    "/tmp/sophp-d127-host-7.2-progressive.json": "2ef2a612006c41a8476b6736fed2f3ad71516f09ee797fb5cc956a9c47515ca1",
+    "/tmp/sophp-d127-host-8.1-onDemand.json": "f070be7284086a9a2e68e6dc434b734502bbb45512a689f730880d65f2166fdb",
+    "/tmp/sophp-d127-host-8.1-progressive.json": "cf6c8457425e326650a170a56cc7c3346bc4bc81ac43bd08029a4e5a632e5dda",
+    "/tmp/sophp-d127-host-8.5-onDemand.json": "ce7cd20116ab76f74229b157ca5b0c65ae3ff44c029b366c2d65044e3db9a36f",
+    "/tmp/sophp-d127-host-8.5-progressive.json": "01d65eebdf21852524fea30f1462fe077f32c0880ef8d218169075745b049f9c",
+    "/tmp/sophp-d127-direct-function-baseline.json": "43fd804e2aaa4d58ba9122e291a66ce3f4442cbf53a14e522d376bc61210f069",
+    "/tmp/sophp-d127-direct-function-baseline.log": "8bd0f1ce361c23f6ff9a97c79e76ca74083a2f1c360540a49bd0193636a1530a",
+    "/tmp/sophp-d127-direct-function-family-final-prototype.json": "dea031f99f5032786e0072316724c5184381d6b1bb5acb7e8757a8b1d18aacd7",
+    "/tmp/sophp-d127-direct-function-family-final-prototype.log": "09dbd4dbc3bae05732dcb193ec0f534cf2818101e0adf09e492cb754f76110bd",
+    "/tmp/sophp-d127-direct-function-family-prototype.json": "a7e57b04d98d70d551d4eca5a093e28afc342b5f5de349a90cc42c5b2e9ade21",
+    "/tmp/sophp-d127-direct-function-family-prototype.log": "4379bbbfa4a0ca0f4be431e05ebc3b98fb855f22016ea5fc81d3322efca5dbd5",
+    "/tmp/sophp-d127-direct-function-family-refreshed-prototype.json": "f2d042e56bca49c2f3cdc5f093eab431323595136f5aee298972a73f5d3b2962",
+    "/tmp/sophp-d127-direct-function-family-refreshed-prototype.log": "09dbd4dbc3bae05732dcb193ec0f534cf2818101e0adf09e492cb754f76110bd",
+    "/tmp/sophp-d127-direct-function-family-second-prototype.log": "890e17e9e19f60d8d18d446be41acdde71b491e1a59bd90ed5c40aab9fb56f65",
+    "/tmp/sophp-d127-direct-function-fixture-error.json": "d8a9ab5b6ef120e3319de55faba3d194e3a8c23bcec065b8998d4c2238dec7e3",
+    "/tmp/sophp-d127-direct-function-fixture-error.log": "38480aa26bbf25b909184185dcc941637e01fe83515fbf0732c7bbcc5c58f144",
+    "/tmp/sophp-d127-direct-function-prototype.json": "41e80757be8ea37da433ac39eff79d1f359a48db2b8ef7bafc224fe6a1c9e7c9",
+    "/tmp/sophp-d127-direct-function-prototype.log": "e2287a6dd4576037066e44d0fd0547fbfe52e23abcdf7781d0c2eb9a3819ecb9",
+    "/tmp/sophp-d127-direct-function-state-before-refresh.json": "a98903526b9cab7606cc161c98bcfa5f049d136ce3ba47ead12a1721f060ee7c",
+    "/tmp/sophp-d127-direct-function-state-final-prototype.json": "c12e9d37a76fab4ffcfd48876a1581530fcea1028053f1a3154075f35b18a383",
+    "/tmp/sophp-d127-direct-function-state-final-prototype.log": "cbb5606dbd183fc8f63944442c26ccfd56490f0af97d3e527474e94dc9f81f6f",
+    "/tmp/sophp-d127-direct-function-state-prototype.json": "7ab0c2ae1d1f335a011f82a5a31abd4c27c5de27ec8ffca171e431c593498840",
+    "/tmp/sophp-d127-direct-function-state-prototype.log": "15c7ebd82e92d4d3c9aa8fcfdba31a741253d540b47f80b7795c038677888279",
+    "/tmp/sophp-d127-direct-function-state-refreshed-prototype.json": "04facc6b49a0b779f6a41a48551a838065bc0f0dd931a095d151b11aeab87d77",
+    "/tmp/sophp-d127-direct-function-state-refreshed-prototype.log": "c647c706cbf5e803c2db4586e8d7223eda76381d3301dc75ef833087e3865514",
+    "/tmp/sophp-d127-direct-function-state-refreshed.log": "1cdf9b2afbcf66fcf25a2407a9074df727c84167d668eaa9fd583957f1e883c7",
+    "/tmp/sophp-d127-eslint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d127-host-7.2-onDemand.log": "17b9facf3c09bc7b4307c3399b83afa59204bd55e535f93dbd58be1b8f3f75ad",
+    "/tmp/sophp-d127-host-7.2-progressive.log": "6754d07fbe128df52afa2468d2592438860433ddc5ce683999f76b660a48f6a7",
+    "/tmp/sophp-d127-host-8.1-onDemand.log": "738c17540e568864028776853821099b88cca4eeaa0e9ff5a2cac24b6632388e",
+    "/tmp/sophp-d127-host-8.1-progressive.log": "d6e46e9f53236294b93622e85efab40dd7ec21abc441e02fe9233eb819104e76",
+    "/tmp/sophp-d127-host-8.5-onDemand.log": "63c640a82160f742692d5fc2578ae4a7d6bebcff86ce9cb40d7864d973f57f6b",
+    "/tmp/sophp-d127-host-8.5-progressive.log": "b4779aeb510bc13294b3493fecbfce9a86d8f33d40d17626f9de5d0b8eed0d26",
+    "/tmp/sophp-d127-host-batch.json": "e2e213a9ee80ab913388b01f48e8a7dcf625db2be66c0b28986896f0a617848b",
+    "/tmp/sophp-d127-host-batch.log": "7322ab57e369ee6de21be3f2f1baa16874de54461740ed2b1b9a2c37a6b6076d",
+    "/tmp/sophp-d127-host-inputs.json": "a2fc51bd5cdcf663bbb7b127fa99754d84f55ab23aa2568fbf7c4415605dcb2f",
+    "/tmp/sophp-d127-hot-cache.json": "caf73ded7346db2eb28abf87baec5a9e608115579fab3cbcb5fed286f48dabea",
+    "/tmp/sophp-d127-hot-cache.log": "1ae50549170501a6b0d7d13492ccab251f9841a0e7eb5541b9467af49dee948a",
+    "/tmp/sophp-d127-protocol-final.json": "1756639cc1c6a516b7bfe0bfb41c177d8e1e28cf3c6b602255a4507e6b4eb489",
+    "/tmp/sophp-d127-protocol-final.log": "5c1e34f478167c2928830f90334f02e5e64a1b4c10e9814c90b1c19ec84a1919",
+    "/tmp/sophp-d127-prototype-final-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d127-prototype-progress.json": "8120116605f991db3fd7d98b238bb357b8a917df4875e2389654c3f9100fc953",
+    "/tmp/sophp-d127-prototype-refreshed-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d127-prototype-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d127-root-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d127-semantic-final-prototype.json": "44fd3b1ff57878651564c5aeccbb952d38447828cc5bd63d0a10186ea2ce8b11",
+    "/tmp/sophp-d127-semantic-final-prototype.log": "ec8de10dbf9d6255a01008074f07c363a34cbad92d0e8293fdda03156444784e",
+    "/tmp/sophp-d127-semantic-full.json": "2bfafc15eff3924cd7bce8d500fbcbce33e5aebb66fba356c4e498e9512b4137",
+    "/tmp/sophp-d127-semantic-full.log": "4a578968e14ce69af597e4a88cf406f71aee2067b53b6a8c4a5270003870ec14",
+    "/tmp/sophp-d127-semantic-prototype.json": "e858228e1c8cc84552558d56a73a5f2efbbe5f794f3e92d22664e0f4e4a64e7b",
+    "/tmp/sophp-d127-semantic-prototype.log": "a52156a7a3574144b49f406666f58aa263b0e822ac0d2963460b31d243e86bbf",
+    "/tmp/sophp-d127-semantic-refreshed-prototype.json": "74c6ef13912b7415e5c67061fd45a06ef7eede81cf7752d7c869696e279bbda3",
+    "/tmp/sophp-d127-semantic-refreshed-prototype.log": "5a1b24b38869b6107d6f82ed662ccd27080d9a346d912cf2cd31b03dec438797",
+    "/tmp/sophp-d127-semantic-value-debug.jsonl": "604650180a5c123a7d0e3a982924a7bd9f2014dff82adea68669f0a211de8d64"
+  }
+}
