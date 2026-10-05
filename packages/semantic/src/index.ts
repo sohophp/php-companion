@@ -4542,14 +4542,14 @@ export class SemanticWorkspace {
   }
 
   private completionValuePosition(file: SemanticFile, start: number, offset: number,
-    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; comparisonCondition?: boolean; declarationDefault?: boolean; constantInitializer?: boolean; type?: PhpType } | undefined {
+    recoveredTree?: ReturnType<PhpSyntaxParser['parseTree']>): { start: number; allowsNull: boolean; comparisonCondition?: boolean; declarationDefault?: boolean; constantInitializer?: boolean; assignmentValue?: boolean; type?: PhpType } | undefined {
     const retainedTree = recoveredTree ?? this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       if (!recoveredTree && !completionIdentifierPrefix(file.source, offset)) {
         const recovered = this.recoveredInitializerQuery(file, offset, (retainedTree ?? temporaryTree)!, (tree, at) => {
           const position = this.completionValuePosition(file, start, at, tree);
-          return position?.declarationDefault || position?.constantInitializer ? position : undefined;
+          return position?.declarationDefault || position?.constantInitializer || position?.assignmentValue ? position : undefined;
         });
         if (recovered) return recovered;
       }
@@ -4558,10 +4558,22 @@ export class SemanticWorkspace {
       while (node && remaining-- > 0) {
         if (recoveredTree && node.type === 'ERROR') return undefined;
         if (['arguments', 'return_statement', 'compound_statement', 'array_element_initializer'].includes(node.type)) return { start: valueStart, allowsNull };
+        if (node.type === 'arrow_function') return { start: valueStart, allowsNull };
         // An operator result contract does not describe each operand. Inner calls
         // have already stopped at their own arguments; coalescing keeps its values.
         if (node.type === 'unary_op_expression' || node.type === 'cast_expression'
           || node.type === 'binary_expression' && node.childForFieldName('operator')?.text !== '??') return undefined;
+        if (node.type === 'assignment_expression') {
+          const left = node.childForFieldName('left'), right = node.childForFieldName('right');
+          // A damaged array element may lack its own node; leave field recovery
+          // to the array reader instead of rejecting the entire value position.
+          if (!left || !right || right.startIndex !== valueStart || offset < right.startIndex || offset > right.endIndex)
+            return { start: valueStart, allowsNull };
+          const type = this.assignmentCompletionType(file, left);
+          // An assignment supplies its own value contract, even inside an argument.
+          // An unproved target must not inherit the enclosing call's parameter type.
+          return { start: valueStart, allowsNull, assignmentValue: true, type: type && allowsNull ? nullable(type) : type };
+        }
         if (['simple_parameter', 'property_promotion_parameter', 'property_element'].includes(node.type)) {
           // Defaults own their declaration contract; an untyped default must
           // not inherit the containing callable's result or an outer argument.
@@ -4635,7 +4647,7 @@ export class SemanticWorkspace {
   private expectedArgumentCompletionType(file: SemanticFile, offset: number): PhpType | undefined {
     const position = this.completionValuePosition(file, offset, offset);
     if (!position) return undefined;
-    if (position.comparisonCondition || position.declarationDefault || position.constantInitializer) return position.type;
+    if (position.comparisonCondition || position.declarationDefault || position.constantInitializer || position.assignmentValue) return position.type;
     // A surrounding invocation does not supply a contract inside a callback.
     const lexicalScope = this.containingScope(file, offset);
     if (lexicalScope && ['closure', 'arrow'].includes(lexicalScope.kind)) {
@@ -4706,9 +4718,41 @@ export class SemanticWorkspace {
     allowArgument = true): PhpType | undefined {
     const position = this.completionValuePosition(file, start, offset);
     if (!position) return undefined;
-    if (position.comparisonCondition || position.declarationDefault || position.constantInitializer) return position.type;
+    if (position.comparisonCondition || position.declarationDefault || position.constantInitializer || position.assignmentValue) return position.type;
     const expected = this.expectedVariableCompletionBaseType(file, scope, position.start, offset, allowArgument);
     return expected && position.allowsNull ? nullable(expected) : expected;
+  }
+
+  private assignmentCompletionType(file: SemanticFile, left: SyntaxNode): PhpType | undefined {
+    if (left.hasError) return undefined;
+    if (left.type === 'variable_name') {
+      const scope = this.containingScope(file, left.startIndex);
+      return scope ? this.completionVariableType(file, scope, left.text, left.startIndex) : undefined;
+    }
+    if (!['member_access_expression', 'scoped_property_access_expression'].includes(left.type)
+      || left.descendantsOfType(['nullsafe_member_access_expression', 'nullsafe_member_call_expression']).length) return undefined;
+    const name = left.childForFieldName('name');
+    if (!name || !['name', 'variable_name'].includes(name.type)) return undefined;
+    const propertyOffset = name.startIndex + Math.min(1, name.endIndex - name.startIndex);
+    return this.propertyAssignmentCompletionType(file, propertyOffset);
+  }
+
+  private propertyAssignmentCompletionType(file: SemanticFile, propertyOffset: number): PhpType | undefined {
+    const member = this.memberAt(file.uri, propertyOffset);
+    const owner = member && this.files.get(member.uri);
+    const expectedText = member?.writeType ?? member?.returnType;
+    const scope = this.containingScope(file, propertyOffset);
+    if (member?.kind !== 'property' || member.writable === false || member.readonly || member.readonlyClass || !owner || !expectedText
+      || !this.hasCompleteHierarchy(member.calledOnFqcn)
+      || !this.memberVisibilityAllowed(member.writeVisibility ?? member.visibility, member.typeScopeFqcn, scope?.containerFqcn)) return undefined;
+    const documented = parsePhpDocType(expectedText).type;
+    const expected = documented && this.phpDocDiagnosticType(owner, documented, member.typeScopeFqcn);
+    if (!expected) return undefined;
+    const declaration = !member.hasSetHook && this.membersAt(file.uri, propertyOffset).length === 1
+      && owner.properties.find(item => item.start === member.start && item.name === member.name);
+    const annotation = declaration && preferredPropertyVarTag(adjacentPhpDoc(owner, declaration.declarationStart), declaration.name)?.type;
+    const refined = annotation && this.phpDocDiagnosticType(owner, annotation, member.typeScopeFqcn);
+    return refined && compatibility(refined, expected, this.typeRelationContext()) === 'yes' ? refined : expected;
   }
 
   private expectedVariableCompletionBaseType(file: SemanticFile, scope: ParsedScope, start: number, offset: number,
@@ -4748,20 +4792,7 @@ export class SemanticWorkspace {
     if (propertyAssignment) {
       const propertyOffset = statementEnd - statement.length + propertyAssignment.index
         + propertyAssignment[0].lastIndexOf(propertyAssignment[1]!) + 1;
-      const member = this.memberAt(file.uri, propertyOffset);
-      const owner = member && this.files.get(member.uri);
-      const expectedText = member?.writeType ?? member?.returnType;
-      if (member?.kind !== 'property' || member.writable === false || member.readonly || member.readonlyClass || !owner || !expectedText
-        || !this.hasCompleteHierarchy(member.calledOnFqcn)
-        || !this.memberVisibilityAllowed(member.writeVisibility ?? member.visibility, member.typeScopeFqcn, scope.containerFqcn)) return undefined;
-      const documented = parsePhpDocType(expectedText).type;
-      const expected = documented && this.phpDocDiagnosticType(owner, documented, member.typeScopeFqcn);
-      if (!expected) return undefined;
-      const declaration = !member.hasSetHook && this.membersAt(file.uri, propertyOffset).length === 1
-        && owner.properties.find(item => item.start === member.start && item.name === member.name);
-      const annotation = declaration && preferredPropertyVarTag(adjacentPhpDoc(owner, declaration.declarationStart), declaration.name)?.type;
-      const refined = annotation && this.phpDocDiagnosticType(owner, annotation, member.typeScopeFqcn);
-      return refined && compatibility(refined, expected, this.typeRelationContext()) === 'yes' ? refined : expected;
+      return this.propertyAssignmentCompletionType(file, propertyOffset);
     }
     const assignment = /(?:^|[;{}])\s*(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*=\s*$/u.exec(statement);
     return assignment ? this.completionVariableType(file, scope, assignment[1]!, start) : undefined;
@@ -11893,16 +11924,28 @@ export class SemanticWorkspace {
           .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0]?.fqcn
         : undefined);
     const lexicalScope = this.containingScope(file, offset);
-    const parenthesizedCandidate = /\)\s*(?:\?->|->)\s*[A-Za-z_][A-Za-z0-9_]*$/.test(file.source.slice(Math.max(0, offset - 512), offset));
-    const temporaryTree = !tree && parenthesizedCandidate ? this.parser.parseTree(file.source) : undefined;
+    const expressionReceiverCandidate = /[)\]]\s*(?:\?->|->)\s*(?:[A-Za-z_][A-Za-z0-9_]*)?$/.test(file.source.slice(Math.max(0, offset - 512), offset));
+    const temporaryTree = !tree && expressionReceiverCandidate ? this.parser.parseTree(file.source) : undefined;
     if (temporaryTree) this.trees.set(uri, temporaryTree);
     try {
       const receiverTree = tree ?? temporaryTree;
-      if (receiverTree && !receiverTree.rootNode.hasError && offset > 0 && parenthesizedCandidate) {
+      const bareReceiver = receiverTree && /[)\]]\s*(\?->|->)\s*$/u.exec(before);
+      if (receiverTree && bareReceiver) {
+        const end = statementStart + bareReceiver.index + 1;
+        let node = receiverTree.rootNode.namedDescendantForIndex(end - 1, end);
+        let receiver: SyntaxNode | undefined; let remaining = 256;
+        while (node && node.endIndex === end && remaining-- > 0) {
+          if (['parenthesized_expression', 'function_call_expression', 'object_creation_expression', 'subscript_expression', 'member_call_expression'].includes(node.type)) receiver = node;
+          node = node.parent;
+        }
+        const target = remaining > 0 && receiver && this.expressionReceiverTarget(file, receiver, '', accessFrom, bareReceiver[1] === '?->');
+        if (target) return target;
+      }
+      if (receiverTree && offset > 0 && expressionReceiverCandidate) {
         const nameNode = receiverTree.rootNode.namedDescendantForIndex(offset - 1);
         const memberNode = nameNode?.parent;
         const receiver = memberNode?.childForFieldName('object');
-        if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'member_call_expression') {
+        if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'member_call_expression' && !receiver.hasError) {
           const createdReceiver = (node: SyntaxNode, depth: number): ObjectClass | undefined => {
             if (depth >= MAX_LOCAL_SYNTAX_DEPTH) return undefined;
             if (node.type === 'parenthesized_expression' && node.namedChildren.length === 1)
@@ -11930,14 +11973,11 @@ export class SemanticWorkspace {
           const owner = createdReceiver(receiver, 0);
           if (owner) return { fqcn: owner.fqcn, member: nameNode.text, accessFrom, static: false, typeArguments: owner.typeArguments };
         }
-        if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'parenthesized_expression') {
-          const receiverType = this.provenArgumentType(file, receiver.startIndex, receiver.endIndex);
-          const objects = receiverType && this.objectGroups(receiverType);
-          const first = objects?.groups[0]?.[0];
-          if (first && !objects?.nullable) return {
-            fqcn: first.fqcn, member: nameNode.text, accessFrom, static: false,
-            typeArguments: first.typeArguments, groups: objects.groups.length > 1 ? objects.groups : undefined,
-          };
+        if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver && !receiver.hasError
+          && ['member_access_expression', 'member_call_expression'].includes(memberNode.type)
+          && ['parenthesized_expression', 'function_call_expression', 'object_creation_expression', 'subscript_expression'].includes(receiver.type)) {
+          const target = this.expressionReceiverTarget(file, receiver, nameNode.text, accessFrom);
+          if (target) return target;
           // The declared property type may be absent from a cold partial index.
           // Surface only a proven coalescing-throw receiver for PSR-4 hydration.
           const coalesced = receiver.namedChildren[0];
@@ -12114,6 +12154,19 @@ export class SemanticWorkspace {
     const namespace = accessFrom?.split('\\').slice(0, -1).join('\\') ?? file.namespace;
     const fqcn = this.resolveSourceType(file, staticAccess[1]!, namespace, accessFrom);
     return fqcn ? { fqcn, member: staticAccess[2] ?? '', accessFrom, static: true } : undefined;
+  }
+
+  private expressionReceiverTarget(file: SemanticFile, receiver: SyntaxNode, member: string,
+    accessFrom?: string, allowNullable = false): MemberTarget | undefined {
+    if (receiver.hasError) return undefined;
+    const type = receiver.type === 'subscript_expression' ? this.completionArrayReceiverType(file, receiver)
+      : this.provenArgumentType(file, receiver.startIndex, receiver.endIndex);
+    const objects = type && this.objectGroups(type);
+    const first = objects?.groups[0]?.[0];
+    return first && (allowNullable || !objects?.nullable) ? {
+      fqcn: first.fqcn, member, accessFrom, static: false, typeArguments: first.typeArguments,
+      groups: objects.groups.length > 1 ? objects.groups : undefined,
+    } : undefined;
   }
 
   private assignmentInsideControlFlow(file: SemanticFile, assignment: ParsedAssignment, scope: ParsedScope): boolean {

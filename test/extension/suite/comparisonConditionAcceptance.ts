@@ -28,6 +28,7 @@ export async function run(): Promise<void> {
   const unclosedCallables = process.env.PHP_COMPANION_TEST_UNCLOSED_CALLABLE_ONLY === '1';
   const mixedCallables = process.env.PHP_COMPANION_TEST_MIXED_CALLABLE_ONLY === '1';
   const assignmentComments = process.env.PHP_COMPANION_TEST_ASSIGNMENT_COMMENT_ONLY === '1';
+  const assignmentTargets = process.env.PHP_COMPANION_TEST_ASSIGNMENT_TARGET_ONLY === '1';
   const unclosedShapes = process.env.PHP_COMPANION_TEST_UNCLOSED_SHAPE_ONLY === '1';
   const blankComments = process.env.PHP_COMPANION_TEST_BLANK_COMMENT_ONLY === '1';
   const shapeComments = process.env.PHP_COMPANION_TEST_SHAPE_COMMENT_ONLY === '1';
@@ -51,7 +52,13 @@ export async function run(): Promise<void> {
       marked: fixture.source.slice(0, fixture.offset) + '§' + fixture.source.slice(fixture.offset) };
   });
   const reassignedHeader = '<?php function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA="changed";$offerZ=42;';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = flowValues ? [
+  const assignmentHeader = '<?php class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return "text";} function pickZ():bool{return true;} ';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = assignmentTargets ? [
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:assignmentHeader+'function run(Holder $holder,string $offerA,bool $offerZ){$holder->child->flag=$offer§;}'},
+    {prefix:'pick',label:'pickZ',forbidden:'',addCall:true,marked:assignmentHeader+'function run(){make()->flag=pick§;}'},
+    {prefix:'tr',label:'true',forbidden:'try',addCall:false,marked:assignmentHeader+'function run(){(make())->flag=tr§;}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:assignmentHeader+'function run(Holder $holder,string $offerA,bool $offerZ){$holder->items[0]->flag=$offer§;}'},
+  ] : flowValues ? [
     {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',hoverType:'string',marked:'<?php function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offer§);}}'},
     {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',hoverType:'string',marked:'<?php function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offer§);}}'},
     {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',hoverType:'true',marked:'<?php function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offer§);}}'},
@@ -251,7 +258,7 @@ export async function run(): Promise<void> {
         Buffer.from(`<?php namespace App\\SeparatorGate${suffix}\\NamespaceUi${suffix}; class Child {}`));
     }
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
-    if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
+    if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || assignmentTargets || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
     if (blankInitializers || blankInitializerTypes) marked = marked.replace('<?php ', `<?php namespace BlankInitializerGate${suffix}; `);
     if (largeRanking || largeLocalRanking || reassignedParameters || flowValues) marked = marked.replace('<?php ', `<?php namespace LargeRankingGate${suffix}; `);
@@ -292,7 +299,7 @@ export async function run(): Promise<void> {
           : 'value' in content && content.value.includes(`${item.hoverVariable}: ${item.hoverType}`))));
       else assert.equal(hovers?.length ?? 0, 0);
     }
-    const caretExtra = (rootImports || importPrefixes) && item.suffix === '}' ? 0 : item.suffix?.length ?? (item.addCall ? largeRanking ? 2 : 1 : 0);
+    const caretExtra = (rootImports || importPrefixes) && item.suffix === '}' ? 0 : item.suffix?.length ?? (item.addCall ? largeRanking || assignmentTargets ? 2 : 1 : 0);
     assert.equal(document.offsetAt(editor.selection.active), offset - prefix.length + label.length + caretExtra);
     assert.equal(editor.selection.isEmpty, true);
     await vscode.commands.executeCommand('undo'); await until(async () => document.getText(), text => text === source);
@@ -303,6 +310,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

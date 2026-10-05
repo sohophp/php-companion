@@ -1,0 +1,474 @@
+{
+  "milestone": "D87",
+  "date": "2026-10-05",
+  "baseCheckpoint": "fb23ef00",
+  "scope": "Assignment AST owns the expected value contract; shared proven closed expression receivers support assignment ranking and navigation",
+  "sourceInputs": {
+    "packages/semantic/src/index.ts": "034e056c2faf36dfeed2b72da8fb773b0cc388cb55c94ec48704e7e8dc691210",
+    "packages/semantic/test/assignment-target-completion.test.ts": "15efdd63f3846a79258becb1216040db27446afdda0f9c7c973849bfd1b2ceff",
+    "packages/language-server/test/assignment-target-completion-stdio.test.ts": "15c9473fd2e7cc7fccadb093154e6a8e0e8b42b0cd2fc37528acf6658c8339e0",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "6b7b5d30b6dd6617f3e6f56d3e4ee19995d52c2454ee4ac74328fecd074ab5f8",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "1c9c75e1ce49e3f45213f1b6881993ccbb67af8765b5960cc908fdc7ae33ace9",
+    "dist/extension.js": "efbe6c09c86db086ce0d66c9394f2d83dd9e0100c19aad6f73874a5ee406a765"
+  },
+  "semanticFull": {
+    "files": 107,
+    "tests": 2424,
+    "passed": 2424,
+    "failed": 0,
+    "pending": 0,
+    "reportSha256": "81b4c04946a73f57919c3e7a4e0d0071f54819b3c7dd5d81d246aabb2229dd5c",
+    "durationSeconds": 145.77,
+    "frozenFiles": 126,
+    "allFrozenInputsUnchanged": true
+  },
+  "semanticNew": {
+    "tests": 60,
+    "retainedAndTemporaryTrees": true,
+    "positiveTargets": 10,
+    "valueModesPerTarget": 7,
+    "negativeTargets": 8,
+    "boundaryCases": 7,
+    "unsavedRefreshCases": 2,
+    "initialMemberReceiverCases": 8
+  },
+  "recoveryRegression": {
+    "files": 4,
+    "tests": 220,
+    "passed": 220,
+    "failed": 0,
+    "pending": 0,
+    "reportSha256": "f394a7170f0190f9f810f4ddd17ff2d969624424678432eea01bd73e1e5ad67f"
+  },
+  "protocol": {
+    "files": 3,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "pending": 0,
+    "reportSha256": "f36dcd58ab08ed5b466f409b94dd4026f753340571c23b2ea9779f468921859d",
+    "durationSeconds": 11.19,
+    "newComposerCases": [
+      {
+        "phpVersion": "7.2",
+        "queries": 17,
+        "hoverChecks": 6,
+        "definitionChecks": 6,
+        "diagnosticVersions": 17,
+        "diskUnchanged": true
+      },
+      {
+        "phpVersion": "8.5",
+        "queries": 17,
+        "hoverChecks": 6,
+        "definitionChecks": 6,
+        "diagnosticVersions": 17,
+        "diskUnchanged": true
+      }
+    ],
+    "fullLanguageServerSuite": false
+  },
+  "extensionHost": {
+    "platform": "linux",
+    "context": "assignment-target-values",
+    "results": [
+      {
+        "label": "$offerZ",
+        "key": "Enter",
+        "visibleMs": 268,
+        "visibleLabels": [
+          "$offerZ$offerZ: bool",
+          "$offerA"
+        ],
+        "acceptedText": "<?php namespace ShapeGate0Enter; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(Holder $holder,string $offerA,bool $offerZ){$holder->child->flag=$offerZ;}",
+        "caretOffset": 357,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerZ",
+        "key": "Tab",
+        "visibleMs": 202,
+        "visibleLabels": [
+          "$offerZ$offerZ: bool",
+          "$offerA"
+        ],
+        "acceptedText": "<?php namespace ShapeGate0Tab; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(Holder $holder,string $offerA,bool $offerZ){$holder->child->flag=$offerZ;}",
+        "caretOffset": 355,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "pickZ",
+        "key": "Enter",
+        "visibleMs": 176,
+        "visibleLabels": [
+          "pickZShapeGate1Enter\\pickZ(): bool",
+          "pickAShapeGate1Enter\\pickA(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate1Enter; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(){make()->flag=pickZ();}",
+        "caretOffset": 307,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "pickZ",
+        "key": "Tab",
+        "visibleMs": 151,
+        "visibleLabels": [
+          "pickZShapeGate1Tab\\pickZ(): bool",
+          "pickAShapeGate1Tab\\pickA(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate1Tab; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(){make()->flag=pickZ();}",
+        "caretOffset": 305,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": true,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Enter",
+        "visibleMs": 173,
+        "visibleLabels": [
+          "true",
+          "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+          "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+          "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+          "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+          "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+          "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+          "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+          "transliterator_list_idstransliterator_list_ids(): array|false",
+          "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+          "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+          "translatedLabelApp\\Controller\\translatedLabel(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate2Enter; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(){(make())->flag=true;}",
+        "caretOffset": 306,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "true",
+        "key": "Tab",
+        "visibleMs": 155,
+        "visibleLabels": [
+          "true",
+          "trait_existstrait_exists(string $trait, bool $autoload = true): bool",
+          "trigger_errortrigger_error(string $message, int $error_level = E_USER_NOTICE): true",
+          "transliterator_createtransliterator_create(string $id, int $direction = Transliterator::FORWARD): ?Transliterator",
+          "transliterator_create_from_rulestransliterator_create_from_rules(string $rules, int $direction = Transliterator::FORWARD): ?Transliterator",
+          "transliterator_create_inversetransliterator_create_inverse(Transliterator $transliterator): ?Transliterator",
+          "transliterator_get_error_codetransliterator_get_error_code(Transliterator $transliterator): int",
+          "transliterator_get_error_messagetransliterator_get_error_message(Transliterator $transliterator): string",
+          "transliterator_list_idstransliterator_list_ids(): array|false",
+          "transliterator_transliteratetransliterator_transliterate(Transliterator|string $transliterator, string $string, int $start = 0, int $end = -1): string|false",
+          "trimtrim(string $string, string $characters = \" \\n\\r\\t\\v\\0\"): string",
+          "translatedLabelApp\\Controller\\translatedLabel(): string"
+        ],
+        "acceptedText": "<?php namespace ShapeGate2Tab; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(){(make())->flag=true;}",
+        "caretOffset": 304,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerZ",
+        "key": "Enter",
+        "visibleMs": 165,
+        "visibleLabels": [
+          "$offerZ$offerZ: bool",
+          "$offerA"
+        ],
+        "acceptedText": "<?php namespace ShapeGate3Enter; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(Holder $holder,string $offerA,bool $offerZ){$holder->items[0]->flag=$offerZ;}",
+        "caretOffset": 360,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerZ",
+        "key": "Tab",
+        "visibleMs": 210,
+        "visibleLabels": [
+          "$offerZ$offerZ: bool",
+          "$offerA"
+        ],
+        "acceptedText": "<?php namespace ShapeGate3Tab; class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return \"text\";} function pickZ():bool{return true;} function run(Holder $holder,string $offerA,bool $offerZ){$holder->items[0]->flag=$offerZ;}",
+        "caretOffset": 358,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "actualSyntax": {
+    "runtime": "/opt/remi/php85/root/usr/bin/php",
+    "runtimeVersion": "PHP 8.5.9 (cli) (built: Jul 28 2026 13:06:52) (NTS gcc x86_64)",
+    "runtimeSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+    "results": [
+      {
+        "key": "Enter",
+        "label": "$offerZ",
+        "acceptedSha256": "01ba9e3bb710f525929444883ebf00d8bdadf0677d16f38767e0158dc559e6d2",
+        "exitCode": 0
+      },
+      {
+        "key": "Tab",
+        "label": "$offerZ",
+        "acceptedSha256": "4b1689f1c81c0fe576c0524a137ea89ac7bb9283973eb65a834be2abc0970bcc",
+        "exitCode": 0
+      },
+      {
+        "key": "Enter",
+        "label": "pickZ",
+        "acceptedSha256": "9bba5ad85f27303aa959e9feb08e48f5d06a55cec896bac31d53cc175a56d5a2",
+        "exitCode": 0
+      },
+      {
+        "key": "Tab",
+        "label": "pickZ",
+        "acceptedSha256": "9a7b5238f1a267136d14a5b7e2be41655b0ac2338015f64bb7ade7da0fce0c73",
+        "exitCode": 0
+      },
+      {
+        "key": "Enter",
+        "label": "true",
+        "acceptedSha256": "631217ea34dc7c333ade60fa4c6e4988ce6131872c34d9dd7653aec6811157a2",
+        "exitCode": 0
+      },
+      {
+        "key": "Tab",
+        "label": "true",
+        "acceptedSha256": "c158ef22183b126e7a374e61624ac7cafb1759a77d0668e8ea66933520bfe90b",
+        "exitCode": 0
+      },
+      {
+        "key": "Enter",
+        "label": "$offerZ",
+        "acceptedSha256": "d57227c8e7f61e80566730dcd8bd4940af37c122bde1004f97cc9263a4fb8341",
+        "exitCode": 0
+      },
+      {
+        "key": "Tab",
+        "label": "$offerZ",
+        "acceptedSha256": "33df63f3a52bd57b71a1ecc933a49b3cc54e90a6c23b910e1fa4c331ed661722",
+        "exitCode": 0
+      }
+    ],
+    "executed": false
+  },
+  "performance": {
+    "scope": "Serial production stdio; 100 value candidates with one bool-compatible parameter at the end, chained property and native factory-return assignment targets; no edits during warm samples; not continuous-edit or Composer-scale qualification",
+    "bundleSha256": "1c9c75e1ce49e3f45213f1b6881993ccbb67af8765b5960cc908fdc7ae33ace9",
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "kind": "chain",
+        "candidates": 100,
+        "locals": false,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 5.117662999999993,
+        "samples": [
+          4.510266000000001,
+          4.683923999999934,
+          5.117662999999993,
+          4.924963000000162,
+          8.112780999999814,
+          3.369517999999971,
+          3.991121999999905,
+          4.917658000000074,
+          3.7611970000000383,
+          3.8674610000000484,
+          3.482866000000058,
+          3.3157779999999093,
+          4.203872000000047,
+          4.8372770000000855,
+          3.9249979999999596,
+          3.2676510000001144,
+          3.5601899999999205,
+          4.637957999999799,
+          4.85717300000033,
+          3.8167020000000775
+        ],
+        "sourceSha256": "6d09b0ae0066be0e1a6f8a3b9f4ae067a039414cccd82a84395c58948c86dc13",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "7.2",
+        "kind": "function",
+        "candidates": 100,
+        "locals": false,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 5.020094999999856,
+        "samples": [
+          4.6398840000001655,
+          5.006571999999778,
+          5.020094999999856,
+          4.90209700000014,
+          9.106972999999925,
+          4.168094999999994,
+          3.947232999999869,
+          4.215126999999939,
+          4.14894299999969,
+          4.045196000000033,
+          3.66700899999978,
+          3.745433000000048,
+          4.96614099999988,
+          3.3508960000003754,
+          3.692247000000407,
+          3.8750810000001366,
+          3.862402000000202,
+          3.5119669999999132,
+          3.7210000000000036,
+          4.010360999999648
+        ],
+        "sourceSha256": "b01e75343f9d61ad689e76e6770ce915552f6d863ebd8d12f128df62546b0c88",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "chain",
+        "candidates": 100,
+        "locals": false,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 9.565762000000177,
+        "samples": [
+          5.375199000000066,
+          5.49606600000061,
+          5.045248999999785,
+          5.970854000000145,
+          4.925330000000031,
+          4.194025000000693,
+          4.527474999999868,
+          9.565762000000177,
+          5.011533999999301,
+          4.727907000000414,
+          4.744273000000248,
+          9.650386999999682,
+          4.165855000000192,
+          3.9771209999998973,
+          4.543612999999823,
+          4.17527599999994,
+          4.4685899999994945,
+          3.8346870000004856,
+          4.077342999999928,
+          4.131682999999612
+        ],
+        "sourceSha256": "6d09b0ae0066be0e1a6f8a3b9f4ae067a039414cccd82a84395c58948c86dc13",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "function",
+        "candidates": 100,
+        "locals": false,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 5.1142110000000685,
+        "samples": [
+          5.1142110000000685,
+          4.843192999999701,
+          4.731573000000026,
+          4.309868999999708,
+          4.249780000000101,
+          4.332204999999703,
+          4.611287999999149,
+          4.347609999999804,
+          6.03120299999955,
+          3.927568000000065,
+          3.867005999999492,
+          3.9729409999999916,
+          3.9305480000002717,
+          4.016493999999511,
+          3.841147999999521,
+          4.156409999999596,
+          3.6306100000001607,
+          4.12041599999975,
+          3.9498100000000704,
+          5.000929999999244
+        ],
+        "sourceSha256": "b01e75343f9d61ad689e76e6770ce915552f6d863ebd8d12f128df62546b0c88",
+        "topCandidate": "$offer099"
+      }
+    ]
+  },
+  "gates": {
+    "semanticBuild": "passed",
+    "languageServerBuild": "passed",
+    "productionBuild": "passed",
+    "scopedEslint": "passed",
+    "extensionTestsTypecheck": "passed",
+    "diffCheck": "passed"
+  },
+  "initialFailures": [
+    {
+      "scope": "first complete semantic run",
+      "passed": 2399,
+      "failed": 25,
+      "tests": 2424,
+      "durationSeconds": 132.21,
+      "resolution": "Keep original assertions; stop assignment lookup at arrow-function boundary; retain incomplete-array recovery and allow blank recovered RHS start",
+      "qualifiedFinal": false
+    },
+    {
+      "scope": "protocol harness import",
+      "testsStarted": 0,
+      "resolution": "Use existing testkit relative import instead of undeclared package dependency"
+    },
+    {
+      "scope": "first isolated UI acceptance",
+      "completedCases": 2,
+      "failure": "No-required-argument function accepted exact text; expected caret assumed inside parentheses (306), actual correct caret after parentheses (307)",
+      "resolution": "Fix the new fixture expectation; retain exact text, exact caret, Undo/Redo and disk checks"
+    },
+    {
+      "scope": "filtered existing semantic regression selection",
+      "passed": 232,
+      "failed": 1,
+      "filtered": 484,
+      "resolution": "Selected dependent shape propagation case without its preceding fixture-loading test; exact pair passed (2, 495 filtered), final complete suite passed unchanged"
+    }
+  ],
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goalStatus": "active"
+  },
+  "remaining": [
+    "Ordinary continuous-edit P95 budget remains open: D86 prior measurement, not requalified here",
+    "Latest complete LSP qualification remains D79 aae39a54; no extension to D80-D87",
+    "All dynamic receivers and assignments, compound writes and collection-element writes are outside this milestone",
+    "Composer-scale performance, other platforms and actual WSL UI acceptance remain open"
+  ]
+}
