@@ -4904,7 +4904,7 @@ export class SemanticWorkspace {
     return this.provenArgumentType(file, receiver.startIndex, receiver.endIndex);
   }
 
-  private recoveredArrayAccessKeys(file: SemanticFile, offset: number): ReturnType<SemanticWorkspace['completeArrayAccessKeys']> {
+  private withRecoveredArrayAccess<T>(file: SemanticFile, offset: number, query: (fork: SemanticWorkspace) => T): T | undefined {
     if (file.source.length > 131_072) return undefined;
     const suffix = file.source.slice(offset), atEnd = !suffix.trim();
     const literal = file.stringRanges.find(range => range.start < offset && offset <= range.end);
@@ -4940,9 +4940,39 @@ export class SemanticWorkspace {
       fork = this.forkForCompletionRecovery(file.uri, file.source.slice(0, offset) + ending + suffix);
       const recovered = fork.files.get(file.uri)!;
       if (recovered.syntaxErrors.length) return undefined;
-      const result = fork.completeArrayAccessKeys(file.uri, offset);
-      return result ? {...result, end: Math.min(result.end, offset)} : undefined;
+      return query(fork);
     } finally { fork?.dispose(); temporaryTree?.delete(); }
+  }
+
+  private recoveredArrayAccessKeys(file: SemanticFile, offset: number): ReturnType<SemanticWorkspace['completeArrayAccessKeys']> {
+    const result = this.withRecoveredArrayAccess(file, offset, fork => fork.completeArrayAccessKeys(file.uri, offset));
+    return result ? {...result, end: Math.min(result.end, offset)} : undefined;
+  }
+
+  /** Only the fixed static property receiver of the current array access. */
+  arrayAccessOwnerTypeNamesAt(uri: string, offset: number): string[] {
+    const file = this.files.get(uri);
+    if (!file || !file.source.includes('::') || !this.isPhpCodeContext(uri, offset)
+      || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
+    if (file.syntaxErrors.length) {
+      const recovered = this.withRecoveredArrayAccess(file, offset, fork => fork.arrayAccessOwnerTypeNamesAt(uri, offset));
+      if (recovered) return recovered;
+    }
+    const retainedTree = this.trees.get(uri), temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
+      while (node && node.type !== 'subscript_expression') node = node.parent;
+      let receiver = node?.namedChildren[0]; let remaining = 16;
+      while (receiver && ['subscript_expression', 'parenthesized_expression'].includes(receiver.type) && remaining-- > 0)
+        receiver = receiver.namedChildren[0];
+      if (!receiver || remaining < 0 || receiver.type !== 'scoped_property_access_expression' || receiver.hasError) return [];
+      const owner = receiver.childForFieldName('scope') ?? receiver.namedChildren[0];
+      const name = receiver.childForFieldName('name') ?? receiver.namedChildren.at(-1);
+      if (!owner || !/^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(owner.text) || name?.type !== 'variable_name') return [];
+      const accessFrom = this.containingCallable(file, receiver.startIndex)?.containerFqcn ?? this.containingScope(file, receiver.startIndex)?.containerFqcn;
+      const fqcn = this.resolveSourceType(file, owner.text, this.namespaceAt(file, receiver.startIndex), accessFrom);
+      return fqcn ? [fqcn] : [];
+    } finally { temporaryTree?.delete(); }
   }
 
   completeArrayAccessKeys(uri: string, offset: number): {
@@ -17340,6 +17370,29 @@ export class SemanticWorkspace {
     }
   }
 
+  private staticPropertyResultType(file: SemanticFile, start: number, end: number): PhpType | undefined {
+    const access = file.memberAccesses.find(item => item.kind === 'property' && item.static && !item.dynamic
+      && item.end === end && item.start >= start);
+    if (!access) return undefined;
+    const syntax = this.expressionSyntax(file, start, end, 'scoped_property_access_expression');
+    if (!syntax || syntax.hasError) return undefined;
+    const receiver = syntax.namedChildren[0];
+    const ownerName = receiver && file.source.slice(receiver.start, receiver.end);
+    if (!ownerName || !/^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(ownerName)) return undefined;
+    const accessFrom = this.containingCallable(file, start)?.containerFqcn ?? this.containingScope(file, start)?.containerFqcn;
+    // A late-bound descendant can redeclare a static property with a different
+    // documented shape. An ordinary named/self/parent access has a fixed owner.
+    if (ownerName.toLowerCase() === 'static') {
+      const owner = accessFrom && this.fileAndDeclaration(accessFrom);
+      if (!owner || !owner.declaration.finalClass) return undefined;
+    }
+    const fqcn = this.resolveSourceType(file, ownerName, this.namespaceAt(file, start), accessFrom);
+    if (!fqcn) return undefined;
+    const properties = this.targetMembers({ fqcn, member: access.name, accessFrom, static: true })
+      .filter(member => member.kind === 'property' && member.static && member.name === access.name && member.readable !== false);
+    return properties.length === 1 ? this.memberDiagnosticType(properties[0]!, true) : undefined;
+  }
+
   private provenArgumentType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const rawExpression = file.source.slice(start, end); const expression = rawExpression.trim();
     const expressionStart = start + rawExpression.indexOf(expression); const expressionEnd = expressionStart + expression.length;
@@ -17415,6 +17468,9 @@ export class SemanticWorkspace {
       const fqcn = this.resolveSourceType(file, created, this.namespaceAt(file, start), scope);
       return fqcn && this.fileAndDeclaration(fqcn) ? named(fqcn) : undefined;
     }
+    const staticProperty = expression.includes('::') && expression.includes('$')
+      ? this.staticPropertyResultType(file, expressionStart, expressionEnd) : undefined;
+    if (staticProperty) return staticProperty;
     const callResult = this.callResultType(file, expressionStart, expressionEnd); if (callResult) return callResult;
     const chainResult = this.memberChainResultType(file, expressionStart, expressionEnd);
     if (chainResult) {

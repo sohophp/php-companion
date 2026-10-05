@@ -6889,6 +6889,16 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     >= SUPPORTED_PHP_VERSIONS.indexOf('8.0');
   const supportsEnums = SUPPORTED_PHP_VERSIONS.indexOf(phpVersionForUri(document.uri))
     >= SUPPORTED_PHP_VERSIONS.indexOf('8.1');
+  if (serviceRoot && document.languageId === 'php') {
+    const arrayOwners = workspace.arrayAccessOwnerTypeNamesAt(document.uri, offset);
+    if (arrayOwners.length) {
+      refreshStaleOpenTypeSourceAt(workspace, document.uri, offset, arrayOwners);
+      await hydrateMemberOwnerChain(workspace, serviceRoot,
+        () => workspace.arrayAccessOwnerTypeNamesAt(document.uri, offset), () => false,
+        () => !currentQueryDocument(document, token, queryVersion));
+      if (!currentQueryDocument(document, token, queryVersion)) return [];
+    }
+  }
   let completionContext = workspace.completionContext(document.uri, offset, supportsPhp80);
   if (serviceRoot && completionContext.kind === 'declaration-name'
     && completionContext.declaration.kind === 'function'

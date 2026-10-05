@@ -1,0 +1,411 @@
+{
+  "milestone": "D109",
+  "date": "2026-10-05",
+  "baseCheckpoint": "3f4aa7af",
+  "scope": "static property expression facts and array key completion",
+  "qualifiedInputsSha256": {
+    "packages/semantic/src/index.ts": "a22cde78ddf0630f985d59cafa91b9c223fa1445bd0350ae541792249bcc98e7",
+    "packages/language-server/src/server.ts": "8556fe393d468ee0b0ff3b0d310a131a66d6ce4bd01369da47b1047dc61536d2",
+    "packages/semantic/test/static-property-value-completion.test.ts": "ea9db2355c1dee5e3760e3775e3bfb44dda8ad974b95959834ac1cc61250553b",
+    "packages/language-server/test/static-property-value-completion-stdio.test.ts": "0984a860b0169e4f6250ecc0f094a3ced6e4767f2255328107513ea3428a7aaf",
+    "dist/language-server.js": "84351b353631fcbd90f81bfc53948803c0ac2a18c75d8eb95f465f7a544807af",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "semantic": {
+    "files": 121,
+    "passed": 2839,
+    "failed": 0,
+    "added": 53,
+    "raw": "/tmp/sophp-d109-semantic-final-full.json"
+  },
+  "lsp": {
+    "passed": 8,
+    "addedTests": 4,
+    "newCompletionQueries": 80,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "progressive"
+    ],
+    "log": "/tmp/sophp-d109-lsp-final-v2.log",
+    "coldPsr4AndParent": true,
+    "openOwnerUnsavedRefresh": true
+  },
+  "host": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "results": [
+        {
+          "name": "direct",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 252,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "direct",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 152,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 117,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 115,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Enter",
+          "label": "trace",
+          "visibleWaitMs": 118,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Tab",
+          "label": "trace",
+          "visibleWaitMs": 129,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 114,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 118,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        }
+      ],
+      "refresh": [
+        "mode",
+        "other",
+        "mode"
+      ],
+      "diskUnchanged": true,
+      "explicitTriggerSuggest": true,
+      "providerPrewarm": true
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "results": [
+        {
+          "name": "direct",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 226,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "direct",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 156,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 118,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 117,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Enter",
+          "label": "trace",
+          "visibleWaitMs": 139,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Tab",
+          "label": "trace",
+          "visibleWaitMs": 132,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 124,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        }
+      ],
+      "refresh": [
+        "mode",
+        "other",
+        "mode"
+      ],
+      "diskUnchanged": true,
+      "explicitTriggerSuggest": true,
+      "providerPrewarm": true
+    }
+  ],
+  "phpSyntaxChecks": [
+    {
+      "version": "7.2",
+      "case": "direct",
+      "accept": "Enter",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "direct",
+      "accept": "Tab",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "inherited parenthesis",
+      "accept": "Enter",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "inherited parenthesis",
+      "accept": "Tab",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "nested recovery",
+      "accept": "Enter",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "nested recovery",
+      "accept": "Tab",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "assigned value",
+      "accept": "Enter",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "assigned value",
+      "accept": "Tab",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "direct",
+      "accept": "Enter",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "direct",
+      "accept": "Tab",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "inherited parenthesis",
+      "accept": "Enter",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "inherited parenthesis",
+      "accept": "Tab",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "nested recovery",
+      "accept": "Enter",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "nested recovery",
+      "accept": "Tab",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "assigned value",
+      "accept": "Enter",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "assigned value",
+      "accept": "Tab",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    }
+  ],
+  "failuresRetained": [
+    {
+      "phase": "initial semantic prototype",
+      "failed": 29,
+      "cause": "ordinary parsed member accesses do not store receiver metadata; corrected to use exact syntax"
+    },
+    {
+      "phase": "first focused refinement",
+      "failed": 4,
+      "log": "/tmp/sophp-d109-semantic-first-focused.log",
+      "cause": "finalClass field and standard display spaces"
+    },
+    {
+      "phase": "cold LSP before owner loading",
+      "failed": 4,
+      "log": "/tmp/sophp-d109-lsp-external.log"
+    },
+    {
+      "phase": "relative self and parent owner syntax",
+      "failed": 2,
+      "log": "/tmp/sophp-d109-semantic-cold.log"
+    },
+    {
+      "phase": "host launcher",
+      "log": "/tmp/sophp-d109-host-72.log",
+      "cause": "multiline extensionTestsPath replacement syntax error; host did not start"
+    },
+    {
+      "phase": "raw provider refresh list",
+      "log": "/tmp/sophp-d109-host-72-final-v2.log",
+      "last": [
+        "mode",
+        {
+          "label": "fun_anonymous",
+          "description": "anonymous function"
+        }
+      ],
+      "resolution": "require exact Core key retraction via LSP plus actual filtered visible list; retain unfiltered built-in provider result as distinct data"
+    }
+  ],
+  "quality": {
+    "semanticBuild": true,
+    "productionBundleBuild": true,
+    "hostTypecheck": true,
+    "scopedEslint": true,
+    "diffCheck": true,
+    "languageServerTypecheck": true
+  },
+  "remaining": [
+    "current full LSP after D109 not run",
+    "ordinary continuous edit performance 150ms qualification remains open",
+    "non-final late static and dynamic owners remain uncertain",
+    "larger projects, platform matrix, long sessions, real WSL not qualified"
+  ],
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "goal": "active"
+  },
+  "logsSha256": {
+    "/tmp/sophp-d109-lsp-final-v2.log": "a612fb9093d74b0e3854683611ee71bdaf249cf6a67b0b933f7d6d95e5c3871b",
+    "/tmp/sophp-d109-host-72-acceptance.log": "94e0efaa83efba3d63e043e64ed768ac3fa99e6a13ec010b7476691888abdc83",
+    "/tmp/sophp-d109-host-85-acceptance.log": "ba70d3d1f5544d927272dee258f886b0af03133466f87d817e75b4ae27501005",
+    "/tmp/sophp-d109-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d109-build-final.log": "d132163e17dd586be893eae4ba792e7c591e2dce74a810b2c50a5624bcff324a",
+    "/tmp/sophp-d109-host-typecheck-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d109-lsp-typecheck.log": "38ac890c60e7f38d59ddfb410325cdfb5fca83c9411765c5481754e01c021630"
+  }
+}
