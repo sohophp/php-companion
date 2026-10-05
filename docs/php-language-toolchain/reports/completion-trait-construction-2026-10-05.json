@@ -1,0 +1,399 @@
+{
+  "milestone": "D97",
+  "date": "2026-10-05",
+  "base": "7e422797cf918b22d74f35c320fccffc8e268348",
+  "scope": "Effective Trait constructor hints, arguments, visibility and native lexical type binding.",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "a1876e628b9017bada40d5225a49cfae5c9b6be890d3b2e3bac8a8ccde6aefeb",
+    "packages/semantic/dist/index.js": "e9e9e4c3404eb8c216f5a6bcf0b1c35aaa3a719858553f7656a56f1d2e321b6a",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "f6de1372631325410060e814f6b83eff5bdf0b40deb9c57f2ecde04747f80fee",
+    "dist/extension.js": "ee9c0720f8ceec9d11b052cf2deaa85f090e02a43f509570fdcfecd3aec912db",
+    "packages/semantic/test/trait-construction.test.ts": "d77cd82c7c1154e780d9e5d336594f01c13d757b1e9c8f8614891d727635b533",
+    "packages/language-server/test/trait-construction-stdio.test.ts": "8d2007c23756f221beb8b236cfb6d27c102c1aea598ea60e42d94c1b7e1edfec",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "49b21c810cf9902b960596293d24e9b57dc6d2a40fc7c0746cd6616df8b2379d"
+  },
+  "semantic": {
+    "files": 113,
+    "passed": 2517,
+    "failed": 0,
+    "skipped": 0,
+    "sha256": "9536df757109940175623dcf774c933ef1074078a8497fb8b88b34836bb6c7ca"
+  },
+  "targetedServerIncludingAnalysis": {
+    "files": 5,
+    "passed": 61,
+    "failed": 0,
+    "skipped": 0,
+    "sha256": "a56713334382178c017091dee2b7275e23ec3cd6cf44f049449ff7453bb6ffcb"
+  },
+  "protocol": {
+    "servers": 4,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "experimental"
+    ],
+    "unsavedStates": 116,
+    "signatureQueries": 116,
+    "php8NamedCompletionQueries": 10,
+    "currentDiagnosticVersions": true,
+    "diskUnchanged": true,
+    "fullRootVisibilityGatePreserved": true
+  },
+  "nativeRuntime": [
+    {
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "binarySha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "checkedContracts": 24,
+      "observedMatchesMatrix": true,
+      "observedSha256": "4bf4d789a78e1d85c07d5aa7d115ceb7b377087ac696889637ed7c45a061c060"
+    },
+    {
+      "binary": "/opt/remi/php74/root/usr/bin/php",
+      "version": "7.4.33",
+      "binarySha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "checkedContracts": 24,
+      "observedMatchesMatrix": true,
+      "observedSha256": "4bf4d789a78e1d85c07d5aa7d115ceb7b377087ac696889637ed7c45a061c060"
+    },
+    {
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "binarySha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "checkedContracts": 24,
+      "observedMatchesMatrix": true,
+      "observedSha256": "4bf4d789a78e1d85c07d5aa7d115ceb7b377087ac696889637ed7c45a061c060"
+    },
+    {
+      "binary": "/opt/remi/php82/root/usr/bin/php",
+      "version": "8.2.32",
+      "binarySha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "checkedContracts": 24,
+      "observedMatchesMatrix": true,
+      "observedSha256": "4bf4d789a78e1d85c07d5aa7d115ceb7b377087ac696889637ed7c45a061c060"
+    },
+    {
+      "binary": "/opt/remi/php84/root/usr/bin/php",
+      "version": "8.4.23",
+      "binarySha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "checkedContracts": 24,
+      "observedMatchesMatrix": true,
+      "observedSha256": "4bf4d789a78e1d85c07d5aa7d115ceb7b377087ac696889637ed7c45a061c060"
+    },
+    {
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "binarySha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "checkedContracts": 24,
+      "observedMatchesMatrix": true,
+      "observedSha256": "4bf4d789a78e1d85c07d5aa7d115ceb7b377087ac696889637ed7c45a061c060"
+    }
+  ],
+  "observedNativeContractMatrix": [
+    [
+      "abstract-trait-requirement",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "abstract-trait-requirement",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "lexical-valid",
+      true,
+      "allowed",
+      "Consumer\\C"
+    ],
+    [
+      "lexical-wrong",
+      true,
+      "rejected",
+      "TypeError"
+    ],
+    [
+      "trait-required",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-required",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-private",
+      false,
+      "rejected",
+      "Error"
+    ],
+    [
+      "trait-private",
+      true,
+      "rejected",
+      "Error"
+    ],
+    [
+      "trait-private-self",
+      false,
+      "allowed",
+      "C"
+    ],
+    [
+      "trait-private-self",
+      true,
+      "allowed",
+      "C"
+    ],
+    [
+      "trait-protected-child",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-protected-child",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-alias",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-alias",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-private-adapt",
+      false,
+      "rejected",
+      "Error"
+    ],
+    [
+      "trait-private-adapt",
+      true,
+      "rejected",
+      "Error"
+    ],
+    [
+      "trait-own-wins",
+      false,
+      "allowed",
+      "C"
+    ],
+    [
+      "trait-own-wins",
+      true,
+      "allowed",
+      "C"
+    ],
+    [
+      "trait-parent-loses",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-parent-loses",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-nested",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-nested",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-precedence",
+      false,
+      "rejected",
+      "ArgumentCountError"
+    ],
+    [
+      "trait-precedence",
+      true,
+      "rejected",
+      "ArgumentCountError"
+    ]
+  ],
+  "visibleHosts": [
+    {
+      "phpVersion": "7.2",
+      "acceptances": 8,
+      "waitMs": {
+        "min": 118,
+        "max": 220
+      },
+      "firstCandidate": "$offerZ",
+      "unknownOrIncompatibleCandidatesPreserved": true,
+      "exactTextCaretUndoRedoDisk": true,
+      "proofSha256": "b2ca0ac2b2acd727342d605cc85b0e1da140cb2292b7289724b893e18059f624"
+    },
+    {
+      "phpVersion": "8.5",
+      "acceptances": 8,
+      "waitMs": {
+        "min": 121,
+        "max": 238
+      },
+      "firstCandidate": "$offerZ",
+      "unknownOrIncompatibleCandidatesPreserved": true,
+      "exactTextCaretUndoRedoDisk": true,
+      "proofSha256": "32bc664637340bf16c2a153d328664b7aa82e1ddf45ebb595f803edbb75cd31b"
+    }
+  ],
+  "acceptedSyntax": [
+    {
+      "phpVersion": "7.2",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "f497c56d5f9bdb4feef42f2b4ff30c99d738994545fd32dc20c6f9bb1e0a9819"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "ca62f622e95af2bf969a57fcd7015928f174b0aafea45055d9d2294b897ecf66"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "15bba30208d7b141c55ccf3f238396d250874185cddc5ca5ecedcf5546ebe659"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "679cea163552811a511b01dc3818bc353e416a3ad024bcad856600fe85924a47"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "ed4bbaf7434289e92f0f8aacfe306bf5d004fecab08a0c3dfcd5eacc4f70d9a3"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "bf999191d6992c1aad31cc128348c33a5a20ae04a12db628aad44e7656eb45f2"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "ce34ca23b9381052c71878b0736bde55112f6ad380de3d7d6d79ca50e603b220"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "fe4bb63b60adf847eee239a5ff9c69d2faddddd0e1ac65fd9e66cb347a9edfc9"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 0,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "f497c56d5f9bdb4feef42f2b4ff30c99d738994545fd32dc20c6f9bb1e0a9819"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 1,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "ca62f622e95af2bf969a57fcd7015928f174b0aafea45055d9d2294b897ecf66"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 2,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "15bba30208d7b141c55ccf3f238396d250874185cddc5ca5ecedcf5546ebe659"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 3,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "679cea163552811a511b01dc3818bc353e416a3ad024bcad856600fe85924a47"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 4,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "ed4bbaf7434289e92f0f8aacfe306bf5d004fecab08a0c3dfcd5eacc4f70d9a3"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 5,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "bf999191d6992c1aad31cc128348c33a5a20ae04a12db628aad44e7656eb45f2"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 6,
+      "key": "Enter",
+      "exitCode": 0,
+      "sha256": "ce34ca23b9381052c71878b0736bde55112f6ad380de3d7d6d79ca50e603b220"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 7,
+      "key": "Tab",
+      "exitCode": 0,
+      "sha256": "fe4bb63b60adf847eee239a5ff9c69d2faddddd0e1ac65fd9e66cb347a9edfc9"
+    }
+  ],
+  "initialFailures": {
+    "passed": 3,
+    "failed": 16,
+    "functionalFailures": 13,
+    "testHarnessSnapshotApiMistakesExcluded": 3
+  },
+  "limits": [
+    "Cross-namespace Trait PHPDoc refinements have no separate lexical/binding proof; they are withheld while native contracts remain available.",
+    "Generic inference, Trait-body multiple-consumer self/static binding, and parameter refactoring boundaries are unchanged.",
+    "D95 complete LSP 906 qualification applies to 9cce9302, not this changed product.",
+    "D92 ordinary-edit P95 186.39/137.74 ms remains the last measurement and the overall 150 ms gate is open.",
+    "Visible measurements preload providers and explicitly trigger; they are not natural typing or real WSL acceptance.",
+    "No VSIX, Profile install, push, PR or release. Goal active."
+  ],
+  "priorVisibleOutlierMs": 956,
+  "rawPrefix": "/tmp/sophp-d97-"
+}

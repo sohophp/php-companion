@@ -4190,17 +4190,6 @@ export class SemanticWorkspace {
   private inaccessibleConstructorFor(target: string, accessFrom: string | undefined,
     uniqueDeclaration: (fqcn: string) => { file: SemanticFile; declaration: ParsedDeclaration } | undefined):
     { fqcn: string; visibility: 'private' | 'protected' } | undefined {
-    const constructor = (fqcn: string, visited = new Set<string>()): { file: SemanticFile; callable: ParsedCallableDeclaration } | null | undefined => {
-      const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return undefined; visited.add(key);
-      const owner = uniqueDeclaration(fqcn); if (!owner || owner.declaration.kind !== 'class') return undefined;
-      const own = owner.file.callables.filter((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === '__construct');
-      if (own.length > 1) return undefined;
-      if (own.length === 1) return { file: owner.file, callable: own[0]! };
-      const parentName = owner.declaration.extendsNames[0]; if (!parentName) return null;
-      const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
-      const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn);
-      return parent ? constructor(parent, visited) : undefined;
-    };
     const completeClassChain = (fqcn: string, visited = new Set<string>()): boolean => {
       const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return false; visited.add(key);
       const owner = uniqueDeclaration(fqcn); if (!owner || owner.declaration.kind !== 'class') return false;
@@ -4209,8 +4198,20 @@ export class SemanticWorkspace {
       const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn);
       return Boolean(parent && completeClassChain(parent, visited));
     };
-    const resolved = constructor(target); if (!resolved || resolved.callable.visibility === 'public') return undefined;
-    const constructorOwner = resolved.callable.containerFqcn!;
+    const candidates = this.constructorsFor(target);
+    if (candidates.length !== 1) return undefined;
+    const resolved = candidates[0]!; if (resolved.callable.visibility === 'public') return undefined;
+    const constructorOwner = resolved.typeScopeFqcn ?? resolved.callable.containerFqcn!;
+    const uniqueConstructorPath = (fqcn: string, visited = new Set<string>()): boolean => {
+      const key = fqcn.toLowerCase(); if (visited.has(key) || visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false; visited.add(key);
+      const owner = uniqueDeclaration(fqcn); if (!owner || owner.declaration.kind !== 'class') return false;
+      if (key === constructorOwner.toLowerCase()) return true;
+      const parentName = owner.declaration.extendsNames[0]; if (!parentName) return false;
+      const namespace = fqcn.split('\\').slice(0,-1).join('\\');
+      const parent = this.resolveSourceType(owner.file,parentName,namespace,fqcn);
+      return Boolean(parent && uniqueConstructorPath(parent,visited));
+    };
+    if (!uniqueConstructorPath(target)) return undefined;
     if (resolved.callable.visibility === 'protected' && accessFrom
       && (!completeClassChain(accessFrom) || !completeClassChain(constructorOwner))) return undefined;
     const allowed = accessFrom && (accessFrom.toLowerCase() === constructorOwner.toLowerCase()
@@ -10939,11 +10940,11 @@ export class SemanticWorkspace {
       const fqcn = this.resolveSourceType(file, constructor[1]!, namespace, accessFrom);
       const declaration = fqcn ? this.fileAndDeclaration(fqcn)?.declaration : undefined;
       if (!fqcn || !declaration) return [];
-      const candidates = this.constructorsFor(fqcn).filter(({ callable }) =>
-        this.memberVisibilityAllowed(callable.visibility, callable.containerFqcn!, accessFrom)).map(({ file: declarationFile, callable: init }): MemberInfo => ({
+      const candidates = this.constructorsFor(fqcn).filter(({ callable, typeScopeFqcn }) =>
+        this.memberVisibilityAllowed(callable.visibility, typeScopeFqcn ?? callable.containerFqcn!, accessFrom)).map(({ file: declarationFile, callable: init, typeScopeFqcn }): MemberInfo => ({
           kind: 'method', uri: declarationFile.uri, start: init.start, end: init.end, name: declaration.name, fqcn: init.fqcn,
           parameters: init.parameters, returnType: fqcn, visibility: init.visibility, static: false,
-          typeScopeFqcn: init.containerFqcn!, calledOnFqcn: fqcn,
+          typeScopeFqcn: typeScopeFqcn ?? init.containerFqcn!, calledOnFqcn: fqcn,
         }));
       const compatible = this.methodCandidatesForArguments(candidates, constructor[2]!, completeAtCursor, file, offset - constructor[2]!.length);
       return (compatible.length ? compatible : candidates).map((candidate) => ({
@@ -10956,10 +10957,10 @@ export class SemanticWorkspace {
       const owner = fqcn ? this.fileAndDeclaration(fqcn) : undefined;
       if (!fqcn || !owner || !this.isAttributeClass(owner.file, owner.declaration)) return [];
       const candidates = this.constructorsFor(fqcn).filter(({ callable }) => callable.visibility === 'public')
-        .map(({ file: declarationFile, callable: init }): MemberInfo => ({
+        .map(({ file: declarationFile, callable: init, typeScopeFqcn }): MemberInfo => ({
           kind: 'method', uri: declarationFile.uri, start: init.start, end: init.end, name: owner.declaration.name,
           fqcn: init.fqcn, parameters: init.parameters, returnType: fqcn, visibility: init.visibility, static: false,
-          typeScopeFqcn: init.containerFqcn!, calledOnFqcn: fqcn,
+          typeScopeFqcn: typeScopeFqcn ?? init.containerFqcn!, calledOnFqcn: fqcn,
         }));
       const compatible = this.methodCandidatesForArguments(candidates, attribute.argumentsText, completeAtCursor,
         file, attribute.argumentsStart);
@@ -11110,11 +11111,11 @@ export class SemanticWorkspace {
     const fqcn = this.resolveSourceType(file, name, this.namespaceAt(file, call.nameStart), accessFrom);
     const declaration = fqcn && this.fileAndDeclaration(fqcn)?.declaration;
     if (!fqcn || !declaration) return [];
-    return this.constructorsFor(fqcn).filter(({ callable }) =>
-      this.memberVisibilityAllowed(callable.visibility, callable.containerFqcn!, accessFrom)).map(({ file: owner, callable }): SignatureInfo => ({
+    return this.constructorsFor(fqcn).filter(({ callable, typeScopeFqcn }) =>
+      this.memberVisibilityAllowed(callable.visibility, typeScopeFqcn ?? callable.containerFqcn!, accessFrom)).map(({ file: owner, callable, typeScopeFqcn }): SignatureInfo => ({
         kind: 'method', uri: owner.uri, start: callable.start, end: callable.end, name: declaration.name, fqcn: callable.fqcn,
         parameters: callable.parameters, returnType: fqcn, visibility: callable.visibility, static: false,
-        typeScopeFqcn: callable.containerFqcn!, calledOnFqcn: fqcn, ...this.signatureContext('', callable.parameters),
+        typeScopeFqcn: typeScopeFqcn ?? callable.containerFqcn!, calledOnFqcn: fqcn, ...this.signatureContext('', callable.parameters),
       }));
   }
 
@@ -11795,11 +11796,51 @@ export class SemanticWorkspace {
     return this.constructorsFor(fqcn, visited)[0];
   }
 
-  private constructorsFor(fqcn: string, visited = new Set<string>()): Array<{ file: SemanticFile; callable: ParsedCallableDeclaration }> {
+  private constructorsFor(fqcn: string, visited = new Set<string>()): Array<{ file: SemanticFile; callable: ParsedCallableDeclaration; typeScopeFqcn?: string }> {
     const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return []; visited.add(key);
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
     const own = owner.file.callables.filter((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === '__construct');
     if (own.length) return own.map((callable) => ({ file: owner.file, callable }));
+    if (owner.declaration.traitNames.length) {
+      const namespace = owner.declaration.fqcn.split('\\').slice(0,-1).join('\\');
+      const entries: Array<{trait:string;member:MemberInfo}> = [];
+      for (const name of owner.declaration.traitNames) {
+        const trait = this.resolveSourceType(owner.file,name,namespace,fqcn);
+        const methods = trait && this.traitConstructorMethods(trait,new Set(visited));
+        if (!trait || !methods) return [];
+        entries.push(...methods.map(member=>({trait,member:{...member,typeScopeFqcn:fqcn,calledOnFqcn:fqcn}})));
+      }
+      const candidates = this.composeTraitEntries(owner.file,owner.declaration,entries).map(entry=>entry.member)
+        .filter(member=>member.name.toLowerCase()==='__construct');
+      const unique = [...new Map(candidates.map(member=>[
+        JSON.stringify([member.uri,member.start,member.visibility,member.final]),member])).values()];
+      if (unique.length > 1) return [];
+      if (unique.length === 1) {
+        const member = unique[0]!, file = this.files.get(member.uri);
+        const declarations = file?.callables.filter(item=>item.kind==='method' && item.start===member.start
+          && item.fqcn.toLowerCase()===(member.declarationFqcn ?? member.fqcn).toLowerCase());
+        if (!file || declarations?.length!==1) return [];
+        const callable = declarations[0]!;
+        const parameters = callable.parameters.map(parameter => {
+          const namespace = this.namespaceAt(file,parameter.start);
+          const primitives = new Set(['int','float','string','bool','array','object','callable','iterable','resource','mixed','void','never','null','true','false']);
+          const nativeType = parameter.nativeType?.replace(/[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*/gu,name => {
+            if (primitives.has(name.toLowerCase()) || ['self','static'].includes(name.toLowerCase())) return name;
+            const consumer = name.toLowerCase()==='parent' ? this.fileAndDeclaration(fqcn) : undefined;
+            const resolved = consumer ? this.resolveSourceType(consumer.file,name,
+              fqcn.split('\\').slice(0,-1).join('\\'),fqcn) : this.resolveSourceType(file,name,namespace,callable.containerFqcn,parameter.start);
+            return resolved ? `\\${resolved}` : name;
+          });
+          // A Trait retains its source imports. Cross-namespace PHPDoc names
+          // require a separate lexical/binding context; do not invent that proof.
+          const type = parameter.type===parameter.nativeType ? nativeType
+            : namespace===fqcn.split('\\').slice(0,-1).join('\\') ? parameter.type : undefined;
+          return {...parameter,nativeType,type};
+        });
+        return [{file,callable:{...callable,parameters,name:'__construct',visibility:member.visibility,finalMethod:member.final},
+          typeScopeFqcn:fqcn}];
+      }
+    }
     // Some PHP 7 internal APIs expose their legacy, global class-name
     // constructor in audited stubs. Ordinary user files have no version
     // authority here, and namespaced/PHP 8 methods are not constructors.
@@ -17659,6 +17700,56 @@ export class SemanticWorkspace {
     return [namespace, normalized].filter(Boolean).join('\\');
   }
 
+  private composeTraitEntries(ownerFile: SemanticFile, declaration: ParsedDeclaration,
+    allTraitEntries: Array<{ trait: string; member: MemberInfo }>): Array<{ trait: string; member: MemberInfo }> {
+    const fqcn = declaration.fqcn, namespace = fqcn.split('\\').slice(0, -1).join('\\');
+    const traitEntries = allTraitEntries.filter(({ trait, member }) => !declaration.traitAdaptations.some((adaptation) => adaptation.kind === 'precedence'
+      && adaptation.method.toLowerCase() === member.name.toLowerCase()
+      && adaptation.insteadOf.some((name) => this.resolveSourceType(ownerFile, name, namespace)?.toLowerCase() === trait.toLowerCase())));
+    for (const adaptation of declaration.traitAdaptations.filter((item) => item.kind === 'alias')) {
+      const expectedTrait = adaptation.trait ? this.resolveSourceType(ownerFile, adaptation.trait, namespace)?.toLowerCase() : undefined;
+      const matches = allTraitEntries.filter(({ trait, member }) => (!expectedTrait || trait.toLowerCase() === expectedTrait) && member.kind === 'method' && member.name.toLowerCase() === adaptation.method.toLowerCase());
+      if (adaptation.alias) {
+        for (const { member } of matches) traitEntries.push({ trait: member.fqcn.split('::')[0]!, member: {
+          ...member, name: adaptation.alias, fqcn: `${fqcn}::${adaptation.alias}`,
+          declarationFqcn: member.declarationFqcn ?? member.fqcn, declarationName: member.declarationName ?? member.name,
+          visibility: adaptation.visibility ?? member.visibility, final: adaptation.final || member.final,
+        } });
+      } else if (adaptation.visibility || adaptation.final) {
+        for (const entry of matches) entry.member = { ...entry.member, visibility: adaptation.visibility ?? entry.member.visibility, final: adaptation.final || entry.member.final };
+      }
+    }
+    return traitEntries;
+  }
+
+  /** Raw concrete Trait methods, before general member deduplication. Conflicting
+   * constructors must not be resolved by the order of `use` declarations. */
+  private traitConstructorMethods(fqcn: string, visited = new Set<string>()): MemberInfo[] | undefined {
+    const key = fqcn.toLowerCase();
+    if (visited.has(key) || visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return undefined;
+    visited.add(key);
+    const owners = this.filesForReferenceKeys(`declaration:type:${key}`).flatMap(file =>
+      file.declarations.filter(declaration => declaration.fqcn.toLowerCase() === key).map(declaration => ({file, declaration})));
+    if (owners.length !== 1 || owners[0]!.declaration.kind !== 'trait') return undefined;
+    const {file, declaration} = owners[0]!;
+    const own: MemberInfo[] = file.callables.filter(item => item.kind === 'method' && item.containerFqcn?.toLowerCase() === key
+      && !file.source.slice(item.declarationStart,item.declarationEnd).trimEnd().endsWith(';'))
+      .map(item => ({kind:'method', uri:file.uri, start:item.start, end:item.end, name:item.name, fqcn:item.fqcn,
+        parameters:item.parameters, visibility:item.visibility, static:item.static, final:item.finalMethod,
+        typeScopeFqcn:fqcn, calledOnFqcn:fqcn}));
+    const namespace = fqcn.split('\\').slice(0,-1).join('\\');
+    const entries: Array<{trait:string; member:MemberInfo}> = [];
+    for (const name of declaration.traitNames) {
+      const trait = this.resolveSourceType(file, name, namespace, fqcn);
+      const methods = trait && this.traitConstructorMethods(trait, new Set(visited));
+      if (!trait || !methods) return undefined;
+      entries.push(...methods.map(member => ({trait,member:{...member,typeScopeFqcn:fqcn,calledOnFqcn:fqcn}})));
+    }
+    const ownNames = new Set(own.map(member => member.name.toLowerCase()));
+    return [...this.composeTraitEntries(file,declaration,entries).map(entry=>entry.member)
+      .filter(member=>!ownNames.has(member.name.toLowerCase())), ...own];
+  }
+
   private members(fqcn: string, accessFrom?: string, visited = new Set<string>(), includeInvisible = false, templateArguments?: Record<string, string>, declarationCheck = false): MemberInfo[] {
     const key = fqcn.toLowerCase();
     if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return [];
@@ -17754,22 +17845,7 @@ export class SemanticWorkspace {
       const trait = this.resolveSourceType(ownerFile, name, namespace);
       return trait ? this.members(trait, trait, new Set(visited), includeInvisible, undefined, declarationCheck).map((member) => ({ trait, member: { ...member, typeScopeFqcn: fqcn, calledOnFqcn: fqcn } })) : [];
     });
-    const traitEntries = allTraitEntries.filter(({ trait, member }) => !declaration.traitAdaptations.some((adaptation) => adaptation.kind === 'precedence'
-      && adaptation.method.toLowerCase() === member.name.toLowerCase()
-      && adaptation.insteadOf.some((name) => this.resolveSourceType(ownerFile, name, namespace)?.toLowerCase() === trait.toLowerCase())));
-    for (const adaptation of declaration.traitAdaptations.filter((item) => item.kind === 'alias')) {
-      const expectedTrait = adaptation.trait ? this.resolveSourceType(ownerFile, adaptation.trait, namespace)?.toLowerCase() : undefined;
-      const matches = allTraitEntries.filter(({ trait, member }) => (!expectedTrait || trait.toLowerCase() === expectedTrait) && member.kind === 'method' && member.name.toLowerCase() === adaptation.method.toLowerCase());
-      if (adaptation.alias) {
-        for (const { member } of matches) traitEntries.push({ trait: member.fqcn.split('::')[0]!, member: {
-          ...member, name: adaptation.alias, fqcn: `${fqcn}::${adaptation.alias}`,
-          declarationFqcn: member.declarationFqcn ?? member.fqcn, declarationName: member.declarationName ?? member.name,
-          visibility: adaptation.visibility ?? member.visibility, final: adaptation.final || member.final,
-        } });
-      } else if (adaptation.visibility || adaptation.final) {
-        for (const entry of matches) entry.member = { ...entry.member, visibility: adaptation.visibility ?? entry.member.visibility, final: adaptation.final || entry.member.final };
-      }
-    }
+    const traitEntries = this.composeTraitEntries(ownerFile, declaration, allTraitEntries);
     const traits = traitEntries.map(({ member }) => member).filter(visible);
     const mixinCandidates = (declarationCheck ? [] : ownerFile.mixins).filter((item) => item.ownerFqcn.toLowerCase() === key).flatMap((mixin) => {
       const target = this.resolveSourceType(ownerFile, mixin.targetName, namespace, fqcn);

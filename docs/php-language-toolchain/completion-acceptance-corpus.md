@@ -522,3 +522,7 @@ CPU 采样定位反复扫描内建 callable 的叶节点成本，按声明数组
 ## D96 类内相对构造
 
 [构造上下文记录](reports/completion-class-relative-construction-2026-10-05.md)处理相对目标误报与 protected 参数漏补全：直接非法目标保留，未知 late binding 不强行采用基类 ABI，final 合同与 private 拒绝有反例。19 项新增、完整语义 2493、六套 CLI 120 条、两版双模式 76 状态及 16 次可见排序／签名／接受／UndoRedo／实际编译通过。源／声明／完整缓存的 final 标记切换也通过。D95 旧完整 906 项不转写为新语义资格；普通编辑预算、动态／平台／规模／长会话与真人仍开放，不更新 Profile。
+
+## D97 Trait 提供的构造函数
+
+[Trait 构造记录](reports/completion-trait-construction-2026-10-05.md)：按实际组合顺序恢复构造签名、必填／类型检查、命名与实参值排序，保护 private／protected、抽象要求、冲突、未解析与三种缓存恢复。原生类型保留 Trait 源 import 和消费类 self／parent；无法绑定的跨命名空间 PHPDoc 精化继续撤回。完整语义 2517、定向服务器含分析 61、六 CLI 144 条、两版双模式 116 未保存状态、16 次最终可见接受及实际编译通过。旧完整 906 项与本批证据分别保留；普通编辑预算、平台／规模／长会话与真人仍开放，不更新 Profile。
