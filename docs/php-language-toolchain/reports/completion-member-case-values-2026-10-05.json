@@ -1,0 +1,868 @@
+{
+  "milestone": "D111",
+  "date": "2026-10-05",
+  "baseCheckpoint": "43edc1ce8d1be65d4553ac5642e6eee63691300b",
+  "scope": "reuse existing kind-aware member name comparison throughout property-chain value, receiver and iteration inference",
+  "qualifiedInputsSha256": {
+    "packages/semantic/src/index.ts": "4635de34574fd73b45bcc57648a847aeee3145d24fe997a3c8d673c3c18a7802",
+    "packages/language-server/src/server.ts": "8556fe393d468ee0b0ff3b0d310a131a66d6ce4bd01369da47b1047dc61536d2",
+    "packages/semantic/test/member-case-value-completion.test.ts": "7ab1ed25378ae8d64ccd5945c270b35200a27db40d80eaeb3b0e63c3eeb9e865",
+    "packages/language-server/test/array-receiver-origin-completion-stdio.test.ts": "ed812d8c36a99f07f8d88ed9887ac86b7206323e098cce0eef65429f4d0baff6",
+    "test/extension/suite/staticPropertyValueCompletion.ts": "0e58dc3a459efb39bb7ca95ce053d727f7c85560198355bd997544fcf6c73799",
+    "scripts/check-static-property-value-host.mjs": "ecbfcff94693e9ceb35397e5eba373969a8d74d115f07d456b11cc50b7c975d6",
+    "dist/language-server.js": "b350d236bf1bf3cf75ab451e5d8d29d7bc132de9e40f9d06fe29a7857228892a",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "semantic": {
+    "files": 123,
+    "passed": 2931,
+    "failed": 0,
+    "added": 44,
+    "focusedPassed": 145,
+    "raw": "/tmp/sophp-d111-semantic-full.json",
+    "fullCommand": "pnpm --filter @php-companion/semantic exec vitest run --maxWorkers=2 --reporter=json --outputFile=/tmp/sophp-d111-semantic-full.json",
+    "durationSeconds": 153.00322045898437
+  },
+  "lsp": {
+    "files": 3,
+    "passed": 12,
+    "casePatternsAdded": 8,
+    "caseQueriesAdded": 32,
+    "receiverOriginPatterns": 20,
+    "receiverOriginQueries": 80,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "progressive"
+    ],
+    "exactLists": true,
+    "distinctUnopenedTypePerPattern": true,
+    "consumerDiskUnchanged": true,
+    "log": "/tmp/sophp-d111-lsp-focused.log"
+  },
+  "host": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "results": [
+        {
+          "name": "instance lower case",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 234,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "instance lower case",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 117,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "instance distinct case",
+          "accept": "Enter",
+          "label": "upper",
+          "visibleWaitMs": 122,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->Options['upper'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "instance distinct case",
+          "accept": "Tab",
+          "label": "upper",
+          "visibleWaitMs": 126,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->Options['upper'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static alias",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 112,
+          "accepted": "<?php function read(){$data=App\\ColdStaticOptions::$options; $copy=$data; $copy['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static alias",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php function read(){$data=App\\ColdStaticOptions::$options; $copy=$data; $copy['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance property",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 141,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $holder->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance property",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 125,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $holder->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance local",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $data=$holder->options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance local",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 112,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $data=$holder->options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static method",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 126,
+          "accepted": "<?php function read(){$data=App\\ColdMethodOptions::options(); $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static method",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 143,
+          "accepted": "<?php function read(){$data=App\\ColdMethodOptions::options(); $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "direct",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 153,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "direct",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 119,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 122,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Enter",
+          "label": "trace",
+          "visibleWaitMs": 123,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Tab",
+          "label": "trace",
+          "visibleWaitMs": 118,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 144,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 115,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        }
+      ],
+      "refresh": [
+        "mode",
+        "other",
+        "mode"
+      ],
+      "retraction": [
+        {
+          "name": "wrong property",
+          "visibleCount": 0
+        },
+        {
+          "name": "wrong local property",
+          "visibleCount": 0
+        },
+        {
+          "name": "wrong intermediate",
+          "visibleCount": 0
+        }
+      ],
+      "diskUnchanged": true,
+      "explicitTriggerSuggest": true,
+      "providerPrewarm": true
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "results": [
+        {
+          "name": "instance lower case",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 219,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "instance lower case",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 129,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "instance distinct case",
+          "accept": "Enter",
+          "label": "upper",
+          "visibleWaitMs": 116,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->Options['upper'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "instance distinct case",
+          "accept": "Tab",
+          "label": "upper",
+          "visibleWaitMs": 148,
+          "accepted": "<?php class Config {/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;} function read(Config $c){$c->Options['upper'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static alias",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 121,
+          "accepted": "<?php function read(){$data=App\\ColdStaticOptions::$options; $copy=$data; $copy['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static alias",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 119,
+          "accepted": "<?php function read(){$data=App\\ColdStaticOptions::$options; $copy=$data; $copy['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance property",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 152,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $holder->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance property",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 115,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $holder->options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance local",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 114,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $data=$holder->options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold instance local",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php function read(){$holder=new App\\ColdInstanceOptions(); $data=$holder->options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static method",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 122,
+          "accepted": "<?php function read(){$data=App\\ColdMethodOptions::options(); $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold static method",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 118,
+          "accepted": "<?php function read(){$data=App\\ColdMethodOptions::options(); $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "direct",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "direct",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 129,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 122,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "inherited parenthesis",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 119,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} class Child extends Config {} function read(){(Child::$options)['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Enter",
+          "label": "trace",
+          "visibleWaitMs": 120,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested recovery",
+          "accept": "Tab",
+          "label": "trace",
+          "visibleWaitMs": 122,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){Config::$options['payload']['trace'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "assigned value",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 158,
+          "accepted": "<?php class Config {/** @var array{mode:string,payload:array{trace:string}} */ public static $options;} function read(){ $data=Config::$options; $data['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        }
+      ],
+      "refresh": [
+        "mode",
+        "other",
+        "mode"
+      ],
+      "retraction": [
+        {
+          "name": "wrong property",
+          "visibleCount": 0
+        },
+        {
+          "name": "wrong local property",
+          "visibleCount": 0
+        },
+        {
+          "name": "wrong intermediate",
+          "visibleCount": 0
+        }
+      ],
+      "diskUnchanged": true,
+      "explicitTriggerSuggest": true,
+      "providerPrewarm": true
+    }
+  ],
+  "phpSyntaxChecks": [
+    {
+      "version": "7.2",
+      "case": "instance lower case",
+      "accept": "Enter",
+      "sourceSha256": "f06503760c0bb335dd26a8b48fc5bca46a309f90deb5c3e2b07cfd9eddd1b578",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "instance lower case",
+      "accept": "Tab",
+      "sourceSha256": "f06503760c0bb335dd26a8b48fc5bca46a309f90deb5c3e2b07cfd9eddd1b578",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "instance distinct case",
+      "accept": "Enter",
+      "sourceSha256": "a253cd2e851c0003831e2646a20662a7f55d321d88d2c85365b537dde1a2e777",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "instance distinct case",
+      "accept": "Tab",
+      "sourceSha256": "a253cd2e851c0003831e2646a20662a7f55d321d88d2c85365b537dde1a2e777",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold static alias",
+      "accept": "Enter",
+      "sourceSha256": "010b45793809eb0ca9a5144fe5b5d405ca0c574bcd3d31ddd3ffd7e6d80f35bb",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold static alias",
+      "accept": "Tab",
+      "sourceSha256": "010b45793809eb0ca9a5144fe5b5d405ca0c574bcd3d31ddd3ffd7e6d80f35bb",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold instance property",
+      "accept": "Enter",
+      "sourceSha256": "a4f14b03214920d5ad80bac2883683b80c13f8c69ed72fc04059a84b744c827e",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold instance property",
+      "accept": "Tab",
+      "sourceSha256": "a4f14b03214920d5ad80bac2883683b80c13f8c69ed72fc04059a84b744c827e",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold instance local",
+      "accept": "Enter",
+      "sourceSha256": "9b7c2c9c12d1ff659c5289dd9b7bfc3764a6f3bac5926bc2ec9a51d1eb907019",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold instance local",
+      "accept": "Tab",
+      "sourceSha256": "9b7c2c9c12d1ff659c5289dd9b7bfc3764a6f3bac5926bc2ec9a51d1eb907019",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold static method",
+      "accept": "Enter",
+      "sourceSha256": "c574f9855c15505b11c45da0d294818041b96a75e5665dba67f3f48d50c5b70f",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "cold static method",
+      "accept": "Tab",
+      "sourceSha256": "c574f9855c15505b11c45da0d294818041b96a75e5665dba67f3f48d50c5b70f",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "direct",
+      "accept": "Enter",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "direct",
+      "accept": "Tab",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "inherited parenthesis",
+      "accept": "Enter",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "inherited parenthesis",
+      "accept": "Tab",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "nested recovery",
+      "accept": "Enter",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "nested recovery",
+      "accept": "Tab",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "assigned value",
+      "accept": "Enter",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "case": "assigned value",
+      "accept": "Tab",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "instance lower case",
+      "accept": "Enter",
+      "sourceSha256": "f06503760c0bb335dd26a8b48fc5bca46a309f90deb5c3e2b07cfd9eddd1b578",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "instance lower case",
+      "accept": "Tab",
+      "sourceSha256": "f06503760c0bb335dd26a8b48fc5bca46a309f90deb5c3e2b07cfd9eddd1b578",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "instance distinct case",
+      "accept": "Enter",
+      "sourceSha256": "a253cd2e851c0003831e2646a20662a7f55d321d88d2c85365b537dde1a2e777",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "instance distinct case",
+      "accept": "Tab",
+      "sourceSha256": "a253cd2e851c0003831e2646a20662a7f55d321d88d2c85365b537dde1a2e777",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold static alias",
+      "accept": "Enter",
+      "sourceSha256": "010b45793809eb0ca9a5144fe5b5d405ca0c574bcd3d31ddd3ffd7e6d80f35bb",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold static alias",
+      "accept": "Tab",
+      "sourceSha256": "010b45793809eb0ca9a5144fe5b5d405ca0c574bcd3d31ddd3ffd7e6d80f35bb",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold instance property",
+      "accept": "Enter",
+      "sourceSha256": "a4f14b03214920d5ad80bac2883683b80c13f8c69ed72fc04059a84b744c827e",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold instance property",
+      "accept": "Tab",
+      "sourceSha256": "a4f14b03214920d5ad80bac2883683b80c13f8c69ed72fc04059a84b744c827e",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold instance local",
+      "accept": "Enter",
+      "sourceSha256": "9b7c2c9c12d1ff659c5289dd9b7bfc3764a6f3bac5926bc2ec9a51d1eb907019",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold instance local",
+      "accept": "Tab",
+      "sourceSha256": "9b7c2c9c12d1ff659c5289dd9b7bfc3764a6f3bac5926bc2ec9a51d1eb907019",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold static method",
+      "accept": "Enter",
+      "sourceSha256": "c574f9855c15505b11c45da0d294818041b96a75e5665dba67f3f48d50c5b70f",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "cold static method",
+      "accept": "Tab",
+      "sourceSha256": "c574f9855c15505b11c45da0d294818041b96a75e5665dba67f3f48d50c5b70f",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "direct",
+      "accept": "Enter",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "direct",
+      "accept": "Tab",
+      "sourceSha256": "d79408d682d64e7983fd671f7129e2d95f3a1e176745c4b9e36a7fa80854bd7d",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "inherited parenthesis",
+      "accept": "Enter",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "inherited parenthesis",
+      "accept": "Tab",
+      "sourceSha256": "931e6be3d57cc7c05974c69493dfc2cce12fec2ee411261a78aa0a2fc771be1c",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "nested recovery",
+      "accept": "Enter",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "nested recovery",
+      "accept": "Tab",
+      "sourceSha256": "17a872adbf1bc2739b00e12e6d138863bed133b65e819a5c937ed977aa1bcf0b",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "assigned value",
+      "accept": "Enter",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "case": "assigned value",
+      "accept": "Tab",
+      "sourceSha256": "71c1049f9f96eb756bd93fdd93e67425be2b470b3cfdb7c34a0b79d59a8281d6",
+      "exitCode": 0
+    }
+  ],
+  "actualRuntimeReads": {
+    "source": "<?php\nclass Inner {public $options=['mode'=>'inner'];}\nclass Config {public $options=['mode'=>'lower'];public $Options=['upper'=>'upper'];public $inner;public $items;\nfunction __construct(){$this->inner=new Inner();$this->items=[new Inner()];}\nfunction getInner(){return $this->inner;}}\n$c=new Config();\nset_error_handler(function($severity,$message){throw new Exception($message);});\n$cases=[\n'exact'=>function()use($c){return $c->options['mode'];},\n'distinct'=>function()use($c){return $c->Options['upper'];},\n'wrong'=>function()use($c){return $c->OPTIONS['mode'];},\n'nested'=>function()use($c){return $c->inner->options['mode'];},\n'wrong intermediate'=>function()use($c){return $c->INNER->options['mode'];},\n'wrong final'=>function()use($c){return $c->inner->OPTIONS['mode'];},\n'method case'=>function()use($c){return $c->GETINNER()->options['mode'];},\n'foreach'=>function()use($c){foreach($c->items as $item)return $item->options['mode'];},\n'wrong foreach'=>function()use($c){foreach($c->ITEMS as $item)return $item->options['mode'];}];\n$result=[];foreach($cases as $name=>$read){try{$result[$name]=['value'=>$read()];}catch(Throwable $error){$result[$name]=['rejected'=>true];}}\nforeach($result as $name=>$item)echo $name.\"=\".(isset($item['rejected'])?'rejected':$item['value']).\"\\n\";\n",
+    "sourceSha256": "03370ad84b1d02929aae56acb72c66fb5636fe645404f7c9df7eda9dcccce27d",
+    "observations": [
+      {
+        "runtime": "7.2.34",
+        "exitCode": 0,
+        "results": {
+          "exact": "lower",
+          "distinct": "upper",
+          "wrong": "rejected",
+          "nested": "inner",
+          "wrong intermediate": "rejected",
+          "wrong final": "rejected",
+          "method case": "inner",
+          "foreach": "inner",
+          "wrong foreach": "rejected"
+        }
+      },
+      {
+        "runtime": "8.5.9",
+        "exitCode": 0,
+        "results": {
+          "exact": "lower",
+          "distinct": "upper",
+          "wrong": "rejected",
+          "nested": "inner",
+          "wrong intermediate": "rejected",
+          "wrong final": "rejected",
+          "method case": "inner",
+          "foreach": "inner",
+          "wrong foreach": "rejected"
+        }
+      }
+    ]
+  },
+  "failuresRetained": [
+    {
+      "phase": "pre-change semantic regression",
+      "failed": 22,
+      "passed": 22,
+      "total": 44,
+      "log": "/tmp/sophp-d111-case-baseline.log",
+      "cause": "case-insensitive comparison in instance property value/chain/iteration paths; distinct properties also caused ambiguous candidates"
+    },
+    {
+      "phase": "initial PHP 7.2 runtime harness",
+      "cause": "json_encode unavailable with -n; changed probe output to native text rather than loading an extension",
+      "productChange": false
+    }
+  ],
+  "quality": {
+    "semanticBuild": true,
+    "productionBundleBuild": true,
+    "hostTypecheck": true,
+    "scopedEslint": true,
+    "diffCheck": true
+  },
+  "remaining": [
+    "current full LSP not run; D108 957-test qualification remains bound to d0e5466d",
+    "ordinary continuous-edit 150ms qualification remains open",
+    "host explicit trigger and provider prewarm are not natural typing latency or real WSL acceptance",
+    "other dynamic origins, scale/platform/long sessions and real WSL remain open"
+  ],
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "goal": "active"
+  },
+  "logsSha256": {
+    "/tmp/sophp-d111-case-baseline.log": "bc1fc3368264b3d477593ef38143151bd0b95d0b77d223418a0be71098806edf",
+    "/tmp/sophp-d111-case-focused.log": "bd7060e0115c65571681fb088608c33f7ded9b6778c607497eb842c0c2514ff9",
+    "/tmp/sophp-d111-semantic-full.json": "eeb5ed8fe20bde064874791553b806f722c697e6606b3951b2e060511fd4c4f7",
+    "/tmp/sophp-d111-lsp-focused.log": "0f11f4f5a2158e73ef9ec40fbd600e7bdbc80f3d6b0ef0baa6d92102e7d2f7de",
+    "/tmp/sophp-d111-host-72.log": "7521fd05bf6d8ea7081c4ff56e30c05020cd68d59f3bbbc67a3a19e94616c859",
+    "/tmp/sophp-d111-host-85.log": "68ec26c44042566fc70272876d8436bae0821262d2a08ef68102703d93496c54",
+    "/tmp/sophp-d111-build.log": "1bfff82a6786ab0045114008e031a4f899972ef26d7745e09e524286c39e325e",
+    "/tmp/sophp-d111-host-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d111-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

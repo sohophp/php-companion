@@ -22,7 +22,10 @@ export async function run(): Promise<void> {
   await vscode.workspace.fs.writeFile(coldInstance, Buffer.from('<?php namespace App; class ColdInstanceOptions {/** @var array{mode:string} */ public $options;}'));
   await vscode.workspace.fs.writeFile(coldMethod, Buffer.from('<?php namespace App; class ColdMethodOptions {/** @return array{mode:string} */ public static function options():array{return [];} }'));
   const property = '/** @var array{mode:string,payload:array{trace:string}} */ public static $options;';
+  const instanceProperties = '/** @var array{mode:string} */ public $options; /** @var array{upper:string} */ public $Options;';
   const cases = [
+    ['instance lower case', `<?php class Config {${instanceProperties}} function read(Config $c){$c->options['mo§'];}`, 'mode'],
+    ['instance distinct case', `<?php class Config {${instanceProperties}} function read(Config $c){$c->Options['up§'];}`, 'upper'],
     ['cold static alias', "<?php function read(){$data=App\\ColdStaticOptions::$options; $copy=$data; $copy['mo§'];}", 'mode'],
     ['cold instance property', "<?php function read(){$holder=new App\\ColdInstanceOptions(); $holder->options['mo§'];}", 'mode'],
     ['cold instance local', "<?php function read(){$holder=new App\\ColdInstanceOptions(); $data=$holder->options; $data['mo§'];}", 'mode'],
@@ -71,7 +74,23 @@ export async function run(): Promise<void> {
     assert.equal(visible.length, key === 'mode' ? 1 : 0);
 
   }
+  const retraction = [];
+  for (const [name, marked] of [
+    ['wrong property', "<?php class Config {/** @var array{mode:string} */ public $options;} function read(Config $c){$c->OPTIONS['mo§'];}"],
+    ['wrong local property', "<?php class Config {/** @var array{mode:string} */ public $options;} function read(Config $c){$data=$c->OPTIONS;$data['mo§'];}"],
+    ['wrong intermediate', "<?php class Inner {/** @var array{mode:string} */ public $options;} class Config {/** @var Inner */ public $inner;} function read(Config $c){$c->INNER->options['mo§'];}"],
+  ]) {
+    const source = marked!.replace('§', '');
+    await vscode.commands.executeCommand('hideSuggestWidget');
+    assert.equal(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), source)), true);
+    const position = document.positionAt(marked!.indexOf('§')); editor.selection = new vscode.Selection(position, position);
+    await until(async () => (await vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri,
+      position))?.items.some(item => item.label === 'mode') ?? false, present => !present, `case-sensitive ${name}`);
+    await vscode.commands.executeCommand('editor.action.triggerSuggest');
+    const visible = await until(() => visibleCompletionLabels(port), values => values.length === 0, `visible case-sensitive ${name}`);
+    retraction.push({name, visibleCount:visible.length});
+  }
   assert.equal(document.isDirty, true); assert.equal(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), original);
   console.log('Static property value host proof: ' + JSON.stringify({platform:process.platform, phpVersion:process.env.PHP_COMPANION_TEST_C1_PHP_VERSION,
-    results, refresh:['mode','other','mode'], diskUnchanged:true, explicitTriggerSuggest:true, providerPrewarm:true}));
+    results, refresh:['mode','other','mode'], retraction, diskUnchanged:true, explicitTriggerSuggest:true, providerPrewarm:true}));
 }

@@ -6862,7 +6862,7 @@ export class SemanticWorkspace {
             if (!owner) break;
             unresolvedOwners.add(owner.fqcn);
             const candidate = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
-              .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+              .find((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
             if (!candidate) break;
             owner = this.memberReturnClass(candidate, true);
           }
@@ -12471,7 +12471,7 @@ export class SemanticWorkspace {
       for (const step of steps) {
         if (target.nullable && step.operator !== '?->') { valid = false; break; }
         const namedCandidates = this.members(target.fqcn, accessFrom, new Set(), false, target.typeArguments)
-          .filter((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase() && this.validAccess(item, false));
+          .filter((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name) && this.validAccess(item, false));
         const selected = step.kind === 'method'
           ? this.methodCandidatesForArguments(namedCandidates, step.argumentsText ?? '', true, file, step.argumentsStart) : namedCandidates;
         const member = selected.length === 1 ? this.specializedMagicMethod(file, selected[0]!, step.argumentsStart) : undefined;
@@ -12613,7 +12613,7 @@ export class SemanticWorkspace {
       for (const call of calls) {
         if (target.nullable && call.operator !== '?->') return undefined;
         const namedCandidates: MemberInfo[] = this.members(target.fqcn, accessFrom, new Set(), false, target.typeArguments)
-          .filter((item) => item.kind === call.kind && !item.static && item.name.toLowerCase() === call.name.toLowerCase() && this.validAccess(item, false));
+          .filter((item) => item.kind === call.kind && !item.static && memberNameEquals(item.kind, item.name, call.name) && this.validAccess(item, false));
         const selected: MemberInfo[] = call.kind === 'method'
           ? this.methodCandidatesForArguments(namedCandidates, call.argumentsText ?? '', true, file, call.argumentsStart) : namedCandidates;
         const rawMember: MemberInfo | undefined = selected.length === 1 ? selected[0] : undefined;
@@ -12672,7 +12672,7 @@ export class SemanticWorkspace {
               if (!result) break;
               if (result.nullable && !step.nullsafe) { result = undefined; break; }
               const member: MemberInfo | undefined = this.members(result.fqcn, accessFrom, new Set(), false, result.typeArguments)
-                .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+                .find((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
               const selected: MemberInfo | undefined = member && step.kind === 'method' ? this.memberForArgumentCount(member, step.argumentCount) : member;
               result = selected && this.memberReturnClass(selected, true);
             }
@@ -12700,7 +12700,7 @@ export class SemanticWorkspace {
         const current: ObjectClass = target; if (current.nullable && call.operator !== '?->') return undefined;
         const candidates: MemberInfo[] = groups ? this.targetMembers({ fqcn: current.fqcn, member: call.name, accessFrom, static: false, groups })
           : this.members(current.fqcn, accessFrom, new Set(), false, current.typeArguments).filter((item) => this.validAccess(item, false));
-        const namedCandidates: MemberInfo[] = candidates.filter((item) => item.kind === call.kind && !item.static && item.name.toLowerCase() === call.name.toLowerCase());
+        const namedCandidates: MemberInfo[] = candidates.filter((item) => item.kind === call.kind && !item.static && memberNameEquals(item.kind, item.name, call.name));
         const selected: MemberInfo[] = call.kind === 'method'
           ? this.methodCandidatesForArguments(namedCandidates, call.argumentsText ?? '', true, file, call.argumentsStart) : namedCandidates;
         const rawMember: MemberInfo | undefined = selected.length === 1 ? selected[0] : undefined;
@@ -13748,7 +13748,7 @@ export class SemanticWorkspace {
     if (!target) return undefined;
     for (const [index, property] of propertyPath.entries()) {
       const member = this.members(target.fqcn, scope.containerFqcn, new Set(), false, target.typeArguments)
-        .find((item) => item.kind === 'property' && !item.static && item.name.toLowerCase() === property.toLowerCase());
+        .find((item) => item.kind === 'property' && !item.static && memberNameEquals(item.kind, item.name, property));
       if (!member) return undefined;
       if (index === propertyPath.length - 1) return member;
       const returned = this.memberReturnClass(member, false); if (!returned) return undefined;
@@ -14163,7 +14163,7 @@ export class SemanticWorkspace {
       for (const step of sourceChain.steps) {
         if (target.nullable && !step.nullsafe) return undefined;
         const declaredMember = this.members(target.fqcn, scope.containerFqcn, new Set(), false, target.typeArguments)
-          .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+          .find((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
         const effectiveMember = declaredMember && step.kind === 'method' ? this.memberForArgumentCount(declaredMember, step.argumentCount) : declaredMember;
         const member = effectiveMember && step.kind === 'method' ? this.withInferredGeneratorReturn(effectiveMember) : effectiveMember;
         if (!member) return undefined;
@@ -14189,7 +14189,7 @@ export class SemanticWorkspace {
       const owner = this.variableClass(file, sourceMember.variable, assignment.start, visited, true);
       if (!owner || (owner.nullable && !sourceMember.nullsafe)) return undefined;
       const member = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
-        .find((item) => item.kind === 'property' && !item.static && item.name.toLowerCase() === sourceMember.member.toLowerCase());
+        .find((item) => item.kind === 'property' && !item.static && memberNameEquals(item.kind, item.name, sourceMember.member));
       const assertedProperty = member && this.assertedPropertyClass(file, sourceMember.variable, sourceMember.member, assignment.start, scope);
       if (assertedProperty) return assertedProperty;
       const returned = member && this.memberReturnClass(member, true); if (!returned) return undefined;
@@ -14220,7 +14220,7 @@ export class SemanticWorkspace {
         const iterable = sourceIterable;
         const owner = this.variableClass(file, iterable.variable, assignment.start, visited, true);
         const member = owner && this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
-          .find((item) => item.kind === iterable.memberKind && !item.static && item.name.toLowerCase() === iterable.member.toLowerCase());
+          .find((item) => item.kind === iterable.memberKind && !item.static && memberNameEquals(item.kind, item.name, iterable.member));
         if (member?.iterableValueType) {
           const memberFile = this.files.get(member.uri);
           const memberNamespace = member.typeScopeFqcn.split('\\').slice(0, -1).join('\\');
@@ -17118,7 +17118,7 @@ export class SemanticWorkspace {
         if (compositeNullable && !step.nullsafe) return undefined;
         const first = groups[0]?.[0]; if (!first) return undefined;
         const member = this.targetMembers({ fqcn: first.fqcn, member: step.name, accessFrom: scope.containerFqcn, static: false, groups })
-          .find((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+          .find((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
         if (!member) return undefined;
         if (step.kind === 'method') {
           const required = member.parameters.filter((parameter) => parameter.defaultValue === undefined && !parameter.variadic).length;
@@ -17126,7 +17126,7 @@ export class SemanticWorkspace {
         }
         const signature = this.memberSignature(member);
         const candidates = groups.map((group) => group.flatMap((variant) => this.members(variant.fqcn, scope.containerFqcn, new Set(), false, variant.typeArguments))
-          .filter((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase() && this.memberSignature(item) === signature));
+          .filter((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name) && this.memberSignature(item) === signature));
         if (candidates.some((items) => !items.length)) return undefined;
         if (index === chain.steps.length - 1) {
           const types = candidates.map((items) => {
@@ -17156,7 +17156,7 @@ export class SemanticWorkspace {
     for (const [index, step] of chain.steps.entries()) {
       if (target.nullable && !step.nullsafe) return undefined;
       const namedMembers = this.members(target.fqcn, scope.containerFqcn, new Set(), false, target.typeArguments)
-        .filter((item) => item.kind === step.kind && !item.static && item.name.toLowerCase() === step.name.toLowerCase());
+        .filter((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
       const selected = step.kind === 'method'
         ? this.methodCandidatesForArguments(namedMembers, step.argumentsText ?? '', true, file, step.argumentsStart) : namedMembers;
       const rawMember = selected.length === 1 ? selected[0] : undefined;

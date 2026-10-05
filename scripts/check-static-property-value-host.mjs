@@ -33,6 +33,7 @@ try {
   });
   const match = /Static property value host proof: (\{[^\r\n]*\})/u.exec(output);
   assert.ok(match, 'Successful host exit did not provide the restart proof.');
-  const proof = JSON.parse(match[1]); assert.equal(proof.diskUnchanged, true); assert.equal(proof.results.length, 16); assert.deepEqual(proof.refresh, ['mode', 'other', 'mode']);
+  const proof = JSON.parse(match[1]); assert.equal(proof.diskUnchanged, true); assert.equal(proof.results.length, 20); assert.deepEqual(proof.refresh, ['mode', 'other', 'mode']);
+  assert.equal(proof.retraction.length, 3); assert.ok(proof.retraction.every(result => result.visibleCount === 0));
   if (process.argv[2]) await writeFile(process.argv[2], JSON.stringify(proof, null, 2) + '\n');
 } finally { await rm(scratch, { recursive: true, force: true }); }
