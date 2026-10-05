@@ -19,6 +19,7 @@ export interface ParsedDeclaration extends SourceRange {
   extendsNames: string[];
   implementsNames: string[];
   traitNames: string[];
+  traitUses?: Array<SourceRange & { names: string[] }>;
   attributeNames?: string[];
   attributeMarkers?: Array<{ name: string; arguments?: string }>;
   traitAdaptations: ParsedTraitAdaptation[];
@@ -346,7 +347,14 @@ const FACT_NODE_TYPES = [...DECLARATION_NODE_TYPES, ...STRING_TYPES,
   'anonymous_function', 'arrow_function', 'assignment_expression', 'foreach_statement', 'catch_clause',
   'global_declaration', 'function_static_declaration',
   'while_statement', 'for_statement', 'do_statement', 'if_statement'];
-const PHPDOC_TAG = /@(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|mixin|property(?:-read|-write)?|method)\b(?<body>[^\r\n]*)/gi;
+const PHPDOC_TAG = /@(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|use|mixin|property(?:-read|-write)?|method)\b(?<body>[^\r\n]*)/gi;
+
+function declarationTraitUses(node: SyntaxNode): Array<SourceRange & { names: string[] }> {
+  return node.childForFieldName('body')?.namedChildren.filter(child => child.type === 'use_declaration').map(child => ({
+    start: child.startIndex, end: child.endIndex,
+    names: child.namedChildren.filter(name => name.type === 'name' || name.type === 'qualified_name').map(name => name.text),
+  })) ?? [];
+}
 
 function traitSourceText(node: SyntaxNode, source: string): string {
   let text = source.slice(node.startIndex, node.endIndex);
@@ -1207,6 +1215,7 @@ export class PhpSyntaxParser {
           const range = nodeRange(source, nameNode);
           const declarationNamespace = namespaceAt(node.startIndex);
           const attributeMarkers = declarationAttributeMarkers(node);
+          const traitUses = declarationTraitUses(node);
           declarations.push({
             ...range,
             name: source.slice(range.start, range.end),
@@ -1217,7 +1226,7 @@ export class PhpSyntaxParser {
             declarationEnd: node.endIndex,
             extendsNames: node.namedChildren.find((child) => child.type === 'base_clause')?.namedChildren.map((child) => child.text) ?? [],
             implementsNames: node.namedChildren.find((child) => child.type === 'class_interface_clause')?.namedChildren.map((child) => child.text) ?? [],
-            traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
+            traitNames: traitUses.flatMap(use => use.names), traitUses,
             attributeNames: attributeMarkers.map((item) => item.name),
             attributeMarkers,
             traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(child => traitAdaptations(child, source)) ?? [],
@@ -1229,12 +1238,13 @@ export class PhpSyntaxParser {
         }
       } else if (nodeType === 'anonymous_class') {
         const fqcn = anonymousFqcn(node); const name = fqcn.split('\\').at(-1)!;
+        const traitUses = declarationTraitUses(node);
         declarations.push({
           ...nodeRange(source, node), name, fqcn, kind: 'class', anonymous: true,
           declarationStart: node.startIndex, declarationEnd: node.endIndex,
           extendsNames: node.namedChildren.find((child) => child.type === 'base_clause')?.namedChildren.map((child) => child.text) ?? [],
           implementsNames: node.namedChildren.find((child) => child.type === 'class_interface_clause')?.namedChildren.map((child) => child.text) ?? [],
-          traitNames: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap((child) => child.namedChildren.filter((name) => name.type === 'name' || name.type === 'qualified_name').map((name) => name.text)) ?? [],
+          traitNames: traitUses.flatMap(use => use.names), traitUses,
           traitAdaptations: node.childForFieldName('body')?.namedChildren.filter((child) => child.type === 'use_declaration').flatMap(child => traitAdaptations(child, source)) ?? [],
           readonlyClass: node.namedChildren.some((child) => child.type === 'readonly_modifier'),
           abstractClass: false,

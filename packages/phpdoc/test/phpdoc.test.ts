@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType } from '../src/index.js';
 
 describe('PHPDoc parser', () => {
+  it.each(['use', 'phpstan-use', 'psalm-use'])('parses @%s Trait arguments with source ranges', name => {
+    const source = `/** 🙂\n * @${name} Init<array{T: User, label: 'T'}>\n */`;
+    const doc = parsePhpDoc(source, 25);
+    expect(doc.errors).toEqual([]);
+    expect(doc.tags).toMatchObject([{ name: 'use', dialect: name === 'use' ? 'phpdoc' : name.startsWith('phpstan') ? 'phpstan' : 'psalm', type: { kind: 'generic', base: { name: 'Init' }, arguments: [{ kind: 'shape' }] } }]);
+    const type = doc.tags[0]?.type;
+    expect(type && source.slice(type.start - 25, type.end - 25)).toBe("Init<array{T: User, label: 'T'}>");
+  });
+
   it.each([String.raw`'can\'t'`, String.raw`"say\"hello"`, String.raw`'path\\file'`, "'标题'", "'a=>b'", "''"])(
     'preserves quoted shape key %s, optional marker and nested type ranges', key => {
       const source = `array{${key}?: array{value: string}, last: int}`;

@@ -63,7 +63,7 @@ export interface SemanticDeclarationSnapshot {
   magicMembers: SemanticMagicMember[];
 }
 export interface SemanticSourceDeclarationSnapshot {
-  schema: 3;
+  schema: 4;
   source: string;
   declaration: SemanticDeclarationSnapshot;
 }
@@ -105,7 +105,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 85;
+  schema: 86;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -1010,6 +1010,12 @@ function adjacentPhpDoc(file: Pick<SemanticFile, 'source' | 'commentRanges'>, of
   return {...parsePhpDoc(file.source.slice(range.start, range.end), range.start),start:range.start,end:range.end};
 }
 
+function unsupportedPhpDocAliases(source: string, comments: Array<SourceRange | undefined>): Set<string> {
+  return new Set(comments.flatMap(comment => comment
+    ? [...source.slice(comment.start,comment.end).matchAll(/@(?:phpstan|psalm)-(?:type|import-type)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)([^\r\n]*)/gu)]
+      .map(match => /\bas\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)/u.exec(match[2]!)?.[1] ?? match[1]!) : []));
+}
+
 function specializeTemplateType(value: string | undefined, arguments_: Record<string, string> | undefined): string | undefined {
   if (!value || !arguments_) return value;
   const maxExpandedTypeLength = 8_192;
@@ -1102,7 +1108,16 @@ function semanticTypeSurfaces(file: SemanticFile | undefined): Map<string, strin
       declaration: {
         name: declaration.name, fqcn: declaration.fqcn, kind: declaration.kind,
         extendsNames: declaration.extendsNames, implementsNames: declaration.implementsNames,
-        traitNames: declaration.traitNames, traitAdaptations, readonlyClass: declaration.readonlyClass,
+        traitNames: declaration.traitNames,
+        traitUses: declaration.traitUses?.map(use => {
+          const doc = adjacentPhpDoc(file,use.start);
+          return {names:use.names,validDoc:Boolean(doc && !doc.errors.length),
+            unsupportedAliases:[...unsupportedPhpDocAliases(file.source,[doc,adjacentPhpDoc(file,declaration.declarationStart)])].sort(),
+            annotations:doc?.tags.filter(tag => tag.name === 'use').map(tag => ({
+            dialect:tag.dialect,type:tag.type && JSON.parse(JSON.stringify(tag.type,(key,value) => key === 'start' || key === 'end' ? undefined : value)),
+          }))};
+        }),
+        traitAdaptations, readonlyClass: declaration.readonlyClass,
         abstractClass: declaration.abstractClass,
         finalClass: declaration.finalClass,
         enumBackingType: declaration.enumBackingType,
@@ -1266,6 +1281,15 @@ function validCachedDeclarationContracts(value: unknown): value is ParsedDeclara
     if (!item || typeof item !== 'object') return false;
     const declaration = item as Partial<ParsedDeclaration>;
     return typeof declaration.abstractClass === 'boolean'
+      && (declaration.traitUses === undefined || Array.isArray(declaration.traitUses)
+        && declaration.traitUses.length <= 10_000
+        && declaration.traitUses.every(use => use && typeof use === 'object'
+          && Number.isSafeInteger(use.start) && Number.isSafeInteger(use.end)
+          && use.start >= declaration.declarationStart! && use.start < use.end && use.end <= declaration.declarationEnd!
+          && Array.isArray(use.names) && use.names.length > 0 && use.names.length <= 10_000
+          && use.names.every(name => typeof name === 'string' && name.length > 0 && name.length <= 1_024))
+        && Array.isArray(declaration.traitNames)
+        && JSON.stringify(declaration.traitUses.flatMap(use => use.names)) === JSON.stringify(declaration.traitNames))
       && Array.isArray(declaration.traitAdaptations)
       && declaration.traitAdaptations.every((adaptation) => adaptation && typeof adaptation === 'object'
         && (adaptation.kind === 'precedence' || adaptation.kind === 'alias' && typeof adaptation.final === 'boolean'));
@@ -2450,7 +2474,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 85,
+      schema: 86,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -2462,12 +2486,12 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, true); }
   sourceDeclarationSnapshot(uri: string): SemanticSourceDeclarationSnapshot | undefined {
     const file = this.files.get(uri);
-    return file ? { schema: 3, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
+    return file ? { schema: 4, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
   }
   restoreSourceDeclaration(snapshot: unknown, expectedUri?: string): boolean {
     const value = snapshot as Partial<SemanticSourceDeclarationSnapshot> | null;
     const declaration = value?.declaration;
-    if (value?.schema !== 3 || typeof value.source !== 'string' || !declaration
+    if (value?.schema !== 4 || typeof value.source !== 'string' || !declaration
       || typeof declaration.uri !== 'string' || typeof declaration.namespace !== 'string'
       || expectedUri !== undefined && declaration.uri !== expectedUri
       || ![declaration.declarations, declaration.callables, declaration.properties, declaration.constants,
@@ -2476,7 +2500,7 @@ export class SemanticWorkspace {
     try {
       const file = semanticFileSnapshot(declaration, { uri: declaration.uri, source: value.source, file: emptyImplementationFacts(), callables: [] });
       const prepared: SemanticSnapshot = {
-        schema: 85, declaration, implementation: implementationSnapshot(file),
+        schema: 86, declaration, implementation: implementationSnapshot(file),
         layers: { referenceCandidates: { indexed: false, keys: [] }, typeDependencies: { indexed: false, nodes: [] } },
       };
       if (!this.restore(prepared, expectedUri)) return false;
@@ -2568,7 +2592,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 85 || !declaration || !implementation
+    if (value?.schema !== 86 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -2628,7 +2652,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 85 || !declaration || !implementation
+    if (value?.schema !== 86 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -11878,8 +11902,13 @@ export class SemanticWorkspace {
       && this.resolveSourceType(file,relation.parentName,namespace,scope,declaration.start)?.toLowerCase() === parent.toLowerCase());
     if (relations.length !== 1) return {};
     const relation = relations[0]!;
+    return this.provenConstructorTemplateArguments(file,scope,parent,relation.arguments,declaration.start,templateArguments);
+  }
+
+  private provenConstructorTemplateArguments(file: SemanticFile, scope: string, parent: string,
+    argumentSources: string[], offset: number, templateArguments?: Record<string,string>): Record<string,string> {
     const templateNames = new Set(file.templates.filter(template => template.ownerFqcn.toLowerCase() === scope.toLowerCase()).map(template => template.name));
-    const arguments_ = relation.arguments.map(argument => this.bindConstructorType(file,argument,scope,declaration.start,
+    const arguments_ = argumentSources.map(argument => this.bindConstructorType(file,argument,scope,offset,
       templateArguments ?? {},templateNames,new Set(),true));
     if (arguments_.some(argument => argument === undefined)) return {};
     const parentOwner = this.fileAndDeclaration(parent); if (!parentOwner) return {};
@@ -11904,6 +11933,27 @@ export class SemanticWorkspace {
     return mapping;
   }
 
+  private traitUseArguments(owner: {file: SemanticFile; declaration: ParsedDeclaration}, trait: string,
+    templateArguments?: Record<string,string>): Record<string,string> {
+    const {file,declaration} = owner, scope = declaration.fqcn;
+    const uses = declaration.traitUses?.filter(use => use.names.some(name =>
+      this.resolveSourceType(file,name,this.namespaceAt(file,use.start),scope,use.start)?.toLowerCase() === trait.toLowerCase())) ?? [];
+    if (uses.length !== 1) return {};
+    const use = uses[0]!, doc = adjacentPhpDoc(file,use.start);
+    if (!doc || doc.errors.length) return {};
+    const matching = doc.tags.filter(tag => tag.name === 'use' && tag.type?.kind === 'generic'
+      && tag.type.base.kind === 'name' && this.resolveSourceType(file,tag.type.base.name,
+        this.namespaceAt(file,use.start),scope,use.start)?.toLowerCase() === trait.toLowerCase());
+    const priority = Math.max(-1,...matching.map(tag => tag.dialect === 'phpdoc' ? 0 : 1));
+    const preferred = matching.filter(tag => (tag.dialect === 'phpdoc' ? 0 : 1) === priority);
+    const unique = [...new Map(preferred.map(tag => [JSON.stringify(tag.type,(key,value) => key === 'start' || key === 'end' ? undefined : value),tag])).values()];
+    if (unique.length !== 1 || unique[0]!.type?.kind !== 'generic') return {};
+    const arguments_ = unique[0]!.type.arguments.map(argument => file.source.slice(argument.start,argument.end));
+    const aliases = unsupportedPhpDocAliases(file.source,[doc,adjacentPhpDoc(file,declaration.declarationStart)]);
+    if (arguments_.some(argument => bindPhpDocTypeNames(argument,name => aliases.has(name) ? undefined : name) === undefined)) return {};
+    return this.provenConstructorTemplateArguments(file,scope,trait,arguments_,use.start,templateArguments);
+  }
+
   private constructorsFor(fqcn: string, visited = new Set<string>(), templateArguments?: Record<string, string>): Array<{ file: SemanticFile; callable: ParsedCallableDeclaration; typeScopeFqcn?: string; callableTemplates?: SemanticTemplate[]; documentedConstructorParameters?: boolean }> {
     const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return []; visited.add(key);
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
@@ -11916,7 +11966,7 @@ export class SemanticWorkspace {
       const entries: Array<{trait:string;member:MemberInfo}> = [];
       for (const name of owner.declaration.traitNames) {
         const trait = this.resolveSourceType(owner.file,name,namespace,fqcn);
-        const methods = trait && this.traitConstructorMethods(trait,new Set(visited));
+        const methods = trait && this.traitConstructorMethods(trait,new Set(visited),this.traitUseArguments(owner,trait,templateArguments));
         if (!trait || !methods) return [];
         entries.push(...methods.map(member=>({trait,member:{...member,typeScopeFqcn:fqcn,calledOnFqcn:fqcn}})));
       }
@@ -11939,14 +11989,18 @@ export class SemanticWorkspace {
           .map(template=>template.name));
         const declaration = file.declarations.find(item=>item.fqcn.toLowerCase()===callable.containerFqcn?.toLowerCase());
         const ownerDoc = declaration && adjacentPhpDoc(file,declaration.declarationStart);
-        const unsupportedAliases = new Set([doc,ownerDoc].flatMap(comment=>comment
-          ? [...file.source.slice(comment.start,comment.end).matchAll(/@(?:phpstan|psalm)-(?:type|import-type)\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)([^\r\n]*)/gu)]
-            .map(match=>/\bas\s+([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)/u.exec(match[2]!)?.[1] ?? match[1]!) : []));
+        const unsupportedAliases = unsupportedPhpDocAliases(file.source,[doc,ownerDoc]);
         const bindDocumented = (text: string | undefined, offset: number): string | undefined => {
           if (!text || doc?.errors.length) return undefined;
           const namespace = this.namespaceAt(file,offset);
           return bindPhpDocTypeNames(text,(name,role)=>{
-            if (unsupportedAliases.has(name) || templateNames.has(name) && !methodTemplateNames.has(name)) return undefined;
+            if (unsupportedAliases.has(name)) return undefined;
+            if (templateNames.has(name) && !methodTemplateNames.has(name)) {
+              const argument = member.templateArguments?.[name]; if (!argument) return undefined;
+              const parsed = parsePhpDocType(argument);
+              if (!parsed.type || parsed.errors.length || argument.slice(parsed.consumed).trim()) return undefined;
+              return ['union','intersection','conditional'].includes(parsed.type.kind) ? `(${argument})` : argument;
+            }
             const lower=name.toLowerCase();
             const primitiveNames = ['int','float','string','bool','array','object','callable','iterable','resource','mixed','void','never','null','true','false'];
             if (templateNames.has(name) || primitiveNames.includes(lower) || this.phpDocRuntimeUpperBound(name)
@@ -11986,7 +12040,7 @@ export class SemanticWorkspace {
           return {...parameter,nativeType,type};
         });
         return [{file,callable:{...callable,parameters,name:'__construct',visibility:member.visibility,finalMethod:member.final},
-          typeScopeFqcn:fqcn,callableTemplates}];
+          typeScopeFqcn:fqcn,callableTemplates,documentedConstructorParameters:Boolean(member.templateArguments && Object.keys(member.templateArguments).length)}];
       }
     }
     // Some PHP 7 internal APIs expose their legacy, global class-name
@@ -17876,7 +17930,7 @@ export class SemanticWorkspace {
 
   /** Raw concrete Trait methods, before general member deduplication. Conflicting
    * constructors must not be resolved by the order of `use` declarations. */
-  private traitConstructorMethods(fqcn: string, visited = new Set<string>()): MemberInfo[] | undefined {
+  private traitConstructorMethods(fqcn: string, visited = new Set<string>(), templateArguments?: Record<string,string>): MemberInfo[] | undefined {
     const key = fqcn.toLowerCase();
     if (visited.has(key) || visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return undefined;
     visited.add(key);
@@ -17888,12 +17942,12 @@ export class SemanticWorkspace {
       && !file.source.slice(item.declarationStart,item.declarationEnd).trimEnd().endsWith(';'))
       .map(item => ({kind:'method', uri:file.uri, start:item.start, end:item.end, name:item.name, fqcn:item.fqcn,
         parameters:item.parameters, visibility:item.visibility, static:item.static, final:item.finalMethod,
-        typeScopeFqcn:fqcn, calledOnFqcn:fqcn}));
+        typeScopeFqcn:fqcn, calledOnFqcn:fqcn, templateArguments}));
     const namespace = fqcn.split('\\').slice(0,-1).join('\\');
     const entries: Array<{trait:string; member:MemberInfo}> = [];
     for (const name of declaration.traitNames) {
       const trait = this.resolveSourceType(file, name, namespace, fqcn);
-      const methods = trait && this.traitConstructorMethods(trait, new Set(visited));
+      const methods = trait && this.traitConstructorMethods(trait, new Set(visited), this.traitUseArguments({file,declaration},trait,templateArguments));
       if (!trait || !methods) return undefined;
       entries.push(...methods.map(member => ({trait,member:{...member,typeScopeFqcn:fqcn,calledOnFqcn:fqcn}})));
     }
@@ -17922,7 +17976,19 @@ export class SemanticWorkspace {
       if (accessFrom?.toLowerCase() === key) return true;
       return item.visibility === 'protected' && accessFrom !== undefined && (protectedVisible ??= this.memberVisibilityAllowed('protected', fqcn, accessFrom));
     };
-    const specializedReturn = (value: string | undefined): string | undefined => specializeTemplateType(value, templateArguments);
+    const specializedReturn = (value: string | undefined, callableScope?: string): string | undefined => {
+      if (declaration.kind !== 'trait' || !templateArguments || !Object.keys(templateArguments).length) return specializeTemplateType(value,templateArguments);
+      if (!value) return value;
+      if (value.length > 8_192 || Object.values(templateArguments).some(argument => argument.length > 8_192)) return undefined;
+      const methodTemplates = new Set(ownerFile.templates.filter(template => template.ownerFqcn.toLowerCase() === callableScope?.toLowerCase()).map(template => template.name));
+      return bindPhpDocTypeNames(value,name => {
+        if (methodTemplates.has(name)) return name;
+        const argument = templateArguments[name]; if (!argument) return name;
+        const parsed = parsePhpDocType(argument);
+        if (!parsed.type || parsed.errors.length || argument.slice(parsed.consumed).trim()) return undefined;
+        return ['union','intersection','conditional'].includes(parsed.type.kind) ? `(${argument})` : argument;
+      });
+    };
     const magicMembers: MemberInfo[] = ownerFile.magicMembers.filter((item) => item.ownerFqcn.toLowerCase() === key)
       .map((item) => ({ kind: item.kind, uri: ownerFile.uri, start: item.start, end: item.end, name: item.name,
         fqcn: item.kind === 'property' ? `${fqcn}::$${item.name}` : `${fqcn}::${item.name}`,
@@ -17932,10 +17998,11 @@ export class SemanticWorkspace {
         typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments, callableTemplates: item.templates, synthetic: 'phpdoc-magic' }));
     const methods: MemberInfo[] = ownerFile.callables.filter((item) => item.containerFqcn?.toLowerCase() === key && (declarationCheck || !['__construct', '__destruct'].includes(item.name.toLowerCase()))).filter(visible)
       .map((item) => ({ kind: 'method', uri: ownerFile.uri, start: item.start, end: item.end, name: item.name, fqcn: item.fqcn,
-        parameters: item.parameters.map((parameter) => ({ ...parameter, type: specializedReturn(parameter.type) })), returnType: specializedReturn(item.returnType), nativeReturnType: specializedReturn(item.nativeReturnType),
+        parameters: item.parameters.map((parameter) => ({ ...parameter, type: declaration.kind === 'trait' && parameter.type === parameter.nativeType ? parameter.type : specializedReturn(parameter.type,item.fqcn) })),
+        returnType: declaration.kind === 'trait' && item.returnType === item.nativeReturnType ? item.returnType : specializedReturn(item.returnType,item.fqcn), nativeReturnType: declaration.kind === 'trait' ? item.nativeReturnType : specializedReturn(item.nativeReturnType),
         visibility: item.visibility, static: item.static, final: item.finalMethod,
         typeScopeFqcn: fqcn, calledOnFqcn: fqcn, templateArguments,
-        callableTemplates: ownerFile.templates.filter((template) => template.ownerFqcn.toLowerCase() === item.fqcn.toLowerCase()) }));
+        callableTemplates: ownerFile.templates.filter((template) => template.ownerFqcn.toLowerCase() === item.fqcn.toLowerCase()).map(template => ({...template,bound:declaration.kind === 'trait' ? specializedReturn(template.bound,item.fqcn) : template.bound})) }));
     const externalMethodFacts = [...this.externalFacts.values()].flatMap((contribution) => contribution.methods)
       .filter((item) => item.ownerFqcn.toLowerCase() === key
         && (item.receiverTypeTemplates === undefined || item.receiverTypeTemplates.every((template) => templateArguments?.[template] !== undefined)));
@@ -17995,7 +18062,7 @@ export class SemanticWorkspace {
     const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
     const allTraitEntries = declaration.traitNames.flatMap((name) => {
       const trait = this.resolveSourceType(ownerFile, name, namespace);
-      return trait ? this.members(trait, trait, new Set(visited), includeInvisible, undefined, declarationCheck).map((member) => ({ trait, member: { ...member, typeScopeFqcn: fqcn, calledOnFqcn: fqcn } })) : [];
+      return trait ? this.members(trait, trait, new Set(visited), includeInvisible, this.traitUseArguments({file:ownerFile,declaration},trait,templateArguments), declarationCheck).map((member) => ({ trait, member: { ...member, typeScopeFqcn: fqcn, calledOnFqcn: fqcn } })) : [];
     });
     const traitEntries = this.composeTraitEntries(ownerFile, declaration, allTraitEntries);
     const traits = traitEntries.map(({ member }) => member).filter(visible);

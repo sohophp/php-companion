@@ -216,3 +216,7 @@ D44 与 readonly 负向试验材料作为本地源码里程碑收口（feat(core
 ## D101 当前完整补全组合
 
 [完整 LSP 记录](reports/core-b95c-full-regression-2026-10-05.md)：当前产品 `b95c5b75` 一次完整 71 文件／924 项通过，3025 输入、六实际 CLI、采集／结果名称及数量保持，32 次跨进程引用和四组原 150 ms 固定文档热门槛通过。D96–D100 的完整组合资格收口；普通 PHP 7.2 编辑仍为 155.06 ms，平台／规模／长会话与真人继续开放。下一批 Trait @use 已有真实缺口、独立分类与临时原型，须在写入源码后重新取得当前产品证据；原限定 Trait precedence 解析缺口保留，不宣称原型完成。仅本地文档收口，不更新 Profile。
+
+## D102 Trait 使用泛型合同
+
+[本轮记录](reports/completion-trait-use-generics-2026-10-05.md)：实际 Trait `@use` 子句、嵌套映射、AST 类型名替换及缓存合同 86／4 已写入源码；完整语义 2689、定向 LSP 73、两版 16 次最终可见接受与实际 CLI 通过，324 输入摘要保持。onDemand 外部 Trait 构造诊断证明、fully qualified precedence 语法仍开放，记录原失败；D101 的完整 924 项不转移到改变后的源码。普通 PHP 7.2 编辑仍超 150 ms，真人／平台／规模／长会话继续开放。本地源码收口，不打包或更新 Profile，goal active。

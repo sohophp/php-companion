@@ -405,6 +405,26 @@ class Child extends ParentBase implements Contract {
     result.tree.delete();
   });
 
+
+  it('keeps separate Trait use contracts and ranges across incremental changes', () => {
+    const source = '<?php namespace Consumer; use Origin\\Init as Selected; class C {/** @use Selected<int> */ use Selected; use Other {run as boot;} public function f(){ $x=new class {/** @use Selected<string> */ use Selected;}; }}';
+    const uri = 'file:///TraitContracts.php';
+    const parsed = parser.parse(source, undefined, uri);
+    try {
+      expect(parsed.errors).toEqual([]);
+      const uses = parsed.declarations.find(item => item.fqcn === 'Consumer\\C')!.traitUses!;
+      expect(uses.map(use => source.slice(use.start, use.end))).toEqual(['use Selected;', 'use Other {run as boot;}']);
+      expect(parsed.declarations.find(item => item.anonymous)?.traitUses?.map(use => use.names)).toEqual([['Selected']]);
+      const next = source.replace('use Selected;', 'use OtherOne;');
+      parsed.tree.edit(createIncrementalEdit(source, next));
+      const edited = parser.parse(next, parsed.tree, uri);
+      try {
+        expect(edited.declarations.find(item => item.fqcn === 'Consumer\\C')?.traitUses?.map(use => next.slice(use.start, use.end))).toEqual(['use OtherOne;', 'use Other {run as boot;}']);
+        expect(edited.declarations.find(item => item.anonymous)?.traitUses?.map(use => use.names)).toEqual([['Selected']]);
+      } finally { edited.tree.delete(); }
+    } finally { parsed.tree.delete(); }
+  });
+
   it('extracts trait precedence, aliases and visibility adaptations', () => {
     const result = parser.parse('<?php class C { use A, B { A::run insteadof B; B::run as protected otherRun; A::hidden as public exposed; } }');
     expect(result.declarations[0]).toMatchObject({ traitNames: ['A', 'B'], traitAdaptations: [

@@ -1,0 +1,575 @@
+{
+  "milestone": "D102 Trait @use generic contracts",
+  "createdAtUtc": "2026-10-05T09:17:07.615676+00:00",
+  "baseCommit": "33aefe24989ef86c9536c233619044555fa852a0",
+  "semanticSchema": 86,
+  "sourceDeclarationSchema": 4,
+  "sourceAndBundleSha256": {
+    "packages/parser/src/index.ts": "20d2348d04f0e3ec68a7ffc32066cffb9c095eb7a11883a913da658ac5a4367c",
+    "packages/phpdoc/src/index.ts": "3bcb4611faac225b677e4579f65f0b5e97049ffe7b912fdeab11c78e234a7848",
+    "packages/semantic/src/index.ts": "85d75f1d82f4b2d19459595894f3ff0a9475bca1a12635fb3ba5ffe5a7050e4a",
+    "packages/language-server/src/projectFacts.ts": "f6d755ce3f00998e7b493a89faa11db55862f4c947e63ab89e374621ecfe8fcf",
+    "packages/semantic/test/trait-use-generics.test.ts": "4319856f8082aff9de21642d692af1dcacf01bc4c6df0f0352fbe10fdae2ec5e",
+    "packages/language-server/test/trait-use-generics-stdio.test.ts": "598042d0190c9e6b1bec6d64c233bfa2d8cce7bfc48467b4fc60f6aca0841dd2",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "2265fb1b4e9882bb61cf189985c70fe7bcd4d7126ce35dd342ff9561d5de0e2e",
+    "dist/extension.js": "78cf4eda8a136f29538330ec5ad4154bb56d7f7457d9175df286321020ab9823",
+    "dist/language-server.js": "687778db8125afcb873d802de871baca8e5803e534736e377550daf969949d7e"
+  },
+  "frozenInputs": {
+    "count": 324,
+    "unchanged": true,
+    "manifest": "/tmp/sophp-d102-qualified-inputs.json",
+    "manifestSha256": "9020d4bdbc0b09fcb9b0ed1a9cbad66d71aeb8196a3856e62e905571f6b06425"
+  },
+  "semantic": {
+    "files": 116,
+    "total": 2689,
+    "passed": 2689,
+    "failed": 0,
+    "pending": 0
+  },
+  "lsp": {
+    "files": 7,
+    "total": 73,
+    "passed": 73,
+    "failed": 0,
+    "pending": 0
+  },
+  "lspFiles": [
+    {
+      "name": "analysis.test.ts",
+      "tests": 48
+    },
+    {
+      "name": "candidate-worker-project-facts.test.ts",
+      "tests": 1
+    },
+    {
+      "name": "inherited-constructor-generics-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "name": "project-facts.test.ts",
+      "tests": 4
+    },
+    {
+      "name": "trait-construction-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "name": "trait-constructor-phpdoc-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "name": "trait-use-generics-stdio.test.ts",
+      "tests": 6
+    }
+  ],
+  "newLspServers": 6,
+  "newLspStatesPerServer": 42,
+  "parserTests": 124,
+  "phpdocTests": 24,
+  "hosts": {
+    "7.2": {
+      "platform": "linux",
+      "context": "trait-use-generics-7.2",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 229,
+          "visibleLabels": [
+            "$offerZ",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} class C {/** @use \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ use \\OriginGate0Enter\\Box;} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 350,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 133,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate0Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} class C {/** @use \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ use \\OriginGate0Tab\\Box;} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 338,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 186,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ trait Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} class C {/** @use \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ use \\OriginGate1Enter\\Box;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 426,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 142,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ trait Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} class C {/** @use \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ use \\OriginGate1Tab\\Box;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 414,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 127,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ trait Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} class C {/** @use \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ use \\OriginGate2Enter\\Box;} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 468,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 150,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ trait Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} class C {/** @use \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ use \\OriginGate2Tab\\Box;} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 456,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 119,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Enter\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} /** @template U */ trait Middle {/** @use Box<U> */ use Box;} namespace ConsumerGate3Enter; class User {} class C {/** @use \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ use \\OriginGate3Enter\\Middle;} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 418,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 150,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} /** @template U */ trait Middle {/** @use Box<U> */ use Box;} namespace ConsumerGate3Tab; class User {} class C {/** @use \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ use \\OriginGate3Tab\\Middle;} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 406,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "8.5": {
+      "platform": "linux",
+      "context": "trait-use-generics-8.5",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 221,
+          "visibleLabels": [
+            "$offerZ",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Enter; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} class C {/** @use \\OriginGate0Enter\\Box<\\OriginGate0Enter\\User> */ use \\OriginGate0Enter\\Box;} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 350,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 130,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate0Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate0Tab; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} class C {/** @use \\OriginGate0Tab\\Box<\\OriginGate0Tab\\User> */ use \\OriginGate0Tab\\Box;} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 338,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 175,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Enter; class User {} /** @template T */ trait Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} class C {/** @use \\OriginGate1Enter\\Box<\\OriginGate1Enter\\User> */ use \\OriginGate1Enter\\Box;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 426,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 153,
+          "visibleLabels": [
+            "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate1Tab; class User {} /** @template T */ trait Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} class C {/** @use \\OriginGate1Tab\\Box<\\OriginGate1Tab\\User> */ use \\OriginGate1Tab\\Box;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 414,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 183,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Enter\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Enter; class User {} /** @template T */ trait Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} class C {/** @use \\OriginGate2Enter\\Box<\\OriginGate2Enter\\User> */ use \\OriginGate2Enter\\Box;} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Enter\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 468,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 122,
+          "visibleLabels": [
+            "$offerZ$offerZ: array{T: OriginGate2Tab\\User, label: 'T'}",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate2Tab; class User {} /** @template T */ trait Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} class C {/** @use \\OriginGate2Tab\\Box<\\OriginGate2Tab\\User> */ use \\OriginGate2Tab\\Box;} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\OriginGate2Tab\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offerZ);}",
+          "caretOffset": 456,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 118,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Enter\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Enter; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} /** @template U */ trait Middle {/** @use Box<U> */ use Box;} namespace ConsumerGate3Enter; class User {} class C {/** @use \\OriginGate3Enter\\Middle<\\OriginGate3Enter\\User> */ use \\OriginGate3Enter\\Middle;} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 418,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 147,
+          "visibleLabels": [
+            "$offerZ$offerZ: OriginGate3Tab\\User",
+            "$offerA"
+          ],
+          "acceptedText": "<?php namespace OriginGate3Tab; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} /** @template U */ trait Middle {/** @use Box<U> */ use Box;} namespace ConsumerGate3Tab; class User {} class C {/** @use \\OriginGate3Tab\\Middle<\\OriginGate3Tab\\User> */ use \\OriginGate3Tab\\Middle;} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){new C($offerZ);}",
+          "caretOffset": 406,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  },
+  "visibleRangeMs": [
+    118,
+    229
+  ],
+  "native": {
+    "rows": [
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 0,
+        "key": "Enter",
+        "sourceSha256": "f9bb60d16a48a2bbe6f5399833133af97520909f3d8ae9354a8c65430d8202f9",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 1,
+        "key": "Tab",
+        "sourceSha256": "1f71db73ef2c213f4888d56ab80be13d99ad611416c3e4c25fd05001ab417f80",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 2,
+        "key": "Enter",
+        "sourceSha256": "5b5db6bd213729cf8f47dad1cb8309fd7ea1dae23f1b91585a6ed49f38265b62",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 3,
+        "key": "Tab",
+        "sourceSha256": "b234023af050103734e3262bb8979b1057354678f2bc0d5b3190f8c79b824fbb",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 4,
+        "key": "Enter",
+        "sourceSha256": "913a614b44acfa4cb43cf37d4be1661b4f5de556a15b73959ec4706baee28eb2",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 5,
+        "key": "Tab",
+        "sourceSha256": "78e43335bc8cc2e087d132fb750a9a0a7f219d5b4e350823678a23bc0c439f82",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 6,
+        "key": "Enter",
+        "sourceSha256": "1c9347b7c5dccf213672c2e6249683941e6f08832ae20e912d9ee4d9de03eca3",
+        "exitCode": 0
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 7,
+        "key": "Tab",
+        "sourceSha256": "8431dd9bbb61a946b0449c44ae234bcd685dd116bfc910d721293f04dbc38e06",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 0,
+        "key": "Enter",
+        "sourceSha256": "f9bb60d16a48a2bbe6f5399833133af97520909f3d8ae9354a8c65430d8202f9",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 1,
+        "key": "Tab",
+        "sourceSha256": "1f71db73ef2c213f4888d56ab80be13d99ad611416c3e4c25fd05001ab417f80",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 2,
+        "key": "Enter",
+        "sourceSha256": "5b5db6bd213729cf8f47dad1cb8309fd7ea1dae23f1b91585a6ed49f38265b62",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 3,
+        "key": "Tab",
+        "sourceSha256": "b234023af050103734e3262bb8979b1057354678f2bc0d5b3190f8c79b824fbb",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 4,
+        "key": "Enter",
+        "sourceSha256": "913a614b44acfa4cb43cf37d4be1661b4f5de556a15b73959ec4706baee28eb2",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 5,
+        "key": "Tab",
+        "sourceSha256": "78e43335bc8cc2e087d132fb750a9a0a7f219d5b4e350823678a23bc0c439f82",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 6,
+        "key": "Enter",
+        "sourceSha256": "1c9347b7c5dccf213672c2e6249683941e6f08832ae20e912d9ee4d9de03eca3",
+        "exitCode": 0
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 7,
+        "key": "Tab",
+        "sourceSha256": "8431dd9bbb61a946b0449c44ae234bcd685dd116bfc910d721293f04dbc38e06",
+        "exitCode": 0
+      }
+    ],
+    "passed": true
+  },
+  "referenceComparison": {
+    "calls": 8,
+    "matched": true,
+    "sourceSha256": "6f17a00fd02d05d5cfa3ad53dfd7b2b54148a811e19d22ca5a543f7dbae11408",
+    "referenceExitCode": 1,
+    "artifact": "/tmp/sophp-d102-reference-comparison.json"
+  },
+  "retainedFailures": [
+    {
+      "artifact": "/tmp/sophp-d102-lsp-final.json",
+      "summary": {
+        "files": 6,
+        "total": 25,
+        "passed": 22,
+        "failed": 3,
+        "pending": 0
+      },
+      "failures": [
+        {
+          "name": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+          "messages": [
+            "AssertionError: expected false to be true // Object.is equality\n    at query (/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:53:80)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:116:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 8.1 (onDemand)",
+          "messages": [
+            "AssertionError: expected false to be true // Object.is equality\n    at query (/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:53:80)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:116:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+          "messages": [
+            "AssertionError: expected false to be true // Object.is equality\n    at query (/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:53:80)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:116:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    },
+    {
+      "artifact": "/tmp/sophp-d102-lsp-crossfile.json",
+      "summary": {
+        "files": 1,
+        "total": 6,
+        "passed": 3,
+        "failed": 3,
+        "pending": 0
+      },
+      "failures": [
+        {
+          "name": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+          "messages": [
+            "AssertionError: <?php namespace Consumer; class C {/** @use \\Origin\\Init<\\Origin\\User> */ use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:63:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:117:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 8.1 (onDemand)",
+          "messages": [
+            "AssertionError: <?php namespace Consumer; class C {/** @use \\Origin\\Init<\\Origin\\User> */ use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:63:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:117:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+          "messages": [
+            "AssertionError: <?php namespace Consumer; class C {/** @use \\Origin\\Init<\\Origin\\User> */ use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:63:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts:117:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "On-demand external Trait-origin constructor diagnostics remain withheld by existing canonical-class method proof; signatures work in both modes.",
+    "Qualified Trait precedence grammar gap is pre-existing; parser errors and PHP 8.5 lint evidence retained.",
+    "D101 full 924-case qualification belongs to b95c5b75, not this changed source.",
+    "Ordinary PHP 7.2 edit P95 remains last measured 155.06 ms above 150 ms; not remeasured.",
+    "Isolated Linux preloaded explicit suggestions are not natural typing or real WSL acceptance."
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "goal": "active"
+}
