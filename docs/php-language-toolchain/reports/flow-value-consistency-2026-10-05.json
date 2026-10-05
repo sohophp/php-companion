@@ -1,0 +1,552 @@
+{
+  "milestone": "D84",
+  "date": "2026-10-05",
+  "scope": "Stable named-call effects shared by completion, Hover and strict argument diagnostics; existing dynamic Callable binding proof remains separate",
+  "inputsSha256": {
+    "packages/semantic/src/index.ts": "6d232871145ca0c3041ab646b66025199f62f4094050f58660c5e76ebd300be8",
+    "packages/semantic/dist/index.js": "379c320c34148925f84f10fa2379d26daa0e164f8d4f7cce81c4f06e1235483e",
+    "packages/semantic/test/flow-value-consistency.test.ts": "bb6b55d02ba0b5d945431715dd0da3a721adf1784afc03a593739b4c1a3438be",
+    "packages/language-server/test/flow-value-completion-stdio.test.ts": "02337458caab5c6f01842f8aec4910b9a1025d4d3f3a6971627f9446c9ad8f5a",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "a8c5247993ac7ba8ca2e460d9e4d7903d43a10173dfec3b080cc52cb0e93a819",
+    "dist/language-server.js": "3e6945a95aa8101b87096a26e216d2d9c65bd2be08a8ab4c6844714ad7009218"
+  },
+  "logs": {
+    "consistency-baseline": {
+      "path": "/tmp/sophp-d84-consistency-baseline.log",
+      "sha256": "d415d148a2b56e37655b30056153c0a9f68ebbb350232ffa78cb65a281476e0b"
+    },
+    "semantic-full": {
+      "path": "/tmp/sophp-d84-semantic-full.log",
+      "sha256": "3719247c77d5465456f44926dae6326a7495d9890344e007ee4cc5c48e3ca6a7"
+    },
+    "correction": {
+      "path": "/tmp/sophp-d84-correction.log",
+      "sha256": "bc245956beef96a00324ecb2a879e697bb5b5aaa695557da668b3deaef73e8df"
+    },
+    "closure-correction": {
+      "path": "/tmp/sophp-d84-closure-correction.log",
+      "sha256": "5357a4b54984a0210b482dcacb9670359e385eee190e05d94e58cc3413d4c274"
+    },
+    "semantic-final": {
+      "path": "/tmp/sophp-d84-semantic-final.log",
+      "sha256": "1abdacf1d6faaae90e1c87677154f04433926cef958dba6c308500908d049397"
+    },
+    "protocol-final": {
+      "path": "/tmp/sophp-d84-protocol-final.log",
+      "sha256": "0b2b238bc38720323af3865372195da136f7a3ac8631540b7d61cf46a577b0e4"
+    },
+    "host": {
+      "path": "/tmp/sophp-d84-host.log",
+      "sha256": "c04c5707d4d2fb7f1a1b63d45c95a3177143278b890c34992f52add43eee9ed6"
+    },
+    "build-semantic": {
+      "path": "/tmp/sophp-d84-build-semantic.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    "build-server": {
+      "path": "/tmp/sophp-d84-build-server.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    "build-production": {
+      "path": "/tmp/sophp-d84-build-production.log",
+      "sha256": "1c2e376a7ffdd28c562a05c328ec681249a359484ecc444c37efe6f72e854f2f"
+    },
+    "eslint-final": {
+      "path": "/tmp/sophp-d84-eslint-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "extension-typecheck": {
+      "path": "/tmp/sophp-d84-extension-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "semantic": {
+    "newTests": 22,
+    "baseline": {
+      "failed": 4,
+      "passed": 8
+    },
+    "firstFull": {
+      "files": 105,
+      "failed": 6,
+      "passed": 2308
+    },
+    "intermediateRelated": {
+      "failed": 1,
+      "passed": 538
+    },
+    "final": {
+      "files": 105,
+      "passed": 2314,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 137.29
+    },
+    "command": "pnpm --filter @php-companion/semantic exec vitest run --maxWorkers=2 --reporter=default --reporter=json --outputFile=/tmp/sophp-d84-semantic-final.json"
+  },
+  "stdio": {
+    "files": 2,
+    "tests": 6,
+    "newVersions": [
+      {
+        "phpVersion": "7.2",
+        "edits": 9
+      },
+      {
+        "phpVersion": "8.5",
+        "edits": 10
+      }
+    ],
+    "completionQueries": 85,
+    "resolveQueries": 71,
+    "hoverQueries": 19,
+    "diagnosticVersions": 19,
+    "staleResolveQueries": 2,
+    "command": "pnpm --filter @php-companion/language-server exec vitest run test/flow-value-completion-stdio.test.ts test/reassigned-parameter-completion-stdio.test.ts"
+  },
+  "host": {
+    "platform": "linux",
+    "context": "control-flow-variable-values",
+    "results": [
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 234,
+        "visibleLabels": [
+          "$offerA$offerA: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate0Enter; function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offerA);}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": "string",
+          "checked": true
+        },
+        "caretOffset": 152,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 136,
+        "visibleLabels": [
+          "$offerA$offerA: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate0Tab; function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offerA);}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": "string",
+          "checked": true
+        },
+        "caretOffset": 150,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 137,
+        "visibleLabels": [
+          "$offerA$offerA: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate1Enter; function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offerA);}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": "string",
+          "checked": true
+        },
+        "caretOffset": 148,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 188,
+        "visibleLabels": [
+          "$offerA$offerA: string",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate1Tab; function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offerA);}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": "string",
+          "checked": true
+        },
+        "caretOffset": 146,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Enter",
+        "visibleMs": 203,
+        "visibleLabels": [
+          "$offerA$offerA: true",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate2Enter; function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offerA);}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": "true",
+          "checked": true
+        },
+        "caretOffset": 144,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerA",
+        "key": "Tab",
+        "visibleMs": 145,
+        "visibleLabels": [
+          "$offerA$offerA: true",
+          "$offerZ"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate2Tab; function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offerA);}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": "true",
+          "checked": true
+        },
+        "caretOffset": 142,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerZ",
+        "key": "Enter",
+        "visibleMs": 133,
+        "visibleLabels": [
+          "$offerZ$offerZ: string",
+          "$offerA"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate3Enter; function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offerZ);$offerA;}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": null,
+          "checked": true
+        },
+        "caretOffset": 200,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      },
+      {
+        "label": "$offerZ",
+        "key": "Tab",
+        "visibleMs": 132,
+        "visibleLabels": [
+          "$offerZ$offerZ: string",
+          "$offerA"
+        ],
+        "acceptedText": "<?php namespace LargeRankingGate3Tab; function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offerZ);$offerA;}}",
+        "hover": {
+          "variable": "$offerA",
+          "type": null,
+          "checked": true
+        },
+        "caretOffset": 198,
+        "exactText": true,
+        "caretMatched": true,
+        "addCall": false,
+        "undoRedo": true,
+        "diskUnchanged": true
+      }
+    ]
+  },
+  "hostScope": {
+    "version": "1.140.0",
+    "platform": "linux",
+    "explicitTrigger": true,
+    "providerPrewarmed": true,
+    "realWslAcceptance": false
+  },
+  "syntaxCompiles": [
+    {
+      "case": 0,
+      "key": "Enter",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "e2a165b0f9ed6e48afc3626b2672d31adc52c2c10a7fc129c5cf8a2adbffcd0f"
+    },
+    {
+      "case": 0,
+      "key": "Enter",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "e2a165b0f9ed6e48afc3626b2672d31adc52c2c10a7fc129c5cf8a2adbffcd0f"
+    },
+    {
+      "case": 1,
+      "key": "Tab",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "03ebfdad306c43bd42ea8d9cbe7913d39d9fd411a0b2eff31dde7e3d05371867"
+    },
+    {
+      "case": 1,
+      "key": "Tab",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "03ebfdad306c43bd42ea8d9cbe7913d39d9fd411a0b2eff31dde7e3d05371867"
+    },
+    {
+      "case": 2,
+      "key": "Enter",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "82b994877d12005f176989e310660fb0bc4858c5cc4297fbd37748fc4565e2da"
+    },
+    {
+      "case": 2,
+      "key": "Enter",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "82b994877d12005f176989e310660fb0bc4858c5cc4297fbd37748fc4565e2da"
+    },
+    {
+      "case": 3,
+      "key": "Tab",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "9fb1f9f4e1da1d59f12f4721ae15df4aaaa92b4fd1ebdad9bd351d1b41f80710"
+    },
+    {
+      "case": 3,
+      "key": "Tab",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "9fb1f9f4e1da1d59f12f4721ae15df4aaaa92b4fd1ebdad9bd351d1b41f80710"
+    },
+    {
+      "case": 4,
+      "key": "Enter",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "68e303c02095eab6bf50884ed41df2911dd7353759c1e17fb63910ccf8d5644d"
+    },
+    {
+      "case": 4,
+      "key": "Enter",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "68e303c02095eab6bf50884ed41df2911dd7353759c1e17fb63910ccf8d5644d"
+    },
+    {
+      "case": 5,
+      "key": "Tab",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "4c7c29603ad58d4f2bd0f6e2aae856f05739b574c66ffc232e3ad8c672aa276a"
+    },
+    {
+      "case": 5,
+      "key": "Tab",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "4c7c29603ad58d4f2bd0f6e2aae856f05739b574c66ffc232e3ad8c672aa276a"
+    },
+    {
+      "case": 6,
+      "key": "Enter",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "f8588f423d8d0e574bb5f6abce28ea6905d48a46c3976ee6905ee94db8e6ba53"
+    },
+    {
+      "case": 6,
+      "key": "Enter",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "f8588f423d8d0e574bb5f6abce28ea6905d48a46c3976ee6905ee94db8e6ba53"
+    },
+    {
+      "case": 7,
+      "key": "Tab",
+      "phpVersion": "7.2.34",
+      "exitCode": 0,
+      "sourceSha256": "e2c06f2efec90b7a1610d60dbe3073cc86370bf8cb8a603744e79fb4306a1b63"
+    },
+    {
+      "case": 7,
+      "key": "Tab",
+      "phpVersion": "8.5.9",
+      "exitCode": 0,
+      "sourceSha256": "e2c06f2efec90b7a1610d60dbe3073cc86370bf8cb8a603744e79fb4306a1b63"
+    }
+  ],
+  "hotPerformance": {
+    "scope": "Serial real production stdio; 100 parameters, one nullable parameter proven non-null by a stable guard; no edits during warm samples; not continuous-edit or Composer-scale qualification",
+    "bundleSha256": "3e6945a95aa8101b87096a26e216d2d9c65bd2be08a8ab4c6844714ad7009218",
+    "rows": [
+      {
+        "phpVersion": "7.2",
+        "kind": "variable",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 7.5141530000000785,
+        "samples": [
+          5.222291999999925,
+          13.21385999999984,
+          5.9459260000000995,
+          6.547260999999935,
+          4.621454000000085,
+          4.13093600000002,
+          4.6595360000001165,
+          4.08993200000009,
+          4.112582999999859,
+          3.996644999999944,
+          4.283969999999954,
+          3.8039580000001934,
+          7.5141530000000785,
+          6.048672000000124,
+          4.098581999999851,
+          3.814608000000135,
+          3.5879319999999097,
+          3.8634429999997337,
+          3.7562160000002223,
+          3.677828999999747
+        ],
+        "sourceSha256": "71b61e3134ad41f7d5c58b3f85bad1666f989f913e774aa3367995543d43fa01",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "7.2",
+        "kind": "blank",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 4.857241000000158,
+        "samples": [
+          4.796921000000111,
+          4.89473100000032,
+          4.635244999999941,
+          4.3813820000000305,
+          3.878154999999879,
+          3.6416290000001936,
+          3.767598999999791,
+          3.711612999999943,
+          3.873316000000159,
+          3.748486999999841,
+          3.5750929999999244,
+          4.857241000000158,
+          4.374818000000232,
+          3.521001999999953,
+          4.207246999999825,
+          4.006246999999803,
+          4.224601999999777,
+          3.9143770000000586,
+          3.9395089999998163,
+          4.670471999999791
+        ],
+        "sourceSha256": "d602d991040d307e7d473b6bd2eff37df139bcc2e45d75572b6ab18ed8cec419",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "variable",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 5.945547000000261,
+        "samples": [
+          5.355271999999786,
+          4.721360999999888,
+          4.703435000000354,
+          5.945547000000261,
+          4.657333000000108,
+          4.7143230000001495,
+          4.624845000000278,
+          4.556599999999889,
+          4.296868000000359,
+          4.240198999999848,
+          5.947353000000476,
+          3.7224599999999555,
+          3.989306999999826,
+          3.860862000000452,
+          4.223648000000139,
+          4.063233999999284,
+          3.8726839999999356,
+          3.986888000000363,
+          3.8626299999996263,
+          3.687496999999894
+        ],
+        "sourceSha256": "71b61e3134ad41f7d5c58b3f85bad1666f989f913e774aa3367995543d43fa01",
+        "topCandidate": "$offer099"
+      },
+      {
+        "phpVersion": "8.5",
+        "kind": "blank",
+        "candidates": 100,
+        "locals": true,
+        "withinBudget": true,
+        "warmup": 5,
+        "warmSamples": 20,
+        "p95Ms": 4.360655999999835,
+        "samples": [
+          16.67333199999939,
+          3.53498799999943,
+          3.435000999999829,
+          3.4719910000003438,
+          3.3438999999998487,
+          4.360655999999835,
+          3.3618509999996604,
+          3.1881729999995514,
+          3.4629290000002584,
+          3.2617380000001504,
+          3.1923390000001746,
+          3.3483790000000226,
+          3.190798000000541,
+          3.1663199999993594,
+          3.379189999999653,
+          3.242525999999998,
+          3.322052999999869,
+          3.2635769999997137,
+          4.288179000000127,
+          3.3493530000005194
+        ],
+        "sourceSha256": "d602d991040d307e7d473b6bd2eff37df139bcc2e45d75572b6ab18ed8cec419",
+        "topCandidate": "$offer099"
+      }
+    ]
+  },
+  "boundaries": [
+    "Variable call effects use existing Callable proofs; not a complete dynamic-call or alias escape analysis",
+    "Full current LSP suite not run; D79 qualification does not extend to this source",
+    "Continuous edits, Composer scale, all PHP runtime versions/platforms and real WSL remain open",
+    "Visible Hover checked through VS Code provider command; visible suggestion labels captured separately",
+    "No VSIX, push, release or Profile update"
+  ]
+}

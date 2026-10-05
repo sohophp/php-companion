@@ -51,11 +51,11 @@ export async function run(): Promise<void> {
       marked: fixture.source.slice(0, fixture.offset) + '§' + fixture.source.slice(fixture.offset) };
   });
   const reassignedHeader = '<?php function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA="changed";$offerZ=42;';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number }> = flowValues ? [
-    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,marked:'<?php function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offer§);}}'},
-    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,marked:'<?php function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offer§);}}'},
-    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,marked:'<?php function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offer§);}}'},
-    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offer§);}}'},
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = flowValues ? [
+    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',hoverType:'string',marked:'<?php function send(string $value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){send($offer§);}}'},
+    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',hoverType:'string',marked:'<?php function send(string $value):void{} function run($offerA,string $offerZ){if(is_string($offerA)){send($offer§);}}'},
+    {prefix:'$offer',label:'$offerA',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',hoverType:'true',marked:'<?php function send(bool $value):void{} function run(bool $offerA,int $offerZ){if($offerA===true){send($offer§);}}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,hoverVariable:'$offerA',marked:'<?php function send(string $value):void{} function mutate(&$value):void{} function run(?string $offerA,string $offerZ){if($offerA!==null){mutate($offerA);send($offer§);$offerA;}}'},
   ] : reassignedParameters ? [
     {prefix:'$offer',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'send($offer§);}'},
     {prefix:'',label:'$offerA',forbidden:'$offerOutside',addCall:false,marked:reassignedHeader+'send(value: §);}'},
@@ -280,6 +280,14 @@ export async function run(): Promise<void> {
     } else assert.equal(visibleIndex, 0, `Expected first visible candidate ${label}, got ${JSON.stringify(labels)}`);
     if (key === 'Enter') await pressWorkbenchEnter(port); else await pressWorkbenchTab(port);
     await until(async () => document.getText(), text => text === accepted);
+    if (item.hoverVariable) {
+      const hoverOffset = accepted.lastIndexOf(item.hoverVariable);
+      const hovers = await vscode.commands.executeCommand<vscode.Hover[]>('vscode.executeHoverProvider', uri, document.positionAt(hoverOffset));
+      if (item.hoverType) assert.ok(hovers?.some(hover => hover.contents.some(content =>
+        typeof content === 'string' ? content.includes(`${item.hoverVariable}: ${item.hoverType}`)
+          : 'value' in content && content.value.includes(`${item.hoverVariable}: ${item.hoverType}`))));
+      else assert.equal(hovers?.length ?? 0, 0);
+    }
     const caretExtra = (rootImports || importPrefixes) && item.suffix === '}' ? 0 : item.suffix?.length ?? (item.addCall ? largeRanking ? 2 : 1 : 0);
     assert.equal(document.offsetAt(editor.selection.active), offset - prefix.length + label.length + caretExtra);
     assert.equal(editor.selection.isEmpty, true);
@@ -287,6 +295,7 @@ export async function run(): Promise<void> {
     await vscode.commands.executeCommand('redo'); await until(async () => document.getText(), text => text === accepted);
     assert.equal(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), source);
     results.push({ label, key, visibleMs, visibleLabels: labels, acceptedText: accepted,
+      ...(item.hoverVariable ? { hover: { variable: item.hoverVariable, type: item.hoverType ?? null, checked: true } } : {}),
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,

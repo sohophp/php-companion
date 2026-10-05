@@ -5262,11 +5262,6 @@ export class SemanticWorkspace {
     const narrowings = file.narrowings.filter(item => item.scopeId === scope.id && item.variable === variable
       && !item.propertyPath?.length && !item.arrayPath?.length && offset >= item.start && offset <= item.end
       && this.variableFlowFactStable(file, item, offset, scope)
-      && !file.calls.some(call => call.end <= offset && this.containingScope(file, call.start)?.id === scope.id
-        && this.flowFactInspectionRanges(item, offset).some(range => call.start >= range.start && call.end <= range.end)
-        && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
-          .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
-        && this.signatures(file.uri, call.argumentsStart + 1).length === 0)
       && !file.assignments.some(assignment => assignment.scopeId === scope.id && assignment.variable === variable
         && assignment.end >= item.start && assignment.end <= offset))
       .sort((left, right) => left.end - left.start - (right.end - right.start));
@@ -5289,11 +5284,7 @@ export class SemanticWorkspace {
         && assignment.variable === variable && assignment.end <= offset))
         return this.linearLocalValueType(file, variable, offset, true);
       if (parameter.byReference || this.priorReferenceMutations(file, scope, variable, offset).length) return undefined;
-      if (file.calls.some(call => call.end <= offset && call.start >= scope.start
-        && this.containingScope(file, call.start)?.id === scope.id
-        && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
-          .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
-        && this.signatures(file.uri, call.argumentsStart + 1).length === 0)) return undefined;
+      if (this.unknownCallMayMutateVariable(file, scope, variable, scope.start, offset)) return undefined;
       const documented = parameter.type ? parsePhpDocType(parameter.type).type : undefined;
       return documented ? this.phpDocDiagnosticType(file, documented, scope.containerFqcn ?? scope.id)
         : parameter.nativeType ? this.nativeSourceType(file, nativeParameterType(parameter, file.uri), scope.containerFqcn)
@@ -5345,11 +5336,7 @@ export class SemanticWorkspace {
       && assignment.variable === variable && assignment.end <= offset);
     if (parameter && !assigned && (parameter.byReference || !this.parameterArrayValueStable(file, variable, [], offset, scope)
       || /\b(?:extract|eval|parse_str|global|static|include|include_once|require|require_once)\b|&\s*\$/iu
-        .test(file.source.slice(scope.start, offset)) || file.calls.some((call) => call.end <= offset
-          && call.start >= scope.start && this.containingScope(file, call.start)?.id === scope.id
-          && call.arguments.some((argument) => file.source.slice(argument.start, argument.end).trim()
-            .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
-          && this.signatures(file.uri, call.argumentsStart + 1).length === 0))) return undefined;
+        .test(file.source.slice(scope.start, offset)))) return undefined;
     const type = parameter || variable === '$this' ? this.completionVariableType(file, scope, variable, offset)
         : this.completionVariableType(file, scope, variable, offset) ?? this.iterationVariableType(file, variable, offset, scope);
     return type && type.kind !== 'unknown' ? `${variable}: ${displayType(type)}` : undefined;
@@ -12294,7 +12281,37 @@ export class SemanticWorkspace {
     const mutation = new RegExp(`(?:${variable}\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*${variable}|unset\\s*\\(\\s*${variable}\\s*\\)|foreach\\s*\\([^)]*\\bas\\s+&\\s*${variable})`, 'iu');
     if (mutation.test(between)
       || new RegExp(`(?:=&\\s*${variable}|&\\s*${variable}\\s*=)`, 'u').test(between)) return false;
-    return !inspectionRanges.some((range) => this.priorReferenceMutations(file, scope, narrowing.variable, range.end, range.start).length);
+    return !inspectionRanges.some((range) => this.priorReferenceMutations(file, scope, narrowing.variable, range.end, range.start).length
+      || this.unknownCallMayMutateVariable(file, scope, narrowing.variable, range.start, range.end));
+  }
+
+  private unknownCallMayMutateVariable(file: SemanticFile, scope: ParsedScope,
+    variable: string, start: number, end: number): boolean {
+    return file.calls.some(call => call.start >= start && call.end <= end
+      && this.containingScope(file, call.start)?.id === scope.id
+      && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
+        .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
+      && ((): boolean => {
+        const sourceName = file.source.slice(call.nameStart, call.nameEnd);
+        // Callable values have their own binding/reference proof. Resolving
+        // them here can recursively inspect the same argument's entry type.
+        if (sourceName.startsWith('$')) return false;
+        if (call.kind !== 'function') return true;
+        const resolved = this.resolveFunction(file, sourceName, this.namespaceAt(file, call.start), call.start).toLowerCase();
+        if (['isset', 'empty'].includes(resolved)) return false;
+        // These native predicates cannot replace their first value argument,
+        // even in a standalone workspace without installed builtin stubs.
+        const predicates = ['is_null', 'is_bool', 'is_int', 'is_integer', 'is_long', 'is_float', 'is_double',
+          'is_real', 'is_string', 'is_array', 'is_object', 'is_resource', 'is_scalar', 'is_numeric',
+          'is_callable', 'is_iterable', 'is_countable', 'is_a', 'is_subclass_of'];
+        const argument = call.arguments[0];
+        return !predicates.includes(resolved) || !argument || Boolean(argument.name && argument.name !== 'value' && argument.name !== 'object_or_class')
+          || argument.unpacked || file.source.slice(argument.start, argument.end).trim()
+            .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') !== variable
+          || call.arguments.slice(1).some(item => file.source.slice(item.start, item.end).trim()
+            .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable);
+      })()
+      && this.signatures(file.uri, call.argumentsStart + 1).length === 0);
   }
 
   private flowFactInspectionRanges(narrowing: ParsedTypeNarrowing, offset: number): Array<{ start: number; end: number }> {
@@ -16795,6 +16812,7 @@ export class SemanticWorkspace {
     }
     if (/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(expression)) {
       const scope = this.containingScope(file, start);
+      const unknownMutation = scope && this.unknownCallMayMutateVariable(file, scope, expression, scope.start, start);
       const flowNarrowings = scope ? file.narrowings.filter((item) => item.scopeId === scope.id
         && item.variable === expression && !item.propertyPath?.length && !item.arrayPath?.length && start >= item.start && start <= item.end
         && this.variableFlowFactStable(file, item, start, scope)
@@ -16860,6 +16878,10 @@ export class SemanticWorkspace {
       if (!localValue && flowNarrowings.some((fact) => (fact.assertion && (fact.kind === 'instanceof'
         || (fact.kind === 'type-predicate' && !fact.negated)))
         || (fact.kind === 'boolean-literal' && !fact.negated))) localValue = primitive('mixed');
+      const declaredParameter = scope?.parameters.find(candidate => `$${candidate.name}` === expression);
+      if (!localValue && (unknownMutation || !declaredParameter?.type && !declaredParameter?.nativeType)
+        && flowNarrowings.some(fact => fact.kind === 'instanceof' || fact.kind === 'type-predicate' && !fact.negated))
+        localValue = primitive('mixed');
       if (localValue) {
         const narrowed = applyFlowNarrowings(localValue);
         if (narrowed && narrowed.kind !== 'unknown' && !(narrowed.kind === 'primitive' && narrowed.name === 'mixed')) return narrowed;
@@ -16877,7 +16899,7 @@ export class SemanticWorkspace {
         if (narrowed && narrowed.kind !== 'unknown' && !(narrowed.kind === 'primitive' && narrowed.name === 'mixed')) return narrowed;
       }
       const reassigned = scope && file.assignments.some((assignment) => assignment.scopeId === scope.id && assignment.variable === expression && assignment.end <= start);
-      const parameter = !reassigned ? scope?.parameters.find((candidate) => `$${candidate.name}` === expression) : undefined;
+      const parameter = !reassigned && !unknownMutation ? scope?.parameters.find((candidate) => `$${candidate.name}` === expression) : undefined;
       const documented = parameter?.type ? parsePhpDocType(parameter.type).type : undefined;
       let parameterType = documented ? this.phpDocDiagnosticType(file, documented, scope?.containerFqcn ?? scope?.id)
         : parameter && scope && !parameter.nativeType
@@ -16906,6 +16928,7 @@ export class SemanticWorkspace {
       }
       if (parameterType && parameterType.kind !== 'unknown'
         && !(parameterType.kind === 'primitive' && parameterType.name === 'mixed')) return parameterType;
+      if (unknownMutation) return undefined;
       const resolved = this.variableClass(file, expression, start, new Set(), true); if (!resolved || !this.fileAndDeclaration(resolved.fqcn)) return undefined;
       const objectType = resolved.groups?.length ? union(...resolved.groups.map((group) => intersection(...group.map((item) => named(item.fqcn)))))
         : named(resolved.fqcn);

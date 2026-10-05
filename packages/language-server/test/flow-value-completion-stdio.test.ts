@@ -93,3 +93,47 @@ it.each(['7.2', '8.5'] as const)('uses current control flow in variable completi
     await request('shutdown',null);server.stdin.write(encode({jsonrpc:'2.0',method:'exit'}));
   }finally{server.kill();}
 },60_000);
+
+it.each(['7.2', '8.5'] as const)('keeps Hover, diagnostics and completion facts consistent after unsaved changes at PHP %s', async phpVersion => {
+  const server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+  try {
+    const uri = 'file:///FlowConsistency.php', output = messagesFrom(server); let id = 0, version = 0;
+    const request = async (method: string, params: object | null): Promise<any> => {
+      const requestId = ++id; server.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+      const response = await output.waitFor(message => message.id === requestId); expect(response.error).toBeUndefined(); return response.result;
+    };
+    await request('initialize', { processId: null, rootUri: null, capabilities: {}, initializationOptions: { phpVersion } });
+    const header = '<?php declare(strict_types=1); function send(int $value):void{} function mutate(&$value):void{} function observe($value):void{} ';
+    const guarded = (body: string, parameter = '?string $value'): string => header + `function run(${parameter},$other){if(is_string($value)){${body}send($value§);}}`;
+    const query = async (marked: string, type: string | undefined): Promise<any> => {
+      const source = marked.replace('§', ''), offset = marked.indexOf('§'); version++;
+      server.stdin.write(encode({ jsonrpc: '2.0', method: version === 1 ? 'textDocument/didOpen' : 'textDocument/didChange', params: version === 1
+        ? { textDocument: { uri, languageId: 'php', version, text: source } } : { textDocument: { uri, version }, contentChanges: [{ text: source }] } }));
+      const result = await request('textDocument/completion', { textDocument: { uri }, position: lspPosition(source, offset - 1) });
+      const item = (Array.isArray(result) ? result : result.items).find((candidate: any) => candidate.label === '$value'); expect(item).toBeDefined();
+      expect((await request('completionItem/resolve', item)).detail).toBe(type ? `$value: ${type}` : undefined);
+      const hover = await request('textDocument/hover', { textDocument: { uri }, position: lspPosition(source, offset - 6) });
+      if (type) {
+        expect(hover.contents.value).toBe(`\`\`\`php\n$value: ${type}\n\`\`\``);
+        expect(hover.range).toEqual({ start: lspPosition(source, offset - 6), end: lspPosition(source, offset) });
+      } else expect(hover).toBeNull();
+      const published = await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri && message.params?.version === version);
+      const mismatch = published.params.diagnostics.filter((diagnostic: any) => diagnostic.code === 'php.argument.type-mismatch');
+      expect(mismatch).toHaveLength(type ? 1 : 0);
+      if (type) expect(mismatch[0].range).toEqual({ start: lspPosition(source, offset - 6), end: lspPosition(source, offset) });
+      return item;
+    };
+    const previous = await query(guarded(''), 'string');
+    await query(guarded('unknown($value);'), undefined);
+    expect((await request('completionItem/resolve', previous)).detail).toBeUndefined();
+    await query(guarded(''), 'string');
+    await query(guarded('mutate($value);'), undefined);
+    await query(guarded('observe($value);'), 'string');
+    await query(guarded('unknown($other);'), 'string');
+    await query(guarded('', '$value'), 'string');
+    await query(header + 'function run(?string $value){unknown($value);if(is_string($value)){send($value§);}}', 'string');
+    await query(header + 'function run(?string $value){unknown($value);$value="fresh";send($value§);}', 'string');
+    if (phpVersion === '8.5') await query(guarded('unknown(value:$value);'), undefined);
+    await request('shutdown', null); server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit' }));
+  } finally { server.kill(); }
+}, 60_000);
