@@ -31,6 +31,7 @@ export async function run(): Promise<void> {
   const assignmentTargets = process.env.PHP_COMPANION_TEST_ASSIGNMENT_TARGET_ONLY === '1';
   const nativeXmlReaders = process.env.PHP_COMPANION_TEST_NATIVE_XML_READER_ONLY === '1';
   const functionLookups = process.env.PHP_COMPANION_TEST_FUNCTION_LOOKUP_ONLY === '1';
+  const classRelativeConstructions = process.env.PHP_COMPANION_TEST_CLASS_RELATIVE_CONSTRUCTION_ONLY === '1';
   const reflectionConstructions = process.env.PHP_COMPANION_TEST_REFLECTION_CONSTRUCTION_ONLY === '1';
   const unclosedShapes = process.env.PHP_COMPANION_TEST_UNCLOSED_SHAPE_ONLY === '1';
   const blankComments = process.env.PHP_COMPANION_TEST_BLANK_COMMENT_ONLY === '1';
@@ -59,7 +60,16 @@ export async function run(): Promise<void> {
   const callableHeader = '<?php class User{public function name():string{return "user";}} class View{public function title():string{return "view";}} ';
   const configuredPhpVersion = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion');
   const reflectionNewType = Number(configuredPhpVersion?.replace('.', '')) < 80 ? 'ReflectionType' : 'ReflectionNamedType';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = reflectionConstructions ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = classRelativeConstructions ? [
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,
+      marked:'<?php class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offer§);}}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,
+      marked:'<?php class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offer§);}}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,
+      marked:'<?php class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offer§);}}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,
+      marked:'<?php class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offer§);}}'},
+  ] : reflectionConstructions ? [
     {prefix:reflectionNewType.slice(0,-1),label:reflectionNewType,forbidden:'',addCall:false,consume:1,marked:`<?php $value=new \\${reflectionNewType.slice(0,-1)}§e();`},
     {prefix:'ReflectionTyp',label:'ReflectionType',forbidden:'',addCall:false,consume:1,marked:'<?php function accepts(\\ReflectionTyp§e $value){}'},
     {prefix:'ReflectionTyp',label:'ReflectionType',forbidden:'',addCall:false,consume:1,marked:'<?php use ReflectionTyp§e;'},
@@ -280,6 +290,7 @@ export async function run(): Promise<void> {
       await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(directory, 'Child.php'),
         Buffer.from(`<?php namespace App\\SeparatorGate${suffix}\\NamespaceUi${suffix}; class Child {}`));
     }
+    if (classRelativeConstructions) marked = marked.replace('<?php ', `<?php namespace ConstructionGate${suffix}; `);
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || assignmentTargets || nativeXmlReaders || functionLookups || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
     if (functionIdentifiers) marked = marked.replace('<?php ', `<?php namespace FunctionGate${suffix}; `);
@@ -299,6 +310,10 @@ export async function run(): Promise<void> {
       list => list?.items.some(value => value.label === label) === true);
     console.log('Comparison provided target: ' + JSON.stringify(provided.items.find(value => value.label === label)));
     if (item.forbidden) assert.equal(provided.items.some(value => value.label === item.forbidden), false);
+    if (classRelativeConstructions) {
+      const help = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', uri, position);
+      assert.ok(help?.signatures.some(value => value.label.includes('$value')));
+    }
     await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
     const visibleStarted = Date.now();
     await vscode.commands.executeCommand('editor.action.triggerSuggest');
@@ -333,6 +348,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

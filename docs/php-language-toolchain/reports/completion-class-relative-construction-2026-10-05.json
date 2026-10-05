@@ -1,0 +1,1527 @@
+{
+  "milestone": "D96",
+  "date": "2026-10-05",
+  "base": "bf8c67735f34398469cc9a6b4b096bc797571dde",
+  "scope": "Class-relative construction correctness, protected constructor argument hints, and proof withdrawal for overridable targets.",
+  "sources": {
+    "lateStatic": "https://www.php.net/manual/en/language.oop5.late-static-bindings.php",
+    "traits": "https://www.php.net/manual/en/language.oop5.traits.php",
+    "visibility": "https://www.php.net/manual/en/language.oop5.visibility.php"
+  },
+  "reproduction": [
+    {
+      "source": "<?php abstract class Base {public static function make(){return new static;}} class Child extends Base {}",
+      "calls": [
+        {
+          "kind": "constructor",
+          "name": "static",
+          "start": 74,
+          "end": 74
+        }
+      ],
+      "invalid": [
+        {
+          "uri": "file:///ClassRelative.php",
+          "start": 68,
+          "end": 74,
+          "target": "Base",
+          "reason": "abstract-class"
+        }
+      ],
+      "inaccessible": [],
+      "missing": []
+    },
+    {
+      "source": "<?php abstract class Base {public static function make(){return new static();}} class Child extends Base {}",
+      "calls": [
+        {
+          "kind": "constructor",
+          "name": "static",
+          "start": 74,
+          "end": 76
+        }
+      ],
+      "invalid": [
+        {
+          "uri": "file:///ClassRelative.php",
+          "start": 68,
+          "end": 74,
+          "target": "Base",
+          "reason": "abstract-class"
+        }
+      ],
+      "inaccessible": [],
+      "missing": []
+    },
+    {
+      "source": "<?php trait Maker {public static function make(){return new self;}} class Child {use Maker;}",
+      "calls": [
+        {
+          "kind": "constructor",
+          "name": "self",
+          "start": 64,
+          "end": 64
+        }
+      ],
+      "invalid": [
+        {
+          "uri": "file:///ClassRelative.php",
+          "start": 60,
+          "end": 64,
+          "target": "Maker",
+          "reason": "trait"
+        }
+      ],
+      "inaccessible": [],
+      "missing": []
+    },
+    {
+      "source": "<?php trait Maker {public static function make(){return new self();}} class Child {use Maker;}",
+      "calls": [
+        {
+          "kind": "constructor",
+          "name": "self",
+          "start": 64,
+          "end": 66
+        }
+      ],
+      "invalid": [
+        {
+          "uri": "file:///ClassRelative.php",
+          "start": 60,
+          "end": 64,
+          "target": "Maker",
+          "reason": "trait"
+        }
+      ],
+      "inaccessible": [],
+      "missing": []
+    },
+    {
+      "source": "<?php class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(){return new self;}}",
+      "calls": [
+        {
+          "kind": "constructor",
+          "name": "self",
+          "start": 135,
+          "end": 135
+        }
+      ],
+      "invalid": [],
+      "inaccessible": [],
+      "missing": []
+    },
+    {
+      "source": "<?php class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(){return new self();}}",
+      "calls": [
+        {
+          "kind": "constructor",
+          "name": "self",
+          "start": 135,
+          "end": 137
+        }
+      ],
+      "invalid": [],
+      "inaccessible": [],
+      "missing": []
+    }
+  ],
+  "tests": {
+    "semantic-red": {
+      "files": 1,
+      "total": 12,
+      "passed": 3,
+      "failed": 9,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-semantic-red.json"
+    },
+    "semantic-focused": {
+      "files": 2,
+      "total": 27,
+      "passed": 22,
+      "failed": 5,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-semantic-focused.json"
+    },
+    "semantic-qualified": {
+      "files": 2,
+      "total": 27,
+      "passed": 27,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-semantic-qualified.json"
+    },
+    "semantic-full-final": {
+      "files": 112,
+      "total": 2493,
+      "passed": 2493,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-semantic-full-final.json"
+    },
+    "lsp": {
+      "files": 3,
+      "total": 12,
+      "passed": 12,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-lsp.json"
+    },
+    "lsp-final": {
+      "files": 1,
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-lsp-final.json"
+    },
+    "analysis": {
+      "files": 1,
+      "total": 48,
+      "passed": 48,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "raw": "/tmp/sophp-d96-analysis.json"
+    }
+  },
+  "implementation": {
+    "invalidTargets": "Abstract-class static and Trait-relative self/static are not literal invalid instantiations; direct abstract/Trait names and enum static still rejected.",
+    "access": "Both completed and omitted argument lists use existing memberVisibilityAllowed for protected family access.",
+    "diagnosticProof": "Unknown consumer or overridable static constructor withdraws definite arity/type/visibility proof. Final class or final constructor preserves proven contracts.",
+    "cacheSchema": 84,
+    "cacheFormatChanged": false,
+    "cacheProof": "Three snapshot restore modes alternate ordinary/final/ordinary imported constructors and withdraw/recover the current required parameter diagnostic."
+  },
+  "runtime": [
+    {
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34",
+      "results": [
+        {
+          "case": "abstract-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "trait-self",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-self",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "private-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from context 'Child'"
+        },
+        {
+          "case": "private-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from context 'Child'"
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33",
+      "results": [
+        {
+          "case": "abstract-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "trait-self",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-self",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "private-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from context 'Child'"
+        },
+        {
+          "case": "private-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from context 'Child'"
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34",
+      "results": [
+        {
+          "case": "abstract-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "trait-self",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-self",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "private-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32",
+      "results": [
+        {
+          "case": "abstract-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "trait-self",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-self",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "private-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23",
+      "results": [
+        {
+          "case": "abstract-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "trait-self",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-self",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "private-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9",
+      "results": [
+        {
+          "case": "abstract-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "abstract-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Cannot instantiate abstract class Base"
+        },
+        {
+          "case": "trait-self",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-self",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "trait-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "overridden-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "Child",
+          "message": null
+        },
+        {
+          "case": "private-self",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-self",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "Error",
+          "message": "Call to private Base::__construct() from scope Child"
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": false,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "private-later-static",
+          "parentheses": true,
+          "result": "allowed",
+          "target": "GrandChild",
+          "message": null
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "protected-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-constructor-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": false,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "case": "final-class-missing",
+          "parentheses": true,
+          "result": "rejected",
+          "target": "ArgumentCountError",
+          "message": "Too few arguments to function Base::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        }
+      ]
+    }
+  ],
+  "acceptedSyntax": [
+    {
+      "version": "7.2",
+      "index": 0,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate0Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 1,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate0Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 2,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate1Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 3,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate1Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 4,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate2Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 5,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate2Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 6,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate3Enter; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 7,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate3Tab; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 0,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate0Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 1,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate0Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 2,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate1Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 3,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate1Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 4,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate2Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 5,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate2Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 6,
+      "key": "Enter",
+      "text": "<?php namespace ConstructionGate3Enter; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 7,
+      "key": "Tab",
+      "text": "<?php namespace ConstructionGate3Tab; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+      "exitCode": 0
+    }
+  ],
+  "visible": {
+    "proofs": {
+      "7.2": {
+        "platform": "linux",
+        "context": "class-relative-construction-7.2",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 254,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate0Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 129,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate0Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 201,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 149,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate1Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+            "caretOffset": 205,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 146,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate1Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+            "caretOffset": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 115,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate2Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+            "caretOffset": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 136,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate2Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+            "caretOffset": 201,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 165,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate3Enter; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 234,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 124,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate3Tab; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 232,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      "8.5": {
+        "platform": "linux",
+        "context": "class-relative-construction-8.5",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 239,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate0Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 140,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate0Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 201,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 148,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate1Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+            "caretOffset": 205,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 121,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate1Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new parent($offerZ);}}",
+            "caretOffset": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 136,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate2Enter; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+            "caretOffset": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 122,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate2Tab; class Base {protected function __construct(int $value){}} class Child extends Base {public static function make(string $offerA,int $offerZ){return new Base($offerZ);}}",
+            "caretOffset": 201,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 137,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate3Enter; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 234,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 118,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace ConstructionGate3Tab; class Base {protected function __construct(int $value){}} class Middle extends Base {} class Child extends Middle {public static function make(string $offerA,int $offerZ){return new self($offerZ);}}",
+            "caretOffset": 232,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      }
+    },
+    "total": 16,
+    "minimumWaitMs": 115,
+    "maximumWaitMs": 254,
+    "mode": "preloaded provider then explicit visible trigger; isolated Linux source host",
+    "signatureHelpChecked": true
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "modes": [
+      "onDemand",
+      "experimental"
+    ],
+    "finalServers": 4,
+    "statesPerServer": 19,
+    "unsavedStates": 76,
+    "signatureRequests": 76,
+    "namedCompletionRequests": 4,
+    "diagnosticsCurrentVersion": true,
+    "diskUnchanged": true,
+    "scope": "Full root needed for abstract/private instantiation diagnostics; local required/type diagnostics preserved in both modes."
+  },
+  "corrections": [
+    {
+      "artifact": "/tmp/sophp-d96-semantic-focused.json",
+      "reason": "First fix did not yet guard the separate missing-required consumer; new weak-scalar assertion changed to strict_types without changing existing coercion policy."
+    },
+    {
+      "artifact": "/tmp/sophp-d96-build.log",
+      "reason": "The parsed flag is finalMethod, not final; TypeScript rejected the first helper spelling. Corrected before production build."
+    },
+    {
+      "artifact": "/tmp/sophp-d96-lsp-final.json",
+      "reason": "Expanded the final protocol matrix with exact type-mismatch codes and strict-scalar positive/negative states; original 12-case subset recorded separately."
+    }
+  ],
+  "sourceSha256": {
+    "packages/semantic/src/index.ts": "f81396a4086654d587bf0e8101309d7868a8873cbabdd1fc4bc55636a8b106e9",
+    "dist/language-server.js": "00dabe168fc26e26f032ee2f29b55b407a61d9a7144dfec501d6c86cf3182cfb",
+    "dist/extension.js": "ee9c0720f8ceec9d11b052cf2deaa85f090e02a43f509570fdcfecd3aec912db"
+  },
+  "remaining": [
+    "Latest complete 906-case LSP still belongs to product source 9cce9302; D96 current complete run not yet qualified.",
+    "D92 ordinary editing P95 186.39/137.74ms remains last measurement; overall 150ms budget open; no equivalent remeasurement in D96.",
+    "No general dynamic/ambiguous Trait consumer resolution added; retained unknown where target/ABI cannot be proved.",
+    "Ordinary user PHP 7 legacy constructors, other platforms/scales/long sessions and real WSL remain separate."
+  ],
+  "delivery": {
+    "packaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}
