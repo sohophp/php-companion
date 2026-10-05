@@ -39,3 +39,26 @@ it('keeps arguments longer than a fixed prefix budget and does not match a forma
     expect(workspace.signatures(uri, declarationOffset)).toEqual([]);
   } finally { workspace.dispose(); }
 });
+
+for (const retained of [false, true]) it.each([
+  ['accept(text("ok")§);', 'accept', 0],
+  ['accept(text("ok"§));', 'text', 0],
+  ['accept(text("ok"))§;', undefined, undefined],
+  ['new Host(text("ok")§);', 'Host', 0],
+  ['Host::save(text("ok")§);', 'save', 0],
+  ['function run(Host $host){$host->send(text("ok")§);}', 'send', 0],
+  ['new Host(new Host(true)§);', 'Host', 0],
+  ['accept(text("(ok)")§);', 'accept', 0],
+  ['two(text("ok"), §);', 'two', 1],
+  ['accept(text("ok")§', 'accept', 0],
+  ['accept(tr§', 'accept', 0],
+] as const)(`switches back to the outer signature after a closed nested invocation (retained=${retained}): %s`, (tail, name, activeParameter) => {
+  const workspace = new SemanticWorkspace(parser), uri = 'file:///SignatureBoundary.php';
+  try {
+    const marked = header + 'function two(bool $first, bool $second):void{} ' + tail, offset = marked.indexOf('§');
+    workspace.update(uri, marked.replace('§', ''), retained);
+    const signatures = workspace.signatures(uri, offset);
+    expect(signatures[0]?.name).toBe(name);
+    expect(signatures[0]?.activeParameter).toBe(activeParameter);
+  } finally { workspace.dispose(); }
+});

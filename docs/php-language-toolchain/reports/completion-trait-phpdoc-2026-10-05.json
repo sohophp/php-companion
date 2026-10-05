@@ -1,0 +1,1013 @@
+{
+  "milestone": "D98",
+  "date": "2026-10-05",
+  "base": "b866cc13c2b75714321c8ea8e4049760f097669f",
+  "scope": "Trait constructor PHPDoc lexical binding, symbolic method templates, native closure lexical type binding and nested signature boundaries.",
+  "inputSha256": {
+    "packages/semantic/src/index.ts": "e17e2412fe902628c0ffc29882a93f41db4d302a2871cae549760b8219058f8b",
+    "packages/semantic/src/phpDocNameBinding.ts": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0",
+    "packages/semantic/dist/index.js": "dc924d467a09863df7c798502596540943b241412177a64f6dad5413a698cb0a",
+    "packages/semantic/dist/phpDocNameBinding.js": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/language-server.js": "df60f3605dacd269705e29010f8fe215c443b15a153b64e22aa5a4375f40c1f1",
+    "dist/extension.js": "ee9c0720f8ceec9d11b052cf2deaa85f090e02a43f509570fdcfecd3aec912db",
+    "packages/semantic/test/trait-constructor-phpdoc.test.ts": "d6e91a4c923097eb0f4e8f8bfe0fbfa07955e392b1adf80d38932b3579e13715",
+    "packages/semantic/test/trait-construction.test.ts": "1ff9565e4b32bf288d81faacc0742bd4a2047d99f50c5d5f6972103962db3ca6",
+    "packages/semantic/test/signature-prefix-range.test.ts": "24b48f392dc75de50902b7df616f85a1e41e665f1041d3e0c9a26f33ee691838",
+    "packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts": "d49d93d37abf3dedd69de9ea83f85068d9fc501db365ca47dda6beee21699a0e",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "65ac39a62ade55adc36e739af587080c05053e3b322ca9fb69de4b80c72aecca"
+  },
+  "semantic": {
+    "files": 114,
+    "passed": 2567,
+    "failed": 0,
+    "skipped": 0,
+    "total": 2567,
+    "sha256": "ffca40a8e042667adb55c72a21ede90307155655e1d580d516b9cc8bdc92b798",
+    "command": "pnpm --filter @php-companion/semantic exec vitest run --maxWorkers=2 --reporter=json --outputFile=/tmp/sophp-d98-semantic-final.json",
+    "testTimeoutMs": 5000,
+    "workerLimit": 2
+  },
+  "focusedSemantic": {
+    "files": 3,
+    "passed": 91,
+    "failed": 0,
+    "skipped": 0,
+    "total": 91
+  },
+  "targetedServerIncludingAnalysis": {
+    "files": 4,
+    "passed": 57,
+    "failed": 0,
+    "skipped": 0,
+    "total": 57,
+    "sha256": "3fb7f5a8d6c14095f00633310d2f09adb2ebacd815a6545c6de559b972d5ed90"
+  },
+  "protocol": {
+    "servers": 4,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "experimental"
+    ],
+    "newUnsavedStates": 136,
+    "newSignatureQueries": 136,
+    "newPhp8NamedCompletionQueries": 16,
+    "currentDiagnosticVersions": true,
+    "diskUnchanged": true,
+    "previousTraitServersRechecked": 4,
+    "fullRootVisibilityGatePreserved": true
+  },
+  "independentReference": {
+    "reference": "PHPStan 2.2.9",
+    "referenceSha256": "f626b1b670ebf6570b6beb30a1085d320e01a79fad87c7ec062d27652b327ba2",
+    "phpVersion": "8.5.9",
+    "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+    "configSha256": "adce3716238526f83f9beb9b6acb27fa306e2e2c1badc5c0a9097b5a3cbbea3c",
+    "source": "<?php\nnamespace Origin0;\n\nclass Root {} class User {}\ntrait Init {/** @param User $value */ public function __construct($value){}}\nnamespace Consumer0;\nuse Origin0\\Root as Base;\nclass User {} class C extends Base {use \\Origin0\\Init; public static function make():self {return new self(null);}}\nnew C(new \\Origin0\\User());\nnew C(new User());\nnamespace Origin1;\nuse Origin1\\User as Selected;\nclass Root {} class User {}\ntrait Init {/** @param Selected $value */ public function __construct($value){}}\nnamespace Consumer1;\nuse Origin1\\Root as Base;\nclass User {} class C extends Base {use \\Origin1\\Init; public static function make():self {return new self(null);}}\nnew C(new \\Origin1\\User());\nnew C(new User());\nnamespace Origin2;\n\nclass Root {} class User {}\ntrait Init {/** @param \\Origin2\\User $value */ public function __construct($value){}}\nnamespace Consumer2;\nuse Origin2\\Root as Base;\nclass User {} class C extends Base {use \\Origin2\\Init; public static function make():self {return new self(null);}}\nnew C(new \\Origin2\\User());\nnew C(new User());\nnamespace Origin3;\n\nclass Root {} class User {}\ntrait Init {/** @param ?User $value */ public function __construct($value){}}\nnamespace Consumer3;\nuse Origin3\\Root as Base;\nclass User {} class C extends Base {use \\Origin3\\Init; public static function make():self {return new self(null);}}\nnew C(new \\Origin3\\User());\nnew C(new User());\nnamespace Origin4;\n\nclass Root {} class User {}\ntrait Init {/** @param User[] $value */ public function __construct($value){}}\nnamespace Consumer4;\nuse Origin4\\Root as Base;\nclass User {} class C extends Base {use \\Origin4\\Init; public static function make():self {return new self(null);}}\nnew C([new \\Origin4\\User()]);\nnew C([new User()]);\nnamespace Origin5;\n\nclass Root {} class User {}\ntrait Init {/** @param list<User> $value */ public function __construct($value){}}\nnamespace Consumer5;\nuse Origin5\\Root as Base;\nclass User {} class C extends Base {use \\Origin5\\Init; public static function make():self {return new self(null);}}\nnew C([new \\Origin5\\User()]);\nnew C([new User()]);\nnamespace Origin6;\n\nclass Root {} class User {}\ntrait Init {/** @param array{'User':User, label:'User'} $value */ public function __construct($value){}}\nnamespace Consumer6;\nuse Origin6\\Root as Base;\nclass User {} class C extends Base {use \\Origin6\\Init; public static function make():self {return new self(null);}}\nnew C(['User'=>new \\Origin6\\User(),'label'=>'User']);\nnew C(['User'=>new User(),'label'=>'User']);\nnamespace Origin7;\n\nclass Root {} class User {}\ntrait Init {/** @param class-string<User> $value */ public function __construct($value){}}\nnamespace Consumer7;\nuse Origin7\\Root as Base;\nclass User {} class C extends Base {use \\Origin7\\Init; public static function make():self {return new self(null);}}\nnew C(\\Origin7\\User::class);\nnew C(User::class);\nnamespace Origin8;\n\nclass Root {} class User {}\ntrait Init {/** @param self $value */ public function __construct($value){}}\nnamespace Consumer8;\nuse Origin8\\Root as Base;\nclass User {} class C extends Base {use \\Origin8\\Init; public static function make():self {return new self(null);}}\nnew C(C::make());\nnew C(new User());\nnamespace Origin9;\n\nclass Root {} class User {}\ntrait Init {/** @param parent $value */ public function __construct($value){}}\nnamespace Consumer9;\nuse Origin9\\Root as Base;\nclass User {} class C extends Base {use \\Origin9\\Init; public static function make():self {return new self(null);}}\nnew C(new Base());\nnew C(new User());\nnamespace Origin10;\n\nclass Root {} class User {}\ntrait Init {/** @param callable(User $User):User $value */ public function __construct($value){}}\nnamespace Consumer10;\nuse Origin10\\Root as Base;\nclass User {} class C extends Base {use \\Origin10\\Init; public static function make():self {return new self(null);}}\nnew C(function(\\Origin10\\User $User):\\Origin10\\User{return $User;});\nnew C(function(User $User):User{return $User;});\n",
+    "sourceSha256": "be5c7505b2e96a2abf0be942869b016a6f16b9a0e29303d733a329c57da3c13e",
+    "exitCode": 1,
+    "externalCallContracts": [
+      {
+        "case": "name",
+        "valid": true,
+        "line": 9,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer0\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "name",
+        "valid": false,
+        "line": 10,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer0\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer0\\C constructor expects Origin0\\User, Consumer0\\User given."
+          }
+        ]
+      },
+      {
+        "case": "import",
+        "valid": true,
+        "line": 18,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer1\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "import",
+        "valid": false,
+        "line": 19,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer1\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer1\\C constructor expects Origin1\\User, Consumer1\\User given."
+          }
+        ]
+      },
+      {
+        "case": "absolute",
+        "valid": true,
+        "line": 27,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer2\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "absolute",
+        "valid": false,
+        "line": 28,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer2\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer2\\C constructor expects Origin2\\User, Consumer2\\User given."
+          }
+        ]
+      },
+      {
+        "case": "nullable",
+        "valid": true,
+        "line": 36,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer3\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "nullable",
+        "valid": false,
+        "line": 37,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer3\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer3\\C constructor expects Origin3\\User|null, Consumer3\\User given."
+          }
+        ]
+      },
+      {
+        "case": "array",
+        "valid": true,
+        "line": 45,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer4\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "array",
+        "valid": false,
+        "line": 46,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer4\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer4\\C constructor expects array<Origin4\\User>, array<int, Consumer4\\User> given."
+          }
+        ]
+      },
+      {
+        "case": "list",
+        "valid": true,
+        "line": 54,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer5\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "list",
+        "valid": false,
+        "line": 55,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer5\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer5\\C constructor expects list<Origin5\\User>, array{Consumer5\\User} given."
+          }
+        ]
+      },
+      {
+        "case": "shape",
+        "valid": true,
+        "line": 63,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer6\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "shape",
+        "valid": false,
+        "line": 64,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer6\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer6\\C constructor expects array{User: Origin6\\User, label: 'User'}, array{User: Consumer6\\User, label: 'User'} given."
+          }
+        ]
+      },
+      {
+        "case": "class-string",
+        "valid": true,
+        "line": 72,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer7\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "class-string",
+        "valid": false,
+        "line": 73,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer7\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer7\\C constructor expects class-string<Origin7\\User>, string given."
+          }
+        ]
+      },
+      {
+        "case": "self",
+        "valid": true,
+        "line": 81,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer8\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "self",
+        "valid": false,
+        "line": 82,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer8\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer8\\C constructor expects Consumer8\\C, Consumer8\\User given."
+          }
+        ]
+      },
+      {
+        "case": "parent",
+        "valid": true,
+        "line": 90,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer9\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "parent",
+        "valid": false,
+        "line": 91,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer9\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer9\\C constructor expects Origin9\\Root, Consumer9\\User given."
+          }
+        ]
+      },
+      {
+        "case": "callback",
+        "valid": true,
+        "line": 99,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer10\\C() on a separate line has no effect."
+          }
+        ]
+      },
+      {
+        "case": "callback",
+        "valid": false,
+        "line": 100,
+        "messages": [
+          {
+            "identifier": "new.resultUnused",
+            "message": "Call to new Consumer10\\C() on a separate line has no effect."
+          },
+          {
+            "identifier": "argument.type",
+            "message": "Parameter #1 $value of class Consumer10\\C constructor expects callable(Origin10\\User): Origin10\\User, Closure(Consumer10\\User): Consumer10\\User given."
+          }
+        ]
+      }
+    ],
+    "otherDiagnostics": [
+      {
+        "message": "Parameter #1 $value of class Consumer0\\C constructor expects Origin0\\User, null given.",
+        "line": 8,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer1\\C constructor expects Origin1\\User, null given.",
+        "line": 17,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer2\\C constructor expects Origin2\\User, null given.",
+        "line": 26,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer4\\C constructor expects array<Origin4\\User>, null given.",
+        "line": 44,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer5\\C constructor expects list<Origin5\\User>, null given.",
+        "line": 53,
+        "ignorable": true,
+        "tip": "null is not a list.",
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer6\\C constructor expects array{User: Origin6\\User, label: 'User'}, null given.",
+        "line": 62,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer7\\C constructor expects class-string<Origin7\\User>, null given.",
+        "line": 71,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer8\\C constructor expects Consumer8\\C, null given.",
+        "line": 80,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer9\\C constructor expects Origin9\\Root, null given.",
+        "line": 89,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Parameter #1 $value of class Consumer10\\C constructor expects callable(Origin10\\User): Origin10\\User, null given.",
+        "line": 98,
+        "ignorable": true,
+        "identifier": "argument.type"
+      },
+      {
+        "message": "Constructor of class Consumer0\\C has an unused parameter $value.",
+        "line": 5,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer10\\C has an unused parameter $value.",
+        "line": 95,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer1\\C has an unused parameter $value.",
+        "line": 14,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer2\\C has an unused parameter $value.",
+        "line": 23,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer3\\C has an unused parameter $value.",
+        "line": 32,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer4\\C has an unused parameter $value.",
+        "line": 41,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer5\\C has an unused parameter $value.",
+        "line": 50,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer6\\C has an unused parameter $value.",
+        "line": 59,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer7\\C has an unused parameter $value.",
+        "line": 68,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer8\\C has an unused parameter $value.",
+        "line": 77,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      },
+      {
+        "message": "Constructor of class Consumer9\\C has an unused parameter $value.",
+        "line": 86,
+        "ignorable": true,
+        "identifier": "constructor.unusedParameter"
+      }
+    ],
+    "command": [
+      "/opt/remi/php85/root/usr/bin/php",
+      "/var/www/php/8.5/winstar2024/vendor/bin/phpstan.phar",
+      "analyse",
+      "--configuration=/tmp/sophp-d98-reference/phpstan.neon",
+      "--no-progress",
+      "--error-format=json",
+      "/tmp/sophp-d98-reference/Cases.php"
+    ],
+    "configuration": "parameters:\n    level: 8\n    phpVersion: 80500\n    tmpDir: /tmp/sophp-d98-reference/cache\n",
+    "readonlyExternalProjectTool": true
+  },
+  "visibleAcceptance": {
+    "platform": "Linux isolated VS Code",
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "results": [
+      {
+        "platform": "linux",
+        "context": "trait-phpdoc-7.2",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 219,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Enter; class User {} trait Init {/** @param User $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} class C {use \\OriginGate0Enter\\Init;} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){return new C($offerZ);}",
+            "caretOffset": 285,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 118,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate0Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Tab; class User {} trait Init {/** @param User $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} class C {use \\OriginGate0Tab\\Init;} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){return new C($offerZ);}",
+            "caretOffset": 277,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 140,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Enter; class User {} trait Init {/** @param list<User> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} class C {use \\OriginGate1Enter\\Init;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 361,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 131,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Tab; class User {} trait Init {/** @param list<User> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} class C {use \\OriginGate1Tab\\Init;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 353,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 134,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{User: OriginGate2Enter\\User, label: 'User'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Enter; class User {} trait Init {/** @param array{User:User, label:'User'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} class C {use \\OriginGate2Enter\\Init;} /** @param array{User:User, label:'User'} $offerA\n * @param array{User:\\OriginGate2Enter\\User, label:'User'} $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 421,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 138,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{User: OriginGate2Tab\\User, label: 'User'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Tab; class User {} trait Init {/** @param array{User:User, label:'User'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} class C {use \\OriginGate2Tab\\Init;} /** @param array{User:User, label:'User'} $offerA\n * @param array{User:\\OriginGate2Tab\\User, label:'User'} $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 413,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 129,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Enter\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Enter; class User {} trait Init {/** @template T of User\n * @param T $seed\n * @param T $value */ public function __construct($seed,$value){}} namespace ConsumerGate3Enter; class T {} class User {} class C {use \\OriginGate3Enter\\Init;} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){return new C($offerZ,$offerZ);}",
+            "caretOffset": 348,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 128,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Tab; class User {} trait Init {/** @template T of User\n * @param T $seed\n * @param T $value */ public function __construct($seed,$value){}} namespace ConsumerGate3Tab; class T {} class User {} class C {use \\OriginGate3Tab\\Init;} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){return new C($offerZ,$offerZ);}",
+            "caretOffset": 340,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      {
+        "platform": "linux",
+        "context": "trait-phpdoc-8.5",
+        "results": [
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 204,
+            "visibleLabels": [
+              "$offerZ",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Enter; class User {} trait Init {/** @param User $value */ public function __construct($value){}} namespace ConsumerGate0Enter; class User {} class C {use \\OriginGate0Enter\\Init;} function run(User $offerA,\\OriginGate0Enter\\User $offerZ){return new C($offerZ);}",
+            "caretOffset": 285,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 123,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate0Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate0Tab; class User {} trait Init {/** @param User $value */ public function __construct($value){}} namespace ConsumerGate0Tab; class User {} class C {use \\OriginGate0Tab\\Init;} function run(User $offerA,\\OriginGate0Tab\\User $offerZ){return new C($offerZ);}",
+            "caretOffset": 277,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 160,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Enter\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Enter; class User {} trait Init {/** @param list<User> $value */ public function __construct(array $value){}} namespace ConsumerGate1Enter; class User {} class C {use \\OriginGate1Enter\\Init;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Enter\\User> $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 361,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 135,
+            "visibleLabels": [
+              "$offerZ$offerZ: list<OriginGate1Tab\\User>",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate1Tab; class User {} trait Init {/** @param list<User> $value */ public function __construct(array $value){}} namespace ConsumerGate1Tab; class User {} class C {use \\OriginGate1Tab\\Init;} /** @param list<User> $offerA\n * @param list<\\OriginGate1Tab\\User> $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 353,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 142,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{User: OriginGate2Enter\\User, label: 'User'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Enter; class User {} trait Init {/** @param array{User:User, label:'User'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Enter; class User {} class C {use \\OriginGate2Enter\\Init;} /** @param array{User:User, label:'User'} $offerA\n * @param array{User:\\OriginGate2Enter\\User, label:'User'} $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 421,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 184,
+            "visibleLabels": [
+              "$offerZ$offerZ: array{User: OriginGate2Tab\\User, label: 'User'}",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate2Tab; class User {} trait Init {/** @param array{User:User, label:'User'} $value */ public function __construct(array $value){}} namespace ConsumerGate2Tab; class User {} class C {use \\OriginGate2Tab\\Init;} /** @param array{User:User, label:'User'} $offerA\n * @param array{User:\\OriginGate2Tab\\User, label:'User'} $offerZ */ function run(array $offerA,array $offerZ){return new C($offerZ);}",
+            "caretOffset": 413,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Enter",
+            "visibleMs": 189,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Enter\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Enter; class User {} trait Init {/** @template T of User\n * @param T $seed\n * @param T $value */ public function __construct($seed,$value){}} namespace ConsumerGate3Enter; class T {} class User {} class C {use \\OriginGate3Enter\\Init;} function run(User $offerA,\\OriginGate3Enter\\User $offerZ){return new C($offerZ,$offerZ);}",
+            "caretOffset": 348,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "$offerZ",
+            "key": "Tab",
+            "visibleMs": 126,
+            "visibleLabels": [
+              "$offerZ$offerZ: OriginGate3Tab\\User",
+              "$offerA"
+            ],
+            "acceptedText": "<?php namespace OriginGate3Tab; class User {} trait Init {/** @template T of User\n * @param T $seed\n * @param T $value */ public function __construct($seed,$value){}} namespace ConsumerGate3Tab; class T {} class User {} class C {use \\OriginGate3Tab\\Init;} function run(User $offerA,\\OriginGate3Tab\\User $offerZ){return new C($offerZ,$offerZ);}",
+            "caretOffset": 340,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      }
+    ],
+    "minVisibleMs": 118,
+    "maxVisibleMs": 219,
+    "explicitPreloadedTrigger": true,
+    "ordinaryTypingPerformanceQualified": false,
+    "realWslQualified": false
+  },
+  "acceptedTextNativeSyntax": [
+    {
+      "phpVersion": "7.2",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "1cb743036b03a06ed36d3ad89f7a1e4d0fdcfd2139810a27f1399f0064fc17c2",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-0.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "815ac06ca9898ef3e4a18c6df18251e3e4acdeefb72ad628ccc5cde4cd14d470",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-1.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "92bddfc6781b8d74e30b36ac640994b7a796d900f9e81b19bbcebad827ff6d03",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-2.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "e7cdf19cbe2c606005abe063e674526c8b5a03dc3cf7f1deaf61584454fe7329",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-3.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "deb75749839a351984483fc38783e2fc01fb53a282debdee5c973473fb29b933",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-4.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "072536b22e34d49d816362a6b1c9f9f7f6ef67cdcc0114dce5d11db3eacec073",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-5.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "c9bb7efb3a3a33dfc34c45b95cfd92dac0c3990dd8f4f8afe047bc2ec1ee34b8",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-6.php"
+    },
+    {
+      "phpVersion": "7.2",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "bd7fe54c2953cf1cadc64eeaf160d46c7aef7b325e4ba11f63f89265bc9e72ff",
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-72-7.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 0,
+      "key": "Enter",
+      "sha256": "1cb743036b03a06ed36d3ad89f7a1e4d0fdcfd2139810a27f1399f0064fc17c2",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-0.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 1,
+      "key": "Tab",
+      "sha256": "815ac06ca9898ef3e4a18c6df18251e3e4acdeefb72ad628ccc5cde4cd14d470",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-1.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 2,
+      "key": "Enter",
+      "sha256": "92bddfc6781b8d74e30b36ac640994b7a796d900f9e81b19bbcebad827ff6d03",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-2.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 3,
+      "key": "Tab",
+      "sha256": "e7cdf19cbe2c606005abe063e674526c8b5a03dc3cf7f1deaf61584454fe7329",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-3.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 4,
+      "key": "Enter",
+      "sha256": "deb75749839a351984483fc38783e2fc01fb53a282debdee5c973473fb29b933",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-4.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 5,
+      "key": "Tab",
+      "sha256": "072536b22e34d49d816362a6b1c9f9f7f6ef67cdcc0114dce5d11db3eacec073",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-5.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 6,
+      "key": "Enter",
+      "sha256": "c9bb7efb3a3a33dfc34c45b95cfd92dac0c3990dd8f4f8afe047bc2ec1ee34b8",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-6.php"
+    },
+    {
+      "phpVersion": "8.5",
+      "case": 7,
+      "key": "Tab",
+      "sha256": "bd7fe54c2953cf1cadc64eeaf160d46c7aef7b325e4ba11f63f89265bc9e72ff",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in /tmp/sophp-d98-accepted-85-7.php"
+    }
+  ],
+  "initialFullSemantic": {
+    "files": 114,
+    "passed": 2543,
+    "failed": 2,
+    "skipped": 0,
+    "total": 2545,
+    "failures": [
+      {
+        "file": "builtin-construction-completion.test.ts",
+        "test": "keeps PHP 7.2 native factory types out of new but in references",
+        "durationMs": 5577.7955870000005,
+        "messages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion/packages/semantic/test/builtin-construction-completion.test.ts:12:32\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "reflection-construction-versions.test.ts",
+        "test": "keeps PHP 7.2 Reflection construction and references distinct",
+        "durationMs": 5481.888334,
+        "messages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion/packages/semantic/test/reflection-construction-versions.test.ts:10:32\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      }
+    ],
+    "failureCauseConfirmed": false,
+    "isolatedOriginalLimitFiles": 2,
+    "isolatedPassed": 19,
+    "isolatedLogSha256": "018748be9ecea192ccb9fc76400a7dcfc36931988307a93f0c3bc87629d05d3e"
+  },
+  "firstSignatureBoundaryRed": {
+    "total": 39,
+    "passed": 23,
+    "failed": 16,
+    "fixtureMistakes": 2,
+    "productFailures": 14,
+    "fixtureCorrection": "Use a real two-parameter function instead of expecting index 1 for a single-parameter signature; no assertion removed."
+  },
+  "rawEvidenceSha256": {
+    "semantic-red": "717d2002b146dccd3fc45ea47725b8b8058e043749a12260e97bfb91afb9ecf1",
+    "template-red": "be29a0693869383edb4fcef2d651626e400ae8c1feb445fb8e26dd186f826774",
+    "callback-red": "5917461a11e6d862b0c3ee2c216644ccde638a04269dfb07b030b1139dfa4fba",
+    "signature-boundary-red": "807c87688109ac79271de1133c64ab6ff123047cbcb7fd2104b5ebdc8b17c241",
+    "focused-qualified": "6dde179e6b81c4fa36787a1043fcf3d08af5a29064baf2434492f9bfa706ba32",
+    "semantic-full": "26a3d665a2343c3659486500c7e1b12d27b7b52ca00097fcc6d5c6e5dca6965c",
+    "semantic-final": "ffca40a8e042667adb55c72a21ede90307155655e1d580d516b9cc8bdc92b798",
+    "lsp": "d5e0dcc148279418ebf10471d2fd9e901522da790a86ba88a5a6e3b44b19947c",
+    "lsp-qualified": "23b853a773dde601dd36681d45f86d047b2e3ed10ed6680f6f032b9b86818481",
+    "lsp-final": "3fb7f5a8d6c14095f00633310d2f09adb2ebacd815a6545c6de559b972d5ed90",
+    "host-7.2": "0376ac2ada1ccbcddc0b9b6571bd23fa2015ae36074a153d8a7595e230a6d027",
+    "host-final-7.2": "93a0723659c0cabd0c9fe00fb5d961368f5c823f0c4d7b7ce7f7e2cf4aadddb1",
+    "host-final-8.5": "431e58a94a0200f6d1340d55f3e5c6a0a3192594cada16b43ce11dd95884cdc2",
+    "reference": "d2fa9d91e8187f3a10ede3aa6defc6b2f3845b19059c30722a34454d97c8622f",
+    "accepted-compile": "15144c8652712d202e591b39356871f94cbebbcb1597230611e448133d1e1c69"
+  },
+  "checks": {
+    "semanticBuild": true,
+    "languageServerBuild": true,
+    "productionEsbuild": true,
+    "extensionTestTypeScript": true,
+    "scopedEslint": true,
+    "diffCheck": true,
+    "frozenInputHashesUnchanged": true
+  },
+  "remaining": {
+    "currentFullLsp": "not requalified; D95 belongs to source 9cce9302",
+    "ordinaryEditingP95LastMeasuredMs": {
+      "7.2": 186.39,
+      "8.5": 137.74
+    },
+    "overall150MsBudgetPassed": false,
+    "allTraitGenerics": false,
+    "localTypeAliases": false,
+    "realWsl": "pending",
+    "otherPlatformsScaleLongSessions": "pending"
+  },
+  "delivery": {
+    "localSourceMilestone": true,
+    "vsixPackaged": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "goal": "active"
+  }
+}

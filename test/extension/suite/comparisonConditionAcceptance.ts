@@ -31,6 +31,7 @@ export async function run(): Promise<void> {
   const assignmentTargets = process.env.PHP_COMPANION_TEST_ASSIGNMENT_TARGET_ONLY === '1';
   const nativeXmlReaders = process.env.PHP_COMPANION_TEST_NATIVE_XML_READER_ONLY === '1';
   const functionLookups = process.env.PHP_COMPANION_TEST_FUNCTION_LOOKUP_ONLY === '1';
+  const traitPhpDocs = process.env.PHP_COMPANION_TEST_TRAIT_PHPDOC_ONLY === '1';
   const traitConstructions = process.env.PHP_COMPANION_TEST_TRAIT_CONSTRUCTION_ONLY === '1';
   const classRelativeConstructions = process.env.PHP_COMPANION_TEST_CLASS_RELATIVE_CONSTRUCTION_ONLY === '1';
   const reflectionConstructions = process.env.PHP_COMPANION_TEST_REFLECTION_CONSTRUCTION_ONLY === '1';
@@ -61,7 +62,12 @@ export async function run(): Promise<void> {
   const callableHeader = '<?php class User{public function name():string{return "user";}} class View{public function title():string{return "view";}} ';
   const configuredPhpVersion = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion');
   const reflectionNewType = Number(configuredPhpVersion?.replace('.', '')) < 80 ? 'ReflectionType' : 'ReflectionNamedType';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = traitConstructions ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = traitPhpDocs ? [
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:"<?php namespace Origin; class User {} trait Init {/** @param User $value */ public function __construct($value){}} namespace Consumer; class User {} class C {use \\Origin\\Init;} function run(User $offerA,\\Origin\\User $offerZ){return new C($offer§);}"},
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:"<?php namespace Origin; class User {} trait Init {/** @param list<User> $value */ public function __construct(array $value){}} namespace Consumer; class User {} class C {use \\Origin\\Init;} /** @param list<User> $offerA\n * @param list<\\Origin\\User> $offerZ */ function run(array $offerA,array $offerZ){return new C($offer§);}"},
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:"<?php namespace Origin; class User {} trait Init {/** @param array{User:User, label:'User'} $value */ public function __construct(array $value){}} namespace Consumer; class User {} class C {use \\Origin\\Init;} /** @param array{User:User, label:'User'} $offerA\n * @param array{User:\\Origin\\User, label:'User'} $offerZ */ function run(array $offerA,array $offerZ){return new C($offer§);}"},
+    {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:"<?php namespace Origin; class User {} trait Init {/** @template T of User\n * @param T $seed\n * @param T $value */ public function __construct($seed,$value){}} namespace Consumer; class T {} class User {} class C {use \\Origin\\Init;} function run(User $offerA,\\Origin\\User $offerZ){return new C($offerZ,$offer§);}"},
+  ] : traitConstructions ? [
     {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:'<?php trait Init {public function __construct(int $value){}} class C {use Init;} function run(string $offerA,int $offerZ){return new C($offer§);}'},
     {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:'<?php trait Init {public function seed(int $value){}} class C {use Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offer§);}'},
     {prefix:'$offer',label:'$offerZ',forbidden:'',addCall:false,marked:'<?php trait Init {protected function __construct(int $value){}} class Base {use Init;} class C extends Base {public static function make(string $offerA,int $offerZ){return new self($offer§);}}'},
@@ -296,6 +302,8 @@ export async function run(): Promise<void> {
       await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(directory, 'Child.php'),
         Buffer.from(`<?php namespace App\\SeparatorGate${suffix}\\NamespaceUi${suffix}; class Child {}`));
     }
+    if (traitPhpDocs) marked = marked.replaceAll('namespace Origin;',`namespace OriginGate${suffix};`)
+      .replaceAll('namespace Consumer;',`namespace ConsumerGate${suffix};`).replaceAll('Origin\\',`OriginGate${suffix}\\`);
     if (classRelativeConstructions || traitConstructions) marked = marked.replace('<?php ', `<?php namespace ConstructionGate${suffix}; `);
     if (typeTails) marked = marked.replace('<?php ', `<?php namespace TypeTailGate${suffix}; `);
     if (shapeValues || shapeComments || blankComments || unclosedShapes || assignmentComments || assignmentTargets || nativeXmlReaders || functionLookups || unclosedCallables || mixedCallables) marked = marked.replace('<?php ', `<?php namespace ShapeGate${suffix}; `);
@@ -316,7 +324,7 @@ export async function run(): Promise<void> {
       list => list?.items.some(value => value.label === label) === true);
     console.log('Comparison provided target: ' + JSON.stringify(provided.items.find(value => value.label === label)));
     if (item.forbidden) assert.equal(provided.items.some(value => value.label === item.forbidden), false);
-    if (classRelativeConstructions || traitConstructions) {
+    if (classRelativeConstructions || traitConstructions || traitPhpDocs) {
       const help = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', uri, position);
       assert.ok(help?.signatures.some(value => value.label.includes('$value')));
     }
@@ -354,6 +362,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: traitConstructions ? `trait-construction-${configuredPhpVersion}` : classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: traitPhpDocs ? `trait-phpdoc-${configuredPhpVersion}` : traitConstructions ? `trait-construction-${configuredPhpVersion}` : classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

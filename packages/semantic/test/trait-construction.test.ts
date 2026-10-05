@@ -143,13 +143,13 @@ it('binds a Trait parent parameter using the consumer declaration and imports', 
     expect(workspace.incompatibleArguments(uri)).toMatchObject([{parameter:'value',expectedType:'Origin\\Root'}]);
   } finally {workspace.dispose();}
 });
-it('withdraws an unbound cross-namespace PHPDoc refinement rather than proving the wrong type', () => {
+it('binds a proven cross-namespace PHPDoc refinement without borrowing the consumer name', () => {
   const workspace = new SemanticWorkspace(parser);
   try {
     workspace.update('file:///Origin.php','<?php namespace Origin; class User {} trait Init {/** @param User $value */ public function __construct($value){}}',true);
     const source = '<?php namespace Consumer; class User {} class C {use \\Origin\\Init;} new C(new \\Origin\\User());';
     workspace.update(uri,source,true);
     expect(workspace.incompatibleArguments(uri)).toEqual([]);
-    expect(workspace.signatures(uri,source.indexOf('new C(')+6)[0]?.parameters[0]?.type).toBeUndefined();
+    expect(workspace.signatures(uri,source.indexOf('new C(')+6)[0]?.parameters[0]?.type).toBe('\\Origin\\User');
   } finally {workspace.dispose();}
 });
