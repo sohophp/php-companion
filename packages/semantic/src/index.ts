@@ -230,7 +230,11 @@ export interface TypeInfo extends SemanticLocation { name: string; fqcn: string;
 export interface TypeImportCandidate extends TypeInfo { aliasRequired: boolean; }
 export interface TypeCopySymbol extends SemanticLocation { fqcn: string; alias: string; }
 export interface TypeImportPlan { offset: number; text: string; replacements: Record<string, string>; conflict?: { fqcn: string; sourceAlias: string }; }
-export interface TypeRename extends SemanticLocation { name: string; fqcn: string; kind: ParsedDeclaration['kind']; declarationUri: string; locations: SemanticLocation[]; }
+export interface TypeRename extends SemanticLocation {
+  name: string; fqcn: string; kind: ParsedDeclaration['kind']; declarationUri: string; locations: SemanticLocation[];
+  additionalEdits?: Array<SemanticLocation & { newText: string }>;
+  checkedUris?: string[];
+}
 export interface TypeMoveInput { oldUri: string; newUri: string; newNamespace: string; }
 export interface TypeMoveReconciliationInput {
   newUri: string;
@@ -394,7 +398,7 @@ export type MissingAbstractImplementation = MissingInterfaceImplementation;
 export interface ConstructorGeneration { uri: string; classFqcn: string; classStart: number; classEnd: number; insertOffset: number; properties: Array<{ name: string; type: string }>; }
 export interface AccessorGeneration { uri: string; classFqcn: string; classStart: number; classEnd: number; insertOffset: number; accessors: Array<{ property: string; type: string; getter?: string; setter?: string }>; }
 export interface OverrideGeneration { uri: string; classFqcn: string; classStart: number; classEnd: number; insertOffset: number; methods: MissingInterfaceMethod[]; }
-export interface PrivateMethodRename { uri: string; start: number; end: number; name: string; fqcn: string; locations: SemanticLocation[]; }
+export interface PrivateMethodRename { uri: string; start: number; end: number; name: string; fqcn: string; locations: SemanticLocation[]; checkedUris?: string[]; }
 export type MethodRename = PrivateMethodRename;
 export interface PrivatePropertyRename { uri: string; start: number; end: number; name: string; fqcn: string; locations: SemanticLocation[]; }
 export type PropertyRename = PrivatePropertyRename;
@@ -1556,6 +1560,7 @@ export class SemanticWorkspace {
   private readonly importScopeCache = new WeakMap<SemanticFile, Array<{ namespace: string; start: number; end: number; insertionOffset: number }>>();
   private readonly completionTriviaSourceCache = new WeakMap<SemanticFile, string>();
   private readonly completionNonPhpRangesCache = new WeakMap<SemanticFile, Array<SourceRange & { endTag: boolean }>>();
+  private readonly typeRawTraitAdaptationsCache = new WeakMap<SemanticFile, { declarations: ParsedDeclaration[]; adaptations: ParsedTraitAdaptation[] }>();
   private readonly readOnlyParseUrlInProgress = new Set<string>();
   constructor(private readonly parser: PhpSyntaxParser) {}
 
@@ -9317,6 +9322,13 @@ export class SemanticWorkspace {
   }
 
   methodRename(uri: string, offset: number, newName?: string): MethodRename | undefined {
+    const plan = this.methodRenamePlan(uri, offset, newName);
+    if (!plan) return undefined;
+    const checkedUris = this.preserveLegacyConstruction(plan.locations.map(location => ({ ...location, newText: newName ?? '_SoPhpRenameProbe' })));
+    return checkedUris ? { ...plan, checkedUris } : undefined;
+  }
+
+  private methodRenamePlan(uri: string, offset: number, newName?: string): MethodRename | undefined {
     const file = this.files.get(uri); if (!file) return undefined;
     const declared = file.callables.find((item) => item.kind === 'method' && item.containerFqcn && !item.name.startsWith('__')
       && offset >= item.start && offset <= item.end);
@@ -9342,7 +9354,7 @@ export class SemanticWorkspace {
           && members.some((member) => member.uri === candidateFile.uri && member.start === callable.start && member.end === callable.end
             && member.fqcn.toLowerCase() === callable.fqcn.toLowerCase()));
       if (!declaration) return undefined;
-      const result = this.methodRename(declaration.file.uri, declaration.callable.start, newName);
+      const result = this.methodRenamePlan(declaration.file.uri, declaration.callable.start, newName);
       if (!result || members.some((member) => !result.locations.some((location) => location.uri === member.uri && location.start === member.start && location.end === member.end))) return undefined;
       return { ...result, uri, start: access.start, end: access.end };
     }
@@ -10792,10 +10804,21 @@ export class SemanticWorkspace {
         ? { uri, start: end - part.length, end }
         : undefined;
     };
+    const legacy = /^7\.[234]$/u.test(this.targetPhpVersion ?? '') && !target.fqcn.includes('\\') && target.kind === 'class'
+      ? this.constructorFor(target.fqcn) : undefined;
+    const effectiveLegacy = legacy?.callable.name.toLowerCase() === target.name.toLowerCase() ? legacy : undefined;
+    const selectedConstructor = effectiveLegacy?.file.uri === uri && effectiveLegacy.callable.containerFqcn?.toLowerCase() === target.fqcn.toLowerCase()
+      && offset >= effectiveLegacy.callable.start && offset <= effectiveLegacy.callable.end
+      ? { uri, start: effectiveLegacy.callable.start, end: effectiveLegacy.callable.end } : undefined;
+    const targetOwner = this.fileAndDeclaration(target.fqcn);
+    const legacyAlias = effectiveLegacy && targetOwner?.declaration.traitAdaptations.find((item): item is Extract<ParsedTraitAdaptation, { kind: 'alias' }> =>
+      item.kind === 'alias' && item.alias?.toLowerCase() === target.name.toLowerCase());
+    const aliasRange = legacyAlias && targetOwner && this.traitAliasRange(targetOwner.file, legacyAlias);
+    const selectedAlias = aliasRange?.uri === uri && offset >= aliasRange.start && offset <= aliasRange.end ? aliasRange : undefined;
     const selected = selectedDeclaration
       ? { uri, start: selectedDeclaration.start, end: selectedDeclaration.end }
       : selectedImport ? finalRange(selectedImport.pathEnd, file.source.slice(selectedImport.pathStart, selectedImport.pathEnd))
-        : selectedRaw ? finalRange(selectedRaw.end, selectedRaw.text) : undefined;
+        : selectedConstructor ?? selectedAlias ?? (selectedRaw ? finalRange(selectedRaw.end, selectedRaw.text) : undefined);
     if (!selected || offset < selected.start || offset > selected.end) return undefined;
 
     if (newName) {
@@ -10828,10 +10851,114 @@ export class SemanticWorkspace {
         }
       }
     }
+    const additionalEdits: Array<SemanticLocation & { newText: string }> = [];
+    if (effectiveLegacy && targetOwner) {
+      const direct = effectiveLegacy.callable.containerFqcn?.toLowerCase() === target.fqcn.toLowerCase();
+      const methodPlan = direct ? this.methodRenamePlan(effectiveLegacy.file.uri, effectiveLegacy.callable.start, newName)
+        : legacyAlias ? this.traitAliasRename(targetOwner.file, targetOwner.declaration, legacyAlias, newName) : undefined;
+      if (direct || legacyAlias) {
+        if (!methodPlan) return undefined;
+        locations.push(...methodPlan.locations);
+      } else if (newName) {
+        // Shared Trait methods must keep their names for other consumers. Add
+        // a local alias on this class instead of renaming the source Trait.
+        const edit = this.legacyTraitConstructorAlias(targetOwner.file, targetOwner.declaration, effectiveLegacy, newName);
+        if (!edit) return undefined;
+        additionalEdits.push(edit);
+      }
+    }
     const unique = [...new Map(locations.map((location) => [`${location.uri}:${location.start}:${location.end}`, location])).values()];
+    const checkedUris = newName ? this.preserveLegacyConstruction(
+      [...unique.map(location => ({ ...location, newText: newName })), ...additionalEdits], { oldName: target.fqcn, newName }) : [];
+    if (!checkedUris) return undefined;
     return unique.some((location) => location.uri === uri && location.start === selected.start && location.end === selected.end)
-      ? { ...selected, name: target.name, fqcn: target.fqcn, kind: target.kind, declarationUri: target.uri, locations: unique }
+      ? { ...selected, name: target.name, fqcn: target.fqcn, kind: target.kind, declarationUri: target.uri, locations: unique, additionalEdits, checkedUris }
       : undefined;
+  }
+
+  private legacyTraitConstructorAlias(file: SemanticFile, declaration: ParsedDeclaration,
+    constructor: { file: SemanticFile; callable: ParsedCallableDeclaration }, newName: string): (SemanticLocation & { newText: string }) | undefined {
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const providers = (declaration.traitUses ?? []).flatMap(use => use.names.flatMap(name => {
+      const trait = this.resolveSourceType(file, name, namespace, declaration.fqcn);
+      return trait && this.members(trait, trait, new Set(), true).some(member => member.kind === 'method'
+        && member.name.toLowerCase() === declaration.name.toLowerCase() && member.uri === constructor.file.uri
+        && member.start === constructor.callable.start) ? [{ use, name }] : [];
+    }));
+    if (providers.length !== 1) return undefined;
+    const provider = providers[0]!;
+    const retained = this.trees.get(file.uri), temporary = retained ? undefined : this.parser.parseTree(file.source);
+    try {
+      const node = (retained ?? temporary)!.rootNode.descendantsOfType('use_declaration')
+        .find(candidate => candidate.startIndex === provider.use.start && candidate.endIndex === provider.use.end);
+      if (!node || node.hasError) return undefined;
+      const alias = `${provider.name}::${declaration.name} as ${constructor.callable.visibility} ${newName};`;
+      const body = node.namedChildren.find(child => child.type === 'use_list');
+      const close = body?.children.at(-1);
+      if (close?.type === '}') return { uri: file.uri, start: close.startIndex, end: close.startIndex, newText: ` ${alias} ` };
+      const terminator = node.children.at(-1);
+      return terminator?.type === ';' ? { uri: file.uri, start: terminator.startIndex, end: terminator.endIndex, newText: ` { ${alias} }` } : undefined;
+    } finally { temporary?.delete(); }
+  }
+
+  private preserveLegacyConstruction(edits: Array<SemanticLocation & { newText: string }>,
+    renamedType?: { oldName: string; newName: string }): string[] | undefined {
+    if (!/^7\.[234]$/u.test(this.targetPhpVersion ?? '')) return [];
+    const owners = new Set<string>(renamedType ? [renamedType.oldName] : []);
+    for (const edit of edits) {
+      const file = this.files.get(edit.uri); if (!file) return undefined;
+      for (const callable of file.callables) if (callable.containerFqcn && edit.start <= callable.end && edit.end >= callable.start) owners.add(callable.containerFqcn);
+      for (const declaration of file.declarations) if (declaration.traitUses?.some(use => edit.start >= use.start && edit.end <= use.end)) owners.add(declaration.fqcn);
+    }
+    const consumers = [...owners].flatMap(name => this.fileAndDeclaration(name)?.declaration.kind === 'trait'
+      ? this.traitConsumers(name).map(consumer => consumer.declaration.fqcn) : []);
+    consumers.forEach(name => owners.add(name));
+    const classes = [...this.files.values()].flatMap(file => file.declarations.filter(declaration => declaration.kind === 'class' && !declaration.anonymous))
+      .filter(declaration => [...owners].some(owner => this.isSubclassOf(declaration.fqcn, owner) || this.isSubclassOf(owner, declaration.fqcn)));
+    if (!classes.length) return [];
+    const checkedUris = new Set<string>();
+    const checkGraph = (workspace: SemanticWorkspace, name: string, visited = new Set<string>()): boolean => {
+      const key = name.toLowerCase(); if (visited.has(key)) return false;
+      if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
+      visited.add(key);
+      const owner = workspace.fileAndDeclaration(name); if (!owner || owner.file.syntaxErrors.length) return false;
+      if (owner.file.uri.startsWith('file:')) checkedUris.add(owner.file.uri);
+      const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      return [...owner.declaration.extendsNames, ...owner.declaration.implementsNames, ...owner.declaration.traitNames].every(raw => {
+        const parent = workspace.resolveSourceType(owner.file, raw, namespace, name, owner.declaration.start);
+        return Boolean(parent && checkGraph(workspace, parent, new Set(visited)));
+      });
+    };
+    const byUri = new Map<string, Array<SemanticLocation & { newText: string }>>();
+    for (const edit of edits) { const list = byUri.get(edit.uri) ?? []; list.push(edit); byUri.set(edit.uri, list); }
+    const sourceAfter = (uri: string): string => (byUri.get(uri) ?? []).sort((a, b) => b.start - a.start)
+      .reduce((text, edit) => text.slice(0, edit.start) + edit.newText + text.slice(edit.end), this.files.get(uri)!.source);
+    const mapOffset = (uri: string, offset: number): number => offset + (byUri.get(uri) ?? [])
+      .filter(edit => edit.end <= offset).reduce((delta, edit) => delta + edit.newText.length - (edit.end - edit.start), 0);
+    const first = byUri.keys().next().value as string | undefined; if (!first) return [];
+    const fork = this.forkForLocalQuery(first, sourceAfter(first), new Set());
+    try {
+      for (const uri of byUri.keys()) if (uri !== first) fork.update(uri, sourceAfter(uri), true);
+      for (const declaration of classes) {
+        const oldName = declaration.fqcn;
+        const newName = renamedType && oldName.toLowerCase() === renamedType.oldName.toLowerCase()
+          ? [...oldName.split('\\').slice(0, -1), renamedType.newName].join('\\') : oldName;
+        if (!checkGraph(this, oldName) || !checkGraph(fork, newName)) return undefined;
+        const before = this.constructorsFor(oldName), after = fork.constructorsFor(newName);
+        // An empty binding must not bless an invalid static or conflicting
+        // legacy constructor introduced by the destination class name.
+        for (const [workspace, name, constructors] of [[this, oldName, before], [fork, newName, after]] as const) {
+          if (name.includes('\\') || constructors.length) continue;
+          if (workspace.members(name, name, new Set(), true, {}, true)
+            .some(member => member.kind === 'method' && [name.toLowerCase(), '__construct'].includes(member.name.toLowerCase()))) return undefined;
+        }
+        const identity = (items: typeof before, mapped: boolean): string => JSON.stringify(items.map(item => [item.file.uri,
+          mapped ? mapOffset(item.file.uri, item.callable.start) : item.callable.start,
+          item.callable.visibility, item.callable.static, item.callable.finalMethod]));
+        if (identity(before, true) !== identity(after, false)) return undefined;
+      }
+      return [...checkedUris];
+    } finally { fork.dispose(); }
   }
 
   private memberDeclarationAt(uri: string, offset: number): MemberInfo | undefined {
@@ -10892,6 +11019,19 @@ export class SemanticWorkspace {
   }
 
   private isSemanticTypeRawName(file: SemanticFile, raw: RawName): boolean {
+    if (raw.context === 'code') {
+      let cached = this.typeRawTraitAdaptationsCache.get(file);
+      if (cached?.declarations !== file.declarations) {
+        cached = { declarations: file.declarations, adaptations: file.declarations.flatMap(declaration => declaration.traitAdaptations) };
+        this.typeRawTraitAdaptationsCache.set(file, cached);
+      }
+      const adaptation = cached.adaptations.find(item => raw.start >= item.start && raw.end <= item.end);
+      // Trait source method names and aliases are declarations/references to
+      // methods, even when their spelling also resolves to a project type.
+      if (adaptation) return file.typeReferences.some(reference => reference.context === 'static-receiver'
+        && raw.start >= reference.start && raw.end <= reference.end)
+        || adaptation.kind === 'precedence' && adaptation.insteadOf.some(name => name.toLowerCase() === raw.text.toLowerCase());
+    }
     return raw.context === 'code' || this.phpDocTypeNameAt(file, raw.start);
   }
 

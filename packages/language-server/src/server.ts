@@ -8199,9 +8199,9 @@ connection.onRenameRequest(async (params, token) => {
   // LSP documentChanges are applied in array order. Edit the existing
   // declaration document before renaming its file; addressing the destination
   // after RenameFile is not reliably representable by VS Code's WorkspaceEdit.
-  const plannedLocations = target.locations;
+  const plannedEdits = [...target.locations.map(location => ({ ...location, newText: newName })), ...(typeTarget?.additionalEdits ?? [])];
   const originalUri = (uri: string): string => uri;
-  const uris = [...new Set(plannedLocations.map((location) => location.uri))];
+  const uris = [...new Set(plannedEdits.map((location) => location.uri))];
   const snapshots = uris.flatMap((uri) => {
     const sourceUri = originalUri(uri);
     const source = documents.get(sourceUri)?.getText() ?? workspace.source(sourceUri); if (source === undefined) return [];
@@ -8209,7 +8209,7 @@ connection.onRenameRequest(async (params, token) => {
   });
   if (snapshots.length !== uris.length) return null;
   const label = 'fqcn' in target ? `symbol ${target.fqcn}` : `local variable $${target.name}`;
-  const plan = createEditPlan(`Rename ${label} to ${newName}`, snapshots, plannedLocations.map((location) => ({ ...location, newText: newName })),
+  const plan = createEditPlan(`Rename ${label} to ${newName}`, snapshots, plannedEdits,
     fileRename ? [{ kind: 'rename', oldUri: fileRename.oldUri, newUri: fileRename.newUri }] : []);
   const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
   for (const edit of plan.textEdits) {
@@ -8217,7 +8217,10 @@ connection.onRenameRequest(async (params, token) => {
     const targetDocument = documents.get(sourceUri) ?? TextDocument.create(edit.uri, 'php', 0, source);
     (changes[edit.uri] ??= []).push({ range: { start: targetDocument.positionAt(edit.start), end: targetDocument.positionAt(edit.end) }, newText: edit.newText });
   }
-  const sourceHashes = Object.fromEntries(uris.map((uri) => {
+  const checkedSources = 'checkedUris' in target && Array.isArray(target.checkedUris) ? target.checkedUris.filter((uri): uri is string => typeof uri === 'string') : [];
+  const checkedUris = [...new Set([...uris, ...checkedSources])];
+  if (checkedUris.some(uri => (documents.get(uri)?.getText() ?? workspace.source(uri)) === undefined)) return null;
+  const sourceHashes = Object.fromEntries(checkedUris.map((uri) => {
     const source = documents.get(uri)?.getText() ?? workspace.source(uri)!;
     return [uri, createHash('sha256').update(source).digest('hex')];
   }));

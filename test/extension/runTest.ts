@@ -37,6 +37,9 @@ async function main(): Promise<void> {
   const vscodeExecutablePath = process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE;
   const twigPlusDevelopmentPath = process.env.PHP_COMPANION_TEST_TWIG_PLUS_PATH;
   const c3Only = process.env.PHP_COMPANION_TEST_C3_ONLY === '1';
+  const legacyRenameOnly = c3Only && process.env.PHP_COMPANION_TEST_LEGACY_RENAME_ONLY === '1';
+  const legacyRenameVersion = process.env.PHP_COMPANION_TEST_LEGACY_RENAME_PHP_VERSION ?? '7.2';
+  if (legacyRenameOnly && !['7.2', '8.5'].includes(legacyRenameVersion)) throw new Error('Legacy Rename host needs PHP 7.2 or 8.5.');
   const c3IndexingMode = process.env.PHP_COMPANION_TEST_C3_INDEXING_MODE;
   if (c3IndexingMode && (!c3Only || !['onDemand', 'progressive', 'experimental'].includes(c3IndexingMode))) {
     throw new Error('C3 indexing mode requires C3-only mode and onDemand, progressive or experimental.');
@@ -184,9 +187,17 @@ async function main(): Promise<void> {
   if (!c1Only) {
     const settingsPath = join(fixture, '.vscode', 'settings.json');
     const settings = JSON.parse(await readFile(settingsPath, 'utf8')) as Record<string, unknown>;
-    settings['phpCompanion.phpVersion'] = docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : '8.5';
+    settings['phpCompanion.phpVersion'] = legacyRenameOnly ? legacyRenameVersion
+      : docblockerOnly ? process.env.PHP_COMPANION_TEST_DOCBLOCKER_PHP_VERSION ?? '8.5' : '8.5';
     if (c2Only || docblockerOnly) settings['phpCompanion.indexing.mode'] = 'onDemand';
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
+  }
+
+  if (legacyRenameOnly) {
+    const path = join(fixture, 'composer.json');
+    const composer = JSON.parse(await readFile(path, 'utf8'));
+    composer.autoload['psr-4'][''] = 'src/';
+    await writeFile(path, JSON.stringify(composer, null, 2));
   }
 
   if (c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile || c3PhpunitPairProfile) {
@@ -245,7 +256,7 @@ async function main(): Promise<void> {
           ...(docblockerOnly || c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile
             ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])]),
       extensionTestsPath: resolve(__dirname, 'suite', process.env.PHP_COMPANION_TEST_EXTRACT_INTERFACE_ONLY === '1' ? 'extractStaticInterface'
-        : routeStatusOnly ? 'routeStatus' : c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
+        : legacyRenameOnly ? 'legacyConstructorRename' : routeStatusOnly ? 'routeStatus' : c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
       launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c1OpenSourceProfile || c2OpenSourceProfile
         || c3OpenSourceProfile || c3PhpunitPairProfile ? [] : ['--disable-extensions']),
         ...(docblockerOnly ? [

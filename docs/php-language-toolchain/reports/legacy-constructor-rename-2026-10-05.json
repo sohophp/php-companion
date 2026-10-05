@@ -1,0 +1,1731 @@
+{
+  "date": "2026-10-05",
+  "baselineCommit": "6d2c8c7f",
+  "scope": "D107 PHP 7 legacy constructor Rename safety",
+  "sources": {
+    "packages/semantic/src/index.ts": "1cd97c713ca54a1a829b1d2cbbe893d5582d2dcb003c5515110e77926ec72e62",
+    "packages/language-server/src/server.ts": "b4372abad455150dc3f306ecd696398a60ca81bed0d8f35d2dcd03a2782cbb45",
+    "packages/semantic/test/legacy-constructor-rename.test.ts": "30fae3d20721b5a502e3cc3888a4fd74a1a3fd1ed3c8ce6ab9d130c7948a1fc8",
+    "packages/language-server/test/legacy-constructor-rename-stdio.test.ts": "da643376fe0540cf539137629a36b04493840088cc27b7216fa58a0316bd3392",
+    "test/extension/runTest.ts": "5f201abc1f52fd9600dc1685fb930f75ecb425441fb23e385550a7b4ace54229",
+    "test/extension/suite/legacyConstructorRename.ts": "2a7ad392b8523b9b34f5be9c79c9a71ee032d3e2be911f39838c618a93a6791f"
+  },
+  "products": {
+    "packages/semantic/dist/index.js": "28e959bf439edce01f51ed2b5abc882a21ccff7da1f00ad25f09087a70b7519f",
+    "packages/language-server/dist/server.js": "ec64dcdd46f0cbed0903fd0f65f6a9d9331a29c0fb1bb603a0e4a208e6bd9a0c",
+    "dist/language-server.js": "adf8a35b1a622fe1ab5141aca408389dcd91e527773fd599043b3cd70dff564f",
+    "dist/extension.js": "ee119dfcc817ab8c63b3a352664ea4aad9ecc400a4b98ff6f831490070415185",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "baseline": [
+    {
+      "version": "7.2",
+      "source": "<?php class C { public $value; public function C(int $value){$this->value=$value;} } $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "renamed": "<?php class D { public $value; public function C(int $value){$this->value=$value;} } $object=new D(7); echo isset($object->value)?$object->value:\"unset\";",
+      "locations": [
+        {
+          "uri": "file:///C.php",
+          "start": 12,
+          "end": 13
+        },
+        {
+          "uri": "file:///C.php",
+          "start": 97,
+          "end": 98
+        }
+      ],
+      "before": {
+        "status": 0,
+        "stdout": "7",
+        "stderr": ""
+      },
+      "after": {
+        "status": 0,
+        "stdout": "unset",
+        "stderr": ""
+      }
+    },
+    {
+      "version": "8.5",
+      "source": "<?php class C { public $value; public function C(int $value){$this->value=$value;} } $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "renamed": "<?php class D { public $value; public function C(int $value){$this->value=$value;} } $object=new D(7); echo isset($object->value)?$object->value:\"unset\";",
+      "locations": [
+        {
+          "uri": "file:///C.php",
+          "start": 12,
+          "end": 13
+        },
+        {
+          "uri": "file:///C.php",
+          "start": 97,
+          "end": 98
+        }
+      ],
+      "before": {
+        "status": 0,
+        "stdout": "unset",
+        "stderr": ""
+      },
+      "after": {
+        "status": 0,
+        "stdout": "unset",
+        "stderr": ""
+      }
+    }
+  ],
+  "native": {
+    "versions": [
+      "7.2",
+      "7.4",
+      "8.1",
+      "8.2",
+      "8.4",
+      "8.5"
+    ],
+    "runtimeHashes": {
+      "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "fixtures": {
+      "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279": "<?php class C {public $value;function C(int $value){$this->value=$value;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "de7e55d90b47b76d14890549501e4c2c222d3f7e8435cade8c18a8940d69bb64": "<?php class Renamed {public $value;function Renamed(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2": "<?php class C {public $value;function c(int $value){$this->value=$value;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92": "<?php class C {public $value;private function C(int $value){$this->value=$value;} static function make(){return new self(7);}} $object=C::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "4ad9f14406f3df819b19ac28968c98c62b2c4074a05b9a7605fcee1d7e408e16": "<?php class Renamed {public $value;private function Renamed(int $value){$this->value=$value;} static function make(){return new self(7);}} $object=Renamed::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f": "<?php class C {public $value;protected function C(int $value){$this->value=$value;} static function make(){return new self(7);}} $object=C::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "7b69ef1c8b4afc03acaf98301ddff3fe9ad358f19570167e95f9a08e306c19d7": "<?php class Renamed {public $value;protected function Renamed(int $value){$this->value=$value;} static function make(){return new self(7);}} $object=Renamed::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2": "<?php trait Init {function seed(int $value){$this->value=$value;}} class C {public $value;use Init {seed as C;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "7aac2396589d808acd1d84ed96b1f7e7e442b82095b12ebba759006d3b5866f2": "<?php trait Init {function seed(int $value){$this->value=$value;}} class Renamed {public $value;use Init {seed as Renamed;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e": "<?php trait Init {function C(int $value){$this->value=$value;}} class Other {public $value;use Init;} class C {public $value;use Init;} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "dff0e57f200e419abe68f6e5cb800f54e9b26dd6f3ba87bc75b31fe65156025c": "<?php trait Init {function C(int $value){$this->value=$value;}} class Other {public $value;use Init;} class Renamed {public $value;use Init { Init::C as public Renamed; }} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8": "<?php trait Init {function C(int $value){$this->value=$value;}} trait Mid {use Init;} class C {public $value;use Mid;} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "6f17e8632a9485de05ff0815f129be5ffdaa11847004959d9bed47bd417b651c": "<?php trait Init {function C(int $value){$this->value=$value;}} trait Mid {use Init;} class Renamed {public $value;use Mid { Mid::C as public Renamed; }} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726": "<?php trait Init {function C(int $value){$this->value=$value;}} class C {public $value;use Init {C as private;} static function make(){return new self(7);}} $object=C::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "41c08fdda22a81481a264d11dee0735791964e07640c06b6a66725acc7996826": "<?php trait Init {function C(int $value){$this->value=$value;}} class Renamed {public $value;use Init {C as private; Init::C as private Renamed; } static function make(){return new self(7);}} $object=Renamed::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7": "<?php trait Init {function C(int $value){$this->value=$value;}} class C {public $value;use Init {C as other;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "48732161cf39f2f18a13661b39cebb9bf550357399e899eb7bc46f2af6be1b20": "<?php trait Init {function C(int $value){$this->value=$value;}} class Renamed {public $value;use Init {C as other; Init::C as public Renamed; }} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f": "<?php trait Init {function C(int $value){$this->value=$value;}} trait Other {function C(int $value){$this->value=999;}} class C {public $value;use Init,Other {Init::C insteadof Other;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "945a538a5faa4218446a5b67a565691e492b1ea057d530d871ab9a0c4b790a60": "<?php trait Init {function C(int $value){$this->value=$value;}} trait Other {function C(int $value){$this->value=999;}} class Renamed {public $value;use Init,Other {Init::C insteadof Other; Init::C as public Renamed; }} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f": "<?php trait Init {function C(int $value){$this->value=999;}} class C {public $value;use Init;function C(int $value){$this->value=$value;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "996c27a0b61502200700e3753b76f1212682b8925dc28a3d6d85d6aafb2b090f": "<?php trait Init {function C(int $value){$this->value=999;}} class Renamed {public $value;use Init;function Renamed(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e": "<?php class Base {public $value;function Base(int $value){$this->value=$value;}} class C extends Base {} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1": "<?php class Base {public $value;function Base(int $value){$this->value=$value;}} class Renamed extends Base {} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9": "<?php class C {public $value;function C(int $value){$this->value=999;} function __construct(int $value){$this->value=$value;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e": "<?php class Renamed {public $value;function C(int $value){$this->value=999;} function __construct(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f": "<?php namespace N; class C {public $value;function C(int $value){$this->value=$value;}} $object=new C(7); echo isset($object->value)?$object->value:\"unset\";",
+      "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d": "<?php namespace N; class Renamed {public $value;function C(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd": "<?php class C {public $value;function C(int $value){$this->value=$value;}} class Child extends C {function C(int $value){$this->value=$value+10;}} $object=new Child(7); echo isset($object->value)?$object->value:\"unset\";",
+      "b2614a4ff17955347a1f8b4d5e34882d6951e4bf5c75e61bbe34d7cd8dc81709": "<?php class Renamed {public $value;function Renamed(int $value){$this->value=$value;}} class Child extends Renamed {function Renamed(int $value){$this->value=$value+10;}} $object=new Child(7); echo isset($object->value)?$object->value:\"unset\";",
+      "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc": "<?php trait Init {function seed(int $value){$this->value=$value;}} class C {public $value;use Init {seed as C;}} $object=new C(7); $object->C(9);echo isset($object->value)?$object->value:\"unset\";",
+      "e0d2231763644ece8cb9f21749dc3ce709f0b0d13648c5fc112e68e8a3bb0138": "<?php trait Init {function seed(int $value){$this->value=$value;}} class Renamed {public $value;use Init {seed as Renamed;}} $object=new Renamed(7); $object->Renamed(9);echo isset($object->value)?$object->value:\"unset\";",
+      "e885c9eb9656746db71bb2d56dea266c3f657c503a4f119583469f3f132fb9a9": "<?php class Renamed {public $value;function C(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "94811b1e0d18a8852723e6105c459fa6aefc2b8289bc7e778b37c9e2ca4febdd": "<?php class Renamed {public $value;function c(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "17f8acd9a2e4bb2a779d15194d9f9ce34eb633820378af6e807e4781bf1606c2": "<?php class Renamed {public $value;private function C(int $value){$this->value=$value;} static function make(){return new self(7);}} $object=Renamed::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "d7e5c84d24e1c184455596d06b06a64a415b41d7cdc16aba58ba6d8a5be2d72d": "<?php class Renamed {public $value;protected function C(int $value){$this->value=$value;} static function make(){return new self(7);}} $object=Renamed::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "f792d9a76226574e8e1e74f7ed4bb57698e54604ade9c5299ea38fb2c6b3f551": "<?php trait Init {function seed(int $value){$this->value=$value;}} class Renamed {public $value;use Init {seed as C;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "75377f8b87f648c0653db3165793c12e1a10980f479fde5003d9688f2a9ecc2d": "<?php trait Init {function C(int $value){$this->value=$value;}} class Other {public $value;use Init;} class Renamed {public $value;use Init;} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "afb37daff77bfac3a0d21f8ec4b39762b8cda45d5c81814a821c9247cac2a7c6": "<?php trait Init {function C(int $value){$this->value=$value;}} trait Mid {use Init;} class Renamed {public $value;use Mid;} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "855fda0fc7245bc6adccbfca04aafe0a324eecdf73d775dd922cc05a3e1a6eb2": "<?php trait Init {function C(int $value){$this->value=$value;}} class Renamed {public $value;use Init {C as private;} static function make(){return new self(7);}} $object=Renamed::make(); echo isset($object->value)?$object->value:\"unset\";",
+      "2a846bddbcdb75a451b60bcaa85ebce19a2af0f7e3cd20d91983453ca93cbf52": "<?php trait Init {function C(int $value){$this->value=$value;}} class Renamed {public $value;use Init {C as other;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "805adabb4ef506830a3cd24c90f55a8e5edff3979c8dbed8d0210dd23e600dea": "<?php trait Init {function C(int $value){$this->value=$value;}} trait Other {function C(int $value){$this->value=999;}} class Renamed {public $value;use Init,Other {Init::C insteadof Other;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "89ea5351afcb545af8b978a342700e94ee34d2675592b45ff43e930feb5c670b": "<?php trait Init {function C(int $value){$this->value=999;}} class Renamed {public $value;use Init;function C(int $value){$this->value=$value;}} $object=new Renamed(7); echo isset($object->value)?$object->value:\"unset\";",
+      "1bb44bf193d7baada02087f8186366a7a477b29f7827e7704e24c61f7a086b30": "<?php class Renamed {public $value;function C(int $value){$this->value=$value;}} class Child extends Renamed {function C(int $value){$this->value=$value+10;}} $object=new Child(7); echo isset($object->value)?$object->value:\"unset\";",
+      "29d742fd3c22c4dd406cfa6ee93190df69b753317def8c42663d5151b66b0e20": "<?php trait Init {function seed(int $value){$this->value=$value;}} class Renamed {public $value;use Init {seed as C;}} $object=new Renamed(7); $object->C(9);echo isset($object->value)?$object->value:\"unset\";"
+    },
+    "states": [
+      {
+        "version": "7.2",
+        "name": "direct",
+        "sourceHash": "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279",
+        "renamedHash": "de7e55d90b47b76d14890549501e4c2c222d3f7e8435cade8c18a8940d69bb64",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "case-insensitive",
+        "sourceHash": "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2",
+        "renamedHash": "de7e55d90b47b76d14890549501e4c2c222d3f7e8435cade8c18a8940d69bb64",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "private",
+        "sourceHash": "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92",
+        "renamedHash": "4ad9f14406f3df819b19ac28968c98c62b2c4074a05b9a7605fcee1d7e408e16",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "protected",
+        "sourceHash": "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f",
+        "renamedHash": "7b69ef1c8b4afc03acaf98301ddff3fe9ad358f19570167e95f9a08e306c19d7",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "local alias",
+        "sourceHash": "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2",
+        "renamedHash": "7aac2396589d808acd1d84ed96b1f7e7e442b82095b12ebba759006d3b5866f2",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "shared Trait",
+        "sourceHash": "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e",
+        "renamedHash": "dff0e57f200e419abe68f6e5cb800f54e9b26dd6f3ba87bc75b31fe65156025c",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "nested Trait",
+        "sourceHash": "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8",
+        "renamedHash": "6f17e8632a9485de05ff0815f129be5ffdaa11847004959d9bed47bd417b651c",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "private adaptation",
+        "sourceHash": "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726",
+        "renamedHash": "41c08fdda22a81481a264d11dee0735791964e07640c06b6a66725acc7996826",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "unrelated alias retained",
+        "sourceHash": "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7",
+        "renamedHash": "48732161cf39f2f18a13661b39cebb9bf550357399e899eb7bc46f2af6be1b20",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "precedence",
+        "sourceHash": "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f",
+        "renamedHash": "945a538a5faa4218446a5b67a565691e492b1ea057d530d871ab9a0c4b790a60",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "own overrides Trait",
+        "sourceHash": "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f",
+        "renamedHash": "996c27a0b61502200700e3753b76f1212682b8925dc28a3d6d85d6aafb2b090f",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "inherited",
+        "sourceHash": "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e",
+        "renamedHash": "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "modern wins",
+        "sourceHash": "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9",
+        "renamedHash": "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "namespace ordinary",
+        "sourceHash": "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f",
+        "renamedHash": "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "method family",
+        "sourceHash": "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd",
+        "renamedHash": "b2614a4ff17955347a1f8b4d5e34882d6951e4bf5c75e61bbe34d7cd8dc81709",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.2",
+        "name": "local alias call",
+        "sourceHash": "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc",
+        "renamedHash": "e0d2231763644ece8cb9f21749dc3ce709f0b0d13648c5fc112e68e8a3bb0138",
+        "before": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "direct",
+        "sourceHash": "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279",
+        "renamedHash": "de7e55d90b47b76d14890549501e4c2c222d3f7e8435cade8c18a8940d69bb64",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "case-insensitive",
+        "sourceHash": "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2",
+        "renamedHash": "de7e55d90b47b76d14890549501e4c2c222d3f7e8435cade8c18a8940d69bb64",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "private",
+        "sourceHash": "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92",
+        "renamedHash": "4ad9f14406f3df819b19ac28968c98c62b2c4074a05b9a7605fcee1d7e408e16",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "protected",
+        "sourceHash": "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f",
+        "renamedHash": "7b69ef1c8b4afc03acaf98301ddff3fe9ad358f19570167e95f9a08e306c19d7",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "local alias",
+        "sourceHash": "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2",
+        "renamedHash": "7aac2396589d808acd1d84ed96b1f7e7e442b82095b12ebba759006d3b5866f2",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "shared Trait",
+        "sourceHash": "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e",
+        "renamedHash": "dff0e57f200e419abe68f6e5cb800f54e9b26dd6f3ba87bc75b31fe65156025c",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "nested Trait",
+        "sourceHash": "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8",
+        "renamedHash": "6f17e8632a9485de05ff0815f129be5ffdaa11847004959d9bed47bd417b651c",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "private adaptation",
+        "sourceHash": "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726",
+        "renamedHash": "41c08fdda22a81481a264d11dee0735791964e07640c06b6a66725acc7996826",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "unrelated alias retained",
+        "sourceHash": "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7",
+        "renamedHash": "48732161cf39f2f18a13661b39cebb9bf550357399e899eb7bc46f2af6be1b20",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "precedence",
+        "sourceHash": "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f",
+        "renamedHash": "945a538a5faa4218446a5b67a565691e492b1ea057d530d871ab9a0c4b790a60",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "own overrides Trait",
+        "sourceHash": "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f",
+        "renamedHash": "996c27a0b61502200700e3753b76f1212682b8925dc28a3d6d85d6aafb2b090f",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "inherited",
+        "sourceHash": "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e",
+        "renamedHash": "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "modern wins",
+        "sourceHash": "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9",
+        "renamedHash": "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "namespace ordinary",
+        "sourceHash": "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f",
+        "renamedHash": "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "method family",
+        "sourceHash": "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd",
+        "renamedHash": "b2614a4ff17955347a1f8b4d5e34882d6951e4bf5c75e61bbe34d7cd8dc81709",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "7.4",
+        "name": "local alias call",
+        "sourceHash": "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc",
+        "renamedHash": "e0d2231763644ece8cb9f21749dc3ce709f0b0d13648c5fc112e68e8a3bb0138",
+        "before": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "direct",
+        "sourceHash": "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279",
+        "renamedHash": "e885c9eb9656746db71bb2d56dea266c3f657c503a4f119583469f3f132fb9a9",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "case-insensitive",
+        "sourceHash": "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2",
+        "renamedHash": "94811b1e0d18a8852723e6105c459fa6aefc2b8289bc7e778b37c9e2ca4febdd",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "private",
+        "sourceHash": "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92",
+        "renamedHash": "17f8acd9a2e4bb2a779d15194d9f9ce34eb633820378af6e807e4781bf1606c2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "protected",
+        "sourceHash": "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f",
+        "renamedHash": "d7e5c84d24e1c184455596d06b06a64a415b41d7cdc16aba58ba6d8a5be2d72d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "local alias",
+        "sourceHash": "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2",
+        "renamedHash": "f792d9a76226574e8e1e74f7ed4bb57698e54604ade9c5299ea38fb2c6b3f551",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "shared Trait",
+        "sourceHash": "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e",
+        "renamedHash": "75377f8b87f648c0653db3165793c12e1a10980f479fde5003d9688f2a9ecc2d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "nested Trait",
+        "sourceHash": "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8",
+        "renamedHash": "afb37daff77bfac3a0d21f8ec4b39762b8cda45d5c81814a821c9247cac2a7c6",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "private adaptation",
+        "sourceHash": "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726",
+        "renamedHash": "855fda0fc7245bc6adccbfca04aafe0a324eecdf73d775dd922cc05a3e1a6eb2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "unrelated alias retained",
+        "sourceHash": "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7",
+        "renamedHash": "2a846bddbcdb75a451b60bcaa85ebce19a2af0f7e3cd20d91983453ca93cbf52",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "precedence",
+        "sourceHash": "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f",
+        "renamedHash": "805adabb4ef506830a3cd24c90f55a8e5edff3979c8dbed8d0210dd23e600dea",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "own overrides Trait",
+        "sourceHash": "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f",
+        "renamedHash": "89ea5351afcb545af8b978a342700e94ee34d2675592b45ff43e930feb5c670b",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "inherited",
+        "sourceHash": "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e",
+        "renamedHash": "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "modern wins",
+        "sourceHash": "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9",
+        "renamedHash": "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "namespace ordinary",
+        "sourceHash": "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f",
+        "renamedHash": "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "method family",
+        "sourceHash": "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd",
+        "renamedHash": "1bb44bf193d7baada02087f8186366a7a477b29f7827e7704e24c61f7a086b30",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.1",
+        "name": "local alias call",
+        "sourceHash": "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc",
+        "renamedHash": "29d742fd3c22c4dd406cfa6ee93190df69b753317def8c42663d5151b66b0e20",
+        "before": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "direct",
+        "sourceHash": "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279",
+        "renamedHash": "e885c9eb9656746db71bb2d56dea266c3f657c503a4f119583469f3f132fb9a9",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "case-insensitive",
+        "sourceHash": "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2",
+        "renamedHash": "94811b1e0d18a8852723e6105c459fa6aefc2b8289bc7e778b37c9e2ca4febdd",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "private",
+        "sourceHash": "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92",
+        "renamedHash": "17f8acd9a2e4bb2a779d15194d9f9ce34eb633820378af6e807e4781bf1606c2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "protected",
+        "sourceHash": "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f",
+        "renamedHash": "d7e5c84d24e1c184455596d06b06a64a415b41d7cdc16aba58ba6d8a5be2d72d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "local alias",
+        "sourceHash": "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2",
+        "renamedHash": "f792d9a76226574e8e1e74f7ed4bb57698e54604ade9c5299ea38fb2c6b3f551",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "shared Trait",
+        "sourceHash": "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e",
+        "renamedHash": "75377f8b87f648c0653db3165793c12e1a10980f479fde5003d9688f2a9ecc2d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "nested Trait",
+        "sourceHash": "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8",
+        "renamedHash": "afb37daff77bfac3a0d21f8ec4b39762b8cda45d5c81814a821c9247cac2a7c6",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "private adaptation",
+        "sourceHash": "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726",
+        "renamedHash": "855fda0fc7245bc6adccbfca04aafe0a324eecdf73d775dd922cc05a3e1a6eb2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "unrelated alias retained",
+        "sourceHash": "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7",
+        "renamedHash": "2a846bddbcdb75a451b60bcaa85ebce19a2af0f7e3cd20d91983453ca93cbf52",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "precedence",
+        "sourceHash": "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f",
+        "renamedHash": "805adabb4ef506830a3cd24c90f55a8e5edff3979c8dbed8d0210dd23e600dea",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "own overrides Trait",
+        "sourceHash": "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f",
+        "renamedHash": "89ea5351afcb545af8b978a342700e94ee34d2675592b45ff43e930feb5c670b",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "inherited",
+        "sourceHash": "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e",
+        "renamedHash": "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "modern wins",
+        "sourceHash": "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9",
+        "renamedHash": "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "namespace ordinary",
+        "sourceHash": "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f",
+        "renamedHash": "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "method family",
+        "sourceHash": "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd",
+        "renamedHash": "1bb44bf193d7baada02087f8186366a7a477b29f7827e7704e24c61f7a086b30",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.2",
+        "name": "local alias call",
+        "sourceHash": "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc",
+        "renamedHash": "29d742fd3c22c4dd406cfa6ee93190df69b753317def8c42663d5151b66b0e20",
+        "before": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "direct",
+        "sourceHash": "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279",
+        "renamedHash": "e885c9eb9656746db71bb2d56dea266c3f657c503a4f119583469f3f132fb9a9",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "case-insensitive",
+        "sourceHash": "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2",
+        "renamedHash": "94811b1e0d18a8852723e6105c459fa6aefc2b8289bc7e778b37c9e2ca4febdd",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "private",
+        "sourceHash": "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92",
+        "renamedHash": "17f8acd9a2e4bb2a779d15194d9f9ce34eb633820378af6e807e4781bf1606c2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "protected",
+        "sourceHash": "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f",
+        "renamedHash": "d7e5c84d24e1c184455596d06b06a64a415b41d7cdc16aba58ba6d8a5be2d72d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "local alias",
+        "sourceHash": "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2",
+        "renamedHash": "f792d9a76226574e8e1e74f7ed4bb57698e54604ade9c5299ea38fb2c6b3f551",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "shared Trait",
+        "sourceHash": "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e",
+        "renamedHash": "75377f8b87f648c0653db3165793c12e1a10980f479fde5003d9688f2a9ecc2d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "nested Trait",
+        "sourceHash": "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8",
+        "renamedHash": "afb37daff77bfac3a0d21f8ec4b39762b8cda45d5c81814a821c9247cac2a7c6",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "private adaptation",
+        "sourceHash": "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726",
+        "renamedHash": "855fda0fc7245bc6adccbfca04aafe0a324eecdf73d775dd922cc05a3e1a6eb2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "unrelated alias retained",
+        "sourceHash": "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7",
+        "renamedHash": "2a846bddbcdb75a451b60bcaa85ebce19a2af0f7e3cd20d91983453ca93cbf52",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "precedence",
+        "sourceHash": "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f",
+        "renamedHash": "805adabb4ef506830a3cd24c90f55a8e5edff3979c8dbed8d0210dd23e600dea",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "own overrides Trait",
+        "sourceHash": "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f",
+        "renamedHash": "89ea5351afcb545af8b978a342700e94ee34d2675592b45ff43e930feb5c670b",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "inherited",
+        "sourceHash": "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e",
+        "renamedHash": "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "modern wins",
+        "sourceHash": "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9",
+        "renamedHash": "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "namespace ordinary",
+        "sourceHash": "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f",
+        "renamedHash": "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "method family",
+        "sourceHash": "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd",
+        "renamedHash": "1bb44bf193d7baada02087f8186366a7a477b29f7827e7704e24c61f7a086b30",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.4",
+        "name": "local alias call",
+        "sourceHash": "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc",
+        "renamedHash": "29d742fd3c22c4dd406cfa6ee93190df69b753317def8c42663d5151b66b0e20",
+        "before": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "direct",
+        "sourceHash": "853fd3ad2e5b8e02a21d5d4df8cfb1ed3ed0a219316b80f75489529593a15279",
+        "renamedHash": "e885c9eb9656746db71bb2d56dea266c3f657c503a4f119583469f3f132fb9a9",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "case-insensitive",
+        "sourceHash": "5c8e60b607188f3998f7976912d8417b29a04a009a72a9842aca4d452f0c5ea2",
+        "renamedHash": "94811b1e0d18a8852723e6105c459fa6aefc2b8289bc7e778b37c9e2ca4febdd",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "private",
+        "sourceHash": "69533d7fb4301ff4870f0c062de300ce28d21797855b6f42eed9001b5eb12c92",
+        "renamedHash": "17f8acd9a2e4bb2a779d15194d9f9ce34eb633820378af6e807e4781bf1606c2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "protected",
+        "sourceHash": "48498678101ca393f17a4a6ddbfbce70c05cae1300a5fd25a069c047bb25cd3f",
+        "renamedHash": "d7e5c84d24e1c184455596d06b06a64a415b41d7cdc16aba58ba6d8a5be2d72d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "local alias",
+        "sourceHash": "4c87e4ef7c9d5ebb89bcd380ac3acc892b0bc2cbc550fc7c36255b0fe88406b2",
+        "renamedHash": "f792d9a76226574e8e1e74f7ed4bb57698e54604ade9c5299ea38fb2c6b3f551",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "shared Trait",
+        "sourceHash": "7a9dc80bf8a50deba993be88f372b514c44b8e450ec8fe32ef093b7cb3d79f2e",
+        "renamedHash": "75377f8b87f648c0653db3165793c12e1a10980f479fde5003d9688f2a9ecc2d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "nested Trait",
+        "sourceHash": "0ffbefadde9ca9059a9f345df95fdd51068cd7fdfbe56218ea45e227be17e3c8",
+        "renamedHash": "afb37daff77bfac3a0d21f8ec4b39762b8cda45d5c81814a821c9247cac2a7c6",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "private adaptation",
+        "sourceHash": "db414c609227d0d6069280b71e66192d1d140a571301950477a00b21fb11e726",
+        "renamedHash": "855fda0fc7245bc6adccbfca04aafe0a324eecdf73d775dd922cc05a3e1a6eb2",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "unrelated alias retained",
+        "sourceHash": "dd4749d8542d4bbc16752048716c368b9b58f37f7b528c097e66ca5f59ad7fe7",
+        "renamedHash": "2a846bddbcdb75a451b60bcaa85ebce19a2af0f7e3cd20d91983453ca93cbf52",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "precedence",
+        "sourceHash": "adfa90340af0c453348ae84b44c9ed3fd40cd7aacb1034cdc87efe294891647f",
+        "renamedHash": "805adabb4ef506830a3cd24c90f55a8e5edff3979c8dbed8d0210dd23e600dea",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "own overrides Trait",
+        "sourceHash": "fe205d4943036fc3aa2ca2cc9c352a7ae4d137322129cb64901f2e2adb115a0f",
+        "renamedHash": "89ea5351afcb545af8b978a342700e94ee34d2675592b45ff43e930feb5c670b",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "inherited",
+        "sourceHash": "ab2b70706083f5614fba79fa0cdd6093e5a0bab542448ec5752cda9874f1013e",
+        "renamedHash": "3d24300cf5d383daba2b2b8ddb481bec38cb39fdd7de0791d9b951412d387db1",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "modern wins",
+        "sourceHash": "3a2b559a68caa54f89ed7592033ad9c1463d511b9274bd4e10864c5ab629cad9",
+        "renamedHash": "9a59685e2c52182c9518e587a1c1107754c91d91b464dd3ef192490d2419f01e",
+        "before": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "7",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "namespace ordinary",
+        "sourceHash": "19540d1b60fa10e8ec7ac3b63a8cb1492f809649887a6726e11a327ff674446f",
+        "renamedHash": "f59d6c83aacf6bb71c2175085e377e86c08b0398d6e05637cf6f83ca7039912d",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "method family",
+        "sourceHash": "8e603adf14f4ebdb3135ef365e6fb516dc88ffd80484d1405b2f6a3393aa84bd",
+        "renamedHash": "1bb44bf193d7baada02087f8186366a7a477b29f7827e7704e24c61f7a086b30",
+        "before": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "unset",
+          "stderr": ""
+        }
+      },
+      {
+        "version": "8.5",
+        "name": "local alias call",
+        "sourceHash": "9c32e4789eb2819f2ef5a1611dbe024bee293d2f53c4c36f22fa9ae18805b5fc",
+        "renamedHash": "29d742fd3c22c4dd406cfa6ee93190df69b753317def8c42663d5151b66b0e20",
+        "before": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        },
+        "after": {
+          "status": 0,
+          "stdout": "9",
+          "stderr": ""
+        }
+      }
+    ],
+    "successfulPairs": 96,
+    "successfulExecutions": 192
+  },
+  "fullSemantic": {
+    "files": 120,
+    "passed": 2786,
+    "failed": 0,
+    "pending": 0,
+    "log": "/tmp/sophp-d107-full-semantic.log"
+  },
+  "focusedLsp": {
+    "passed": 6,
+    "selectedTests": [
+      "keeps legacy constructor Rename root/version/source scoped (onDemand)",
+      "keeps legacy constructor Rename root/version/source scoped (experimental)",
+      "language server stdio keeps reload and closed promoted-property rename free of project indexing in on-demand mode",
+      "language server stdio includes a newly written closed consumer in rename before its watcher notification",
+      "language server stdio renames a unique type and its matching PSR-4 file through documentChanges",
+      "language server stdio renames a private method and only its directly resolved references"
+    ],
+    "unselected": 527,
+    "log": "/tmp/sophp-d107-lsp.log"
+  },
+  "isolatedHost": {
+    "vscode": "Linux 1.140.0",
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "acceptedCases": 6,
+    "cancelledCases": 6,
+    "changedUneditedDependencyRefusals": 1,
+    "singleUndoRedoCases": 6,
+    "logs": [
+      "/tmp/sophp-d107-host-72.log",
+      "/tmp/sophp-d107-host-85.log"
+    ]
+  },
+  "notQualified": [
+    "current full LSP",
+    "real WSL Profile/UI",
+    "all platforms",
+    "long sessions",
+    "ordinary PHP 7.2 edit P95",
+    "Rename performance"
+  ],
+  "delivery": {
+    "localOnly": true,
+    "package": false,
+    "profileUpdated": false,
+    "push": false,
+    "goalStatus": "active"
+  }
+}
