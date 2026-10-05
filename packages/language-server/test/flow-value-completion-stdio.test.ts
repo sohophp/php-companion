@@ -134,6 +134,23 @@ it.each(['7.2', '8.5'] as const)('keeps Hover, diagnostics and completion facts 
     await query(header + 'function run(?string $value){unknown($value);if(is_string($value)){send($value§);}}', 'string');
     await query(header + 'function run(?string $value){unknown($value);$value="fresh";send($value§);}', 'string');
     if (phpVersion === '8.5') await query(guarded('unknown(value:$value);'), undefined);
+    const callableCases: Array<[string, string | undefined]> = [
+      ['$call=function(&$item){$item=42;};$call($value);', undefined],
+      ['$call=function($item){};$call($value);', 'string'],
+      ['$call=function(&$item){};$alias=$call;$alias($value);', undefined],
+      ['$call=function($item,&$output=null){};$call($value);', 'string'],
+      ['$call=function()use(&$value){$value=42;};$call();', undefined],
+      ['$call=function()use($value){$value=42;};$call();', 'string'],
+      ['$call=function()use(&$value){$value=42;};', 'string'],
+      ['$call=unknown();$call($value);', undefined],
+    ];
+    if (phpVersion === '8.5') callableCases.push(
+      ['$call=function()use(&$value){$value=42;};$alias=$call(...);', 'string'],
+      ['$call=function()use(&$value){$value=42;};$alias=$call(...);$alias();', undefined],
+      ['$call=fn(&$item)=>$item=42;$call($value);', undefined],
+      ['$call=function($unused,&$item){};$call(item:$value,unused:1);', undefined],
+    );
+    for (const [body, type] of callableCases) await query(guarded(body), type);
     await request('shutdown', null); server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit' }));
   } finally { server.kill(); }
 }, 60_000);

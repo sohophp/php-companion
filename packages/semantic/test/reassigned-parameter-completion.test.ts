@@ -63,9 +63,10 @@ for (const retained of [true, false]) {
         const marked = header + 'function run(int $offerA,string $offerZ){' + tail + '}';
         const offset = marked.indexOf('§'); workspace.update(uri, marked.replace('§', ''), retained);
         expect(workspace.completeVariables(uri, offset)?.names).toEqual(['$offerZ', '$offerA']);
-        // Existing detail guards conservatively suppress nested or in-progress
-        // mutations; this regression checks only the completed-assignment rank.
-        expect(workspace.completionVariableDetail(uri, offset, '$offerZ')).toBeUndefined();
+        // A nested parameter assignment does not change the caller's binding;
+        // an unfinished assignment in the caller still suppresses its detail.
+        expect(workspace.completionVariableDetail(uri, offset, '$offerZ'))
+          .toBe(tail.startsWith('$callback') ? '$offerZ: string' : undefined);
       }
     } finally { workspace.dispose(); }
   });

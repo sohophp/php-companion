@@ -1521,6 +1521,8 @@ export class SemanticWorkspace {
   private readonly readOnlyParseUrlCache = new Map<string, boolean>();
   private readonly valueParameterCallCache = new Map<string, boolean>();
   private readonly valueParameterCallInProgress = new Set<string>();
+  private readonly callableValueEffectCache = new Map<string, SignatureInfo[]>();
+  private readonly callableValueEffectInProgress = new Set<string>();
   private readonly localPrefixHazardCache = new Map<string, boolean>();
   private readonly importScopeCache = new WeakMap<SemanticFile, Array<{ namespace: string; start: number; end: number; insertionOffset: number }>>();
   private readonly completionTriviaSourceCache = new WeakMap<SemanticFile, string>();
@@ -1545,6 +1547,8 @@ export class SemanticWorkspace {
   private clearLocalProofCaches(): void {
     this.readOnlyParseUrlCache.clear();
     this.valueParameterCallCache.clear();
+    this.callableValueEffectCache.clear();
+    this.callableValueEffectInProgress.clear();
     this.localPrefixHazardCache.clear();
   }
 
@@ -5335,8 +5339,8 @@ export class SemanticWorkspace {
     const assigned = file.assignments.some((assignment) => assignment.scopeId === scope.id
       && assignment.variable === variable && assignment.end <= offset);
     if (parameter && !assigned && (parameter.byReference || !this.parameterArrayValueStable(file, variable, [], offset, scope)
-      || /\b(?:extract|eval|parse_str|global|static|include|include_once|require|require_once)\b|&\s*\$/iu
-        .test(file.source.slice(scope.start, offset)))) return undefined;
+      || /\b(?:extract|eval|parse_str|global|static|include|include_once|require|require_once)\b/iu
+        .test(file.source.slice(scope.start, offset)) || this.localReferenceBindingBefore(file, scope, variable, offset))) return undefined;
     const type = parameter || variable === '$this' ? this.completionVariableType(file, scope, variable, offset)
         : this.completionVariableType(file, scope, variable, offset) ?? this.iterationVariableType(file, variable, offset, scope);
     return type && type.kind !== 'unknown' ? `${variable}: ${displayType(type)}` : undefined;
@@ -11041,30 +11045,35 @@ export class SemanticWorkspace {
   }
 
   private firstClassCallableSignatures(file: SemanticFile, variable: string, offset: number,
-    visited = new Set<string>()): SignatureInfo[] {
+    visited = new Set<string>(), parametersOnly = false): SignatureInfo[] {
     const scope = this.containingScope(file, offset); if (!scope) return [];
     const key = `${scope.id.toLowerCase()}:${variable.toLowerCase()}`;
-    if (visited.size >= 8 || visited.has(key)) return [];
+    if (visited.size >= (parametersOnly ? MAX_LOCAL_CONTROL_FLOW_DEPTH : 8) || visited.has(key)) return [];
     visited.add(key);
     const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
       && assignment.variable === variable && assignment.end <= offset);
     if (assignments.length !== 1) return [];
     const assignment = assignments[0]!;
+    if (parametersOnly && this.assignmentInsideControlFlow(file, assignment, scope)
+      && !this.sameBlockCallableAssignment(file, assignment, offset, scope)) return [];
     if (this.priorReferenceMutations(file, scope, variable, offset).length) return [];
-    if (assignment.sourceVariable) return this.firstClassCallableSignatures(file, assignment.sourceVariable, assignment.start, visited);
+    if (assignment.sourceVariable) return this.firstClassCallableSignatures(file, assignment.sourceVariable, assignment.start, visited, parametersOnly);
     if (!assignment.sourceCall) return [];
     const acquisitions = file.calls.filter((call) => call.firstClassCallable && call.start >= assignment.start
-      && call.end <= assignment.end && call.kind !== undefined);
+      && call.end <= assignment.end && (call.kind !== undefined || parametersOnly));
     if (acquisitions.length !== 1) return [];
     const acquisition = acquisitions[0]!;
+    const acquiredVariable = file.source.slice(acquisition.nameStart, acquisition.nameEnd);
+    if (parametersOnly && acquiredVariable.startsWith('$'))
+      return this.closureLiteralSignatures(file, acquiredVariable, acquisition.start, visited, variable, true);
     return this.signatures(file.uri, acquisition.argumentsStart + 1);
   }
 
   private closureLiteralSignatures(file: SemanticFile, variable: string, offset: number,
-    visited = new Set<string>(), displayVariable = variable): SignatureInfo[] {
+    visited = new Set<string>(), displayVariable = variable, parametersOnly = false): SignatureInfo[] {
     const scope = this.containingScope(file, offset); if (!scope) return [];
     const key = `${scope.id.toLowerCase()}:${variable.toLowerCase()}`;
-    if (visited.size >= 9 || visited.has(key)) return [];
+    if (visited.size >= (parametersOnly ? MAX_LOCAL_CONTROL_FLOW_DEPTH : 9) || visited.has(key)) return [];
     visited.add(key);
     const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
       && assignment.variable === variable && assignment.end <= offset);
@@ -11074,17 +11083,18 @@ export class SemanticWorkspace {
     const assignmentText = file.source.slice(assignment.start, assignment.end);
     const followingText = file.source.slice(assignment.end, offset);
     if (this.assignmentInsideControlFlow(file, assignment, scope)
+        && (!parametersOnly || !this.sameBlockCallableAssignment(file, assignment, offset, scope))
       || /=\s*&/u.test(assignmentText)
       || new RegExp(`(?:=\\s*&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|unset\\s*\\(\\s*${escapedVariable}\\s*\\))`, 'u').test(followingText)
       || this.priorReferenceMutations(file, scope, variable, offset).length) return [];
     if (assignment.sourceVariable) {
-      return this.closureLiteralSignatures(file, assignment.sourceVariable, assignment.start, visited, displayVariable);
+      return this.closureLiteralSignatures(file, assignment.sourceVariable, assignment.start, visited, displayVariable, parametersOnly);
     }
     if (!assignment.sourceClosureId) return [];
     const literalScope = file.scopes.find((candidate) => candidate.id === assignment.sourceClosureId
       && candidate.parentId === scope.id && (candidate.kind === 'closure' || candidate.kind === 'arrow'));
     if (!literalScope) return [];
-    const callable = this.closureLiteralType(file, literalScope.start, literalScope.end);
+    const callable = parametersOnly ? undefined : this.closureLiteralType(file, literalScope.start, literalScope.end);
     const scopeFqcn = literalScope.containerFqcn ?? scope.containerFqcn ?? scope.id;
     return [{
       kind: 'function', uri: file.uri, start: literalScope.start, end: literalScope.end,
@@ -11096,7 +11106,27 @@ export class SemanticWorkspace {
     }];
   }
 
-  private invokableObjectSignatures(file: SemanticFile, variable: string, offset: number): SignatureInfo[] {
+  private sameBlockCallableAssignment(file: SemanticFile, assignment: ParsedAssignment,
+    offset: number, scope: ParsedScope): boolean {
+    if (/\bgoto\b/iu.test(file.source.slice(scope.start, offset))) return false;
+    const retained = this.trees.get(file.uri);
+    const temporary = retained ? undefined : this.parser.parseTree(file.source);
+    try {
+      const root = (retained ?? temporary!).rootNode;
+      const statementAt = (position: number): SyntaxNode | undefined => {
+        let node = deepestLocalSyntax(root, position, position, () => true), remaining = 256;
+        while (node && node.parent?.type !== 'compound_statement' && node.parent?.type !== 'program' && remaining-- > 0)
+          node = node.parent ?? undefined;
+        return remaining > 0 ? node : undefined;
+      };
+      const before = statementAt(assignment.start), current = statementAt(offset);
+      return before?.type === 'expression_statement' && before.endIndex <= (current?.startIndex ?? -1)
+        && before.parent?.startIndex === current?.parent?.startIndex
+        && before.parent?.endIndex === current?.parent?.endIndex;
+    } finally { temporary?.delete(); }
+  }
+
+  private invokableObjectSignatures(file: SemanticFile, variable: string, offset: number, parametersOnly = false): SignatureInfo[] {
     const target = this.variableClass(file, variable, offset, new Set(), true);
     if (!target || target.nullable) return [];
     const accessFrom = this.containingCallable(file, offset)?.containerFqcn
@@ -11105,15 +11135,15 @@ export class SemanticWorkspace {
       .filter((member) => member.kind === 'method' && !member.static && member.visibility === 'public'
         && member.name.toLowerCase() === '__invoke');
     if (candidates.length !== 1) return [];
-    const member = this.withInferredGeneratorReturn(candidates[0]!);
+    const member = parametersOnly ? candidates[0]! : this.withInferredGeneratorReturn(candidates[0]!);
     return [{ ...member, name: variable, activeParameter: 0, usedNamedArguments: [] }];
   }
 
   private arrayCallableSignatures(file: SemanticFile, variable: string, offset: number,
-    visited = new Set<string>(), displayVariable = variable): SignatureInfo[] {
+    visited = new Set<string>(), displayVariable = variable, parametersOnly = false): SignatureInfo[] {
     const scope = this.containingScope(file, offset); if (!scope) return [];
     const key = `${scope.id.toLowerCase()}:${variable.toLowerCase()}`;
-    if (visited.size >= 9 || visited.has(key)) return [];
+    if (visited.size >= (parametersOnly ? MAX_LOCAL_CONTROL_FLOW_DEPTH : 9) || visited.has(key)) return [];
     visited.add(key);
     const assignments = file.assignments.filter((assignment) => assignment.scopeId === scope.id
       && assignment.variable === variable && assignment.end <= offset);
@@ -11122,10 +11152,11 @@ export class SemanticWorkspace {
     const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const followingText = file.source.slice(assignment.end, offset);
     if (this.assignmentInsideControlFlow(file, assignment, scope)
+        && (!parametersOnly || !this.sameBlockCallableAssignment(file, assignment, offset, scope))
       || new RegExp(`(?:=\\s*&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|unset\\s*\\(\\s*${escapedVariable}\\s*\\))`, 'u').test(followingText)
       || this.priorReferenceMutations(file, scope, variable, offset).length) return [];
     if (assignment.sourceVariable) {
-      return this.arrayCallableSignatures(file, assignment.sourceVariable, assignment.start, visited, displayVariable);
+      return this.arrayCallableSignatures(file, assignment.sourceVariable, assignment.start, visited, displayVariable, parametersOnly);
     }
     const callable = assignment.sourceCallableArray; if (!callable) return [];
     const accessFrom = scope.containerFqcn;
@@ -11143,7 +11174,7 @@ export class SemanticWorkspace {
       .filter((member) => member.kind === 'method' && member.static === staticAccess
         && member.visibility === 'public' && member.name.toLowerCase() === callable.method.toLowerCase());
     if (candidates.length !== 1) return [];
-    const member = this.withInferredGeneratorReturn(candidates[0]!);
+    const member = parametersOnly ? candidates[0]! : this.withInferredGeneratorReturn(candidates[0]!);
     return [{ ...member, name: displayVariable, activeParameter: 0, usedNamedArguments: [] }];
   }
 
@@ -12127,6 +12158,8 @@ export class SemanticWorkspace {
       return fqcn && this.fileAndDeclaration(fqcn)
         ? { groups: [[{ fqcn, nullable: false }]], nullable: false } : undefined;
     }
+    if (this.priorReferenceMutations(file, scope, variable, offset, assignment?.end ?? scope.start)
+      .some(mutation => !mutation.builtin)) return undefined;
     const assignmentInsideControlFlow = Boolean(assignment && this.assignmentInsideControlFlow(file, assignment, scope));
     const hasLaterAssignment = Boolean(assignment && file.assignments.some((candidate) => candidate.scopeId === scope.id
       && candidate.variable === variable && candidate.start > assignment.start && candidate.end <= offset
@@ -12277,41 +12310,84 @@ export class SemanticWorkspace {
     if (narrowing.propertyPath?.length || narrowing.arrayPath?.length) return false;
     const variable = narrowing.variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const inspectionRanges = this.flowFactInspectionRanges(narrowing, offset);
-    const between = inspectionRanges.map((range) => file.source.slice(range.start, range.end)).join('\n');
-    const mutation = new RegExp(`(?:${variable}\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*${variable}|unset\\s*\\(\\s*${variable}\\s*\\)|foreach\\s*\\([^)]*\\bas\\s+&\\s*${variable})`, 'iu');
-    if (mutation.test(between)
-      || new RegExp(`(?:=&\\s*${variable}|&\\s*${variable}\\s*=)`, 'u').test(between)) return false;
+    const mutation = new RegExp(`(?:${variable}\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*${variable}|unset\\s*\\(\\s*${variable}\\s*\\)|foreach\\s*\\([^)]*\\bas\\s+&\\s*${variable})`, 'giu');
+    const reference = new RegExp(`(?:=&\\s*${variable}|&\\s*${variable}\\s*=)`, 'gu');
+    if (inspectionRanges.some(range => [mutation, reference].some(pattern =>
+      [...file.source.slice(range.start, range.end).matchAll(pattern)].some(match =>
+        this.containingScope(file, range.start + match.index)?.id === scope.id)))) return false;
     return !inspectionRanges.some((range) => this.priorReferenceMutations(file, scope, narrowing.variable, range.end, range.start).length
       || this.unknownCallMayMutateVariable(file, scope, narrowing.variable, range.start, range.end));
   }
 
   private unknownCallMayMutateVariable(file: SemanticFile, scope: ParsedScope,
     variable: string, start: number, end: number): boolean {
-    return file.calls.some(call => call.start >= start && call.end <= end
-      && this.containingScope(file, call.start)?.id === scope.id
-      && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
-        .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable)
-      && ((): boolean => {
-        const sourceName = file.source.slice(call.nameStart, call.nameEnd);
-        // Callable values have their own binding/reference proof. Resolving
-        // them here can recursively inspect the same argument's entry type.
-        if (sourceName.startsWith('$')) return false;
-        if (call.kind !== 'function') return true;
-        const resolved = this.resolveFunction(file, sourceName, this.namespaceAt(file, call.start), call.start).toLowerCase();
-        if (['isset', 'empty'].includes(resolved)) return false;
-        // These native predicates cannot replace their first value argument,
-        // even in a standalone workspace without installed builtin stubs.
-        const predicates = ['is_null', 'is_bool', 'is_int', 'is_integer', 'is_long', 'is_float', 'is_double',
-          'is_real', 'is_string', 'is_array', 'is_object', 'is_resource', 'is_scalar', 'is_numeric',
-          'is_callable', 'is_iterable', 'is_countable', 'is_a', 'is_subclass_of'];
-        const argument = call.arguments[0];
-        return !predicates.includes(resolved) || !argument || Boolean(argument.name && argument.name !== 'value' && argument.name !== 'object_or_class')
-          || argument.unpacked || file.source.slice(argument.start, argument.end).trim()
-            .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') !== variable
-          || call.arguments.slice(1).some(item => file.source.slice(item.start, item.end).trim()
-            .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable);
-      })()
-      && this.signatures(file.uri, call.argumentsStart + 1).length === 0);
+    return file.calls.some((call): boolean => {
+      if (call.firstClassCallable || call.start < start || call.end > end || this.containingScope(file, call.start)?.id !== scope.id) return false;
+      const direct = call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
+        .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable);
+      const sourceName = file.source.slice(call.nameStart, call.nameEnd);
+      if (sourceName.startsWith('$')) {
+        const signatures = this.callableValueEffectSignatures(file, call);
+        const captured = signatures.length === 1 && this.callableCapturesReference(file, signatures[0]!, variable);
+        if (!direct && !captured) return false;
+        if (captured) return true;
+        return signatures.length !== 1 || this.callArgumentsMayMutateVariable(file, call, signatures[0]!.parameters, variable);
+      }
+      if (!direct) return false;
+      if (call.kind !== 'function') return this.signatures(file.uri, call.argumentsStart + 1).length === 0;
+      const resolved = this.resolveFunction(file, sourceName, this.namespaceAt(file, call.start), call.start).toLowerCase();
+      if (['isset', 'empty'].includes(resolved)) return false;
+      // These native predicates cannot replace their first value argument,
+      // even in a standalone workspace without installed builtin stubs.
+      const predicates = ['is_null', 'is_bool', 'is_int', 'is_integer', 'is_long', 'is_float', 'is_double',
+        'is_real', 'is_string', 'is_array', 'is_object', 'is_resource', 'is_scalar', 'is_numeric',
+        'is_callable', 'is_iterable', 'is_countable', 'is_a', 'is_subclass_of'];
+      const argument = call.arguments[0];
+      const uncertain = !predicates.includes(resolved) || !argument || Boolean(argument.name && argument.name !== 'value' && argument.name !== 'object_or_class')
+        || argument.unpacked || file.source.slice(argument.start, argument.end).trim()
+          .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') !== variable
+        || call.arguments.slice(1).some(item => file.source.slice(item.start, item.end).trim()
+          .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable);
+      return uncertain && this.signatures(file.uri, call.argumentsStart + 1).length === 0;
+    });
+  }
+
+  private callableValueEffectSignatures(file: SemanticFile, call: ParsedCall): SignatureInfo[] {
+    const variable = file.source.slice(call.nameStart, call.nameEnd);
+    if (!/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(variable)) return [];
+    // A closure's parameter modifiers are syntax facts; inferred return types
+    // can inspect the caller's argument and recurse back into this proof.
+    const key = `${this.sourceRevision}:${file.uri}:${call.start}:${call.end}`;
+    const cached = this.callableValueEffectCache.get(key); if (cached) return cached;
+    if (this.callableValueEffectInProgress.has(key) || this.callableValueEffectInProgress.size >= MAX_LOCAL_CONTROL_FLOW_DEPTH) return [];
+    this.callableValueEffectInProgress.add(key);
+    try {
+      const literals = this.closureLiteralSignatures(file, variable, call.start, new Set(), variable, true);
+      const acquired = literals.length ? [] : this.firstClassCallableSignatures(file, variable, call.start, new Set(), true);
+      const signatures = literals.length ? literals : acquired.length ? acquired : this.phpDocCallableSignatures(file, variable, call.start);
+      if (!signatures.length) signatures.push(...this.arrayCallableSignatures(file, variable, call.start, new Set(), variable, true));
+      if (!signatures.length) signatures.push(...this.invokableObjectSignatures(file, variable, call.start, true));
+      if (this.callableValueEffectCache.size >= 1024) this.callableValueEffectCache.clear();
+      this.callableValueEffectCache.set(key, signatures); return signatures;
+    } finally { this.callableValueEffectInProgress.delete(key); }
+  }
+
+  private callArgumentsMayMutateVariable(file: SemanticFile, call: ParsedCall,
+    parameters: ParsedParameter[], variable: string): boolean {
+    let positional = 0;
+    for (const argument of call.arguments) {
+      const parameter = argument.name ? parameters.find(item => item.name === argument.name)
+        : parameters[positional++] ?? (parameters.at(-1)?.variadic ? parameters.at(-1) : undefined);
+      const direct = file.source.slice(argument.start, argument.end).trim()
+        .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable;
+      if (argument.unpacked || direct && (!parameter || parameter.byReference)) return true;
+    }
+    return false;
+  }
+
+  private callableCapturesReference(file: SemanticFile, signature: SignatureInfo, variable: string): boolean {
+    return signature.synthetic === 'closure-literal' && file.scopes.some(scope => scope.start === signature.start
+      && scope.end === signature.end && scope.captures.some(capture => capture.variable === variable && capture.byReference));
   }
 
   private flowFactInspectionRanges(narrowing: ParsedTypeNarrowing, offset: number): Array<{ start: number; end: number }> {
@@ -13396,6 +13472,10 @@ export class SemanticWorkspace {
       const beforeGuard = this.variableClass(file, variable, Math.max(0, narrowing.start - 1), visited, true);
       if (beforeGuard) return { ...beforeGuard, nullable: false };
     }
+    // Reference calls can replace the binding, including native parameters.
+    // A later completed assignment establishes a new binding value.
+    if (this.priorReferenceMutations(file, scope, variable, offset, assignment?.end ?? scope.start)
+      .some(mutation => !mutation.builtin)) return undefined;
     const assignmentInsideControlFlow = Boolean(assignment && this.assignmentInsideControlFlow(file, assignment, scope));
     const hasLaterAssignment = Boolean(assignment && file.assignments.some((candidate) => candidate.scopeId === scope.id
       && candidate.variable === variable && candidate.start > assignment.start && candidate.end <= offset
@@ -16976,17 +17056,18 @@ export class SemanticWorkspace {
   private parameterArrayValueStable(file: SemanticFile, variable: string, path: string[], offset: number, scope: ParsedScope): boolean {
     const escaped = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const between = file.source.slice(scope.start, offset);
-    const rootMutation = new RegExp(`(?:${escaped}\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*${escaped}|unset\\s*\\(\\s*${escaped}\\s*\\))`, 'u');
+    const rootMutation = new RegExp(`(?:${escaped}\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*${escaped}|unset\\s*\\(\\s*${escaped}\\s*\\))`, 'gu');
     const offsets = `${escaped}(?:\\s*\\[[^\\]]*\\])+`;
     const offsetMutation = new RegExp(`(?:(${offsets})\\s*(?:=(?!=|>)|\\+=|-=|\\*=|/=|\\.=|%=|&=|\\|=|\\^=|<<=|>>=|\\?\\?=|\\+\\+|--)|(?:\\+\\+|--)\\s*(${offsets})|unset\\s*\\(\\s*(${offsets})\\s*\\))`, 'gu');
     const affectsPath = [...between.matchAll(offsetMutation)].some((match) => {
+      if (this.containingScope(file, scope.start + match.index)?.id !== scope.id) return false;
       const changed = this.directArrayElement(match[1] ?? match[2] ?? match[3]!)?.path;
       if (!changed) return true;
       if (path.length > 1 && changed.length === 1) return true;
       const shared = Math.min(changed.length, path.length);
       return changed.slice(0, shared).every((key, index) => key === path[index]);
     });
-    return !rootMutation.test(between) && !affectsPath
+    return ![...between.matchAll(rootMutation)].some(match => this.containingScope(file, scope.start + match.index)?.id === scope.id) && !affectsPath
       && !new RegExp(`=&\\s*${escaped}(?![\\p{L}\\p{N}_])`, 'u').test(between)
       && !new RegExp(`foreach\\s*\\(\\s*${escaped}\\s+as\\s+&`, 'iu').test(between)
       && this.priorReferenceMutations(file, scope, variable, offset).length === 0;
@@ -17164,7 +17245,10 @@ export class SemanticWorkspace {
   private priorReferenceMutations(file: SemanticFile, scope: ParsedScope, variable: string, offset: number,
     after = scope.start): Array<{ name: string; builtin: boolean }> {
     const mutations: Array<{ name: string; builtin: boolean }> = [];
+    const referenceCapture = file.scopes.some(item => item.parentId === scope.id
+      && item.captures.some(capture => capture.variable === variable && capture.byReference));
     for (const call of file.calls.filter((candidate) => candidate.end <= offset
+      && !candidate.firstClassCallable
       && candidate.start >= Math.max(scope.start, after) && candidate.end <= scope.end
       && this.containingScope(file, candidate.start)?.id === scope.id)) {
       if (call.arguments.some((argument) => argument.unpacked)) continue;
@@ -17173,14 +17257,21 @@ export class SemanticWorkspace {
         const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
         return file.source.slice(valueStart, argument.end).trim() === variable ? [index] : [];
       }));
+      if (!matchingArguments.size && !referenceCapture) continue;
+      const sourceName = file.source.slice(call.nameStart, call.nameEnd);
+      const effects = sourceName.startsWith('$') ? this.callableValueEffectSignatures(file, call) : [];
+      if (effects.length === 1 && this.callableCapturesReference(file, effects[0]!, variable)) {
+        mutations.push({ name: effects[0]!.fqcn, builtin: false }); continue;
+      }
       if (!matchingArguments.size) continue;
       // Reference effects are a declaration fact. Avoid computing inferred
       // return/argument types just to discover that a function has no & params.
       if (this.knownCallHasOnlyValueArguments(file, call)) continue;
-      const signature = this.signature(file.uri, call.argumentsStart + 1); if (!signature) continue;
+      const signature = sourceName.startsWith('$') ? effects.length === 1 ? effects[0] : undefined
+        : this.signature(file.uri, call.argumentsStart + 1); if (!signature) continue;
       const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables)
         .filter((candidate) => candidate.kind === signature.kind && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
-      if (declarations.length !== 1) continue;
+      if (declarations.length !== 1 && signature.synthetic !== 'closure-literal') continue;
       let positional = 0;
       for (const [argumentIndex, argument] of call.arguments.entries()) {
         const parameter = argument.name
