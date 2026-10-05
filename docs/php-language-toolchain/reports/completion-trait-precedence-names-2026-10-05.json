@@ -1,0 +1,1694 @@
+{
+  "milestone": "D104 Qualified Trait precedence and multiple exclusions",
+  "createdAtUtc": "2026-10-05T10:28:48.924033+00:00",
+  "baseCommit": "7cc96a1656a98575f8c76cc9a3f4b457118b170b",
+  "semanticSchema": 87,
+  "sourceDeclarationSchema": 5,
+  "sourceAndBundleSha256": {
+    "packages/parser/src/index.ts": "05532a1a36719899607a40d7d93b541f0ecefe231b3679a788d53c0288a43ad1",
+    "packages/semantic/src/index.ts": "fa546967cc71b203e22d3aab9b74f05976bfe4c5614f6219fdc297362c33af6d",
+    "packages/language-server/src/projectFacts.ts": "6115fd9ec1ee8db046cdeab874a2f5b0dd8bbdbf65cbd0a98e8bfbb681d3de79",
+    "packages/parser/test/trait-precedence-names.test.ts": "ae341bc5d6c08c66a48974cbeef5aa76e62e68c950e4371aef7a2581c5574c5d",
+    "packages/semantic/test/trait-precedence-names.test.ts": "30845278496da9fc3cf5724d6649b0ca91fe51510cc4c39190eb540e5cadcdea",
+    "packages/language-server/test/trait-precedence-names-stdio.test.ts": "0d69052fb90c7138e72675121880f8acb108ecd3d9a563a658847ab688f3972b",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "ecfb1d398c7c5a347005e635eded42e9898df1ca2cd9b230c7fa57289826822a",
+    "dist/extension.js": "ee119dfcc817ab8c63b3a352664ea4aad9ecc400a4b98ff6f831490070415185",
+    "dist/language-server.js": "f3efbffc7ab447b5ae33a203f699dd6acbd1caac7c06c54cb826e97fd272b015",
+    "packages/parser/dist/index.js": "587490dacc31fbb04fd38a00453a18f160d19ede2ec9d7ba74e11e49611f9bf0",
+    "packages/semantic/dist/index.js": "e13acc040a60cc82f665e8055e1dc87cd96945bec6460da80d73ada13b99a491",
+    "packages/language-server/dist/server.js": "a63b9c159ffa80fcc8248bb91c25db9a06bd003a4385272547e56698948573cd"
+  },
+  "frozenInputs": {
+    "count": 463,
+    "unchanged": true,
+    "manifest": "/tmp/sophp-d104-qualified-inputs.json",
+    "manifestSha256": "e9c0242beb566a4c57b53efb5f09d1c9e9b448d4229f23ff1600a8680925e2b8"
+  },
+  "parser": {
+    "files": 6,
+    "total": 146,
+    "passed": 146,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "semantic": {
+    "files": 118,
+    "total": 2751,
+    "passed": 2751,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "lsp": {
+    "files": 10,
+    "total": 96,
+    "passed": 96,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "newParserCases": 22,
+  "newSemanticCases": 33,
+  "newLspServers": 6,
+  "lspTestFiles": [
+    {
+      "name": "analysis.test.ts",
+      "tests": 48
+    },
+    {
+      "name": "candidate-worker-project-facts.test.ts",
+      "tests": 1
+    },
+    {
+      "name": "canonical-construction-stdio.test.ts",
+      "tests": 16
+    },
+    {
+      "name": "inherited-constructor-generics-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "name": "project-facts.test.ts",
+      "tests": 4
+    },
+    {
+      "name": "trait-construction-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "name": "trait-constructor-phpdoc-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "name": "trait-final-cache-stdio.test.ts",
+      "tests": 1
+    },
+    {
+      "name": "trait-precedence-names-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "name": "trait-use-generics-stdio.test.ts",
+      "tests": 6
+    }
+  ],
+  "hosts": {
+    "7.2": {
+      "platform": "linux",
+      "context": "trait-precedence-7.2",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 199,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Enter; class C {use \\App\\CanonicalGate0Enter\\Init,\\App\\CanonicalGate0Enter\\Other {\\App\\CanonicalGate0Enter\\Init::__construct insteadof \\App\\CanonicalGate0Enter\\Other;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate0Enter; trait Other {public function __construct(string $value){}}"
+            }
+          ],
+          "caretOffset": 286,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 186,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Tab; class C {use \\App\\CanonicalGate0Tab\\Init,\\App\\CanonicalGate0Tab\\Other {\\App\\CanonicalGate0Tab\\Init::__construct insteadof \\App\\CanonicalGate0Tab\\Other;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate0Tab; trait Other {public function __construct(string $value){}}"
+            }
+          ],
+          "caretOffset": 276,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 124,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Enter; class C {use \\App\\CanonicalGate1Enter\\Init,\\App\\CanonicalGate1Enter\\Other,\\App\\CanonicalGate1Enter\\Third {\\App\\CanonicalGate1Enter\\Init::__construct insteadof \\App\\CanonicalGate1Enter\\Other,\\App\\CanonicalGate1Enter\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 348,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 138,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Tab; class C {use \\App\\CanonicalGate1Tab\\Init,\\App\\CanonicalGate1Tab\\Other,\\App\\CanonicalGate1Tab\\Third {\\App\\CanonicalGate1Tab\\Init::__construct insteadof \\App\\CanonicalGate1Tab\\Other,\\App\\CanonicalGate1Tab\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 334,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 147,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Enter; class C {use \\App\\CanonicalGate2Enter\\Init,\\App\\CanonicalGate2Enter\\Other,\\App\\CanonicalGate2Enter\\Third {\\App\\CanonicalGate2Enter\\Init::__construct /* 😀 */ insteadof /* ; */ \\App\\CanonicalGate2Enter\\Other,\n/* 😀 */ \\App\\CanonicalGate2Enter\\Third; \\App\\CanonicalGate2Enter\\Init::__construct as selectedCtor;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 435,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 138,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Tab; class C {use \\App\\CanonicalGate2Tab\\Init,\\App\\CanonicalGate2Tab\\Other,\\App\\CanonicalGate2Tab\\Third {\\App\\CanonicalGate2Tab\\Init::__construct /* 😀 */ insteadof /* ; */ \\App\\CanonicalGate2Tab\\Other,\n/* 😀 */ \\App\\CanonicalGate2Tab\\Third; \\App\\CanonicalGate2Tab\\Init::__construct as selectedCtor;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 419,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 132,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Enter; class C {/** @use \\App\\CanonicalGate3Enter\\Init<int> */ use \\App\\CanonicalGate3Enter\\Init,\\App\\CanonicalGate3Enter\\Other,\\App\\CanonicalGate3Enter\\Third {\\App\\CanonicalGate3Enter\\Init::__construct insteadof \\App\\CanonicalGate3Enter\\Other,\\App\\CanonicalGate3Enter\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Enter; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate3Enter; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate3Enter; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 395,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 130,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Tab; class C {/** @use \\App\\CanonicalGate3Tab\\Init<int> */ use \\App\\CanonicalGate3Tab\\Init,\\App\\CanonicalGate3Tab\\Other,\\App\\CanonicalGate3Tab\\Third {\\App\\CanonicalGate3Tab\\Init::__construct insteadof \\App\\CanonicalGate3Tab\\Other,\\App\\CanonicalGate3Tab\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Tab; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate3Tab; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate3Tab; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 379,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "8.5": {
+      "platform": "linux",
+      "context": "trait-precedence-8.5",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 198,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Enter; class C {use \\App\\CanonicalGate0Enter\\Init,\\App\\CanonicalGate0Enter\\Other {\\App\\CanonicalGate0Enter\\Init::__construct insteadof \\App\\CanonicalGate0Enter\\Other;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate0Enter; trait Other {public function __construct(string $value){}}"
+            }
+          ],
+          "caretOffset": 286,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 140,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Tab; class C {use \\App\\CanonicalGate0Tab\\Init,\\App\\CanonicalGate0Tab\\Other {\\App\\CanonicalGate0Tab\\Init::__construct insteadof \\App\\CanonicalGate0Tab\\Other;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate0Tab; trait Other {public function __construct(string $value){}}"
+            }
+          ],
+          "caretOffset": 276,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 164,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Enter; class C {use \\App\\CanonicalGate1Enter\\Init,\\App\\CanonicalGate1Enter\\Other,\\App\\CanonicalGate1Enter\\Third {\\App\\CanonicalGate1Enter\\Init::__construct insteadof \\App\\CanonicalGate1Enter\\Other,\\App\\CanonicalGate1Enter\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 348,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 115,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Tab; class C {use \\App\\CanonicalGate1Tab\\Init,\\App\\CanonicalGate1Tab\\Other,\\App\\CanonicalGate1Tab\\Third {\\App\\CanonicalGate1Tab\\Init::__construct insteadof \\App\\CanonicalGate1Tab\\Other,\\App\\CanonicalGate1Tab\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 334,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 175,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Enter; class C {use \\App\\CanonicalGate2Enter\\Init,\\App\\CanonicalGate2Enter\\Other,\\App\\CanonicalGate2Enter\\Third {\\App\\CanonicalGate2Enter\\Init::__construct /* 😀 */ insteadof /* ; */ \\App\\CanonicalGate2Enter\\Other,\n/* 😀 */ \\App\\CanonicalGate2Enter\\Third; \\App\\CanonicalGate2Enter\\Init::__construct as final selectedCtor;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 441,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 192,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Tab; class C {use \\App\\CanonicalGate2Tab\\Init,\\App\\CanonicalGate2Tab\\Other,\\App\\CanonicalGate2Tab\\Third {\\App\\CanonicalGate2Tab\\Init::__construct /* 😀 */ insteadof /* ; */ \\App\\CanonicalGate2Tab\\Other,\n/* 😀 */ \\App\\CanonicalGate2Tab\\Third; \\App\\CanonicalGate2Tab\\Init::__construct as final selectedCtor;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 425,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 139,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Enter; class C {/** @use \\App\\CanonicalGate3Enter\\Init<int> */ use \\App\\CanonicalGate3Enter\\Init,\\App\\CanonicalGate3Enter\\Other,\\App\\CanonicalGate3Enter\\Third {\\App\\CanonicalGate3Enter\\Init::__construct insteadof \\App\\CanonicalGate3Enter\\Other,\\App\\CanonicalGate3Enter\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Enter; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate3Enter; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate3Enter; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 395,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 153,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Tab; class C {/** @use \\App\\CanonicalGate3Tab\\Init<int> */ use \\App\\CanonicalGate3Tab\\Init,\\App\\CanonicalGate3Tab\\Other,\\App\\CanonicalGate3Tab\\Third {\\App\\CanonicalGate3Tab\\Init::__construct insteadof \\App\\CanonicalGate3Tab\\Other,\\App\\CanonicalGate3Tab\\Third;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Tab; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            },
+            {
+              "name": "Other",
+              "source": "<?php namespace App\\CanonicalGate3Tab; trait Other {public function __construct(string $value){}}"
+            },
+            {
+              "name": "Third",
+              "source": "<?php namespace App\\CanonicalGate3Tab; trait Third {public function __construct(bool $value){}}"
+            }
+          ],
+          "caretOffset": 379,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  },
+  "visibleRangeMs": [
+    115,
+    199
+  ],
+  "nativeAcceptedText": {
+    "rows": [
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 0,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "5505a1bd5c50df820b53e98530ed9f4b8b84c87e463c25e3fc59f640001ff1c5",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "5c7ae7a8867fe48112634e70009101925b8b68628e5eea62d0995c7cac3b69cb",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "3ebbd95fd34ef89e576200217ec87cbd45730f84d28f091a00e93e625e27a9b6",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "c1856697b9509623a84a61e318d4b2bc765d805b19e8f2bd2f991ce23f23b1ff"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 1,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "765076ed7af33963be6cb328cd46c6272a725dcfddcc5b3917de3fa0ecf1a465",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "c0ad220c6bd20912583bacad962971917d8d5533be96a7da750aaf823dd5698d",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "3aebcad81a0fac22b2573b0d663f631af0875629ed724283d14dcd1cb7350084",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "b512965c96d9649b3a5356e0f7c01e2a4ea5b74c190241f2c794bfe3643f87b5"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 2,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "47babac44c3a1fd494c11e18687f91f3609bb1caffd55b8042928d54248460fd",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "15977637258055ca548db6d7d5954d4426ae7f73938f1b79fb7c5d2d62e93322",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "7a29314588a6d976ed7c615e17144cdb7e40b386be064f7e275bbde1ceff742e",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "2b269c403602c36d2d98f4a0aee22caa4c653f80e6786f78ab6630c6cd55cd3a",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "4ec339b01cf8e11cf9b280066b2b5fb848948a3a95285a13c40fb7578c06f4f1"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 3,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "7c66262d48e26bec740b43b60af590cef272dca27fe2fdc752b164cdc10cf07b",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "1e4370a77e3d7f2c51f292825febd09ee6b5ea3750a45d4282ebd3d244d145e4",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "ecc4897c83b085b67891649733ef9d5988f8f34b63d013468830adbaeee40964",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "105a9297e4675d92a544af280fd0c631866b7bf3e218959b51d10a2c87b268cc",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "0f8a993e727fb51e8773df8b18dbef174a936f6699b11606847e80eb1e35f05f"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 4,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "ceab9492b55ea7c335323320295b42005a971574a3240a1bac5d9da266f28fed",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "fddb97f55bba7f1539541d902492525805189966b5815ee6fac3903a4cd8e7b8",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "ad12ff27d88bab18d6b0849f98f577c740e87c055f67afd5ea779d353b977bbc",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "12f0f5b311442bf2389299220093a99ade3ae68edbcb9513175e8ea80e578e3d",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "23d21d28f5cceecb5b09e5454ccd20ff6315d7621f7d123496b496394a48f4c4"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 5,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "77fe8301402d8bc8c8819d6b4e10f881cf85e3600e3233499b6086534daa8f31",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "0165e0b80c8eb409e0a41e4fe82e43881d0895ffd7129b7d646e276214c2ed5f",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "e926b24c3ddb28aeac10d5924748bdd2838143aae3633e2a6f73306241671e05",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "80b32fcdc7eac15c2a8fc84e394131153448e7997883c1dfce346c14c47df621",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "1bfaa10c7fac1a93a4c608839496008b8e52e68e44576e4c54ebc413a32a8ce9"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 6,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "d485fe1aec70af1933ea227604a707933a36387d7e549e6ab833af62b21cca2a",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "83842e983a5bc8cd7cdad329a5a980514d0600e9b62e74c28ef302fb7bdc4331",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "a6a85671af4637fbb99a4e57e361b758cf935aed527790a37b5f63660674ceac",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "10f4c949c4ef0e87dfc51f1c3333ced52aa95299f7a1cacc8aec835c4a725c21",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "f0dcb64043a7f9ad24abefb513276c7003e3e59b201aa112fdb54d4a3c94d7c9"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 7,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "b2d6e4ced9472d6667f0a64eb3f6f21f63aad44a830af9252ab38ae0ddb9ef2a",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "3cfc4200cad129ddfc2b873d2f7cd11ad5bfb62f411de0caaa9fabd5cfd3dbaf",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "a543d0faac9ae245f06419b12f0028724f5a757b05b5688facbaf77f72ba51d9",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "9f89dc2bdc88591cd37ba4ef8fe5552eac6c63f6d70408333973c9bc7630c420",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "654ec17b3fe772b105f1aa8b7fcfc24cc39043dd1d64f97d94ffcfee3a2ac1e0"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 0,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "5505a1bd5c50df820b53e98530ed9f4b8b84c87e463c25e3fc59f640001ff1c5",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "5c7ae7a8867fe48112634e70009101925b8b68628e5eea62d0995c7cac3b69cb",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "3ebbd95fd34ef89e576200217ec87cbd45730f84d28f091a00e93e625e27a9b6",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "babe3b280492b2e5094e4728cbcf7d5db315c609d4e456cbb90e71ee6e3705fc"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 1,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "765076ed7af33963be6cb328cd46c6272a725dcfddcc5b3917de3fa0ecf1a465",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "c0ad220c6bd20912583bacad962971917d8d5533be96a7da750aaf823dd5698d",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "3aebcad81a0fac22b2573b0d663f631af0875629ed724283d14dcd1cb7350084",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "1f4d13a5fcf872b8730ba93063d939f38c85aea7c8e9d77d9eb25152385c92d6"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 2,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "47babac44c3a1fd494c11e18687f91f3609bb1caffd55b8042928d54248460fd",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "15977637258055ca548db6d7d5954d4426ae7f73938f1b79fb7c5d2d62e93322",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "7a29314588a6d976ed7c615e17144cdb7e40b386be064f7e275bbde1ceff742e",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "2b269c403602c36d2d98f4a0aee22caa4c653f80e6786f78ab6630c6cd55cd3a",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "08f42e8426a490f45bfc41e03f44b940c47216e39d77e7b3348a70c46ef06715"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 3,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "7c66262d48e26bec740b43b60af590cef272dca27fe2fdc752b164cdc10cf07b",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "1e4370a77e3d7f2c51f292825febd09ee6b5ea3750a45d4282ebd3d244d145e4",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "ecc4897c83b085b67891649733ef9d5988f8f34b63d013468830adbaeee40964",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "105a9297e4675d92a544af280fd0c631866b7bf3e218959b51d10a2c87b268cc",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "43e46ca21907954a2962facf5ad1ffde19c5294fcfd5d250ef0433843173d473"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 4,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "782a8e088820a679d312210da34caa2de3817c857caaaa43dbb98604195c4893",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "fddb97f55bba7f1539541d902492525805189966b5815ee6fac3903a4cd8e7b8",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "ad12ff27d88bab18d6b0849f98f577c740e87c055f67afd5ea779d353b977bbc",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "12f0f5b311442bf2389299220093a99ade3ae68edbcb9513175e8ea80e578e3d",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "009bd9da73a9d2093fef680e34cd86f2434c01fee5a29b845af7cd55109679e4"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 5,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "c520d1a05572cee2e091ae6bb03237031bad44d21def98001dca4f29dfb14825",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "0165e0b80c8eb409e0a41e4fe82e43881d0895ffd7129b7d646e276214c2ed5f",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "e926b24c3ddb28aeac10d5924748bdd2838143aae3633e2a6f73306241671e05",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "80b32fcdc7eac15c2a8fc84e394131153448e7997883c1dfce346c14c47df621",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "4dffed1fdf0d2cd0d5839b4066ea5b5e20bfa8e1ac919f0fd137bcf625602d58"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 6,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "d485fe1aec70af1933ea227604a707933a36387d7e549e6ab833af62b21cca2a",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "83842e983a5bc8cd7cdad329a5a980514d0600e9b62e74c28ef302fb7bdc4331",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "a6a85671af4637fbb99a4e57e361b758cf935aed527790a37b5f63660674ceac",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "10f4c949c4ef0e87dfc51f1c3333ced52aa95299f7a1cacc8aec835c4a725c21",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "42a9bc2e7dee52cb1d1034ebe6a0a7a094b88b8ddcd103fa5668380daed40b42"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 7,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "b2d6e4ced9472d6667f0a64eb3f6f21f63aad44a830af9252ab38ae0ddb9ef2a",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "3cfc4200cad129ddfc2b873d2f7cd11ad5bfb62f411de0caaa9fabd5cfd3dbaf",
+            "exitCode": 0
+          },
+          {
+            "file": "Other.php",
+            "sha256": "a543d0faac9ae245f06419b12f0028724f5a757b05b5688facbaf77f72ba51d9",
+            "exitCode": 0
+          },
+          {
+            "file": "Third.php",
+            "sha256": "9f89dc2bdc88591cd37ba4ef8fe5552eac6c63f6d70408333973c9bc7630c420",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "31bb051cadedec38113afbeb9e69d5f048fd669595f441d9bf63917e66ac553d"
+      }
+    ],
+    "cases": 16,
+    "lintedFiles": 60,
+    "passed": true,
+    "limit": "Native PHP checks syntax and actual construction; it does not enforce PHPDoc generic T."
+  },
+  "nativeGrammarForms": {
+    "sourceFileSha256": "0d69052fb90c7138e72675121880f8acb108ecd3d9a563a658847ab688f3972b",
+    "fixtureSha256": "145a5c83c2787dd69a9fcd1f67afdb03fab4db1301c917a326c93e84fb0bc3c9",
+    "rows": [
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 0,
+        "namespace": "Consumer",
+        "clause": "\\Origin\\A::__construct insteadof \\Origin\\B,\\Origin\\D",
+        "callerSha256": "f7bcc6f36c95b247064640eeba8c4a424e915ccfef9d49eee7eff64982c7e311",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 1,
+        "namespace": "",
+        "clause": "Origin\\A::__construct insteadof Origin\\B,Origin\\D",
+        "callerSha256": "db19653295bee08463d53aea04914b8acf225649255f4c6b37d15bc6f3b8eb95",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 2,
+        "namespace": "Origin",
+        "clause": "namespace\\A::__construct insteadof namespace\\B,namespace\\D",
+        "callerSha256": "5768decf458b171c30b6cb0a7a4b414689164d5e353a53be8328cbfef7e0a711",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 3,
+        "namespace": "Origin",
+        "clause": "A::__construct insteadof B,D",
+        "callerSha256": "2d1a5498b25a8989449a969f4c7b331e6ac263f1e0a2db48ef2919e9fd2b063b",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 4,
+        "namespace": "Consumer",
+        "clause": "\\Origin\\A::__construct /* 😀 */ insteadof /* ;, */ \\Origin\\B,\n /* 😀 */ \\Origin\\D",
+        "callerSha256": "9c692dffb05d95725e43ff31aef7e7c658c3f35b644bce2c76524e21da3439e6",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.1",
+        "phpVersion": "8.1.34",
+        "phpSha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "case": 0,
+        "namespace": "Consumer",
+        "clause": "\\Origin\\A::__construct insteadof \\Origin\\B,\\Origin\\D",
+        "callerSha256": "f7bcc6f36c95b247064640eeba8c4a424e915ccfef9d49eee7eff64982c7e311",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.1",
+        "phpVersion": "8.1.34",
+        "phpSha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "case": 1,
+        "namespace": "",
+        "clause": "Origin\\A::__construct insteadof Origin\\B,Origin\\D",
+        "callerSha256": "db19653295bee08463d53aea04914b8acf225649255f4c6b37d15bc6f3b8eb95",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.1",
+        "phpVersion": "8.1.34",
+        "phpSha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "case": 2,
+        "namespace": "Origin",
+        "clause": "namespace\\A::__construct insteadof namespace\\B,namespace\\D",
+        "callerSha256": "5768decf458b171c30b6cb0a7a4b414689164d5e353a53be8328cbfef7e0a711",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.1",
+        "phpVersion": "8.1.34",
+        "phpSha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "case": 3,
+        "namespace": "Origin",
+        "clause": "A::__construct insteadof B,D",
+        "callerSha256": "2d1a5498b25a8989449a969f4c7b331e6ac263f1e0a2db48ef2919e9fd2b063b",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.1",
+        "phpVersion": "8.1.34",
+        "phpSha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "case": 4,
+        "namespace": "Consumer",
+        "clause": "\\Origin\\A::__construct /* 😀 */ insteadof /* ;, */ \\Origin\\B,\n /* 😀 */ \\Origin\\D",
+        "callerSha256": "9c692dffb05d95725e43ff31aef7e7c658c3f35b644bce2c76524e21da3439e6",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 0,
+        "namespace": "Consumer",
+        "clause": "\\Origin\\A::__construct insteadof \\Origin\\B,\\Origin\\D",
+        "callerSha256": "f7bcc6f36c95b247064640eeba8c4a424e915ccfef9d49eee7eff64982c7e311",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 1,
+        "namespace": "",
+        "clause": "Origin\\A::__construct insteadof Origin\\B,Origin\\D",
+        "callerSha256": "db19653295bee08463d53aea04914b8acf225649255f4c6b37d15bc6f3b8eb95",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 2,
+        "namespace": "Origin",
+        "clause": "namespace\\A::__construct insteadof namespace\\B,namespace\\D",
+        "callerSha256": "5768decf458b171c30b6cb0a7a4b414689164d5e353a53be8328cbfef7e0a711",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 3,
+        "namespace": "Origin",
+        "clause": "A::__construct insteadof B,D",
+        "callerSha256": "2d1a5498b25a8989449a969f4c7b331e6ac263f1e0a2db48ef2919e9fd2b063b",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 4,
+        "namespace": "Consumer",
+        "clause": "\\Origin\\A::__construct /* 😀 */ insteadof /* ;, */ \\Origin\\B,\n /* 😀 */ \\Origin\\D",
+        "callerSha256": "9c692dffb05d95725e43ff31aef7e7c658c3f35b644bce2c76524e21da3439e6",
+        "dependencies": {
+          "A.php": "96eed6839b7bff70b8b225b07601ce78622634656b573362b6c7d82837bf4ba9",
+          "B.php": "e3c5f476f54c0a2b800d2f9a1a0aa01c41927eadcc1ffc6a85bbe60ea7d239e2",
+          "D.php": "813629be4012acf305bf2684118ad28cf73d1330e5e653addea25f2f73bc5e3c"
+        },
+        "runtimeExitCode": 0,
+        "runtimeOutput": "selected-A",
+        "lintedFiles": 4
+      }
+    ],
+    "passed": true,
+    "cases": 15,
+    "lintedFiles": 60
+  },
+  "recoveryControl": {
+    "sourceSha256": "05532a1a36719899607a40d7d93b541f0ecefe231b3679a788d53c0288a43ad1",
+    "mutation": "discard previously applied recovery masks",
+    "mutations": 1,
+    "matched": true,
+    "results": [
+      {
+        "variant": "current",
+        "bundleSha256": "2f0ae4e1991f356c5745d37a49ca2de62f6f7684015cfcddb01302fc4f1d11cd",
+        "cases": [
+          {
+            "name": "mixed",
+            "source": "<?php class mixed {use A,B {A::run insteadof \\Origin\\B;}} $broken=;",
+            "complete": true,
+            "errors": [
+              {
+                "start": 65,
+                "end": 66
+              }
+            ],
+            "adaptations": [
+              {
+                "kind": "precedence",
+                "trait": "A",
+                "method": "run",
+                "insteadOf": [
+                  "\\Origin\\B"
+                ],
+                "start": 28,
+                "end": 54
+              }
+            ]
+          },
+          {
+            "name": "Host",
+            "source": "<?php class Host {use A,B {A::run insteadof \\Origin\\B;A::run as final alias;}} $broken=;",
+            "complete": true,
+            "errors": [
+              {
+                "start": 86,
+                "end": 87
+              }
+            ],
+            "adaptations": [
+              {
+                "kind": "precedence",
+                "trait": "A",
+                "method": "run",
+                "insteadOf": [
+                  "\\Origin\\B"
+                ],
+                "start": 27,
+                "end": 53
+              },
+              {
+                "kind": "alias",
+                "trait": "A",
+                "method": "run",
+                "final": true,
+                "alias": "alias",
+                "start": 54,
+                "end": 75
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "variant": "withoutAccumulation",
+        "bundleSha256": "4617730aaed09766b31cae46dcd4aec65bdcf9acedb01e238c455581e072dc01",
+        "cases": [
+          {
+            "name": "mixed",
+            "source": "<?php class mixed {use A,B {A::run insteadof \\Origin\\B;}} $broken=;",
+            "complete": false,
+            "errors": [
+              {
+                "start": 6,
+                "end": 17
+              },
+              {
+                "start": 31,
+                "end": 44
+              },
+              {
+                "start": 65,
+                "end": 66
+              }
+            ],
+            "adaptations": []
+          },
+          {
+            "name": "Host",
+            "source": "<?php class Host {use A,B {A::run insteadof \\Origin\\B;A::run as final alias;}} $broken=;",
+            "complete": false,
+            "errors": [
+              {
+                "start": 64,
+                "end": 69
+              },
+              {
+                "start": 86,
+                "end": 87
+              }
+            ],
+            "adaptations": [
+              {
+                "kind": "precedence",
+                "trait": "A",
+                "method": "run",
+                "insteadOf": [
+                  "\\Origin\\B"
+                ],
+                "start": 27,
+                "end": 53
+              },
+              {
+                "kind": "alias",
+                "trait": "A",
+                "method": "run",
+                "final": true,
+                "alias": "alias",
+                "start": 54,
+                "end": 75
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "static": {
+    "extensionTypeScript": true,
+    "scopedESLint": true,
+    "diffCheck": true,
+    "sourceAndProductionBuild": true
+  },
+  "retainedFailures": [
+    {
+      "artifact": "/tmp/sophp-d104-parser-baseline.json",
+      "summary": {
+        "files": 1,
+        "total": 15,
+        "passed": 6,
+        "failed": 9,
+        "pending": 0,
+        "success": false
+      },
+      "firstFailure": {
+        "name": "preserves names and exact ranges in \\Origin\\A::run insteadof \\Origin\\B",
+        "messages": [
+          "AssertionError: expected true to be false // Object.is equality\n    at /var/www/node/php-companion/packages/parser/test/trait-precedence-names.test.ts:19:43\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+        ]
+      }
+    },
+    {
+      "artifact": "/tmp/sophp-d104-parser-first.json",
+      "summary": {
+        "files": 2,
+        "total": 22,
+        "passed": 16,
+        "failed": 6,
+        "pending": 0,
+        "success": false
+      },
+      "firstFailure": {
+        "name": "preserves names and exact ranges in \\Origin\\A::run insteadof \\Origin\\B",
+        "messages": [
+          "AssertionError: expected true to be false // Object.is equality\n    at /var/www/node/php-companion/packages/parser/test/trait-precedence-names.test.ts:19:43\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+        ]
+      }
+    },
+    {
+      "artifact": "/tmp/sophp-d104-parser-fixed.json",
+      "summary": {
+        "files": 2,
+        "total": 22,
+        "passed": 21,
+        "failed": 1,
+        "pending": 0,
+        "success": false
+      },
+      "firstFailure": {
+        "name": "preserves names and exact ranges in A::run /* before */ insteadof /* ;, text */ \\Origin\\B,\n/* after */ \\Origin\\C",
+        "messages": [
+          "AssertionError: expected [] to have a length of 1 but got +0\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect/dist/index.js:1389:20)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1737:25)\n    at /var/www/node/php-companion/packages/parser/test/trait-precedence-names.test.ts:23:35\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/packages/parser/node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+        ]
+      }
+    },
+    {
+      "artifact": "/tmp/sophp-d104-semantic-focused.json",
+      "summary": {
+        "files": 1,
+        "total": 33,
+        "passed": 3,
+        "failed": 30,
+        "pending": 0,
+        "success": false
+      },
+      "firstFailure": {
+        "name": "uses absolute precedence in namespace Consumer; / \\Origin\\A::__construct insteadof \\Origin\\B,\\Origin\\D after full",
+        "messages": [
+          "AssertionError: expected [ { …(5) } ] to match object [ { …(2) } ]\n(4 matching properties omitted from actual)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/semantic/test/trait-precedence-names.test.ts:32:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+        ]
+      }
+    },
+    {
+      "artifact": "/tmp/sophp-d104-semantic-focused-corrected.json",
+      "summary": {
+        "files": 1,
+        "total": 33,
+        "passed": 3,
+        "failed": 30,
+        "pending": 0,
+        "success": false
+      },
+      "firstFailure": {
+        "name": "uses absolute precedence in namespace Consumer; / \\Origin\\A::__construct insteadof \\Origin\\B,\\Origin\\D after full",
+        "messages": [
+          "AssertionError: expected [] to match object [ { …(2) } ]\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1283:10)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/semantic/test/trait-precedence-names.test.ts:34:50\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+        ]
+      }
+    }
+  ],
+  "preAccumulationQualification": {
+    "parser": {
+      "files": 6,
+      "total": 144,
+      "passed": 144,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    "semantic": {
+      "files": 118,
+      "total": 2751,
+      "passed": 2751,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    "lsp": {
+      "files": 10,
+      "total": 96,
+      "passed": 96,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    }
+  },
+  "limits": [
+    "Scope is the tested qualified, relative, multiple-name and multiline precedence forms; not all PHP grammar or every Trait refactoring.",
+    "The recovery path is bounded to two passes and verified in actual Trait use clauses; invalid or unclosed lists remain errors.",
+    "Native PHP checks syntax, actual construction and selected source; it does not enforce PHPDoc generic contracts.",
+    "D101 full 924-case qualification belongs to b95c5b75; this source has directed LSP qualification only.",
+    "Ordinary PHP 7.2 edit P95 remains last measured 155.06 ms above 150 ms; not remeasured.",
+    "Isolated Linux suggestions are preloaded explicit triggers, not natural typing or real WSL acceptance.",
+    "Other platforms, scale and long sessions remain open.",
+    "Default parser tests use package core runtime 0.26.13; bundled UI uses root 0.26.11. PHP grammar WASM is identical. Record both identities; do not claim unified dependency installation."
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "goal": "active",
+  "parserAssets": [
+    {
+      "kind": "coreWasmPath",
+      "path": "/var/www/node/php-companion/packages/parser/node_modules/.pnpm/web-tree-sitter@0.26.13/node_modules/web-tree-sitter/web-tree-sitter.wasm",
+      "bundled": "dist/web-tree-sitter.wasm",
+      "defaultSha256": "99fa2281fc4c6da713ccdadce72e81571b032ab9901b751be2d5aa127c843aaf",
+      "bundledSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "same": false
+    },
+    {
+      "kind": "phpWasmPath",
+      "path": "/var/www/node/php-companion/packages/parser/node_modules/.pnpm/tree-sitter-php@0.24.2/node_modules/tree-sitter-php/tree-sitter-php.wasm",
+      "bundled": "dist/tree-sitter-php.wasm",
+      "defaultSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "bundledSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "same": true
+    }
+  ],
+  "parserRuntimeVersions": {
+    "defaultPackage": "0.26.13",
+    "rootBundle": "0.26.11",
+    "phpGrammar": "0.24.2",
+    "dependencyInstallationChanged": false
+  }
+}

@@ -360,7 +360,8 @@ function traitSourceText(node: SyntaxNode, source: string): string {
   let text = source.slice(node.startIndex, node.endIndex);
   for (const comment of node.descendantsOfType('comment').sort((left, right) => right.startIndex - left.startIndex)) {
     const start = comment.startIndex - node.startIndex; const end = comment.endIndex - node.startIndex;
-    text = text.slice(0, start) + text.slice(start, end).replace(/[^\r\n]/gu, ' ') + text.slice(end);
+    // Preserve UTF-16 width, including both halves of an astral character.
+    text = text.slice(0, start) + text.slice(start, end).replace(/[^\r\n]/g, ' ') + text.slice(end);
   }
   return text;
 }
@@ -377,12 +378,40 @@ function traitFinalAdaptationMasks(node: SyntaxNode, source: string): Array<{ st
   });
 }
 
+type SyntaxMask = { start: number; end: number; value: string };
+
+function traitPrecedenceMaskCandidates(root: SyntaxNode, source: string): Array<{ keyword: SourceRange; masks: SyntaxMask[] }> {
+  if (!/\binsteadof\b/iu.test(source)) return [];
+  const keywords = root.descendantsOfType('insteadof');
+  if (!keywords.length) return [];
+  // Work from real keyword tokens and comment-free source, never string contents.
+  const visible = traitSourceText(root, source);
+  const name = String.raw`\\?[A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*(?:\\[A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*)*`;
+  const list = new RegExp(`^\\s*${name}(?:\\s*,\\s*${name})*\\s*$`, 'u');
+  return keywords.flatMap(keyword => {
+    const end = visible.indexOf(';', keyword.endIndex);
+    if (end < 0) return [];
+    const body = visible.slice(keyword.endIndex, end);
+    if (!list.test(body)) return [];
+    const names = [...body.matchAll(new RegExp(name, 'gu'))];
+    if (names.length === 1 && !names[0]![0].includes('\\')) return [];
+    const masks: SyntaxMask[] = names.map((match, index) => ({
+      start: keyword.endIndex + match.index, end: keyword.endIndex + match.index + match[0].length,
+      // The grammar accepts one simple RHS name. Keep its end at the original
+      // list end so facts still read every excluded name from the real source.
+      value: index === names.length - 1 ? match[0].replace(/\\/gu, '_') : ' '.repeat(match[0].length),
+    }));
+    for (const comma of body.matchAll(/,/gu)) masks.push({start:keyword.endIndex+comma.index,end:keyword.endIndex+comma.index+1,value:' '});
+    return [{keyword:nodeRange(source,keyword),masks}];
+  });
+}
+
 function traitAdaptations(node: SyntaxNode, source: string): ParsedTraitAdaptation[] {
   const list = node.namedChildren.find((child) => child.type === 'use_list');
   if (!list) return [];
   return list.namedChildren.flatMap((clause): ParsedTraitAdaptation[] => {
     if (clause.type === 'use_instead_of_clause') {
-      const match = /^(.+?)::([A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*)\s+insteadof\s+(.+)$/iu.exec(traitSourceText(clause, source).trim());
+      const match = /^(.+?)::([A-Za-z_\x80-\u{10ffff}][A-Za-z0-9_\x80-\u{10ffff}]*)\s+insteadof\s+(.+)$/isu.exec(traitSourceText(clause, source).trim());
       return match ? [{ kind: 'precedence', trait: match[1]!, method: match[2]!, insteadOf: match[3]!.split(',').map((item) => item.trim()), start: clause.startIndex, end: clause.endIndex }] : [];
     }
     if (clause.type === 'use_as_clause') {
@@ -520,14 +549,21 @@ export class PhpSyntaxParser {
     return this.create(defaultPhpParserPaths());
   }
 
-  /** Build only the syntax tree. Callers own it and read token text from source ranges: legacy class names and final trait adaptations may be masked in the tree. */
+  /** Build only the syntax tree. Callers own it and read token text from source ranges: legacy class names and trait adaptations may be masked in the tree. */
   parseTree(source: string, oldTree?: Tree): Tree {
     let tree = this.parser.parse(source, oldTree && !this.recoveredSyntaxTrees.has(oldTree) ? oldTree : undefined);
     if (!tree) throw new Error('Tree-sitter returned no parse tree.');
-    if (tree.rootNode.hasError) {
+    const appliedMasks = new Map<string,SyntaxMask>();
+    for (let pass = 0; pass < 2 && tree.rootNode.hasError; pass++) {
       // The current grammar reserves these names, but PHP 7 accepted them as class names.
       // Repair only matching error nodes with equal-width names so all source ranges survive.
       const replacements: Array<{ start: number; end: number; value: string }> = [];
+      const applyMasks = (masks: SyntaxMask[]): string => {
+        let recovered = source;
+        for (const mask of [...masks].sort((left,right) => right.start-left.start))
+          recovered = recovered.slice(0,mask.start)+mask.value+recovered.slice(mask.end);
+        return recovered;
+      };
       const inspect = (node: SyntaxNode): void => {
         if (!node.hasError) return;
         if (node.type === 'ERROR') {
@@ -544,16 +580,27 @@ export class PhpSyntaxParser {
         for (const child of node.namedChildren) inspect(child);
       };
       inspect(tree.rootNode);
+      const candidates = traitPrecedenceMaskCandidates(tree.rootNode,source);
+      if (candidates.length) {
+        const probe = this.parser.parse(applyMasks([...appliedMasks.values(),...replacements,...candidates.flatMap(candidate => candidate.masks)]));
+        if (!probe) throw new Error('Tree-sitter returned no Trait precedence probe tree.');
+        try {
+          const clauses = probe.rootNode.descendantsOfType('use_instead_of_clause').filter(clause =>
+            clause.parent?.type === 'use_list' && clause.parent.parent?.type === 'use_declaration'
+            && ['class_declaration','trait_declaration','enum_declaration','anonymous_class']
+              .includes(clause.parent.parent.parent?.parent?.type ?? ''));
+          for (const candidate of candidates) if (clauses.some(clause => clause.startIndex <= candidate.keyword.start
+            && clause.endIndex >= candidate.keyword.end)) replacements.push(...candidate.masks);
+        } finally {probe.delete();}
+      }
       if (replacements.length > 0) {
-        let recovered = source;
-        for (const replacement of replacements.sort((left, right) => right.start - left.start)) {
-          recovered = `${recovered.slice(0, replacement.start)}${replacement.value}${recovered.slice(replacement.end)}`;
-        }
+        for (const mask of replacements) appliedMasks.set(`${mask.start}:${mask.end}`,mask);
+        const recovered = applyMasks([...appliedMasks.values()]);
         tree.delete();
         tree = this.parser.parse(recovered);
         if (!tree) throw new Error('Tree-sitter returned no recovered parse tree.');
         this.recoveredSyntaxTrees.add(tree);
-      }
+      } else break;
     }
     return tree;
   }

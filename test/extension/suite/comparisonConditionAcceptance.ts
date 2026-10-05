@@ -31,7 +31,8 @@ export async function run(): Promise<void> {
   const assignmentTargets = process.env.PHP_COMPANION_TEST_ASSIGNMENT_TARGET_ONLY === '1';
   const nativeXmlReaders = process.env.PHP_COMPANION_TEST_NATIVE_XML_READER_ONLY === '1';
   const functionLookups = process.env.PHP_COMPANION_TEST_FUNCTION_LOOKUP_ONLY === '1';
-  const canonicalConstructions = process.env.PHP_COMPANION_TEST_CANONICAL_CONSTRUCTION_ONLY === '1';
+  const qualifiedPrecedence = process.env.PHP_COMPANION_TEST_TRAIT_PRECEDENCE_ONLY === '1';
+  const canonicalConstructions = qualifiedPrecedence || process.env.PHP_COMPANION_TEST_CANONICAL_CONSTRUCTION_ONLY === '1';
   const traitUseGenerics = process.env.PHP_COMPANION_TEST_TRAIT_USE_GENERIC_ONLY === '1';
   const inheritedConstructors = process.env.PHP_COMPANION_TEST_INHERITED_CONSTRUCTOR_ONLY === '1';
   const traitPhpDocs = process.env.PHP_COMPANION_TEST_TRAIT_PHPDOC_ONLY === '1';
@@ -65,7 +66,13 @@ export async function run(): Promise<void> {
   const callableHeader = '<?php class User{public function name():string{return "user";}} class View{public function title():string{return "view";}} ';
   const configuredPhpVersion = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion');
   const reflectionNewType = Number(configuredPhpVersion?.replace('.', '')) < 80 ? 'ReflectionType' : 'ReflectionNamedType';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = canonicalConstructions ? [
+  const finalAlias = Number(configuredPhpVersion?.replace('.','')) >= 83 ? 'final ' : '';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = qualifiedPrecedence ? [
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init,\\Origin\\Other {\\Origin\\Init::__construct insteadof \\Origin\\Other;}} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init,\\Origin\\Other,\\Origin\\Third {\\Origin\\Init::__construct insteadof \\Origin\\Other,\\Origin\\Third;}} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:`<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init,\\Origin\\Other,\\Origin\\Third {\\Origin\\Init::__construct /* 😀 */ insteadof /* ; */ \\Origin\\Other,\n/* 😀 */ \\Origin\\Third; \\Origin\\Init::__construct as ${finalAlias}selectedCtor;}} function run(string $offerA,int $offerZ){return new C($offer§);}`},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {/** @use \\Origin\\Init<int> */ use \\Origin\\Init,\\Origin\\Other,\\Origin\\Third {\\Origin\\Init::__construct insteadof \\Origin\\Other,\\Origin\\Third;}} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+  ] : canonicalConstructions ? [
     {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} function run(string $offerA,int $offerZ){return new C($offer§);}'},
     {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offer§);}'},
     {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Mid;} function run(string $offerA,int $offerZ){return new C($offer§);}'},
@@ -325,12 +332,19 @@ export async function run(): Promise<void> {
       const namespace = `App\\CanonicalGate${suffix}`, directory = vscode.Uri.joinPath(folder.uri,'src',`CanonicalGate${suffix}`);
       await vscode.workspace.fs.createDirectory(directory);
       const index = cases.indexOf(item);
-      const init = `<?php namespace ${namespace}; ${index === 3 ? '/** @template T */ ' : ''}trait Init {${index === 3 ? '/** @param T $value */ ' : ''}public function ${index === 1 ? 'seed' : '__construct'}(${index === 3 ? '' : 'int '}$value){}}`;
+      const init = `<?php namespace ${namespace}; ${index === 3 ? '/** @template T */ ' : ''}trait Init {${index === 3 ? '/** @param T $value */ ' : ''}public function ${index === 1 && !qualifiedPrecedence ? 'seed' : '__construct'}(${index === 3 ? '' : 'int '}$value){}}`;
       constructorSources.push({name:'Init',source:init});
       const initUri = vscode.Uri.joinPath(directory,'Init.php');
       await vscode.workspace.fs.writeFile(initUri,Buffer.from(init)); await vscode.workspace.openTextDocument(initUri);
       await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',initUri);
-      if(index === 2) {
+      if(qualifiedPrecedence) for(const [name,type] of index === 0 ? [['Other','string']] : [['Other','string'],['Third','bool']]) {
+        const source=`<?php namespace ${namespace}; trait ${name} {public function __construct(${type} $value){}}`;
+        constructorSources.push({name:name!,source});
+        const dependencyUri=vscode.Uri.joinPath(directory,name+'.php');
+        await vscode.workspace.fs.writeFile(dependencyUri,Buffer.from(source));
+        await vscode.workspace.openTextDocument(dependencyUri); await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',dependencyUri);
+      }
+      if(index === 2 && !qualifiedPrecedence) {
         const midUri=vscode.Uri.joinPath(directory,'Mid.php');
         const midSource=`<?php namespace ${namespace}; trait Mid {use Init;}`;
         constructorSources.push({name:'Mid',source:midSource});
@@ -412,6 +426,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: canonicalConstructions ? `canonical-construction-${configuredPhpVersion}` : traitUseGenerics ? `trait-use-generics-${configuredPhpVersion}` : inheritedConstructors ? `inherited-construction-${configuredPhpVersion}` : traitPhpDocs ? `trait-phpdoc-${configuredPhpVersion}` : traitConstructions ? `trait-construction-${configuredPhpVersion}` : classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: qualifiedPrecedence ? `trait-precedence-${configuredPhpVersion}` : canonicalConstructions ? `canonical-construction-${configuredPhpVersion}` : traitUseGenerics ? `trait-use-generics-${configuredPhpVersion}` : inheritedConstructors ? `inherited-construction-${configuredPhpVersion}` : traitPhpDocs ? `trait-phpdoc-${configuredPhpVersion}` : traitConstructions ? `trait-construction-${configuredPhpVersion}` : classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

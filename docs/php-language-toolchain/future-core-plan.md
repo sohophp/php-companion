@@ -224,3 +224,7 @@ D44 与 readonly 负向试验材料作为本地源码里程碑收口（feat(core
 ## D103 可证明的外部构造来源
 
 [本轮记录](reports/completion-canonical-construction-2026-10-05.md)：onDemand 对唯一完整构造来源图及 Composer 路径的证明已接入，覆盖外部 Trait／嵌套／继承／构造别名，并撤回异步等待期间的旧源码证明。完整语义 2718、定向 LSP 89、原方法证明 8、两版 16 次可见接受及实际 PHP 构造运行通过，450 输入保持；删除版本保护的两项临时对照均失败。D102 非规范路径来源仍撤回，qualified precedence、普通 PHP 7.2 编辑 155.06 ms、完整协议及真人／平台／规模／长会话仍开放。仅本地源码里程碑，不打包、推送或更新 Profile，goal active；下一项沿真实 PHP 对照处理 qualified Trait precedence 解析。
+
+## D104 Trait precedence 名称与排除列表
+
+[本轮记录](reports/completion-trait-precedence-names-2026-10-05.md)：合法的全限定／相对名称及多个排除目标已进入有界解析恢复，保留 UTF-16 注释范围、多行列表和先前恢复范围；补全／构造诊断／未保存来源切换与缓存 87／5 一致。完整解析 146／语义 2751、定向 LSP 96、两版 16 次可见接受及实际 PHP 运行通过，463 输入保持。五种精确声明在三个实际 CLI 的 15 次调用选中正确来源；丢弃恢复范围的两个临时对照均失败。此前 qualified precedence 具体复现已修复，不扩张为全部 PHP 语法；普通 PHP 7.2 编辑 155.06 ms、完整协议与真人／平台／规模／长会话仍开放。本地源码里程碑，不打包、推送或更新 Profile，goal active；下一项回到有 CPU 证据的普通编辑性能缺口。
