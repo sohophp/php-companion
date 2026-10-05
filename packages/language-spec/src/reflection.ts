@@ -201,7 +201,7 @@ class ReflectionParameter implements Reflector {
   ${method('getDefaultValueConstantName', '', '', '?string')} ${method('isVariadic', '', '', 'bool')}
   ${php80 ? method('isPromoted', '', '', 'bool') : ''} ${attributes} ${exportMethod('$function, $parameter, $return = false')}
 }
-abstract class ReflectionType${php80 ? ' implements Stringable' : ''} { ${method('allowsNull', '', '', 'bool')} ${php80 ? '' : method('isBuiltin', '', '', 'bool')} ${method('__toString', '', '', 'string')} }
+${php80 ? 'abstract ' : ''}class ReflectionType${php80 ? ' implements Stringable' : ''} { ${method('allowsNull', '', '', 'bool')} ${php80 ? '' : method('isBuiltin', '', '', 'bool')} ${method('__toString', '', '', 'string')} }
 class ReflectionNamedType extends ReflectionType { ${method('getName', '', '', 'string')} ${php80 ? method('isBuiltin', '', '', 'bool') : ''} }
 ${php80 ? `class ReflectionUnionType extends ReflectionType { /** @return list<ReflectionNamedType> */ public function getTypes()${php81 ? ': array' : ''} {} }` : ''}
 ${php81 ? 'class ReflectionIntersectionType extends ReflectionType { /** @return list<ReflectionNamedType> */ public function getTypes(): array {} }' : ''}

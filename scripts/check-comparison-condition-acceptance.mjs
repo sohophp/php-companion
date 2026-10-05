@@ -11,6 +11,9 @@ if (process.platform !== 'linux') throw new Error('This visible gate uses the Li
 if (process.argv.length > 3) throw new Error('Usage: node scripts/check-comparison-condition-acceptance.mjs [report.json]');
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const automatic = process.env.SOPHP_AUTOMATIC_COMPLETION === '1';
+const phpVersion = process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5';
+if (!['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'].includes(phpVersion))
+  throw new Error('Unsupported SOPHP_VISIBLE_PHP_VERSION.');
 const isolatedIndexingMode = process.env.SOPHP_AUTOMATIC_INDEXING_MODE;
 if (isolatedIndexingMode && (!automatic || !['onDemand', 'progressive'].includes(isolatedIndexingMode)))
   throw new Error('SOPHP_AUTOMATIC_INDEXING_MODE requires automatic mode and onDemand or progressive.');
@@ -45,7 +48,7 @@ ${launch}`);
   let output = '';
   let rendererExceptions = 0;
   const child = spawn(process.execPath, [join(root, 'scripts/run-extension-test.mjs'), runnerPath], {
-    cwd: root, env: { ...process.env, PHP_COMPANION_TEST_CORE_ONLY: '1', PHP_COMPANION_TEST_C1_ONLY: '1', PHP_COMPANION_TEST_C1_UI: '1', PHP_COMPANION_TEST_C1_PHP_VERSION: '8.5' }, stdio: ['ignore', 'pipe', 'pipe'],
+    cwd: root, env: { ...process.env, PHP_COMPANION_TEST_CORE_ONLY: '1', PHP_COMPANION_TEST_C1_ONLY: '1', PHP_COMPANION_TEST_C1_UI: '1', PHP_COMPANION_TEST_C1_PHP_VERSION: phpVersion }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   for (const [stream, destination] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) {
     stream.setEncoding('utf8'); let pending = '';

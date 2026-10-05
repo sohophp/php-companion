@@ -1,0 +1,1435 @@
+{
+  "milestone": "D93",
+  "date": "2026-10-05",
+  "base": "1e740406",
+  "scope": "Versioned ReflectionType abstractness and construction completion; other factory/type assumptions checked against actual runtimes.",
+  "sources": {
+    "phpManual": "https://www.php.net/manual/en/class.reflectiontype.php",
+    "pinnedStub": "https://raw.githubusercontent.com/JetBrains/phpstorm-stubs/e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681/Reflection/ReflectionType.php",
+    "revision": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+    "difference": "Pinned stub declares modern abstract class; PHP manual records change at 8.0.0; PHP 7 generation must retain concrete base."
+  },
+  "runtimeReflection": [
+    {
+      "version": "7.2.34",
+      "results": [
+        {
+          "class": "ReflectionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionNamedType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionUnionType",
+          "exists": false
+        },
+        {
+          "class": "ReflectionIntersectionType",
+          "exists": false
+        },
+        {
+          "class": "ReflectionAttribute",
+          "exists": false
+        },
+        {
+          "class": "ReflectionReference",
+          "exists": false
+        },
+        {
+          "class": "stdClass",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ArrayObject",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ArrayObject",
+            "visibility": "public"
+          },
+          "new": "allowed"
+        }
+      ],
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "binarySha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+    },
+    {
+      "version": "7.4.33",
+      "results": [
+        {
+          "class": "ReflectionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionNamedType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionUnionType",
+          "exists": false
+        },
+        {
+          "class": "ReflectionIntersectionType",
+          "exists": false
+        },
+        {
+          "class": "ReflectionAttribute",
+          "exists": false
+        },
+        {
+          "class": "ReflectionReference",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionReference",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionReference::__construct() from invalid context"
+        },
+        {
+          "class": "stdClass",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ArrayObject",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ArrayObject",
+            "visibility": "public"
+          },
+          "new": "allowed"
+        }
+      ],
+      "binary": "/opt/remi/php74/root/usr/bin/php",
+      "binarySha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+    },
+    {
+      "version": "8.1.34",
+      "results": [
+        {
+          "class": "ReflectionType",
+          "exists": true,
+          "abstract": true,
+          "isInstantiable": false,
+          "constructor": null,
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "class": "ReflectionNamedType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionUnionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionIntersectionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionAttribute",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionAttribute",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionAttribute::__construct() from global scope"
+        },
+        {
+          "class": "ReflectionReference",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionReference",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionReference::__construct() from global scope"
+        },
+        {
+          "class": "stdClass",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ArrayObject",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ArrayObject",
+            "visibility": "public"
+          },
+          "new": "allowed"
+        }
+      ],
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "binarySha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+    },
+    {
+      "version": "8.2.32",
+      "results": [
+        {
+          "class": "ReflectionType",
+          "exists": true,
+          "abstract": true,
+          "isInstantiable": false,
+          "constructor": null,
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "class": "ReflectionNamedType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionUnionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionIntersectionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionAttribute",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionAttribute",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionAttribute::__construct() from global scope"
+        },
+        {
+          "class": "ReflectionReference",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionReference",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionReference::__construct() from global scope"
+        },
+        {
+          "class": "stdClass",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ArrayObject",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ArrayObject",
+            "visibility": "public"
+          },
+          "new": "allowed"
+        }
+      ],
+      "binary": "/opt/remi/php82/root/usr/bin/php",
+      "binarySha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+    },
+    {
+      "version": "8.4.23",
+      "results": [
+        {
+          "class": "ReflectionType",
+          "exists": true,
+          "abstract": true,
+          "isInstantiable": false,
+          "constructor": null,
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "class": "ReflectionNamedType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionUnionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionIntersectionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionAttribute",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionAttribute",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionAttribute::__construct() from global scope"
+        },
+        {
+          "class": "ReflectionReference",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionReference",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionReference::__construct() from global scope"
+        },
+        {
+          "class": "stdClass",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ArrayObject",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ArrayObject",
+            "visibility": "public"
+          },
+          "new": "allowed"
+        }
+      ],
+      "binary": "/opt/remi/php84/root/usr/bin/php",
+      "binarySha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+    },
+    {
+      "version": "8.5.9",
+      "results": [
+        {
+          "class": "ReflectionType",
+          "exists": true,
+          "abstract": true,
+          "isInstantiable": false,
+          "constructor": null,
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "class": "ReflectionNamedType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionUnionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionIntersectionType",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ReflectionAttribute",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionAttribute",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionAttribute::__construct() from global scope"
+        },
+        {
+          "class": "ReflectionReference",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": false,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ReflectionReference",
+            "visibility": "private"
+          },
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private ReflectionReference::__construct() from global scope"
+        },
+        {
+          "class": "stdClass",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "ArrayObject",
+          "exists": true,
+          "abstract": false,
+          "isInstantiable": true,
+          "constructor": {
+            "name": "__construct",
+            "owner": "ArrayObject",
+            "visibility": "public"
+          },
+          "new": "allowed"
+        }
+      ],
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "binarySha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    }
+  ],
+  "runtimeDomControls": [
+    {
+      "version": "7.2.34",
+      "results": [
+        {
+          "class": "Dom\\NodeList",
+          "exists": false
+        },
+        {
+          "class": "Dom\\NamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\DtdNamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\Node",
+          "exists": false
+        },
+        {
+          "class": "Dom\\HTMLDocument",
+          "exists": false
+        },
+        {
+          "class": "DOMNodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": "__construct",
+          "new": "allowed"
+        }
+      ]
+    },
+    {
+      "version": "7.4.33",
+      "results": [
+        {
+          "class": "Dom\\NodeList",
+          "exists": false
+        },
+        {
+          "class": "Dom\\NamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\DtdNamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\Node",
+          "exists": false
+        },
+        {
+          "class": "Dom\\HTMLDocument",
+          "exists": false
+        },
+        {
+          "class": "DOMNodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": "__construct",
+          "new": "allowed"
+        }
+      ]
+    },
+    {
+      "version": "8.1.34",
+      "results": [
+        {
+          "class": "Dom\\NodeList",
+          "exists": false
+        },
+        {
+          "class": "Dom\\NamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\DtdNamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\Node",
+          "exists": false
+        },
+        {
+          "class": "Dom\\HTMLDocument",
+          "exists": false
+        },
+        {
+          "class": "DOMNodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": "__construct",
+          "new": "allowed"
+        }
+      ]
+    },
+    {
+      "version": "8.2.32",
+      "results": [
+        {
+          "class": "Dom\\NodeList",
+          "exists": false
+        },
+        {
+          "class": "Dom\\NamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\DtdNamedNodeMap",
+          "exists": false
+        },
+        {
+          "class": "Dom\\Node",
+          "exists": false
+        },
+        {
+          "class": "Dom\\HTMLDocument",
+          "exists": false
+        },
+        {
+          "class": "DOMNodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": "__construct",
+          "new": "allowed"
+        }
+      ]
+    },
+    {
+      "version": "8.4.23",
+      "results": [
+        {
+          "class": "Dom\\NodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "Dom\\NamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "Dom\\DtdNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "Dom\\Node",
+          "exists": true,
+          "abstract": false,
+          "instantiable": false,
+          "constructor": "__construct",
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private Dom\\Node::__construct() from global scope"
+        },
+        {
+          "class": "Dom\\HTMLDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": false,
+          "constructor": "__construct",
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private Dom\\Node::__construct() from global scope"
+        },
+        {
+          "class": "DOMNodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": "__construct",
+          "new": "allowed"
+        }
+      ]
+    },
+    {
+      "version": "8.5.9",
+      "results": [
+        {
+          "class": "Dom\\NodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "Dom\\NamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "Dom\\DtdNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "Dom\\Node",
+          "exists": true,
+          "abstract": false,
+          "instantiable": false,
+          "constructor": "__construct",
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private Dom\\Node::__construct() from global scope"
+        },
+        {
+          "class": "Dom\\HTMLDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": false,
+          "constructor": "__construct",
+          "new": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private Dom\\Node::__construct() from global scope"
+        },
+        {
+          "class": "DOMNodeList",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMNamedNodeMap",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": null,
+          "new": "allowed"
+        },
+        {
+          "class": "DOMDocument",
+          "exists": true,
+          "abstract": false,
+          "instantiable": true,
+          "constructor": "__construct",
+          "new": "allowed"
+        }
+      ]
+    }
+  ],
+  "runtimeRecordCount": 96,
+  "tests": {
+    "red": {
+      "files": 1,
+      "tests": 9,
+      "passed": 6,
+      "failed": 3,
+      "pending": 0,
+      "sha256": "dba0ec1526c1d855df8078cb7bda94b05f72dbbd4db7309486b0d9e533374380",
+      "failures": [
+        {
+          "test": "keeps PHP 7.2 Reflection construction and references distinct",
+          "message": "AssertionError: <?php new \\ReflectionType§;: expected false to be true // Object.is equality"
+        },
+        {
+          "test": "keeps PHP 7.3 Reflection construction and references distinct",
+          "message": "AssertionError: <?php new \\ReflectionType§;: expected false to be true // Object.is equality"
+        },
+        {
+          "test": "keeps PHP 7.4 Reflection construction and references distinct",
+          "message": "AssertionError: <?php new \\ReflectionType§;: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    "languageSpec": {
+      "files": 15,
+      "tests": 249,
+      "passed": 249,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "ab4a71d2055c6250a860a093e3ab51e5de566dc95f314199278dac945b33d8a3",
+      "failures": []
+    },
+    "fullSemantic": {
+      "files": 110,
+      "tests": 2459,
+      "passed": 2459,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "836b48ed755dccbf7bcce28a0f945bafc17a46159a98c71d74bcbdc08c67367e",
+      "failures": []
+    },
+    "lsp": {
+      "files": 1,
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "5bde77a0795b93a895543f75efeaca783a2e8719ae23bd9ef8c0b3b6d3069541",
+      "failures": []
+    }
+  },
+  "lspScope": {
+    "configuredVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "experimental"
+    ],
+    "statesPerServer": 43,
+    "servers": 4,
+    "queries": 172,
+    "currentDiagnosticVersions": 172,
+    "coldIncompleteOnDemandHierarchyDiagnostics": "Original completeRoots gate retained; no abstract-target diagnostic claimed before complete indexing.",
+    "experimental": "Full source completion explicitly awaited; parenthesized ReflectionType diagnostic absent in PHP 7 and present in PHP 8."
+  },
+  "hostProofs": [
+    {
+      "platform": "linux",
+      "context": "reflection-construction-7.2",
+      "results": [
+        {
+          "label": "ReflectionType",
+          "key": "Enter",
+          "visibleMs": 267,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php $value=new \\ReflectionType();",
+          "caretOffset": 32,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Tab",
+          "visibleMs": 177,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php $value=new \\ReflectionType();",
+          "caretOffset": 32,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Enter",
+          "visibleMs": 139,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+          "caretOffset": 38,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Tab",
+          "visibleMs": 193,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+          "caretOffset": 38,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Enter",
+          "visibleMs": 176,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php use ReflectionType;",
+          "caretOffset": 24,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Tab",
+          "visibleMs": 189,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php use ReflectionType;",
+          "caretOffset": 24,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "SelectedAlias",
+          "key": "Enter",
+          "visibleMs": 134,
+          "visibleLabels": [
+            "SelectedAliasReflectionType"
+          ],
+          "acceptedText": "<?php use ReflectionType as SelectedAlias; $value=new SelectedAlias();",
+          "caretOffset": 67,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "SelectedAlias",
+          "key": "Tab",
+          "visibleMs": 154,
+          "visibleLabels": [
+            "SelectedAliasReflectionType"
+          ],
+          "acceptedText": "<?php use ReflectionType as SelectedAlias; $value=new SelectedAlias();",
+          "caretOffset": 67,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "context": "reflection-construction-8.5",
+      "results": [
+        {
+          "label": "ReflectionNamedType",
+          "key": "Enter",
+          "visibleMs": 270,
+          "visibleLabels": [
+            "ReflectionNamedTypeReflectionNamedType"
+          ],
+          "acceptedText": "<?php $value=new \\ReflectionNamedType();",
+          "caretOffset": 37,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionNamedType",
+          "key": "Tab",
+          "visibleMs": 134,
+          "visibleLabels": [
+            "ReflectionNamedTypeReflectionNamedType"
+          ],
+          "acceptedText": "<?php $value=new \\ReflectionNamedType();",
+          "caretOffset": 37,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Enter",
+          "visibleMs": 162,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+          "caretOffset": 38,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Tab",
+          "visibleMs": 123,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+          "caretOffset": 38,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Enter",
+          "visibleMs": 179,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php use ReflectionType;",
+          "caretOffset": 24,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "ReflectionType",
+          "key": "Tab",
+          "visibleMs": 153,
+          "visibleLabels": [
+            "ReflectionTypeReflectionType"
+          ],
+          "acceptedText": "<?php use ReflectionType;",
+          "caretOffset": 24,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "SelectedAlias",
+          "key": "Enter",
+          "visibleMs": 133,
+          "visibleLabels": [
+            "SelectedAliasReflectionNamedType"
+          ],
+          "acceptedText": "<?php use ReflectionNamedType as SelectedAlias; $value=new SelectedAlias();",
+          "caretOffset": 72,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "SelectedAlias",
+          "key": "Tab",
+          "visibleMs": 132,
+          "visibleLabels": [
+            "SelectedAliasReflectionNamedType"
+          ],
+          "acceptedText": "<?php use ReflectionNamedType as SelectedAlias; $value=new SelectedAlias();",
+          "caretOffset": 72,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  ],
+  "acceptedSyntax": [
+    {
+      "version": "7.2",
+      "key": "Enter",
+      "label": "ReflectionType",
+      "sha256": "f3bed06ace1bed60837b9806e2d177ca7cf10237759b16492f7c775497c8bf65",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-0.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Tab",
+      "label": "ReflectionType",
+      "sha256": "f3bed06ace1bed60837b9806e2d177ca7cf10237759b16492f7c775497c8bf65",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-1.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Enter",
+      "label": "ReflectionType",
+      "sha256": "765d8bb4fd7fb6c6d64be172797379f0e0e180f289d8544ef991ff7a07b5cc8e",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-2.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Tab",
+      "label": "ReflectionType",
+      "sha256": "765d8bb4fd7fb6c6d64be172797379f0e0e180f289d8544ef991ff7a07b5cc8e",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-3.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Enter",
+      "label": "ReflectionType",
+      "sha256": "b72117acffb54f1f0f89d762b9a4921edebf790072987190ee7cb6a703f43b12",
+      "exitCode": 0,
+      "output": "\nWarning: The use statement with non-compound name 'ReflectionType' has no effect in /tmp/sophp-d93-accepted-6iu7iy06/7.2-4.php on line 1\nNo syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-4.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Tab",
+      "label": "ReflectionType",
+      "sha256": "b72117acffb54f1f0f89d762b9a4921edebf790072987190ee7cb6a703f43b12",
+      "exitCode": 0,
+      "output": "\nWarning: The use statement with non-compound name 'ReflectionType' has no effect in /tmp/sophp-d93-accepted-6iu7iy06/7.2-5.php on line 1\nNo syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-5.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Enter",
+      "label": "SelectedAlias",
+      "sha256": "2dd0b2b57f965149a143cf37c8bb069218f0e8c3bad2f26c0546961c16d5334c",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-6.php\n"
+    },
+    {
+      "version": "7.2",
+      "key": "Tab",
+      "label": "SelectedAlias",
+      "sha256": "2dd0b2b57f965149a143cf37c8bb069218f0e8c3bad2f26c0546961c16d5334c",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/7.2-7.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Enter",
+      "label": "ReflectionNamedType",
+      "sha256": "a552146c1384eb43dd60b03bed901eae8b1523a0fd4a7afcec58fc0f0d7a959f",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-0.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Tab",
+      "label": "ReflectionNamedType",
+      "sha256": "a552146c1384eb43dd60b03bed901eae8b1523a0fd4a7afcec58fc0f0d7a959f",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-1.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Enter",
+      "label": "ReflectionType",
+      "sha256": "765d8bb4fd7fb6c6d64be172797379f0e0e180f289d8544ef991ff7a07b5cc8e",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-2.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Tab",
+      "label": "ReflectionType",
+      "sha256": "765d8bb4fd7fb6c6d64be172797379f0e0e180f289d8544ef991ff7a07b5cc8e",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-3.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Enter",
+      "label": "ReflectionType",
+      "sha256": "b72117acffb54f1f0f89d762b9a4921edebf790072987190ee7cb6a703f43b12",
+      "exitCode": 0,
+      "output": "\nWarning: The use statement with non-compound name 'ReflectionType' has no effect in /tmp/sophp-d93-accepted-6iu7iy06/8.5-4.php on line 1\nNo syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-4.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Tab",
+      "label": "ReflectionType",
+      "sha256": "b72117acffb54f1f0f89d762b9a4921edebf790072987190ee7cb6a703f43b12",
+      "exitCode": 0,
+      "output": "\nWarning: The use statement with non-compound name 'ReflectionType' has no effect in /tmp/sophp-d93-accepted-6iu7iy06/8.5-5.php on line 1\nNo syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-5.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Enter",
+      "label": "SelectedAlias",
+      "sha256": "3e1403a0a72141ac80720a55897c7b8a9f2a22384855c29f33e4fd072dada811",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-6.php\n"
+    },
+    {
+      "version": "8.5",
+      "key": "Tab",
+      "label": "SelectedAlias",
+      "sha256": "3e1403a0a72141ac80720a55897c7b8a9f2a22384855c29f33e4fd072dada811",
+      "exitCode": 0,
+      "output": "No syntax errors detected in /tmp/sophp-d93-accepted-6iu7iy06/8.5-7.php\n"
+    }
+  ],
+  "adjacentNoArgumentListGap": {
+    "proof": {
+      "confirmedGap": true,
+      "rows": [
+        {
+          "version": "7.2",
+          "source": "<?php new \\ReflectionType;",
+          "parsedCalls": [],
+          "invalidTargets": [],
+          "expectedInvalid": false
+        },
+        {
+          "version": "7.2",
+          "source": "<?php new \\ReflectionType();",
+          "parsedCalls": [
+            {
+              "kind": "constructor",
+              "start": 6,
+              "end": 27,
+              "argumentsStart": 25,
+              "argumentsEnd": 27
+            }
+          ],
+          "invalidTargets": [],
+          "expectedInvalid": false
+        },
+        {
+          "version": "8.5",
+          "source": "<?php new \\ReflectionType;",
+          "parsedCalls": [],
+          "invalidTargets": [],
+          "expectedInvalid": true
+        },
+        {
+          "version": "8.5",
+          "source": "<?php new \\ReflectionType();",
+          "parsedCalls": [
+            {
+              "kind": "constructor",
+              "start": 6,
+              "end": 27,
+              "argumentsStart": 25,
+              "argumentsEnd": 27
+            }
+          ],
+          "invalidTargets": [
+            {
+              "uri": "file:///BareConstructor.php",
+              "start": 10,
+              "end": 25,
+              "target": "ReflectionType",
+              "reason": "abstract-class"
+            }
+          ],
+          "expectedInvalid": true
+        }
+      ]
+    },
+    "failedSemanticBeforeScopeSeparation": {
+      "files": 110,
+      "tests": 2459,
+      "passed": 2453,
+      "failed": 6,
+      "pending": 0,
+      "sha256": "a602e63fd35a978db6beb65c0262e0e22ad2c09da8aebfbba072c311c75fba94",
+      "failures": [
+        {
+          "test": "keeps PHP 8.0 Reflection construction and references distinct",
+          "message": "AssertionError: expected [] to deeply equal [ 'abstract-class' ]"
+        },
+        {
+          "test": "keeps PHP 8.1 Reflection construction and references distinct",
+          "message": "AssertionError: expected [] to deeply equal [ 'abstract-class' ]"
+        },
+        {
+          "test": "keeps PHP 8.2 Reflection construction and references distinct",
+          "message": "AssertionError: expected [] to deeply equal [ 'abstract-class' ]"
+        },
+        {
+          "test": "keeps PHP 8.3 Reflection construction and references distinct",
+          "message": "AssertionError: expected [] to deeply equal [ 'abstract-class' ]"
+        },
+        {
+          "test": "keeps PHP 8.4 Reflection construction and references distinct",
+          "message": "AssertionError: expected [] to deeply equal [ 'abstract-class' ]"
+        },
+        {
+          "test": "keeps PHP 8.5 Reflection construction and references distinct",
+          "message": "AssertionError: expected [] to deeply equal [ 'abstract-class' ]"
+        }
+      ]
+    },
+    "failedLspBeforeScopeSeparation": {
+      "files": 1,
+      "tests": 2,
+      "passed": 1,
+      "failed": 1,
+      "pending": 0,
+      "sha256": "aad2ae21f835b634fc1e6afc357f7126e88dd245da3be814afb0c5816911d70e",
+      "failures": [
+        {
+          "test": "keeps Reflection construction contracts in an unsaved Composer document at PHP 8.5",
+          "message": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    "parenthesizedOnDemandProbe": {
+      "files": 1,
+      "tests": 2,
+      "passed": 1,
+      "failed": 1,
+      "pending": 0,
+      "sha256": "86c3c1c8e5d9a3718cab5f8e85b6ac1f9a6efa6a5df82441ab16bb76dd180f9e",
+      "failures": [
+        {
+          "test": "keeps Reflection construction contracts in an unsaved Composer document at PHP 8.5",
+          "message": "AssertionError: expected false to be true // Object.is equality"
+        }
+      ]
+    },
+    "decision": "Keep original bare-construction completion checks; test completed-construction diagnostics in the matching index state. Bare constructor call facts and refactor ranges will be implemented separately next.",
+    "nextMilestone": "D94"
+  },
+  "sourceHashes": {
+    "packages/language-spec/src/reflection.ts": "7bcf11331b9558e2e4bedd8841daf6e452c13b23048d78e0f353f24d2bc4313e",
+    "packages/semantic/test/reflection-construction-versions.test.ts": "b941c98b6086856b12e5ba4f307a9af4f4181a585162cd552a1b37c91a22e03c",
+    "packages/language-server/test/reflection-construction-stdio.test.ts": "4d17996882dce687ff9c539ce23edb9574229d52190bddd6c1c337b17113da8a",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "eb4f8ab04875e59c5aac854ff0810b34ed9328ef2294d6686ae608bd5ed5e292",
+    "scripts/check-comparison-condition-acceptance.mjs": "277d9d06022b7a5d49c3bfbc95e33832a079eee92bc0216c2000b8ef5f69c19a",
+    "dist/language-server.js": "68b712ca803ec46243a7d4d56a2ee75d98faeaeebc60948803ecd9d672f25b4c"
+  },
+  "fullLspQualification": "D91 902 cases belongs to 1f98b410 only; D92-D93 current full combination remains open.",
+  "ordinaryContinuousEditBudget": "D92 PHP 7.2 P95 186.39 ms remains above 150 ms; not remeasured for this declaration correction.",
+  "remaining": [
+    "Bare constructor call facts, diagnostics and refactor range handling",
+    "Complete-root requirement for hierarchy diagnostics in onDemand",
+    "Changed-source full LSP combination",
+    "Other platforms, scale, long sessions and real WSL"
+  ],
+  "noPackageProfilePushOrRelease": true,
+  "goalStatus": "active"
+}

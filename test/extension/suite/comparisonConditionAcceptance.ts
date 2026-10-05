@@ -31,6 +31,7 @@ export async function run(): Promise<void> {
   const assignmentTargets = process.env.PHP_COMPANION_TEST_ASSIGNMENT_TARGET_ONLY === '1';
   const nativeXmlReaders = process.env.PHP_COMPANION_TEST_NATIVE_XML_READER_ONLY === '1';
   const functionLookups = process.env.PHP_COMPANION_TEST_FUNCTION_LOOKUP_ONLY === '1';
+  const reflectionConstructions = process.env.PHP_COMPANION_TEST_REFLECTION_CONSTRUCTION_ONLY === '1';
   const unclosedShapes = process.env.PHP_COMPANION_TEST_UNCLOSED_SHAPE_ONLY === '1';
   const blankComments = process.env.PHP_COMPANION_TEST_BLANK_COMMENT_ONLY === '1';
   const shapeComments = process.env.PHP_COMPANION_TEST_SHAPE_COMMENT_ONLY === '1';
@@ -56,7 +57,14 @@ export async function run(): Promise<void> {
   const reassignedHeader = '<?php function send(string $value):void{} function run(int $offerA,string $offerZ):string{$offerA="changed";$offerZ=42;';
   const assignmentHeader = '<?php class Child {public bool $flag;} class Holder {public Child $child; /** @var array<int, Child> */ public array $items;} function make():Child{return new Child();} function pickA():string{return "text";} function pickZ():bool{return true;} ';
   const callableHeader = '<?php class User{public function name():string{return "user";}} class View{public function title():string{return "view";}} ';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = functionLookups ? [
+  const configuredPhpVersion = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion');
+  const reflectionNewType = Number(configuredPhpVersion?.replace('.', '')) < 80 ? 'ReflectionType' : 'ReflectionNamedType';
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = reflectionConstructions ? [
+    {prefix:reflectionNewType.slice(0,-1),label:reflectionNewType,forbidden:'',addCall:false,consume:1,marked:`<?php $value=new \\${reflectionNewType.slice(0,-1)}§e();`},
+    {prefix:'ReflectionTyp',label:'ReflectionType',forbidden:'',addCall:false,consume:1,marked:'<?php function accepts(\\ReflectionTyp§e $value){}'},
+    {prefix:'ReflectionTyp',label:'ReflectionType',forbidden:'',addCall:false,consume:1,marked:'<?php use ReflectionTyp§e;'},
+    {prefix:'Selected',label:'SelectedAlias',forbidden:'',addCall:false,consume:5,marked:`<?php use ${reflectionNewType} as SelectedAlias; $value=new Selected§Alias();`},
+  ] : functionLookups ? [
     {prefix:'na',label:'name',forbidden:'title',addCall:false,consume:2,marked:callableHeader+'/** @param list<User> $users */ function run(array $users){array_map(fn($user)=>$user->na§me(),$users);}'},
     {prefix:'ti',label:'title',forbidden:'name',addCall:false,consume:3,marked:callableHeader+'/** @param list<User> $users */ function run(array $users){$views=array_map(fn($user)=>new View(),$users);$views[0]->ti§tle();}'},
     {prefix:'na',label:'name',forbidden:'title',addCall:false,consume:2,marked:callableHeader+'/** @param callable(User):void $visit */ function visit(callable $visit):void{} visit(fn($user)=>$user->na§me());'},
@@ -323,6 +331,6 @@ export async function run(): Promise<void> {
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }
