@@ -986,7 +986,8 @@ export class PhpSyntaxParser {
       if (nodeType === 'comment') commentRanges.push(nodeRange(source, node));
       if (STRING_TYPES.has(nodeType)) stringRanges.push(nodeRange(source, node));
       if (hasSyntaxErrors && (node.isError || node.isMissing)) errors.push(nodeRange(source, node));
-      if (hasSyntaxErrors) for (const child of node.children) {
+      // An unrelated incomplete declaration must not enumerate every valid node's tokens.
+      if (hasSyntaxErrors && node.hasError) for (const child of node.children) {
         if (child.isMissing && !child.isNamed && [')', ']', '}'].includes(child.type)
           && child.startIndex < source.length) {
           errors.push({ start: child.startIndex, end: child.startIndex + 1 });
