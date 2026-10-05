@@ -65,6 +65,7 @@ ${launch}`);
   const match = (automatic ? /Automatic completion acceptance proof: (\{[^\r\n]*\})/u : /Comparison condition acceptance proof: (\{[^\r\n]*\})/u).exec(output);
   assert.ok(match, 'Successful host exit did not provide the completion acceptance proof.');
   const proof = JSON.parse(match[1]);
+  if (automatic) assert.equal(proof.phpVersion, phpVersion);
   if (isolatedIndexingMode) {
     assert.equal(proof.indexingMode, isolatedIndexingMode);
     assert.equal(proof.workspaceIndexingMode, isolatedIndexingMode);

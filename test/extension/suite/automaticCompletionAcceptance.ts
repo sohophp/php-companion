@@ -6,7 +6,11 @@ export async function run(): Promise<void> {
   const core = vscode.extensions.getExtension('sohophp.php-companion'); assert.ok(core); await core.activate();
   const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder);
   const port = Number(process.env.PHP_COMPANION_TEST_C1_DEBUG_PORT); assert.ok(port > 0);
+  const phpVersion = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion');
+  if (process.env.PHP_COMPANION_TEST_C1_PHP_VERSION)
+    assert.equal(phpVersion, process.env.PHP_COMPANION_TEST_C1_PHP_VERSION);
   const modeProof = {
+    phpVersion,
     indexingMode: vscode.workspace.getConfiguration('phpCompanion', folder.uri).get('indexing.mode'),
     workspaceIndexingMode: vscode.workspace.getConfiguration('phpCompanion').get('indexing.mode'),
   };
@@ -49,7 +53,7 @@ export async function run(): Promise<void> {
     await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
   }
 
-  async function observe(phase: string, ready: (labels: string[]) => boolean, empty = false): Promise<void> {
+  async function observe(phase: string, ready: (labels: string[]) => boolean, empty = false, stable = false): Promise<void> {
     const started = Date.now(), deadline = started + 10_000;
     const transitions: object[] = []; let previous = '', clearSince: number | undefined;
     while (Date.now() < deadline) {
@@ -58,7 +62,7 @@ export async function run(): Promise<void> {
       if (signature !== previous) { transitions.push({ elapsedMs: Date.now() - started, ...state }); previous = signature; }
       if (ready(state.labels) && (!empty || !state.visible)) {
         clearSince ??= Date.now();
-        if (!empty || Date.now() - clearSince >= 500) {
+        if (!empty && !stable || Date.now() - clearSince >= 500) {
           observations.push({ phase, afterLastKeyMs: Date.now() - started, transitions, ...state }); return;
         }
       } else clearSince = undefined;
@@ -93,9 +97,14 @@ export async function run(): Promise<void> {
     ['Enum', 'enu', 'm', 'enum', 'enum_exists'],
   ] as const) {
     await open(caseName, '<?php\n§\n'); await type(partial);
-    await observe(partial, labels => labels[0]?.startsWith(keyword) === true && !labels.some(label => label.includes(excluded)));
+    const supported = keyword !== 'enum' || !['7.2', '7.3', '7.4', '8.0'].includes(phpVersion ?? 'auto');
+    const correctKeyword = (labels: string[]): boolean => supported
+      ? labels[0]?.startsWith(keyword) === true && !labels.some(label => label.includes(excluded))
+      : !labels.some(label => label.startsWith(keyword) || label.includes(excluded));
+    // An unavailable keyword must stay absent while matching expressions remain usable.
+    await observe(partial, correctKeyword, false, !supported);
     await type(rest);
-    await observe(keyword, labels => labels[0]?.startsWith(keyword) === true && !labels.some(label => label.includes(excluded)));
+    await observe(keyword, correctKeyword, false, !supported);
     await type(' z'); await observe('declaration name', labels => labels.length === 0, true); await finish();
   }
 
@@ -208,6 +217,7 @@ export async function run(): Promise<void> {
   const settings = vscode.workspace.getConfiguration('editor', { uri: document!.uri, languageId: 'php' });
   console.log('Automatic completion acceptance proof: ' + JSON.stringify({ platform: process.platform, vscodeVersion: vscode.version,
     context: 'ordinary single character Workbench input; no completion provider prewarming or explicit triggerSuggest',
+    phpVersion,
     indexingMode: vscode.workspace.getConfiguration('phpCompanion', document!.uri).get('indexing.mode'),
     workspaceIndexingMode: vscode.workspace.getConfiguration('phpCompanion').get('indexing.mode'),
     settings: { quickSuggestions: settings.get('quickSuggestions'), wordBasedSuggestions: settings.get('wordBasedSuggestions'),

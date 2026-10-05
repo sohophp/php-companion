@@ -84,6 +84,8 @@ F08 的支持范围必须在实现前确定。例如提取方法遇到跨边界 
 
 [D121 PHPDoc 标签与冷函数来源](reports/phpdoc-tag-boundaries-2026-10-06.md)绑定当前 schema 88／源码声明 6／engine v67，最终完整语义 127 文件／3133 项通过。定向协议／缓存十项、八次新协议进程的 144 次查询及原 Trait 五次重启通过；两目标两模式 24 次自然可见接受、光标与 UndoRedo通过。四组定向 800 次编辑查询 P95 4.62–6.27 ms；小型控制不替代普通编辑、规模或 UI 首次结果资格。没有当前完整 LSP 全绿或真实 WSL 结论，D117 的默认 CLI 超时及 D118 缓存内存失败保持开放。
 
+[D122 当前完整组合](reports/core-05d0a5f0-full-regression-2026-10-06.md)随后取得原完整 82 文件／981 项全绿，零失败、跳过及 TODO，3060 输入和六 CLI 摘要保持；默认 ini 的原语法矩阵本轮通过，D117 超时原因未证实。32 次引用重启与四组固定文档热 P95 8.23–61.51 ms 通过；完整进程结束后两项验收输入追加版本核对，正式 PHP 7.2／8.1／8.5 × 两模式六组完成 72 流程／234 列表观察／66 精确接受。原错误的 PHP 7.2 整弹窗为空要求及失败保留，产品未改变。当前产品资格绑定 `05d0a5f0`，UI 自然输入不是激活首次可见计时，也不关闭普通编辑、schema 88 规模／缓存内存、其它平台／版本、持续使用与真实 WSL。
+
 局部变更基准 `pnpm benchmark:local-change -- 10000 200` 在完整语料上连续修改同一方法体，记录 parser 实际处理的文件 URI、语义层级和耗时；schema 82 的历史 [Linux x64 复测](reports/p9-schema82-linux-benchmarks-2026-09-23.md)显示 200 次更新各只重解析一个文件，P95 0.62 ms；[前次原始报告](reports/local-implementation-change-10000-linux-x64-2026-09-23.json)保留作历史基线。
 
 基准命令为 `pnpm benchmark:index -- <文件数> <重复次数>`；它生成固定 Composer/PSR-4 语料、运行真实 parser/index/semantic 链路、输出 JSON，并在 1k/10k/50k 标准规模超预算时返回非零。2026-09-23 的 schema 82 源码的 [Linux x64 三规模复测](reports/p9-schema82-linux-benchmarks-2026-09-23.md)中，五轮冷索引 P95 分别为 1868.08/15175.63/74573.98 ms，当时标作首个可用结果的回调入口 P95 为 31.01/71.84/270.93 ms（该计时发生于语义更新之前，含义按 D118 纠正），峰值 RSS 为 127.9/464.7/754.5 MiB，均满足对应冻结预算。schema 81 的 [前次复测](reports/p9-linux-qualification-2026-09-23.md)保留作历史基线。历史 [1k](reports/index-1000-linux-x64-2026-09-06.json)、[10k](reports/index-10000-linux-x64-2026-09-06.json)、[50k](reports/index-50000-linux-x64-2026-09-06.json) 报告继续保留；当前结果不代表尚未实测的平台。
