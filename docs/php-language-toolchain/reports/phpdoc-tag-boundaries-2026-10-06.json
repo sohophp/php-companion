@@ -1,0 +1,2226 @@
+{
+  "milestone": "D121",
+  "verifiedAtUtc": "2026-10-05T20:39:38.268102+00:00",
+  "baselineCommit": "55dda315a220f61017f823ea6bc7a1bb7c715023",
+  "productBundleSha256": "64793c2152b39eeb152883af8c06218fd1695adb3beee395274ef9676d7aba12",
+  "inputs": {
+    "timestampUtc": "2026-10-05T20:32:26.211483+00:00",
+    "hashes": {
+      "packages/phpdoc/src/index.ts": "6abc2e71ebcafc2b47be0423394c4c08169a367be6407537a5db317cb3f48838",
+      "packages/semantic/src/index.ts": "9622945f61e7ca4d09afb5c38408c8c04d64e7d7e687fb15824f078d2187c191",
+      "packages/language-server/src/server.ts": "4bc829234106b5fcef3cfc9c683aba41dafd80eebdfc07ec09d28ce0bf55c78d",
+      "packages/language-server/src/projectFacts.ts": "e90bccdf7242acd938ebf4f56e7bda8e728c36057fb2cbb13cd1a75cfe140fd3",
+      "packages/language-server/src/cacheVersion.ts": "c412645e391cfee3b1d8735dcdef6eca2c40c6d2c52a8f2c5278f0503ed2ec74",
+      "packages/semantic/test/phpdoc-tag-boundaries.test.ts": "bc42d46f05297ab95a44e8e5f1119218f13014a22439d3921243685a0562ed86",
+      "packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts": "ed80814e408c082d9b9a3432df16c0b0cbe4d56b5e635629d3318d17b705010c",
+      "test/extension/suite/phpdocTagBoundaryAcceptance.ts": "92e0b080e39ec0d9a83c0f03230859382d1449235fbed007ae368688f11e57dd",
+      "dist/language-server.js": "64793c2152b39eeb152883af8c06218fd1695adb3beee395274ef9676d7aba12",
+      "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  },
+  "cacheVersions": {
+    "semantic": 88,
+    "sourceDeclaration": 6,
+    "engine": "semantic-v67-php-*",
+    "previousSemantic": 87,
+    "previousSourceDeclaration": 5,
+    "previousEngine": "semantic-v66-php-*"
+  },
+  "failureArtifacts": {
+    "beforeSemantic": {
+      "numTotalTestSuites": 1,
+      "numPassedTestSuites": 0,
+      "numFailedTestSuites": 1,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 21,
+      "numPassedTests": 0,
+      "numFailedTests": 21,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791231164654,
+      "success": false,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported  tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported  tags, retained=true",
+              "duration": 68.77800399999978,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported  tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported  tags, retained=true",
+              "duration": 19.63857599999983,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported  tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported  tags, retained=true",
+              "duration": 8.28505099999984,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported phpstan- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported phpstan- tags, retained=true",
+              "duration": 5.6142110000000685,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported phpstan- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported phpstan- tags, retained=true",
+              "duration": 7.570290000000114,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported phpstan- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported phpstan- tags, retained=true",
+              "duration": 4.5738970000002155,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported psalm- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported psalm- tags, retained=true",
+              "duration": 4.120269999999891,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported psalm- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported psalm- tags, retained=true",
+              "duration": 8.638589000000138,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported psalm- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported psalm- tags, retained=true",
+              "duration": 13.730217999999695,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported  tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported  tags, retained=false",
+              "duration": 9.854808000000048,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported  tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported  tags, retained=false",
+              "duration": 6.059745999999905,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported  tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported  tags, retained=false",
+              "duration": 5.031883000000107,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported phpstan- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported phpstan- tags, retained=false",
+              "duration": 8.674584000000323,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported phpstan- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported phpstan- tags, retained=false",
+              "duration": 8.988208000000213,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported phpstan- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported phpstan- tags, retained=false",
+              "duration": 6.200792000000092,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported psalm- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported psalm- tags, retained=false",
+              "duration": 5.189343999999892,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported psalm- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported psalm- tags, retained=false",
+              "duration": 3.810902000000169,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported psalm- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported psalm- tags, retained=false",
+              "duration": 3.756319000000076,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:32:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves full tag boundaries after restore and rejects previous derived formats",
+              "status": "failed",
+              "title": "preserves full tag boundaries after restore and rejects previous derived formats",
+              "duration": 22.126460000000407,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:59:83\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves full tag boundaries after restoreDeclaration and rejects previous derived formats",
+              "status": "failed",
+              "title": "preserves full tag boundaries after restoreDeclaration and rejects previous derived formats",
+              "duration": 6.013903999999911,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:59:83\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves full tag boundaries after restoreSourceDeclaration and rejects previous derived formats",
+              "status": "failed",
+              "title": "preserves full tag boundaries after restoreSourceDeclaration and rejects previous derived formats",
+              "duration": 4.7718660000000455,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:59:83\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791231166873,
+          "endTime": 1791231167104.772,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts"
+        }
+      ]
+    },
+    "initialSemanticOracle": {
+      "numTotalTestSuites": 1,
+      "numPassedTestSuites": 0,
+      "numFailedTestSuites": 1,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 21,
+      "numPassedTests": 3,
+      "numFailedTests": 18,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791231222415,
+      "success": false,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported  tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported  tags, retained=true",
+              "duration": 70.57851700000037,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported  tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported  tags, retained=true",
+              "duration": 19.135079000000133,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported  tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported  tags, retained=true",
+              "duration": 9.933090999999877,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported phpstan- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported phpstan- tags, retained=true",
+              "duration": 6.930231000000276,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported phpstan- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported phpstan- tags, retained=true",
+              "duration": 9.201743999999962,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported phpstan- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported phpstan- tags, retained=true",
+              "duration": 6.584353000000192,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported psalm- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported psalm- tags, retained=true",
+              "duration": 7.524781999999959,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported psalm- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported psalm- tags, retained=true",
+              "duration": 7.371356000000105,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported psalm- tags, retained=true",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported psalm- tags, retained=true",
+              "duration": 6.936587000000145,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported  tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported  tags, retained=false",
+              "duration": 6.342129999999997,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported  tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported  tags, retained=false",
+              "duration": 7.271498000000065,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported  tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported  tags, retained=false",
+              "duration": 6.388918000000103,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported phpstan- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported phpstan- tags, retained=false",
+              "duration": 6.860102999999981,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported phpstan- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported phpstan- tags, retained=false",
+              "duration": 7.087091000000328,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported phpstan- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported phpstan- tags, retained=false",
+              "duration": 4.815293999999994,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented property type with unsupported psalm- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented property type with unsupported psalm- tags, retained=false",
+              "duration": 4.668963000000076,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented function type with unsupported psalm- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented function type with unsupported psalm- tags, retained=false",
+              "duration": 5.4017320000002655,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves the documented method type with unsupported psalm- tags, retained=false",
+              "status": "failed",
+              "title": "preserves the documented method type with unsupported psalm- tags, retained=false",
+              "duration": 5.8417029999995975,
+              "failureMessages": [
+                "AssertionError: expected [ { kind: 'method', …(15) } ] to deeply equal [ { …(3) } ]\n    at /var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts:34:59\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves full tag boundaries after restore and rejects previous derived formats",
+              "status": "passed",
+              "title": "preserves full tag boundaries after restore and rejects previous derived formats",
+              "duration": 21.805453999999827,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves full tag boundaries after restoreDeclaration and rejects previous derived formats",
+              "status": "passed",
+              "title": "preserves full tag boundaries after restoreDeclaration and rejects previous derived formats",
+              "duration": 6.513222999999925,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves full tag boundaries after restoreSourceDeclaration and rejects previous derived formats",
+              "status": "passed",
+              "title": "preserves full tag boundaries after restoreSourceDeclaration and rejects previous derived formats",
+              "duration": 5.105848000000151,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791231224505,
+          "endTime": 1791231224738.106,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts"
+        }
+      ]
+    },
+    "initialLsp": {
+      "numTotalTestSuites": 3,
+      "numPassedTestSuites": 2,
+      "numFailedTestSuites": 1,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 8,
+      "numPassedTests": 4,
+      "numFailedTests": 4,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791231503893,
+      "success": false,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "duration": 1985.6222089999999,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:102:56)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:111:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "duration": 1779.4269630000003,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:102:56)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:111:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "duration": 2216.9847,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:102:56)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:111:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "duration": 2035.2450989999998,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:102:56)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:111:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791231504319,
+          "endTime": 1791231512338.245,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts restores checked source declarations lazily and rejects corrupt or stale cache entries",
+              "status": "passed",
+              "title": "restores checked source declarations lazily and rejects corrupt or stale cache entries",
+              "duration": 55.22238500000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts round-trips Doctrine facts without caching framework controller contexts",
+              "status": "passed",
+              "title": "round-trips Doctrine facts without caching framework controller contexts",
+              "duration": 18.77771500000017,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts rejects tampered facts, a mismatched URI, and an unsupported wrapper schema",
+              "status": "passed",
+              "title": "rejects tampered facts, a mismatched URI, and an unsupported wrapper schema",
+              "duration": 4.183116999999584,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts propagates an exact project QueryBuilder factory entity and erases it after select",
+              "status": "passed",
+              "title": "propagates an exact project QueryBuilder factory entity and erases it after select",
+              "duration": 66.67913399999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791231506565,
+          "endTime": 1791231506710.6792,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/project-facts.test.ts"
+        }
+      ]
+    },
+    "separatedPeerRequestLsp": {
+      "numTotalTestSuites": 1,
+      "numPassedTestSuites": 0,
+      "numFailedTestSuites": 1,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 4,
+      "numPassedTests": 0,
+      "numFailedTests": 4,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791231687212,
+      "success": false,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "duration": 1851.7433029999997,
+              "failureMessages": [
+                "AssertionError: Row/$item/restart=false: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:105:98)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:114:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "duration": 1936.7511280000003,
+              "failureMessages": [
+                "AssertionError: Row/$item/restart=false: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:105:98)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:114:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "duration": 2121.3211579999997,
+              "failureMessages": [
+                "AssertionError: Row/$item/restart=false: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:105:98)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:114:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "status": "failed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "duration": 2139.5012830000005,
+              "failureMessages": [
+                "AssertionError: Row/$item/restart=false: expected [] to deeply equal [ 'name' ]\n    at check (/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:105:98)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts:114:7\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791231687613,
+          "endTime": 1791231695663.5012,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts"
+        }
+      ]
+    }
+  },
+  "semantic": {
+    "artifact": "/tmp/sophp-d121-final-full-semantic.json",
+    "artifactSha256": "71c346ab0a70e30f03d6515a81541a44280e1d0bb6dda7d07dd7bfb77f89d877",
+    "files": 127,
+    "passed": 3133,
+    "failed": 0,
+    "pending": 0,
+    "durationMs": 66773.18017578125,
+    "fileResults": [
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f04-references.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-extract-method.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/add-method-family-parameter.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/add-private-parameter.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-access-key-completion.test.ts",
+        "status": "passed",
+        "passed": 79,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-column-properties.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-column-return-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-combine-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-count-values-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-fill-keys-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-flip-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-inline-doc-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-key-preservation.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/array-receiver-origin-dependencies.test.ts",
+        "status": "passed",
+        "passed": 48,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/assignment-comment-completion.test.ts",
+        "status": "passed",
+        "passed": 30,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/assignment-target-completion.test.ts",
+        "status": "passed",
+        "passed": 60,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/bare-construction.test.ts",
+        "status": "passed",
+        "passed": 15,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/blank-comment-variable-completion.test.ts",
+        "status": "passed",
+        "passed": 42,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/blank-initializer-type-completion.test.ts",
+        "status": "passed",
+        "passed": 40,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/branch-shape-completion.test.ts",
+        "status": "passed",
+        "passed": 34,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/branch-value-completion.test.ts",
+        "status": "passed",
+        "passed": 17,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/builtin-array-callback-completion.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/builtin-construction-completion.test.ts",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/cached-array-access-recovery.test.ts",
+        "status": "passed",
+        "passed": 12,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/callable-value-effects.test.ts",
+        "status": "passed",
+        "passed": 50,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/callback-completion-details.test.ts",
+        "status": "passed",
+        "passed": 12,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/callback-return-completion.test.ts",
+        "status": "passed",
+        "passed": 26,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/captured-array-values.test.ts",
+        "status": "passed",
+        "passed": 92,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/class-relative-construction.test.ts",
+        "status": "passed",
+        "passed": 19,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/completion-identifier.test.ts",
+        "status": "passed",
+        "passed": 14,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/completion-trivia-offsets.test.ts",
+        "status": "passed",
+        "passed": 16,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/completion-type-tail.test.ts",
+        "status": "passed",
+        "passed": 15,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/completionMatching.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/conditional-completion-context.test.ts",
+        "status": "passed",
+        "passed": 14,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/constant-initializer-completion.test.ts",
+        "status": "passed",
+        "passed": 24,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/construction-trivia-completion.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/constructor-source-proof.test.ts",
+        "status": "passed",
+        "passed": 29,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/csv-fields-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+        "status": "passed",
+        "passed": 58,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/declaration-hierarchy-sources.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/declaration-variable-boundaries.test.ts",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/existing-array-arrow-completion.test.ts",
+        "status": "passed",
+        "passed": 24,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/extract-method-branch-outputs.test.ts",
+        "status": "passed",
+        "passed": 13,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/extract-method-local-chain.test.ts",
+        "status": "passed",
+        "passed": 27,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/extract-method-local-return.test.ts",
+        "status": "passed",
+        "passed": 18,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/extract-nested-call.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/extract-shared-bindings.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/flow-value-completion.test.ts",
+        "status": "passed",
+        "passed": 20,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/flow-value-consistency.test.ts",
+        "status": "passed",
+        "passed": 22,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/function-declaration-refresh.test.ts",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/getrusage-contract.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/headers-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/highlight-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/image-size-contract.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/implicit-nullable-parameter.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/import-completion-boundaries.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/inheritance-list-completion.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/inheritance-trivia-completion.test.ts",
+        "status": "passed",
+        "passed": 22,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/inheritance-validity-completion.test.ts",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/inherited-constructor-generics.test.ts",
+        "status": "passed",
+        "passed": 38,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/inherited-final-magic.test.ts",
+        "status": "passed",
+        "passed": 18,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/initializer-completion-context.test.ts",
+        "status": "passed",
+        "passed": 104,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/inline-shared-bindings.test.ts",
+        "status": "passed",
+        "passed": 11,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/iterator-apply-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/large-candidate-type-ranking.test.ts",
+        "status": "passed",
+        "passed": 60,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/large-local-type-ranking.test.ts",
+        "status": "passed",
+        "passed": 52,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/legacy-builtin-constructor.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/legacy-constructor-rename.test.ts",
+        "status": "passed",
+        "passed": 25,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/legacy-project-construction.test.ts",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/local-prefix-syntax.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/local-range-completion.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/magic-declaration-completion.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/magic-modifier-completion.test.ts",
+        "status": "passed",
+        "passed": 32,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/match-condition-completion.test.ts",
+        "status": "passed",
+        "passed": 16,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/member-case-value-completion.test.ts",
+        "status": "passed",
+        "passed": 44,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/middle-array-access-completion.test.ts",
+        "status": "passed",
+        "passed": 26,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/middle-array-literal-completion.test.ts",
+        "status": "passed",
+        "passed": 24,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts",
+        "status": "passed",
+        "passed": 76,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/named-value-completion.test.ts",
+        "status": "passed",
+        "passed": 48,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/native-array-template.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/native-generic-parent.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/nested-call-never.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/nested-intrinsic-argument.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/operand-completion-context.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/parameter-references.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/parsed-call-feedback.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/pathinfo-contract.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts",
+        "status": "passed",
+        "passed": 33,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/property-case-rename.test.ts",
+        "status": "passed",
+        "passed": 45,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/property-hook-keyword-context.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/protected-family-completion.test.ts",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/quoted-prefix-completion.test.ts",
+        "status": "passed",
+        "passed": 58,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/readonly-anonymous.test.ts",
+        "status": "passed",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/reassigned-parameter-completion.test.ts",
+        "status": "passed",
+        "passed": 26,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/reflection-construction-versions.test.ts",
+        "status": "passed",
+        "passed": 9,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/remove-method-family-parameter.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/reorder-method-family-parameter.test.ts",
+        "status": "passed",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/reorder-optional-method-parameters.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/restored-signature-cache.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/root-import-completion.test.ts",
+        "status": "passed",
+        "passed": 10,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/semantic.test.ts",
+        "status": "passed",
+        "passed": 497,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/shape-comment-completion.test.ts",
+        "status": "passed",
+        "passed": 34,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/shape-value-candidate-completion.test.ts",
+        "status": "passed",
+        "passed": 64,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/signature-prefix-range.test.ts",
+        "status": "passed",
+        "passed": 39,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/simplexml-factory-contract.test.ts",
+        "status": "passed",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/stat-contract.test.ts",
+        "status": "passed",
+        "passed": 2,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/static-property-value-completion.test.ts",
+        "status": "passed",
+        "passed": 53,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/static-scope.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/string-replacement-contract.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/switch-condition-completion.test.ts",
+        "status": "passed",
+        "passed": 11,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/trailing-callback-members.test.ts",
+        "status": "passed",
+        "passed": 13,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/trait-construction.test.ts",
+        "status": "passed",
+        "passed": 24,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/trait-constructor-phpdoc.test.ts",
+        "status": "passed",
+        "passed": 28,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/trait-final-cache.test.ts",
+        "status": "passed",
+        "passed": 8,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/trait-precedence-names.test.ts",
+        "status": "passed",
+        "passed": 33,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/trait-use-generics.test.ts",
+        "status": "passed",
+        "passed": 84,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/unclosed-callable-value-completion.test.ts",
+        "status": "passed",
+        "passed": 76,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/unclosed-shape-value-completion.test.ts",
+        "status": "passed",
+        "passed": 54,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/unfinished-shape-completion.test.ts",
+        "status": "passed",
+        "passed": 58,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/union-shape-completion.test.ts",
+        "status": "passed",
+        "passed": 27,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/unknown-collection-template.test.ts",
+        "status": "passed",
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/value-call-binding.test.ts",
+        "status": "passed",
+        "passed": 11,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/variable-value-origins.test.ts",
+        "status": "passed",
+        "passed": 32,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/word-middle-shape-completion.test.ts",
+        "status": "passed",
+        "passed": 40,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/semantic/test/xmlreader-invocation.test.ts",
+        "status": "passed",
+        "passed": 19,
+        "failed": 0
+      }
+    ]
+  },
+  "phpdoc": {
+    "files": 1,
+    "passed": 28,
+    "failed": 0,
+    "unknownSuffixCombinations": 69
+  },
+  "lsp": {
+    "artifact": "/tmp/sophp-d121-final-lsp.json",
+    "artifactSha256": "4c919cfb7d9443fb0918be1f230a0b5010707b4abc5d6bb72884e15f6186b568",
+    "files": 3,
+    "passed": 9,
+    "failed": 0,
+    "pending": 0,
+    "durationMs": 28266.45556640625,
+    "fileResults": [
+      {
+        "name": "/var/www/node/php-companion/packages/language-server/test/callable-facts-cache.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "/var/www/node/php-companion/packages/language-server/test/project-facts.test.ts",
+        "status": "passed",
+        "passed": 4,
+        "failed": 0
+      }
+    ]
+  },
+  "traitCache": {
+    "artifact": "/tmp/sophp-d121-trait-cache.json",
+    "artifactSha256": "bb383d85568f7f1a7797abd4ccf9f41e7233e53478004f5b54ea2292c24c582a",
+    "files": 1,
+    "passed": 1,
+    "failed": 0,
+    "pending": 0,
+    "durationMs": 11928.294189453125,
+    "fileResults": [
+      {
+        "name": "/var/www/node/php-companion/packages/language-server/test/trait-final-cache-stdio.test.ts",
+        "status": "passed",
+        "passed": 1,
+        "failed": 0
+      }
+    ]
+  },
+  "semanticRequests": 144,
+  "serverStarts": {
+    "phpdocWorkflow": 8,
+    "traitCache": 5
+  },
+  "ui": {
+    "7.2/onDemand": {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "providerPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "results": [
+        {
+          "kind": "property",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary0\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 703,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "property",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary1\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 208,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary2\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 231,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary3\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 200,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary4\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 224,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary5\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 243,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    "7.2/progressive": {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "providerPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "results": [
+        {
+          "kind": "property",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary0\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 543,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "property",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary1\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 196,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary2\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 188,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary3\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 194,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary4\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 188,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary5\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 204,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    "8.5/onDemand": {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "providerPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "results": [
+        {
+          "kind": "property",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary0\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 529,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "property",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary1\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 206,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary2\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 196,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary3\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 210,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary4\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 225,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary5\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 232,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    },
+    "8.5/progressive": {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "providerPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "results": [
+        {
+          "kind": "property",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary0\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 423,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "property",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary1\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 189,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary2\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 185,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "function",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary3\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 192,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary4\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 186,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "kind": "method",
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameTagBoundary5\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 208,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ],
+      "rendererExceptions": 0
+    }
+  },
+  "uiRunnerSource": "import assert from 'node:assert/strict';\nimport { spawn } from 'node:child_process';\nimport { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';\nimport { dirname, join, resolve } from 'node:path';\nimport process from 'node:process';\nimport { fileURLToPath } from 'node:url';\nimport { build } from 'esbuild';\n\n// Use the existing compiled harness without changing frozen dist-test artifacts.\nif (process.platform !== 'linux') throw new Error('This visible gate uses the Linux VS Code harness.');\nif (process.argv.length > 3) throw new Error('Usage: node scripts/check-comparison-condition-acceptance.mjs [report.json]');\nconst root = resolve(dirname(fileURLToPath(import.meta.url)), '..');\nconst automatic = process.env.SOPHP_AUTOMATIC_COMPLETION === '1';\nconst isolatedIndexingMode = process.env.SOPHP_AUTOMATIC_INDEXING_MODE;\nif (isolatedIndexingMode && (!automatic || !['onDemand', 'progressive'].includes(isolatedIndexingMode)))\n  throw new Error('SOPHP_AUTOMATIC_INDEXING_MODE requires automatic mode and onDemand or progressive.');\nif (isolatedIndexingMode && (process.env.PHP_COMPANION_TEST_C3_INDEXING_MODE\n  || isolatedIndexingMode === 'progressive' && process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ON_DEMAND === '1'))\n  throw new Error('Conflicting isolated indexing mode settings.');\n\nconst scratch = await mkdtemp(join(root, '.vscode-test', 'comparison-condition-verification-'));\ntry {\n  const suite = join(scratch, 'suite.cjs');\n  await build({ entryPoints: [join(root, 'test/extension/suite/phpdocTagBoundaryAcceptance.ts')], outfile: suite,\n    bundle: true, platform: 'node', format: 'cjs', external: ['vscode'], logLevel: 'warning' });\n  let runner = (await readFile(join(root, 'dist-test/runTest.js'), 'utf8'))\n    .replaceAll('__dirname', JSON.stringify(join(root, 'dist-test')));\n  const pathPattern = /^([ \\t]*)extensionTestsPath:[\\s\\S]*?(?=^[ \\t]*launchArgs:)/gmu;\n  assert.equal([...runner.matchAll(pathPattern)].length, 1, 'Compiled harness must have one tests path followed by launch arguments.');\n  runner = runner.replace(pathPattern, (_value, indent) => `${indent}extensionTestsPath: ${JSON.stringify(suite)},\\n`);\n  if (isolatedIndexingMode) {\n    const fixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';\n    assert.equal(runner.split(fixtureCopy).length, 2, 'Compiled harness must have one primary fixture copy.');\n    runner = runner.replace(fixtureCopy, `${fixtureCopy}\n    {\n      const fixtureSettingsPath = require('node:path').join(fixture, '.vscode', 'settings.json');\n      const fixtureSettings = JSON.parse(await (0, promises_1.readFile)(fixtureSettingsPath, 'utf8'));\n      fixtureSettings['phpCompanion.indexing.mode'] = ${JSON.stringify(isolatedIndexingMode)};\n      await (0, promises_1.writeFile)(fixtureSettingsPath, JSON.stringify(fixtureSettings, null, 2));\n    }`);\n  }\n  if (isolatedIndexingMode) {\n    const c1ModeAssignment = \"settings['phpCompanion.indexing.mode'] = 'onDemand';\\n        if (c1PhpVersion)\";\n    assert.equal(runner.split(c1ModeAssignment).length, 2, 'One primary C1 mode override must precede PHP version setup.');\n    runner = runner.replace(c1ModeAssignment, `settings['phpCompanion.indexing.mode'] = ${JSON.stringify(isolatedIndexingMode)};\\n        if (c1PhpVersion)`);\n    const workspaceReady = '        const c1ProductPaths =';\n    assert.equal(runner.split(workspaceReady).length, 2, 'Workspace file must be written before unique product path setup.');\n    runner = runner.replace(workspaceReady, `        if (workspaceFile) {\n          const modeWorkspace = JSON.parse(await require('node:fs/promises').readFile(workspaceFile, 'utf8'));\n          modeWorkspace.settings = { ...modeWorkspace.settings, 'phpCompanion.indexing.mode': ${JSON.stringify(isolatedIndexingMode)} };\n          await require('node:fs/promises').writeFile(workspaceFile, JSON.stringify(modeWorkspace, null, 2));\n        }\\n` + workspaceReady);\n  }\n  const runnerPath = join(scratch, 'runner.cjs'); await writeFile(runnerPath, runner);\n  let output = '';\n  let rendererExceptions = 0;\n  const child = spawn(process.execPath, [join(root, 'scripts/run-extension-test.mjs'), runnerPath], {\n    cwd: root, env: { ...process.env, PHP_COMPANION_TEST_CORE_ONLY: '1', PHP_COMPANION_TEST_C1_ONLY: '1', PHP_COMPANION_TEST_C1_UI: '1', PHP_COMPANION_TEST_C1_PHP_VERSION: process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5' }, stdio: ['ignore', 'pipe', 'pipe'],\n  });\n  for (const [stream, destination] of [[child.stdout, process.stdout], [child.stderr, process.stderr]]) {\n    stream.setEncoding('utf8'); let pending = '';\n    const inspect = line => { if (line.includes(\"TypeError: Cannot read properties of undefined (reading 'getItemsByProvider')\")) rendererExceptions++; };\n    stream.on('data', chunk => { destination.write(chunk); output = (output + chunk).slice(-131_072);\n      pending += chunk; const lines = pending.split('\\n'); pending = lines.pop(); for (const line of lines) inspect(line); });\n    stream.on('end', () => { if (pending) inspect(pending); });\n  }\n  await new Promise((resolveDone, reject) => {\n    child.once('error', reject);\n    child.once('close', (code, signal) => code === 0 && !signal ? resolveDone()\n      : reject(new Error(`Comparison condition host exited with code ${code}, signal ${signal}`)));\n  });\n  const match = /PHPDoc tag boundary acceptance proof: (\\{[^\\r\\n]*\\})/u.exec(output);\n  assert.ok(match, 'Host completed without the tag boundary proof');\n  const proof = JSON.parse(match[1]);\n  assert.equal(proof.indexingMode, isolatedIndexingMode);\n  assert.equal(proof.results.length, 6);\n  if (automatic) { assert.equal(rendererExceptions, 0, 'Automatic completion raised getItemsByProvider'); proof.rendererExceptions = rendererExceptions; }\n  if (process.argv[2]) await writeFile(process.argv[2], JSON.stringify(proof, null, 2) + '\\n');\n} finally { await rm(scratch, { recursive: true, force: true }); }\n",
+  "performanceControls": {
+    "7.2/function": {
+      "root": "/tmp/sophp-d121-performance-uxz1yl8i",
+      "file": "/tmp/sophp-d121-performance-uxz1yl8i/src/Caller.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 89.83,
+      "all": {
+        "p50Ms": 2.84,
+        "p95Ms": 5.06,
+        "maxMs": 89.83
+      },
+      "a": {
+        "fragment": "function run(){ $value=rows(); $value->na{{cursor}}; }",
+        "expected": "name",
+        "p50Ms": 2.87,
+        "p95Ms": 4.45,
+        "maxMs": 89.83,
+        "incomplete": 100
+      },
+      "b": {
+        "fragment": "function run(){ $value=others(); $value->otherO{{cursor}}; }",
+        "expected": "otherOnly",
+        "p50Ms": 2.81,
+        "p95Ms": 5.72,
+        "maxMs": 15.64,
+        "incomplete": 100
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    },
+    "7.2/property-method": {
+      "root": "/tmp/sophp-d121-performance-uxz1yl8i",
+      "file": "/tmp/sophp-d121-performance-uxz1yl8i/src/Caller.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 87.14,
+      "all": {
+        "p50Ms": 2.82,
+        "p95Ms": 4.62,
+        "maxMs": 87.14
+      },
+      "a": {
+        "fragment": "function run(Api $api){ $value=$api->row; $value->na{{cursor}}; }",
+        "expected": "name",
+        "p50Ms": 2.56,
+        "p95Ms": 4.17,
+        "maxMs": 87.14,
+        "incomplete": 100
+      },
+      "b": {
+        "fragment": "function run(Api $api){ $value=$api->read(); $value->otherO{{cursor}}; }",
+        "expected": "otherOnly",
+        "p50Ms": 2.97,
+        "p95Ms": 5.49,
+        "maxMs": 23.11,
+        "incomplete": 100
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    },
+    "8.5/function": {
+      "root": "/tmp/sophp-d121-performance-uxz1yl8i",
+      "file": "/tmp/sophp-d121-performance-uxz1yl8i/src/Caller.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 80.45,
+      "all": {
+        "p50Ms": 2.9,
+        "p95Ms": 5.57,
+        "maxMs": 80.45
+      },
+      "a": {
+        "fragment": "function run(){ $value=rows(); $value->na{{cursor}}; }",
+        "expected": "name",
+        "p50Ms": 2.9,
+        "p95Ms": 5.66,
+        "maxMs": 80.45,
+        "incomplete": 100
+      },
+      "b": {
+        "fragment": "function run(){ $value=others(); $value->otherO{{cursor}}; }",
+        "expected": "otherOnly",
+        "p50Ms": 2.89,
+        "p95Ms": 5.42,
+        "maxMs": 15.78,
+        "incomplete": 100
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    },
+    "8.5/property-method": {
+      "root": "/tmp/sophp-d121-performance-uxz1yl8i",
+      "file": "/tmp/sophp-d121-performance-uxz1yl8i/src/Caller.php",
+      "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+      "rounds": 200,
+      "expectFirst": true,
+      "expectEmptyForDash": false,
+      "sharedCandidates": false,
+      "resolveDetails": false,
+      "firstMs": 88.59,
+      "all": {
+        "p50Ms": 2.93,
+        "p95Ms": 6.27,
+        "maxMs": 88.59
+      },
+      "a": {
+        "fragment": "function run(Api $api){ $value=$api->row; $value->na{{cursor}}; }",
+        "expected": "name",
+        "p50Ms": 2.63,
+        "p95Ms": 5.35,
+        "maxMs": 88.59,
+        "incomplete": 100
+      },
+      "b": {
+        "fragment": "function run(Api $api){ $value=$api->read(); $value->otherO{{cursor}}; }",
+        "expected": "otherOnly",
+        "p50Ms": 3.09,
+        "p95Ms": 6.9,
+        "maxMs": 28.32,
+        "incomplete": 100
+      },
+      "readOnly": true,
+      "diskUnchanged": true
+    }
+  },
+  "boundaries": {
+    "currentFullLsp": "not executed; D117 old product full run remains failed",
+    "coldVisibleStartup": "not measured",
+    "profile": "not updated",
+    "package": "not created",
+    "namedFunctions": "bounded Composer autoload-file declarations; other function discovery remains unchanged",
+    "paramOutSemantics": "not implemented",
+    "cancellationNewLoader": "guards present, not independently timed",
+    "complete50000Project": "not established",
+    "cacheMemory": "D118/D119 failure remains open",
+    "ordinaryPhp72Editing": "D100 155.06 ms remains open"
+  }
+}

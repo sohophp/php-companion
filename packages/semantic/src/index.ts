@@ -63,7 +63,7 @@ export interface SemanticDeclarationSnapshot {
   magicMembers: SemanticMagicMember[];
 }
 export interface SemanticSourceDeclarationSnapshot {
-  schema: 5;
+  schema: 6;
   source: string;
   declaration: SemanticDeclarationSnapshot;
 }
@@ -105,7 +105,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 87;
+  schema: 88;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -2498,7 +2498,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 87,
+      schema: 88,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -2510,12 +2510,12 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, true); }
   sourceDeclarationSnapshot(uri: string): SemanticSourceDeclarationSnapshot | undefined {
     const file = this.files.get(uri);
-    return file ? { schema: 5, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
+    return file ? { schema: 6, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
   }
   restoreSourceDeclaration(snapshot: unknown, expectedUri?: string): boolean {
     const value = snapshot as Partial<SemanticSourceDeclarationSnapshot> | null;
     const declaration = value?.declaration;
-    if (value?.schema !== 5 || typeof value.source !== 'string' || !declaration
+    if (value?.schema !== 6 || typeof value.source !== 'string' || !declaration
       || typeof declaration.uri !== 'string' || typeof declaration.namespace !== 'string'
       || expectedUri !== undefined && declaration.uri !== expectedUri
       || ![declaration.declarations, declaration.callables, declaration.properties, declaration.constants,
@@ -2524,7 +2524,7 @@ export class SemanticWorkspace {
     try {
       const file = semanticFileSnapshot(declaration, { uri: declaration.uri, source: value.source, file: emptyImplementationFacts(), callables: [] });
       const prepared: SemanticSnapshot = {
-        schema: 87, declaration, implementation: implementationSnapshot(file),
+        schema: 88, declaration, implementation: implementationSnapshot(file),
         layers: { referenceCandidates: { indexed: false, keys: [] }, typeDependencies: { indexed: false, nodes: [] } },
       };
       if (!this.restore(prepared, expectedUri)) return false;
@@ -2616,7 +2616,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 87 || !declaration || !implementation
+    if (value?.schema !== 88 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -2676,7 +2676,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 87 || !declaration || !implementation
+    if (value?.schema !== 88 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -4991,7 +4991,26 @@ export class SemanticWorkspace {
     } finally { temporaryTree?.delete(); }
   }
 
-  private expressionValueOwnerTypes(file: SemanticFile, root: SyntaxNode, receiver: SyntaxNode): string[] {
+  /** Named function dependencies of a member receiver; they are not value proofs. */
+  memberReceiverFunctionNamesAt(uri: string, offset: number): string[] {
+    return this.withImplementationAt(uri, offset, () => {
+      const file = this.files.get(uri);
+      if (!file || !this.isMemberCompletionContext(uri, offset) || !this.isPhpCodeContext(uri, offset)
+        || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
+      const retained = this.trees.get(uri), temporary = retained ? undefined : this.parser.parseTree(file.source);
+      try {
+        const root = (retained ?? temporary)!.rootNode;
+        let node: SyntaxNode | null = root.namedDescendantForIndex(Math.max(0, offset - 1));
+        while (node && !['member_access_expression', 'nullsafe_member_access_expression',
+          'member_call_expression', 'nullsafe_member_call_expression'].includes(node.type)) node = node.parent;
+        const receiver = node?.childForFieldName('object'); if (!receiver) return [];
+        const names = new Set<string>(); this.expressionValueOwnerTypes(file, root, receiver, names);
+        return [...names];
+      } finally { temporary?.delete(); }
+    });
+  }
+
+  private expressionValueOwnerTypes(file: SemanticFile, root: SyntaxNode, receiver: SyntaxNode, functionNames?: Set<string>): string[] {
     const owners = new Set<string>(), visited = new Set<string>(); let remaining = 128;
     const collect = (expression: SyntaxNode, depth = 0): void => {
       const identity = `${expression.startIndex}:${expression.endIndex}`;
@@ -4999,6 +5018,12 @@ export class SemanticWorkspace {
       visited.add(identity);
       if (['subscript_expression', 'parenthesized_expression'].includes(expression.type)) {
         const base = expression.namedChildren[0]; if (base) collect(base, depth + 1);
+        return;
+      }
+      if (functionNames && expression.type === 'function_call_expression') {
+        const name = expression.childForFieldName('function');
+        if (name && ['name', 'qualified_name', 'relative_name'].includes(name.type))
+          functionNames.add(this.resolveFunction(file, name.text, this.namespaceAt(file, name.startIndex), name.startIndex));
         return;
       }
       if (expression.type === 'variable_name') {

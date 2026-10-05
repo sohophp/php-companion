@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
+import { semanticIndexCacheVersion } from '../src/cacheVersion.js';
 function encode(message: object): string {
   const body = JSON.stringify(message);
   return `Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`;
@@ -105,9 +106,9 @@ it('keeps final trait aliases across persisted restarts, old cache fallback and 
       for (const file of await readdir(cacheDirectory)) {
         if (!file.endsWith('.json')) continue;
         const path = join(cacheDirectory, file); const manifest = JSON.parse(await readFile(path, 'utf8'));
-        if (manifest.version === 'semantic-v66-php-8.5') {
+        if (manifest.version === semanticIndexCacheVersion('8.5')) {
           expect(Object.keys(manifest.entries)).toHaveLength(3); manifests.push(path);
-          if (run === 1) { manifest.version = 'semantic-v65-php-8.5'; await writeFile(path, JSON.stringify(manifest)); }
+          if (run === 1) { manifest.version = 'semantic-v66-php-8.5'; await writeFile(path, JSON.stringify(manifest)); }
         }
       }
       expect(manifests).toHaveLength(1);

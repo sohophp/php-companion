@@ -7037,6 +7037,17 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   let resolvedMembers = completionContext.kind === 'member' ? workspace.completeMembers(document.uri, offset) : [];
   if (!resolvedMembers.length && completionContext.kind === 'member') {
     const root = rootForUri(document.uri);
+    if (root) {
+      const functions = workspace.memberReceiverFunctionNamesAt(document.uri, offset);
+      for (const name of functions) {
+        const parts = name.replace(/^\\/, '').split('\\');
+        const complete = await hydrateOnDemandSymbolImports(workspace, root,
+          { qualifier: parts.slice(0, -1).join('\\'), prefix: parts.at(-1)! },
+          () => !currentQueryDocument(document, token, queryVersion));
+        if (!complete || !currentQueryDocument(document, token, queryVersion)) return [];
+      }
+      resolvedMembers = workspace.completeMembers(document.uri, offset);
+    }
     let frontier = workspace.memberOwnerTypeNamesAt(document.uri, offset);
     if (!frontier.length) frontier = workspace.unresolvedTypeReferences(document.uri).map((item) => item.fqcn);
     const visited = new Set<string>();

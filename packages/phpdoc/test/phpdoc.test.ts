@@ -2,6 +2,35 @@ import { describe, expect, it } from 'vitest';
 import { displayPhpDocType, parsePhpDoc, parsePhpDocType } from '../src/index.js';
 
 describe('PHPDoc parser', () => {
+  it.each(['', 'phpstan-', 'psalm-'])('ignores complete unsupported tag names with %s dialect', dialect => {
+    for (const tag of ['param-out', 'param-closure-this', 'param-immediately-invoked-callable',
+      'return-extra', 'var-extra', 'throws-extra', 'property-extra', 'property-read-extra',
+      'property-write-extra', 'method-extra', 'deprecated-extra', 'mixin-extra',
+      'assert-extra', 'assert-if-true-extra', 'assert-if-false-extra', 'extends-extra',
+      'implements-extra', 'template-extends-extra', 'template-implements-extra', 'use-extra',
+      'template-extra', 'template-covariant-extra', 'template-contravariant-extra']) {
+      expect(parsePhpDoc(`/** @${dialect}${tag} not-a-type */`), tag).toEqual({ tags: [], errors: [] });
+    }
+  });
+
+  it('preserves nearby supported tags and their UTF-16 ranges after ignored extensions', () => {
+    const source = '/** 😀\r\n * @param-out Other $value\r\n * @param User $value input\r\n'
+      + ' * @phpstan-return-extra metadata\r\n * @return User result\r\n */';
+    const doc = parsePhpDoc(source, 25);
+    expect(doc.errors).toEqual([]);
+    expect(doc.tags).toMatchObject([
+      { name: 'param', variable: '$value', type: { name: 'User' }, description: 'input' },
+      { name: 'return', type: { name: 'User' }, description: 'result' },
+    ]);
+    expect(doc.tags).toHaveLength(2);
+    for (const tag of doc.tags) {
+      expect(source.slice(tag.start - 25, tag.end - 25)).toBe(
+        tag.name === 'param' ? '@param User $value input' : '@return User result');
+    }
+    expect(parsePhpDoc('/** @param */').errors.map(error => error.message)).toContain('Expected a type for @param.');
+    expect(parsePhpDoc('/** @return */').errors.map(error => error.message)).toContain('Expected a type for @return.');
+  });
+
   it.each(['use', 'phpstan-use', 'psalm-use'])('parses @%s Trait arguments with source ranges', name => {
     const source = `/** 🙂\n * @${name} Init<array{T: User, label: 'T'}>\n */`;
     const doc = parsePhpDoc(source, 25);

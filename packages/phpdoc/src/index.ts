@@ -166,7 +166,9 @@ export function parsePhpDocType(text: string, baseOffset = 0): { type?: PhpDocTy
 
 export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
   const tags: PhpDocTag[] = []; const errors: PhpDocError[] = [];
-  const pattern = /@(?:(phpstan|psalm)-)?(param|return|var|throws|property(?:-(?:read|write))?|method|deprecated|mixin|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|use|template(?:-covariant|-contravariant)?)\b([^\r\n]*)/g;
+  // Unsupported extensions such as @param-out are distinct tags, not @param
+  // with a malformed type. Do not let a shorter alternative consume them.
+  const pattern = /@(?:(phpstan|psalm)-)?(param|return|var|throws|property(?:-(?:read|write))?|method|deprecated|mixin|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|use|template(?:-covariant|-contravariant)?)\b(?![-\w])([^\r\n]*)/g;
   for (const match of source.matchAll(pattern)) {
     const dialect = (match[1]?.toLowerCase() ?? 'phpdoc') as PhpDocDialect;
     const rawName = match[2]!.toLowerCase();

@@ -8,6 +8,8 @@ This package uses Changesets for versioning.
 
 ## Unreleased
 
+- 按完整标签名识别支持范围，避免将 `@param-out` 或其它未知后缀标签截为已有标签并产生错误类型 AST。
+
 - 将类级 `@mixin Type` 解析为带精确源码范围的类型关系，供语义消费者保守组合代理成员。
 - 将类级 `@property`、`@property-read`、`@property-write` 和 `@method` 解析为结构化成员名称、访问方向、属性/返回类型、静态状态与 Callable 参数。
 - 按 PHPStan 语法解析 `@method Return method<T of Bound, U = Default>(...)` 的方法级模板、bound 与默认类型。

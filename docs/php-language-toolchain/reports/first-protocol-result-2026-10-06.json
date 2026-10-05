@@ -1,0 +1,6165 @@
+{
+  "milestone": "D120",
+  "baselineCommit": "55dda315a220f61017f823ea6bc7a1bb7c715023",
+  "measurement": {
+    "startedUtc": "2026-10-05T20:00:26.114542+00:00",
+    "inputs": {
+      "scripts/benchmark-first-result.mjs": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "dist/language-server.js": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    "runs": [
+      {
+        "phpTarget": "7.2",
+        "files": 1000,
+        "exitCode": 0,
+        "elapsedSeconds": 18.97114483101177,
+        "report": "/tmp/sophp-d120-first-result-7.2-1000.json",
+        "log": "/tmp/sophp-d120-first-result-7.2-1000.log"
+      },
+      {
+        "phpTarget": "7.2",
+        "files": 10000,
+        "exitCode": 0,
+        "elapsedSeconds": 22.15701870599878,
+        "report": "/tmp/sophp-d120-first-result-7.2-10000.json",
+        "log": "/tmp/sophp-d120-first-result-7.2-10000.log"
+      },
+      {
+        "phpTarget": "7.2",
+        "files": 50000,
+        "exitCode": 0,
+        "elapsedSeconds": 28.76073463499779,
+        "report": "/tmp/sophp-d120-first-result-7.2-50000.json",
+        "log": "/tmp/sophp-d120-first-result-7.2-50000.log"
+      },
+      {
+        "phpTarget": "8.5",
+        "files": 1000,
+        "exitCode": 0,
+        "elapsedSeconds": 22.4576405879925,
+        "report": "/tmp/sophp-d120-first-result-8.5-1000.json",
+        "log": "/tmp/sophp-d120-first-result-8.5-1000.log"
+      },
+      {
+        "phpTarget": "8.5",
+        "files": 10000,
+        "exitCode": 0,
+        "elapsedSeconds": 24.729961903009098,
+        "report": "/tmp/sophp-d120-first-result-8.5-10000.json",
+        "log": "/tmp/sophp-d120-first-result-8.5-10000.log"
+      },
+      {
+        "phpTarget": "8.5",
+        "files": 50000,
+        "exitCode": 0,
+        "elapsedSeconds": 30.401376886991784,
+        "report": "/tmp/sophp-d120-first-result-8.5-50000.json",
+        "log": "/tmp/sophp-d120-first-result-8.5-50000.log"
+      }
+    ],
+    "endedUtc": "2026-10-05T20:02:53.614221+00:00",
+    "finalInputs": {
+      "scripts/benchmark-first-result.mjs": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "dist/language-server.js": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  },
+  "environment": {
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.28",
+    "logicalCpus": 18,
+    "cpuModel": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "memoryTotal": "MemTotal:       32787216 kB"
+  },
+  "probes": {
+    "v1SummaryFailure": "file:///var/www/node/php-companion/packages/testkit/dist/index.js:28\n        throw new Error('Durations must contain at least one finite, non-negative sample.');\n              ^\n\nError: Durations must contain at least one finite, non-negative sample.\n    at summarizeDurations (file:///var/www/node/php-companion/packages/testkit/dist/index.js:28:15)\n    at file:///var/www/node/php-companion/scripts/benchmark-first-result.mjs:133:36\n    at Array.map (<anonymous>)\n    at file:///var/www/node/php-companion/scripts/benchmark-first-result.mjs:129:67\n\nNode.js v22.14.0\n",
+    "v2MissingParserArguments": {
+      "schema": 1,
+      "files": 1000,
+      "repeats": 1,
+      "phpTarget": "8.5",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": false,
+          "logs": [
+            {
+              "elapsedMs": 348.3389020000001,
+              "message": "failed to asynchronously prepare wasm: Error: ENOENT: no such file or directory, open '/var/www/node/php-companion/dist/node_modules/web-tree-sitter/web-tree-sitter.wasm'"
+            },
+            {
+              "elapsedMs": 348.364498,
+              "message": "Aborted(Error: ENOENT: no such file or directory, open '/var/www/node/php-companion/dist/node_modules/web-tree-sitter/web-tree-sitter.wasm')"
+            }
+          ],
+          "error": "Error: initialize: {\"code\":-32603,\"message\":\"Request initialize failed with message: Aborted(Error: ENOENT: no such file or directory, open '/var/www/node/php-companion/dist/node_modules/web-tree-sitter/web-tree-sitter.wasm'). Build with -sASSERTIONS for more info.\"}"
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": false,
+          "logs": [
+            {
+              "elapsedMs": 349.98583799999994,
+              "message": "failed to asynchronously prepare wasm: Error: ENOENT: no such file or directory, open '/var/www/node/php-companion/dist/node_modules/web-tree-sitter/web-tree-sitter.wasm'"
+            },
+            {
+              "elapsedMs": 350.678438,
+              "message": "Aborted(Error: ENOENT: no such file or directory, open '/var/www/node/php-companion/dist/node_modules/web-tree-sitter/web-tree-sitter.wasm')"
+            }
+          ],
+          "error": "Error: initialize: {\"code\":-32603,\"message\":\"Request initialize failed with message: Aborted(Error: ENOENT: no such file or directory, open '/var/www/node/php-companion/dist/node_modules/web-tree-sitter/web-tree-sitter.wasm'). Build with -sASSERTIONS for more info.\"}"
+        }
+      ],
+      "consumerSha256": "b15c5e39a8e01a3a55fb34f5a85d6a45c438199a4e461132ec289f3e7b89edb8",
+      "targetSha256": "146a67e1c08998ba964d8e996aa256d6b0ed70177dd314606f627bb54aed4609",
+      "summary": {
+        "onDemand": {
+          "attempted": 1,
+          "passed": 0,
+          "failed": 1,
+          "firstExactCompletionResponses": 0,
+          "firstUsableProtocolResultMs": null,
+          "completionRequestMs": null
+        },
+        "progressive": {
+          "attempted": 1,
+          "passed": 0,
+          "failed": 1,
+          "firstExactCompletionResponses": 0,
+          "firstUsableProtocolResultMs": null,
+          "completionRequestMs": null
+        }
+      }
+    },
+    "v3ParserArgumentsFixed": {
+      "schema": 1,
+      "files": 1000,
+      "repeats": 1,
+      "phpTarget": "8.5",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2044.808614,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-xLSMaf."
+            },
+            {
+              "elapsedMs": 2079.339281,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1985.3588879999998,
+          "completion": {
+            "sentMs": 1986.5530599999997,
+            "receivedMs": 2055.764142,
+            "latencyMs": 69.21108200000026,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2055.764142,
+          "hover": {
+            "sentMs": 2056.2738099999997,
+            "receivedMs": 2074.815983,
+            "latencyMs": 18.542173000000275,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2074.999671,
+            "receivedMs": 2079.560031,
+            "latencyMs": 4.560359999999946,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-xLSMaf/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2327.201309,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2379.8535200000006,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-xLSMaf."
+            },
+            {
+              "elapsedMs": 2454.6802800000005,
+              "message": "[definition:1] end elapsedMs=5"
+            }
+          ],
+          "initializeMs": 2322.0533350000005,
+          "completion": {
+            "sentMs": 2322.645262,
+            "receivedMs": 2425.6516520000005,
+            "latencyMs": 103.00639000000047,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2425.6516520000005,
+          "hover": {
+            "sentMs": 2425.816232,
+            "receivedMs": 2446.3952440000003,
+            "latencyMs": 20.579012000000148,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2446.876292,
+            "receivedMs": 2454.858142,
+            "latencyMs": 7.981850000000122,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-xLSMaf/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "b15c5e39a8e01a3a55fb34f5a85d6a45c438199a4e461132ec289f3e7b89edb8",
+      "targetSha256": "146a67e1c08998ba964d8e996aa256d6b0ed70177dd314606f627bb54aed4609",
+      "summary": {
+        "onDemand": {
+          "attempted": 1,
+          "passed": 1,
+          "failed": 0,
+          "firstExactCompletionResponses": 1,
+          "firstUsableProtocolResultMs": {
+            "samples": 1,
+            "p50": 2055.764142,
+            "p95": 2055.764142,
+            "maximum": 2055.764142
+          },
+          "completionRequestMs": {
+            "samples": 1,
+            "p50": 69.21108200000026,
+            "p95": 69.21108200000026,
+            "maximum": 69.21108200000026
+          }
+        },
+        "progressive": {
+          "attempted": 1,
+          "passed": 1,
+          "failed": 0,
+          "firstExactCompletionResponses": 1,
+          "firstUsableProtocolResultMs": {
+            "samples": 1,
+            "p50": 2425.6516520000005,
+            "p95": 2425.6516520000005,
+            "maximum": 2425.6516520000005
+          },
+          "completionRequestMs": {
+            "samples": 1,
+            "p50": 103.00639000000047,
+            "p95": 103.00639000000047,
+            "maximum": 103.00639000000047
+          }
+        }
+      }
+    }
+  },
+  "formalResults": [
+    {
+      "schema": 1,
+      "files": 1000,
+      "repeats": 5,
+      "phpTarget": "7.2",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "benchmarkSha256": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1893.824821,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1925.546657,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1832.1660239999999,
+          "completion": {
+            "sentMs": 1833.194083,
+            "receivedMs": 1903.3315300000002,
+            "latencyMs": 70.13744700000007,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1903.3315300000002,
+          "hover": {
+            "sentMs": 1904.6006210000003,
+            "receivedMs": 1920.879483,
+            "latencyMs": 16.278861999999663,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1921.124289,
+            "receivedMs": 1925.6792900000003,
+            "latencyMs": 4.555001000000175,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1708.6402349999998,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1741.1689569999999,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1651.0236269999996,
+          "completion": {
+            "sentMs": 1651.5684609999998,
+            "receivedMs": 1718.644026,
+            "latencyMs": 67.0755650000001,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1718.644026,
+          "hover": {
+            "sentMs": 1718.9956860000002,
+            "receivedMs": 1736.9155599999995,
+            "latencyMs": 17.919873999999254,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1737.6146719999997,
+            "receivedMs": 1741.4113710000001,
+            "latencyMs": 3.7966990000004444,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1629.1046290000004,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1670.90787,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1568.6371690000005,
+          "completion": {
+            "sentMs": 1569.106804,
+            "receivedMs": 1644.927358,
+            "latencyMs": 75.8205539999999,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1644.927358,
+          "hover": {
+            "sentMs": 1645.1767280000004,
+            "receivedMs": 1666.7372169999999,
+            "latencyMs": 21.560488999999507,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1666.8690649999999,
+            "receivedMs": 1671.1269740000007,
+            "latencyMs": 4.257909000000836,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1754.2031030000007,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1788.7793580000007,
+              "message": "[definition:1] end elapsedMs=4"
+            }
+          ],
+          "initializeMs": 1685.4970640000001,
+          "completion": {
+            "sentMs": 1685.9566960000002,
+            "receivedMs": 1769.5735710000008,
+            "latencyMs": 83.61687500000062,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1769.5735710000008,
+          "hover": {
+            "sentMs": 1769.995734,
+            "receivedMs": 1783.9281910000009,
+            "latencyMs": 13.932457000000795,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1784.0467430000008,
+            "receivedMs": 1788.8967740000007,
+            "latencyMs": 4.8500309999999445,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1755.3303510000005,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1788.9008539999995,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1691.1942209999997,
+          "completion": {
+            "sentMs": 1691.6916359999996,
+            "receivedMs": 1773.5366790000007,
+            "latencyMs": 81.84504300000117,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1773.5366790000007,
+          "hover": {
+            "sentMs": 1773.827985,
+            "receivedMs": 1784.9017239999994,
+            "latencyMs": 11.073738999999478,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1784.9967140000008,
+            "receivedMs": 1789.3437090000007,
+            "latencyMs": 4.346994999999879,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1637.7814040000012,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1708.1522300000015,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1766.1652170000016,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1633.2274710000002,
+          "completion": {
+            "sentMs": 1633.7030630000008,
+            "receivedMs": 1724.8247460000002,
+            "latencyMs": 91.1216829999994,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1724.8247460000002,
+          "hover": {
+            "sentMs": 1725.0678050000006,
+            "receivedMs": 1761.7339850000008,
+            "latencyMs": 36.66618000000017,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1761.978032000001,
+            "receivedMs": 1766.3620720000017,
+            "latencyMs": 4.384040000000823,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1618.8463769999998,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1675.3727710000003,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1729.7374520000012,
+              "message": "[definition:1] end elapsedMs=3"
+            },
+            {
+              "elapsedMs": 1736.4025120000006,
+              "message": "Indexed 0 PHP files (0 bytes, 0 cached) from /tmp/sophp-first-result-CBcRRu; complete=false; deferred implementations=0."
+            },
+            {
+              "elapsedMs": 1736.404606,
+              "message": "Project indexing was cancelled."
+            },
+            {
+              "elapsedMs": 1736.405632,
+              "message": "[index:1] end elapsedMs=122 pending=0"
+            }
+          ],
+          "initializeMs": 1610.302310000001,
+          "completion": {
+            "sentMs": 1610.7206240000014,
+            "receivedMs": 1686.691028000001,
+            "latencyMs": 75.97040399999969,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1686.691028000001,
+          "hover": {
+            "sentMs": 1686.8357610000003,
+            "receivedMs": 1725.6222070000003,
+            "latencyMs": 38.78644600000007,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1725.7201480000003,
+            "receivedMs": 1729.856463,
+            "latencyMs": 4.13631499999974,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1712.2776369999992,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1787.4250229999998,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1847.0688219999993,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1703.152983,
+          "completion": {
+            "sentMs": 1703.5430579999993,
+            "receivedMs": 1799.6495329999998,
+            "latencyMs": 96.1064750000005,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1799.6495329999998,
+          "hover": {
+            "sentMs": 1799.903096,
+            "receivedMs": 1842.675514999999,
+            "latencyMs": 42.77241899999899,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1843.0819979999997,
+            "receivedMs": 1847.1841909999985,
+            "latencyMs": 4.102192999998806,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1702.3264070000005,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1772.718116,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1841.033534000002,
+              "message": "[definition:1] end elapsedMs=6"
+            }
+          ],
+          "initializeMs": 1693.0295179999994,
+          "completion": {
+            "sentMs": 1693.4117179999994,
+            "receivedMs": 1785.6784200000002,
+            "latencyMs": 92.2667020000008,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1785.6784200000002,
+          "hover": {
+            "sentMs": 1785.909541000001,
+            "receivedMs": 1831.6549169999998,
+            "latencyMs": 45.74537599999894,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1831.8035799999998,
+            "receivedMs": 1841.1735919999992,
+            "latencyMs": 9.370011999999406,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1694.1488680000002,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1776.6446689999975,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-CBcRRu."
+            },
+            {
+              "elapsedMs": 1840.9198599999982,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1684.4330149999987,
+          "completion": {
+            "sentMs": 1684.849664999998,
+            "receivedMs": 1791.5450920000003,
+            "latencyMs": 106.69542700000238,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1791.5450920000003,
+          "hover": {
+            "sentMs": 1791.7775029999975,
+            "receivedMs": 1836.019253999999,
+            "latencyMs": 44.241751000001386,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1836.178351999999,
+            "receivedMs": 1840.9328969999988,
+            "latencyMs": 4.75454499999978,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-CBcRRu/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "b15c5e39a8e01a3a55fb34f5a85d6a45c438199a4e461132ec289f3e7b89edb8",
+      "targetSha256": "146a67e1c08998ba964d8e996aa256d6b0ed70177dd314606f627bb54aed4609",
+      "summary": {
+        "onDemand": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 1769.5735710000008,
+            "p95": 1903.3315300000002,
+            "maximum": 1903.3315300000002
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 75.8205539999999,
+            "p95": 83.61687500000062,
+            "maximum": 83.61687500000062
+          }
+        },
+        "progressive": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 1785.6784200000002,
+            "p95": 1799.6495329999998,
+            "maximum": 1799.6495329999998
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 92.2667020000008,
+            "p95": 106.69542700000238,
+            "maximum": 106.69542700000238
+          }
+        }
+      }
+    },
+    {
+      "schema": 1,
+      "files": 10000,
+      "repeats": 5,
+      "phpTarget": "7.2",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "benchmarkSha256": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1697.144354,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 1731.331396,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1637.71911,
+          "completion": {
+            "sentMs": 1638.332092,
+            "receivedMs": 1706.8522600000001,
+            "latencyMs": 68.52016800000001,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1706.8522600000001,
+          "hover": {
+            "sentMs": 1709.348516,
+            "receivedMs": 1722.660316,
+            "latencyMs": 13.311799999999948,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1722.819607,
+            "receivedMs": 1731.592607,
+            "latencyMs": 8.773000000000138,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1823.698136,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 1859.917308,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1763.6796839999997,
+          "completion": {
+            "sentMs": 1764.1871460000002,
+            "receivedMs": 1833.738797,
+            "latencyMs": 69.55165099999977,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1833.738797,
+          "hover": {
+            "sentMs": 1834.0650809999997,
+            "receivedMs": 1855.3196230000003,
+            "latencyMs": 21.254542000000583,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1855.9014550000002,
+            "receivedMs": 1860.1357820000003,
+            "latencyMs": 4.234327000000121,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1784.9384909999999,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 1841.586088,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1714.7125420000002,
+          "completion": {
+            "sentMs": 1715.1634669999994,
+            "receivedMs": 1805.478489,
+            "latencyMs": 90.31502200000068,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1805.478489,
+          "hover": {
+            "sentMs": 1805.621752,
+            "receivedMs": 1836.6646190000001,
+            "latencyMs": 31.042867000000115,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1836.8193869999996,
+            "receivedMs": 1841.776836,
+            "latencyMs": 4.957449000000452,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1731.9502150000008,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 1763.3212559999993,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1669.727594,
+          "completion": {
+            "sentMs": 1669.970899,
+            "receivedMs": 1742.5607569999993,
+            "latencyMs": 72.58985799999937,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1742.5607569999993,
+          "hover": {
+            "sentMs": 1743.0392890000003,
+            "receivedMs": 1759.3871749999998,
+            "latencyMs": 16.347885999999562,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1759.510506999999,
+            "receivedMs": 1763.4816109999992,
+            "latencyMs": 3.971104000000196,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1869.7372429999996,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 1903.8880599999993,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1805.980211,
+          "completion": {
+            "sentMs": 1806.2694979999997,
+            "receivedMs": 1880.9533539999993,
+            "latencyMs": 74.68385599999965,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1880.9533539999993,
+          "hover": {
+            "sentMs": 1881.2784780000002,
+            "receivedMs": 1899.8841960000009,
+            "latencyMs": 18.605718000000707,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1900.0132109999995,
+            "receivedMs": 1904.080234000001,
+            "latencyMs": 4.067023000001427,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1854.5218059999988,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1922.8101499999993,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 2096.4401469999993,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1849.9569459999984,
+          "completion": {
+            "sentMs": 1850.3126139999986,
+            "receivedMs": 1934.1513269999996,
+            "latencyMs": 83.83871300000101,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1934.1513269999996,
+          "hover": {
+            "sentMs": 1934.3986690000002,
+            "receivedMs": 2091.9091959999987,
+            "latencyMs": 157.51052699999855,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2092.0477329999994,
+            "receivedMs": 2096.681509,
+            "latencyMs": 4.63377600000058,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1819.8497619999998,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1898.097165000001,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 2104.7874310000007,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1815.045446,
+          "completion": {
+            "sentMs": 1815.2643050000006,
+            "receivedMs": 1916.4838980000004,
+            "latencyMs": 101.2195929999998,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1916.4838980000004,
+          "hover": {
+            "sentMs": 1916.7077659999995,
+            "receivedMs": 2100.2915680000006,
+            "latencyMs": 183.58380200000101,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2100.3726939999997,
+            "receivedMs": 2104.907507,
+            "latencyMs": 4.534813000000213,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1757.505215000001,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1828.4570469999999,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 2021.4668209999982,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1752.6462519999986,
+          "completion": {
+            "sentMs": 1753.0376529999994,
+            "receivedMs": 1844.2360679999983,
+            "latencyMs": 91.19841499999893,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1844.2360679999983,
+          "hover": {
+            "sentMs": 1844.4534910000002,
+            "receivedMs": 2016.4492470000005,
+            "latencyMs": 171.99575600000026,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2016.964774,
+            "receivedMs": 2021.659724000001,
+            "latencyMs": 4.694950000000972,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1756.540664,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1832.863749,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 2068.3430750000007,
+              "message": "[definition:1] end elapsedMs=6"
+            }
+          ],
+          "initializeMs": 1752.0711960000008,
+          "completion": {
+            "sentMs": 1752.3274139999994,
+            "receivedMs": 1858.0763799999986,
+            "latencyMs": 105.7489659999992,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1858.0763799999986,
+          "hover": {
+            "sentMs": 1858.2779059999993,
+            "receivedMs": 2058.8698670000012,
+            "latencyMs": 200.5919610000019,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2059.0982220000005,
+            "receivedMs": 2068.5350089999993,
+            "latencyMs": 9.43678699999873,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1870.2314540000007,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1937.3283269999993,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-rvfkxI."
+            },
+            {
+              "elapsedMs": 2100.194695000002,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1866.1055430000015,
+          "completion": {
+            "sentMs": 1866.472568000001,
+            "receivedMs": 1948.7213220000012,
+            "latencyMs": 82.24875400000019,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1948.7213220000012,
+          "hover": {
+            "sentMs": 1948.948504,
+            "receivedMs": 2095.5684250000013,
+            "latencyMs": 146.61992100000134,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2095.723984,
+            "receivedMs": 2100.3922410000014,
+            "latencyMs": 4.6682570000011765,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-rvfkxI/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "62487554c11df6e778615f71bc1ca79fd41d297edb73023d8e62051061a741ae",
+      "targetSha256": "dac18f1e36048bf5a0d1fbe9d980ae443896b34731fc8d3476f22632cf357430",
+      "summary": {
+        "onDemand": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 1805.478489,
+            "p95": 1880.9533539999993,
+            "maximum": 1880.9533539999993
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 72.58985799999937,
+            "p95": 90.31502200000068,
+            "maximum": 90.31502200000068
+          }
+        },
+        "progressive": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 1916.4838980000004,
+            "p95": 1948.7213220000012,
+            "maximum": 1948.7213220000012
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 91.19841499999893,
+            "p95": 105.7489659999992,
+            "maximum": 105.7489659999992
+          }
+        }
+      }
+    },
+    {
+      "schema": 1,
+      "files": 50000,
+      "repeats": 5,
+      "phpTarget": "7.2",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "benchmarkSha256": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2017.110353,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 2050.8598220000003,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1956.9736140000005,
+          "completion": {
+            "sentMs": 1958.1507500000007,
+            "receivedMs": 2027.4572530000005,
+            "latencyMs": 69.3065029999998,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2027.4572530000005,
+          "hover": {
+            "sentMs": 2028.4050630000002,
+            "receivedMs": 2047.3372450000006,
+            "latencyMs": 18.932182000000466,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2047.4154610000005,
+            "receivedMs": 2051.1908680000006,
+            "latencyMs": 3.7754070000000866,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1623.9270349999997,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 1661.9194399999988,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1561.2811159999992,
+          "completion": {
+            "sentMs": 1561.7691509999995,
+            "receivedMs": 1639.093405999999,
+            "latencyMs": 77.32425499999954,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1639.093405999999,
+          "hover": {
+            "sentMs": 1639.460247,
+            "receivedMs": 1657.1630969999997,
+            "latencyMs": 17.70284999999967,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1657.6482310000001,
+            "receivedMs": 1662.123208,
+            "latencyMs": 4.474976999999853,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1686.8405660000008,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 1719.1250060000002,
+              "message": "[definition:1] end elapsedMs=4"
+            }
+          ],
+          "initializeMs": 1625.099096,
+          "completion": {
+            "sentMs": 1625.5000479999999,
+            "receivedMs": 1697.299336,
+            "latencyMs": 71.79928800000016,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1697.299336,
+          "hover": {
+            "sentMs": 1697.5372500000012,
+            "receivedMs": 1714.647984000001,
+            "latencyMs": 17.110733999999866,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1714.7285470000006,
+            "receivedMs": 1719.2887190000001,
+            "latencyMs": 4.560171999999511,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1992.7027400000006,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 2040.5526869999994,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1922.2441820000004,
+          "completion": {
+            "sentMs": 1922.7291229999992,
+            "receivedMs": 2013.929236,
+            "latencyMs": 91.20011300000078,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2013.929236,
+          "hover": {
+            "sentMs": 2014.804682,
+            "receivedMs": 2036.0668239999995,
+            "latencyMs": 21.262141999999585,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2036.1585699999996,
+            "receivedMs": 2040.814843,
+            "latencyMs": 4.65627300000051,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1729.3565729999991,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 1767.3672389999992,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1666.5545839999995,
+          "completion": {
+            "sentMs": 1666.925444999999,
+            "receivedMs": 1739.2672599999987,
+            "latencyMs": 72.34181499999977,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1739.2672599999987,
+          "hover": {
+            "sentMs": 1739.6751789999998,
+            "receivedMs": 1763.5155829999985,
+            "latencyMs": 23.84040399999867,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1763.6645129999997,
+            "receivedMs": 1767.4762109999992,
+            "latencyMs": 3.8116979999995237,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1687.0162609999988,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1782.357532,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 1810.401498000001,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1682.465267999998,
+          "completion": {
+            "sentMs": 1682.7128439999997,
+            "receivedMs": 1794.4877910000014,
+            "latencyMs": 111.7749470000017,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1794.4877910000014,
+          "hover": {
+            "sentMs": 1794.6780689999996,
+            "receivedMs": 1805.7650329999979,
+            "latencyMs": 11.086963999998261,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1805.911234000001,
+            "receivedMs": 1810.601084,
+            "latencyMs": 4.689849999998842,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1902.419621000001,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1963.4442259999996,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 2053.1959050000005,
+              "message": "[definition:1] end elapsedMs=4"
+            }
+          ],
+          "initializeMs": 1897.4868370000004,
+          "completion": {
+            "sentMs": 1897.8522450000019,
+            "receivedMs": 2034.713031000003,
+            "latencyMs": 136.8607860000011,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2034.713031000003,
+          "hover": {
+            "sentMs": 2034.8654019999994,
+            "receivedMs": 2048.0536570000004,
+            "latencyMs": 13.188255000000936,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2048.1486030000015,
+            "receivedMs": 2053.3717880000004,
+            "latencyMs": 5.223184999998921,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1954.1464639999976,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2011.8915589999997,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 2076.0397249999987,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1949.5119049999994,
+          "completion": {
+            "sentMs": 1949.8815829999985,
+            "receivedMs": 2061.1994639999975,
+            "latencyMs": 111.31788099999903,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2061.1994639999975,
+          "hover": {
+            "sentMs": 2061.3141609999984,
+            "receivedMs": 2072.229557999999,
+            "latencyMs": 10.915397000000667,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2072.436296,
+            "receivedMs": 2076.1172259999985,
+            "latencyMs": 3.680929999998625,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1680.6927829999986,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1773.2660849999993,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 1801.0599489999986,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1676.0422829999989,
+          "completion": {
+            "sentMs": 1676.4454989999977,
+            "receivedMs": 1785.3576140000005,
+            "latencyMs": 108.91211500000281,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1785.3576140000005,
+          "hover": {
+            "sentMs": 1785.4866739999998,
+            "receivedMs": 1795.5389049999976,
+            "latencyMs": 10.052230999997846,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1795.6168049999978,
+            "receivedMs": 1801.1978159999999,
+            "latencyMs": 5.581011000002036,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1757.7517700000026,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1812.8231650000016,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-d78q5i."
+            },
+            {
+              "elapsedMs": 1874.698252000002,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1753.012315,
+          "completion": {
+            "sentMs": 1753.4503110000005,
+            "receivedMs": 1858.183892000001,
+            "latencyMs": 104.73358100000041,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1858.183892000001,
+          "hover": {
+            "sentMs": 1858.4672430000028,
+            "receivedMs": 1870.160366,
+            "latencyMs": 11.693122999997286,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1870.2899520000028,
+            "receivedMs": 1874.8916820000013,
+            "latencyMs": 4.601729999998497,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-d78q5i/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "f4da5a2045bb96b8bd7e82fe4c7055c01cc709e5af104d21e53b22e31635ca9a",
+      "targetSha256": "24649d02e5c1ca720d84cddc85aaed50fdb34098dd4a80fb44436cd07e2d09a5",
+      "summary": {
+        "onDemand": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 1739.2672599999987,
+            "p95": 2027.4572530000005,
+            "maximum": 2027.4572530000005
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 72.34181499999977,
+            "p95": 91.20011300000078,
+            "maximum": 91.20011300000078
+          }
+        },
+        "progressive": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 1858.183892000001,
+            "p95": 2061.1994639999975,
+            "maximum": 2061.1994639999975
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 111.31788099999903,
+            "p95": 136.8607860000011,
+            "maximum": 136.8607860000011
+          }
+        }
+      }
+    },
+    {
+      "schema": 1,
+      "files": 1000,
+      "repeats": 5,
+      "phpTarget": "8.5",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "benchmarkSha256": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2195.635323,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2243.040331,
+              "message": "[definition:1] end elapsedMs=6"
+            }
+          ],
+          "initializeMs": 2139.860345,
+          "completion": {
+            "sentMs": 2140.92385,
+            "receivedMs": 2211.4624360000003,
+            "latencyMs": 70.53858600000012,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2211.4624360000003,
+          "hover": {
+            "sentMs": 2212.6687970000003,
+            "receivedMs": 2234.0057110000002,
+            "latencyMs": 21.33691399999998,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2234.122651,
+            "receivedMs": 2243.480674,
+            "latencyMs": 9.358022999999775,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2094.6781889999997,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2128.35043,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2039.3480290000002,
+          "completion": {
+            "sentMs": 2039.854116,
+            "receivedMs": 2105.7573310000002,
+            "latencyMs": 65.90321500000027,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2105.7573310000002,
+          "hover": {
+            "sentMs": 2106.0868969999997,
+            "receivedMs": 2123.777128,
+            "latencyMs": 17.690231000000495,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2124.1124400000003,
+            "receivedMs": 2128.6509410000003,
+            "latencyMs": 4.538500999999997,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2059.3117119999997,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2100.5405060000003,
+              "message": "[definition:1] end elapsedMs=4"
+            }
+          ],
+          "initializeMs": 1988.1174659999997,
+          "completion": {
+            "sentMs": 1988.523346,
+            "receivedMs": 2082.5247440000003,
+            "latencyMs": 94.00139800000034,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2082.5247440000003,
+          "hover": {
+            "sentMs": 2082.7363459999997,
+            "receivedMs": 2095.128022,
+            "latencyMs": 12.391676000000189,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2095.266552,
+            "receivedMs": 2100.778897,
+            "latencyMs": 5.512345000000096,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2010.369736999999,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2074.5573860000004,
+              "message": "[definition:1] end elapsedMs=7"
+            }
+          ],
+          "initializeMs": 1946.2947210000002,
+          "completion": {
+            "sentMs": 1946.8775750000004,
+            "receivedMs": 2033.0230360000005,
+            "latencyMs": 86.14546100000007,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2033.0230360000005,
+          "hover": {
+            "sentMs": 2033.686796,
+            "receivedMs": 2064.8209979999992,
+            "latencyMs": 31.134201999999277,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2064.9239770000004,
+            "receivedMs": 2075.2534670000005,
+            "latencyMs": 10.329490000000078,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2072.838242,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2105.8625869999996,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 2010.0639419999989,
+          "completion": {
+            "sentMs": 2010.4345789999988,
+            "receivedMs": 2083.083607999999,
+            "latencyMs": 72.64902900000016,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2083.083607999999,
+          "hover": {
+            "sentMs": 2083.5630459999993,
+            "receivedMs": 2101.5370669999993,
+            "latencyMs": 17.974020999999993,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2101.6741039999997,
+            "receivedMs": 2106.0809279999994,
+            "latencyMs": 4.406823999999688,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1940.5364119999995,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1990.6552169999995,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2048.3071689999997,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1936.4473859999998,
+          "completion": {
+            "sentMs": 1936.8291249999984,
+            "receivedMs": 2002.719078,
+            "latencyMs": 65.8899530000017,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2002.719078,
+          "hover": {
+            "sentMs": 2002.9322739999989,
+            "receivedMs": 2044.115980999999,
+            "latencyMs": 41.18370700000014,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2044.2802299999985,
+            "receivedMs": 2048.506669999999,
+            "latencyMs": 4.226440000000366,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2024.5626860000011,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2084.6231480000006,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2137.9899349999996,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2020.4553160000014,
+          "completion": {
+            "sentMs": 2020.6992229999996,
+            "receivedMs": 2101.2735090000006,
+            "latencyMs": 80.57428600000094,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2101.2735090000006,
+          "hover": {
+            "sentMs": 2101.460921,
+            "receivedMs": 2133.8636000000006,
+            "latencyMs": 32.40267900000072,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2134.0103290000006,
+            "receivedMs": 2138.1866800000007,
+            "latencyMs": 4.176351000000068,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2251.6477399999985,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2306.4413689999983,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2405.709976,
+              "message": "[definition:1] end elapsedMs=4"
+            }
+          ],
+          "initializeMs": 2247.044312,
+          "completion": {
+            "sentMs": 2247.441022000001,
+            "receivedMs": 2328.8086679999997,
+            "latencyMs": 81.36764599999879,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2328.8086679999997,
+          "hover": {
+            "sentMs": 2329.0093179999985,
+            "receivedMs": 2398.888509999999,
+            "latencyMs": 69.87919200000033,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2399.298520999999,
+            "receivedMs": 2405.723716999999,
+            "latencyMs": 6.425196000000142,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2110.2523650000003,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2167.720000000001,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2251.264511000001,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2105.7680199999995,
+          "completion": {
+            "sentMs": 2106.0155750000013,
+            "receivedMs": 2180.2178700000004,
+            "latencyMs": 74.20229499999914,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2180.2178700000004,
+          "hover": {
+            "sentMs": 2180.3592470000003,
+            "receivedMs": 2242.5812269999988,
+            "latencyMs": 62.22197999999844,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2242.6596500000014,
+            "receivedMs": 2251.390979,
+            "latencyMs": 8.731328999998368,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1938.1429959999987,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1988.707072000001,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-XmsKE6."
+            },
+            {
+              "elapsedMs": 2050.4394360000006,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1933.8381550000013,
+          "completion": {
+            "sentMs": 1934.237584999999,
+            "receivedMs": 2029.213885000001,
+            "latencyMs": 94.97630000000208,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture000999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2029.213885000001,
+          "hover": {
+            "sentMs": 2029.3266089999997,
+            "receivedMs": 2046.277653000001,
+            "latencyMs": 16.951044000001275,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture000999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2046.3378950000006,
+            "receivedMs": 2050.645371999999,
+            "latencyMs": 4.307476999998471,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-XmsKE6/src/Fixture000999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "b15c5e39a8e01a3a55fb34f5a85d6a45c438199a4e461132ec289f3e7b89edb8",
+      "targetSha256": "146a67e1c08998ba964d8e996aa256d6b0ed70177dd314606f627bb54aed4609",
+      "summary": {
+        "onDemand": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 2083.083607999999,
+            "p95": 2211.4624360000003,
+            "maximum": 2211.4624360000003
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 72.64902900000016,
+            "p95": 94.00139800000034,
+            "maximum": 94.00139800000034
+          }
+        },
+        "progressive": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 2101.2735090000006,
+            "p95": 2328.8086679999997,
+            "maximum": 2328.8086679999997
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 80.57428600000094,
+            "p95": 94.97630000000208,
+            "maximum": 94.97630000000208
+          }
+        }
+      }
+    },
+    {
+      "schema": 1,
+      "files": 10000,
+      "repeats": 5,
+      "phpTarget": "8.5",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "benchmarkSha256": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2091.9764640000003,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2125.315006,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2033.893272,
+          "completion": {
+            "sentMs": 2034.461858,
+            "receivedMs": 2103.298197,
+            "latencyMs": 68.83633900000018,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2103.298197,
+          "hover": {
+            "sentMs": 2105.480807,
+            "receivedMs": 2120.9739259999997,
+            "latencyMs": 15.493118999999751,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2121.0827280000003,
+            "receivedMs": 2125.518089,
+            "latencyMs": 4.43536099999983,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2179.177217,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2213.9535920000003,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2122.808617,
+          "completion": {
+            "sentMs": 2123.309801,
+            "receivedMs": 2190.811676,
+            "latencyMs": 67.50187499999993,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2190.811676,
+          "hover": {
+            "sentMs": 2191.149269,
+            "receivedMs": 2209.30456,
+            "latencyMs": 18.155291000000034,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2209.7909940000004,
+            "receivedMs": 2214.1787530000006,
+            "latencyMs": 4.387759000000187,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2117.324538,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2150.4540880000004,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2063.9959120000003,
+          "completion": {
+            "sentMs": 2064.394759,
+            "receivedMs": 2128.439155,
+            "latencyMs": 64.04439600000023,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2128.439155,
+          "hover": {
+            "sentMs": 2128.6763229999997,
+            "receivedMs": 2146.0371059999998,
+            "latencyMs": 17.360783000000083,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2146.2604280000005,
+            "receivedMs": 2150.654942,
+            "latencyMs": 4.394513999999617,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2000.4533199999987,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2033.2337150000003,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1945.50446,
+          "completion": {
+            "sentMs": 1945.9060410000002,
+            "receivedMs": 2010.6599389999992,
+            "latencyMs": 64.75389799999903,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2010.6599389999992,
+          "hover": {
+            "sentMs": 2011.498212999999,
+            "receivedMs": 2028.6772739999997,
+            "latencyMs": 17.17906100000073,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2028.8104779999994,
+            "receivedMs": 2033.429811,
+            "latencyMs": 4.619333000000552,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2123.1360970000005,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2156.3250500000013,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2068.7897780000003,
+          "completion": {
+            "sentMs": 2069.17706,
+            "receivedMs": 2134.4730690000015,
+            "latencyMs": 65.2960090000015,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2134.4730690000015,
+          "hover": {
+            "sentMs": 2135.006381000001,
+            "receivedMs": 2152.134438000001,
+            "latencyMs": 17.1280569999999,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2152.26959,
+            "receivedMs": 2156.5181970000012,
+            "latencyMs": 4.248607000001357,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2023.1688689999992,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2082.788348,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2286.329227,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2018.828614,
+          "completion": {
+            "sentMs": 2019.2128279999997,
+            "receivedMs": 2095.2430379999987,
+            "latencyMs": 76.03020999999899,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2095.2430379999987,
+          "hover": {
+            "sentMs": 2095.374426999999,
+            "receivedMs": 2281.0529479999987,
+            "latencyMs": 185.67852099999982,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2281.1623679999993,
+            "receivedMs": 2286.456591,
+            "latencyMs": 5.294223000000784,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2147.8029370000004,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2214.965727999999,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2406.214576999999,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2142.5304370000013,
+          "completion": {
+            "sentMs": 2142.946365,
+            "receivedMs": 2230.709476,
+            "latencyMs": 87.76311100000021,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2230.709476,
+          "hover": {
+            "sentMs": 2230.8401970000014,
+            "receivedMs": 2401.731914,
+            "latencyMs": 170.8917169999986,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2401.883117000001,
+            "receivedMs": 2406.415623000001,
+            "latencyMs": 4.532505999999557,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1975.7127020000007,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2034.1804879999981,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2226.7519329999996,
+              "message": "[definition:1] end elapsedMs=7"
+            }
+          ],
+          "initializeMs": 1970.937915999999,
+          "completion": {
+            "sentMs": 1971.3107519999976,
+            "receivedMs": 2049.843291000001,
+            "latencyMs": 78.53253900000345,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2049.843291000001,
+          "hover": {
+            "sentMs": 2050.040871000001,
+            "receivedMs": 2213.052281,
+            "latencyMs": 163.01140999999916,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2213.2695729999978,
+            "receivedMs": 2226.7679839999983,
+            "latencyMs": 13.498411000000488,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2075.5564350000022,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2143.736436000003,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2358.726638,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2070.5628880000004,
+          "completion": {
+            "sentMs": 2070.8384640000004,
+            "receivedMs": 2157.509710000002,
+            "latencyMs": 86.6712460000017,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2157.509710000002,
+          "hover": {
+            "sentMs": 2157.715075,
+            "receivedMs": 2354.124799000001,
+            "latencyMs": 196.409724000001,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2354.2959150000024,
+            "receivedMs": 2358.940045000003,
+            "latencyMs": 4.644130000000587,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1979.1199110000016,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2047.3645959999994,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-Ru4ipA."
+            },
+            {
+              "elapsedMs": 2256.6523650000017,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1973.222690999999,
+          "completion": {
+            "sentMs": 1973.6403890000001,
+            "receivedMs": 2059.0300300000017,
+            "latencyMs": 85.38964100000157,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture009999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2059.0300300000017,
+          "hover": {
+            "sentMs": 2059.235237000001,
+            "receivedMs": 2248.10541,
+            "latencyMs": 188.87017299999934,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture009999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2248.2600980000025,
+            "receivedMs": 2256.8682980000012,
+            "latencyMs": 8.60819999999876,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-Ru4ipA/src/Fixture009999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "62487554c11df6e778615f71bc1ca79fd41d297edb73023d8e62051061a741ae",
+      "targetSha256": "dac18f1e36048bf5a0d1fbe9d980ae443896b34731fc8d3476f22632cf357430",
+      "summary": {
+        "onDemand": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 2128.439155,
+            "p95": 2190.811676,
+            "maximum": 2190.811676
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 65.2960090000015,
+            "p95": 68.83633900000018,
+            "maximum": 68.83633900000018
+          }
+        },
+        "progressive": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 2095.2430379999987,
+            "p95": 2230.709476,
+            "maximum": 2230.709476
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 85.38964100000157,
+            "p95": 87.76311100000021,
+            "maximum": 87.76311100000021
+          }
+        }
+      }
+    },
+    {
+      "schema": 1,
+      "files": 50000,
+      "repeats": 5,
+      "phpTarget": "8.5",
+      "platform": "linux",
+      "runtime": "v22.14.0",
+      "bundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+      "benchmarkSha256": "54450ce2a1da1973fe0235cf3d4a9fc560b3a1c82f03dae35a759b251d6ae420",
+      "parserAssets": {
+        "coreSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "phpSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "scope": "first exact member completion from process start, followed by Hover and Definition; fresh process/cache each round; no diagnostics/index-ready wait or query prewarm",
+      "firstVisibleEditorResult": "not measured",
+      "indexLimits": "unchanged server defaults (maxFiles 10000)",
+      "rounds": [
+        {
+          "mode": "onDemand",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2042.917254,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2074.9686279999996,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1986.98589,
+          "completion": {
+            "sentMs": 1988.0765499999998,
+            "receivedMs": 2053.2527869999994,
+            "latencyMs": 65.17623699999967,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2053.2527869999994,
+          "hover": {
+            "sentMs": 2055.509137,
+            "receivedMs": 2070.697126,
+            "latencyMs": 15.187989000000016,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2070.7934669999995,
+            "receivedMs": 2075.1008309999997,
+            "latencyMs": 4.307364000000234,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2048.9736839999996,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2079.7185419999996,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1998.7653060000002,
+          "completion": {
+            "sentMs": 1999.0820080000003,
+            "receivedMs": 2059.0783899999997,
+            "latencyMs": 59.99638199999936,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2059.0783899999997,
+          "hover": {
+            "sentMs": 2059.397073000001,
+            "receivedMs": 2075.393379,
+            "latencyMs": 15.996305999999095,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2075.8727289999997,
+            "receivedMs": 2079.9266799999996,
+            "latencyMs": 4.05395099999987,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1978.481318,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2007.686006,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1911.697725,
+          "completion": {
+            "sentMs": 1912.0821029999988,
+            "receivedMs": 1993.8397589999986,
+            "latencyMs": 81.75765599999977,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1993.8397589999986,
+          "hover": {
+            "sentMs": 1994.088554,
+            "receivedMs": 2003.4899399999995,
+            "latencyMs": 9.401385999999547,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2003.613222,
+            "receivedMs": 2007.869924999999,
+            "latencyMs": 4.256702999999106,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1924.1527310000001,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 1954.6295790000004,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1863.7704360000007,
+          "completion": {
+            "sentMs": 1864.1958059999997,
+            "receivedMs": 1939.1890820000008,
+            "latencyMs": 74.99327600000106,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1939.1890820000008,
+          "hover": {
+            "sentMs": 1939.8872730000003,
+            "receivedMs": 1949.821546000001,
+            "latencyMs": 9.934273000000758,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 1949.9440159999995,
+            "receivedMs": 1954.8048340000005,
+            "latencyMs": 4.860818000001018,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "onDemand",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2046.9165190000003,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2077.8555910000014,
+              "message": "[definition:1] end elapsedMs=2"
+            }
+          ],
+          "initializeMs": 1994.454428000001,
+          "completion": {
+            "sentMs": 1994.8934289999997,
+            "receivedMs": 2056.6178020000007,
+            "latencyMs": 61.724373000000924,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2056.6178020000007,
+          "hover": {
+            "sentMs": 2057.031073,
+            "receivedMs": 2073.6509830000014,
+            "latencyMs": 16.619910000001255,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2073.775598,
+            "receivedMs": 2078.061484,
+            "latencyMs": 4.285885999999664,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 1,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2158.8513730000013,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2219.813785999999,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2291.9209010000013,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2152.853084999999,
+          "completion": {
+            "sentMs": 2153.3355200000005,
+            "receivedMs": 2276.5414149999997,
+            "latencyMs": 123.20589499999915,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2276.5414149999997,
+          "hover": {
+            "sentMs": 2276.6757380000017,
+            "receivedMs": 2286.8952659999995,
+            "latencyMs": 10.219527999997808,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2286.9726420000006,
+            "receivedMs": 2292.1067169999988,
+            "latencyMs": 5.13407499999812,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 2,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1930.070259,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1981.118695000001,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2049.8571489999995,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1925.4223789999996,
+          "completion": {
+            "sentMs": 1925.8206869999995,
+            "receivedMs": 1993.1937179999986,
+            "latencyMs": 67.37303099999917,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 1993.1937179999986,
+          "hover": {
+            "sentMs": 1993.4252100000012,
+            "receivedMs": 2044.2023489999992,
+            "latencyMs": 50.77713899999799,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2044.371683999998,
+            "receivedMs": 2050.0784329999988,
+            "latencyMs": 5.706749000000855,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 3,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1892.8632399999988,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 1953.1083660000004,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2026.3203499999981,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1887.636040999998,
+          "completion": {
+            "sentMs": 1887.8729490000005,
+            "receivedMs": 2008.2335609999973,
+            "latencyMs": 120.36061199999676,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2008.2335609999973,
+          "hover": {
+            "sentMs": 2008.4495099999986,
+            "receivedMs": 2021.315470999998,
+            "latencyMs": 12.865960999999515,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2021.5467319999989,
+            "receivedMs": 2026.502440999997,
+            "latencyMs": 4.9557089999980235,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 4,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 2163.365001000002,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2218.4087900000013,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2293.1689619999997,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 2158.8971310000015,
+          "completion": {
+            "sentMs": 2159.267253000002,
+            "receivedMs": 2271.8473010000016,
+            "latencyMs": 112.5800479999998,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2271.8473010000016,
+          "hover": {
+            "sentMs": 2272.0902290000013,
+            "receivedMs": 2288.6627530000005,
+            "latencyMs": 16.572523999999248,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2288.809505000001,
+            "receivedMs": 2293.320169999999,
+            "latencyMs": 4.510664999997971,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "mode": "progressive",
+          "run": 5,
+          "passed": true,
+          "logs": [
+            {
+              "elapsedMs": 1987.8380960000031,
+              "message": "[index:1] start reason=semantic-query"
+            },
+            {
+              "elapsedMs": 2038.7598670000007,
+              "message": "Loaded Composer project snapshot for /tmp/sophp-first-result-HkaZRQ."
+            },
+            {
+              "elapsedMs": 2103.326960000002,
+              "message": "[definition:1] end elapsedMs=3"
+            }
+          ],
+          "initializeMs": 1982.9735280000023,
+          "completion": {
+            "sentMs": 1983.3398140000027,
+            "receivedMs": 2049.535848000003,
+            "latencyMs": 66.19603400000051,
+            "result": {
+              "isIncomplete": true,
+              "items": [
+                {
+                  "label": "id",
+                  "kind": 2,
+                  "sortText": "0000000",
+                  "insertTextFormat": 2,
+                  "textEdit": {
+                    "range": {
+                      "start": {
+                        "line": 2,
+                        "character": 66
+                      },
+                      "end": {
+                        "line": 2,
+                        "character": 67
+                      }
+                    },
+                    "newText": "id()$0"
+                  },
+                  "detail": "Benchmark\\Fixture049999::id(): int"
+                }
+              ]
+            }
+          },
+          "firstUsableProtocolResultMs": 2049.535848000003,
+          "hover": {
+            "sentMs": 2049.758960000003,
+            "receivedMs": 2098.330019000001,
+            "latencyMs": 48.57105899999806,
+            "result": {
+              "contents": {
+                "kind": "markdown",
+                "value": "```php\n$item: Benchmark\\Fixture049999\n```"
+              },
+              "range": {
+                "start": {
+                  "line": 2,
+                  "character": 46
+                },
+                "end": {
+                  "line": 2,
+                  "character": 51
+                }
+              }
+            }
+          },
+          "definition": {
+            "sentMs": 2098.5022830000016,
+            "receivedMs": 2103.5269350000017,
+            "latencyMs": 5.02465200000006,
+            "result": [
+              {
+                "uri": "file:///tmp/sophp-first-result-HkaZRQ/src/Fixture049999.php",
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 44
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 46
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "consumerSha256": "f4da5a2045bb96b8bd7e82fe4c7055c01cc709e5af104d21e53b22e31635ca9a",
+      "targetSha256": "24649d02e5c1ca720d84cddc85aaed50fdb34098dd4a80fb44436cd07e2d09a5",
+      "summary": {
+        "onDemand": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 2053.2527869999994,
+            "p95": 2059.0783899999997,
+            "maximum": 2059.0783899999997
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 65.17623699999967,
+            "p95": 81.75765599999977,
+            "maximum": 81.75765599999977
+          }
+        },
+        "progressive": {
+          "attempted": 5,
+          "passed": 5,
+          "failed": 0,
+          "firstExactCompletionResponses": 5,
+          "firstUsableProtocolResultMs": {
+            "samples": 5,
+            "p50": 2049.535848000003,
+            "p95": 2276.5414149999997,
+            "maximum": 2276.5414149999997
+          },
+          "completionRequestMs": {
+            "samples": 5,
+            "p50": 112.5800479999998,
+            "p95": 123.20589499999915,
+            "maximum": 123.20589499999915
+          }
+        }
+      }
+    }
+  ],
+  "qualification": {
+    "freshProcesses": 60,
+    "semanticRequests": 180,
+    "passed": 60,
+    "failed": 0,
+    "retry": false,
+    "noDiagnosticsWait": true,
+    "noQueryPrewarm": true,
+    "firstEditorVisibleResult": "not measured",
+    "cancellation": "not measured",
+    "wholeProject50000Coverage": "not established; default maxFiles remains 10000",
+    "coldDiskCache": "not flushed",
+    "productChanges": false
+  }
+}

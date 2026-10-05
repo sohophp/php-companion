@@ -7,3 +7,5 @@ import { parsePhpDoc } from '@php-companion/phpdoc';
 
 const doc = parsePhpDoc('/** @return ($asObject is true ? App\\User : array<string, mixed>) */');
 ```
+
+标签按完整名称识别；未知的后缀标签（例如 `@param-out`）不会被误当成 `@param`，也不会覆盖相邻的已支持类型标签。未知标签的语义仍不由本包推断。

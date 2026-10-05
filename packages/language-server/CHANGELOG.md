@@ -42,6 +42,8 @@
 - Surface versioned Reflection class, callable, property, parameter, attribute, class-constant, and enum APIs through signatures, collection propagation, completion, and builtin navigation; preserve a proven reflected class through all three instance factory methods.
 # Changelog
 
+- Load bounded Composer autoload-file declarations for unresolved member receivers originating from named functions before the first completion, using the existing checked source reader and query cancellation/version guards. Reject old derived PHPDoc caches with semantic engine v67.
+
 - Apply each workspace root's validated Symfony environment to PHP array-return service Definition, References, completion and atomic Rename, including `service()`/`param()` and safe YAML-style string references.
 
 - Resolve, complete, find and atomically rename authoritative Symfony service ids in literal `Psr\\Container\\ContainerInterface::get()` and Symfony container-interface calls; prove the receiver method semantically and exclude ordinary same-named `get()` APIs.

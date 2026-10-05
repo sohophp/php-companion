@@ -1,5 +1,7 @@
 # Changelog
 
+- Preserve supported PHPDoc contracts beside unknown tag extensions; advance complete snapshots to schema 88 and source declarations to schema 6. Expose bounded named-function dependencies of member receivers without treating them as value proofs.
+
 - Complete project types after the union separator in a PHP multi-catch clause, including qualified namespace aliases, without treating intersections or ordinary expressions as type positions.
 - Continue PHPDoc template-bound type completion when of or as ends a line, while keeping template names and following prose outside type suggestions.
 - Parse exact class-level PHPDoc `@mixin` relations and expose only uniquely resolved public instance methods and properties. Real, inherited, and Trait members retain precedence; conflicting mixin members, missing or duplicate targets, static/private members, and cycles stay unknown. Persist the relation in validated snapshot schema 78.

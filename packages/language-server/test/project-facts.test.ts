@@ -24,7 +24,7 @@ describe('persistent project PHP facts', () => {
       const payload = compressCachedSourceDeclaration(snapshot, hash);
       const decoded = restoreCachedSourceDeclaration(payload, uri, hash);
       expect(decoded).toEqual(snapshot);
-      for (const schema of [1, 2, 3, 4]) {
+      for (const schema of [1, 2, 3, 4, 5]) {
         const legacy = structuredClone(snapshot);
         (legacy as { schema: number }).schema = schema;
         expect(restoreCachedSourceDeclaration(compressCachedSourceDeclaration(legacy, hash), uri, hash)).toBeUndefined();
@@ -60,7 +60,7 @@ describe('persistent project PHP facts', () => {
     expect(facts).not.toHaveProperty('controllerContexts'); expect(facts.doctrineProperties).toHaveLength(1);
     const cached = createCachedProjectPhpFile(semantic, facts);
     expect(cached.checksums.source).toBe(createHash('sha256').update(source).digest('hex'));
-    expect(cached).toMatchObject({ schema: 12, semantic: { schema: 87, declaration: { uri }, implementation: { uri, source,
+    expect(cached).toMatchObject({ schema: 12, semantic: { schema: 88, declaration: { uri }, implementation: { uri, source,
       callables: [expect.objectContaining({ identity: 'app\\pagecontroller::show' })] } },
       checksums: { source: expect.stringMatching(/^[0-9a-f]{64}$/), declaration: expect.stringMatching(/^[0-9a-f]{64}$/),
         implementationFile: expect.stringMatching(/^[0-9a-f]{64}$/),

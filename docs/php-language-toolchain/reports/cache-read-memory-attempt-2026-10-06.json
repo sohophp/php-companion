@@ -1,0 +1,2790 @@
+{
+  "schema": 1,
+  "createdAtUtc": "2026-10-05T19:47:54.824692+00:00",
+  "decision": "streaming candidate withdrawn; no product or dependency change retained",
+  "candidateMetadata": {
+    "createdAtUtc": "2026-10-05T19:35:08.856404+00:00",
+    "checkpoint": "55dda315 + streamed cache candidate",
+    "semanticSchema": 87,
+    "dependency": "@streamparser/json@0.0.26",
+    "sourceHashes": {
+      "packages/index/src/index.ts": "2f961d157128f7db6c1a78a89f4decef5f9e15bb154178dfed37edc0339e24b8",
+      "packages/index/src/cache-reader.ts": "0cc0f942e8118f4c2de82820d5fbe4377ee185cb536ab79468153220fd49a83f",
+      "packages/index/package.json": "ae3f1a2835d8ee89193ffe750d731d45698e5a8aa3880962132b0f2a1ed53653",
+      "packages/index/dist/index.js": "2afb3ff03b3d747fb08593b91a56886ce26ab465ab1669f6d83b9c0e3f744152",
+      "packages/index/dist/cache-reader.js": "b2a89179a294f88d9955f7dc66c13c08d5207fb740f9bbad08183bdcdf83571f",
+      "packages/language-server/dist/server.js": "fe197357bc94795b4b714c29ae04d36ac8b3d4355d9c2877610fc60cb3a95e5e",
+      "dist/language-server.js": "99ceb66623d9d34d5d34237a5c518313691fc55df291b14c5512df87e2461e61",
+      "scripts/benchmark-persistent-index.mjs": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+      "pnpm-lock.yaml": "a1e31e7b85bf38ae3c431e4ccd000e261faf462f72be1861e7ffba7b44d61f67"
+    },
+    "scope": "single streaming approach; preserve D118 failures; formal measurement and LSP/UI qualification separate"
+  },
+  "diagnostic": {
+    "report": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 18363.64,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6260,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3409,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57274849,
+          "mebibytes": 54.62
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57274849,
+          "mebibytes": 54.62
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 303.61,
+        "warmPeakRssMb": 424.25,
+        "layerRecoveryPeakRssMb": 769.53,
+        "callableRecoveryPeakRssMb": 1001.39,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 1001.39,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "trace": [
+      {
+        "event": "trace-start",
+        "elapsedMs": 142.542814,
+        "scope": "diagnostic observations only; no forced GC or changed cache/semantic behavior",
+        "memory": {
+          "rss": 59015168,
+          "heapTotal": 11599872,
+          "heapUsed": 7709728,
+          "external": 2070040,
+          "arrayBuffers": 269630
+        },
+        "highWaterRssKiB": 57632
+      },
+      {
+        "event": "manifest-stringify-start",
+        "elapsedMs": 20069.331517,
+        "entries": 3,
+        "memory": {
+          "rss": 314744832,
+          "heapTotal": 215900160,
+          "heapUsed": 188625880,
+          "external": 41943454,
+          "arrayBuffers": 6474079
+        },
+        "highWaterRssKiB": 312480
+      },
+      {
+        "event": "manifest-stringify-end",
+        "elapsedMs": 20069.5791,
+        "characters": 1473,
+        "memory": {
+          "rss": 314744832,
+          "heapTotal": 215900160,
+          "heapUsed": 188653016,
+          "external": 41943454,
+          "arrayBuffers": 6474079
+        },
+        "highWaterRssKiB": 312480
+      },
+      {
+        "event": "manifest-stringify-start",
+        "elapsedMs": 20069.716181,
+        "entries": 3,
+        "memory": {
+          "rss": 314744832,
+          "heapTotal": 215900160,
+          "heapUsed": 188655736,
+          "external": 41943454,
+          "arrayBuffers": 6474079
+        },
+        "highWaterRssKiB": 312480
+      },
+      {
+        "event": "manifest-stringify-end",
+        "elapsedMs": 20069.795763,
+        "characters": 1473,
+        "memory": {
+          "rss": 314744832,
+          "heapTotal": 215900160,
+          "heapUsed": 188659280,
+          "external": 41943454,
+          "arrayBuffers": 6474079
+        },
+        "highWaterRssKiB": 312480
+      },
+      {
+        "event": "workspace-dispose-start",
+        "elapsedMs": 20072.865238,
+        "memory": {
+          "rss": 314744832,
+          "heapTotal": 215900160,
+          "heapUsed": 188699744,
+          "external": 41946902,
+          "arrayBuffers": 6475479
+        },
+        "highWaterRssKiB": 312480
+      },
+      {
+        "event": "workspace-dispose-end",
+        "elapsedMs": 20073.124549,
+        "memory": {
+          "rss": 314744832,
+          "heapTotal": 215900160,
+          "heapUsed": 188708416,
+          "external": 41946902,
+          "arrayBuffers": 6475479
+        },
+        "highWaterRssKiB": 312480
+      },
+      {
+        "event": "large-json-parse-start",
+        "elapsedMs": 20172.147081,
+        "characters": 57273376,
+        "memory": {
+          "rss": 360161280,
+          "heapTotal": 267157504,
+          "heapUsed": 228691720,
+          "external": 36044501,
+          "arrayBuffers": 573078
+        },
+        "highWaterRssKiB": 351720
+      },
+      {
+        "event": "large-json-parse-end",
+        "elapsedMs": 21211.908579,
+        "characters": 57273376,
+        "memory": {
+          "rss": 425476096,
+          "heapTotal": 227893248,
+          "heapUsed": 157356824,
+          "external": 36038701,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 495412
+      },
+      {
+        "event": "workspace-dispose-start",
+        "elapsedMs": 26528.157128,
+        "memory": {
+          "rss": 447815680,
+          "heapTotal": 330924032,
+          "heapUsed": 299109536,
+          "external": 35497510,
+          "arrayBuffers": 25687
+        },
+        "highWaterRssKiB": 495412
+      },
+      {
+        "event": "workspace-dispose-end",
+        "elapsedMs": 26528.417235,
+        "memory": {
+          "rss": 447815680,
+          "heapTotal": 330924032,
+          "heapUsed": 299116024,
+          "external": 35497510,
+          "arrayBuffers": 25687
+        },
+        "highWaterRssKiB": 495412
+      },
+      {
+        "event": "large-json-parse-start",
+        "elapsedMs": 26610.716364000004,
+        "characters": 57273376,
+        "memory": {
+          "rss": 505597952,
+          "heapTotal": 393043968,
+          "heapUsed": 353022720,
+          "external": 36021749,
+          "arrayBuffers": 550326
+        },
+        "highWaterRssKiB": 495412
+      },
+      {
+        "event": "large-json-parse-end",
+        "elapsedMs": 27275.987064999998,
+        "characters": 57273376,
+        "memory": {
+          "rss": 627798016,
+          "heapTotal": 534347776,
+          "heapUsed": 498669512,
+          "external": 35496910,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 613084
+      },
+      {
+        "event": "manifest-stringify-start",
+        "elapsedMs": 27278.285826,
+        "entries": 10000,
+        "memory": {
+          "rss": 627798016,
+          "heapTotal": 534347776,
+          "heapUsed": 498835792,
+          "external": 35496910,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 613084
+      },
+      {
+        "event": "manifest-stringify-end",
+        "elapsedMs": 27672.253483999997,
+        "characters": 57272738,
+        "memory": {
+          "rss": 686333952,
+          "heapTotal": 591626240,
+          "heapUsed": 555972096,
+          "external": 35496910,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 727584
+      },
+      {
+        "event": "large-json-parse-start",
+        "elapsedMs": 27937.324549,
+        "characters": 57272738,
+        "memory": {
+          "rss": 807452672,
+          "heapTotal": 655695872,
+          "heapUsed": 613568592,
+          "external": 93339616,
+          "arrayBuffers": 57868193
+        },
+        "highWaterRssKiB": 788528
+      },
+      {
+        "event": "large-json-parse-end",
+        "elapsedMs": 28951.976057,
+        "characters": 57272738,
+        "memory": {
+          "rss": 641482752,
+          "heapTotal": 407494656,
+          "heapUsed": 217739896,
+          "external": 92769648,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "workspace-dispose-start",
+        "elapsedMs": 34537.007304,
+        "memory": {
+          "rss": 681820160,
+          "heapTotal": 429015040,
+          "heapUsed": 358258472,
+          "external": 37445892,
+          "arrayBuffers": 1974469
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "workspace-dispose-end",
+        "elapsedMs": 34537.227813,
+        "memory": {
+          "rss": 681820160,
+          "heapTotal": 429015040,
+          "heapUsed": 358265016,
+          "external": 37445892,
+          "arrayBuffers": 1974469
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "large-json-parse-start",
+        "elapsedMs": 34616.574868,
+        "characters": 57273376,
+        "memory": {
+          "rss": 737501184,
+          "heapTotal": 484868096,
+          "heapUsed": 402485448,
+          "external": 36022349,
+          "arrayBuffers": 550926
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "large-json-parse-end",
+        "elapsedMs": 35087.367356999996,
+        "characters": 57273376,
+        "memory": {
+          "rss": 795164672,
+          "heapTotal": 584753152,
+          "heapUsed": 548185464,
+          "external": 35496910,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "manifest-stringify-start",
+        "elapsedMs": 35088.875266,
+        "entries": 10000,
+        "memory": {
+          "rss": 795164672,
+          "heapTotal": 584753152,
+          "heapUsed": 548395952,
+          "external": 35496910,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "manifest-stringify-end",
+        "elapsedMs": 35400.315947999996,
+        "characters": 57273430,
+        "memory": {
+          "rss": 873086976,
+          "heapTotal": 642031616,
+          "heapUsed": 605499224,
+          "external": 35496910,
+          "arrayBuffers": 25487
+        },
+        "highWaterRssKiB": 926612
+      },
+      {
+        "event": "large-json-parse-start",
+        "elapsedMs": 36779.423106,
+        "characters": 57273430,
+        "memory": {
+          "rss": 988258304,
+          "heapTotal": 706363392,
+          "heapUsed": 663071040,
+          "external": 93340308,
+          "arrayBuffers": 57868885
+        },
+        "highWaterRssKiB": 965096
+      },
+      {
+        "event": "large-json-parse-end",
+        "elapsedMs": 37323.760551,
+        "characters": 57273430,
+        "memory": {
+          "rss": 1045852160,
+          "heapTotal": 847405056,
+          "heapUsed": 808466128,
+          "external": 92770340,
+          "arrayBuffers": 57298917
+        },
+        "highWaterRssKiB": 1021340
+      },
+      {
+        "event": "workspace-dispose-start",
+        "elapsedMs": 42690.194603,
+        "memory": {
+          "rss": 588242944,
+          "heapTotal": 293699584,
+          "heapUsed": 229193984,
+          "external": 47215046,
+          "arrayBuffers": 39887
+        },
+        "highWaterRssKiB": 1025420
+      },
+      {
+        "event": "workspace-dispose-end",
+        "elapsedMs": 42690.342414,
+        "memory": {
+          "rss": 588242944,
+          "heapTotal": 293699584,
+          "heapUsed": 229200648,
+          "external": 47215046,
+          "arrayBuffers": 39887
+        },
+        "highWaterRssKiB": 1025420
+      },
+      {
+        "event": "process-exit",
+        "elapsedMs": 43695.814503999994,
+        "exitCode": 1,
+        "memory": {
+          "rss": 588496896,
+          "heapTotal": 293511168,
+          "heapUsed": 234994976,
+          "external": 36410567,
+          "arrayBuffers": 768975
+        },
+        "highWaterRssKiB": 1025420
+      }
+    ],
+    "scope": "instrumented observation only; not a performance qualification or proof of retained object ownership"
+  },
+  "prototype": {
+    "schema": 1,
+    "files": 10000,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 19107.45,
+      "parsed": 10000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 8704.69,
+      "parsed": 0,
+      "restored": 10000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.4556,
+    "cache": {
+      "cold": {
+        "files": 2,
+        "bytes": 57256357,
+        "mebibytes": 54.6
+      },
+      "warm": {
+        "files": 2,
+        "bytes": 57256357,
+        "mebibytes": 54.6
+      },
+      "frozenBudgetMb": 512
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 307.21,
+      "warmPeakRssMb": 379.52,
+      "layerRecoveryPeakRssMb": 562.2,
+      "callableRecoveryPeakRssMb": 761.12,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 768,
+      "processPeakRssMb": 761.38,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": true
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 10000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 19999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "formalCandidate": {
+    "state": {
+      "activeScale": null,
+      "complete": true,
+      "completed": [
+        {
+          "files": 10000,
+          "command": [
+            "node",
+            "scripts/benchmark-persistent-index.mjs",
+            "10000"
+          ],
+          "exitCode": 0,
+          "repeats": 1
+        },
+        {
+          "files": 50000,
+          "command": [
+            "node",
+            "scripts/benchmark-persistent-index.mjs",
+            "50000"
+          ],
+          "exitCode": 1,
+          "repeats": 1
+        }
+      ]
+    },
+    "scales": {
+      "10000": {
+        "schema": 1,
+        "files": 10000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 19399.47,
+          "parsed": 10000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 9233.19,
+          "parsed": 0,
+          "restored": 10000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.476,
+        "cache": {
+          "cold": {
+            "files": 2,
+            "bytes": 57271341,
+            "mebibytes": 54.62
+          },
+          "warm": {
+            "files": 2,
+            "bytes": 57271341,
+            "mebibytes": 54.62
+          },
+          "frozenBudgetMb": 512
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 303.43,
+          "warmPeakRssMb": 381.13,
+          "layerRecoveryPeakRssMb": 598.13,
+          "callableRecoveryPeakRssMb": 547.91,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 768,
+          "processPeakRssMb": 680.74,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 10000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 19999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "50000": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 95549.41,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 45711.72,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.4784,
+        "cache": {
+          "cold": {
+            "files": 2,
+            "bytes": 286369357,
+            "mebibytes": 273.1
+          },
+          "warm": {
+            "files": 2,
+            "bytes": 286369357,
+            "mebibytes": 273.1
+          },
+          "frozenBudgetMb": 2560
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 872.7,
+          "warmPeakRssMb": 1373.52,
+          "layerRecoveryPeakRssMb": 2425.45,
+          "callableRecoveryPeakRssMb": 2848.62,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536,
+          "processPeakRssMb": 3368.15,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": false
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      }
+    },
+    "repeatsPerScale": 1,
+    "notFiveRunQualification": true
+  },
+  "candidateTests": {
+    "indexPassed": 59,
+    "indexFailed": 0,
+    "added": 12,
+    "lspPassed": 2,
+    "lspNotRun": 530,
+    "selectedLsp": [
+      {
+        "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+        "durationMs": 81629.972227,
+        "status": "passed"
+      },
+      {
+        "name": "keeps final trait aliases across persisted restarts, old cache fallback and disk edits",
+        "durationMs": 12153.679388999999,
+        "status": "passed"
+      }
+    ],
+    "ui": {
+      "onDemand": {
+        "flows": 12,
+        "lists": 39,
+        "emptyLists": 9,
+        "accepts": 11,
+        "visibleWaitMs": [
+          15,
+          543
+        ],
+        "rendererExceptions": 0,
+        "vscodeVersion": "1.140.0",
+        "scope": "withdrawn candidate Linux UI only; does not qualify restored product or real WSL",
+        "results": [
+          {
+            "name": "Function",
+            "observations": [
+              {
+                "phase": "func",
+                "afterLastKeyMs": 543,
+                "transitions": [
+                  {
+                    "elapsedMs": 20,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 543,
+                    "visible": true,
+                    "labels": [
+                      "function",
+                      "function blockPHP declaration or block"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              },
+              {
+                "phase": "function",
+                "afterLastKeyMs": 19,
+                "transitions": [
+                  {
+                    "elapsedMs": 19,
+                    "visible": true,
+                    "labels": [
+                      "function",
+                      "function blockPHP declaration or block"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              },
+              {
+                "phase": "declaration name",
+                "afterLastKeyMs": 513,
+                "transitions": [
+                  {
+                    "elapsedMs": 13,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php\nfunction z\n",
+            "version": 11,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Class",
+            "observations": [
+              {
+                "phase": "clas",
+                "afterLastKeyMs": 192,
+                "transitions": [
+                  {
+                    "elapsedMs": 19,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 192,
+                    "visible": true,
+                    "labels": [
+                      "class"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              },
+              {
+                "phase": "class",
+                "afterLastKeyMs": 15,
+                "transitions": [
+                  {
+                    "elapsedMs": 15,
+                    "visible": true,
+                    "labels": [
+                      "class"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              },
+              {
+                "phase": "declaration name",
+                "afterLastKeyMs": 553,
+                "transitions": [
+                  {
+                    "elapsedMs": 11,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php\nclass z\n",
+            "version": 8,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Enum",
+            "observations": [
+              {
+                "phase": "enu",
+                "afterLastKeyMs": 179,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 179,
+                    "visible": true,
+                    "labels": [
+                      "enum"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              },
+              {
+                "phase": "enum",
+                "afterLastKeyMs": 17,
+                "transitions": [
+                  {
+                    "elapsedMs": 17,
+                    "visible": true,
+                    "labels": [
+                      "enum"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              },
+              {
+                "phase": "declaration name",
+                "afterLastKeyMs": 552,
+                "transitions": [
+                  {
+                    "elapsedMs": 11,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php\nenum z\n",
+            "version": 7,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Member",
+            "observations": [
+              {
+                "phase": "public",
+                "afterLastKeyMs": 206,
+                "transitions": [
+                  {
+                    "elapsedMs": 35,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 206,
+                    "visible": true,
+                    "labels": [
+                      "public"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "public"
+                ]
+              },
+              {
+                "phase": "magic name",
+                "afterLastKeyMs": 191,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 191,
+                    "visible": true,
+                    "labels": [
+                      "__construct"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "__construct"
+                ]
+              }
+            ],
+            "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+            "version": 23,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Types",
+            "observations": [
+              {
+                "phase": "short type",
+                "afterLastKeyMs": 224,
+                "transitions": [
+                  {
+                    "elapsedMs": 57,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 224,
+                    "visible": true,
+                    "labels": [
+                      "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                      "ShortCurrentAutomaticTypes\\ShortCurrent",
+                      "SessionHandlerSessionHandler"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              },
+              {
+                "phase": "changed type",
+                "afterLastKeyMs": 228,
+                "transitions": [
+                  {
+                    "elapsedMs": 11,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 227,
+                    "visible": true,
+                    "labels": [
+                      "OtherCurrentAutomaticTypes\\OtherCurrent",
+                      "OverrideTargetApp\\Service\\OverrideTarget"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "OtherCurrentAutomaticTypes\\OtherCurrent",
+                  "OverrideTargetApp\\Service\\OverrideTarget"
+                ]
+              },
+              {
+                "phase": "restored type",
+                "afterLastKeyMs": 217,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 217,
+                    "visible": true,
+                    "labels": [
+                      "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                      "ShortCurrentAutomaticTypes\\ShortCurrent",
+                      "SessionHandlerSessionHandler"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              },
+              {
+                "phase": "narrow type",
+                "afterLastKeyMs": 57,
+                "transitions": [
+                  {
+                    "elapsedMs": 15,
+                    "visible": true,
+                    "labels": [
+                      "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                      "ShortCurrentAutomaticTypes\\ShortCurrent",
+                      "SessionHandlerSessionHandler"
+                    ]
+                  },
+                  {
+                    "elapsedMs": 57,
+                    "visible": true,
+                    "labels": [
+                      "ShortCurrentAutomaticTypes\\ShortCurrent"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ShortCurrentAutomaticTypes\\ShortCurrent"
+                ]
+              }
+            ],
+            "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+            "version": 8,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Arguments",
+            "observations": [
+              {
+                "phase": "bool argument",
+                "afterLastKeyMs": 243,
+                "transitions": [
+                  {
+                    "elapsedMs": 57,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 243,
+                    "visible": true,
+                    "labels": [
+                      "$firstBool$firstBool: bool",
+                      "$firstText",
+                      "$_FILES"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "$firstBool$firstBool: bool",
+                  "$firstText",
+                  "$_FILES"
+                ]
+              },
+              {
+                "phase": "string argument",
+                "afterLastKeyMs": 214,
+                "transitions": [
+                  {
+                    "elapsedMs": 10,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 214,
+                    "visible": true,
+                    "labels": [
+                      "$firstText$firstText: string",
+                      "$firstBool",
+                      "$_FILES"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "$firstText$firstText: string",
+                  "$firstBool",
+                  "$_FILES"
+                ]
+              }
+            ],
+            "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+            "version": 13,
+            "diskUnchanged": true
+          },
+          {
+            "name": "RootImport",
+            "observations": [
+              {
+                "phase": "root type",
+                "afterLastKeyMs": 212,
+                "transitions": [
+                  {
+                    "elapsedMs": 23,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 212,
+                    "visible": true,
+                    "labels": [
+                      "ArrayObjectArrayObject"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ArrayObjectArrayObject"
+                ]
+              },
+              {
+                "phase": "import alias name",
+                "afterLastKeyMs": 541,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticRootImport; use ArrayObject as strl;",
+            "version": 24,
+            "diskUnchanged": true
+          },
+          {
+            "name": "LiveType",
+            "observations": [
+              {
+                "phase": "cold class",
+                "afterLastKeyMs": 218,
+                "transitions": [
+                  {
+                    "elapsedMs": 19,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 218,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                ]
+              },
+              {
+                "phase": "unsaved interface withdraws construction",
+                "afterLastKeyMs": 552,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              },
+              {
+                "phase": "restored class",
+                "afterLastKeyMs": 220,
+                "transitions": [
+                  {
+                    "elapsedMs": 21,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 220,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                ]
+              }
+            ],
+            "text": "<?php namespace App; function buildLive():void{new AutomaticLiveDep;}",
+            "version": 49,
+            "diskUnchanged": true,
+            "dependencyDiskUnchanged": true,
+            "dependencyFinalText": "<?php namespace App; class AutomaticLiveDependency {}"
+          },
+          {
+            "name": "Namespaceclass",
+            "observations": [
+              {
+                "phase": "namespace segment",
+                "afterLastKeyMs": 223,
+                "transitions": [
+                  {
+                    "elapsedMs": 20,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 223,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                ]
+              },
+              {
+                "phase": "accept AutomaticImportTree\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\;",
+                "caretOffset": 218
+              },
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 217,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 217,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\;",
+                "caretOffset": 225
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 211,
+                "transitions": [
+                  {
+                    "elapsedMs": 9,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 211,
+                    "visible": true,
+                    "labels": [
+                      "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                ]
+              },
+              {
+                "phase": "changed segment",
+                "afterLastKeyMs": 217,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 217,
+                    "visible": true,
+                    "labels": [
+                      "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+                ]
+              },
+              {
+                "phase": "restored segment",
+                "afterLastKeyMs": 219,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 219,
+                    "visible": true,
+                    "labels": [
+                      "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                ]
+              },
+              {
+                "phase": "accept ChildEntity",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity;",
+                "caretOffset": 236
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 527,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity as strl;",
+            "version": 41,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Namespacegroup",
+            "observations": [
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 212,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 212,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\};",
+                "caretOffset": 82
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 211,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 211,
+                    "visible": true,
+                    "labels": [
+                      "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                ]
+              },
+              {
+                "phase": "accept ChildEntity",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity};",
+                "caretOffset": 93
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 526,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity as strl};",
+            "version": 18,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Namespacefunction",
+            "observations": [
+              {
+                "phase": "namespace segment",
+                "afterLastKeyMs": 207,
+                "transitions": [
+                  {
+                    "elapsedMs": 37,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 207,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                ]
+              },
+              {
+                "phase": "accept AutomaticImportTree\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\;",
+                "caretOffset": 86
+              },
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 217,
+                "transitions": [
+                  {
+                    "elapsedMs": 13,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 217,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\;",
+                "caretOffset": 93
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 229,
+                "transitions": [
+                  {
+                    "elapsedMs": 18,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 229,
+                    "visible": true,
+                    "labels": [
+                      "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+                ]
+              },
+              {
+                "phase": "accept childFactory",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory;",
+                "caretOffset": 105
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 548,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory as strl;",
+            "version": 38,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Namespaceconst",
+            "observations": [
+              {
+                "phase": "namespace segment",
+                "afterLastKeyMs": 188,
+                "transitions": [
+                  {
+                    "elapsedMs": 24,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 188,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                ]
+              },
+              {
+                "phase": "accept AutomaticImportTree\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\;",
+                "caretOffset": 80
+              },
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 226,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 226,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\;",
+                "caretOffset": 87
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 202,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 202,
+                    "visible": true,
+                    "labels": [
+                      "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+                ]
+              },
+              {
+                "phase": "accept CHILD_FLAG",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG;",
+                "caretOffset": 97
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 516,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG as strl;",
+            "version": 38,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      "progressive": {
+        "flows": 12,
+        "lists": 39,
+        "emptyLists": 9,
+        "accepts": 11,
+        "visibleWaitMs": [
+          12,
+          349
+        ],
+        "rendererExceptions": 0,
+        "vscodeVersion": "1.140.0",
+        "scope": "withdrawn candidate Linux UI only; does not qualify restored product or real WSL",
+        "results": [
+          {
+            "name": "Function",
+            "observations": [
+              {
+                "phase": "func",
+                "afterLastKeyMs": 349,
+                "transitions": [
+                  {
+                    "elapsedMs": 18,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 349,
+                    "visible": true,
+                    "labels": [
+                      "function",
+                      "function blockPHP declaration or block"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              },
+              {
+                "phase": "function",
+                "afterLastKeyMs": 20,
+                "transitions": [
+                  {
+                    "elapsedMs": 20,
+                    "visible": true,
+                    "labels": [
+                      "function",
+                      "function blockPHP declaration or block"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "function",
+                  "function blockPHP declaration or block"
+                ]
+              },
+              {
+                "phase": "declaration name",
+                "afterLastKeyMs": 580,
+                "transitions": [
+                  {
+                    "elapsedMs": 9,
+                    "visible": true,
+                    "labels": [
+                      "function",
+                      "function blockPHP declaration or block"
+                    ]
+                  },
+                  {
+                    "elapsedMs": 49,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php\nfunction z\n",
+            "version": 11,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Class",
+            "observations": [
+              {
+                "phase": "clas",
+                "afterLastKeyMs": 221,
+                "transitions": [
+                  {
+                    "elapsedMs": 9,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 221,
+                    "visible": true,
+                    "labels": [
+                      "class"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              },
+              {
+                "phase": "class",
+                "afterLastKeyMs": 24,
+                "transitions": [
+                  {
+                    "elapsedMs": 24,
+                    "visible": true,
+                    "labels": [
+                      "class"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "class"
+                ]
+              },
+              {
+                "phase": "declaration name",
+                "afterLastKeyMs": 513,
+                "transitions": [
+                  {
+                    "elapsedMs": 10,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php\nclass z\n",
+            "version": 8,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Enum",
+            "observations": [
+              {
+                "phase": "enu",
+                "afterLastKeyMs": 164,
+                "transitions": [
+                  {
+                    "elapsedMs": 32,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 164,
+                    "visible": true,
+                    "labels": [
+                      "enum"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              },
+              {
+                "phase": "enum",
+                "afterLastKeyMs": 12,
+                "transitions": [
+                  {
+                    "elapsedMs": 11,
+                    "visible": true,
+                    "labels": [
+                      "enum"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "enum"
+                ]
+              },
+              {
+                "phase": "declaration name",
+                "afterLastKeyMs": 529,
+                "transitions": [
+                  {
+                    "elapsedMs": 11,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php\nenum z\n",
+            "version": 7,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Member",
+            "observations": [
+              {
+                "phase": "public",
+                "afterLastKeyMs": 219,
+                "transitions": [
+                  {
+                    "elapsedMs": 54,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 219,
+                    "visible": true,
+                    "labels": [
+                      "public"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "public"
+                ]
+              },
+              {
+                "phase": "magic name",
+                "afterLastKeyMs": 191,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 191,
+                    "visible": true,
+                    "labels": [
+                      "__construct"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "__construct"
+                ]
+              }
+            ],
+            "text": "<?php\nclass AutomaticMemberHost {\n    public function __construct()\n}\n",
+            "version": 23,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Types",
+            "observations": [
+              {
+                "phase": "short type",
+                "afterLastKeyMs": 214,
+                "transitions": [
+                  {
+                    "elapsedMs": 49,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 214,
+                    "visible": true,
+                    "labels": [
+                      "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                      "ShortCurrentAutomaticTypes\\ShortCurrent",
+                      "SessionHandlerSessionHandler"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              },
+              {
+                "phase": "changed type",
+                "afterLastKeyMs": 193,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 193,
+                    "visible": true,
+                    "labels": [
+                      "OtherCurrentAutomaticTypes\\OtherCurrent",
+                      "OverrideTargetApp\\Service\\OverrideTarget"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "OtherCurrentAutomaticTypes\\OtherCurrent",
+                  "OverrideTargetApp\\Service\\OverrideTarget"
+                ]
+              },
+              {
+                "phase": "restored type",
+                "afterLastKeyMs": 192,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 192,
+                    "visible": true,
+                    "labels": [
+                      "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                      "ShortCurrentAutomaticTypes\\ShortCurrent",
+                      "SessionHandlerSessionHandler"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                  "ShortCurrentAutomaticTypes\\ShortCurrent",
+                  "SessionHandlerSessionHandler"
+                ]
+              },
+              {
+                "phase": "narrow type",
+                "afterLastKeyMs": 58,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": true,
+                    "labels": [
+                      "ShallowCurrentAutomaticTypes\\ShallowCurrent",
+                      "ShortCurrentAutomaticTypes\\ShortCurrent",
+                      "SessionHandlerSessionHandler"
+                    ]
+                  },
+                  {
+                    "elapsedMs": 58,
+                    "visible": true,
+                    "labels": [
+                      "ShortCurrentAutomaticTypes\\ShortCurrent"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ShortCurrentAutomaticTypes\\ShortCurrent"
+                ]
+              }
+            ],
+            "text": "<?php namespace AutomaticTypes; class ShortCurrent {} class ShallowCurrent {} class OtherCurrent {} function make():void{new Sho;}",
+            "version": 8,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Arguments",
+            "observations": [
+              {
+                "phase": "bool argument",
+                "afterLastKeyMs": 234,
+                "transitions": [
+                  {
+                    "elapsedMs": 19,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 234,
+                    "visible": true,
+                    "labels": [
+                      "$firstBool$firstBool: bool",
+                      "$firstText",
+                      "$_FILES"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "$firstBool$firstBool: bool",
+                  "$firstText",
+                  "$_FILES"
+                ]
+              },
+              {
+                "phase": "string argument",
+                "afterLastKeyMs": 188,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 188,
+                    "visible": true,
+                    "labels": [
+                      "$firstText$firstText: string",
+                      "$firstBool",
+                      "$_FILES"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "$firstText$firstText: string",
+                  "$firstBool",
+                  "$_FILES"
+                ]
+              }
+            ],
+            "text": "<?php namespace AutomaticArguments; function needBool(bool $value):void{} function needText(string $value):void{} function work(bool $firstBool,string $firstText):void{needText($f);}",
+            "version": 13,
+            "diskUnchanged": true
+          },
+          {
+            "name": "RootImport",
+            "observations": [
+              {
+                "phase": "root type",
+                "afterLastKeyMs": 243,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 243,
+                    "visible": true,
+                    "labels": [
+                      "ArrayObjectArrayObject"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ArrayObjectArrayObject"
+                ]
+              },
+              {
+                "phase": "import alias name",
+                "afterLastKeyMs": 542,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticRootImport; use ArrayObject as strl;",
+            "version": 24,
+            "diskUnchanged": true
+          },
+          {
+            "name": "LiveType",
+            "observations": [
+              {
+                "phase": "cold class",
+                "afterLastKeyMs": 216,
+                "transitions": [
+                  {
+                    "elapsedMs": 14,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 216,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                ]
+              },
+              {
+                "phase": "unsaved interface withdraws construction",
+                "afterLastKeyMs": 568,
+                "transitions": [
+                  {
+                    "elapsedMs": 34,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              },
+              {
+                "phase": "restored class",
+                "afterLastKeyMs": 189,
+                "transitions": [
+                  {
+                    "elapsedMs": 30,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 189,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticLiveDependencyApp\\AutomaticLiveDependency"
+                ]
+              }
+            ],
+            "text": "<?php namespace App; function buildLive():void{new AutomaticLiveDep;}",
+            "version": 49,
+            "diskUnchanged": true,
+            "dependencyDiskUnchanged": true,
+            "dependencyFinalText": "<?php namespace App; class AutomaticLiveDependency {}"
+          },
+          {
+            "name": "Namespaceclass",
+            "observations": [
+              {
+                "phase": "namespace segment",
+                "afterLastKeyMs": 227,
+                "transitions": [
+                  {
+                    "elapsedMs": 24,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 227,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                ]
+              },
+              {
+                "phase": "accept AutomaticImportTree\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\;",
+                "caretOffset": 218
+              },
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 211,
+                "transitions": [
+                  {
+                    "elapsedMs": 7,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 211,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\;",
+                "caretOffset": 225
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 213,
+                "transitions": [
+                  {
+                    "elapsedMs": 10,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 213,
+                    "visible": true,
+                    "labels": [
+                      "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                ]
+              },
+              {
+                "phase": "changed segment",
+                "afterLastKeyMs": 219,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 219,
+                    "visible": true,
+                    "labels": [
+                      "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "OtherEntityApp\\AutomaticImportTree\\Nested\\OtherEntity"
+                ]
+              },
+              {
+                "phase": "restored segment",
+                "afterLastKeyMs": 217,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 217,
+                    "visible": true,
+                    "labels": [
+                      "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                ]
+              },
+              {
+                "phase": "accept ChildEntity",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity;",
+                "caretOffset": 236
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 552,
+                "transitions": [
+                  {
+                    "elapsedMs": 16,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace App\\AutomaticImportTree\\Nested; function childFactory():void{} function otherFactory():void{} const CHILD_FLAG=1; const OTHER_FLAG=2; namespace AutomaticImportConsumerclass; use App\\AutomaticImportTree\\Nested\\ChildEntity as strl;",
+            "version": 41,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Namespacegroup",
+            "observations": [
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 196,
+                "transitions": [
+                  {
+                    "elapsedMs": 34,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 196,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\};",
+                "caretOffset": 82
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 214,
+                "transitions": [
+                  {
+                    "elapsedMs": 13,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 214,
+                    "visible": true,
+                    "labels": [
+                      "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "ChildEntityApp\\AutomaticImportTree\\Nested\\ChildEntity"
+                ]
+              },
+              {
+                "phase": "accept ChildEntity",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity};",
+                "caretOffset": 93
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 537,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticImportConsumergroup; use App\\AutomaticImportTree\\{Nested\\ChildEntity as strl};",
+            "version": 18,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Namespacefunction",
+            "observations": [
+              {
+                "phase": "namespace segment",
+                "afterLastKeyMs": 190,
+                "transitions": [
+                  {
+                    "elapsedMs": 18,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 190,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                ]
+              },
+              {
+                "phase": "accept AutomaticImportTree\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\;",
+                "caretOffset": 86
+              },
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 222,
+                "transitions": [
+                  {
+                    "elapsedMs": 15,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 222,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\;",
+                "caretOffset": 93
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 220,
+                "transitions": [
+                  {
+                    "elapsedMs": 13,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 220,
+                    "visible": true,
+                    "labels": [
+                      "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "childFactoryApp\\AutomaticImportTree\\Nested\\childFactory"
+                ]
+              },
+              {
+                "phase": "accept childFactory",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory;",
+                "caretOffset": 105
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 532,
+                "transitions": [
+                  {
+                    "elapsedMs": 17,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticImportConsumerfunction; use function App\\AutomaticImportTree\\Nested\\childFactory as strl;",
+            "version": 38,
+            "diskUnchanged": true
+          },
+          {
+            "name": "Namespaceconst",
+            "observations": [
+              {
+                "phase": "namespace segment",
+                "afterLastKeyMs": 194,
+                "transitions": [
+                  {
+                    "elapsedMs": 18,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 193,
+                    "visible": true,
+                    "labels": [
+                      "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "AutomaticImportTree\\App\\AutomaticImportTree\\"
+                ]
+              },
+              {
+                "phase": "accept AutomaticImportTree\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\;",
+                "caretOffset": 80
+              },
+              {
+                "phase": "nested namespace",
+                "afterLastKeyMs": 216,
+                "transitions": [
+                  {
+                    "elapsedMs": 12,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 216,
+                    "visible": true,
+                    "labels": [
+                      "Nested\\App\\AutomaticImportTree\\Nested\\"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "Nested\\App\\AutomaticImportTree\\Nested\\"
+                ]
+              },
+              {
+                "phase": "accept Nested\\",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\;",
+                "caretOffset": 87
+              },
+              {
+                "phase": "next segment symbol",
+                "afterLastKeyMs": 196,
+                "transitions": [
+                  {
+                    "elapsedMs": 22,
+                    "visible": false,
+                    "labels": []
+                  },
+                  {
+                    "elapsedMs": 196,
+                    "visible": true,
+                    "labels": [
+                      "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+                    ]
+                  }
+                ],
+                "visible": true,
+                "labels": [
+                  "CHILD_FLAGApp\\AutomaticImportTree\\Nested\\CHILD_FLAG"
+                ]
+              },
+              {
+                "phase": "accept CHILD_FLAG",
+                "exactText": true,
+                "caretMatched": true,
+                "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG;",
+                "caretOffset": 97
+              },
+              {
+                "phase": "namespace import alias name",
+                "afterLastKeyMs": 521,
+                "transitions": [
+                  {
+                    "elapsedMs": 9,
+                    "visible": false,
+                    "labels": []
+                  }
+                ],
+                "visible": false,
+                "labels": []
+              }
+            ],
+            "text": "<?php namespace AutomaticImportConsumerconst; use const App\\AutomaticImportTree\\Nested\\CHILD_FLAG as strl;",
+            "version": 38,
+            "diskUnchanged": true
+          }
+        ]
+      }
+    },
+    "initialFailure": "large Buffer deep equality exceeded unchanged 5000ms; exact Buffer.equals replacement passed; original failures retained",
+    "lintCorrections": "void callback annotations and trailing newline corrected; no runtime change"
+  },
+  "restoration": {
+    "verifiedAtUtc": "2026-10-05T19:45:39.560576+00:00",
+    "restored": true,
+    "sha256": {
+      "packages/index/dist/index.js": "c09188c58ed9c4161d54715ea7899108fc6d6e5c12b0759e86c5a5bf0bdc63d4",
+      "packages/semantic/dist/index.js": "b1b6988d4d5fd9ef1d4984aae4faac5ad2082452fbb099c8114cac30be6015b6",
+      "packages/parser/dist/index.js": "587490dacc31fbb04fd38a00453a18f160d19ede2ec9d7ba74e11e49611f9bf0",
+      "packages/language-server/dist/projectFacts.js": "c988806aa596a162378a72fdfbcfbe2fc808f761502f829b9497bdcb25e5110c",
+      "packages/language-server/dist/callableFactsCache.js": "00052f044587108591b44835fd92fbea3f3edc5c81a1c28de6acd02ab37029b0",
+      "dist/language-server.js": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c"
+    },
+    "expectedRootBundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+    "candidateSourceAndBuildSnapshots": ".vscode-test/d119-withdrawn/",
+    "scope": "candidate withdrawn; package pin, lock, notices and reader tests restored/removed; no product source change remains"
+  },
+  "currentProductLocalChange": {
+    "report": {
+      "schema": 1,
+      "files": 10000,
+      "iterations": 200,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "baseline": {
+        "indexedFiles": 10000,
+        "complete": true
+      },
+      "implementationEditMs": {
+        "samples": 200,
+        "p50": 0.5950670000020182,
+        "p95": 0.7624590000013995,
+        "maximum": 4.805852000001323
+      },
+      "affected": {
+        "uniqueFilesReparsed": 1,
+        "totalFileParses": 200,
+        "declarationParseCalls": 0,
+        "changedTypes": 0,
+        "changedCallablesPerEdit": 1
+      }
+    },
+    "sourceSha256": "38c9350cfe5b371e9cf00cb4edc7a39067e483913f1da38732cf95e9e1c182b7",
+    "scope": "current restored schema87 semantic update on one method in a synthetic 10k catalog; not complete LSP/UI editing qualification"
+  },
+  "originalArtifacts": {
+    "/tmp/sophp-d119-meta.json": {
+      "sha256": "2f1027bf1594909b283b3695c5f6eed0aff52100c255c45140614472786aa566",
+      "bytes": 1272
+    },
+    "/tmp/sophp-d119-cache-memory-trace.jsonl": {
+      "sha256": "a05475cce5af2332cdecd9dae0445575206b8262dc84187b46e1986b86fa5110",
+      "bytes": 5983
+    },
+    "/tmp/sophp-d119-cache-memory-diagnostic.json": {
+      "sha256": "e759f82a558fc2f85d0c984019a13b2577e53a3557572333524982f96cdb8b92",
+      "bytes": 1677
+    },
+    "/tmp/sophp-d119-stream-prototype-10000.json": {
+      "sha256": "7f37348116913d75c89ee5012042cf91511daf3c3745e30dbc0c47441e732473",
+      "bytes": 1674
+    },
+    "/tmp/sophp-d119-index-tests.log": {
+      "sha256": "1811113dfc25b640b13a6a4657fafb61739a42e3b10e6ae0a8a1d457f932d165",
+      "bytes": 1494
+    },
+    "/tmp/sophp-d119-reader-target-tests.json": {
+      "sha256": "56de3ff66262256eab04819f4643551deb57264e80b81122d0333cdf71fbbf15",
+      "bytes": 6760
+    },
+    "/tmp/sophp-d119-index-tests-final.json": {
+      "sha256": "78f0ca74d7b63d521d714078f82ea3ff695d28fb931b265637cb5d18a561286e",
+      "bytes": 21888
+    },
+    "/tmp/sophp-d119-cache-lsp.json": {
+      "sha256": "3980f6150992b59027de321aadc66f459a5822583ef640082ce01532b0daf717",
+      "bytes": 167022
+    },
+    "/tmp/sophp-d119-cancel-direct.log": {
+      "sha256": "bfd138b57d63f6bc40968032b9eee27a5253f5db98e9f387bbd91ea28b0dcf01",
+      "bytes": 267
+    },
+    "/tmp/sophp-d119-formal-scale-state.json": {
+      "sha256": "de9ccc58ca04580068b09a5bcf3b6bc469bfd575b5aa28894825629f54fc72dc",
+      "bytes": 437
+    },
+    "/tmp/sophp-d119-restore-proof.json": {
+      "sha256": "40c02db21cffdf48aeecf7119b423e14396e43e24865efb4b2b4b10ce62793c4",
+      "bytes": 1057
+    },
+    "/tmp/sophp-d119-local-change-10000.json": {
+      "sha256": "df6dac4764afdd1735a5eedad0d46a29ffb0734374fc2a8f8bb37fbb84312692",
+      "bytes": 568
+    },
+    "/tmp/sophp-d119-local-change-10000.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/sophp-d119-formal-persistence-10000.json": {
+      "sha256": "fc9c5bf55e59fe7f5476a09a5788b9785cdd3b0f2330b455e85795c2ed65ba30",
+      "bytes": 1676
+    },
+    "/tmp/sophp-d119-formal-persistence-10000.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/sophp-d119-formal-persistence-50000.json": {
+      "sha256": "ee751840cd0eb7d05b7cf45e4930f8d7ca5ac4784f84112762ae77683f4f6c51",
+      "bytes": 1686
+    },
+    "/tmp/sophp-d119-formal-persistence-50000.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/sophp-d119-natural-onDemand.json": {
+      "sha256": "3c3f3c1ab183bd31e91794a4e92def7227276afe1ff9b0379dc409d871e5b01b",
+      "bytes": 26813
+    },
+    "/tmp/sophp-d119-natural-onDemand.log": {
+      "sha256": "e2273822fb2454abc3ff31e251987aab8fa9d1704ccc3d35755a76e1dc189328",
+      "bytes": 30893
+    },
+    "/tmp/sophp-d119-natural-progressive.json": {
+      "sha256": "cc20674bffbc625ee32a2d4d5e9def70fdd5930da83524faa2bb75a790217194",
+      "bytes": 27034
+    },
+    "/tmp/sophp-d119-natural-progressive.log": {
+      "sha256": "6d0ee44c184fa03da795d2813cb0a22723ad6cc8a06cef385b6df061a0028eb3",
+      "bytes": 30997
+    }
+  },
+  "open": [
+    "D118 cache memory qualification",
+    "first usable editor result",
+    "ordinary PHP7.2 edit P95 155.06 ms",
+    "current complete LSP combination",
+    "other platforms and PHP versions",
+    "real WSL and long sessions"
+  ]
+}
