@@ -4971,73 +4971,92 @@ export class SemanticWorkspace {
       while (node && node.type !== 'subscript_expression') node = node.parent;
       const receiver = node?.namedChildren[0];
       if (!receiver) return [];
-      const tree = (retainedTree ?? temporaryTree)!;
-      const owners = new Set<string>(), visited = new Set<string>(); let remaining = 128;
-      const collect = (expression: SyntaxNode, depth = 0): void => {
-        const identity = `${expression.startIndex}:${expression.endIndex}`;
-        if (depth > 16 || remaining-- <= 0 || expression.hasError || visited.has(identity)) return;
-        visited.add(identity);
-        if (['subscript_expression', 'parenthesized_expression'].includes(expression.type)) {
-          const base = expression.namedChildren[0]; if (base) collect(base, depth + 1);
-          return;
-        }
-        if (expression.type === 'variable_name') {
-          let scope = this.containingScope(file, expression.startIndex); if (!scope) return;
-          let before = expression.startIndex;
-          let origins: ParsedAssignment[] = [];
-          for (let captureDepth = 0; scope && captureDepth <= 16 && remaining-- > 0; captureDepth += 1) {
-            const currentScope = scope;
-            origins = file.assignments.filter(assignment => assignment.scopeId === currentScope.id
-              && assignment.variable === expression.text && assignment.end <= before
-              && (!assignment.validRange || before >= assignment.validRange.start && before <= assignment.validRange.end))
-              .sort((left, right) => right.end - left.end).slice(0, 16);
-            if (origins.length) break;
-            before = Math.max(0, scope.start - 1);
-            scope = this.valueCaptureParent(file, scope, expression.text);
-          }
-          if (!scope) return;
-          for (const origin of origins) {
-            const syntax = deepestLocalSyntax(tree.rootNode, origin.start, origin.end,
-              candidate => candidate.type === 'assignment_expression' && candidate.startIndex === origin.start && candidate.endIndex === origin.end);
-            const value = syntax?.childForFieldName('right');
-            if (value) collect(value, depth + 1);
-            else if (origin.sourceIterable) {
-              const iterable = deepestLocalSyntax(tree.rootNode, origin.sourceIterable.start, origin.sourceIterable.end,
-                candidate => candidate.startIndex === origin.sourceIterable!.start && candidate.endIndex === origin.sourceIterable!.end);
-              if (iterable) collect(iterable, depth + 1);
-            }
-            if (!this.assignmentInsideControlFlow(file, origin, scope)) break;
-          }
-          return;
-        }
-        if (['member_access_expression', 'nullsafe_member_access_expression', 'member_call_expression', 'nullsafe_member_call_expression',
-          'scoped_call_expression', 'scoped_property_access_expression'].includes(expression.type)) {
-          const name = expression.childForFieldName('name') ?? expression.namedChildren.at(-1);
-          if (expression.type.startsWith('scoped_')) {
-            const owner = expression.childForFieldName('scope') ?? expression.namedChildren[0];
-            if (owner && /^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(owner.text)
-              && name && ['name', 'variable_name'].includes(name.type)
-              && !file.memberAccesses.some(access => access.start === name.startIndex && access.dynamic)) {
-              const accessFrom = this.containingScope(file, expression.startIndex)?.containerFqcn;
-              const fqcn = this.resolveSourceType(file, owner.text, this.namespaceAt(file, expression.startIndex), accessFrom);
-              if (fqcn) owners.add(fqcn);
-            }
-          } else if (name?.type === 'name') {
-            for (const owner of this.memberOwnerTypeNamesAt(uri, name.endIndex)) owners.add(owner);
-          }
-          const object = expression.childForFieldName('object'); if (object) collect(object, depth + 1);
-          return;
-        }
-        if (expression.type === 'object_creation_expression') {
-          const type = expression.namedChildren.find(child => ['name', 'qualified_name', 'relative_name'].includes(child.type));
-          const accessFrom = this.containingScope(file, expression.startIndex)?.containerFqcn;
-          const fqcn = type && this.resolveSourceType(file, type.text, this.namespaceAt(file, expression.startIndex), accessFrom);
-          if (fqcn) owners.add(fqcn);
-        }
-      };
-      collect(receiver);
-      return [...owners];
+      return this.expressionValueOwnerTypes(file, (retainedTree ?? temporaryTree)!.rootNode, receiver);
     } finally { temporaryTree?.delete(); }
+  }
+
+  /** Declaration dependencies of a queried variable; loading them does not prove its value. */
+  variableValueOwnerTypeNamesAt(uri: string, offset: number): string[] {
+    const file = this.files.get(uri);
+    if (!file || (!file.source.includes('::') && !file.source.includes('->')) || !this.isPhpCodeContext(uri, offset)
+      || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
+    const reference = file.variableReferences.find(item => item.start <= offset && offset < item.end);
+    if (!reference) return [];
+    const retainedTree = this.trees.get(uri), temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      const tree = (retainedTree ?? temporaryTree)!;
+      const variable = deepestLocalSyntax(tree.rootNode, reference.start, reference.end,
+        candidate => candidate.type === 'variable_name' && candidate.startIndex === reference.start && candidate.endIndex === reference.end);
+      return variable ? this.expressionValueOwnerTypes(file, tree.rootNode, variable) : [];
+    } finally { temporaryTree?.delete(); }
+  }
+
+  private expressionValueOwnerTypes(file: SemanticFile, root: SyntaxNode, receiver: SyntaxNode): string[] {
+    const owners = new Set<string>(), visited = new Set<string>(); let remaining = 128;
+    const collect = (expression: SyntaxNode, depth = 0): void => {
+      const identity = `${expression.startIndex}:${expression.endIndex}`;
+      if (depth > 16 || remaining-- <= 0 || expression.hasError || visited.has(identity)) return;
+      visited.add(identity);
+      if (['subscript_expression', 'parenthesized_expression'].includes(expression.type)) {
+        const base = expression.namedChildren[0]; if (base) collect(base, depth + 1);
+        return;
+      }
+      if (expression.type === 'variable_name') {
+        let scope = this.containingScope(file, expression.startIndex); if (!scope) return;
+        let before = expression.startIndex;
+        let origins: ParsedAssignment[] = [];
+        for (let captureDepth = 0; scope && captureDepth <= 16 && remaining-- > 0; captureDepth += 1) {
+          const currentScope = scope;
+          origins = file.assignments.filter(assignment => assignment.scopeId === currentScope.id
+            && assignment.variable === expression.text && assignment.end <= before
+            && (!assignment.validRange || before >= assignment.validRange.start && before <= assignment.validRange.end))
+            .sort((left, right) => right.end - left.end).slice(0, 16);
+          if (origins.length) break;
+          before = Math.max(0, scope.start - 1);
+          scope = this.valueCaptureParent(file, scope, expression.text);
+        }
+        if (!scope) return;
+        for (const origin of origins) {
+          const syntax = deepestLocalSyntax(root, origin.start, origin.end,
+            candidate => candidate.type === 'assignment_expression' && candidate.startIndex === origin.start && candidate.endIndex === origin.end);
+          const value = syntax?.childForFieldName('right');
+          if (value) collect(value, depth + 1);
+          else if (origin.sourceIterable) {
+            const iterable = deepestLocalSyntax(root, origin.sourceIterable.start, origin.sourceIterable.end,
+              candidate => candidate.startIndex === origin.sourceIterable!.start && candidate.endIndex === origin.sourceIterable!.end);
+            if (iterable) collect(iterable, depth + 1);
+          }
+          if (!this.assignmentInsideControlFlow(file, origin, scope)) break;
+        }
+        return;
+      }
+      if (['member_access_expression', 'nullsafe_member_access_expression', 'member_call_expression', 'nullsafe_member_call_expression',
+        'scoped_call_expression', 'scoped_property_access_expression'].includes(expression.type)) {
+        const name = expression.childForFieldName('name') ?? expression.namedChildren.at(-1);
+        if (expression.type.startsWith('scoped_')) {
+          const owner = expression.childForFieldName('scope') ?? expression.namedChildren[0];
+          if (owner && /^[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*$/u.test(owner.text)
+            && name && ['name', 'variable_name'].includes(name.type)
+            && !file.memberAccesses.some(access => access.start === name.startIndex && access.dynamic)) {
+            const accessFrom = this.containingScope(file, expression.startIndex)?.containerFqcn;
+            const fqcn = this.resolveSourceType(file, owner.text, this.namespaceAt(file, expression.startIndex), accessFrom);
+            if (fqcn) owners.add(fqcn);
+          }
+        } else if (name?.type === 'name') {
+          for (const owner of this.memberOwnerTypeNamesAt(file.uri, name.endIndex)) owners.add(owner);
+        }
+        const object = expression.childForFieldName('object'); if (object) collect(object, depth + 1);
+        return;
+      }
+      if (expression.type === 'object_creation_expression') {
+        const type = expression.namedChildren.find(child => ['name', 'qualified_name', 'relative_name'].includes(child.type));
+        const accessFrom = this.containingScope(file, expression.startIndex)?.containerFqcn;
+        const fqcn = type && this.resolveSourceType(file, type.text, this.namespaceAt(file, expression.startIndex), accessFrom);
+        if (fqcn) owners.add(fqcn);
+      }
+    };
+    collect(receiver);
+    return [...owners];
   }
 
   completeArrayAccessKeys(uri: string, offset: number): {

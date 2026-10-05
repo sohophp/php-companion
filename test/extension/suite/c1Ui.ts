@@ -80,6 +80,15 @@ export async function visibleCompletionState(port: number): Promise<{ visible: b
   } finally { socket.close(); }
 }
 
+export async function visibleHoverText(port: number): Promise<string[]> {
+  const socket = await connect(await cdpPage(port));
+  try {
+    return await evaluate(socket, `Array.from(document.querySelectorAll('.monaco-hover'))
+      .filter(widget => widget.getBoundingClientRect().width > 0 && widget.getBoundingClientRect().height > 0)
+      .map(widget => widget.textContent?.trim() ?? '').filter(Boolean)`, 1) as string[];
+  } finally { socket.close(); }
+}
+
 async function pressWorkbenchKey(port: number, key: 'Tab' | 'Enter'): Promise<void> {
   const socket = await connect(await cdpPage(port));
   try {

@@ -4172,7 +4172,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
     for (const method of initialization.testPauseNextQueries) {
-      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource', 'constructorDiagnostics'].includes(method)) testPauseNextQueries.add(method);
+      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'hoverValueSources', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource', 'constructorDiagnostics'].includes(method)) testPauseNextQueries.add(method);
     }
   }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
@@ -4244,7 +4244,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -7374,6 +7374,17 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (serviceRoot && document.languageId === 'php') {
     refreshStaleOpenTypeSourceAt(workspace, document.uri, offset);
     if (!currentQueryDocument(document, token, queryVersion)) return null;
+  }
+  if (serviceRoot && document.languageId === 'php') {
+    const valueOwners = workspace.variableValueOwnerTypeNamesAt(document.uri, offset);
+    if (valueOwners.length) {
+      refreshStaleOpenTypeSourceAt(workspace, document.uri, offset, valueOwners);
+      await hydrateMemberOwnerChain(workspace, serviceRoot,
+        () => workspace.variableValueOwnerTypeNamesAt(document.uri, offset), () => false,
+        () => !currentQueryDocument(document, token, queryVersion));
+      if (testPauseNextQueries.has('hoverValueSources')) await pauseTestQuery('hoverValueSources');
+      if (!currentQueryDocument(document, token, queryVersion)) return null;
+    }
   }
   const memberStarted = testMode ? performance.now() : 0;
   let member = workspace.memberAt(document.uri, offset) ?? workspace.functionAt(document.uri, offset);

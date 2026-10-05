@@ -1,0 +1,1487 @@
+{
+  "milestone": "D116",
+  "verifiedAtUtc": "2026-10-05T18:11:26.233967+00:00",
+  "baseProduct": "087bd21a",
+  "previousDocumentationCheckpoint": "687686f9",
+  "productBundleSha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+  "scope": "first variable Hover declaration dependencies; shared bounded collector; no public protocol/settings/provider/cache changes",
+  "sourceHashes": {
+    "packages/language-server/src/server.ts": "ac55f50e00003e4145da69ea9ca1903487ad6f677dda52ee12bbcdd8b312ad6c",
+    "packages/language-server/test/variable-value-hover-stdio.test.ts": "3d4b007ce4cfff1cbdb8fab6f3e09be793b614f802094aed3c4d7bccb18c8e74",
+    "packages/semantic/src/index.ts": "550f9703c1da2cf2bb4045836246f70beae0a52e1c5d7ce33779d43aba302b9f",
+    "packages/semantic/test/variable-value-origins.test.ts": "47daf3c15755168109df9c2eb391116a182c4f4295d47f30dc57e9403ee8e051",
+    "scripts/check-variable-value-hover-host.mjs": "18f8c8ab6ec08a08eadbbafedbef685777cd56484c62a0112191183f17096ad4",
+    "test/extension/suite/c1Ui.ts": "61d90c0d97435ab6e82f4f73e835d8f2f664edcb60a470c6a30bab84318a05bf",
+    "test/extension/suite/variableValueHover.ts": "114f20323b667ce0475a1b9343d81c89fbce3dc89ba74c1e4978a1b94ea0d63d"
+  },
+  "baseline": {
+    "metadata": {
+      "product": "087bd21a",
+      "bundleSha256": "055cf29dec5fa058e6dfd9c65c23c16f80d183bb39430656b31fa46549234e54",
+      "testSourceSha256": "3d4b007ce4cfff1cbdb8fab6f3e09be793b614f802094aed3c4d7bccb18c8e74",
+      "scope": "formal four-version/mode cases against unchanged old production bundle; stops at first failed expectation per case"
+    },
+    "formal": {
+      "path": "/tmp/sophp-d116-lsp-baseline.json",
+      "sha256": "8f84a6c4869cacc7681833c4c4881701678bd0376da41e34d8e5e50e4e37d0ae",
+      "files": 1,
+      "total": 4,
+      "passed": 0,
+      "failed": 4,
+      "pending": 0,
+      "success": false,
+      "cases": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts",
+          "names": [
+            "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+            "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+            "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+            "hydrates first variable Hover sources at PHP '8.5' in 'progressive'"
+          ]
+        }
+      ]
+    },
+    "prototypeFamilyBefore": {
+      "bundle": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "055cf29dec5fa058e6dfd9c65c23c16f80d183bb39430656b31fa46549234e54",
+      "tests": 27,
+      "passed": 10,
+      "failed": 17,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "name": "ordinary array",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "ce1356eaaa8e5b1c55e6aaecc7d2a8fb6870b18efa87b6b825a84c02c8757368",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "captured array",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "04f75ac3c4d8bc48d01ee21e748394440e45d6f332d08d4a67544d8a13cdcbac",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "bare argument",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "dc4dd2aad4e304af752ea95a69265a94496d5ca8415e31a0405d3b7ef2a51dc7",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "scalar capture",
+          "expected": "string",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "0002e7fb0355eb35236af91ad4d8d6cc6c00731c9d9e2c9d9d7ed0c217f1d975",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "method capture",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "a25e66ea2f1046bef8d97f2c73d47df17ddce3b4c1b60f210714fd16bc867dd1",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "instance property",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "42f2a0b2643447a8366c9e262de408689c0cda13aac5eda327b880e6a6386036",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "nested capture",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "8d23dc3e827f2cebc3ff3a96156dbdcdd335f7697a206ce47b5e604abb502a05",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "alias",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "c9a532bc3258b22ba9aa581f52f76c573ff2cb380e1a1cc9e2d0521d63a832e2",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "reference capture",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d69853f072ce70471493e6ae071daf80c50d7a4ef805181252c56eac84356499",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "shadow",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d3196ccb2ac61c4bcbcb0d497cf16b6eaae80ed4af6b066ab5d5f19e2dbfc641",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "unknown mutation",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "b5054ec4f4eaca138bfacad2832198dce7efe72d621b852e924f686f2c3f8654",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "overwrite",
+          "expected": "int",
+          "actual": "int",
+          "pass": true,
+          "sourceSha256": "b5c95060bf239a44ebedba0e3eb4cb420fac8c655ac53c10b2a536a20d36ea25",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: int\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 127
+              },
+              "end": {
+                "line": 0,
+                "character": 135
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "unset",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "f46b1bb0feb92b59ffc84e477989a961c778aaf687f21c4647eb8dacbc7a22ea",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "ordinary array",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "ce1356eaaa8e5b1c55e6aaecc7d2a8fb6870b18efa87b6b825a84c02c8757368",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "captured array",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "04f75ac3c4d8bc48d01ee21e748394440e45d6f332d08d4a67544d8a13cdcbac",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "bare argument",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "dc4dd2aad4e304af752ea95a69265a94496d5ca8415e31a0405d3b7ef2a51dc7",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "scalar capture",
+          "expected": "string",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "0002e7fb0355eb35236af91ad4d8d6cc6c00731c9d9e2c9d9d7ed0c217f1d975",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "method capture",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "a25e66ea2f1046bef8d97f2c73d47df17ddce3b4c1b60f210714fd16bc867dd1",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "instance property",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "42f2a0b2643447a8366c9e262de408689c0cda13aac5eda327b880e6a6386036",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "nested capture",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "8d23dc3e827f2cebc3ff3a96156dbdcdd335f7697a206ce47b5e604abb502a05",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "alias",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "c9a532bc3258b22ba9aa581f52f76c573ff2cb380e1a1cc9e2d0521d63a832e2",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "reference capture",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d69853f072ce70471493e6ae071daf80c50d7a4ef805181252c56eac84356499",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "shadow",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d3196ccb2ac61c4bcbcb0d497cf16b6eaae80ed4af6b066ab5d5f19e2dbfc641",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "unknown mutation",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "b5054ec4f4eaca138bfacad2832198dce7efe72d621b852e924f686f2c3f8654",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "overwrite",
+          "expected": "int",
+          "actual": "int",
+          "pass": true,
+          "sourceSha256": "b5c95060bf239a44ebedba0e3eb4cb420fac8c655ac53c10b2a536a20d36ea25",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: int\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 127
+              },
+              "end": {
+                "line": 0,
+                "character": 135
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "unset",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "f46b1bb0feb92b59ffc84e477989a961c778aaf687f21c4647eb8dacbc7a22ea",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "arrow",
+          "expected": "array{mode: int}",
+          "actual": null,
+          "pass": false,
+          "sourceSha256": "a05cc9d40dc4439598324ff28e8d69db6c9d2894d78fe9c1511a8f85ad662023",
+          "hover": null
+        }
+      ]
+    },
+    "prototypeFamilyAfter": {
+      "bundle": "/var/www/node/php-companion/.vscode-test/d116-value-hover-prototype/server.cjs",
+      "sha256": "f19cb213a147c99d6e45c929244c32925648c4cc0ff454daf94895c82eea3bd5",
+      "tests": 27,
+      "passed": 27,
+      "failed": 0,
+      "results": [
+        {
+          "phpVersion": "7.2",
+          "name": "ordinary array",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "ce1356eaaa8e5b1c55e6aaecc7d2a8fb6870b18efa87b6b825a84c02c8757368",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 81
+              },
+              "end": {
+                "line": 0,
+                "character": 89
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "captured array",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "04f75ac3c4d8bc48d01ee21e748394440e45d6f332d08d4a67544d8a13cdcbac",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 108
+              },
+              "end": {
+                "line": 0,
+                "character": 116
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "bare argument",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "dc4dd2aad4e304af752ea95a69265a94496d5ca8415e31a0405d3b7ef2a51dc7",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 113
+              },
+              "end": {
+                "line": 0,
+                "character": 121
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "scalar capture",
+          "expected": "string",
+          "actual": "string",
+          "pass": true,
+          "sourceSha256": "0002e7fb0355eb35236af91ad4d8d6cc6c00731c9d9e2c9d9d7ed0c217f1d975",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: string\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 112
+              },
+              "end": {
+                "line": 0,
+                "character": 120
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "method capture",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "a25e66ea2f1046bef8d97f2c73d47df17ddce3b4c1b60f210714fd16bc867dd1",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 114
+              },
+              "end": {
+                "line": 0,
+                "character": 122
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "instance property",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "42f2a0b2643447a8366c9e262de408689c0cda13aac5eda327b880e6a6386036",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 142
+              },
+              "end": {
+                "line": 0,
+                "character": 150
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "nested capture",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "8d23dc3e827f2cebc3ff3a96156dbdcdd335f7697a206ce47b5e604abb502a05",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 140
+              },
+              "end": {
+                "line": 0,
+                "character": 148
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "alias",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "c9a532bc3258b22ba9aa581f52f76c573ff2cb380e1a1cc9e2d0521d63a832e2",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$copy: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 125
+              },
+              "end": {
+                "line": 0,
+                "character": 130
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "reference capture",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d69853f072ce70471493e6ae071daf80c50d7a4ef805181252c56eac84356499",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "shadow",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d3196ccb2ac61c4bcbcb0d497cf16b6eaae80ed4af6b066ab5d5f19e2dbfc641",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "unknown mutation",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "b5054ec4f4eaca138bfacad2832198dce7efe72d621b852e924f686f2c3f8654",
+          "hover": null
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "overwrite",
+          "expected": "int",
+          "actual": "int",
+          "pass": true,
+          "sourceSha256": "b5c95060bf239a44ebedba0e3eb4cb420fac8c655ac53c10b2a536a20d36ea25",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: int\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 127
+              },
+              "end": {
+                "line": 0,
+                "character": 135
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "7.2",
+          "name": "unset",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "f46b1bb0feb92b59ffc84e477989a961c778aaf687f21c4647eb8dacbc7a22ea",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "ordinary array",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "ce1356eaaa8e5b1c55e6aaecc7d2a8fb6870b18efa87b6b825a84c02c8757368",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 81
+              },
+              "end": {
+                "line": 0,
+                "character": 89
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "captured array",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "04f75ac3c4d8bc48d01ee21e748394440e45d6f332d08d4a67544d8a13cdcbac",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 108
+              },
+              "end": {
+                "line": 0,
+                "character": 116
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "bare argument",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "dc4dd2aad4e304af752ea95a69265a94496d5ca8415e31a0405d3b7ef2a51dc7",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 113
+              },
+              "end": {
+                "line": 0,
+                "character": 121
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "scalar capture",
+          "expected": "string",
+          "actual": "string",
+          "pass": true,
+          "sourceSha256": "0002e7fb0355eb35236af91ad4d8d6cc6c00731c9d9e2c9d9d7ed0c217f1d975",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: string\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 112
+              },
+              "end": {
+                "line": 0,
+                "character": 120
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "method capture",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "a25e66ea2f1046bef8d97f2c73d47df17ddce3b4c1b60f210714fd16bc867dd1",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 114
+              },
+              "end": {
+                "line": 0,
+                "character": 122
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "instance property",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "42f2a0b2643447a8366c9e262de408689c0cda13aac5eda327b880e6a6386036",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 142
+              },
+              "end": {
+                "line": 0,
+                "character": 150
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "nested capture",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "8d23dc3e827f2cebc3ff3a96156dbdcdd335f7697a206ce47b5e604abb502a05",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 140
+              },
+              "end": {
+                "line": 0,
+                "character": 148
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "alias",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "c9a532bc3258b22ba9aa581f52f76c573ff2cb380e1a1cc9e2d0521d63a832e2",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$copy: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 125
+              },
+              "end": {
+                "line": 0,
+                "character": 130
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "reference capture",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d69853f072ce70471493e6ae071daf80c50d7a4ef805181252c56eac84356499",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "shadow",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "d3196ccb2ac61c4bcbcb0d497cf16b6eaae80ed4af6b066ab5d5f19e2dbfc641",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "unknown mutation",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "b5054ec4f4eaca138bfacad2832198dce7efe72d621b852e924f686f2c3f8654",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "overwrite",
+          "expected": "int",
+          "actual": "int",
+          "pass": true,
+          "sourceSha256": "b5c95060bf239a44ebedba0e3eb4cb420fac8c655ac53c10b2a536a20d36ea25",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: int\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 127
+              },
+              "end": {
+                "line": 0,
+                "character": 135
+              }
+            }
+          }
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "unset",
+          "expected": null,
+          "actual": null,
+          "pass": true,
+          "sourceSha256": "f46b1bb0feb92b59ffc84e477989a961c778aaf687f21c4647eb8dacbc7a22ea",
+          "hover": null
+        },
+        {
+          "phpVersion": "8.5",
+          "name": "arrow",
+          "expected": "array{mode: int}",
+          "actual": "array{mode: int}",
+          "pass": true,
+          "sourceSha256": "a05cc9d40dc4439598324ff28e8d69db6c9d2894d78fe9c1511a8f85ad662023",
+          "hover": {
+            "contents": {
+              "kind": "markdown",
+              "value": "```php\n$options: array{mode: int}\n```"
+            },
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 96
+              },
+              "end": {
+                "line": 0,
+                "character": 104
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "semantic": {
+    "path": "/tmp/sophp-d116-semantic-full.json",
+    "sha256": "2837cd64f161407f134247290ebb0f9eab7f7bebc454c326ea3a68bbc480d719",
+    "files": 126,
+    "total": 3100,
+    "passed": 3100,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "hoverLsp": {
+    "path": "/tmp/sophp-d116-lsp-current.json",
+    "sha256": "803449c685c585bddf6c46058372632c8f8ff4e479e2624e987b770233098028",
+    "files": 1,
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "pending": 0,
+    "success": true,
+    "cases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts",
+        "names": [
+          "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+          "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+          "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+          "hydrates first variable Hover sources at PHP '8.5' in 'progressive'"
+        ]
+      }
+    ]
+  },
+  "relatedCompletionLsp": {
+    "path": "/tmp/sophp-d116-related-lsp.json",
+    "sha256": "29afed1648f4ce48f541f2101336c605ffd101ff54968007de5662ab42dc0063",
+    "files": 2,
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "pending": 0,
+    "success": true,
+    "cases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts",
+        "names": [
+          "loads current array receiver origins at PHP '7.2' in 'onDemand'",
+          "loads current array receiver origins at PHP '7.2' in 'progressive'",
+          "loads current array receiver origins at PHP '8.5' in 'onDemand'",
+          "loads current array receiver origins at PHP '8.5' in 'progressive'"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/captured-array-values-stdio.test.ts",
+        "names": [
+          "keeps captured array values at PHP '7.2' in 'onDemand'",
+          "keeps captured array values at PHP '7.2' in 'progressive'",
+          "keeps captured array values at PHP '8.5' in 'onDemand'",
+          "keeps captured array values at PHP '8.5' in 'progressive'"
+        ]
+      }
+    ]
+  },
+  "fixedPerformance": {
+    "path": "/tmp/sophp-d116-fixed-performance.json",
+    "sha256": "eed98a4fa088c0fb5db68b4959567a8a2bda6948d29fce699aa912d99ef19722",
+    "files": 1,
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "pending": 0,
+    "success": true,
+    "cases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/magic-modifier-stdio.test.ts",
+        "names": [
+          "respects magic method modifiers and static edits at PHP 7.2",
+          "respects magic method modifiers and static edits at PHP 8.5"
+        ]
+      }
+    ]
+  },
+  "hoverRequests": 86,
+  "relatedCompletionRequests": 160,
+  "host": {
+    "7.2": {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "results": [
+        {
+          "name": "ordinary cold array",
+          "expected": "array{mode: int}",
+          "visible": [
+            "$options: array{mode: int}"
+          ],
+          "visibleWaitMs": 312,
+          "singleTrigger": true
+        },
+        {
+          "name": "captured cold array",
+          "expected": "array{mode: int}",
+          "visible": [
+            "$options: array{mode: int}"
+          ],
+          "visibleWaitMs": 54,
+          "singleTrigger": true
+        },
+        {
+          "name": "captured cold scalar",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 76,
+          "singleTrigger": true
+        },
+        {
+          "name": "unsaved owner int",
+          "expected": "int",
+          "visible": [
+            "$options: int"
+          ],
+          "visibleWaitMs": 36,
+          "singleTrigger": true
+        },
+        {
+          "name": "owner Undo string",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 71,
+          "singleTrigger": true
+        },
+        {
+          "name": "owner Redo int",
+          "expected": "int",
+          "visible": [
+            "$options: int"
+          ],
+          "visibleWaitMs": 87,
+          "singleTrigger": true
+        },
+        {
+          "name": "local overwrite",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 63,
+          "singleTrigger": true
+        },
+        {
+          "name": "consumer Undo",
+          "expected": "int",
+          "visible": [
+            "$options: int"
+          ],
+          "visibleWaitMs": 38,
+          "singleTrigger": true
+        },
+        {
+          "name": "consumer Redo",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 59,
+          "singleTrigger": true
+        }
+      ],
+      "diskUnchanged": true,
+      "providerPrewarm": false,
+      "explicitShowHover": true
+    },
+    "8.5": {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "results": [
+        {
+          "name": "ordinary cold array",
+          "expected": "array{mode: int}",
+          "visible": [
+            "$options: array{mode: int}"
+          ],
+          "visibleWaitMs": 445,
+          "singleTrigger": true
+        },
+        {
+          "name": "captured cold array",
+          "expected": "array{mode: int}",
+          "visible": [
+            "$options: array{mode: int}"
+          ],
+          "visibleWaitMs": 78,
+          "singleTrigger": true
+        },
+        {
+          "name": "captured cold scalar",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 62,
+          "singleTrigger": true
+        },
+        {
+          "name": "unsaved owner int",
+          "expected": "int",
+          "visible": [
+            "$options: int"
+          ],
+          "visibleWaitMs": 42,
+          "singleTrigger": true
+        },
+        {
+          "name": "owner Undo string",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 64,
+          "singleTrigger": true
+        },
+        {
+          "name": "owner Redo int",
+          "expected": "int",
+          "visible": [
+            "$options: int"
+          ],
+          "visibleWaitMs": 45,
+          "singleTrigger": true
+        },
+        {
+          "name": "local overwrite",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 50,
+          "singleTrigger": true
+        },
+        {
+          "name": "consumer Undo",
+          "expected": "int",
+          "visible": [
+            "$options: int"
+          ],
+          "visibleWaitMs": 65,
+          "singleTrigger": true
+        },
+        {
+          "name": "consumer Redo",
+          "expected": "string",
+          "visible": [
+            "$options: string"
+          ],
+          "visibleWaitMs": 63,
+          "singleTrigger": true
+        }
+      ],
+      "diskUnchanged": true,
+      "providerPrewarm": false,
+      "explicitShowHover": true
+    }
+  },
+  "hoverTimings": {
+    "bundle": "/var/www/node/php-companion/dist/language-server.js",
+    "sha256": "93430ed1eb694c32001e29456d64a39ed427aaa282386fa81c07ef8ec1c3ee0c",
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "results": [
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "name": "100 prior closures",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 123.42995000000019,
+        "p95Ms": 9.74602300000015,
+        "warmSamples": 20,
+        "timings": [
+          9.9721940000004,
+          6.089159999999993,
+          4.477296000000024,
+          4.9429479999998875,
+          4.484165000000303,
+          3.83232500000031,
+          3.5739849999999933,
+          3.6687470000001667,
+          4.37338600000021,
+          9.74602300000015,
+          3.432194999999865,
+          3.7341630000000805,
+          3.4074070000001484,
+          3.2648380000000543,
+          3.73585200000025,
+          5.206967999999961,
+          3.7210449999997763,
+          3.615848000000369,
+          3.4518960000000334,
+          3.7840909999999894
+        ],
+        "sourceSha256": "37cb4c276a54fa7e4c703d13e7973685951c68bac1ef099463333524a40a1ea4"
+      },
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "name": "eight capture levels",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 12.218515000000025,
+        "p95Ms": 5.107811000000311,
+        "warmSamples": 20,
+        "timings": [
+          7.167901999999685,
+          3.4641679999999724,
+          3.6061250000002474,
+          3.652856000000156,
+          4.036200000000008,
+          3.8405009999996764,
+          3.4533409999999094,
+          5.107811000000311,
+          3.7488760000001093,
+          3.5169670000000224,
+          3.517688000000362,
+          3.4323410000001786,
+          3.6763539999997192,
+          3.449000000000069,
+          4.569184999999834,
+          4.0507840000000215,
+          3.372899999999845,
+          3.4297350000001643,
+          2.857974000000013,
+          3.1354919999998856
+        ],
+        "sourceSha256": "fe92bc0fe9f8b8c0c485a2dc22e55c1b868500cb128c87e01148aeac690e98a0"
+      },
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "progressive",
+        "name": "100 prior closures",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 164.37165399999958,
+        "p95Ms": 6.7852130000001125,
+        "warmSamples": 20,
+        "timings": [
+          7.824115999999776,
+          4.807175999999345,
+          4.55074599999989,
+          5.459792999999991,
+          4.692561000000751,
+          3.7854559999996127,
+          3.7221490000001722,
+          3.7689289999998437,
+          4.281966999999895,
+          3.6462890000002517,
+          3.7527310000004945,
+          6.7852130000001125,
+          3.630557999999837,
+          3.419014000000061,
+          3.408693000000312,
+          3.447377999999844,
+          3.397063999999773,
+          3.2375679999995555,
+          3.5597600000000966,
+          4.094236999999339
+        ],
+        "sourceSha256": "37cb4c276a54fa7e4c703d13e7973685951c68bac1ef099463333524a40a1ea4"
+      },
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "progressive",
+        "name": "eight capture levels",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 11.951430000000073,
+        "p95Ms": 4.412195000000793,
+        "warmSamples": 20,
+        "timings": [
+          6.023533999999927,
+          3.876289999999244,
+          4.194243999999344,
+          3.81788300000062,
+          4.001427999999578,
+          4.351778999999624,
+          3.8871909999998024,
+          4.175775999999132,
+          4.093157000000247,
+          3.9036910000004355,
+          3.3606620000000476,
+          3.547929999999724,
+          4.412195000000793,
+          3.493894999999611,
+          3.734483999999611,
+          3.260616999999911,
+          3.5078160000002754,
+          3.447024000000056,
+          3.0168299999995725,
+          3.330257999999958
+        ],
+        "sourceSha256": "fe92bc0fe9f8b8c0c485a2dc22e55c1b868500cb128c87e01148aeac690e98a0"
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "name": "100 prior closures",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 150.77317500000026,
+        "p95Ms": 4.670355999999629,
+        "warmSamples": 20,
+        "timings": [
+          4.202009000000544,
+          3.7132730000002994,
+          4.675424000000021,
+          4.670355999999629,
+          4.548168999999689,
+          4.123391000000083,
+          3.873247000000447,
+          3.5876479999997173,
+          3.1918400000004112,
+          3.12906699999985,
+          2.893323000000237,
+          3.3592769999995653,
+          3.0233829999997397,
+          3.4635520000001634,
+          3.057705000000169,
+          3.0644529999999577,
+          3.5643700000000536,
+          3.6095279999999548,
+          3.2232560000002195,
+          3.3329970000004323
+        ],
+        "sourceSha256": "37cb4c276a54fa7e4c703d13e7973685951c68bac1ef099463333524a40a1ea4"
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "name": "eight capture levels",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 6.613620999999512,
+        "p95Ms": 3.8727799999996932,
+        "warmSamples": 20,
+        "timings": [
+          3.9189769999993587,
+          2.9948880000001736,
+          3.3378789999997025,
+          3.6552090000004682,
+          3.3510740000001533,
+          3.621067000000039,
+          3.099756999999954,
+          3.269808999999441,
+          3.6546419999995123,
+          3.398653999999624,
+          2.958158999999796,
+          3.1924360000002707,
+          3.1677959999997256,
+          3.665371999999479,
+          3.4561359999997876,
+          2.8289919999997437,
+          2.793260999999802,
+          3.8727799999996932,
+          3.5679950000003373,
+          3.195918000000347
+        ],
+        "sourceSha256": "fe92bc0fe9f8b8c0c485a2dc22e55c1b868500cb128c87e01148aeac690e98a0"
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "name": "100 prior closures",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 167.13960000000043,
+        "p95Ms": 6.052551999999196,
+        "warmSamples": 20,
+        "timings": [
+          4.662375999998403,
+          3.998175999999148,
+          4.647985999999946,
+          5.374671999999919,
+          4.616865999998481,
+          3.7831999999998516,
+          3.7044719999994413,
+          3.839407999999821,
+          6.313672000000224,
+          3.9317549999996118,
+          3.7791460000007646,
+          4.236301999999341,
+          3.5544000000008964,
+          3.5341069999994943,
+          4.228501999999935,
+          4.397216999999728,
+          6.052551999999196,
+          4.525974000000133,
+          4.151518999999098,
+          3.6813469999997324
+        ],
+        "sourceSha256": "37cb4c276a54fa7e4c703d13e7973685951c68bac1ef099463333524a40a1ea4"
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "name": "eight capture levels",
+        "expected": "array{mode: int}",
+        "pass": true,
+        "firstQueryMs": 15.187299000001076,
+        "p95Ms": 4.317078000000038,
+        "warmSamples": 20,
+        "timings": [
+          3.1713810000001104,
+          3.1595519999991666,
+          3.801798999998937,
+          3.2507879999993747,
+          3.3949050000010175,
+          3.174184999999852,
+          2.7208300000002055,
+          3.710191999998642,
+          3.425110999998651,
+          3.4555880000007164,
+          3.220432999998593,
+          3.131427000000258,
+          3.8011489999989863,
+          3.8712230000001,
+          7.212328000001435,
+          3.5211139999992156,
+          3.132895999999164,
+          3.4892190000009577,
+          4.317078000000038,
+          3.18442800000048
+        ],
+        "sourceSha256": "fe92bc0fe9f8b8c0c485a2dc22e55c1b868500cb128c87e01148aeac690e98a0"
+      }
+    ]
+  },
+  "fixedTimings": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 81.57239499999969,
+      "p95Ms": 52.97915499999999,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 103.6963310000001,
+      "p95Ms": 73.179517999999,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 24.504167999999936,
+      "p95Ms": 10.052178000000367,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 23.946877000000313,
+      "p95Ms": 8.593431999999666,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "frozenInputs": {
+    "count": 3056,
+    "manifestPath": "/tmp/sophp-d116-frozen-inputs.json",
+    "manifestSha256": "7094733638f73b51090a3eda5e5330ac7e52f15cdd4b0e930d9c63d447898a18",
+    "unchanged": true,
+    "sixRuntimeHashes": {
+      "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "sixRuntimePaths": {
+      "7.2": "/opt/remi/php72/root/usr/bin/php",
+      "7.4": "/opt/remi/php74/root/usr/bin/php",
+      "8.1": "/opt/remi/php81/root/usr/bin/php",
+      "8.2": "/opt/remi/php82/root/usr/bin/php",
+      "8.4": "/opt/remi/php84/root/usr/bin/php",
+      "8.5": "/opt/remi/php85/root/usr/bin/php"
+    }
+  },
+  "failureArtifacts": {
+    "/tmp/sophp-d116-lsp-baseline.log": "0019ac06b10903b4a7a8376d4ad56752c2748d970fccb28281c355f59fccc306",
+    "/tmp/sophp-d116-host-85.log": "b38c470f1e291fd21fe1361bcffc7924b727467427702b58ae72c379fb2c7680",
+    "/tmp/sophp-d116-hover-refresh-fixture-error.json": "a474602e1d0609b9a4af5538d7f1387db741fa941b980c488c65ac4c126b3b7b"
+  },
+  "quality": {
+    "semanticBuildExit": 0,
+    "languageServerBuildExit": 0,
+    "productionBuildExit": 0,
+    "changedFilesEslintExit": 0,
+    "rootTypescriptExit": 0,
+    "diffCheckExit": 0
+  },
+  "boundaries": {
+    "fullCurrentLsp": "pending; D115 80/973 qualification binds 087bd21a only",
+    "ordinaryPhp72EditingP95MsHistorical": 155.06,
+    "realWsl": "pending",
+    "otherPlatformsScaleLongSessions": "pending",
+    "profileUpdated": false,
+    "vsixPackaged": false,
+    "pushed": false,
+    "goal": "active"
+  }
+}
