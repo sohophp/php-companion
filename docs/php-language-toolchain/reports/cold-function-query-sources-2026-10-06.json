@@ -1,0 +1,2246 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "baseCommit": "3dd112ae9f904eb47af5c7f9f166d9d510f2b362",
+  "branch": "work/sophp-next",
+  "bundleSha256": "5e7b0dc53f7ed11ab64434f504faaa9cdb70c8c704a069a82992ed66da04b30e",
+  "cacheSchemas": {
+    "semantic": 88,
+    "sourceDeclaration": 6,
+    "projectWrapper": 12,
+    "engine": 67
+  },
+  "sourcesSha256": {
+    "packages/semantic/src/index.ts": "c8ca1d589761141aa52c127818589951b28ed3aa3674e58857888706d43df819",
+    "packages/language-server/src/server.ts": "1147a904deb2ab119645fcb8179773452b345702400a8791c4476129bdd81eac",
+    "packages/semantic/test/function-query-dependencies.test.ts": "d6cf6ffe751ae12624929fc3e7d1e2418e75fedd7113880315f0463335955bd1",
+    "packages/language-server/test/cold-function-result-queries-stdio.test.ts": "ac5346e303f6715cbb420375819c0f0162b3dd1874b5f5b3f973e39b6e7c4209",
+    "test/extension/suite/coldFunctionQueryAcceptance.ts": "6ba1ef738f667ab4fa87e12098f0ce95297ef475bfe468dac91de2476c5a7901",
+    "scripts/check-cold-function-query-acceptance.mjs": "fe781f7dfed5507307b75a552609ed8f7b002e8ff744a5c327de8de1faea1f09",
+    "packages/semantic/dist/index.js": "76c39edd5e7cd677bc27ee323701384b56e227e968ba87487509fd1697c44476",
+    "packages/language-server/dist/server.js": "81dd001dc3a39760675327be32edd08c495a10211b8254a630774401bc98cf31",
+    "dist/language-server.js": "5e7b0dc53f7ed11ab64434f504faaa9cdb70c8c704a069a82992ed66da04b30e"
+  },
+  "tests": {
+    "cold-queries-red": {
+      "path": "/tmp/sophp-d124-cold-queries-red.json",
+      "sha256": "1547e3378831d174de0bce961428c935b3372a73805d5ef678d13b703eabf1fd",
+      "files": 1,
+      "total": 8,
+      "passed": 0,
+      "failed": 8,
+      "pending": 0,
+      "success": false,
+      "fileResults": [
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "status": "failed",
+          "cases": 8,
+          "passed": 0,
+          "failed": 8
+        }
+      ],
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+              "duration": 1961.670757,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:121:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+              "duration": 1784.6062260000003,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:121:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+              "duration": 1942.087353,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:121:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+              "duration": 2145.4829070000005,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:121:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+              "duration": 1675.627273,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:122:26\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+              "duration": 1851.0707819999989,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:122:26\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+              "duration": 2144.5189549999996,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:122:26\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+              "duration": 1996.6989580000009,
+              "failureMessages": [
+                "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:122:26\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791236861720,
+          "endTime": 1791236877222.699,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts"
+        }
+      ]
+    },
+    "semantic-selected": {
+      "path": "/tmp/sophp-d124-semantic-selected.json",
+      "sha256": "21be1231185494dab666eccbf415028c08e761aad23d06b50bfa0955dd2da0d9",
+      "files": 2,
+      "total": 59,
+      "passed": 59,
+      "failed": 0,
+      "pending": 0,
+      "success": true,
+      "fileResults": [
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+          "status": "passed",
+          "cases": 26,
+          "passed": 26,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts",
+          "status": "passed",
+          "cases": 33,
+          "passed": 33,
+          "failed": 0
+        }
+      ]
+    },
+    "queries-selected": {
+      "path": "/tmp/sophp-d124-queries-selected.json",
+      "sha256": "20e0f64c8511d84e29aadc7982db133de22a506e0fbee21c17c43a951e50b1ef",
+      "files": 3,
+      "total": 24,
+      "passed": 20,
+      "failed": 4,
+      "pending": 0,
+      "success": false,
+      "fileResults": [
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "status": "failed",
+          "cases": 16,
+          "passed": 12,
+          "failed": 4
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        }
+      ],
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+              "duration": 2187.898154,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:126:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+              "duration": 1821.1704249999998,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:126:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+              "duration": 2163.504897,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:126:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+              "status": "failed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+              "duration": 2083.0587239999995,
+              "failureMessages": [
+                "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:126:66\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first memberHover",
+              "duration": 4036.4273969999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first memberHover",
+              "duration": 4076.588549000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first memberHover",
+              "duration": 4624.455867000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first memberHover",
+              "duration": 4629.063613000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first signatureHelp",
+              "duration": 4168.332558000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first signatureHelp",
+              "duration": 4108.646080999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first signatureHelp",
+              "duration": 4524.207022000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first signatureHelp",
+              "duration": 4476.381349000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+              "duration": 4067.3743260000047,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+              "duration": 4172.735988,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+              "duration": 4509.735688000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+              "duration": 4431.871854999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237154592,
+          "endTime": 1791237214677.8718,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "duration": 4283.6565089999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "duration": 3875.1824460000007,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "duration": 4824.435541999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "duration": 5018.035816000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237154599,
+          "endTime": 1791237172602.036,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+              "duration": 2904.1785229999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+              "duration": 2434.645663,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+              "duration": 2901.4439950000005,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '8.5' in 'progressive'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '8.5' in 'progressive'",
+              "duration": 2869.253839000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237154542,
+          "endTime": 1791237165653.254,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts"
+        }
+      ]
+    },
+    "queries-final": {
+      "path": "/tmp/sophp-d124-queries-final.json",
+      "sha256": "bd83bab4605b2d5effc578ff31bd29a84ff65018aef195eb9000906788e242e9",
+      "files": 3,
+      "total": 24,
+      "passed": 24,
+      "failed": 0,
+      "pending": 0,
+      "success": true,
+      "fileResults": [
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "status": "passed",
+          "cases": 16,
+          "passed": 16,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        }
+      ],
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first hover",
+              "duration": 4491.088821,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first hover",
+              "duration": 4327.50321,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first hover",
+              "duration": 4717.571231,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first hover",
+              "duration": 4749.8025529999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first memberHover",
+              "duration": 4249.891715000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first memberHover",
+              "duration": 4394.188624999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first memberHover",
+              "duration": 4367.787512999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first memberHover",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first memberHover",
+              "duration": 4658.017479999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first signatureHelp",
+              "duration": 3804.281759999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first signatureHelp",
+              "duration": 4350.780398000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first signatureHelp",
+              "duration": 4295.202681999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first signatureHelp",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first signatureHelp",
+              "duration": 4400.872684999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/onDemand with first definition",
+              "duration": 4044.2224829999977,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 7.2/progressive with first definition",
+              "duration": 4117.891263999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/onDemand with first definition",
+              "duration": 4293.509234000005,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+              "status": "passed",
+              "title": "resolves cold function-result queries at PHP 8.5/progressive with first definition",
+              "duration": 4824.037513999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237344516,
+          "endTime": 1791237414608.0376,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/onDemand",
+              "duration": 4116.211292,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 7.2/progressive",
+              "duration": 4219.367619,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/onDemand",
+              "duration": 4522.590550000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "status": "passed",
+              "title": "preserves tag boundaries through cold queries, edits and restart at PHP 8.5/progressive",
+              "duration": 4827.740116000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237344517,
+          "endTime": 1791237362204.7402,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '7.2' in 'onDemand'",
+              "duration": 2868.6271030000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '7.2' in 'progressive'",
+              "duration": 3558.1548369999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '8.5' in 'onDemand'",
+              "duration": 2802.0567410000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "hydrates first variable Hover sources at PHP '8.5' in 'progressive'",
+              "status": "passed",
+              "title": "hydrates first variable Hover sources at PHP '8.5' in 'progressive'",
+              "duration": 2991.4962320000013,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237344520,
+          "endTime": 1791237356741.4963,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts"
+        }
+      ]
+    },
+    "semantic-full": {
+      "path": "/tmp/sophp-d124-semantic-full.json",
+      "sha256": "c5ad93f267f48dc1b78a229fcae94f22111e4edd41be9324b15697ce95416267",
+      "files": 128,
+      "total": 3161,
+      "passed": 3161,
+      "failed": 0,
+      "pending": 0,
+      "success": true,
+      "fileResults": [
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f04-references.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+          "status": "passed",
+          "cases": 6,
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-extract-method.test.ts",
+          "status": "passed",
+          "cases": 3,
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+          "status": "passed",
+          "cases": 6,
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/add-method-family-parameter.test.ts",
+          "status": "passed",
+          "cases": 8,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/add-private-parameter.test.ts",
+          "status": "passed",
+          "cases": 8,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-access-key-completion.test.ts",
+          "status": "passed",
+          "cases": 79,
+          "passed": 79,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-column-properties.test.ts",
+          "status": "passed",
+          "cases": 6,
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-column-return-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-combine-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-count-values-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-fill-keys-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-flip-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-inline-doc-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-key-preservation.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/array-receiver-origin-dependencies.test.ts",
+          "status": "passed",
+          "cases": 48,
+          "passed": 48,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/assignment-comment-completion.test.ts",
+          "status": "passed",
+          "cases": 30,
+          "passed": 30,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/assignment-target-completion.test.ts",
+          "status": "passed",
+          "cases": 60,
+          "passed": 60,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/bare-construction.test.ts",
+          "status": "passed",
+          "cases": 15,
+          "passed": 15,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/blank-comment-variable-completion.test.ts",
+          "status": "passed",
+          "cases": 42,
+          "passed": 42,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/blank-initializer-type-completion.test.ts",
+          "status": "passed",
+          "cases": 40,
+          "passed": 40,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/branch-shape-completion.test.ts",
+          "status": "passed",
+          "cases": 34,
+          "passed": 34,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/branch-value-completion.test.ts",
+          "status": "passed",
+          "cases": 17,
+          "passed": 17,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/builtin-array-callback-completion.test.ts",
+          "status": "passed",
+          "cases": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/builtin-construction-completion.test.ts",
+          "status": "passed",
+          "cases": 10,
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/cached-array-access-recovery.test.ts",
+          "status": "passed",
+          "cases": 12,
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/callable-value-effects.test.ts",
+          "status": "passed",
+          "cases": 50,
+          "passed": 50,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/callback-completion-details.test.ts",
+          "status": "passed",
+          "cases": 12,
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/callback-return-completion.test.ts",
+          "status": "passed",
+          "cases": 26,
+          "passed": 26,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/captured-array-values.test.ts",
+          "status": "passed",
+          "cases": 92,
+          "passed": 92,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/class-relative-construction.test.ts",
+          "status": "passed",
+          "cases": 19,
+          "passed": 19,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/completion-identifier.test.ts",
+          "status": "passed",
+          "cases": 14,
+          "passed": 14,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/completion-trivia-offsets.test.ts",
+          "status": "passed",
+          "cases": 16,
+          "passed": 16,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/completion-type-tail.test.ts",
+          "status": "passed",
+          "cases": 15,
+          "passed": 15,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/completionMatching.test.ts",
+          "status": "passed",
+          "cases": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/conditional-completion-context.test.ts",
+          "status": "passed",
+          "cases": 14,
+          "passed": 14,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/constant-initializer-completion.test.ts",
+          "status": "passed",
+          "cases": 24,
+          "passed": 24,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/construction-trivia-completion.test.ts",
+          "status": "passed",
+          "cases": 8,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/constructor-source-proof.test.ts",
+          "status": "passed",
+          "cases": 29,
+          "passed": 29,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/csv-fields-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+          "status": "passed",
+          "cases": 58,
+          "passed": 58,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/declaration-hierarchy-sources.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/declaration-variable-boundaries.test.ts",
+          "status": "passed",
+          "cases": 7,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/existing-array-arrow-completion.test.ts",
+          "status": "passed",
+          "cases": 24,
+          "passed": 24,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/extract-method-branch-outputs.test.ts",
+          "status": "passed",
+          "cases": 13,
+          "passed": 13,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/extract-method-local-chain.test.ts",
+          "status": "passed",
+          "cases": 27,
+          "passed": 27,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/extract-method-local-return.test.ts",
+          "status": "passed",
+          "cases": 18,
+          "passed": 18,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/extract-nested-call.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/extract-shared-bindings.test.ts",
+          "status": "passed",
+          "cases": 9,
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/flow-value-completion.test.ts",
+          "status": "passed",
+          "cases": 20,
+          "passed": 20,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/flow-value-consistency.test.ts",
+          "status": "passed",
+          "cases": 22,
+          "passed": 22,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/function-declaration-refresh.test.ts",
+          "status": "passed",
+          "cases": 7,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+          "status": "passed",
+          "cases": 28,
+          "passed": 28,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/getrusage-contract.test.ts",
+          "status": "passed",
+          "cases": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/headers-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/highlight-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/image-size-contract.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/implicit-nullable-parameter.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/import-completion-boundaries.test.ts",
+          "status": "passed",
+          "cases": 8,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/inheritance-list-completion.test.ts",
+          "status": "passed",
+          "cases": 8,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/inheritance-trivia-completion.test.ts",
+          "status": "passed",
+          "cases": 22,
+          "passed": 22,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/inheritance-validity-completion.test.ts",
+          "status": "passed",
+          "cases": 7,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/inherited-constructor-generics.test.ts",
+          "status": "passed",
+          "cases": 38,
+          "passed": 38,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/inherited-final-magic.test.ts",
+          "status": "passed",
+          "cases": 18,
+          "passed": 18,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/initializer-completion-context.test.ts",
+          "status": "passed",
+          "cases": 104,
+          "passed": 104,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/inline-shared-bindings.test.ts",
+          "status": "passed",
+          "cases": 11,
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/iterator-apply-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/large-candidate-type-ranking.test.ts",
+          "status": "passed",
+          "cases": 60,
+          "passed": 60,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/large-local-type-ranking.test.ts",
+          "status": "passed",
+          "cases": 52,
+          "passed": 52,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/legacy-builtin-constructor.test.ts",
+          "status": "passed",
+          "cases": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/legacy-constructor-rename.test.ts",
+          "status": "passed",
+          "cases": 25,
+          "passed": 25,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/legacy-project-construction.test.ts",
+          "status": "passed",
+          "cases": 10,
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/local-prefix-syntax.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/local-range-completion.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/magic-declaration-completion.test.ts",
+          "status": "passed",
+          "cases": 9,
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/magic-modifier-completion.test.ts",
+          "status": "passed",
+          "cases": 32,
+          "passed": 32,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/match-condition-completion.test.ts",
+          "status": "passed",
+          "cases": 16,
+          "passed": 16,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/member-case-value-completion.test.ts",
+          "status": "passed",
+          "cases": 44,
+          "passed": 44,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/middle-array-access-completion.test.ts",
+          "status": "passed",
+          "cases": 26,
+          "passed": 26,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/middle-array-literal-completion.test.ts",
+          "status": "passed",
+          "cases": 24,
+          "passed": 24,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts",
+          "status": "passed",
+          "cases": 76,
+          "passed": 76,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/named-value-completion.test.ts",
+          "status": "passed",
+          "cases": 48,
+          "passed": 48,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/native-array-template.test.ts",
+          "status": "passed",
+          "cases": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/native-generic-parent.test.ts",
+          "status": "passed",
+          "cases": 6,
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/nested-call-never.test.ts",
+          "status": "passed",
+          "cases": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/nested-intrinsic-argument.test.ts",
+          "status": "passed",
+          "cases": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/operand-completion-context.test.ts",
+          "status": "passed",
+          "cases": 9,
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/parameter-references.test.ts",
+          "status": "passed",
+          "cases": 3,
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/parsed-call-feedback.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/pathinfo-contract.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/phpdoc-tag-boundaries.test.ts",
+          "status": "passed",
+          "cases": 33,
+          "passed": 33,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/property-case-rename.test.ts",
+          "status": "passed",
+          "cases": 45,
+          "passed": 45,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/property-hook-keyword-context.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/protected-family-completion.test.ts",
+          "status": "passed",
+          "cases": 10,
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/quoted-prefix-completion.test.ts",
+          "status": "passed",
+          "cases": 58,
+          "passed": 58,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/readonly-anonymous.test.ts",
+          "status": "passed",
+          "cases": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/reassigned-parameter-completion.test.ts",
+          "status": "passed",
+          "cases": 26,
+          "passed": 26,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/reflection-construction-versions.test.ts",
+          "status": "passed",
+          "cases": 9,
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/remove-method-family-parameter.test.ts",
+          "status": "passed",
+          "cases": 6,
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/reorder-method-family-parameter.test.ts",
+          "status": "passed",
+          "cases": 7,
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/reorder-optional-method-parameters.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/restored-signature-cache.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/root-import-completion.test.ts",
+          "status": "passed",
+          "cases": 10,
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/semantic.test.ts",
+          "status": "passed",
+          "cases": 497,
+          "passed": 497,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/shape-comment-completion.test.ts",
+          "status": "passed",
+          "cases": 34,
+          "passed": 34,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/shape-value-candidate-completion.test.ts",
+          "status": "passed",
+          "cases": 64,
+          "passed": 64,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/signature-prefix-range.test.ts",
+          "status": "passed",
+          "cases": 39,
+          "passed": 39,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/simplexml-factory-contract.test.ts",
+          "status": "passed",
+          "cases": 3,
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/stat-contract.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/static-property-value-completion.test.ts",
+          "status": "passed",
+          "cases": 53,
+          "passed": 53,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/static-scope.test.ts",
+          "status": "passed",
+          "cases": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/string-replacement-contract.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/switch-condition-completion.test.ts",
+          "status": "passed",
+          "cases": 11,
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/trailing-callback-members.test.ts",
+          "status": "passed",
+          "cases": 13,
+          "passed": 13,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/trait-construction.test.ts",
+          "status": "passed",
+          "cases": 24,
+          "passed": 24,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/trait-constructor-phpdoc.test.ts",
+          "status": "passed",
+          "cases": 28,
+          "passed": 28,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/trait-final-cache.test.ts",
+          "status": "passed",
+          "cases": 8,
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/trait-precedence-names.test.ts",
+          "status": "passed",
+          "cases": 33,
+          "passed": 33,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/trait-use-generics.test.ts",
+          "status": "passed",
+          "cases": 84,
+          "passed": 84,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/unclosed-callable-value-completion.test.ts",
+          "status": "passed",
+          "cases": 76,
+          "passed": 76,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/unclosed-shape-value-completion.test.ts",
+          "status": "passed",
+          "cases": 54,
+          "passed": 54,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/unfinished-shape-completion.test.ts",
+          "status": "passed",
+          "cases": 58,
+          "passed": 58,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/union-shape-completion.test.ts",
+          "status": "passed",
+          "cases": 27,
+          "passed": 27,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/unknown-collection-template.test.ts",
+          "status": "passed",
+          "cases": 6,
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/value-call-binding.test.ts",
+          "status": "passed",
+          "cases": 11,
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/variable-value-origins.test.ts",
+          "status": "passed",
+          "cases": 32,
+          "passed": 32,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/word-middle-shape-completion.test.ts",
+          "status": "passed",
+          "cases": 40,
+          "passed": 40,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/semantic/test/xmlreader-invocation.test.ts",
+          "status": "passed",
+          "cases": 19,
+          "passed": 19,
+          "failed": 0
+        }
+      ]
+    },
+    "cache-hot": {
+      "path": "/tmp/sophp-d124-cache-hot.json",
+      "sha256": "4786277b61412c867551865961f0eaa0199c99609f7121745ab0ceca8a05f975",
+      "files": 4,
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "pending": 0,
+      "success": true,
+      "fileResults": [
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/project-facts.test.ts",
+          "status": "passed",
+          "cases": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/trait-final-cache-stdio.test.ts",
+          "status": "passed",
+          "cases": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "name": "/var/www/node/php-companion/packages/language-server/test/magic-modifier-stdio.test.ts",
+          "status": "passed",
+          "cases": 2,
+          "passed": 2,
+          "failed": 0
+        }
+      ],
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "loads current array receiver origins at PHP '7.2' in 'onDemand'",
+              "status": "passed",
+              "title": "loads current array receiver origins at PHP '7.2' in 'onDemand'",
+              "duration": 2688.32654,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "loads current array receiver origins at PHP '7.2' in 'progressive'",
+              "status": "passed",
+              "title": "loads current array receiver origins at PHP '7.2' in 'progressive'",
+              "duration": 2615.4255550000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "loads current array receiver origins at PHP '8.5' in 'onDemand'",
+              "status": "passed",
+              "title": "loads current array receiver origins at PHP '8.5' in 'onDemand'",
+              "duration": 3061.5589119999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "loads current array receiver origins at PHP '8.5' in 'progressive'",
+              "status": "passed",
+              "title": "loads current array receiver origins at PHP '8.5' in 'progressive'",
+              "duration": 3034.9489670000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237646178,
+          "endTime": 1791237657579.949,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts restores checked source declarations lazily and rejects corrupt or stale cache entries",
+              "status": "passed",
+              "title": "restores checked source declarations lazily and rejects corrupt or stale cache entries",
+              "duration": 65.06543599999986,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts round-trips Doctrine facts without caching framework controller contexts",
+              "status": "passed",
+              "title": "round-trips Doctrine facts without caching framework controller contexts",
+              "duration": 18.11616499999991,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts rejects tampered facts, a mismatched URI, and an unsupported wrapper schema",
+              "status": "passed",
+              "title": "rejects tampered facts, a mismatched URI, and an unsupported wrapper schema",
+              "duration": 4.381151000000045,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "persistent project PHP facts"
+              ],
+              "fullName": "persistent project PHP facts propagates an exact project QueryBuilder factory entity and erases it after select",
+              "status": "passed",
+              "title": "propagates an exact project QueryBuilder factory entity and erases it after select",
+              "duration": 71.44310600000017,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237648206,
+          "endTime": 1791237648365.443,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/project-facts.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "keeps final trait aliases across persisted restarts, old cache fallback and disk edits",
+              "status": "passed",
+              "title": "keeps final trait aliases across persisted restarts, old cache fallback and disk edits",
+              "duration": 11779.381599,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237646221,
+          "endTime": 1791237658000.3816,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/trait-final-cache-stdio.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "respects magic method modifiers and static edits at PHP 7.2",
+              "status": "passed",
+              "title": "respects magic method modifiers and static edits at PHP 7.2",
+              "duration": 4058.9189850000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "respects magic method modifiers and static edits at PHP 8.5",
+              "status": "passed",
+              "title": "respects magic method modifiers and static edits at PHP 8.5",
+              "duration": 4742.384032000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791237658328,
+          "endTime": 1791237667129.384,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/language-server/test/magic-modifier-stdio.test.ts"
+        }
+      ]
+    }
+  },
+  "host": {
+    "metadata": {
+      "startedAt": "2026-10-05T21:58:57.925749+00:00",
+      "inputsSha256": {
+        "packages/semantic/src/index.ts": "c8ca1d589761141aa52c127818589951b28ed3aa3674e58857888706d43df819",
+        "packages/language-server/src/server.ts": "1147a904deb2ab119645fcb8179773452b345702400a8791c4476129bdd81eac",
+        "packages/semantic/test/function-query-dependencies.test.ts": "d6cf6ffe751ae12624929fc3e7d1e2418e75fedd7113880315f0463335955bd1",
+        "packages/language-server/test/cold-function-result-queries-stdio.test.ts": "ac5346e303f6715cbb420375819c0f0162b3dd1874b5f5b3f973e39b6e7c4209",
+        "test/extension/suite/coldFunctionQueryAcceptance.ts": "6ba1ef738f667ab4fa87e12098f0ce95297ef475bfe468dac91de2476c5a7901",
+        "scripts/check-cold-function-query-acceptance.mjs": "fe781f7dfed5507307b75a552609ed8f7b002e8ff744a5c327de8de1faea1f09",
+        "dist/language-server.js": "5e7b0dc53f7ed11ab64434f504faaa9cdb70c8c704a069a82992ed66da04b30e",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "results": [
+        {
+          "version": "7.2",
+          "mode": "onDemand",
+          "exitCode": 0,
+          "command": [
+            "node",
+            "scripts/check-cold-function-query-acceptance.mjs",
+            "/tmp/sophp-d124-host-7.2-onDemand.json"
+          ]
+        },
+        {
+          "version": "7.2",
+          "mode": "progressive",
+          "exitCode": 0,
+          "command": [
+            "node",
+            "scripts/check-cold-function-query-acceptance.mjs",
+            "/tmp/sophp-d124-host-7.2-progressive.json"
+          ]
+        },
+        {
+          "version": "8.5",
+          "mode": "onDemand",
+          "exitCode": 0,
+          "command": [
+            "node",
+            "scripts/check-cold-function-query-acceptance.mjs",
+            "/tmp/sophp-d124-host-8.5-onDemand.json"
+          ]
+        },
+        {
+          "version": "8.5",
+          "mode": "progressive",
+          "exitCode": 0,
+          "command": [
+            "node",
+            "scripts/check-cold-function-query-acceptance.mjs",
+            "/tmp/sophp-d124-host-8.5-progressive.json"
+          ]
+        }
+      ],
+      "status": "finished",
+      "activePid": 3201995,
+      "activeVersion": "8.5",
+      "activeMode": "progressive",
+      "finishedAt": "2026-10-05T22:00:31.580030+00:00",
+      "inputsUnchanged": true
+    },
+    "proofs": {
+      "7.2/onDemand": {
+        "platform": "linux",
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "firstSemanticRequest": "variableHover",
+        "firstRequestRetried": false,
+        "definitionMatched": true,
+        "signatureMatched": true,
+        "completionProviderPrewarm": false,
+        "otherQueriesBeforeTyping": [
+          "hover",
+          "definition",
+          "signatureHelp"
+        ],
+        "explicitTriggerSuggest": false,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 203,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 217,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      "7.2/progressive": {
+        "platform": "linux",
+        "phpVersion": "7.2",
+        "indexingMode": "progressive",
+        "firstSemanticRequest": "variableHover",
+        "firstRequestRetried": false,
+        "definitionMatched": true,
+        "signatureMatched": true,
+        "completionProviderPrewarm": false,
+        "otherQueriesBeforeTyping": [
+          "hover",
+          "definition",
+          "signatureHelp"
+        ],
+        "explicitTriggerSuggest": false,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 208,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 217,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      "8.5/onDemand": {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "firstSemanticRequest": "variableHover",
+        "firstRequestRetried": false,
+        "definitionMatched": true,
+        "signatureMatched": true,
+        "completionProviderPrewarm": false,
+        "otherQueriesBeforeTyping": [
+          "hover",
+          "definition",
+          "signatureHelp"
+        ],
+        "explicitTriggerSuggest": false,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 253,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 213,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      "8.5/progressive": {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "firstSemanticRequest": "variableHover",
+        "firstRequestRetried": false,
+        "definitionMatched": true,
+        "signatureMatched": true,
+        "completionProviderPrewarm": false,
+        "otherQueriesBeforeTyping": [
+          "hover",
+          "definition",
+          "signatureHelp"
+        ],
+        "explicitTriggerSuggest": false,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 205,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\ColdQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 218,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      }
+    }
+  },
+  "hotTimings": {
+    "assignment-comment-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 105.57580000000007,
+      "p95Ms": 44.47876400000041,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "assignment-comment-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 97.15710599999966,
+      "p95Ms": 73.25492499999928,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    "magic-modifier-stdio-7.2.json": {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 24.565485999999964,
+      "p95Ms": 9.303754000000026,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    "magic-modifier-stdio-8.5.json": {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 23.407944000000498,
+      "p95Ms": 8.474481000000196,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  },
+  "scope": {
+    "currentCompleteSemanticSuite": true,
+    "currentCompleteLspSuite": false,
+    "firstProtocolQueries": [
+      "variable hover",
+      "member hover",
+      "definition",
+      "signatureHelp"
+    ],
+    "realWslAcceptance": false,
+    "performanceBudgetChanged": false,
+    "cacheSchemaChanged": false,
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false
+  },
+  "commands": {
+    "semantic": [
+      "pnpm",
+      "--filter",
+      "@php-companion/semantic",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d124-semantic-full.json"
+    ],
+    "queries": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "test/cold-function-result-queries-stdio.test.ts",
+      "test/phpdoc-tag-boundaries-stdio.test.ts",
+      "test/variable-value-hover-stdio.test.ts"
+    ],
+    "cacheHot": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "test/project-facts.test.ts",
+      "test/trait-final-cache-stdio.test.ts",
+      "test/array-receiver-origin-completion-stdio.test.ts",
+      "test/magic-modifier-stdio.test.ts"
+    ]
+  },
+  "toolChecks": {
+    "semanticBuild": 0,
+    "languageServerBuild": 0,
+    "rootBundleBuild": 0,
+    "eslint": 0,
+    "nodeSyntax": 0,
+    "rootTypecheck": 0,
+    "extensionSuiteTypecheck": 0
+  }
+}

@@ -6398,6 +6398,24 @@ async function hydrateOnDemandSymbolImports(workspace: SemanticWorkspace, root: 
   return complete;
 }
 
+async function hydrateNamedFunctionDependencies(workspace: SemanticWorkspace, root: string,
+  names: readonly string[], cancelled: () => boolean): Promise<boolean> {
+  for (const name of names) {
+    if (cancelled()) return false;
+    const parts = name.replace(/^\\/, '').split('\\');
+    if (!await hydrateOnDemandSymbolImports(workspace, root,
+      { qualifier: parts.slice(0, -1).join('\\'), prefix: parts.at(-1)! }, cancelled)) return false;
+  }
+  return !cancelled();
+}
+
+async function hydrateQueryFunctionDependencies(workspace: SemanticWorkspace, root: string,
+  uri: string, offset: number, cancelled: () => boolean): Promise<boolean> {
+  const names = [...new Set([...workspace.variableValueFunctionNamesAt(uri, offset),
+    ...workspace.memberReceiverFunctionNamesAt(uri, offset)])];
+  return hydrateNamedFunctionDependencies(workspace, root, names, cancelled);
+}
+
 async function hydrateOnDemandNamespaceTypeCandidates(workspace: SemanticWorkspace, root: string,
   context: { prefix: string; namespace: string; importedTypes: string[] }, qualified: boolean,
   cancelled: () => boolean): Promise<boolean | 'stale'> {
@@ -7039,13 +7057,9 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     const root = rootForUri(document.uri);
     if (root) {
       const functions = workspace.memberReceiverFunctionNamesAt(document.uri, offset);
-      for (const name of functions) {
-        const parts = name.replace(/^\\/, '').split('\\');
-        const complete = await hydrateOnDemandSymbolImports(workspace, root,
-          { qualifier: parts.slice(0, -1).join('\\'), prefix: parts.at(-1)! },
-          () => !currentQueryDocument(document, token, queryVersion));
-        if (!complete || !currentQueryDocument(document, token, queryVersion)) return [];
-      }
+      const complete = await hydrateNamedFunctionDependencies(workspace, root, functions,
+        () => !currentQueryDocument(document, token, queryVersion));
+      if (!complete || !currentQueryDocument(document, token, queryVersion)) return [];
       resolvedMembers = workspace.completeMembers(document.uri, offset);
     }
     let frontier = workspace.memberOwnerTypeNamesAt(document.uri, offset);
@@ -7387,6 +7401,10 @@ connection.onHover(async ({ textDocument, position }, token) => {
     if (!currentQueryDocument(document, token, queryVersion)) return null;
   }
   if (serviceRoot && document.languageId === 'php') {
+    if (!workspace.memberAt(document.uri, offset) && !workspace.variableValueAt(document.uri, offset)) {
+      if (!await hydrateQueryFunctionDependencies(workspace, serviceRoot, document.uri, offset,
+        () => !currentQueryDocument(document, token, queryVersion))) return null;
+    }
     const valueOwners = workspace.variableValueOwnerTypeNamesAt(document.uri, offset);
     if (valueOwners.length) {
       refreshStaleOpenTypeSourceAt(workspace, document.uri, offset, valueOwners);
@@ -7512,6 +7530,8 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   }
   let locations = workspace.definition(document.uri, offset);
   if (!locations.length && root && document.languageId === 'php' && !token.isCancellationRequested) {
+    if (!await hydrateQueryFunctionDependencies(workspace, root, document.uri, offset,
+      () => !currentQueryDocument(document, token, queryVersion))) return [];
     const owners = (): string[] => {
       return [workspace.isMemberAccessAt(document.uri, offset) ? undefined : workspace.resolvedTypeNameAt(document.uri, offset),
         ...workspace.memberOwnerTypeNamesAt(document.uri, offset)].filter((fqcn): fqcn is string => Boolean(fqcn));
@@ -7965,6 +7985,8 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
     await hydrateCanonicalTypes(workspace, root, [attributeConstructorType]);
   if (token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion) return null;
   if (root && document.languageId === 'php' && !workspace.signatures(document.uri, offset).length) {
+    if (!await hydrateQueryFunctionDependencies(workspace, root, document.uri, offset,
+      () => !currentQueryDocument(document, token, queryVersion))) return null;
     await hydrateMemberOwnerChain(workspace, root, () => workspace.memberCallOwnerTypeNamesAt(document.uri, offset),
       () => workspace.signatures(document.uri, offset).length > 0,
       () => token.isCancellationRequested || documents.get(document.uri)?.version !== queryVersion);

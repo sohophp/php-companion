@@ -4977,8 +4977,19 @@ export class SemanticWorkspace {
 
   /** Declaration dependencies of a queried variable; loading them does not prove its value. */
   variableValueOwnerTypeNamesAt(uri: string, offset: number): string[] {
+    return this.variableValueDependenciesAt(uri, offset);
+  }
+
+  /** Named function dependencies of a queried variable; they are not value proofs. */
+  variableValueFunctionNamesAt(uri: string, offset: number): string[] {
+    const names = new Set<string>();
+    this.variableValueDependenciesAt(uri, offset, names);
+    return [...names];
+  }
+
+  private variableValueDependenciesAt(uri: string, offset: number, functionNames?: Set<string>): string[] {
     const file = this.files.get(uri);
-    if (!file || (!file.source.includes('::') && !file.source.includes('->')) || !this.isPhpCodeContext(uri, offset)
+    if (!file || (!file.source.includes('(') && !file.source.includes('::') && !file.source.includes('->')) || !this.isPhpCodeContext(uri, offset)
       || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
     const reference = file.variableReferences.find(item => item.start <= offset && offset < item.end);
     if (!reference) return [];
@@ -4987,7 +4998,7 @@ export class SemanticWorkspace {
       const tree = (retainedTree ?? temporaryTree)!;
       const variable = deepestLocalSyntax(tree.rootNode, reference.start, reference.end,
         candidate => candidate.type === 'variable_name' && candidate.startIndex === reference.start && candidate.endIndex === reference.end);
-      return variable ? this.expressionValueOwnerTypes(file, tree.rootNode, variable) : [];
+      return variable ? this.expressionValueOwnerTypes(file, tree.rootNode, variable, functionNames) : [];
     } finally { temporaryTree?.delete(); }
   }
 
@@ -4995,7 +5006,7 @@ export class SemanticWorkspace {
   memberReceiverFunctionNamesAt(uri: string, offset: number): string[] {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri);
-      if (!file || !this.isMemberCompletionContext(uri, offset) || !this.isPhpCodeContext(uri, offset)
+      if (!file || !this.isPhpCodeContext(uri, offset)
         || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
       const retained = this.trees.get(uri), temporary = retained ? undefined : this.parser.parseTree(file.source);
       try {
@@ -5020,10 +5031,17 @@ export class SemanticWorkspace {
         const base = expression.namedChildren[0]; if (base) collect(base, depth + 1);
         return;
       }
-      if (functionNames && expression.type === 'function_call_expression') {
+      if (expression.type === 'function_call_expression') {
         const name = expression.childForFieldName('function');
-        if (name && ['name', 'qualified_name', 'relative_name'].includes(name.type))
-          functionNames.add(this.resolveFunction(file, name.text, this.namespaceAt(file, name.startIndex), name.startIndex));
+        if (name && ['name', 'qualified_name', 'relative_name'].includes(name.type)) {
+          const fqfn = this.resolveFunction(file, name.text, this.namespaceAt(file, name.startIndex), name.startIndex);
+          if (functionNames) functionNames.add(fqfn);
+          else {
+            const found = this.functionDeclarations(fqfn)[0];
+            const returned = found && this.callableReturnClass(found.file, found.item.returnType, found.item.fqcn, true);
+            if (returned) owners.add(returned.fqcn);
+          }
+        }
         return;
       }
       if (expression.type === 'variable_name') {
