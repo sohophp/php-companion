@@ -12,6 +12,8 @@ if (process.argv.length > 3) throw new Error('Usage: node scripts/check-cold-fun
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const automatic = process.env.SOPHP_AUTOMATIC_COMPLETION === '1';
 const isolatedIndexingMode = process.env.SOPHP_AUTOMATIC_INDEXING_MODE;
+const firstSemanticRequest = process.env.SOPHP_FIRST_FUNCTION_QUERY ?? 'variableHover';
+assert.ok(['variableHover', 'typeDefinition', 'implementation'].includes(firstSemanticRequest), 'Unsupported first function query');
 if (!automatic || !['onDemand', 'progressive'].includes(isolatedIndexingMode))
   throw new Error('Set SOPHP_AUTOMATIC_COMPLETION=1 and select SOPHP_AUTOMATIC_INDEXING_MODE=onDemand or progressive.');
 if (isolatedIndexingMode && (!automatic || !['onDemand', 'progressive'].includes(isolatedIndexingMode)))
@@ -54,6 +56,7 @@ try {
         }\n` + workspaceReady);
   }
   const coldFixtureFiles = {"src/ColdQuery/Row.php": "<?php namespace App\\ColdQuery; class Row { public function name(): string { return 'row'; } }", "src/cold-query-functions.php": "<?php namespace App\\ColdQuery; /** @return Row */ function rows() { return new Row(); }", "ColdFunctionConsumer.php": "<?php\nnamespace App\\ColdQuery;\nfunction run(): void {\n    $value = rows();\n    $value->name();\n    $value->;\n}\n"};
+  coldFixtureFiles['src/ColdQuery/Child.php'] = "<?php namespace App\\ColdQuery; class Child extends Row { public function name(): string { return 'child'; } }";
   const coldFixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';
   assert.equal(runner.split(coldFixtureCopy).length, 2, 'One fixture copy must precede editor launch');
   runner = runner.replace(coldFixtureCopy, `${coldFixtureCopy}
@@ -94,10 +97,12 @@ try {
   const proof = JSON.parse(match[1]);
   assert.equal(proof.indexingMode, isolatedIndexingMode);
   assert.equal(proof.results.length, 2);
-  assert.equal(proof.firstSemanticRequest, 'variableHover');
+  assert.equal(proof.firstSemanticRequest, firstSemanticRequest);
   assert.equal(proof.firstRequestRetried, false);
   assert.equal(proof.definitionMatched, true);
   assert.equal(proof.signatureMatched, true);
+  assert.equal(proof.typeDefinitionMatched, true);
+  assert.equal(proof.implementationMatched, true);
   assert.equal(proof.diskUnchanged, true);
   if (automatic) { assert.equal(rendererExceptions, 0, 'Automatic completion raised getItemsByProvider'); proof.rendererExceptions = rendererExceptions; }
   if (process.argv[2]) await writeFile(process.argv[2], JSON.stringify(proof, null, 2) + '\n');

@@ -8948,6 +8948,23 @@ export class SemanticWorkspace {
     return this.withImplementationAt(uri, offset, () => this.typeDefinitionWithImplementation(uri, offset));
   }
 
+  /** Type sources needed by Type Definition; a dependency is not a navigable declaration. */
+  typeDefinitionOwnerTypeNamesAt(uri: string, offset: number): string[] {
+    return this.withImplementationAt(uri, offset, () => {
+      const file = this.files.get(uri), word = file && wordAt(file.source, offset);
+      if (!file || !word || !this.isPhpCodeContext(uri, offset)
+        || file.commentRanges.some(range => range.start <= offset && offset < range.end)) return [];
+      const member = this.memberAt(uri, offset), returned = member && this.memberReturnClass(member, true);
+      if (returned) return [returned.fqcn];
+      if (word.start > 0 && file.source[word.start - 1] === '$') {
+        const variable = this.variableClass(file, `$${word.text}`, offset, new Set(), true);
+        return variable ? [variable.fqcn] : [];
+      }
+      const fqcn = this.resolvedTypeNameAt(uri, offset);
+      return fqcn ? [fqcn] : [];
+    });
+  }
+
   private typeDefinitionWithImplementation(uri: string, offset: number): SemanticLocation[] {
     const file = this.files.get(uri); const word = file && wordAt(file.source, offset); if (!file || !word) return [];
     const member = this.memberAt(uri, offset);

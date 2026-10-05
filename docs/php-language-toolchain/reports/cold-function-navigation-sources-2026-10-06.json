@@ -1,0 +1,748 @@
+{
+  "schema": 1,
+  "milestone": "D125",
+  "createdAtUtc": "2026-10-05T22:26:10.711631+00:00",
+  "baseCommit": "c65ec454dac128414f774b3857ca943637f7e4fa",
+  "branch": "work/sophp-next",
+  "bundleSha256": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+  "cacheSchemas": {
+    "semantic": 88,
+    "sourceDeclaration": 6,
+    "projectWrapper": 12,
+    "engine": "v67"
+  },
+  "sourceSha256": {
+    "packages/semantic/src/index.ts": "aeda4d74cbac4ee4fde6f46996ede202d500f430d45aff42b5ed643ab8acfe2d",
+    "packages/language-server/src/server.ts": "662afab68e58bcd16f00a94eaa18471d86b65cf6592224201a2814bea8f680f3",
+    "packages/semantic/test/type-definition-dependencies.test.ts": "2d17b25efc785852b115e92f17d12d9e47e8cb22283034b9b88b6b06a1928804",
+    "packages/language-server/test/cold-function-result-queries-stdio.test.ts": "25929a0ba5a81a103f74efb443d156905a78fd17c09b55624cbe77c51d4033e8",
+    "test/extension/suite/coldFunctionQueryAcceptance.ts": "bdd913f3f887cc5734023d7cf77572fad0c376ef15ecbcb8850ec385d24a00ef",
+    "scripts/check-cold-function-query-acceptance.mjs": "0d6b588f6323e24f70f6775ea4dce595daf34b55b989912ac443e51d249787b2",
+    "dist/language-server.js": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+    "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "tests": {
+    "cold-navigation-setup-skipped": {
+      "artifact": "/tmp/sophp-d125-cold-navigation-setup-skipped.json",
+      "sha256": "c187f4ecbcc182028c3c1b5b87b5300102484030281375ad7055a9c5f1cb17be",
+      "success": true,
+      "files": 1,
+      "passed": 0,
+      "failed": 0,
+      "pending": 16,
+      "total": 16,
+      "failures": []
+    },
+    "cold-navigation-red": {
+      "artifact": "/tmp/sophp-d125-cold-navigation-red.json",
+      "sha256": "a60ff835f9047f7756e37b3f9a67e572087d2d7a4754fccec35c0fc77db1cd20",
+      "success": false,
+      "files": 1,
+      "passed": 0,
+      "failed": 8,
+      "pending": 16,
+      "total": 24,
+      "failures": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 7.2/onDemand with first typeDefinition",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:139:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 7.2/progressive with first typeDefinition",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:139:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 8.5/onDemand with first typeDefinition",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:139:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 8.5/progressive with first typeDefinition",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:139:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 7.2/onDemand with first implementation",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:140:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 7.2/progressive with first implementation",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:140:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 8.5/onDemand with first implementation",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:140:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+          "name": "resolves cold function-result queries at PHP 8.5/progressive with first implementation",
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ { …(2) } ]\n    at /var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts:140:63\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    },
+    "cold-navigation-candidate": {
+      "artifact": "/tmp/sophp-d125-cold-navigation-candidate.json",
+      "sha256": "4f952006a1a1c1a4b9d6435062ca8af0fe2a58ed9d9826715b6dad51afeba535",
+      "success": true,
+      "files": 1,
+      "passed": 24,
+      "failed": 0,
+      "pending": 0,
+      "total": 24,
+      "failures": []
+    },
+    "semantic-selected": {
+      "artifact": "/tmp/sophp-d125-semantic-selected.json",
+      "sha256": "cb411d4d110ee72ec5baf65498db4c78d47f4baff802c678f581805c3abe3de0",
+      "success": false,
+      "files": 2,
+      "passed": 38,
+      "failed": 8,
+      "pending": 0,
+      "total": 46,
+      "failures": [
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads variable type sources without inventing a declaration, retained=true",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads captured variable type sources without inventing a declaration, retained=true",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads method return type sources without inventing a declaration, retained=true",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads property type sources without inventing a declaration, retained=true",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads variable type sources without inventing a declaration, retained=false",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads captured variable type sources without inventing a declaration, retained=false",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads method return type sources without inventing a declaration, retained=false",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "loads property type sources without inventing a declaration, retained=false",
+          "messages": [
+            "AssertionError: expected [ { uri: 'file:///Row.php', …(5) } ] to deeply equal [ { uri: 'file:///Row.php', …(2) } ]\n    at /var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts:27:53\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        }
+      ]
+    },
+    "semantic-final": {
+      "artifact": "/tmp/sophp-d125-semantic-final.json",
+      "sha256": "09816d3c59ceff2bb1e01dede45e427c652533234034c32a4ab538aa9bc66ada",
+      "success": true,
+      "files": 2,
+      "passed": 46,
+      "failed": 0,
+      "pending": 0,
+      "total": 46,
+      "failures": []
+    },
+    "navigation-final": {
+      "artifact": "/tmp/sophp-d125-navigation-final.json",
+      "sha256": "6ee5148fdeafe0cf4231f3ce73b4f24ee39fc97d52fd77add1dfd9c811d0972d",
+      "success": true,
+      "files": 3,
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "total": 32,
+      "failures": []
+    },
+    "semantic-full": {
+      "artifact": "/tmp/sophp-d125-semantic-full.json",
+      "sha256": "441ecbeeb8b78b47e67ab693424a9a35ce4c1cdee832fcd4c9c7bc161e13383d",
+      "success": true,
+      "files": 129,
+      "passed": 3179,
+      "failed": 0,
+      "pending": 0,
+      "total": 3179,
+      "failures": []
+    }
+  },
+  "toolChecks": {
+    "initialFailures": [
+      "explicit-function-return-type: navigation helper lacked Promise<void>",
+      "TS2339: LocationLink branch incorrectly narrowed by optional property"
+    ],
+    "final": [
+      "eslint modified files",
+      "tsc root --noEmit",
+      "tsc extension tests --noEmit",
+      "node --check acceptance tool",
+      "git diff --check"
+    ],
+    "finalExitCode": 0
+  },
+  "host": {
+    "status": "passed",
+    "groups": 8,
+    "acceptances": 16,
+    "proofs": [
+      {
+        "artifact": "/tmp/sophp-d125-ui-typeDefinition-7.2-onDemand.json",
+        "sha256": "42523d9c5428ad09de4e43e7b3dc5f25fd272ba85221df2f1e4b976743020c1c",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "firstSemanticRequest": "typeDefinition",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "typeDefinition",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "implementation"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 322,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 184,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-typeDefinition-7.2-progressive.json",
+        "sha256": "0cb0000e194f4207c5857bec4dc9792007c2cfead0ef9a4533104d401088f8e8",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "firstSemanticRequest": "typeDefinition",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "typeDefinition",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "implementation"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 216,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 237,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-typeDefinition-8.5-onDemand.json",
+        "sha256": "9be273969a39f37fb234187bcbea73fded6336da213c4ffcb3748fdcf299c1ab",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "firstSemanticRequest": "typeDefinition",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "typeDefinition",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "implementation"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 403,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 222,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-typeDefinition-8.5-progressive.json",
+        "sha256": "d3c4b8b601e1b6a58b688f86f9415ad7c000e9269b5befb77686173acec29598",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "firstSemanticRequest": "typeDefinition",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "typeDefinition",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "implementation"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 203,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 217,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-implementation-7.2-onDemand.json",
+        "sha256": "be4e44bd221a7b2ba7c0ec304777661aa46357baedb5f40aa426c01a93725c64",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "firstSemanticRequest": "implementation",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "implementation",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "typeDefinition"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 208,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 220,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-implementation-7.2-progressive.json",
+        "sha256": "075ebaf97adffa4d9984fe128826b1bd6d69ec04914299698f45551a96134262",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "firstSemanticRequest": "implementation",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "implementation",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "typeDefinition"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 296,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 306,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-implementation-8.5-onDemand.json",
+        "sha256": "5891d5b9d51adda185d72c6e0b49328fc4290090ac3c4a79de4df626300a236f",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "firstSemanticRequest": "implementation",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "implementation",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "typeDefinition"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 234,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 215,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      },
+      {
+        "artifact": "/tmp/sophp-d125-ui-implementation-8.5-progressive.json",
+        "sha256": "5c7f4bfafaa3a9e76fd459879b5ef821c85ef825de1a5f4fd87698f2a0eae3fb",
+        "proof": {
+          "platform": "linux",
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "firstSemanticRequest": "implementation",
+          "firstRequestRetried": false,
+          "definitionMatched": true,
+          "signatureMatched": true,
+          "typeDefinitionMatched": true,
+          "implementationMatched": true,
+          "completionProviderPrewarm": false,
+          "otherQueriesBeforeTyping": [
+            "implementation",
+            "variableHover",
+            "definition",
+            "signatureHelp",
+            "typeDefinition"
+          ],
+          "explicitTriggerSuggest": false,
+          "diskUnchanged": true,
+          "results": [
+            {
+              "key": "Enter",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 252,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            },
+            {
+              "key": "Tab",
+              "visible": {
+                "visible": true,
+                "labels": [
+                  "nameApp\\ColdQuery\\Row::name(): string"
+                ]
+              },
+              "visibleWaitMs": 209,
+              "exactText": true,
+              "caretMatched": true,
+              "undoRedo": true
+            }
+          ],
+          "rendererExceptions": 0
+        }
+      }
+    ],
+    "finalInputVerification": {
+      "before": {
+        "dist/language-server.js": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "scripts/run-extension-test.mjs": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e",
+        "scripts/check-cold-function-query-acceptance.mjs": "0d6b588f6323e24f70f6775ea4dce595daf34b55b989912ac443e51d249787b2",
+        "test/extension/suite/coldFunctionQueryAcceptance.ts": "bdd913f3f887cc5734023d7cf77572fad0c376ef15ecbcb8850ec385d24a00ef"
+      },
+      "after": {
+        "dist/language-server.js": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "scripts/run-extension-test.mjs": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e",
+        "scripts/check-cold-function-query-acceptance.mjs": "0d6b588f6323e24f70f6775ea4dce595daf34b55b989912ac443e51d249787b2",
+        "test/extension/suite/coldFunctionQueryAcceptance.ts": "bdd913f3f887cc5734023d7cf77572fad0c376ef15ecbcb8850ec385d24a00ef"
+      },
+      "unchanged": true,
+      "initialMixedInputRun": "/tmp/sophp-d125-ui-initial-inputs.json",
+      "rerunOnlyChangedToolGroups": [
+        "typeDefinition/7.2/onDemand",
+        "typeDefinition/7.2/progressive"
+      ],
+      "finalSixGroupsFromInitialRun": true,
+      "ended": 1791239180.9443552
+    },
+    "initialMixedInputRun": {
+      "before": {
+        "dist/language-server.js": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "scripts/run-extension-test.mjs": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e",
+        "scripts/check-cold-function-query-acceptance.mjs": "0d6b588f6323e24f70f6775ea4dce595daf34b55b989912ac443e51d249787b2",
+        "test/extension/suite/coldFunctionQueryAcceptance.ts": "4c55d01c26bfbe3abc1f37cec14cef220feb41ea288bf29310090db84e80105e"
+      },
+      "started": 1791238972.1872342,
+      "after": {
+        "dist/language-server.js": "ed7230a3047858733c4809cab332ead858e34b8e27e4a15d19df28c42adfa672",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "scripts/run-extension-test.mjs": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e",
+        "scripts/check-cold-function-query-acceptance.mjs": "0d6b588f6323e24f70f6775ea4dce595daf34b55b989912ac443e51d249787b2",
+        "test/extension/suite/coldFunctionQueryAcceptance.ts": "bdd913f3f887cc5734023d7cf77572fad0c376ef15ecbcb8850ec385d24a00ef"
+      },
+      "unchanged": false,
+      "ended": 1791239129.2545094
+    },
+    "initialMixedInputRunExitCode": 1,
+    "initialMixedInputRunQualification": false,
+    "explanation": "Initial batch had 8 passing functional hosts but suite type corrections changed one input. Preserved original inputs/results; only two first typeDefinition PHP7.2 groups rerun with final suite. Remaining six groups ran after final suite correction. Product and other inputs unchanged.",
+    "visibleWaitMs": {
+      "minimum": 184,
+      "maximum": 403,
+      "measurement": "Observation after final natural keystroke; not activation latency or hot P95"
+    }
+  },
+  "fullLsp": {
+    "status": "running",
+    "separateMilestone": "D126",
+    "metadata": "/tmp/sophp-d126-full-meta.json",
+    "cases": 1005,
+    "files": 83,
+    "notYetQualification": true
+  },
+  "boundaries": [
+    "Common named function/declared return dependencies only; no dynamic guesses",
+    "No new schema/configuration/PHP execution",
+    "UI uses Linux isolated Core host; not real WSL acceptance",
+    "Completion typed after navigation/hover; not a fully cold completion proof",
+    "D122 complete green qualifies only its older product",
+    "Ordinary editing budget, large cache memory, other CLI/platforms and long WSL sessions remain open"
+  ],
+  "goalStatus": "active"
+}

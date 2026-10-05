@@ -62,6 +62,10 @@ it.each([
   ['8.5', 'onDemand', 'memberHover'], ['8.5', 'progressive', 'memberHover'],
   ['7.2', 'onDemand', 'signatureHelp'], ['7.2', 'progressive', 'signatureHelp'],
   ['8.5', 'onDemand', 'signatureHelp'], ['8.5', 'progressive', 'signatureHelp'],
+  ['7.2', 'onDemand', 'typeDefinition'], ['7.2', 'progressive', 'typeDefinition'],
+  ['8.5', 'onDemand', 'typeDefinition'], ['8.5', 'progressive', 'typeDefinition'],
+  ['7.2', 'onDemand', 'implementation'], ['7.2', 'progressive', 'implementation'],
+  ['8.5', 'onDemand', 'implementation'], ['8.5', 'progressive', 'implementation'],
   ['7.2', 'onDemand', 'definition'], ['7.2', 'progressive', 'definition'],
   ['8.5', 'onDemand', 'definition'], ['8.5', 'progressive', 'definition'],
 ] as const)('resolves cold function-result queries at PHP %s/%s with first %s', async (phpVersion, indexingMode, firstQuery) => {
@@ -69,6 +73,7 @@ it.each([
   try {
     const sourceRoot = join(root, 'src'); await mkdir(sourceRoot);
     const row = '<?php namespace App; class Row { public function name(): string { return "row"; } }';
+    const child = '<?php namespace App; class Child extends Row { public function name(): string { return "child"; } }';
     const other = '<?php namespace App; class Other { public function otherOnly(): void {} }';
     const api = (type: string): string => `<?php namespace App; class Api {
 /**
@@ -87,13 +92,19 @@ it.each([
  */ function rows() { return new ${type}(); }`;
     const caller = '<?php namespace App; function run(Api $api): void {\n'
       + '$value = $api->row; $value->name();\n$item = rows(); $item->name();\n$result = $api->read(); $result->name();\n}';
-    const originals = new Map([['Row.php', row], ['Other.php', other], ['Api.php', api('Row')], ['rows.php', rows('Row')], ['Caller.php', caller]]);
+    const originals = new Map([['Row.php', row], ['Child.php', child], ['Other.php', other], ['Api.php', api('Row')], ['rows.php', rows('Row')], ['Caller.php', caller]]);
     for (const [name, source] of originals) await writeFile(join(sourceRoot, name), source);
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' }, files: ['src/rows.php'] } }));
     const uri = pathToFileURL(join(sourceRoot, 'Caller.php')).toString();
     const rowUri = pathToFileURL(join(sourceRoot, 'Row.php')).toString();
+    const otherUri = pathToFileURL(join(sourceRoot, 'Other.php')).toString();
     const apiUri = pathToFileURL(join(sourceRoot, 'Api.php')).toString();
     const rowsUri = pathToFileURL(join(sourceRoot, 'rows.php')).toString();
+    const childUri = pathToFileURL(join(sourceRoot, 'Child.php')).toString();
+    const typeStart = row.indexOf('Row');
+    const expectedTypeDefinition = [{ uri: rowUri, range: { start: position(row, typeStart), end: position(row, typeStart + 3) } }];
+    const childStart = child.indexOf('name():');
+    const expectedImplementation = [{ uri: childUri, range: { start: position(child, childStart), end: position(child, childStart + 4) } }];
     const start = row.indexOf('name():');
     const expectedDefinition = [{ uri: rowUri, range: { start: position(row, start), end: position(row, start + 4) } }];
     for (const restart of [false, true]) {
@@ -115,17 +126,25 @@ it.each([
           expect(hover?.contents?.value).toContain(`${variable}: App\\${type}\n`);
           const definitions = await request('textDocument/definition', { textDocument: { uri }, position: position(caller, offset + variable.length + 4) });
           expect(definitions).toEqual(type === 'Row' ? expectedDefinition : []);
+          const typeSource = type === 'Row' ? row : other, typeStart = typeSource.indexOf(type);
+          const types = await request('textDocument/typeDefinition', { textDocument: { uri }, position: position(caller, offset + 2) });
+          expect(types).toEqual([{ uri: type === 'Row' ? rowUri : otherUri,
+            range: { start: position(typeSource, typeStart), end: position(typeSource, typeStart + type.length) } }]);
+          const implementations = await request('textDocument/implementation', { textDocument: { uri }, position: position(caller, offset + variable.length + 4) });
+          expect(implementations).toEqual(type === 'Row' ? expectedImplementation : []);
         }
       };
-      // Hover and Definition must each work as the first semantic request.
+      // Each query family must work as the first semantic request.
       // No Completion, diagnostic/index-ready wait or query prewarm precedes it.
       const firstOffset = caller.indexOf('$item->name');
       const firstMethod = firstQuery === 'memberHover' ? 'hover' : firstQuery;
       const first = await request(`textDocument/${firstMethod}`, { textDocument: { uri },
-        position: position(caller, firstOffset + (firstQuery === 'hover' ? 2 : firstQuery === 'signatureHelp' ? '$item->name('.length : '$item'.length + 4)) });
+        position: position(caller, firstOffset + (['hover', 'typeDefinition'].includes(firstQuery) ? 2 : firstQuery === 'signatureHelp' ? '$item->name('.length : '$item'.length + 4)) });
       if (firstQuery === 'hover') expect(first?.contents?.value).toContain('$item: App\\Row\n');
       else if (firstQuery === 'memberHover') expect(first?.contents?.value).toContain('name(): string');
       else if (firstQuery === 'signatureHelp') expect(first?.signatures?.[0]?.label).toBe('name(): string');
+      else if (firstQuery === 'typeDefinition') expect(first).toEqual(expectedTypeDefinition);
+      else if (firstQuery === 'implementation') expect(first).toEqual(expectedImplementation);
       else expect(first).toEqual(expectedDefinition);
       await check('Row');
       if (!restart) {

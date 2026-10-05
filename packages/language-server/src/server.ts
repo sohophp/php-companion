@@ -7561,7 +7561,24 @@ connection.onTypeDefinition(async ({ textDocument, position }, token) => {
   const queryVersion = document.version;
   const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
-  return workspace.typeDefinition(document.uri, document.offsetAt(position)).flatMap((location) => {
+  const offset = document.offsetAt(position), root = rootForUri(document.uri);
+  if (root && document.languageId === 'php') {
+    refreshStaleOpenTypeSourceAt(workspace, document.uri, offset,
+      workspace.typeDefinitionOwnerTypeNamesAt(document.uri, offset));
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+    if (!workspace.typeDefinition(document.uri, offset).length) {
+      if (!await hydrateQueryFunctionDependencies(workspace, root, document.uri, offset,
+        () => !currentQueryDocument(document, token, queryVersion))) return [];
+      await hydrateMemberOwnerChain(workspace, root,
+        () => [...workspace.typeDefinitionOwnerTypeNamesAt(document.uri, offset),
+          ...workspace.memberOwnerTypeNamesAt(document.uri, offset),
+          ...workspace.variableValueOwnerTypeNamesAt(document.uri, offset)],
+        () => workspace.typeDefinition(document.uri, offset).length > 0,
+        () => !currentQueryDocument(document, token, queryVersion));
+      if (!currentQueryDocument(document, token, queryVersion)) return [];
+    }
+  }
+  return workspace.typeDefinition(document.uri, offset).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);
     const target = openTarget ?? (source === undefined ? undefined : TextDocument.create(location.uri, 'php', 0, source));
     return target ? [{ uri: location.uri, range: { start: target.positionAt(location.start), end: target.positionAt(location.end) } }] : [];
@@ -7580,6 +7597,8 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   let member = workspace.referenceMemberAt(document.uri, offset);
   const root = rootForUri(document.uri);
   if (!member && root && document.languageId === 'php') {
+    if (!await hydrateQueryFunctionDependencies(workspace, root, document.uri, offset,
+      () => !currentQueryDocument(document, token, queryVersion))) return [];
     await hydrateMemberOwnerChain(workspace, root, () => workspace.memberOwnerTypeNamesAt(document.uri, offset),
       () => Boolean(workspace.referenceMemberAt(document.uri, offset)),
       () => !currentQueryDocument(document, token, queryVersion));
