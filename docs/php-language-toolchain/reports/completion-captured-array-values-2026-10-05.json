@@ -1,0 +1,1574 @@
+{
+  "milestone": "D114",
+  "recordedAtUtc": "2026-10-05T15:42:25.146025+00:00",
+  "baseCommit": "f90f22bc9573aacf9e56f7be5138029074c468eb",
+  "predecessorProduct": "9f6ded503bb962bf05ede3dfeffdd73a6bcd45c1",
+  "productPatchSha256": "cc687c3f8c5b82c0cf9b7c1b8df4f252a8fcd834f2248498a7bbee88ee05774b",
+  "inputs": {
+    "inputCount": 3052,
+    "changedInputs": [],
+    "runtimeSha256": {
+      "7.2": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "7.4": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "8.1": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "8.2": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "8.4": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "8.5": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "runtimesUnchanged": true,
+    "phpSyntaxChecks": 40,
+    "frozenManifestSha256": "c133a7f4888e9530dddf307b1419a37778d7db076aada614a4f5c0161317a7c0"
+  },
+  "semantic": {
+    "artifact": "/tmp/sophp-d114-semantic-complete.json",
+    "sha256": "8a98da45e16a56f68ca62a0a559072c4423413aed603f6367c618e2996490864",
+    "files": 125,
+    "tests": 3068,
+    "passed": 3068,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "success": true,
+    "failedCases": []
+  },
+  "newSemanticTests": 92,
+  "targetedLsp": {
+    "artifact": "/tmp/sophp-d114-lsp-complete.json",
+    "sha256": "dee942320dea8fadceed551701dbfa6f512f50ec3837644029bec76b0b90bee0",
+    "files": 2,
+    "tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "success": true,
+    "failedCases": [],
+    "newQueries": 80,
+    "originalReceiverQueries": 80,
+    "combinedQueries": 160,
+    "fullCurrentLspQualified": false
+  },
+  "originalHotGate": {
+    "artifact": "/tmp/sophp-d114-original-hot.json",
+    "sha256": "20a89eb05482ec552adf2856daf3d8a0cceb3963f64a3959b23d68a13f6cc7bb",
+    "files": 1,
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "success": true,
+    "failedCases": []
+  },
+  "originalHotTimings": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 79.90487200000007,
+      "p95Ms": 54.550287000000026,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242907,
+      "sourceSha256": "efb0862ac07077d201bd768a7a3d366aa8a9a9398523d6fa3a854addb58a2cbc",
+      "comments": 1503,
+      "warmSamples": 20,
+      "firstQueryMs": 97.38569499999994,
+      "p95Ms": 65.90989799999988,
+      "scope": "isolated real stdio, commented assignment with an unrelated unfinished declaration; no edits during sampling"
+    },
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 25.737677000000076,
+      "p95Ms": 10.308804000000237,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 22.82469300000048,
+      "p95Ms": 8.115592000000106,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  ],
+  "capturedTimings": [
+    {
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "sourceBytes": 5508,
+      "sourceSha256": "6b209030727b5ab4ed2256223ef16469e9d8dda25638759550290c74855a3cdc",
+      "precedingClosures": 100,
+      "nestedCaptures": 8,
+      "warmSamples": 20,
+      "firstQueryMs": 143.0209729999999,
+      "p95Ms": 54.6597119999999,
+      "samplesMs": [
+        54.6597119999999,
+        114.42229199999974,
+        6.053341999999702,
+        6.067964999999731,
+        8.001722999999856,
+        6.3873170000001664,
+        7.821282999999767,
+        6.936643000000004,
+        5.515708999999788,
+        5.184053999999833,
+        5.342822999999953,
+        5.4306759999999485,
+        4.897617999999966,
+        5.086146999999983,
+        5.15005599999995,
+        5.742934999999761,
+        11.309805999999753,
+        5.3358650000000125,
+        9.509438000000046,
+        4.925625000000309
+      ],
+      "scope": "isolated real stdio; fixed document; no edits during sampling"
+    },
+    {
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "sourceBytes": 5508,
+      "sourceSha256": "6b209030727b5ab4ed2256223ef16469e9d8dda25638759550290c74855a3cdc",
+      "precedingClosures": 100,
+      "nestedCaptures": 8,
+      "warmSamples": 20,
+      "firstQueryMs": 166.8765169999997,
+      "p95Ms": 12.758206999999857,
+      "samplesMs": [
+        155.83349399999952,
+        12.758206999999857,
+        12.44493599999987,
+        5.248192000000017,
+        6.678388999999697,
+        4.97945400000026,
+        5.972999000000527,
+        9.335669999999482,
+        5.511580000000322,
+        5.5354239999996935,
+        5.237285000000156,
+        9.859099000000242,
+        4.946390999999494,
+        4.91198600000007,
+        5.209509000000253,
+        4.8430859999998574,
+        5.012003000000732,
+        5.00104199999987,
+        4.940633999999591,
+        6.054044000000431
+      ],
+      "scope": "isolated real stdio; fixed document; no edits during sampling"
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "sourceBytes": 5508,
+      "sourceSha256": "6b209030727b5ab4ed2256223ef16469e9d8dda25638759550290c74855a3cdc",
+      "precedingClosures": 100,
+      "nestedCaptures": 8,
+      "warmSamples": 20,
+      "firstQueryMs": 129.7435889999997,
+      "p95Ms": 67.54356199999984,
+      "samplesMs": [
+        14.83836599999995,
+        67.54356199999984,
+        122.87590600000021,
+        7.458595999999488,
+        14.897901999999704,
+        12.59334200000012,
+        9.401525999999649,
+        6.4500889999999345,
+        5.289114000000154,
+        4.933876999999484,
+        5.204015000000254,
+        6.191337000000203,
+        4.504914000000099,
+        5.11839400000008,
+        5.4437299999999595,
+        5.0486149999997,
+        6.359438999999838,
+        5.3896029999996244,
+        5.158457999999882,
+        4.83191799999986
+      ],
+      "scope": "isolated real stdio; fixed document; no edits during sampling"
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "sourceBytes": 5508,
+      "sourceSha256": "6b209030727b5ab4ed2256223ef16469e9d8dda25638759550290c74855a3cdc",
+      "precedingClosures": 100,
+      "nestedCaptures": 8,
+      "warmSamples": 20,
+      "firstQueryMs": 138.84372600000097,
+      "p95Ms": 13.003453999999692,
+      "samplesMs": [
+        180.0048820000011,
+        13.003453999999692,
+        5.6697669999994105,
+        8.39160499999889,
+        8.557199999999284,
+        7.091983000000255,
+        5.693548999999621,
+        12.249068999999508,
+        6.448253999998997,
+        5.028699999998935,
+        6.312179000000469,
+        6.451294000000416,
+        4.96123500000067,
+        4.881128999999419,
+        4.873365999999805,
+        5.115331999999398,
+        5.359710000000632,
+        5.534788999999364,
+        5.154490999999325,
+        5.482057999999597
+      ],
+      "scope": "isolated real stdio; fixed document; no edits during sampling"
+    }
+  ],
+  "capturedPerfTerminal": "Unified handle unavailable after context recovery; completed JSON and final success marker present, no live runner; exit code not independently recovered.",
+  "hosts": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "results": [
+        {
+          "name": "literal",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 227,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "literal",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 128,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "sequential closures",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 129,
+          "accepted": "<?php function read(){$options=['mode'=>1];$a=function()use($options){return $options;};$b=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "sequential closures",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 117,
+          "accepted": "<?php function read(){$options=['mode'=>1];$a=function()use($options){return $options;};$b=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "snapshot",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 118,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};$options=['later'=>2];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "snapshot",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};$options=['later'=>2];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "alias",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 121,
+          "accepted": "<?php function read(){$options=['mode'=>1];$copy=$options;$f=function()use($copy){$copy['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "alias",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 112,
+          "accepted": "<?php function read(){$options=['mode'=>1];$copy=$options;$f=function()use($copy){$copy['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested closure",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 122,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$g=function()use($options){$options['mode'];};};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested closure",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$g=function()use($options){$options['mode'];};};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold property",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 126,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::$options;$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold property",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::$options;$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold method",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 119,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::options();$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold method",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::options();$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "local replacement",
+          "accept": "Enter",
+          "label": "more",
+          "visibleWaitMs": 141,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options=['more'=>2];$options['more'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "local replacement",
+          "accept": "Tab",
+          "label": "more",
+          "visibleWaitMs": 117,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options=['more'=>2];$options['more'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "documented parameter",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 119,
+          "accepted": "<?php /** @param array{mode:string} $options */ function read($options){$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "documented parameter",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 121,
+          "accepted": "<?php /** @param array{mode:string} $options */ function read($options){$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        }
+      ],
+      "retraction": [
+        {
+          "name": "reference",
+          "visibleCount": 0
+        },
+        {
+          "name": "shadow",
+          "visibleCount": 0
+        },
+        {
+          "name": "unknown call",
+          "visibleCount": 0
+        },
+        {
+          "name": "unset",
+          "visibleCount": 0
+        }
+      ],
+      "diskUnchanged": true,
+      "explicitTriggerSuggest": true,
+      "providerPrewarm": true
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "results": [
+        {
+          "name": "literal",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 203,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "literal",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 130,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "sequential closures",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 149,
+          "accepted": "<?php function read(){$options=['mode'=>1];$a=function()use($options){return $options;};$b=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "sequential closures",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 144,
+          "accepted": "<?php function read(){$options=['mode'=>1];$a=function()use($options){return $options;};$b=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "snapshot",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 119,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};$options=['later'=>2];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "snapshot",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 114,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options['mode'];};$options=['later'=>2];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "alias",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 118,
+          "accepted": "<?php function read(){$options=['mode'=>1];$copy=$options;$f=function()use($copy){$copy['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "alias",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php function read(){$options=['mode'=>1];$copy=$options;$f=function()use($copy){$copy['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested closure",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 122,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$g=function()use($options){$options['mode'];};};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "nested closure",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 116,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$g=function()use($options){$options['mode'];};};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold property",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::$options;$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold property",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 122,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::$options;$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold method",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 113,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::options();$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold method",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 146,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::options();$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "local replacement",
+          "accept": "Enter",
+          "label": "more",
+          "visibleWaitMs": 121,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options=['more'=>2];$options['more'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "local replacement",
+          "accept": "Tab",
+          "label": "more",
+          "visibleWaitMs": 127,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=function()use($options){$options=['more'=>2];$options['more'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "documented parameter",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php /** @param array{mode:string} $options */ function read($options){$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "documented parameter",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php /** @param array{mode:string} $options */ function read($options){$f=function()use($options){$options['mode'];};}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "arrow",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 124,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=fn()=>$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "arrow",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 120,
+          "accepted": "<?php function read(){$options=['mode'=>1];$f=fn()=>$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold arrow",
+          "accept": "Enter",
+          "label": "mode",
+          "visibleWaitMs": 121,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::$options;$f=fn()=>$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        },
+        {
+          "name": "cold arrow",
+          "accept": "Tab",
+          "label": "mode",
+          "visibleWaitMs": 118,
+          "accepted": "<?php function read(){$options=App\\ColdCapturedOptions::$options;$f=fn()=>$options['mode'];}",
+          "exactText": true,
+          "caret": true,
+          "undoRedo": true
+        }
+      ],
+      "retraction": [
+        {
+          "name": "reference",
+          "visibleCount": 0
+        },
+        {
+          "name": "shadow",
+          "visibleCount": 0
+        },
+        {
+          "name": "unknown call",
+          "visibleCount": 0
+        },
+        {
+          "name": "unset",
+          "visibleCount": 0
+        }
+      ],
+      "diskUnchanged": true,
+      "explicitTriggerSuggest": true,
+      "providerPrewarm": true
+    }
+  ],
+  "hostSummary": {
+    "acceptedTextChecks": 40,
+    "emptyLists": 8,
+    "providerPrewarm": true,
+    "explicitTriggerSuggest": true,
+    "realWslAcceptance": false
+  },
+  "runtimeRuns": [
+    {
+      "version": "7.2",
+      "name": "value snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "nested snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "inner update",
+      "status": 0,
+      "output": "mode,more",
+      "error": "",
+      "expected": "mode,more",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "inner replacement",
+      "status": 0,
+      "output": "more",
+      "error": "",
+      "expected": "more",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "parameter snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "property snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "reference changes",
+      "status": 0,
+      "output": "later",
+      "error": "",
+      "expected": "later",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "sequential values",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "unused reference parameter",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "invoked reference capture",
+      "status": 0,
+      "output": "later",
+      "error": "",
+      "expected": "later",
+      "passed": true
+    },
+    {
+      "version": "7.2",
+      "name": "unused body side effect",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "value snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "nested snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "inner update",
+      "status": 0,
+      "output": "mode,more",
+      "error": "",
+      "expected": "mode,more",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "inner replacement",
+      "status": 0,
+      "output": "more",
+      "error": "",
+      "expected": "more",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "parameter snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "property snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "reference changes",
+      "status": 0,
+      "output": "later",
+      "error": "",
+      "expected": "later",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "sequential values",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "unused reference parameter",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "invoked reference capture",
+      "status": 0,
+      "output": "later",
+      "error": "",
+      "expected": "later",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "unused body side effect",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "arrow snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "7.4",
+      "name": "nested arrow",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "value snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "nested snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "inner update",
+      "status": 0,
+      "output": "mode,more",
+      "error": "",
+      "expected": "mode,more",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "inner replacement",
+      "status": 0,
+      "output": "more",
+      "error": "",
+      "expected": "more",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "parameter snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "property snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "reference changes",
+      "status": 0,
+      "output": "later",
+      "error": "",
+      "expected": "later",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "sequential values",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "unused reference parameter",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "invoked reference capture",
+      "status": 0,
+      "output": "later",
+      "error": "",
+      "expected": "later",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "unused body side effect",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "arrow snapshot",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    },
+    {
+      "version": "8.5",
+      "name": "nested arrow",
+      "status": 0,
+      "output": "mode",
+      "error": "",
+      "expected": "mode",
+      "passed": true
+    }
+  ],
+  "acceptedPhpSyntax": [
+    {
+      "phpVersion": "7.2",
+      "name": "literal",
+      "accept": "Enter",
+      "sourceSha256": "0a61af10570cfcad4540809c30c06465049f3a7dc6cdf7346eb9536eda90c141",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "literal",
+      "accept": "Tab",
+      "sourceSha256": "0a61af10570cfcad4540809c30c06465049f3a7dc6cdf7346eb9536eda90c141",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "sequential closures",
+      "accept": "Enter",
+      "sourceSha256": "3e38cafa6a61bbea64161f1eaa77eef037102dc70a616ab60245bc3f12858431",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "sequential closures",
+      "accept": "Tab",
+      "sourceSha256": "3e38cafa6a61bbea64161f1eaa77eef037102dc70a616ab60245bc3f12858431",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "snapshot",
+      "accept": "Enter",
+      "sourceSha256": "042528f121901a03c3fa7fa3048dd7e133e4e497d3809cb81d9b0e52deef3c7e",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "snapshot",
+      "accept": "Tab",
+      "sourceSha256": "042528f121901a03c3fa7fa3048dd7e133e4e497d3809cb81d9b0e52deef3c7e",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "alias",
+      "accept": "Enter",
+      "sourceSha256": "65cc4a3e7f6cfae0e9c5e15501dcd64920fea9d4300911ebf46cdb7c24402297",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "alias",
+      "accept": "Tab",
+      "sourceSha256": "65cc4a3e7f6cfae0e9c5e15501dcd64920fea9d4300911ebf46cdb7c24402297",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "nested closure",
+      "accept": "Enter",
+      "sourceSha256": "ce99f53fc45dc45cdf56cd1fd6d9c30f92e410bcc0767b8dbd8d1817509f2a1b",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "nested closure",
+      "accept": "Tab",
+      "sourceSha256": "ce99f53fc45dc45cdf56cd1fd6d9c30f92e410bcc0767b8dbd8d1817509f2a1b",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "cold property",
+      "accept": "Enter",
+      "sourceSha256": "9fbd13c731a0c43a390d79a24ea11d66b09d18a9f6c7761b3c245f40ad62f9c1",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "cold property",
+      "accept": "Tab",
+      "sourceSha256": "9fbd13c731a0c43a390d79a24ea11d66b09d18a9f6c7761b3c245f40ad62f9c1",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "cold method",
+      "accept": "Enter",
+      "sourceSha256": "9512c10a8d94ffa1fd2d035a3017a5e8586a97e17783c8eb15330ea38e0ee10d",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "cold method",
+      "accept": "Tab",
+      "sourceSha256": "9512c10a8d94ffa1fd2d035a3017a5e8586a97e17783c8eb15330ea38e0ee10d",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "local replacement",
+      "accept": "Enter",
+      "sourceSha256": "072d249d238a47350944f2c92e5829f3ccd2736b279f389fc46ec92fae4fb4e2",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "local replacement",
+      "accept": "Tab",
+      "sourceSha256": "072d249d238a47350944f2c92e5829f3ccd2736b279f389fc46ec92fae4fb4e2",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "documented parameter",
+      "accept": "Enter",
+      "sourceSha256": "761b0d12ced6e3a31c4d813fe43417547b788c29115f23f2bba74ddb0172d2b5",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "7.2",
+      "name": "documented parameter",
+      "accept": "Tab",
+      "sourceSha256": "761b0d12ced6e3a31c4d813fe43417547b788c29115f23f2bba74ddb0172d2b5",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "literal",
+      "accept": "Enter",
+      "sourceSha256": "0a61af10570cfcad4540809c30c06465049f3a7dc6cdf7346eb9536eda90c141",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "literal",
+      "accept": "Tab",
+      "sourceSha256": "0a61af10570cfcad4540809c30c06465049f3a7dc6cdf7346eb9536eda90c141",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "sequential closures",
+      "accept": "Enter",
+      "sourceSha256": "3e38cafa6a61bbea64161f1eaa77eef037102dc70a616ab60245bc3f12858431",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "sequential closures",
+      "accept": "Tab",
+      "sourceSha256": "3e38cafa6a61bbea64161f1eaa77eef037102dc70a616ab60245bc3f12858431",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "snapshot",
+      "accept": "Enter",
+      "sourceSha256": "042528f121901a03c3fa7fa3048dd7e133e4e497d3809cb81d9b0e52deef3c7e",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "snapshot",
+      "accept": "Tab",
+      "sourceSha256": "042528f121901a03c3fa7fa3048dd7e133e4e497d3809cb81d9b0e52deef3c7e",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "alias",
+      "accept": "Enter",
+      "sourceSha256": "65cc4a3e7f6cfae0e9c5e15501dcd64920fea9d4300911ebf46cdb7c24402297",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "alias",
+      "accept": "Tab",
+      "sourceSha256": "65cc4a3e7f6cfae0e9c5e15501dcd64920fea9d4300911ebf46cdb7c24402297",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "nested closure",
+      "accept": "Enter",
+      "sourceSha256": "ce99f53fc45dc45cdf56cd1fd6d9c30f92e410bcc0767b8dbd8d1817509f2a1b",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "nested closure",
+      "accept": "Tab",
+      "sourceSha256": "ce99f53fc45dc45cdf56cd1fd6d9c30f92e410bcc0767b8dbd8d1817509f2a1b",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "cold property",
+      "accept": "Enter",
+      "sourceSha256": "9fbd13c731a0c43a390d79a24ea11d66b09d18a9f6c7761b3c245f40ad62f9c1",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "cold property",
+      "accept": "Tab",
+      "sourceSha256": "9fbd13c731a0c43a390d79a24ea11d66b09d18a9f6c7761b3c245f40ad62f9c1",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "cold method",
+      "accept": "Enter",
+      "sourceSha256": "9512c10a8d94ffa1fd2d035a3017a5e8586a97e17783c8eb15330ea38e0ee10d",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "cold method",
+      "accept": "Tab",
+      "sourceSha256": "9512c10a8d94ffa1fd2d035a3017a5e8586a97e17783c8eb15330ea38e0ee10d",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "local replacement",
+      "accept": "Enter",
+      "sourceSha256": "072d249d238a47350944f2c92e5829f3ccd2736b279f389fc46ec92fae4fb4e2",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "local replacement",
+      "accept": "Tab",
+      "sourceSha256": "072d249d238a47350944f2c92e5829f3ccd2736b279f389fc46ec92fae4fb4e2",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "documented parameter",
+      "accept": "Enter",
+      "sourceSha256": "761b0d12ced6e3a31c4d813fe43417547b788c29115f23f2bba74ddb0172d2b5",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "documented parameter",
+      "accept": "Tab",
+      "sourceSha256": "761b0d12ced6e3a31c4d813fe43417547b788c29115f23f2bba74ddb0172d2b5",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "arrow",
+      "accept": "Enter",
+      "sourceSha256": "c56b9d61c3ce786f0ac7a8a2de042cb12206b7688288f2127ae99dcd732d183a",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "arrow",
+      "accept": "Tab",
+      "sourceSha256": "c56b9d61c3ce786f0ac7a8a2de042cb12206b7688288f2127ae99dcd732d183a",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "cold arrow",
+      "accept": "Enter",
+      "sourceSha256": "9ff56940e23b34e09888ef017c2ab41ee7bc16548b38bf09d528be8da5c76394",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    },
+    {
+      "phpVersion": "8.5",
+      "name": "cold arrow",
+      "accept": "Tab",
+      "sourceSha256": "9ff56940e23b34e09888ef017c2ab41ee7bc16548b38bf09d528be8da5c76394",
+      "exitCode": 0,
+      "stdout": "No syntax errors detected in Standard input code\n",
+      "stderr": ""
+    }
+  ],
+  "failureHistory": {
+    "invalidFixture": "Original generator altered two ordinary PHP sources; initial 38/68 pass and 30 fail cannot be treated as 30 product failures. Corrected unchanged old product is 40 pass / 28 fail.",
+    "correctedBaseline": {
+      "artifact": "/tmp/sophp-d114-semantic-corrected-baseline.json",
+      "tests": 68,
+      "passed": 40,
+      "failed": 28
+    },
+    "deepCapture": {
+      "status": "terminated-owned-test",
+      "session": 48972,
+      "processGroup": 2894014,
+      "cause": "duplicate capture fallback expands bounded recursion",
+      "retainedTestDepth": 40,
+      "assertionsRelaxed": false
+    },
+    "firstFullSemantic": {
+      "artifact": "/tmp/sophp-d114-semantic-full.json",
+      "sha256": "3a03b674f782e3a530550d133e4b6f7a8e298f5d7c239fcb9a9c175e1492f7a2",
+      "files": 125,
+      "tests": 3056,
+      "passed": 3054,
+      "failed": 2,
+      "pending": 0,
+      "todo": 0,
+      "success": false,
+      "failedCases": [
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts",
+          "name": "keeps closure captures across a body island retained=false",
+          "failureMessages": [
+            "AssertionError: expected [ { name: '$flag', …(1) }, …(1) ] to deeply equal [ { name: '$flag', …(1) }, …(1) ]\n    at /var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts:70:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts",
+          "name": "keeps closure captures across a body island retained=true",
+          "failureMessages": [
+            "AssertionError: expected [ { name: '$flag', …(1) }, …(1) ] to deeply equal [ { name: '$flag', …(1) }, …(1) ]\n    at /var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts:70:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+          ]
+        }
+      ]
+    },
+    "beforeSequentialClosureFullSemantic": {
+      "artifact": "/tmp/sophp-d114-semantic-full-final.json",
+      "sha256": "386321ef6758cc3ec28a9619750310ec7b9fc96509bcf312e2c3ea332529ee37",
+      "files": 125,
+      "tests": 3060,
+      "passed": 3060,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "success": true,
+      "failedCases": []
+    },
+    "sequentialClosureGap": [
+      {
+        "name": "prior value capture",
+        "source": "<?php function read(){$options=['mode'=>1];$a=function()use($options){return $options;};$b=function()use($options){$options['mo§'];};}",
+        "keys": []
+      },
+      {
+        "name": "prior unrelated closure",
+        "source": "<?php function read(){$options=['mode'=>1];$a=function(){return [];};$b=function()use($options){$options['mo§'];};}",
+        "keys": []
+      }
+    ]
+  },
+  "validation": {
+    "semanticBuild": true,
+    "languageServerBuild": true,
+    "productionBundle": true,
+    "scopedEslint": true,
+    "extensionTestTypes": true,
+    "diffCheck": true,
+    "invalidTsconfigAttempt": "Initial command used nonexistent tsconfig.extension-test.json; corrected test/extension/tsconfig.json verified under set -e."
+  },
+  "openBoundaries": [
+    "Current complete LSP suite, D113 qualification bound only to predecessor 9f6ded50",
+    "D100 ordinary PHP 7.2 editing P95 155.06 ms remains open, D105 two approaches withdrawn",
+    "Natural current UI, real WSL, other platforms, large-scale and long sessions",
+    "Unknown mutation and by-reference capture do not prove stable keys"
+  ],
+  "delivery": {
+    "localMilestoneCommit": true,
+    "package": false,
+    "profileUpdate": false,
+    "push": false,
+    "goal": "active"
+  },
+  "artifacts": [
+    {
+      "path": "/tmp/sophp-d114-semantic-before.json",
+      "sha256": "265d11cce00641137487c4d43e969abda2b282334239491caa97bb716fed56c0"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-after.json",
+      "sha256": "0ac7ae1518f4cff2acf831267d68bc4a58a20383fdcb4d93134e2e093f6423c5"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-corrected-baseline.json",
+      "sha256": "7613ff04d6e625448d7a0584218853686fb7a41d35862ac768d9bc9ed38b0106"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-corrected.json",
+      "sha256": "fb6cb51f8cb4c4bafeac273ae56ea5f12db06f8550ec9076d952d980ccfd2dd0"
+    },
+    {
+      "path": "/tmp/sophp-d114-deep-initial.json",
+      "sha256": "9ce2ded2be70cf6b57b0e062b95062f7de282f9d1bd3491353cf03a505c6fca2"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-full.json",
+      "sha256": "3a03b674f782e3a530550d133e4b6f7a8e298f5d7c239fcb9a9c175e1492f7a2"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-full-final.json",
+      "sha256": "386321ef6758cc3ec28a9619750310ec7b9fc96509bcf312e2c3ea332529ee37"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-complete.json",
+      "sha256": "8a98da45e16a56f68ca62a0a559072c4423413aed603f6367c618e2996490864"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-islands.json",
+      "sha256": "34229d3524b9fe64a43d5cb4a53bc2753fd541b549b3de877493ff961ee6cf20"
+    },
+    {
+      "path": "/tmp/sophp-d114-sequential-capture-gap.json",
+      "sha256": "8c9feff4370059d9bd18c66a837e4c5a138932f9ed5a7518feb4933e63ae956d"
+    },
+    {
+      "path": "/tmp/sophp-d114-semantic-creation.json",
+      "sha256": "10131a36271247539cbde2df9080aaefefa18745e75ff576a98354e1374f9955"
+    },
+    {
+      "path": "/tmp/sophp-d114-lsp-complete.json",
+      "sha256": "dee942320dea8fadceed551701dbfa6f512f50ec3837644029bec76b0b90bee0"
+    },
+    {
+      "path": "/tmp/sophp-d114-host-complete-7.2.json",
+      "sha256": "79ccbde20998fd8cb53cc5ff8568ce38c7c0e536fab462bc53882238a8041688"
+    },
+    {
+      "path": "/tmp/sophp-d114-host-complete-8.5.json",
+      "sha256": "35047d49940ddae22d0a746e37d5889c6e454d464a16006719938f2cdde4145c"
+    },
+    {
+      "path": "/tmp/sophp-d114-capture-runtime-complete.json",
+      "sha256": "425e715136e66d327fface006c6a10c164ace0c5fb722b8e6ea0708de9d28a1d"
+    },
+    {
+      "path": "/tmp/sophp-d114-captured-perf.json",
+      "sha256": "1ad94ed7f317227a2f7939f8f1177f752036d81522a3e1a502eedcff810a682b"
+    },
+    {
+      "path": "/tmp/sophp-d114-original-hot.json",
+      "sha256": "20a89eb05482ec552adf2856daf3d8a0cceb3963f64a3959b23d68a13f6cc7bb"
+    },
+    {
+      "path": "/tmp/sophp-d114-accepted-php-lint.json",
+      "sha256": "d405f4cf5a229c17bb69a5adcb2169f48494214e0ff085a880dd69f605a40f51"
+    },
+    {
+      "path": "/tmp/sophp-d114-final-proof.json",
+      "sha256": "7c9c28d713bc25b3e44a999c00feebdfa5cf27985e91766fb2a34ff817ee3c20"
+    },
+    {
+      "path": "/tmp/sophp-d114-frozen-inputs.json",
+      "sha256": "c133a7f4888e9530dddf307b1419a37778d7db076aada614a4f5c0161317a7c0"
+    }
+  ]
+}

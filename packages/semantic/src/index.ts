@@ -1549,6 +1549,7 @@ export class SemanticWorkspace {
   private readonly readonlyAnalysisInProgress = new Set<string>();
   private readonly generatorInferenceInProgress = new Set<string>();
   private readonly contextualClosureInferenceInProgress = new Set<string>();
+  private readonly capturedValueInferenceInProgress = new Set<string>();
   private readonly assertedTargetInferenceInProgress = new Set<string>();
   private readonly assertedTargetInferenceCache = new Map<string, ObjectClass | null>();
   private readonly referenceResultCache = new Map<string, SemanticLocation[]>();
@@ -4981,11 +4982,20 @@ export class SemanticWorkspace {
           return;
         }
         if (expression.type === 'variable_name') {
-          const scope = this.containingScope(file, expression.startIndex); if (!scope) return;
-          const origins = file.assignments.filter(assignment => assignment.scopeId === scope.id
-            && assignment.variable === expression.text && assignment.end <= expression.startIndex
-            && (!assignment.validRange || expression.startIndex >= assignment.validRange.start && expression.startIndex <= assignment.validRange.end))
-            .sort((left, right) => right.end - left.end).slice(0, 16);
+          let scope = this.containingScope(file, expression.startIndex); if (!scope) return;
+          let before = expression.startIndex;
+          let origins: ParsedAssignment[] = [];
+          for (let captureDepth = 0; scope && captureDepth <= 16 && remaining-- > 0; captureDepth += 1) {
+            const currentScope = scope;
+            origins = file.assignments.filter(assignment => assignment.scopeId === currentScope.id
+              && assignment.variable === expression.text && assignment.end <= before
+              && (!assignment.validRange || before >= assignment.validRange.start && before <= assignment.validRange.end))
+              .sort((left, right) => right.end - left.end).slice(0, 16);
+            if (origins.length) break;
+            before = Math.max(0, scope.start - 1);
+            scope = this.valueCaptureParent(file, scope, expression.text);
+          }
+          if (!scope) return;
           for (const origin of origins) {
             const syntax = deepestLocalSyntax(tree.rootNode, origin.start, origin.end,
               candidate => candidate.type === 'assignment_expression' && candidate.startIndex === origin.start && candidate.endIndex === origin.end);
@@ -5465,35 +5475,65 @@ export class SemanticWorkspace {
             : this.contextualClosureParameterType(file, scope, variable);
     }
     const local = this.linearLocalValueType(file, variable, offset, true);
-    if (local || file.assignments.some(assignment => assignment.scopeId === scope.id
-      && assignment.variable === variable && assignment.start < offset)) return local;
-    const captured = scope.kind === 'arrow' || scope.kind === 'closure'
-      && scope.captures.some(capture => capture.variable === variable && !capture.byReference);
-    const parent = captured && file.scopes.find(candidate => candidate.id === scope.parentId);
-    if (parent) {
-      const retainedTree = this.trees.get(file.uri);
-      const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
-      try {
-        const root = (retainedTree ?? temporaryTree)!;
-        if (this.refactoringHasDynamicBindings(file, root, scope, offset)
-          || this.localReferenceBindingBefore(file, scope, variable, offset)
-          || file.calls.some(call => call.start >= scope.start && call.end <= offset
-            && this.containingScope(file, call.start)?.id === scope.id
-            && call.arguments.some(argument => file.source.slice(argument.start, argument.end).includes(variable))
-            && !this.knownCallHasOnlyValueArguments(file, call))) return undefined;
-        for (const reference of file.variableReferences.filter(item => item.scopeId === scope.id
-          && item.variable === variable && item.end <= offset)) {
-          let node = root.rootNode.namedDescendantForIndex(reference.start, reference.end);
+    // The local proof now includes captured entry values. Do not repeat its
+    // fallback after an unsupported path or an exhausted capture budget.
+    return local;
+  }
+
+  private valueCaptureParent(file: SemanticFile, scope: ParsedScope, variable: string): ParsedScope | undefined {
+    if (!(scope.kind === 'arrow' || scope.kind === 'closure'
+      && scope.captures.some(capture => capture.variable === variable && !capture.byReference))
+      || scope.parameters.some(parameter => `$${parameter.name}` === variable)) return undefined;
+    const parent = file.scopes.find(candidate => candidate.id === scope.parentId);
+    return parent && parent.id !== scope.id && parent.start <= scope.start && parent.end >= scope.start ? parent : undefined;
+  }
+
+  private capturedVariableEntryType(file: SemanticFile, scope: ParsedScope, variable: string,
+    offset: number, depth = 0): PhpType | undefined {
+    const parent = this.valueCaptureParent(file, scope, variable); if (!parent || depth > 32) return undefined;
+    if (file.assignments.some(assignment => assignment.scopeId === scope.id
+      && assignment.variable === variable && assignment.end <= offset)) return undefined;
+    const key = `${file.uri}:${scope.id}:${variable}:${offset}`;
+    if (this.capturedValueInferenceInProgress.has(key) || this.capturedValueInferenceInProgress.size >= 32) return undefined;
+    this.capturedValueInferenceInProgress.add(key);
+    const retainedTree = this.trees.get(file.uri);
+    const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
+    try {
+      const tree = (retainedTree ?? temporaryTree)!;
+      if (this.refactoringHasDynamicBindings(file, tree, scope, offset)
+        || this.localReferenceBindingBefore(file, scope, variable, offset)
+        || file.calls.some(call => call.start >= scope.start && call.end <= offset
+          && this.containingScope(file, call.start)?.id === scope.id
+          && call.arguments.some(argument => file.source.slice(argument.start, argument.end).includes(variable))
+          && !this.knownCallHasOnlyValueArguments(file, call))) return undefined;
+      const unavailableBinding = (target: ParsedScope, before: number): boolean => {
+        const references = file.variableReferences.filter(item => item.scopeId === target.id
+          && item.variable === variable && item.end <= before);
+        if (references.length > 128) return true;
+        for (const reference of references) {
+          let node: SyntaxNode | null = tree.rootNode.namedDescendantForIndex(reference.start, reference.end);
           let remaining = 256;
-          while (node && node.startIndex >= scope.start && remaining-- > 0) {
-            if (['unset_statement', 'global_declaration', 'function_static_declaration'].includes(node.type)) return undefined;
+          while (node && node.startIndex >= target.start && remaining-- > 0) {
+            if (['unset_statement', 'global_declaration', 'function_static_declaration'].includes(node.type)) return true;
             node = node.parent;
           }
-          if (remaining <= 0) return undefined;
+          if (remaining <= 0) return true;
         }
-      } finally { temporaryTree?.delete(); }
+        return false;
+      };
+      if (unavailableBinding(scope, offset)) return undefined;
+      const before = Math.max(0, scope.start - 1);
+      // Entry annotations cannot restore an outer parameter after unset.
+      // A later local assignment is handled by the existing value proof.
+      if (parent.parameters.some(parameter => `$${parameter.name}` === variable)
+        && !file.assignments.some(assignment => assignment.scopeId === parent.id
+          && assignment.variable === variable && assignment.end <= before)
+        && unavailableBinding(parent, before)) return undefined;
+      return this.completionVariableType(file, parent, variable, before, depth + 1);
+    } finally {
+      temporaryTree?.delete();
+      this.capturedValueInferenceInProgress.delete(key);
     }
-    return parent ? this.completionVariableType(file, parent, variable, Math.max(0, scope.start - 1), depth + 1) : undefined;
   }
 
   completionVariableDetail(uri: string, offset: number, variable: string): string | undefined {
@@ -15136,6 +15176,11 @@ export class SemanticWorkspace {
     try {
       const scopeNode = deepestLocalSyntax(tree.rootNode, scope.start, scope.end,
         node => node.startIndex === scope.start && node.endIndex === scope.end);
+      if (scope.kind === 'arrow') {
+        if (file.assignments.some(assignment => assignment.scopeId === scope.id
+          && assignment.variable === variable && assignment.end <= offset)) return undefined;
+        return this.capturedVariableEntryType(file, scope, variable, offset);
+      }
       const bodyStart = scopeNode?.childForFieldName('body')?.startIndex ?? scope.start;
       let statement = deepestLocalSyntax(tree.rootNode, offset, offset, () => true);
       while (statement && statement.parent?.type !== 'compound_statement' && statement.parent?.type !== 'program')
@@ -15227,6 +15272,13 @@ export class SemanticWorkspace {
             'include_expression', 'include_once_expression', 'require_expression', 'require_once_expression'].includes(node.type)) {
             unsafe = true; break;
           }
+          if (['anonymous_function', 'arrow_function'].includes(node.type)) {
+            const literalScope = file.scopes.find(candidate => candidate.start === node.startIndex && candidate.end === node.endIndex);
+            if (!literalScope || literalScope.captures.some(capture => capture.byReference)) { unsafe = true; break; }
+            // Creating a value capture does not execute its body or bind its
+            // reference parameters to an outer local.
+            continue;
+          }
           // Text in comments and literal strings cannot export a local binding.
           // Interpolation remains conservative because it can execute code.
           if (node.type === 'encapsed_string' && node.namedChildren.some(child =>
@@ -15240,7 +15292,7 @@ export class SemanticWorkspace {
         this.localPrefixHazardCache.set(key, unsafe);
         return unsafe;
       };
-      const unescapedLocalBefore = (candidate: SyntaxNode): boolean => scope.kind !== 'global'
+      const unescapedLocalBefore = (candidate: Pick<SyntaxNode, 'startIndex'>): boolean => scope.kind !== 'global'
         && !this.localReferenceBindingBefore(file, scope, variable, candidate.startIndex)
         && !scope.parameters.some((parameter) => `$${parameter.name}` === variable && parameter.byReference)
         && !scope.captures.some((capture) => capture.variable === variable && capture.byReference)
@@ -15277,6 +15329,8 @@ export class SemanticWorkspace {
       };
       const harmless = (candidate: SyntaxNode): boolean => {
         if (candidate.type === 'comment') return true;
+        if (candidate.type === 'text_interpolation') return !candidate.hasError
+          && candidate.namedChildren.every(child => ['php_end_tag', 'text', 'php_tag'].includes(child.type));
         if (candidate.type === 'echo_statement') {
           const content = candidate.text.replace(/^\s*echo\s+/i, '').replace(/;\s*$/, '');
           return content.split(',').every(scalarLiteral);
@@ -15308,6 +15362,11 @@ export class SemanticWorkspace {
         if (expression?.type !== 'assignment_expression') return false;
         const left = expression.childForFieldName('left'); const right = expression.childForFieldName('right');
         if (left?.type !== 'variable_name' || left.text === variable || !right) return false;
+        if (['anonymous_function', 'arrow_function'].includes(right.type) && !right.hasError) {
+          const literalScope = file.scopes.find(candidate => candidate.start === right.startIndex && candidate.end === right.endIndex);
+          return Boolean(literalScope && !literalScope.captures.some(capture => capture.byReference)
+            && unescapedLocalBefore(candidate));
+        }
         const literalWithoutInterpolation = scalarLiteral(right.text)
           && (right.type !== 'encapsed_string' || right.namedChildren.every(child =>
             child.type === 'string_content' || child.type === 'escape_sequence'));
@@ -15656,7 +15715,10 @@ export class SemanticWorkspace {
         }
         if (!harmless(candidate)) return undefined;
       }
-      return undefined;
+      const captured = this.valueCaptureParent(file, scope, variable) && unescapedLocalBefore({ startIndex: offset })
+        ? this.capturedVariableEntryType(file, scope, variable, offset) : undefined;
+      const result = withOptionalLoops(captured ? applyUpdates(captured) : undefined);
+      return !allowMixed && result?.kind === 'primitive' && result.name === 'mixed' ? undefined : result;
     } finally {
       temporaryTree?.delete();
     }
