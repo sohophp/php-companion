@@ -44,7 +44,7 @@ it.each([['7.2', 'onDemand'], ['7.2', 'experimental'], ['8.5', 'onDemand'], ['8.
   const position = (source: string, offset: number): { line: number; character: number } => {
     const lines = source.slice(0, offset).split('\n'); return { line: lines.length - 1, character: lines.at(-1)!.length };
   };
-  const query = async (marked: string, expected: string, present: boolean, construct: boolean): Promise<void> => {
+  const query = async (marked: string, expected: string, present: boolean, construct: boolean, expectedCode?: string): Promise<void> => {
     const source = marked.replace('§', ''), offset = marked.indexOf('§'); version++;
     send({ method: version === 1 ? 'textDocument/didOpen' : 'textDocument/didChange', params: version === 1
       ? { textDocument: { uri, languageId: 'php', version, text: source } }
@@ -60,7 +60,9 @@ it.each([['7.2', 'onDemand'], ['7.2', 'experimental'], ['8.5', 'onDemand'], ['8.
     if (item && !construct) expect(item.insertText ?? item.textEdit?.newText).not.toContain('(');
     const published = await waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === version);
     expect(published.params.version).toBe(version);
-    if (/new(?:\s|\/\*[^]*?\*\/)*\\ReflectionType\(\);/u.test(source)) {
+    if (expectedCode) expect(published.params.diagnostics.some((item: any) => item.code === expectedCode))
+      .toBe(expectedCode === 'php.argument.missing-required' || indexingMode === 'experimental');
+    if (/new(?:\s|\/\*[^]*?\*\/)*\\ReflectionType(?:\(\))?;/u.test(source)) {
       expect(published.params.diagnostics.some((item: any) => item.code === 'php.instantiation.invalid-target'
         && item.message.includes('ReflectionType'))).toBe(indexingMode === 'experimental' && Number(phpVersion.replace('.', '')) >= 80);
     }
@@ -86,6 +88,9 @@ it.each([['7.2', 'onDemand'], ['7.2', 'experimental'], ['8.5', 'onDemand'], ['8.
       await query(`<?php function accepts(\\${name}§ $value){}`, name, present, false);
       await query(`<?php function produces():\\${name}§{}`, name, present, false);
     }
+    await query('<?php class Required {public function __construct(int $value){}} new Required§;', 'Required', true, true, 'php.argument.missing-required');
+    await query('<?php class Required {public function __construct(int $value){}} function consume(object $value){} consume(new Required§);', 'Required', true, true, 'php.argument.missing-required');
+    await query('<?php class PrivateType {private function __construct(){}} new PrivateType§;', 'PrivateType', false, true, 'php.instantiation.inaccessible-constructor');
     const local = '<?php namespace Consumer; class ReflectionType {} new ReflectionTy§;';
     await query(local, 'ReflectionType', true, true);
     expect(await readFile(file, 'utf8')).toBe(disk);

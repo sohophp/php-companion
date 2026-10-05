@@ -71,7 +71,7 @@ ${launch}`);
   }
   const expectedFlows = 6 + Number(process.env.SOPHP_ROOT_IMPORT_FLOW === '1') + Number(process.env.SOPHP_LIVE_TYPE_FLOW === '1')
     + 4 * Number(process.env.SOPHP_NAMESPACE_IMPORT_FLOW === '1');
-  assert.equal(proof.results.length, automatic ? expectedFlows : process.env.PHP_COMPANION_TEST_FLOW_VALUE_ONLY === '1' ? 16 : 8);
+  assert.equal(proof.results.length, automatic ? expectedFlows : process.env.PHP_COMPANION_TEST_FLOW_VALUE_ONLY === '1' ? 16 : process.env.PHP_COMPANION_TEST_REFLECTION_CONSTRUCTION_ONLY === '1' ? 12 : 8);
   if (automatic) { assert.equal(rendererExceptions, 0, 'Automatic completion raised getItemsByProvider'); proof.rendererExceptions = rendererExceptions; }
   if (process.argv[2]) await writeFile(process.argv[2], JSON.stringify(proof, null, 2) + '\n');
 } finally { await rm(scratch, { recursive: true, force: true }); }

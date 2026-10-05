@@ -1,0 +1,869 @@
+{
+  "milestone": "D94",
+  "date": "2026-10-05",
+  "base": "81459b68961e41e16a3a7bfd0dc9b1a99df7e4f1",
+  "scope": "Omitted argument lists on named object construction; parsed-call binding, cache invalidation and existing parameter-edit safety.",
+  "implementation": {
+    "omittedRange": "argumentsStart === argumentsEnd === call.end; no invented delimiters",
+    "binding": "Direct named type/constructor resolution instead of querying an offset inside an outer call",
+    "semanticSchema": 84,
+    "oldSchemasRejected": [
+      82,
+      83
+    ],
+    "sourceDeclarationSchema": 2,
+    "sourceDeclarationReason": "Source retained; implementation reparsed lazily; declaration facts unchanged"
+  },
+  "sourceSha256": {
+    "packages/parser/src/index.ts": "a60e1e4043dcce94433d8258d04d16cd53bbb56249ca80130fec0ebac6b0cf84",
+    "packages/semantic/src/index.ts": "ae4273eac265de6644ebf57dba0d812e5575d7c5d33944a7fe2218f2a24c4dfd",
+    "packages/language-server/src/projectFacts.ts": "c07e40d26649dc1ca321f121a61cc2aeb68af31b4dd22a038aa1c9d929e174ec",
+    "dist/language-server.js": "799d039b05023afa85b3681dc6552520fad21a6cfbe60af8547dd163a9daec8e",
+    "packages/language-server/dist/server.js": "d9150d17e1c3ebbad966a0fea2b3b5490a7815c34d4bf692222e26374b3a4f30",
+    "dist/extension.js": "ee9c0720f8ceec9d11b052cf2deaa85f090e02a43f509570fdcfecd3aec912db"
+  },
+  "tests": {
+    "parser-full": {
+      "files": 5,
+      "total": 123,
+      "passed": 123,
+      "failed": 0,
+      "skipped": 0,
+      "raw": "/tmp/sophp-d94-parser-full.json"
+    },
+    "semantic-full": {
+      "files": 111,
+      "total": 2474,
+      "passed": 2474,
+      "failed": 0,
+      "skipped": 0,
+      "raw": "/tmp/sophp-d94-semantic-full.json"
+    },
+    "lsp-qualified": {
+      "files": 2,
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "raw": "/tmp/sophp-d94-lsp-qualified.json"
+    },
+    "analysis": {
+      "files": 1,
+      "total": 48,
+      "passed": 48,
+      "failed": 0,
+      "skipped": 0,
+      "raw": "/tmp/sophp-d94-analysis.json"
+    }
+  },
+  "protocol": {
+    "versions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "experimental"
+    ],
+    "queriesPerServer": 46,
+    "totalUnsavedStates": 184,
+    "diagnosticsVersionChecked": true,
+    "diskUnchanged": true,
+    "onDemandMissingRequired": true,
+    "abstractAndPrivateRequireCompleteRoot": true
+  },
+  "runtime": [
+    {
+      "binary": "/opt/remi/php72/root/usr/bin/php",
+      "version": "7.2.34",
+      "results": [
+        {
+          "expression": "new ReflectionType",
+          "result": "allowed",
+          "class": "ReflectionType"
+        },
+        {
+          "expression": "new ReflectionNamedType",
+          "result": "allowed",
+          "class": "ReflectionNamedType"
+        },
+        {
+          "expression": "new D94Required",
+          "result": "rejected",
+          "errorClass": "ArgumentCountError",
+          "message": "Too few arguments to function D94Required::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "expression": "new D94Hidden",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private D94Hidden::__construct() from invalid context"
+        },
+        {
+          "expression": "new D94Optional",
+          "result": "allowed",
+          "class": "D94Optional"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php74/root/usr/bin/php",
+      "version": "7.4.33",
+      "results": [
+        {
+          "expression": "new ReflectionType",
+          "result": "allowed",
+          "class": "ReflectionType"
+        },
+        {
+          "expression": "new ReflectionNamedType",
+          "result": "allowed",
+          "class": "ReflectionNamedType"
+        },
+        {
+          "expression": "new D94Required",
+          "result": "rejected",
+          "errorClass": "ArgumentCountError",
+          "message": "Too few arguments to function D94Required::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "expression": "new D94Hidden",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private D94Hidden::__construct() from invalid context"
+        },
+        {
+          "expression": "new D94Optional",
+          "result": "allowed",
+          "class": "D94Optional"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php81/root/usr/bin/php",
+      "version": "8.1.34",
+      "results": [
+        {
+          "expression": "new ReflectionType",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "expression": "new ReflectionNamedType",
+          "result": "allowed",
+          "class": "ReflectionNamedType"
+        },
+        {
+          "expression": "new D94Required",
+          "result": "rejected",
+          "errorClass": "ArgumentCountError",
+          "message": "Too few arguments to function D94Required::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "expression": "new D94Hidden",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private D94Hidden::__construct() from global scope"
+        },
+        {
+          "expression": "new D94Optional",
+          "result": "allowed",
+          "class": "D94Optional"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php82/root/usr/bin/php",
+      "version": "8.2.32",
+      "results": [
+        {
+          "expression": "new ReflectionType",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "expression": "new ReflectionNamedType",
+          "result": "allowed",
+          "class": "ReflectionNamedType"
+        },
+        {
+          "expression": "new D94Required",
+          "result": "rejected",
+          "errorClass": "ArgumentCountError",
+          "message": "Too few arguments to function D94Required::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "expression": "new D94Hidden",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private D94Hidden::__construct() from global scope"
+        },
+        {
+          "expression": "new D94Optional",
+          "result": "allowed",
+          "class": "D94Optional"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php84/root/usr/bin/php",
+      "version": "8.4.23",
+      "results": [
+        {
+          "expression": "new ReflectionType",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "expression": "new ReflectionNamedType",
+          "result": "allowed",
+          "class": "ReflectionNamedType"
+        },
+        {
+          "expression": "new D94Required",
+          "result": "rejected",
+          "errorClass": "ArgumentCountError",
+          "message": "Too few arguments to function D94Required::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "expression": "new D94Hidden",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private D94Hidden::__construct() from global scope"
+        },
+        {
+          "expression": "new D94Optional",
+          "result": "allowed",
+          "class": "D94Optional"
+        }
+      ]
+    },
+    {
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "results": [
+        {
+          "expression": "new ReflectionType",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Cannot instantiate abstract class ReflectionType"
+        },
+        {
+          "expression": "new ReflectionNamedType",
+          "result": "allowed",
+          "class": "ReflectionNamedType"
+        },
+        {
+          "expression": "new D94Required",
+          "result": "rejected",
+          "errorClass": "ArgumentCountError",
+          "message": "Too few arguments to function D94Required::__construct(), 0 passed in Command line code on line 1 and exactly 1 expected"
+        },
+        {
+          "expression": "new D94Hidden",
+          "result": "rejected",
+          "errorClass": "Error",
+          "message": "Call to private D94Hidden::__construct() from global scope"
+        },
+        {
+          "expression": "new D94Optional",
+          "result": "allowed",
+          "class": "D94Optional"
+        }
+      ]
+    }
+  ],
+  "acceptedSyntax": [
+    {
+      "version": "7.2",
+      "index": 0,
+      "key": "Enter",
+      "text": "<?php $value=new \\ReflectionType();",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 1,
+      "key": "Tab",
+      "text": "<?php $value=new \\ReflectionType();",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 2,
+      "key": "Enter",
+      "text": "<?php function accepts(\\ReflectionType $value){}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 3,
+      "key": "Tab",
+      "text": "<?php function accepts(\\ReflectionType $value){}",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 4,
+      "key": "Enter",
+      "text": "<?php use ReflectionType;",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 5,
+      "key": "Tab",
+      "text": "<?php use ReflectionType;",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 6,
+      "key": "Enter",
+      "text": "<?php use ReflectionType as SelectedAlias; $value=new SelectedAlias();",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 7,
+      "key": "Tab",
+      "text": "<?php use ReflectionType as SelectedAlias; $value=new SelectedAlias();",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 8,
+      "key": "Enter",
+      "text": "<?php $value=new \\ReflectionType();",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 9,
+      "key": "Tab",
+      "text": "<?php $value=new \\ReflectionType();",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 10,
+      "key": "Enter",
+      "text": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionType());",
+      "exitCode": 0
+    },
+    {
+      "version": "7.2",
+      "index": 11,
+      "key": "Tab",
+      "text": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionType());",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 0,
+      "key": "Enter",
+      "text": "<?php $value=new \\ReflectionNamedType();",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 1,
+      "key": "Tab",
+      "text": "<?php $value=new \\ReflectionNamedType();",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 2,
+      "key": "Enter",
+      "text": "<?php function accepts(\\ReflectionType $value){}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 3,
+      "key": "Tab",
+      "text": "<?php function accepts(\\ReflectionType $value){}",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 4,
+      "key": "Enter",
+      "text": "<?php use ReflectionType;",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 5,
+      "key": "Tab",
+      "text": "<?php use ReflectionType;",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 6,
+      "key": "Enter",
+      "text": "<?php use ReflectionNamedType as SelectedAlias; $value=new SelectedAlias();",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 7,
+      "key": "Tab",
+      "text": "<?php use ReflectionNamedType as SelectedAlias; $value=new SelectedAlias();",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 8,
+      "key": "Enter",
+      "text": "<?php $value=new \\ReflectionNamedType();",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 9,
+      "key": "Tab",
+      "text": "<?php $value=new \\ReflectionNamedType();",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 10,
+      "key": "Enter",
+      "text": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionNamedType());",
+      "exitCode": 0
+    },
+    {
+      "version": "8.5",
+      "index": 11,
+      "key": "Tab",
+      "text": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionNamedType());",
+      "exitCode": 0
+    }
+  ],
+  "visible": {
+    "proofs": {
+      "7.2": {
+        "platform": "linux",
+        "context": "reflection-construction-7.2",
+        "results": [
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 238,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionType();",
+            "caretOffset": 32,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 133,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionType();",
+            "caretOffset": 32,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 141,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+            "caretOffset": 38,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 124,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+            "caretOffset": 38,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 148,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php use ReflectionType;",
+            "caretOffset": 24,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 145,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php use ReflectionType;",
+            "caretOffset": 24,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "SelectedAlias",
+            "key": "Enter",
+            "visibleMs": 125,
+            "visibleLabels": [
+              "SelectedAliasReflectionType"
+            ],
+            "acceptedText": "<?php use ReflectionType as SelectedAlias; $value=new SelectedAlias();",
+            "caretOffset": 67,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "SelectedAlias",
+            "key": "Tab",
+            "visibleMs": 118,
+            "visibleLabels": [
+              "SelectedAliasReflectionType"
+            ],
+            "acceptedText": "<?php use ReflectionType as SelectedAlias; $value=new SelectedAlias();",
+            "caretOffset": 67,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 127,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionType();",
+            "caretOffset": 33,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 128,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionType();",
+            "caretOffset": 33,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 116,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionType());",
+            "caretOffset": 75,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 149,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionType());",
+            "caretOffset": 75,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      },
+      "8.5": {
+        "platform": "linux",
+        "context": "reflection-construction-8.5",
+        "results": [
+          {
+            "label": "ReflectionNamedType",
+            "key": "Enter",
+            "visibleMs": 224,
+            "visibleLabels": [
+              "ReflectionNamedTypeReflectionNamedType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionNamedType();",
+            "caretOffset": 37,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionNamedType",
+            "key": "Tab",
+            "visibleMs": 162,
+            "visibleLabels": [
+              "ReflectionNamedTypeReflectionNamedType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionNamedType();",
+            "caretOffset": 37,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 199,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+            "caretOffset": 38,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 189,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php function accepts(\\ReflectionType $value){}",
+            "caretOffset": 38,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Enter",
+            "visibleMs": 208,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php use ReflectionType;",
+            "caretOffset": 24,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionType",
+            "key": "Tab",
+            "visibleMs": 177,
+            "visibleLabels": [
+              "ReflectionTypeReflectionType"
+            ],
+            "acceptedText": "<?php use ReflectionType;",
+            "caretOffset": 24,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "SelectedAlias",
+            "key": "Enter",
+            "visibleMs": 120,
+            "visibleLabels": [
+              "SelectedAliasReflectionNamedType"
+            ],
+            "acceptedText": "<?php use ReflectionNamedType as SelectedAlias; $value=new SelectedAlias();",
+            "caretOffset": 72,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "SelectedAlias",
+            "key": "Tab",
+            "visibleMs": 180,
+            "visibleLabels": [
+              "SelectedAliasReflectionNamedType"
+            ],
+            "acceptedText": "<?php use ReflectionNamedType as SelectedAlias; $value=new SelectedAlias();",
+            "caretOffset": 72,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": false,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionNamedType",
+            "key": "Enter",
+            "visibleMs": 178,
+            "visibleLabels": [
+              "ReflectionNamedTypeReflectionNamedType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionNamedType();",
+            "caretOffset": 38,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionNamedType",
+            "key": "Tab",
+            "visibleMs": 119,
+            "visibleLabels": [
+              "ReflectionNamedTypeReflectionNamedType"
+            ],
+            "acceptedText": "<?php $value=new \\ReflectionNamedType();",
+            "caretOffset": 38,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionNamedType",
+            "key": "Enter",
+            "visibleMs": 132,
+            "visibleLabels": [
+              "ReflectionNamedTypeReflectionNamedType"
+            ],
+            "acceptedText": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionNamedType());",
+            "caretOffset": 80,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          },
+          {
+            "label": "ReflectionNamedType",
+            "key": "Tab",
+            "visibleMs": 155,
+            "visibleLabels": [
+              "ReflectionNamedTypeReflectionNamedType"
+            ],
+            "acceptedText": "<?php function consume(object $value){} consume(new /*🙂*/ \\ReflectionNamedType());",
+            "caretOffset": 80,
+            "exactText": true,
+            "caretMatched": true,
+            "addCall": true,
+            "undoRedo": true,
+            "diskUnchanged": true
+          }
+        ]
+      }
+    },
+    "total": 24,
+    "waitMinMs": 116,
+    "waitMaxMs": 238,
+    "mode": "preloaded provider then explicit visible trigger; Linux isolated source host"
+  },
+  "failuresAndCorrections": [
+    {
+      "raw": "/tmp/sophp-d94-semantic.json",
+      "reason": "New nested fixture incorrectly expected empty public signature help; outer consume signature is correct. Assertion corrected; parsed binding still must resolve its own constructor."
+    },
+    {
+      "raw": "/tmp/sophp-d94-semantic-legacy.json",
+      "reason": "New test assumed ordinary user PHP 7 class-name methods were already modeled as constructors. Existing support only admits versioned internal stub declarations. Kept that boundary; added explicit-version fixtures and recorded user-source gap."
+    },
+    {
+      "raw": "/tmp/sophp-d94-lsp.json",
+      "passed": 6,
+      "failed": 2,
+      "reason": "New test applied complete-root gate to missing-required diagnostics; existing onDemand hydration already proves these. Kept product gate; corrected assertions."
+    },
+    {
+      "raw": [
+        "/tmp/sophp-d94-host-7.2.log",
+        "/tmp/sophp-d94-host-8.5.log"
+      ],
+      "reason": "Both hosts completed 12 acceptances; report runner still required 8. Updated reflection-only expected count to 12; final wrappers exited 0 and wrote proofs."
+    },
+    {
+      "reason": "Ad hoc runtime probe used json_encode under PHP 7 -n without JSON extension; changed probe to core TSV output, then six runtimes completed 30 assertions."
+    }
+  ],
+  "limits": [
+    "Unversioned ordinary user PHP 7 legacy constructors remain outside current constructor resolver support; not added by this milestone.",
+    "Existing magic constructor parameter-edit restriction remains.",
+    "Dynamic and anonymous constructions have no guessed named ParsedCall.",
+    "Latest complete 902-case LSP proof still belongs to 1f98b410; current source requires new unified run.",
+    "D92 ordinary PHP 7.2 P95 186.39 ms still exceeds 150 ms; not remeasured in this functional milestone.",
+    "Real WSL, natural typing, other platforms/scales/long sessions remain separate."
+  ],
+  "delivery": {
+    "package": false,
+    "profileUpdated": false,
+    "pushed": false,
+    "goal": "active"
+  }
+}

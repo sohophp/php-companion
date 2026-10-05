@@ -190,6 +190,7 @@ export interface ParsedCall extends SourceRange {
   kind?: 'function' | 'method' | 'static-method' | 'constructor';
   nameStart: number;
   nameEnd: number;
+  /** Equal at the construction's end when PHP omits the argument list. */
   argumentsStart: number;
   argumentsEnd: number;
   arguments: Array<SourceRange & { name?: string; nameStart?: number; nameEnd?: number; unpacked: boolean }>;
@@ -1054,12 +1055,13 @@ export class PhpSyntaxParser {
         const callReceiverNode = node.childForFieldName('object') ?? node.childForFieldName('scope');
         const bracedCallName = Boolean(nameNode && callReceiverNode && /\{\s*$/.test(source.slice(callReceiverNode.endIndex, nameNode.startIndex)));
         const preciseDynamicName = nameNode && bracedCallName ? dynamicMemberName(nameNode) : undefined;
-        if (argumentsNode && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
+        if ((argumentsNode || nodeType === 'object_creation_expression') && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
           || (nodeType === 'function_call_expression' && nameNode.type === 'variable_name') || preciseDynamicName)) {
-          const arguments_ = argumentsNode.namedChildren.filter((child) => child.type === 'argument');
-          const firstClassCallable = argumentsNode.namedChildren.some((child) => child.type === 'variadic_placeholder');
+          const arguments_ = argumentsNode?.namedChildren.filter((child) => child.type === 'argument') ?? [];
+          const firstClassCallable = argumentsNode?.namedChildren.some((child) => child.type === 'variadic_placeholder') ?? false;
           const nestedCall = (candidate: SyntaxNode): boolean => candidate.namedChildren.some((child) => callTypes.has(child.type) || nestedCall(child));
-          const nameRange = preciseDynamicName?.range ?? nodeRange(source, nameNode); const argumentsRange = nodeRange(source, argumentsNode);
+          const nameRange = preciseDynamicName?.range ?? nodeRange(source, nameNode);
+          const argumentsRange = argumentsNode ? nodeRange(source, argumentsNode) : { start: node.endIndex, end: node.endIndex };
           const receiverNode = nodeType === 'member_call_expression' || nodeType === 'nullsafe_member_call_expression'
             ? node.childForFieldName('object') ?? node.namedChildren[0] : undefined;
           const guaranteedExpression = (): SourceRange | undefined => {

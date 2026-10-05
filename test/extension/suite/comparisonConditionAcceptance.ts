@@ -64,6 +64,8 @@ export async function run(): Promise<void> {
     {prefix:'ReflectionTyp',label:'ReflectionType',forbidden:'',addCall:false,consume:1,marked:'<?php function accepts(\\ReflectionTyp§e $value){}'},
     {prefix:'ReflectionTyp',label:'ReflectionType',forbidden:'',addCall:false,consume:1,marked:'<?php use ReflectionTyp§e;'},
     {prefix:'Selected',label:'SelectedAlias',forbidden:'',addCall:false,consume:5,marked:`<?php use ${reflectionNewType} as SelectedAlias; $value=new Selected§Alias();`},
+    {prefix:reflectionNewType.slice(0,-1),label:reflectionNewType,forbidden:'',addCall:true,consume:1,marked:`<?php $value=new \\${reflectionNewType.slice(0,-1)}§e;`},
+    {prefix:reflectionNewType.slice(0,-1),label:reflectionNewType,forbidden:'',addCall:true,consume:1,marked:`<?php function consume(object $value){} consume(new /*🙂*/ \\${reflectionNewType.slice(0,-1)}§e);`},
   ] : functionLookups ? [
     {prefix:'na',label:'name',forbidden:'title',addCall:false,consume:2,marked:callableHeader+'/** @param list<User> $users */ function run(array $users){array_map(fn($user)=>$user->na§me(),$users);}'},
     {prefix:'ti',label:'title',forbidden:'name',addCall:false,consume:3,marked:callableHeader+'/** @param list<User> $users */ function run(array $users){$views=array_map(fn($user)=>new View(),$users);$views[0]->ti§tle();}'},

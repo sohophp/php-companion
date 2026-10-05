@@ -104,7 +104,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 83;
+  schema: 84;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -2445,7 +2445,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 83,
+      schema: 84,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -2471,7 +2471,7 @@ export class SemanticWorkspace {
     try {
       const file = semanticFileSnapshot(declaration, { uri: declaration.uri, source: value.source, file: emptyImplementationFacts(), callables: [] });
       const prepared: SemanticSnapshot = {
-        schema: 83, declaration, implementation: implementationSnapshot(file),
+        schema: 84, declaration, implementation: implementationSnapshot(file),
         layers: { referenceCandidates: { indexed: false, keys: [] }, typeDependencies: { indexed: false, nodes: [] } },
       };
       if (!this.restore(prepared, expectedUri)) return false;
@@ -2563,7 +2563,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 83 || !declaration || !implementation
+    if (value?.schema !== 84 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -2623,7 +2623,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 83 || !declaration || !implementation
+    if (value?.schema !== 84 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -8184,7 +8184,7 @@ export class SemanticWorkspace {
         if (!assignment.sourceCall || assignment.sourceCall.kind === 'callable-variable') return undefined;
         const call = file.calls.filter((candidate) => candidate.start >= assignment.start && candidate.end <= assignment.end)
           .sort((left, right) => (right.end - right.start) - (left.end - left.start))[0];
-        const signature = call && this.signature(uri, call.argumentsStart + 1); if (!signature) return undefined;
+        const signature = call && this.signatureForParsedCall(file, call); if (!signature) return undefined;
         const declarations = this.callableDeclarationsForSignature(signature);
         if (declarations.length !== 1) return undefined;
         const target = declarations[0]!;
@@ -8522,7 +8522,7 @@ export class SemanticWorkspace {
       if (call.arguments.some((argument) => argument.unpacked)) continue;
       // Resolve at the opening parenthesis so nested calls and callback parameter lists in later
       // arguments cannot hide the outer callable from the text-based signature matcher.
-      const signature = this.signature(uri, call.argumentsStart + 1); if (!signature) continue;
+      const signature = this.signatureForParsedCall(file, call); if (!signature) continue;
       const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables)
         .filter((candidate) => candidate.kind === signature.kind && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
       if (declarations.length !== 1) continue;
@@ -9298,6 +9298,10 @@ export class SemanticWorkspace {
   }
 
   private signatureForParsedCall(file: SemanticFile, call: ParsedCall): SignatureInfo | undefined {
+    if (call.kind === 'constructor' && call.argumentsStart === call.argumentsEnd) {
+      const candidates = this.signaturesForParsedCall(file, call);
+      return candidates.length === 1 ? candidates[0] : undefined;
+    }
     const outer = this.signature(file.uri, call.argumentsStart + 1);
     return outer ?? (call.arguments[0] ? this.signature(file.uri, call.arguments[0].start) : undefined);
   }
@@ -9419,17 +9423,18 @@ export class SemanticWorkspace {
     if (this.hasRelevantFirstClassMethodCallable(callable.name, familyIds)) return undefined;
     const directCalls: Array<{ file: SemanticFile; call: ParsedCall }> = [];
     for (const candidateFile of this.files.values()) for (const call of candidateFile.calls) {
-      if (candidateFile.source.slice(call.nameStart, call.nameEnd).toLowerCase() !== callable.name.toLowerCase()) continue;
+      if (call.kind !== 'constructor' && candidateFile.source.slice(call.nameStart, call.nameEnd).toLowerCase() !== callable.name.toLowerCase()) continue;
       const signature = this.signatureForParsedCall(candidateFile, call);
       if (signature?.kind !== 'method' || !familyIds.has(signature.fqcn.toLowerCase())) continue;
       directCalls.push({ file: candidateFile, call });
       if (!call.flat || call.firstClassCallable || call.arguments.some((argument) => argument.unpacked)) return undefined;
-      const insertion = call.argumentsEnd - 1;
-      if (this.hasPunctuationOutsideTrivia(candidateFile, ',',
+      const omittedList = call.kind === 'constructor' && call.argumentsStart === call.argumentsEnd;
+      const insertion = omittedList ? call.end : call.argumentsEnd - 1;
+      if (!omittedList && this.hasPunctuationOutsideTrivia(candidateFile, ',',
         call.arguments.at(-1)?.end ?? call.argumentsStart + 1, insertion)) return undefined;
       const named = call.arguments.some((argument) => argument.name !== undefined);
       edits.push({ uri: candidateFile.uri, start: insertion, end: insertion,
-        newText: `${call.arguments.length ? ', ' : ''}${named ? `${name}: ` : ''}${value}` });
+        newText: omittedList ? `(${value})` : `${call.arguments.length ? ', ' : ''}${named ? `${name}: ` : ''}${value}` });
     }
     for (const member of members) {
       const references = this.references(member.file.uri, member.callable.start, true).filter((reference) => {
@@ -9477,7 +9482,7 @@ export class SemanticWorkspace {
     const directCalls: Array<{ file: SemanticFile; call: ParsedCall }> = [];
     for (const candidateFile of this.files.values()) {
       for (const call of candidateFile.calls) {
-        if (candidateFile.source.slice(call.nameStart, call.nameEnd).toLowerCase() !== callable.name.toLowerCase()) continue;
+        if (call.kind !== 'constructor' && candidateFile.source.slice(call.nameStart, call.nameEnd).toLowerCase() !== callable.name.toLowerCase()) continue;
         const signature = this.signatureForParsedCall(candidateFile, call);
         if (signature?.kind === 'method' && signature.fqcn.toLowerCase() === callable.fqcn.toLowerCase()) directCalls.push({ file: candidateFile, call });
       }
@@ -9499,12 +9504,13 @@ export class SemanticWorkspace {
       || /\bfunc_(?:get_args|get_arg|num_args)\s*\(/i.test(file.source.slice(callable.declarationStart, callable.declarationEnd))) return undefined;
     for (const { file: callFile, call } of directCalls) {
       if (!call.flat || call.firstClassCallable || call.arguments.some((argument) => argument.unpacked)) return undefined;
-      const callInsertion = call.argumentsEnd - 1;
-      if (this.hasPunctuationOutsideTrivia(callFile, ',',
+      const omittedList = call.kind === 'constructor' && call.argumentsStart === call.argumentsEnd;
+      const callInsertion = omittedList ? call.end : call.argumentsEnd - 1;
+      if (!omittedList && this.hasPunctuationOutsideTrivia(callFile, ',',
         call.arguments.at(-1)?.end ?? call.argumentsStart + 1, callInsertion)) return undefined;
       const named = call.arguments.some((argument) => argument.name !== undefined);
       edits.push({ uri: callFile.uri, start: callInsertion, end: callInsertion,
-        newText: `${call.arguments.length ? ', ' : ''}${named ? `${name}: ` : ''}${value}` });
+        newText: omittedList ? `(${value})` : `${call.arguments.length ? ', ' : ''}${named ? `${name}: ` : ''}${value}` });
     }
     const doc = file.commentRanges.filter((comment) => comment.end <= callable.declarationStart && file.source.startsWith('/**', comment.start))
       .sort((left, right) => right.end - left.end)[0];
@@ -9679,7 +9685,7 @@ export class SemanticWorkspace {
         if ([...file.commentRanges, ...file.stringRanges].some((range) => range.start <= start && end <= range.end)) continue;
         const call = file.calls.find((item) => item.firstClassCallable && item.nameStart === start && item.nameEnd === end);
         if (!call) return true;
-        const signatures = this.signatures(file.uri, call.argumentsStart + 1);
+        const signatures = this.signaturesForParsedCall(file, call);
         if (!signatures.length || signatures.some((signature) => {
           const declaration = this.fileAndDeclaration(signature.calledOnFqcn)?.declaration;
           return signature.kind !== 'method' || familyIds.has(signature.fqcn.toLowerCase())
@@ -11068,12 +11074,29 @@ export class SemanticWorkspace {
   private completedCallSignature(file: SemanticFile, call: ParsedCall): SignatureInfo | undefined {
     if (call.kind === 'function' && ['isset', 'empty'].includes(file.source.slice(call.nameStart, call.nameEnd).toLowerCase()))
       return undefined;
-    const candidates = this.signatures(file.uri, call.argumentsStart + 1);
+    const candidates = this.signaturesForParsedCall(file, call);
     const argumentsText = file.source.slice(call.argumentsStart + 1, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
     const selected = this.methodCandidatesForArguments(candidates, argumentsText, true, file, call.argumentsStart + 1);
     if (selected.length !== 1) return undefined;
     return candidates.find((candidate) => candidate.uri === selected[0]!.uri && candidate.start === selected[0]!.start
       && candidate.fqcn.toLowerCase() === selected[0]!.fqcn.toLowerCase());
+  }
+
+  private signaturesForParsedCall(file: SemanticFile, call: ParsedCall): SignatureInfo[] {
+    if (call.kind !== 'constructor' || call.argumentsStart !== call.argumentsEnd)
+      return this.signatures(file.uri, call.argumentsStart + 1);
+    // There is no '(' to query. An offset after the name can belong to an outer call.
+    const accessFrom = this.containingCallable(file, call.start)?.containerFqcn;
+    const name = file.source.slice(call.nameStart, call.nameEnd);
+    const fqcn = this.resolveSourceType(file, name, this.namespaceAt(file, call.nameStart), accessFrom);
+    const declaration = fqcn && this.fileAndDeclaration(fqcn)?.declaration;
+    if (!fqcn || !declaration) return [];
+    return this.constructorsFor(fqcn).filter(({ callable }) => callable.visibility === 'public'
+      || accessFrom?.toLowerCase() === callable.containerFqcn?.toLowerCase()).map(({ file: owner, callable }): SignatureInfo => ({
+        kind: 'method', uri: owner.uri, start: callable.start, end: callable.end, name: declaration.name, fqcn: callable.fqcn,
+        parameters: callable.parameters, returnType: fqcn, visibility: callable.visibility, static: false,
+        typeScopeFqcn: callable.containerFqcn!, calledOnFqcn: fqcn, ...this.signatureContext('', callable.parameters),
+      }));
   }
 
   private firstClassCallableSignatures(file: SemanticFile, variable: string, offset: number,
@@ -12402,7 +12425,7 @@ export class SemanticWorkspace {
         return signatures.length !== 1 || this.callArgumentsMayMutateVariable(file, call, signatures[0]!.parameters, variable);
       }
       if (!direct) return false;
-      if (call.kind !== 'function') return this.signatures(file.uri, call.argumentsStart + 1).length === 0;
+      if (call.kind !== 'function') return this.signaturesForParsedCall(file, call).length === 0;
       const resolved = this.resolveFunction(file, sourceName, this.namespaceAt(file, call.start), call.start).toLowerCase();
       if (['isset', 'empty'].includes(resolved)) return false;
       // These native predicates cannot replace their first value argument,
@@ -16028,7 +16051,7 @@ export class SemanticWorkspace {
       }
       // Top-level variables can also be changed through a callee's globals.
       if (scope.kind === 'global' && call.start >= assignment.end) {
-        const signatures = this.signatures(file.uri, call.argumentsStart + 1);
+        const signatures = this.signaturesForParsedCall(file, call);
         const scalarFunctions = ['strlen', 'strtolower', 'strtoupper', 'trim', 'ltrim', 'rtrim', 'substr',
           'strpos', 'strrpos', 'str_contains', 'str_starts_with', 'str_ends_with', 'is_string', 'gettype', 'get_debug_type'];
         if (!signatures.length || signatures.some((item) => !item.uri.startsWith('php-companion-builtin:')
@@ -16043,7 +16066,7 @@ export class SemanticWorkspace {
       const matches = call.arguments.map((argument, index) => ({ argument, index })).filter(({ argument }) =>
         file.source.slice(argument.start, argument.end).trim().replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === variable);
       if (!matches.length) continue;
-      const signatures = this.signatures(file.uri, call.argumentsStart + 1);
+      const signatures = this.signaturesForParsedCall(file, call);
       if (!signatures.length || matches.some(({ argument, index }) => signatures.some((signature) => {
         const parameter = argument.name ? signature.parameters.find((item) => item.name === argument.name)
           : signature.parameters[index] ?? signature.parameters.find((item) => item.variadic);
