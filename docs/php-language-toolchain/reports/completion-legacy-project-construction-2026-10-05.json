@@ -1,0 +1,2639 @@
+{
+  "milestone": "D106 Selected-project-version legacy constructor completion",
+  "createdAtUtc": "2026-10-05T11:19:52.198658+00:00",
+  "baseCommit": "14fd8b5a12e19110473e8e7e9b33b272da85612d",
+  "schema": {
+    "semantic": 87,
+    "sourceDeclaration": 5,
+    "unchangedStructuralFacts": true
+  },
+  "sourceAndBundleSha256": {
+    "packages/semantic/src/index.ts": "36cc9088fb5843fbfe0fe02ecdc9bfc9687763ea6229017b4dee348ef1571f9b",
+    "packages/language-server/src/server.ts": "1979a0b6201fb6a3178f4ce3e0e7a3341ad7df75e0b56644717c2cb3c369fa54",
+    "packages/semantic/test/legacy-project-construction.test.ts": "dfcef3e5ad74b5d5c19499365bc730a9e6f66ac8d20079d1f73c3ae1cb682f59",
+    "packages/language-server/test/legacy-project-construction-stdio.test.ts": "f96f1ac7fc702135ce865fedded8dab8186eec0ed24a6574e3a8093004a273c3",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "d2b3d2abacfc50cadfe190c439cacc9022449b62fe0193ef482958398663d60b",
+    "dist/language-server.js": "fcb2824530ebf5e9c891d4f956c3ef94e7375f54290319eaedd1d080d8c12051",
+    "dist/extension.js": "ee119dfcc817ab8c63b3a352664ea4aad9ecc400a4b98ff6f831490070415185",
+    "packages/semantic/dist/index.js": "efad293c87987122bb2586937c01a6b67907183e8886fa19c868356f97102429",
+    "packages/language-server/dist/server.js": "5114f606d64d644d46d63100cdc74a9ada189d2bbb6f4b7aeecbdfb9df9ffcd4",
+    "packages/parser/dist/index.js": "587490dacc31fbb04fd38a00453a18f160d19ede2ec9d7ba74e11e49611f9bf0",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "frozenInputs": {
+    "count": 162,
+    "unchanged": true,
+    "sha256": "027f62720c4ad086fd58b1617ad69432b28db2f36cffa936f5c2be2be680b15d",
+    "entries": {
+      "dist/extension.js": "ee119dfcc817ab8c63b3a352664ea4aad9ecc400a4b98ff6f831490070415185",
+      "dist/language-server.js": "fcb2824530ebf5e9c891d4f956c3ef94e7375f54290319eaedd1d080d8c12051",
+      "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "packages/language-server/src/analysis.ts": "fcbd7376f03dfdb4eb6a9f7017a6976af198abeeaf7457987b97ebb252840dd4",
+      "packages/language-server/src/cacheVersion.ts": "44af52436938b3cb87805c7522620c7d36f04be8004ac82aa6be45faba2b067b",
+      "packages/language-server/src/callableFactsCache.ts": "8b3c9ee0bf80411a7ce57ead53a04cc712c719a09c1665907c8b8b903a04e90a",
+      "packages/language-server/src/candidateWorker.ts": "ac5de16eec508db274ff82ee9810602ff910a82e9a31280694727021c669cd5d",
+      "packages/language-server/src/candidateWorkers.ts": "bf995798674df7d6f900d9d58c2fc837d8c176408484e34d65e894b2bf21e99a",
+      "packages/language-server/src/codeActionMessages.ts": "b03840c94623246108f99e92491753a360c924a4cdb8af77e2e2aba0ebe24f76",
+      "packages/language-server/src/completionCallTrivia.ts": "451ca3102112256b58ff11a28b808adc03d449f301852b0655038631df9d2261",
+      "packages/language-server/src/diagnosticMessages.ts": "35f3cb95c2103f6f82afdffedd99e2e62f10e4d9893ec626f16e91ba2344deb8",
+      "packages/language-server/src/index.ts": "1bae8d999801d1e174206be25ac8cfb3448c2eefc3f2628c33ef44fde789efad",
+      "packages/language-server/src/outputMessages.ts": "fb5071d1854bf117b544f0ec4f84d67ed16670ac6a6294c3327d724a31b6eb8a",
+      "packages/language-server/src/portableCandidatePaths.ts": "9c5d05bffd259e1efa277dce4fd6fdf007db1c728067996452e3619c656af8a5",
+      "packages/language-server/src/portableCandidateSearchWorker.ts": "01d8b82f4ee90dc770c5f5572e9af7e8ded97903b249f9175f70325e86cfe42f",
+      "packages/language-server/src/progressMessages.ts": "b1fbdaaa82189c7718b02808363b781f9118b61e8d04bde928449b74c18cfc57",
+      "packages/language-server/src/projectFacts.ts": "6115fd9ec1ee8db046cdeab874a2f5b0dd8bbdbf65cbd0a98e8bfbb681d3de79",
+      "packages/language-server/src/projectIndex.ts": "0fd9548fac5e7548c9e5e53dc38d8c3a5b50a6fa18b19e508df890d82e7dd906",
+      "packages/language-server/src/protocolMessages.ts": "82ee9f1f2e718d45266fb41d14494e8ea251467873a060649bc243fe319c7f11",
+      "packages/language-server/src/referenceCandidateEvidence.ts": "67b3f85544837fb3c8e33c5d1e2ccc4d63c15db3f9c1e0c0157f82118f3e0515",
+      "packages/language-server/src/referenceDependencyEvidence.ts": "465a1be67a349ec3fccf69e631d400846d534d9f9c5bfa6bf8e4345dbbe8bb11",
+      "packages/language-server/src/referenceEngineIdentity.ts": "b28f04c2146d18877226f3a9f30152e5e5fcc520207bf16c8a6a74ff0baefdcc",
+      "packages/language-server/src/referenceInputSnapshot.ts": "5c03ca6671a98e777cb05040c3fa0be78b69604db78a610be4d9865945de437d",
+      "packages/language-server/src/referenceResultStore.ts": "e791e2f71100d02b96ba2d32afa883b177b5adaaaeed7c7529156fee789cf61f",
+      "packages/language-server/src/server.ts": "1979a0b6201fb6a3178f4ce3e0e7a3341ad7df75e0b56644717c2cb3c369fa54",
+      "packages/language-server/src/sourceStatBatches.ts": "1b2f6252adc850da7e03428b1a336c04d3b412bb7a4f7838bcffaae459ba8d3a",
+      "packages/language-server/src/sourceStatWorker.ts": "c392b071a923bc1620dd61b261bbad40402c60d20cb7c6e6bb0469e096893963",
+      "packages/language-server/test/analysis.test.ts": "9d1daa301814eaebf0bc8f9c386be47b1e5e4e2a955c996efa9f688e04c9c6e0",
+      "packages/language-server/test/inherited-constructor-generics-stdio.test.ts": "7609ca598e4ac61e3d898a5c267a6b493ae55f6a34b01f14ab7a0763938811ab",
+      "packages/language-server/test/legacy-project-construction-stdio.test.ts": "f96f1ac7fc702135ce865fedded8dab8186eec0ed24a6574e3a8093004a273c3",
+      "packages/language-server/test/trait-construction-stdio.test.ts": "8d2007c23756f221beb8b236cfb6d27c102c1aea598ea60e42d94c1b7e1edfec",
+      "packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts": "d49d93d37abf3dedd69de9ea83f85068d9fc501db365ca47dda6beee21699a0e",
+      "packages/parser/dist/index.js": "587490dacc31fbb04fd38a00453a18f160d19ede2ec9d7ba74e11e49611f9bf0",
+      "packages/semantic/dist/index.js": "efad293c87987122bb2586937c01a6b67907183e8886fa19c868356f97102429",
+      "packages/semantic/src/completionIdentifier.ts": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d",
+      "packages/semantic/src/completionMatching.ts": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5",
+      "packages/semantic/src/completionTrivia.ts": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196",
+      "packages/semantic/src/completionTypeTail.ts": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec",
+      "packages/semantic/src/index.ts": "36cc9088fb5843fbfe0fe02ecdc9bfc9687763ea6229017b4dee348ef1571f9b",
+      "packages/semantic/src/phpDocNameBinding.ts": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0",
+      "packages/semantic/src/quotedCompletion.ts": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c",
+      "packages/semantic/test/acceptance-f04-references.test.ts": "9c55a5264c72db536b4c7324f7344a05ffa4285c245c567958d524136ca9ccfc",
+      "packages/semantic/test/acceptance-f08-extract-interface.test.ts": "afee59ebc75bbe96364b9787a59e775e3ffbf1074b46b5554d22053efce43ab4",
+      "packages/semantic/test/acceptance-f08-extract-method.test.ts": "4ce2ae1846d4d6b9bf0c3fea4c774e24ec51626ba9fe6bfe58eee7864ef3928c",
+      "packages/semantic/test/acceptance-f08-remove-parameter.test.ts": "c8c3b318d8d2bf55e2527bca502f1850e22e93cacc2f0fb5b7f99d7ca8b611fa",
+      "packages/semantic/test/add-method-family-parameter.test.ts": "b9bf775e91ea1244e24d870dbe846b364d5b5f1847f6dc5b9d6557c1f93ba72c",
+      "packages/semantic/test/add-private-parameter.test.ts": "f32db4623bc222fe8212d07ce2259d8c6a684c452cf9e291c6734b0528e9f4bc",
+      "packages/semantic/test/array-access-key-completion.test.ts": "4a75e5707aec4589986850560e6aba851245fa9830e96176b9b500f1f9454f69",
+      "packages/semantic/test/array-column-properties.test.ts": "d54ff730fc004a4c37dd96ad3cd87f95923b75f7ce748f9aef388a3c542e884d",
+      "packages/semantic/test/array-column-return-contract.test.ts": "e559740752346b7081b7998fbdf086153253abdbb7076999a8bdc778b1089fb1",
+      "packages/semantic/test/array-combine-contract.test.ts": "640eb7edca67b8bc0f4ffbcac5605515b6420f096f55628936b12a38a69df719",
+      "packages/semantic/test/array-count-values-contract.test.ts": "4be49b51dedb9b031e5fd1d5e5cc0af6fa3796fc1127198081257326e5a433c0",
+      "packages/semantic/test/array-fill-keys-contract.test.ts": "87f68596df712830701792b78515f4d5f84996e9f4cada754e8f977c3c12b2ed",
+      "packages/semantic/test/array-flip-contract.test.ts": "42a9a8685bc31b6fe9322e42908172c27d8eac5e78a1168d94d3aeef4adcaf6b",
+      "packages/semantic/test/array-inline-doc-contract.test.ts": "6ceeec01d5e1ead3db3bc0d1c6c8d5a08438a196890c044c495d0d23f1395ac0",
+      "packages/semantic/test/array-key-preservation.test.ts": "d6b9b23749dc9303f7ed9852487f4def06b44cce1cab47713a340db736966eff",
+      "packages/semantic/test/assignment-comment-completion.test.ts": "ed60846334e878d37d4422acb40fb1dcdd02ba5aa1501375469592aae71e51af",
+      "packages/semantic/test/assignment-target-completion.test.ts": "15efdd63f3846a79258becb1216040db27446afdda0f9c7c973849bfd1b2ceff",
+      "packages/semantic/test/bare-construction.test.ts": "0a3184b2ec01954e059cc3fecaf97bc4c74aec0c99b1c0fba9a1d2193b896c7c",
+      "packages/semantic/test/blank-comment-variable-completion.test.ts": "e4427a134725034ecf3bacb7642457d7379bf528096fedf5e725f9c1c6f94985",
+      "packages/semantic/test/blank-initializer-type-completion.test.ts": "9abcdab81719cb40e78a83fc0392b4bfba15ddb4f9897056384a2b425ed1a774",
+      "packages/semantic/test/branch-shape-completion.test.ts": "8e504c4d53933ab8ed0ab3197343ea3f915f3e9075f777440b733f2e32b9b5de",
+      "packages/semantic/test/branch-value-completion.test.ts": "01b89e5585b994439ae691e0adc17ca5ab3817a28aae926cb1fe3c98027a8bae",
+      "packages/semantic/test/builtin-array-callback-completion.test.ts": "846d76bf5e15dd5e37e4a4383575dbbbbbf398f4d89ea95d808d9a9d3f58a2fe",
+      "packages/semantic/test/builtin-construction-completion.test.ts": "7f522465fc0ca0d20ec30a727fa0c15c3bc76677df75c3573895c84f15589956",
+      "packages/semantic/test/cached-array-access-recovery.test.ts": "d5b48be586f13f7269f397d3d50dbb880b2a72af2d8b459d0d88ee455b916e04",
+      "packages/semantic/test/callable-value-effects.test.ts": "80e5a70b13fa1c908f8e7021446368eff404c2971393cdf8c37d135f0d141aa6",
+      "packages/semantic/test/callback-completion-details.test.ts": "bacd5830ccae6d72d085ea7df4cf75fc4a7a9953d5a9a833d111ee0240907273",
+      "packages/semantic/test/callback-return-completion.test.ts": "9c6670852078c40ccf3f77fca2257f6b8934938acc5575b7df993500f46923c9",
+      "packages/semantic/test/class-relative-construction.test.ts": "884f2d3e6b57fb2a3f4e295b812cab2c4b725b54db207b98e2f269ba3f8c2cee",
+      "packages/semantic/test/completion-identifier.test.ts": "cf5ec2cd3aa459fa7f0e7b5dab68463a94055cf1c6ffa332be90ff5a67649762",
+      "packages/semantic/test/completion-trivia-offsets.test.ts": "8ce19f96266be52ab8347d0f436114256e14587a2c393e730e8b95108e0abdc7",
+      "packages/semantic/test/completion-type-tail.test.ts": "a50c2ed2a40fb0f0bd0fc55b9b3553df105f5b19f8f679d4507ed800c7940c51",
+      "packages/semantic/test/completionMatching.test.ts": "751ffad151d39596ee9784e9ab80decc89a571e39414af1ed159a02d375689ad",
+      "packages/semantic/test/conditional-completion-context.test.ts": "37352110a2b2ceea180972af3f85577c31095edc3f88f44f91e9e426a30dfe32",
+      "packages/semantic/test/constant-initializer-completion.test.ts": "d54f69dbacd76f765774e2d22bd5ff67bcacd2052b59961fc8a76ca0a5c30b31",
+      "packages/semantic/test/construction-trivia-completion.test.ts": "81ec6dc07b730f92de3bd729c6284cfcda19fe12aa3c14abdbe51b5e3655f442",
+      "packages/semantic/test/constructor-source-proof.test.ts": "9656e748e816d647e411b36fdaaec49a10dd77d63fb5165e92d064a2419e2ab4",
+      "packages/semantic/test/csv-fields-contract.test.ts": "d59ce27b9236dbf5e47612894e5d10b34de30d506dfe5269741167806b6f61f8",
+      "packages/semantic/test/declaration-default-completion.test.ts": "423d1a27d983726aa4bf7aaca614ff82a5696d292796e71abc6b827544f71e83",
+      "packages/semantic/test/declaration-hierarchy-sources.test.ts": "a689441f7d3f235e05b13e0a73487778c1cd6346a62cb154ce9cc7c47d0f85d1",
+      "packages/semantic/test/declaration-variable-boundaries.test.ts": "951e7b632ab3499c1e7270311eed32a2e0269615c7a43abc3dca43c93fe9c12e",
+      "packages/semantic/test/existing-array-arrow-completion.test.ts": "8427ff47442aad5af48327da7bd399ec1ec34034d70d2e8a95ed949c0bd1a185",
+      "packages/semantic/test/extract-method-branch-outputs.test.ts": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "packages/semantic/test/extract-method-local-chain.test.ts": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "packages/semantic/test/extract-method-local-return.test.ts": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "packages/semantic/test/extract-nested-call.test.ts": "98b24ba8f865a4c58b493ed420822d729717d896894a1252b8b57216305f6c37",
+      "packages/semantic/test/extract-shared-bindings.test.ts": "69cc9d6cb7eca93547ae96bb5d3afbce36356cca183d09c583f87a4e0ba2d223",
+      "packages/semantic/test/flow-value-completion.test.ts": "0a3d3d5abab40536ba071424fb7a554aec314b1179b0046e42bd64d515190bd9",
+      "packages/semantic/test/flow-value-consistency.test.ts": "bb6b55d02ba0b5d945431715dd0da3a721adf1784afc03a593739b4c1a3438be",
+      "packages/semantic/test/function-declaration-refresh.test.ts": "ea093877cedfb5fc5a954db18bcde3623ae0b738bf1b509667f42679f19a44db",
+      "packages/semantic/test/getrusage-contract.test.ts": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "packages/semantic/test/headers-contract.test.ts": "10ad51329ff581cba701fc3634f603862e59d2f4f1e20852f14be8915ac7bb9e",
+      "packages/semantic/test/highlight-contract.test.ts": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+      "packages/semantic/test/image-size-contract.test.ts": "ffd47a804c255b42e50a85544757a65d7b00aacc5aee104f6773e52b2ab2472a",
+      "packages/semantic/test/implicit-nullable-parameter.test.ts": "5ac6dc5f71092665faeb521bbd7a7e621640c00093b4e4fde5a79e6179837fdf",
+      "packages/semantic/test/import-completion-boundaries.test.ts": "cd98f9ff2b67d539cccf54fa8befb52e268eecdb3275e89fd9746ddf7ccc2886",
+      "packages/semantic/test/inheritance-list-completion.test.ts": "2d901c179750438999cdd0b155cb765033b42e28d5f56deb6d3089d82d373b56",
+      "packages/semantic/test/inheritance-trivia-completion.test.ts": "26eef2d3b44c97d0bdf907e733e38e3d5267d99dabeb2bed62b8626370c543ed",
+      "packages/semantic/test/inheritance-validity-completion.test.ts": "0bf5d174c6bcb57e8191563b5f2f2304e2a653292e76bcc658e62ee7877fcbe4",
+      "packages/semantic/test/inherited-constructor-generics.test.ts": "c17edc70cb28f92d053979837c44140f86e0bc8969ef40af8600641dd8a9e7ad",
+      "packages/semantic/test/inherited-final-magic.test.ts": "b396d9605d14c9c5fe67322bd0424682b239a88997cb2846f23157858135a940",
+      "packages/semantic/test/initializer-completion-context.test.ts": "569f0f401079a5fdcdd0ad6c15c1fc329a4cb94bd812baaf4f7b090ed334d395",
+      "packages/semantic/test/inline-shared-bindings.test.ts": "1f7fc426fadf98e50154c6392ed736111f49e28e50ac12f8393a65891d40e8cc",
+      "packages/semantic/test/iterator-apply-contract.test.ts": "8db11c032f27b8d70396a895a532023b533c3c71ca5c6decaa5c4565b7da10c0",
+      "packages/semantic/test/large-candidate-type-ranking.test.ts": "4de453387601f6c5142ba2ae05823130437de111abd089fa5a5940d3f612e7a1",
+      "packages/semantic/test/large-local-type-ranking.test.ts": "2f99e1cc4ba093ca12ea1323c560967a2f4615285e4dbb2ea16b2709e698fe34",
+      "packages/semantic/test/legacy-builtin-constructor.test.ts": "f1806c07c42011981dc49dbfb3811bf01e2d51a8d35b1cc794e54538895c5de8",
+      "packages/semantic/test/legacy-project-construction.test.ts": "dfcef3e5ad74b5d5c19499365bc730a9e6f66ac8d20079d1f73c3ae1cb682f59",
+      "packages/semantic/test/local-prefix-syntax.test.ts": "c1d01bd859983e8346b8b81a052d6ef073c03e801ed60c34fc5ec5ef0e6e9d94",
+      "packages/semantic/test/local-range-completion.test.ts": "473437912d9a42881816002e790df657274933011e9774bb3da0fa778f1d7438",
+      "packages/semantic/test/magic-declaration-completion.test.ts": "211a2e618ed77677f3ee4cc202554b23ca9809ffcd3c2d9d3eb74133294a1bd7",
+      "packages/semantic/test/magic-modifier-completion.test.ts": "c9fd4b00c46af527eb068b7978148dfb71d59431b1d823187a014980c313eb0b",
+      "packages/semantic/test/match-condition-completion.test.ts": "c4018dbd675ca219926047ce67ee7a3136f7ab7b3f9c6a77afd46e5f7374cc9f",
+      "packages/semantic/test/middle-array-access-completion.test.ts": "73b1b0876b2316e8b371637347d1e02d16894205060b0d824b9ba5afc0a914aa",
+      "packages/semantic/test/middle-array-literal-completion.test.ts": "31eef9846f0dabc3272a330c26705f58dc292fa0eb1fd261987f5a81d8af762a",
+      "packages/semantic/test/mixed-callable-recovery.test.ts": "4ad00c9f5632eff4f18fb99a0e98dc6d42fd3be077cdfacc8eed16af54f2cc66",
+      "packages/semantic/test/named-value-completion.test.ts": "63e93a254081d584f2cb4a3627c7f9b653e54ffc168ecdd95652bc3839def650",
+      "packages/semantic/test/native-array-template.test.ts": "577936bcb50a63b3f2f02a8ee68d854d71111c362c10c19bba1c6b5df293c114",
+      "packages/semantic/test/native-generic-parent.test.ts": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "packages/semantic/test/nested-call-never.test.ts": "e8deb6fa21ab6f33fe64cc5ae836d6eef61a7b36891b73a1c373a974ab678cd8",
+      "packages/semantic/test/nested-intrinsic-argument.test.ts": "08593b3d109efb61a60562080817c9f6e34ba356f1e29d389edc934a59b987d3",
+      "packages/semantic/test/operand-completion-context.test.ts": "7c2e9eda5b1eeba8203eac494d98343411066c7f17cb132a9da2ced8424155c4",
+      "packages/semantic/test/parameter-references.test.ts": "68d258d9bd30dc7a7453e2d15d72e332465abf3dcf7f543c12c95f44ad5d2b65",
+      "packages/semantic/test/parsed-call-feedback.test.ts": "2de870002cbf5a107517fd455017637de9a50beaa8c069e54e46e31831da08c3",
+      "packages/semantic/test/pathinfo-contract.test.ts": "09ffe7d65e6d5e9a51df8ea114d4045883d122d6fcd5b9cb44af5b6d156950cd",
+      "packages/semantic/test/property-hook-keyword-context.test.ts": "02e17d4f52c1386e52b33742d24489e7b7f0bc2f7ece222077600eed529497ff",
+      "packages/semantic/test/protected-family-completion.test.ts": "135c0d715e21ab65198ca8fdd24981b922f66978e6abdfb7348f2d7565304ef2",
+      "packages/semantic/test/quoted-prefix-completion.test.ts": "94fe4b32d2ca40ee2870449dff816976b858d4ed278203391881ac8fcdfb6ff8",
+      "packages/semantic/test/readonly-anonymous.test.ts": "3867b18b6c91a2696243c32006929ad12cab99ba613284f3135b0c0173c6ed7b",
+      "packages/semantic/test/reassigned-parameter-completion.test.ts": "b34aa7d78d6bc2598adaef09b074a335e1f2e0355b78dfc4f73054a2e4350e31",
+      "packages/semantic/test/reflection-construction-versions.test.ts": "b941c98b6086856b12e5ba4f307a9af4f4181a585162cd552a1b37c91a22e03c",
+      "packages/semantic/test/remove-method-family-parameter.test.ts": "96952311ec4015cc9017108f088a1f07f4651c73f79d24619532d42e44d801ed",
+      "packages/semantic/test/reorder-method-family-parameter.test.ts": "ba21a06e6ff3705da01f8b4d2160e0ec8fda55d56c536bb715dfa6b813f191d5",
+      "packages/semantic/test/reorder-optional-method-parameters.test.ts": "d4542a05976541d2f08a15fcb81cd356e1cf570a64a01224a9bfad84295dba2e",
+      "packages/semantic/test/restored-signature-cache.test.ts": "ef2e944487f4640c64d4ac3479d65672b564bad936702f958914dc1fa7056174",
+      "packages/semantic/test/root-import-completion.test.ts": "cb7d2ccc69631da9c9d45c7441236c3d9a11cf627aa1193fe1828b393b725de1",
+      "packages/semantic/test/semantic.test.ts": "04ace92854e9dc8375a00b3059f6e8f13e08c6bd1028db2abbd3413fc1c8c243",
+      "packages/semantic/test/shape-comment-completion.test.ts": "963056ec5a9e9ac42163e76f907676661fd4dcade89dacd27b21c85c0711692f",
+      "packages/semantic/test/shape-value-candidate-completion.test.ts": "ad92de8770811a0a4c651890a052d3451aa36083a682758d3bb2bb497cdb228d",
+      "packages/semantic/test/signature-prefix-range.test.ts": "24b48f392dc75de50902b7df616f85a1e41e665f1041d3e0c9a26f33ee691838",
+      "packages/semantic/test/simplexml-factory-contract.test.ts": "1c1c6c985afe39ab8445d6e872831dd690f80ceda8e1907d8b426c5e60c866b0",
+      "packages/semantic/test/stat-contract.test.ts": "1f3a361784e18ecfb1facab41b1165134fc76c994c4ac4dda21e729ebe9c295d",
+      "packages/semantic/test/static-scope.test.ts": "d7d6024f558720fa77f751e913a10a3b17321cad19903400c25649e6999da6cf",
+      "packages/semantic/test/string-replacement-contract.test.ts": "6ad06258e5db7b853df7dc6327f867cf9cef7ad21245b8d4a10fcd89e19d0879",
+      "packages/semantic/test/switch-condition-completion.test.ts": "bed898e83eda0366daef3196f1f1f75e4da52f5ed1a984d13a6fd28ae121d3da",
+      "packages/semantic/test/trailing-callback-members.test.ts": "e16c73d934c1080b3a2d4e4eb0a59b4e972c0b56ea4df745a6191a30525fa948",
+      "packages/semantic/test/trait-construction.test.ts": "1ff9565e4b32bf288d81faacc0742bd4a2047d99f50c5d5f6972103962db3ca6",
+      "packages/semantic/test/trait-constructor-phpdoc.test.ts": "d6e91a4c923097eb0f4e8f8bfe0fbfa07955e392b1adf80d38932b3579e13715",
+      "packages/semantic/test/trait-final-cache.test.ts": "d1e9ebc61afa78c67d51b3bc5f739fd35bc477ec7e90f7d0cb19316bfb893c5b",
+      "packages/semantic/test/trait-precedence-names.test.ts": "30845278496da9fc3cf5724d6649b0ca91fe51510cc4c39190eb540e5cadcdea",
+      "packages/semantic/test/trait-use-generics.test.ts": "4319856f8082aff9de21642d692af1dcacf01bc4c6df0f0352fbe10fdae2ec5e",
+      "packages/semantic/test/unclosed-callable-value-completion.test.ts": "5b4fc759dcec3a0e1eeee7be750b7514c5675772b9acdb3174919e6fdb64f7df",
+      "packages/semantic/test/unclosed-shape-value-completion.test.ts": "1c1a69a09f8d46cf103f54b834a4746d9cf8c723c9d6768b6c405e7eb6998190",
+      "packages/semantic/test/unfinished-shape-completion.test.ts": "19a4e191cd6265080d314f8699e00dbd735a520ad908cf8b878547a5b0a02084",
+      "packages/semantic/test/union-shape-completion.test.ts": "6d7c70f4ccbba47844211c241682f50582c4977a4079b5181331c5d90508d769",
+      "packages/semantic/test/unknown-collection-template.test.ts": "7b744799c4a23220ad34d64bcffc7881750c49ed4f809f962fc140369b0dfb1d",
+      "packages/semantic/test/value-call-binding.test.ts": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "packages/semantic/test/word-middle-shape-completion.test.ts": "75e580641f03099be214f843708caeaea589464633aaa30eafde14dd9655e9cf",
+      "packages/semantic/test/xmlreader-invocation.test.ts": "4e893a23d4a1de387fac0a94011bb132fd4aeb5fdde6e343568321fe0b022217",
+      "test/extension/suite/comparisonConditionAcceptance.ts": "d2b3d2abacfc50cadfe190c439cacc9022449b62fe0193ef482958398663d60b"
+    }
+  },
+  "parserEntryPoints": {
+    "defaultPackageCore": {
+      "version": "0.26.13",
+      "path": "packages/parser/node_modules/.pnpm/web-tree-sitter@0.26.13/node_modules/web-tree-sitter/web-tree-sitter.wasm",
+      "sha256": "99fa2281fc4c6da713ccdadce72e81571b032ab9901b751be2d5aa127c843aaf"
+    },
+    "explicitProductionCore": {
+      "version": "0.26.11",
+      "path": "dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    "phpGrammar": {
+      "version": "0.24.2",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "defaultPath": "packages/parser/node_modules/.pnpm/tree-sitter-php@0.24.2/node_modules/tree-sitter-php/tree-sitter-php.wasm",
+      "sameBytesAsProduction": true
+    },
+    "dependenciesChanged": false
+  },
+  "baselineFailure": {
+    "files": 1,
+    "passed": 0,
+    "failed": 1,
+    "pending": 1,
+    "todo": 0,
+    "success": false,
+    "filesAndCounts": [
+      {
+        "path": "/var/www/node/php-companion/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+        "tests": 2
+      }
+    ]
+  },
+  "baselineFailureMeaning": "Original production bundle returned no constructor signature for the first PHP 7.2 ordinary-file query; the second mode was deliberately filtered out",
+  "semanticFull": {
+    "files": 119,
+    "passed": 2761,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "success": true,
+    "filesAndCounts": [
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/acceptance-f04-references.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+        "tests": 6
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-extract-method.test.ts",
+        "tests": 3
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+        "tests": 6
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/add-method-family-parameter.test.ts",
+        "tests": 8
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/add-private-parameter.test.ts",
+        "tests": 8
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-access-key-completion.test.ts",
+        "tests": 79
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-column-properties.test.ts",
+        "tests": 6
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-column-return-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-combine-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-count-values-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-fill-keys-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-flip-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-inline-doc-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/array-key-preservation.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/assignment-comment-completion.test.ts",
+        "tests": 30
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/assignment-target-completion.test.ts",
+        "tests": 60
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/bare-construction.test.ts",
+        "tests": 15
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/blank-comment-variable-completion.test.ts",
+        "tests": 42
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/blank-initializer-type-completion.test.ts",
+        "tests": 40
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/branch-shape-completion.test.ts",
+        "tests": 34
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/branch-value-completion.test.ts",
+        "tests": 17
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/builtin-array-callback-completion.test.ts",
+        "tests": 5
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/builtin-construction-completion.test.ts",
+        "tests": 10
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/cached-array-access-recovery.test.ts",
+        "tests": 12
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/callable-value-effects.test.ts",
+        "tests": 50
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/callback-completion-details.test.ts",
+        "tests": 12
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/callback-return-completion.test.ts",
+        "tests": 26
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/class-relative-construction.test.ts",
+        "tests": 19
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/completion-identifier.test.ts",
+        "tests": 14
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/completion-trivia-offsets.test.ts",
+        "tests": 16
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/completion-type-tail.test.ts",
+        "tests": 15
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/completionMatching.test.ts",
+        "tests": 1
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/conditional-completion-context.test.ts",
+        "tests": 14
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/constant-initializer-completion.test.ts",
+        "tests": 24
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/construction-trivia-completion.test.ts",
+        "tests": 8
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/constructor-source-proof.test.ts",
+        "tests": 29
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/csv-fields-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+        "tests": 58
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/declaration-hierarchy-sources.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/declaration-variable-boundaries.test.ts",
+        "tests": 7
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/existing-array-arrow-completion.test.ts",
+        "tests": 24
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/extract-method-branch-outputs.test.ts",
+        "tests": 13
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/extract-method-local-chain.test.ts",
+        "tests": 27
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/extract-method-local-return.test.ts",
+        "tests": 18
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/extract-nested-call.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/extract-shared-bindings.test.ts",
+        "tests": 9
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/flow-value-completion.test.ts",
+        "tests": 20
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/flow-value-consistency.test.ts",
+        "tests": 22
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/function-declaration-refresh.test.ts",
+        "tests": 7
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/getrusage-contract.test.ts",
+        "tests": 5
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/headers-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/highlight-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/image-size-contract.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/implicit-nullable-parameter.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/import-completion-boundaries.test.ts",
+        "tests": 8
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/inheritance-list-completion.test.ts",
+        "tests": 8
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/inheritance-trivia-completion.test.ts",
+        "tests": 22
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/inheritance-validity-completion.test.ts",
+        "tests": 7
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/inherited-constructor-generics.test.ts",
+        "tests": 38
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/inherited-final-magic.test.ts",
+        "tests": 18
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/initializer-completion-context.test.ts",
+        "tests": 104
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/inline-shared-bindings.test.ts",
+        "tests": 11
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/iterator-apply-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/large-candidate-type-ranking.test.ts",
+        "tests": 60
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/large-local-type-ranking.test.ts",
+        "tests": 52
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/legacy-builtin-constructor.test.ts",
+        "tests": 5
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/legacy-project-construction.test.ts",
+        "tests": 10
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/local-prefix-syntax.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/local-range-completion.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/magic-declaration-completion.test.ts",
+        "tests": 9
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/magic-modifier-completion.test.ts",
+        "tests": 32
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/match-condition-completion.test.ts",
+        "tests": 16
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/middle-array-access-completion.test.ts",
+        "tests": 26
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/middle-array-literal-completion.test.ts",
+        "tests": 24
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/mixed-callable-recovery.test.ts",
+        "tests": 76
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/named-value-completion.test.ts",
+        "tests": 48
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/native-array-template.test.ts",
+        "tests": 5
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/native-generic-parent.test.ts",
+        "tests": 6
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/nested-call-never.test.ts",
+        "tests": 1
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/nested-intrinsic-argument.test.ts",
+        "tests": 1
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/operand-completion-context.test.ts",
+        "tests": 9
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/parameter-references.test.ts",
+        "tests": 3
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/parsed-call-feedback.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/pathinfo-contract.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/property-hook-keyword-context.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/protected-family-completion.test.ts",
+        "tests": 10
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/quoted-prefix-completion.test.ts",
+        "tests": 58
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/readonly-anonymous.test.ts",
+        "tests": 5
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/reassigned-parameter-completion.test.ts",
+        "tests": 26
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/reflection-construction-versions.test.ts",
+        "tests": 9
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/remove-method-family-parameter.test.ts",
+        "tests": 6
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/reorder-method-family-parameter.test.ts",
+        "tests": 7
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/reorder-optional-method-parameters.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/restored-signature-cache.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/root-import-completion.test.ts",
+        "tests": 10
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/semantic.test.ts",
+        "tests": 497
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/shape-comment-completion.test.ts",
+        "tests": 34
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/shape-value-candidate-completion.test.ts",
+        "tests": 64
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/signature-prefix-range.test.ts",
+        "tests": 39
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/simplexml-factory-contract.test.ts",
+        "tests": 3
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/stat-contract.test.ts",
+        "tests": 2
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/static-scope.test.ts",
+        "tests": 1
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/string-replacement-contract.test.ts",
+        "tests": 4
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/switch-condition-completion.test.ts",
+        "tests": 11
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/trailing-callback-members.test.ts",
+        "tests": 13
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/trait-construction.test.ts",
+        "tests": 24
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/trait-constructor-phpdoc.test.ts",
+        "tests": 28
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/trait-final-cache.test.ts",
+        "tests": 8
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/trait-precedence-names.test.ts",
+        "tests": 33
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/trait-use-generics.test.ts",
+        "tests": 84
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/unclosed-callable-value-completion.test.ts",
+        "tests": 76
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/unclosed-shape-value-completion.test.ts",
+        "tests": 54
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/unfinished-shape-completion.test.ts",
+        "tests": 58
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/union-shape-completion.test.ts",
+        "tests": 27
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/unknown-collection-template.test.ts",
+        "tests": 6
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/value-call-binding.test.ts",
+        "tests": 11
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/word-middle-shape-completion.test.ts",
+        "tests": 40
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic/test/xmlreader-invocation.test.ts",
+        "tests": 19
+      }
+    ]
+  },
+  "directedServerRuns": [
+    {
+      "files": 3,
+      "passed": 13,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "success": true,
+      "filesAndCounts": [
+        {
+          "path": "/var/www/node/php-companion/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+          "tests": 6
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/language-server/test/trait-construction-stdio.test.ts",
+          "tests": 4
+        }
+      ]
+    },
+    {
+      "files": 3,
+      "passed": 55,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "success": true,
+      "filesAndCounts": [
+        {
+          "path": "/var/www/node/php-companion/packages/language-server/test/analysis.test.ts",
+          "tests": 48
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+          "tests": 3
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+          "tests": 4
+        }
+      ]
+    }
+  ],
+  "uniqueDirectedTests": 65,
+  "lspDetails": {
+    "onDemand": {
+      "indexingMode": "onDemand",
+      "queries": 36,
+      "diagnosticVersions": [
+        20,
+        16
+      ],
+      "roots": 2,
+      "diskUnchanged": true,
+      "liveVersionSwitches": 2
+    },
+    "experimental": {
+      "indexingMode": "experimental",
+      "queries": 36,
+      "diagnosticVersions": [
+        20,
+        16
+      ],
+      "roots": 2,
+      "diskUnchanged": true,
+      "liveVersionSwitches": 2
+    },
+    "loose": {
+      "queries": 3,
+      "diagnosticVersions": 3,
+      "diskUnchanged": true,
+      "liveVersionSwitches": 2,
+      "roots": 0
+    }
+  },
+  "nativeContract": {
+    "cases": [
+      {
+        "name": "global",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "case-insensitive",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class C {public function c(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "c|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "namespace",
+        "version": "7.2.34",
+        "target": "N\\C",
+        "source": "<?php namespace N; class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "modern-wins",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "parent-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class Base {public function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "Base|Base|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-modern",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class Base {public function __construct(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class Base {public function Base(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "class-old-trait-modern",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function __construct(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: C has colliding constructor definitions coming from traits in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-own-name",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function Init(int $value){echo \"trait-name\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "parent-trait-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function Base(int $value){echo \"old\";}} class Base {use Init;} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "Base|Base|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "private-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class C {private function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|private|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "protected-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class C {protected function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|protected|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "private-parent-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class Base {private function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "Base|Base|private|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "own-modern-trait-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: C has colliding constructor definitions coming from traits in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old-and-modern",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} trait Modern {public function __construct(string $value){echo \"modern\";}} class C {use Init,Modern;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: C has colliding constructor definitions coming from traits in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "trait-legacy-alias",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function seed(int $value){echo \"old\";}} class C {use Init {seed as C;}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "own-overrides-trait-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "namespace-trait-old",
+        "version": "7.2.34",
+        "target": "N\\C",
+        "source": "<?php namespace N;trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "static-old",
+        "version": "7.2.34",
+        "target": "C",
+        "source": "<?php class C {public static function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: Constructor C::C() cannot be static in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "global",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "case-insensitive",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class C {public function c(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "c|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "namespace",
+        "version": "7.4.33",
+        "target": "N\\C",
+        "source": "<?php namespace N; class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "modern-wins",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "parent-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class Base {public function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "Base|Base|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-modern",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class Base {public function __construct(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class Base {public function Base(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "class-old-trait-modern",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function __construct(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: C has colliding constructor definitions coming from traits in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-own-name",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function Init(int $value){echo \"trait-name\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "parent-trait-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function Base(int $value){echo \"old\";}} class Base {use Init;} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "Base|Base|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "private-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class C {private function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|private|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "protected-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class C {protected function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|protected|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "private-parent-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class Base {private function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "Base|Base|private|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "own-modern-trait-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: C has colliding constructor definitions coming from traits in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old-and-modern",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} trait Modern {public function __construct(string $value){echo \"modern\";}} class C {use Init,Modern;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: C has colliding constructor definitions coming from traits in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "trait-legacy-alias",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function seed(int $value){echo \"old\";}} class C {use Init {seed as C;}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "own-overrides-trait-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php trait Init {public function C(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "C|C|public|value:int;",
+        "stderr": ""
+      },
+      {
+        "name": "namespace-trait-old",
+        "version": "7.4.33",
+        "target": "N\\C",
+        "source": "<?php namespace N;trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "static-old",
+        "version": "7.4.33",
+        "target": "C",
+        "source": "<?php class C {public static function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 255,
+        "stdout": "\nFatal error: Constructor C::C() cannot be static in Standard input code on line 1\n",
+        "stderr": ""
+      },
+      {
+        "name": "global",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "case-insensitive",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class C {public function c(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace",
+        "version": "8.1.34",
+        "target": "N\\C",
+        "source": "<?php namespace N; class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "modern-wins",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "parent-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class Base {public function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-modern",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class Base {public function __construct(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|Base|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class Base {public function Base(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "class-old-trait-modern",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function __construct(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "trait-own-name",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function Init(int $value){echo \"trait-name\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "parent-trait-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function Base(int $value){echo \"old\";}} class Base {use Init;} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class C {private function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "protected-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class C {protected function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-parent-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class Base {private function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-modern-trait-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old-and-modern",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} trait Modern {public function __construct(string $value){echo \"modern\";}} class C {use Init,Modern;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-legacy-alias",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function seed(int $value){echo \"old\";}} class C {use Init {seed as C;}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-overrides-trait-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php trait Init {public function C(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace-trait-old",
+        "version": "8.1.34",
+        "target": "N\\C",
+        "source": "<?php namespace N;trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "static-old",
+        "version": "8.1.34",
+        "target": "C",
+        "source": "<?php class C {public static function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "global",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "case-insensitive",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class C {public function c(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace",
+        "version": "8.2.32",
+        "target": "N\\C",
+        "source": "<?php namespace N; class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "modern-wins",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "parent-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class Base {public function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-modern",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class Base {public function __construct(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|Base|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class Base {public function Base(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "class-old-trait-modern",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function __construct(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "trait-own-name",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function Init(int $value){echo \"trait-name\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "parent-trait-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function Base(int $value){echo \"old\";}} class Base {use Init;} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class C {private function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "protected-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class C {protected function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-parent-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class Base {private function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-modern-trait-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old-and-modern",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} trait Modern {public function __construct(string $value){echo \"modern\";}} class C {use Init,Modern;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-legacy-alias",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function seed(int $value){echo \"old\";}} class C {use Init {seed as C;}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-overrides-trait-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php trait Init {public function C(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace-trait-old",
+        "version": "8.2.32",
+        "target": "N\\C",
+        "source": "<?php namespace N;trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "static-old",
+        "version": "8.2.32",
+        "target": "C",
+        "source": "<?php class C {public static function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "global",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "case-insensitive",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class C {public function c(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace",
+        "version": "8.4.23",
+        "target": "N\\C",
+        "source": "<?php namespace N; class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "modern-wins",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "parent-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class Base {public function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-modern",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class Base {public function __construct(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|Base|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class Base {public function Base(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "class-old-trait-modern",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function __construct(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "trait-own-name",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function Init(int $value){echo \"trait-name\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "parent-trait-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function Base(int $value){echo \"old\";}} class Base {use Init;} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class C {private function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "protected-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class C {protected function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-parent-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class Base {private function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-modern-trait-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old-and-modern",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} trait Modern {public function __construct(string $value){echo \"modern\";}} class C {use Init,Modern;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-legacy-alias",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function seed(int $value){echo \"old\";}} class C {use Init {seed as C;}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-overrides-trait-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php trait Init {public function C(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace-trait-old",
+        "version": "8.4.23",
+        "target": "N\\C",
+        "source": "<?php namespace N;trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "static-old",
+        "version": "8.4.23",
+        "target": "C",
+        "source": "<?php class C {public static function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "global",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "case-insensitive",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class C {public function c(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace",
+        "version": "8.5.9",
+        "target": "N\\C",
+        "source": "<?php namespace N; class C {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "modern-wins",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class C {public function C(int $value){echo \"old\";}public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "parent-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class Base {public function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-modern",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class Base {public function __construct(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|Base|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "child-old-parent-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class Base {public function Base(string $value){echo \"parent\";}} class C extends Base {public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "class-old-trait-modern",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function __construct(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "trait-own-name",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function Init(int $value){echo \"trait-name\";}} class C {use Init;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "parent-trait-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function Base(int $value){echo \"old\";}} class Base {use Init;} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class C {private function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "protected-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class C {protected function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "private-parent-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class Base {private function Base(int $value){echo \"old\";}} class C extends Base {}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-modern-trait-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} class C {use Init;public function __construct(string $value){echo \"modern\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-old-and-modern",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function C(int $value){echo \"old\";}} trait Modern {public function __construct(string $value){echo \"modern\";}} class C {use Init,Modern;}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "__construct|C|public|value:string;",
+        "stderr": ""
+      },
+      {
+        "name": "trait-legacy-alias",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function seed(int $value){echo \"old\";}} class C {use Init {seed as C;}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "own-overrides-trait-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php trait Init {public function C(string $value){echo \"trait\";}} class C {use Init;public function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "namespace-trait-old",
+        "version": "8.5.9",
+        "target": "N\\C",
+        "source": "<?php namespace N;trait Init {public function C(int $value){echo \"old\";}} class C {use Init;}; $r=new \\ReflectionClass(\"N\\\\C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      },
+      {
+        "name": "static-old",
+        "version": "8.5.9",
+        "target": "C",
+        "source": "<?php class C {public static function C(int $value){echo \"old\";}}; $r=new \\ReflectionClass(\"C\"); $m=$r->getConstructor(); if($m){echo $m->getName().'|'.$m->getDeclaringClass()->getName().'|'.($m->isPrivate()?'private':($m->isProtected()?'protected':'public')).'|'; foreach($m->getParameters() as $p){echo $p->getName().':'.(string)$p->getType().';';}}else{echo 'none';}",
+        "exitCode": 0,
+        "stdout": "none",
+        "stderr": ""
+      }
+    ],
+    "runtimes": [
+      {
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "version": "7.2.34",
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+      },
+      {
+        "binary": "/opt/remi/php74/root/usr/bin/php",
+        "version": "7.4.33",
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+      },
+      {
+        "binary": "/opt/remi/php81/root/usr/bin/php",
+        "version": "8.1.34",
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      {
+        "binary": "/opt/remi/php82/root/usr/bin/php",
+        "version": "8.2.32",
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      {
+        "binary": "/opt/remi/php84/root/usr/bin/php",
+        "version": "8.4.23",
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      {
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "version": "8.5.9",
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    ],
+    "expectedConstructorRecordsMatched": true
+  },
+  "visibleHosts": [
+    {
+      "platform": "linux",
+      "context": "legacy-construction-7.2",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 223,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base0Enter {public function __construct(string $value){}} class C0Enter extends Base0Enter {public function C0Enter(int $value){}} function run(string $offerA,int $offerZ){return new C0Enter($offerZ);}",
+          "caretOffset": 235,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 177,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base0Tab {public function __construct(string $value){}} class C0Tab extends Base0Tab {public function C0Tab(int $value){}} function run(string $offerA,int $offerZ){return new C0Tab($offerZ);}",
+          "caretOffset": 225,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 155,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Grand1Enter {public function __construct(string $value){}} class Base1Enter extends Grand1Enter {public function Base1Enter(int $value){}} class C1Enter extends Base1Enter {} function run(string $offerA,int $offerZ){return new C1Enter($offerZ);}",
+          "caretOffset": 279,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 153,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Grand1Tab {public function __construct(string $value){}} class Base1Tab extends Grand1Tab {public function Base1Tab(int $value){}} class C1Tab extends Base1Tab {} function run(string $offerA,int $offerZ){return new C1Tab($offerZ);}",
+          "caretOffset": 265,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 159,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base2Enter {public function __construct(string $value){}} trait Init2Enter {public function C2Enter(int $value){}} class C2Enter extends Base2Enter {use Init2Enter;} function run(string $offerA,int $offerZ){return new C2Enter($offerZ);}",
+          "caretOffset": 270,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 162,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base2Tab {public function __construct(string $value){}} trait Init2Tab {public function C2Tab(int $value){}} class C2Tab extends Base2Tab {use Init2Tab;} function run(string $offerA,int $offerZ){return new C2Tab($offerZ);}",
+          "caretOffset": 256,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 166,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base3Enter {public function __construct(string $value){}} trait Init3Enter {public function seed(int $value){}} class C3Enter extends Base3Enter {use Init3Enter {seed as C3Enter;}} function run(string $offerA,int $offerZ){return new C3Enter($offerZ);}",
+          "caretOffset": 285,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 188,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base3Tab {public function __construct(string $value){}} trait Init3Tab {public function seed(int $value){}} class C3Tab extends Base3Tab {use Init3Tab {seed as C3Tab;}} function run(string $offerA,int $offerZ){return new C3Tab($offerZ);}",
+          "caretOffset": 271,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    {
+      "platform": "linux",
+      "context": "legacy-construction-8.5",
+      "results": [
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 240,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base0Enter {public function __construct(string $value){}} class C0Enter extends Base0Enter {public function C0Enter(int $value){}} function run(string $offerA,int $offerZ){return new C0Enter($offerA);}",
+          "caretOffset": 235,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 131,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base0Tab {public function __construct(string $value){}} class C0Tab extends Base0Tab {public function C0Tab(int $value){}} function run(string $offerA,int $offerZ){return new C0Tab($offerA);}",
+          "caretOffset": 225,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 174,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Grand1Enter {public function __construct(string $value){}} class Base1Enter extends Grand1Enter {public function Base1Enter(int $value){}} class C1Enter extends Base1Enter {} function run(string $offerA,int $offerZ){return new C1Enter($offerA);}",
+          "caretOffset": 279,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 165,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Grand1Tab {public function __construct(string $value){}} class Base1Tab extends Grand1Tab {public function Base1Tab(int $value){}} class C1Tab extends Base1Tab {} function run(string $offerA,int $offerZ){return new C1Tab($offerA);}",
+          "caretOffset": 265,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 136,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base2Enter {public function __construct(string $value){}} trait Init2Enter {public function C2Enter(int $value){}} class C2Enter extends Base2Enter {use Init2Enter;} function run(string $offerA,int $offerZ){return new C2Enter($offerA);}",
+          "caretOffset": 270,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 171,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base2Tab {public function __construct(string $value){}} trait Init2Tab {public function C2Tab(int $value){}} class C2Tab extends Base2Tab {use Init2Tab;} function run(string $offerA,int $offerZ){return new C2Tab($offerA);}",
+          "caretOffset": 256,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Enter",
+          "visibleMs": 178,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base3Enter {public function __construct(string $value){}} trait Init3Enter {public function seed(int $value){}} class C3Enter extends Base3Enter {use Init3Enter {seed as C3Enter;}} function run(string $offerA,int $offerZ){return new C3Enter($offerA);}",
+          "caretOffset": 285,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerA",
+          "key": "Tab",
+          "visibleMs": 132,
+          "visibleLabels": [
+            "$offerA$offerA: string",
+            "$offerZ"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); class Base3Tab {public function __construct(string $value){}} trait Init3Tab {public function seed(int $value){}} class C3Tab extends Base3Tab {use Init3Tab {seed as C3Tab;}} function run(string $offerA,int $offerZ){return new C3Tab($offerA);}",
+          "caretOffset": 271,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  ],
+  "acceptedNative": {
+    "results": [
+      {
+        "index": 0,
+        "key": "Enter",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "2bf4fd9d3e454d779fd23ff9eeb8d77fc4bfa83e3141b397c6db14fbb78912e8",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C0Enter|C0Enter|int",
+        "stderr": ""
+      },
+      {
+        "index": 1,
+        "key": "Tab",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "fdfef318d0d2c03c2414fafe04ec91753001e2f75edd81443b9fadfa5d241874",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C0Tab|C0Tab|int",
+        "stderr": ""
+      },
+      {
+        "index": 2,
+        "key": "Enter",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "2c1440dd141795afc094bf6220fbadadb7a71d044d84081c1a041c5c1b481594",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C1Enter|Base1Enter|int",
+        "stderr": ""
+      },
+      {
+        "index": 3,
+        "key": "Tab",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "6b22cda1b91d0535b6c56334bf11252084516d496a92c9dfc79eb1375c74b25c",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C1Tab|Base1Tab|int",
+        "stderr": ""
+      },
+      {
+        "index": 4,
+        "key": "Enter",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "092cb7343ebee634913f1742873017137f3979d6a36bd8adce6baedebce07a34",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C2Enter|C2Enter|int",
+        "stderr": ""
+      },
+      {
+        "index": 5,
+        "key": "Tab",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "eddb6c7226d4b31c979a69a0bd984cc93430257bfa784901c832c89d832ead3e",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C2Tab|C2Tab|int",
+        "stderr": ""
+      },
+      {
+        "index": 6,
+        "key": "Enter",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "ecb12e3fe6b7e7ac90c935cb249497f9436c5fd502d836e4e384dd6eb07122f9",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C3Enter|C3Enter|int",
+        "stderr": ""
+      },
+      {
+        "index": 7,
+        "key": "Tab",
+        "version": "7.2.34",
+        "binary": "/opt/remi/php72/root/usr/bin/php",
+        "label": "$offerZ",
+        "sourceSha256": "b2f80c45e7404c3fb4237dc64e1df437ff51a2368ccc413274244e146ee5ebbe",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C3Tab|C3Tab|int",
+        "stderr": ""
+      },
+      {
+        "index": 0,
+        "key": "Enter",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "8ffc43a95a0bc5dc23e998c479aa934512117195e6ec2ff60e9c9051394aa004",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C0Enter|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 1,
+        "key": "Tab",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "1917ef667aad8157a1fbece60b7a00bd26532b09bd2c8d01c42692d9457ccec4",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C0Tab|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 2,
+        "key": "Enter",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "46e95f67e676698fda8456f587ce7975bed8e6b0f6dbaeca9570c02950651964",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C1Enter|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 3,
+        "key": "Tab",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "e1da0f78a36a34ac38b9f5a6dfca4057b1d69bc1af237b4df915407d75ef24f4",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C1Tab|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 4,
+        "key": "Enter",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "47639c85770793286b220d45e29149169630800a256f347ece4d5a8cfb988447",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C2Enter|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 5,
+        "key": "Tab",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "2ac7afe9106981797c13b3f5812571cafc305ad5b1e33dd22b177b9147f00a27",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C2Tab|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 6,
+        "key": "Enter",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "0b9f39ded44155eca5f118fd03ef8b771b9c6594b87223974dbba02335889171",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C3Enter|__construct|string",
+        "stderr": ""
+      },
+      {
+        "index": 7,
+        "key": "Tab",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "label": "$offerA",
+        "sourceSha256": "0a49fd0daf0b1b78da6950e46ae3dad6dc78058b1243a283a961163a0ea76082",
+        "lintExitCode": 0,
+        "runExitCode": 0,
+        "stdout": "C3Tab|__construct|string",
+        "stderr": ""
+      }
+    ],
+    "linted": 16,
+    "executed": 16
+  },
+  "fixedDocumentHotQueries": {
+    "budgetMs": 150,
+    "fixedDocument": true,
+    "ordinaryEditing": false,
+    "engineSha256": "fcb2824530ebf5e9c891d4f956c3ef94e7375f54290319eaedd1d080d8c12051",
+    "results": [
+      {
+        "version": "7.2",
+        "rounds": 100,
+        "parameters": 501,
+        "sourceSha256": "79916759f094e7b802fd561207dcb8630186d85d5066f4d37433b76a54321cc6",
+        "expectedFirst": "$offerZ",
+        "p50Ms": 7.720042999999805,
+        "p95Ms": 15.35872100000006,
+        "maxMs": 129.57618500000012,
+        "timingsMs": [
+          129.57618500000012,
+          13.050232999999935,
+          12.612997000000178,
+          24.83158000000003,
+          15.35872100000006,
+          13.678873999999723,
+          10.397125999999844,
+          11.319237999999586,
+          10.69956400000001,
+          10.388220999999703,
+          9.737013999999817,
+          10.064452000000074,
+          8.904109999999946,
+          9.02166699999998,
+          9.45591000000013,
+          9.097314000000097,
+          9.694226999999955,
+          7.351231999999982,
+          8.282854000000043,
+          8.683908999999858,
+          19.615856999999778,
+          7.665255999999772,
+          8.196394000000055,
+          6.686048999999912,
+          9.43695200000002,
+          8.320377999999891,
+          6.841115000000173,
+          7.438525000000027,
+          6.901476000000002,
+          7.935856000000058,
+          7.23502899999994,
+          7.4993319999998675,
+          6.202813999999762,
+          7.809076999999888,
+          7.358120999999755,
+          6.161928999999873,
+          7.503381999999874,
+          6.36371599999984,
+          7.030365999999958,
+          8.515435000000252,
+          7.3299660000002405,
+          7.121503999999732,
+          7.58162399999992,
+          7.3360499999998865,
+          7.118238000000019,
+          8.318107999999938,
+          6.930557000000135,
+          7.61487999999963,
+          8.232993999999962,
+          7.447775999999976,
+          7.693377000000055,
+          6.9468769999998585,
+          7.627012000000377,
+          7.652358999999706,
+          8.668369999999868,
+          6.580558999999994,
+          17.04112699999996,
+          7.018018000000211,
+          6.554682999999841,
+          10.652675999999701,
+          6.960262999999941,
+          7.310492999999951,
+          8.669026999999915,
+          7.241457999999966,
+          6.914373000000069,
+          7.743081000000075,
+          6.386780000000272,
+          5.831689000000097,
+          8.138266999999814,
+          6.502893999999742,
+          7.267896000000292,
+          8.128533999999945,
+          6.884292000000187,
+          7.756290999999692,
+          8.08302700000013,
+          15.30544800000007,
+          8.74123499999996,
+          6.929849000000104,
+          7.870862000000216,
+          8.054333999999926,
+          7.856113000000278,
+          10.478877000000011,
+          8.604673000000275,
+          6.5137290000002395,
+          8.367287000000033,
+          8.625784000000294,
+          7.687711000000036,
+          7.772554000000127,
+          8.521407000000181,
+          7.714970999999878,
+          7.651499000000058,
+          11.430852999999843,
+          15.762584999999945,
+          6.943687999999838,
+          7.320419000000129,
+          7.0854989999998,
+          7.720042999999805,
+          6.963678000000073,
+          6.5233589999998,
+          6.6213550000002215
+        ],
+        "unchangedDisk": true,
+        "stderr": ""
+      },
+      {
+        "version": "8.5",
+        "rounds": 100,
+        "parameters": 501,
+        "sourceSha256": "79916759f094e7b802fd561207dcb8630186d85d5066f4d37433b76a54321cc6",
+        "expectedFirst": "$offer0000",
+        "p50Ms": 8.477805000000444,
+        "p95Ms": 17.552826999999525,
+        "maxMs": 141.1163000000006,
+        "timingsMs": [
+          20.474105000000236,
+          141.1163000000006,
+          18.586481999999705,
+          11.37282200000027,
+          11.91281699999945,
+          13.464257999999973,
+          12.774445000000014,
+          11.993015999999443,
+          9.535893000000215,
+          9.981144999999742,
+          10.00491300000067,
+          9.152226000000155,
+          9.051513000000341,
+          8.477805000000444,
+          9.39314899999954,
+          9.241939000000457,
+          8.849839999999858,
+          7.935069000000112,
+          9.5171849999997,
+          7.025877000000037,
+          13.99753899999996,
+          8.855735000000095,
+          6.392068000000108,
+          6.330574999999953,
+          7.338442000000214,
+          6.296538999999939,
+          8.105907000000116,
+          7.518175999999585,
+          7.706626999999571,
+          7.139513999999508,
+          7.243034999999509,
+          16.777876000000106,
+          7.728696999999556,
+          6.224616999999853,
+          7.335847000000285,
+          7.720409999999902,
+          7.241445999999996,
+          5.992362999999386,
+          7.952377999999953,
+          6.867150000000038,
+          6.689469999999346,
+          8.092549999999392,
+          6.618448000000171,
+          8.57651899999928,
+          6.014752000000044,
+          17.552826999999525,
+          13.525916999999936,
+          6.773417999999765,
+          16.796253000000434,
+          9.928313999999773,
+          8.685213999999178,
+          7.221633000000111,
+          9.252605000000585,
+          17.679732999999942,
+          8.44039900000007,
+          9.891100999999253,
+          8.51531900000009,
+          9.585471999999754,
+          7.175884999999653,
+          7.985091999999895,
+          8.219876000000113,
+          15.840522999999848,
+          7.700992000000042,
+          16.485185000000456,
+          6.950652999999875,
+          6.423828999999387,
+          8.320298999999977,
+          7.15147799999977,
+          8.093977999999879,
+          8.263857999999345,
+          8.228861000000506,
+          10.544294999999693,
+          8.980387999999948,
+          10.087555999999495,
+          10.304896999999983,
+          9.250683000000208,
+          9.87243699999999,
+          15.973337999999785,
+          17.215400000000045,
+          8.862720000000081,
+          18.001070000000254,
+          9.812493000000359,
+          8.244770999999673,
+          9.029865000000427,
+          7.769207000000279,
+          7.5465979999999035,
+          8.686539000000266,
+          7.823919999999816,
+          8.203788000000714,
+          8.435223000000406,
+          7.976142999999865,
+          8.512055999999575,
+          7.576925000000301,
+          7.569368999999824,
+          8.670274000000063,
+          7.594616000000315,
+          16.203580999999758,
+          8.991688999999496,
+          7.23927200000071,
+          7.921139000000039
+        ],
+        "unchangedDisk": true,
+        "stderr": ""
+      }
+    ]
+  },
+  "gates": {
+    "semanticBuild": 0,
+    "languageServerBuild": 0,
+    "productionBuild": 0,
+    "semanticTypecheck": 0,
+    "languageServerTypecheck": 0,
+    "hostTypecheck": 0,
+    "scopedEslint": 0,
+    "diffCheck": 0
+  },
+  "limits": [
+    "Five directed files and 65 unique tests are not complete current LSP qualification",
+    "Visible preloaded explicit-trigger Linux checks are not natural typing or real WSL acceptance",
+    "Fixed-document hot queries do not close ordinary continuous-edit performance",
+    "No changes to installed Profile, dependencies, VSIX, push or publication"
+  ],
+  "preparationIssues": [
+    "First two native probe drafts had quoting / PHP 7 -n JSON availability problems; excluded from the 120 valid checks",
+    "One unused test variable failed the first ESLint run; removed and current scoped lint passed"
+  ],
+  "commands": [
+    "pnpm --filter @php-companion/semantic exec vitest run --maxWorkers=2",
+    "pnpm --filter @php-companion/language-server exec vitest run test/legacy-project-construction-stdio.test.ts test/trait-construction-stdio.test.ts test/inherited-constructor-generics-stdio.test.ts",
+    "pnpm --filter @php-companion/language-server exec vitest run test/legacy-project-construction-stdio.test.ts test/trait-constructor-phpdoc-stdio.test.ts test/analysis.test.ts",
+    "PHP_COMPANION_TEST_LEGACY_CONSTRUCTION_ONLY=1 SOPHP_VISIBLE_PHP_VERSION=7.2 node scripts/check-comparison-condition-acceptance.mjs /tmp/sophp-d106-host-72.json",
+    "PHP_COMPANION_TEST_LEGACY_CONSTRUCTION_ONLY=1 SOPHP_VISIBLE_PHP_VERSION=8.5 node scripts/check-comparison-condition-acceptance.mjs /tmp/sophp-d106-host-85.json"
+  ]
+}

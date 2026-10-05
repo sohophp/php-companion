@@ -634,6 +634,7 @@ function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void 
   const mbOnigurumaVersion = configuredExtensionEntryForRoot(root)?.runtime?.mbOnigurumaVersion;
   const getrusageRuntime = configuredExtensionEntryForRoot(root)?.runtime?.getrusageRuntime;
   const version = phpVersionForRoot(root);
+  workspace.setTargetPhpVersion(version);
   const uri = builtinDocumentUri(version, { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime });
   const previous = builtinUriByRoot.get(root);
   if (previous === uri) return;
@@ -1295,6 +1296,7 @@ connection.onNotification('phpCompanion/phpVersions', async (params: { versions?
   if (previousFallback !== targetPhpVersion) {
     const loose = await semanticWorkspaces.get('loose');
     if (loose) {
+      loose.setTargetPhpVersion(targetPhpVersion);
       loose.remove(builtinDocumentUri(previousFallback));
       loose.remove(bcmathNumberDocumentUri(previousFallback));
       loose.remove(randomClassesDocumentUri(previousFallback));
@@ -1488,6 +1490,7 @@ function semanticForKey(key: string): Promise<SemanticWorkspace> {
     const root = key.startsWith('root:') ? key.slice('root:'.length) : undefined;
     if (root) updateBuiltinForRoot(workspace, root);
     else {
+      workspace.setTargetPhpVersion(targetPhpVersion);
       workspace.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
       const bcmathNumber = bcmathNumberPhpStub(targetPhpVersion);
       if (bcmathNumber) workspace.update(bcmathNumberDocumentUri(targetPhpVersion), bcmathNumber);

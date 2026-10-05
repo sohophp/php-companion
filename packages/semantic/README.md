@@ -1,5 +1,7 @@
 # @php-companion/semantic
 
+`setTargetPhpVersion(version)` 接收调用方已选定的项目 PHP 版本；语言服务器沿用现有每个 root 的版本选择，并同步无 root 文档的 fallback。PHP 7 的全局类同名方法可作为旧式构造函数参与签名、实参排序和诊断；PHP 8／命名空间内的同名方法保持普通方法。继承与 Trait 组合沿有效构造来源绑定；PHP 7 的 Trait 新旧构造冲突或无法证明的来源不产出确定签名。版本变化失效派生事实并记录工作区修订，查询 fork 继承版本，恢复快照后使用当前项目版本重新查询。未提供版本时保持保守，只有受审计的内建 URI 能证明旧式构造；不从普通文件路径推测 PHP 版本。
+
 `SemanticWorkspace.update()` 返回 `none`、`implementation` 或 `declaration` 分层结果，以及实际变化的 lowercase callable/type 身份。声明层比较忽略源码范围，实现层按 callable/property-hook 的源码片段比较；文件末尾空白等无语义变化不会失效派生缓存。调用方可据此只刷新受影响的框架事实，具体函数体变化仍会精确清除对应工厂或构造器摘要。
 
 References 与 Rename 使用随 `update()`、`remove()`、`restore()` 同步替换的有界候选倒排表。类型、全局函数、全局常量和静态成员先按 PHP 大小写规则定位少量声明及使用文件，再在候选文件中执行既有语义解析；候选表不直接产出结果。单文档超过预算时进入保守全查询回退，避免为了性能牺牲完整性。

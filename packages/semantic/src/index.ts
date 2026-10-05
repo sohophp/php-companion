@@ -1513,6 +1513,7 @@ function namespaceMoveEdit(source: string, tree: ReturnType<PhpSyntaxParser['par
 }
 
 export class SemanticWorkspace {
+  private targetPhpVersion?: string;
   private readonly files = new Map<string, SemanticFile>();
   private readonly functionDeclarationsByArray = new WeakMap<readonly ParsedCallableDeclaration[], Map<string, ParsedCallableDeclaration[]>>();
   private readonly typeCompletionFileEntries = new WeakMap<SemanticFile, {
@@ -1558,6 +1559,16 @@ export class SemanticWorkspace {
   private readonly readOnlyParseUrlInProgress = new Set<string>();
   constructor(private readonly parser: PhpSyntaxParser) {}
 
+  /** The language server supplies the selected version for this project. */
+  setTargetPhpVersion(version: string | undefined): void {
+    if (version === this.targetPhpVersion) return;
+    this.targetPhpVersion = version;
+    this.recordMutation();
+    this.assertedTargetInferenceCache.clear();
+    this.constructorInitializationSummaries.clear();
+    this.clearFactoryConstructionCaches();
+  }
+
   revision(): number { return this.sourceRevision; }
 
   mutationUrisSince(revision: number): Array<string | undefined> | undefined {
@@ -1597,6 +1608,7 @@ export class SemanticWorkspace {
 
   private createLocalQueryFork(uri: string, source: string, excludedUris: ReadonlySet<string>, copyDocumentIndexes: boolean): SemanticWorkspace {
     const fork = new SemanticWorkspace(this.parser);
+    fork.targetPhpVersion = this.targetPhpVersion;
     try {
       for (const file of this.files.values()) {
         if (excludedUris.has(file.uri) || file.uri === uri) continue;
@@ -12009,9 +12021,18 @@ export class SemanticWorkspace {
     const key = fqcn.toLowerCase(); if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(key)) return []; visited.add(key);
     const owner = this.fileAndDeclaration(fqcn); if (!owner) return [];
     const own = owner.file.callables.filter((item) => item.kind === 'method' && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === '__construct');
-    if (own.length) return own.map((callable) => templateArguments === undefined
+    // Without a selected project version, only an audited builtin URI may
+    // authorize legacy construction. Namespaced class-name methods never do.
+    const legacyEnabled = !fqcn.includes('\\') && owner.declaration.kind === 'class'
+      && (this.targetPhpVersion !== undefined ? /^7\.[234]$/u.test(this.targetPhpVersion)
+        : owner.file.uri.startsWith('php-companion-builtin:') && /[?&]php=7\.[234](?:&|$)/u.test(owner.file.uri));
+    const legacyOwn = legacyEnabled ? owner.file.callables.filter(item => item.kind === 'method'
+      && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === key) : [];
+    const ownConstructors = (callables: ParsedCallableDeclaration[]): Array<{ file: SemanticFile; callable: ParsedCallableDeclaration }> =>
+      callables.map((callable) => templateArguments === undefined
       ? { file: owner.file, callable }
       : this.specializeInheritedConstructor(owner.file, callable, templateArguments));
+    if (own.length && (!legacyEnabled || !owner.declaration.traitNames.length)) return ownConstructors(own);
     if (owner.declaration.traitNames.length) {
       const namespace = owner.declaration.fqcn.split('\\').slice(0,-1).join('\\');
       const entries: Array<{trait:string;member:MemberInfo}> = [];
@@ -12021,8 +12042,17 @@ export class SemanticWorkspace {
         if (!trait || !methods) return [];
         entries.push(...methods.map(member=>({trait,member:{...member,typeScopeFqcn:fqcn,calledOnFqcn:fqcn}})));
       }
-      const candidates = this.composeTraitEntries(owner.file,owner.declaration,entries).map(entry=>entry.member)
-        .filter(member=>member.name.toLowerCase()==='__construct');
+      const ownNames = new Set([...own, ...legacyOwn].map(item => item.name.toLowerCase()));
+      const composed = this.composeTraitEntries(owner.file,owner.declaration,entries).map(entry=>entry.member)
+        .filter(member => !ownNames.has(member.name.toLowerCase()));
+      const modern = composed.filter(member => member.name.toLowerCase() === '__construct');
+      const legacy = legacyEnabled ? composed.filter(member => member.name.toLowerCase() === key) : [];
+      // PHP 7 rejects separate modern/legacy constructors introduced by Traits.
+      if (legacyEnabled && (own.length || modern.length) && (legacy.length || !own.length && legacyOwn.length)) return [];
+      if (own.length) return ownConstructors(own);
+      if (legacyOwn.length) return legacyOwn.some(item => item.static) ? [] : ownConstructors(legacyOwn);
+      const candidates = modern.length ? modern : legacy;
+      if (legacy.some(member => member.static)) return [];
       const unique = [...new Map(candidates.map(member=>[
         JSON.stringify([member.uri,member.start,member.visibility,member.final]),member])).values()];
       if (unique.length > 1) return [];
@@ -12090,19 +12120,11 @@ export class SemanticWorkspace {
             : bindDocumented(documentedText(paramTag,parameter.type),parameter.start);
           return {...parameter,nativeType,type};
         });
-        return [{file,callable:{...callable,parameters,name:'__construct',visibility:member.visibility,finalMethod:member.final},
+        return [{file,callable:{...callable,parameters,name:member.name.toLowerCase()==='__construct'?'__construct':member.name,visibility:member.visibility,finalMethod:member.final},
           typeScopeFqcn:fqcn,callableTemplates,documentedConstructorParameters:Boolean(member.templateArguments && Object.keys(member.templateArguments).length)}];
       }
     }
-    // Some PHP 7 internal APIs expose their legacy, global class-name
-    // constructor in audited stubs. Ordinary user files have no version
-    // authority here, and namespaced/PHP 8 methods are not constructors.
-    if (owner.file.uri.startsWith('php-companion-builtin:') && /[?&]php=7\.[234](?:&|$)/u.test(owner.file.uri)
-      && !owner.declaration.fqcn.includes('\\')) {
-      const legacy = owner.file.callables.filter(item => item.kind === 'method'
-        && item.containerFqcn?.toLowerCase() === key && item.name.toLowerCase() === key && !item.static);
-      if (legacy.length) return legacy.map(callable => ({ file: owner.file, callable }));
-    }
+    if (legacyOwn.length) return legacyOwn.some(item => item.static) ? [] : ownConstructors(legacyOwn);
     const parentName = owner.declaration.extendsNames[0]; if (!parentName) return [];
     const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
     const parent = this.resolveSourceType(owner.file, parentName, namespace, owner.declaration.fqcn, owner.declaration.start);

@@ -1,0 +1,1662 @@
+{
+  "milestone": "D105 Bounded ordinary-edit performance investigation; both approaches withdrawn",
+  "createdAtUtc": "2026-10-05T10:53:00.877994+00:00",
+  "baseCommit": "14fd8b5a12e19110473e8e7e9b33b272da85612d",
+  "retainedProductChanges": false,
+  "budgetMs": 150,
+  "overallOrdinaryEditingQualified": false,
+  "baseline": {
+    "checkpoint": "14fd8b5a",
+    "currentFullQualification": false,
+    "fixture": {
+      "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+      "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "comments": 1500,
+      "constants": 1500,
+      "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "rounds": 100,
+      "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+    },
+    "engine": {
+      "path": "/tmp/sophp-d105-baseline/language-server.js",
+      "sha256": "f3efbffc7ab447b5ae33a203f699dd6acbd1caac7c06c54cb826e97fd272b015"
+    },
+    "label": "baseline",
+    "started": "2026-10-05T10:35:43.601Z",
+    "profiled": false,
+    "explicitGc": false,
+    "runs": [
+      {
+        "version": "7.2",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/tmp/sophp-d105-baseline/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 174.4,
+          "all": {
+            "p50Ms": 95.91,
+            "p95Ms": 144.94,
+            "maxMs": 187.11
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 96.43,
+            "p95Ms": 145.6,
+            "maxMs": 174.4,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 94.44,
+            "p95Ms": 134.68,
+            "maxMs": 187.11,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      },
+      {
+        "version": "8.5",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/tmp/sophp-d105-baseline/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 328.24,
+          "all": {
+            "p50Ms": 97.09,
+            "p95Ms": 136.54,
+            "maxMs": 328.24
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 97.9,
+            "p95Ms": 151.7,
+            "maxMs": 328.24,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 95.98,
+            "p95Ms": 135.07,
+            "maxMs": 154.62,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      }
+    ]
+  },
+  "attempts": [
+    {
+      "name": "void-cast source preflight",
+      "retained": false,
+      "ordinary": {
+        "checkpoint": "14fd8b5a",
+        "currentFullQualification": false,
+        "fixture": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "sourceBytes": 242801,
+          "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+          "comments": 1500,
+          "constants": 1500,
+          "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "rounds": 100,
+          "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+        },
+        "engine": {
+          "path": "/var/www/node/php-companion/dist/language-server.js",
+          "sha256": "a8a66dbaa990a5fcf914d3452faba9d946dc33ab8dde7ea06f7bd7d0f8c79147"
+        },
+        "label": "candidate",
+        "started": "2026-10-05T10:40:00.949Z",
+        "profiled": false,
+        "explicitGc": false,
+        "runs": [
+          {
+            "version": "7.2",
+            "code": 0,
+            "result": {
+              "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+              "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+              "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+              "rounds": 100,
+              "expectFirst": true,
+              "expectEmptyForDash": false,
+              "sharedCandidates": true,
+              "resolveDetails": false,
+              "firstMs": 199.17,
+              "all": {
+                "p50Ms": 94.48,
+                "p95Ms": 153.35,
+                "maxMs": 199.17
+              },
+              "a": {
+                "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickZ",
+                "p50Ms": 91.45,
+                "p95Ms": 150.64,
+                "maxMs": 199.17,
+                "incomplete": 50
+              },
+              "b": {
+                "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickA",
+                "p50Ms": 95.23,
+                "p95Ms": 158.49,
+                "maxMs": 174.51,
+                "incomplete": 50
+              },
+              "readOnly": true,
+              "diskUnchanged": true
+            },
+            "stderr": ""
+          },
+          {
+            "version": "8.5",
+            "code": 0,
+            "result": {
+              "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+              "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+              "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+              "rounds": 100,
+              "expectFirst": true,
+              "expectEmptyForDash": false,
+              "sharedCandidates": true,
+              "resolveDetails": false,
+              "firstMs": 173.15,
+              "all": {
+                "p50Ms": 97.47,
+                "p95Ms": 144.47,
+                "maxMs": 173.15
+              },
+              "a": {
+                "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickZ",
+                "p50Ms": 96.17,
+                "p95Ms": 144.47,
+                "maxMs": 173.15,
+                "incomplete": 50
+              },
+              "b": {
+                "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickA",
+                "p50Ms": 98.85,
+                "p95Ms": 147.15,
+                "maxMs": 160.45,
+                "incomplete": 50
+              },
+              "readOnly": true,
+              "diskUnchanged": true
+            },
+            "stderr": ""
+          }
+        ]
+      },
+      "diagnosticParity": {
+        "fixtureCount": 90,
+        "adversarial": 38,
+        "longEditingFixture": 1,
+        "versions": [
+          "7.2",
+          "7.3",
+          "7.4",
+          "8.0",
+          "8.1",
+          "8.2",
+          "8.3",
+          "8.4",
+          "8.5"
+        ],
+        "comparisons": 3483,
+        "equalAllDiagnosticsIncludingRangesAndOrder": true,
+        "inputHashes": [
+          {
+            "file": "test/extension/baseline/config/services.php",
+            "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+          },
+          {
+            "file": "test/extension/baseline/src/Broken.php",
+            "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/ExportContract.php",
+            "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/Mailer.php",
+            "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/MessageHandler.php",
+            "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/Runner.php",
+            "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/Traceable.php",
+            "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+            "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+            "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+            "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+            "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+            "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+            "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+            "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ImportConsumer.php",
+            "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+            "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+            "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+            "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+            "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MoveConsumer.php",
+            "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+            "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+            "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+            "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/OptimizeImports.php",
+            "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+            "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+            "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/RouteConsumer.php",
+            "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+            "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+            "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+            "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+            "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+            "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/UserController.php",
+            "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+          },
+          {
+            "file": "test/extension/baseline/src/Legacy/Duplicate.php",
+            "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ActivityService.php",
+            "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AliasConsumer.php",
+            "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AlternateFeature.php",
+            "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AssertionConsumer.php",
+            "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AttributeConsumer.php",
+            "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+            "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/BaseService.php",
+            "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/CompletionService.php",
+            "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstantBase.php",
+            "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstantChild.php",
+            "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+            "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+            "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstructorTarget.php",
+            "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ContainerConsumer.php",
+            "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+            "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DeliveryState.php",
+            "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+            "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+            "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DynamicProperties.php",
+            "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ExportService.php",
+            "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ImplicitNullable.php",
+            "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+            "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/Mailer.php",
+            "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/MessageHandler.php",
+            "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/MissingRunner.php",
+            "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/MovableService.php",
+            "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/OverrideTarget.php",
+            "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+            "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+            "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+            "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+            "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+            "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/RunnerImplementation.php",
+            "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/SharedFeature.php",
+            "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+            "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+            "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+            "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+            "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/UnusedImport.php",
+            "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/UserService.php",
+            "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+          },
+          {
+            "file": "test/extension/baseline/src/Support/Constants.php",
+            "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+          },
+          {
+            "file": "test/extension/baseline/src/Support/LogsActivity.php",
+            "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+          },
+          {
+            "file": "test/extension/baseline/src/WrongNamespace.php",
+            "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+          },
+          {
+            "file": "test/extension/fixture/src/Contract/Runner.php",
+            "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/ImportConsumer.php",
+            "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/MoveConsumer.php",
+            "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+            "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+            "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/UserController.php",
+            "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+          },
+          {
+            "file": "test/extension/fixture/src/Service/AliasConsumer.php",
+            "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+          },
+          {
+            "file": "test/extension/fixture/src/Service/MovableService.php",
+            "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+          },
+          {
+            "file": "test/extension/fixture/src/Service/UserService.php",
+            "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+          },
+          {
+            "file": "test/extension/fixture/src/Support/LogsActivity.php",
+            "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+          },
+          {
+            "file": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+            "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+          },
+          {
+            "file": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+            "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+          },
+          {
+            "file": "test/extension/real-psr0/src/Consumer.php",
+            "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+          },
+          {
+            "file": "adversarial-0.php",
+            "sha256": "cd64c6bb5f767982b5dae1f1b239dd42f4d96045562370cb1b17e54d00d2d9d8"
+          },
+          {
+            "file": "adversarial-1.php",
+            "sha256": "87d5c595c3d8c3b60c173a2d26e25bc994a5691966d07079311a48b5e1009707"
+          },
+          {
+            "file": "adversarial-2.php",
+            "sha256": "5a27402c394b1f57e383c877d2998b064fabb06c057758c7bf7d8eb91642f889"
+          },
+          {
+            "file": "adversarial-3.php",
+            "sha256": "45a23b56dd95c45ab725e5b98fc3c1340970688f5a01a71ad4e2a359b724c127"
+          },
+          {
+            "file": "adversarial-4.php",
+            "sha256": "b8dc38effa0d43be2299b8bde1d886a3dff036e93d4a5c5bf8f868b96ec3b599"
+          },
+          {
+            "file": "adversarial-5.php",
+            "sha256": "90d2e704fe8af12339d61427414386bd92e0ba7d6d9dc8ab182db8bea3346417"
+          },
+          {
+            "file": "adversarial-6.php",
+            "sha256": "4e5f48dc3ab19bb70f19fcf93273863bfb2751dc5be9b02fde31b83fc805a9e0"
+          },
+          {
+            "file": "adversarial-7.php",
+            "sha256": "bb70e54c06eed668fc3553242ef34fff7644caef68738e21fddf7af217fc5e86"
+          },
+          {
+            "file": "adversarial-8.php",
+            "sha256": "27f5ff04abd818e1470ceb550ddf64b3c1fe025ce82a84deaffdf1fe4c61ecf4"
+          },
+          {
+            "file": "adversarial-9.php",
+            "sha256": "bae6f34b6738ebef6a852ecf32bbc61066090b096cf1585a23a9b58b92019d97"
+          },
+          {
+            "file": "adversarial-10.php",
+            "sha256": "09523d18c2c587d17c4fac8cc652477f7289d0af0e1f8bc79093ca180693142e"
+          },
+          {
+            "file": "adversarial-11.php",
+            "sha256": "8512f1277387e9247452a741a913a0ab4fb17c0d0376973793317a2f637e8f80"
+          },
+          {
+            "file": "adversarial-12.php",
+            "sha256": "66e9f695cd381234ac77beecd9dbb201ad8dff522a122d1447c3310c8b27c14f"
+          },
+          {
+            "file": "adversarial-13.php",
+            "sha256": "5011a8a83c79d8717b4d60a989aaf619100c7baffe3916ba46eb346d315a948e"
+          },
+          {
+            "file": "adversarial-14.php",
+            "sha256": "058843823823a5831255a536a43db967dca2969bb15b615a5107b11ff9004ee3"
+          },
+          {
+            "file": "adversarial-15.php",
+            "sha256": "c88303c13d7c742d0b1086a45f30686381333c4211c09f660ccbc42c1f90a209"
+          },
+          {
+            "file": "adversarial-16.php",
+            "sha256": "9fe30beaec8ffbfb17d718eb81cfa8eddf9075401897b77265043f11f63bf828"
+          },
+          {
+            "file": "adversarial-17.php",
+            "sha256": "3dcc448934c5ab68d9f620558ad68b753dce8732e190cd211d997b3d1e401377"
+          },
+          {
+            "file": "adversarial-18.php",
+            "sha256": "8acb330d2af80042d7467ca2d997ec3cdc181ce2e881cbc439cab0f55f89e0e6"
+          },
+          {
+            "file": "adversarial-19.php",
+            "sha256": "da27516c16244231fecb59c3e24c147bd1d74e719be452fd38566ea33a229faa"
+          },
+          {
+            "file": "adversarial-20.php",
+            "sha256": "dc57b1b0a9f2ad5806e5d8e35987b07c3b4dae922d1125e441349bd3ea8825e9"
+          },
+          {
+            "file": "adversarial-21.php",
+            "sha256": "7b0026795681686145cb8450cdf9621273fa0b94fafef7a53f3c7443d5f46128"
+          },
+          {
+            "file": "adversarial-22.php",
+            "sha256": "1c45e9a3930cd2e54a3ec8c7d4b23e9f3db4a99df2ce1a85c644374234642e6d"
+          },
+          {
+            "file": "adversarial-23.php",
+            "sha256": "0a2cde21952a93409befe9683919a7d00adb71dd311fb844e2c8a6c3a13349f6"
+          },
+          {
+            "file": "adversarial-24.php",
+            "sha256": "63cab2e088168b44d964b2518a87a1b58de1caaf2ca136bd02289fd35a2961a6"
+          },
+          {
+            "file": "adversarial-25.php",
+            "sha256": "fdcac21cfe288c6da830d4b894a71c0959795c85cfdf18c9fbedcce81cfd297b"
+          },
+          {
+            "file": "adversarial-26.php",
+            "sha256": "0abfcf9a79a69400bf938cfd6c31a6a142739e3aad3d9db94892936b2e9e689e"
+          },
+          {
+            "file": "adversarial-27.php",
+            "sha256": "0d8cd1a6ad4bee4458a8fc295da9a02fba1c5270a1bf23121147d070f82612f3"
+          },
+          {
+            "file": "adversarial-28.php",
+            "sha256": "b4bb927341c8ec5dbe46d81b92b2b367e2732df71f6d4ff7659ec09fb95db3b7"
+          },
+          {
+            "file": "adversarial-29.php",
+            "sha256": "1ab1416ee40e78209df0aa1772ff7bd33b863455f935487bf041b23c958756ee"
+          },
+          {
+            "file": "adversarial-30.php",
+            "sha256": "299a205cf5bdadb41d0e04b5c268fdc9da01da207fbc0b4757dcd00ef0059558"
+          },
+          {
+            "file": "adversarial-31.php",
+            "sha256": "af6e7273c664841dfb84fb6c96fd51bbe65a01e065c5ba5ec5706b203244e154"
+          },
+          {
+            "file": "adversarial-32.php",
+            "sha256": "e48b8a15b6e83a1ef1f05eb2afc2f03be87c6b2976b9aa6bb5bf8a067975f5f8"
+          },
+          {
+            "file": "adversarial-33.php",
+            "sha256": "275b85b8ae00e9b1cc9980953f03a2bfa7ee2475c12f4dcaf53e1150e529c50d"
+          },
+          {
+            "file": "adversarial-34.php",
+            "sha256": "c654f80a0ab312bf238169d9433d04bea66a252685d433b788f37404d167d0aa"
+          },
+          {
+            "file": "adversarial-35.php",
+            "sha256": "e61c6263d88a52e374e6550c62e6fd908646a8c602a22c651a474cffb6ad1aed"
+          },
+          {
+            "file": "adversarial-36.php",
+            "sha256": "3c2181f48a39d1bce53e5f477b7dbaa956e85d5807810cf711d9a12afa4535be"
+          },
+          {
+            "file": "adversarial-37.php",
+            "sha256": "e2bbe00f5370be847877cfaae1a4d3163d4f8c90c9d50114dc8c71bd6aaaa169"
+          },
+          {
+            "file": "large-editing.php",
+            "sha256": "6e3ead1a92490d66cd4f8efb6edece5c88f86857f9b9ca88411746dd8743d1c3"
+          }
+        ]
+      },
+      "structuralTests": {
+        "numTotalTestSuites": 1,
+        "numPassedTestSuites": 1,
+        "numFailedTestSuites": 0,
+        "numPendingTestSuites": 0,
+        "numTotalTests": 9,
+        "numPassedTests": 9,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0,
+        "snapshot": {
+          "added": 0,
+          "failure": false,
+          "filesAdded": 0,
+          "filesRemoved": 0,
+          "filesRemovedList": [],
+          "filesUnmatched": 0,
+          "filesUpdated": 0,
+          "matched": 0,
+          "total": 0,
+          "unchecked": 0,
+          "uncheckedKeysByFile": [],
+          "unmatched": 0,
+          "updated": 0,
+          "didUpdate": false
+        },
+        "startTime": 1791196918612,
+        "success": true,
+        "testResults": [
+          {
+            "assertionResults": [
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 7.2",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 7.2",
+                "duration": 5.140147999999499,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 7.3",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 7.3",
+                "duration": 0.5954520000004777,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 7.4",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 7.4",
+                "duration": 0.6935899999998583,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 8.0",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 8.0",
+                "duration": 0.7325500000006286,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 8.1",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 8.1",
+                "duration": 0.4395519999998214,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 8.2",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 8.2",
+                "duration": 0.3415450000002238,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 8.3",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 8.3",
+                "duration": 0.3819099999991522,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 8.4",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 8.4",
+                "duration": 0.4554740000003221,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              },
+              {
+                "ancestorTitles": [],
+                "fullName": "keeps per-node void checks for structural callers at PHP 8.5",
+                "status": "passed",
+                "title": "keeps per-node void checks for structural callers at PHP 8.5",
+                "duration": 1.0116979999993418,
+                "failureMessages": [],
+                "meta": {},
+                "tags": []
+              }
+            ],
+            "startTime": 1791196923522,
+            "endTime": 1791196923533.0117,
+            "status": "passed",
+            "message": "",
+            "name": "/var/www/node/php-companion/packages/language-spec/test/void-cast-preflight.test.ts"
+          }
+        ]
+      }
+    },
+    {
+      "name": "native callable descendant query",
+      "retained": false,
+      "ordinary": {
+        "checkpoint": "14fd8b5a",
+        "currentFullQualification": false,
+        "fixture": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "sourceBytes": 242801,
+          "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+          "comments": 1500,
+          "constants": 1500,
+          "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "rounds": 100,
+          "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+        },
+        "engine": {
+          "path": "/var/www/node/php-companion/dist/language-server.js",
+          "sha256": "eb37ae0a681ff79f9e4d8f4a32922a8362c164344ee08ef15252ec1b163bef5a"
+        },
+        "label": "candidate",
+        "started": "2026-10-05T10:48:44.039Z",
+        "profiled": false,
+        "explicitGc": false,
+        "runs": [
+          {
+            "version": "7.2",
+            "code": 0,
+            "result": {
+              "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+              "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+              "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+              "rounds": 100,
+              "expectFirst": true,
+              "expectEmptyForDash": false,
+              "sharedCandidates": true,
+              "resolveDetails": false,
+              "firstMs": 324.02,
+              "all": {
+                "p50Ms": 113.31,
+                "p95Ms": 150.1,
+                "maxMs": 324.02
+              },
+              "a": {
+                "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickZ",
+                "p50Ms": 111.22,
+                "p95Ms": 150.1,
+                "maxMs": 324.02,
+                "incomplete": 50
+              },
+              "b": {
+                "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickA",
+                "p50Ms": 115.15,
+                "p95Ms": 150.71,
+                "maxMs": 182.2,
+                "incomplete": 50
+              },
+              "readOnly": true,
+              "diskUnchanged": true
+            },
+            "stderr": ""
+          },
+          {
+            "version": "8.5",
+            "code": 0,
+            "result": {
+              "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+              "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+              "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+              "rounds": 100,
+              "expectFirst": true,
+              "expectEmptyForDash": false,
+              "sharedCandidates": true,
+              "resolveDetails": false,
+              "firstMs": 228.17,
+              "all": {
+                "p50Ms": 112.1,
+                "p95Ms": 144.58,
+                "maxMs": 228.17
+              },
+              "a": {
+                "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickZ",
+                "p50Ms": 108.55,
+                "p95Ms": 142.28,
+                "maxMs": 228.17,
+                "incomplete": 50
+              },
+              "b": {
+                "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+                "expected": "shapePickA",
+                "p50Ms": 114.19,
+                "p95Ms": 149.26,
+                "maxMs": 207.95,
+                "incomplete": 50
+              },
+              "readOnly": true,
+              "diskUnchanged": true
+            },
+            "stderr": ""
+          }
+        ]
+      },
+      "diagnosticParity": {
+        "fixtureCount": 90,
+        "adversarial": 44,
+        "longEditingFixture": 1,
+        "versions": [
+          "7.2",
+          "7.3",
+          "7.4",
+          "8.0",
+          "8.1",
+          "8.2",
+          "8.3",
+          "8.4",
+          "8.5"
+        ],
+        "comparisons": 3645,
+        "equalAllDiagnosticsIncludingRangesAndOrder": true,
+        "inputHashes": [
+          {
+            "file": "test/extension/baseline/config/services.php",
+            "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+          },
+          {
+            "file": "test/extension/baseline/src/Broken.php",
+            "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/ExportContract.php",
+            "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/Mailer.php",
+            "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/MessageHandler.php",
+            "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/Runner.php",
+            "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+          },
+          {
+            "file": "test/extension/baseline/src/Contract/Traceable.php",
+            "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+            "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+            "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+            "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+            "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+            "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+            "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+            "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/ImportConsumer.php",
+            "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+            "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+            "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+            "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+            "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/MoveConsumer.php",
+            "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+            "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+            "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+            "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/OptimizeImports.php",
+            "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+            "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+            "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/RouteConsumer.php",
+            "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+            "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+            "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+            "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+            "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+            "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+          },
+          {
+            "file": "test/extension/baseline/src/Controller/UserController.php",
+            "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+          },
+          {
+            "file": "test/extension/baseline/src/Legacy/Duplicate.php",
+            "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ActivityService.php",
+            "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AliasConsumer.php",
+            "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AlternateFeature.php",
+            "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AssertionConsumer.php",
+            "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AttributeConsumer.php",
+            "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+            "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/BaseService.php",
+            "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/CompletionService.php",
+            "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstantBase.php",
+            "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstantChild.php",
+            "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+            "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+            "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ConstructorTarget.php",
+            "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ContainerConsumer.php",
+            "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+            "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DeliveryState.php",
+            "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+            "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+            "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/DynamicProperties.php",
+            "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ExportService.php",
+            "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/ImplicitNullable.php",
+            "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+            "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/Mailer.php",
+            "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/MessageHandler.php",
+            "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/MissingRunner.php",
+            "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/MovableService.php",
+            "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/OverrideTarget.php",
+            "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+            "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+            "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+            "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+            "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+            "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/RunnerImplementation.php",
+            "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/SharedFeature.php",
+            "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+            "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+            "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+            "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+            "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/UnusedImport.php",
+            "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+          },
+          {
+            "file": "test/extension/baseline/src/Service/UserService.php",
+            "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+          },
+          {
+            "file": "test/extension/baseline/src/Support/Constants.php",
+            "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+          },
+          {
+            "file": "test/extension/baseline/src/Support/LogsActivity.php",
+            "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+          },
+          {
+            "file": "test/extension/baseline/src/WrongNamespace.php",
+            "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+          },
+          {
+            "file": "test/extension/fixture/src/Contract/Runner.php",
+            "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/ImportConsumer.php",
+            "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/MoveConsumer.php",
+            "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+            "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+            "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+          },
+          {
+            "file": "test/extension/fixture/src/Controller/UserController.php",
+            "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+          },
+          {
+            "file": "test/extension/fixture/src/Service/AliasConsumer.php",
+            "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+          },
+          {
+            "file": "test/extension/fixture/src/Service/MovableService.php",
+            "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+          },
+          {
+            "file": "test/extension/fixture/src/Service/UserService.php",
+            "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+          },
+          {
+            "file": "test/extension/fixture/src/Support/LogsActivity.php",
+            "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+          },
+          {
+            "file": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+            "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+          },
+          {
+            "file": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+            "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+          },
+          {
+            "file": "test/extension/real-psr0/src/Consumer.php",
+            "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+          },
+          {
+            "file": "adversarial-0.php",
+            "sha256": "cd64c6bb5f767982b5dae1f1b239dd42f4d96045562370cb1b17e54d00d2d9d8"
+          },
+          {
+            "file": "adversarial-1.php",
+            "sha256": "87d5c595c3d8c3b60c173a2d26e25bc994a5691966d07079311a48b5e1009707"
+          },
+          {
+            "file": "adversarial-2.php",
+            "sha256": "5a27402c394b1f57e383c877d2998b064fabb06c057758c7bf7d8eb91642f889"
+          },
+          {
+            "file": "adversarial-3.php",
+            "sha256": "45a23b56dd95c45ab725e5b98fc3c1340970688f5a01a71ad4e2a359b724c127"
+          },
+          {
+            "file": "adversarial-4.php",
+            "sha256": "b8dc38effa0d43be2299b8bde1d886a3dff036e93d4a5c5bf8f868b96ec3b599"
+          },
+          {
+            "file": "adversarial-5.php",
+            "sha256": "90d2e704fe8af12339d61427414386bd92e0ba7d6d9dc8ab182db8bea3346417"
+          },
+          {
+            "file": "adversarial-6.php",
+            "sha256": "4e5f48dc3ab19bb70f19fcf93273863bfb2751dc5be9b02fde31b83fc805a9e0"
+          },
+          {
+            "file": "adversarial-7.php",
+            "sha256": "bb70e54c06eed668fc3553242ef34fff7644caef68738e21fddf7af217fc5e86"
+          },
+          {
+            "file": "adversarial-8.php",
+            "sha256": "27f5ff04abd818e1470ceb550ddf64b3c1fe025ce82a84deaffdf1fe4c61ecf4"
+          },
+          {
+            "file": "adversarial-9.php",
+            "sha256": "bae6f34b6738ebef6a852ecf32bbc61066090b096cf1585a23a9b58b92019d97"
+          },
+          {
+            "file": "adversarial-10.php",
+            "sha256": "09523d18c2c587d17c4fac8cc652477f7289d0af0e1f8bc79093ca180693142e"
+          },
+          {
+            "file": "adversarial-11.php",
+            "sha256": "8512f1277387e9247452a741a913a0ab4fb17c0d0376973793317a2f637e8f80"
+          },
+          {
+            "file": "adversarial-12.php",
+            "sha256": "66e9f695cd381234ac77beecd9dbb201ad8dff522a122d1447c3310c8b27c14f"
+          },
+          {
+            "file": "adversarial-13.php",
+            "sha256": "5011a8a83c79d8717b4d60a989aaf619100c7baffe3916ba46eb346d315a948e"
+          },
+          {
+            "file": "adversarial-14.php",
+            "sha256": "058843823823a5831255a536a43db967dca2969bb15b615a5107b11ff9004ee3"
+          },
+          {
+            "file": "adversarial-15.php",
+            "sha256": "c88303c13d7c742d0b1086a45f30686381333c4211c09f660ccbc42c1f90a209"
+          },
+          {
+            "file": "adversarial-16.php",
+            "sha256": "9fe30beaec8ffbfb17d718eb81cfa8eddf9075401897b77265043f11f63bf828"
+          },
+          {
+            "file": "adversarial-17.php",
+            "sha256": "3dcc448934c5ab68d9f620558ad68b753dce8732e190cd211d997b3d1e401377"
+          },
+          {
+            "file": "adversarial-18.php",
+            "sha256": "8acb330d2af80042d7467ca2d997ec3cdc181ce2e881cbc439cab0f55f89e0e6"
+          },
+          {
+            "file": "adversarial-19.php",
+            "sha256": "da27516c16244231fecb59c3e24c147bd1d74e719be452fd38566ea33a229faa"
+          },
+          {
+            "file": "adversarial-20.php",
+            "sha256": "dc57b1b0a9f2ad5806e5d8e35987b07c3b4dae922d1125e441349bd3ea8825e9"
+          },
+          {
+            "file": "adversarial-21.php",
+            "sha256": "7b0026795681686145cb8450cdf9621273fa0b94fafef7a53f3c7443d5f46128"
+          },
+          {
+            "file": "adversarial-22.php",
+            "sha256": "1c45e9a3930cd2e54a3ec8c7d4b23e9f3db4a99df2ce1a85c644374234642e6d"
+          },
+          {
+            "file": "adversarial-23.php",
+            "sha256": "0a2cde21952a93409befe9683919a7d00adb71dd311fb844e2c8a6c3a13349f6"
+          },
+          {
+            "file": "adversarial-24.php",
+            "sha256": "63cab2e088168b44d964b2518a87a1b58de1caaf2ca136bd02289fd35a2961a6"
+          },
+          {
+            "file": "adversarial-25.php",
+            "sha256": "fdcac21cfe288c6da830d4b894a71c0959795c85cfdf18c9fbedcce81cfd297b"
+          },
+          {
+            "file": "adversarial-26.php",
+            "sha256": "0abfcf9a79a69400bf938cfd6c31a6a142739e3aad3d9db94892936b2e9e689e"
+          },
+          {
+            "file": "adversarial-27.php",
+            "sha256": "0d8cd1a6ad4bee4458a8fc295da9a02fba1c5270a1bf23121147d070f82612f3"
+          },
+          {
+            "file": "adversarial-28.php",
+            "sha256": "b4bb927341c8ec5dbe46d81b92b2b367e2732df71f6d4ff7659ec09fb95db3b7"
+          },
+          {
+            "file": "adversarial-29.php",
+            "sha256": "1ab1416ee40e78209df0aa1772ff7bd33b863455f935487bf041b23c958756ee"
+          },
+          {
+            "file": "adversarial-30.php",
+            "sha256": "299a205cf5bdadb41d0e04b5c268fdc9da01da207fbc0b4757dcd00ef0059558"
+          },
+          {
+            "file": "adversarial-31.php",
+            "sha256": "af6e7273c664841dfb84fb6c96fd51bbe65a01e065c5ba5ec5706b203244e154"
+          },
+          {
+            "file": "adversarial-32.php",
+            "sha256": "e48b8a15b6e83a1ef1f05eb2afc2f03be87c6b2976b9aa6bb5bf8a067975f5f8"
+          },
+          {
+            "file": "adversarial-33.php",
+            "sha256": "275b85b8ae00e9b1cc9980953f03a2bfa7ee2475c12f4dcaf53e1150e529c50d"
+          },
+          {
+            "file": "adversarial-34.php",
+            "sha256": "c654f80a0ab312bf238169d9433d04bea66a252685d433b788f37404d167d0aa"
+          },
+          {
+            "file": "adversarial-35.php",
+            "sha256": "e61c6263d88a52e374e6550c62e6fd908646a8c602a22c651a474cffb6ad1aed"
+          },
+          {
+            "file": "adversarial-36.php",
+            "sha256": "3c2181f48a39d1bce53e5f477b7dbaa956e85d5807810cf711d9a12afa4535be"
+          },
+          {
+            "file": "adversarial-37.php",
+            "sha256": "e2bbe00f5370be847877cfaae1a4d3163d4f8c90c9d50114dc8c71bd6aaaa169"
+          },
+          {
+            "file": "adversarial-38.php",
+            "sha256": "c8aaed418570d0203023a2a3b0e991fa96616a3802654c257755a7c6bc3cf36e"
+          },
+          {
+            "file": "adversarial-39.php",
+            "sha256": "c3ed05924c01f8a97e070cbfe5286d18b95d7979b237392cf3c5a527f46af233"
+          },
+          {
+            "file": "adversarial-40.php",
+            "sha256": "2e901afd870038c75f8711e1d71ae871ccd526f8139eff38d8b14cdb69722c9b"
+          },
+          {
+            "file": "adversarial-41.php",
+            "sha256": "2d82cec9b51ea869cb0743eea23f5add454ba332d602b8afb14d0ecff7105846"
+          },
+          {
+            "file": "adversarial-42.php",
+            "sha256": "fc6633d0a76a5d35954a602c760d774bf33445da0ee8462cd274bb299c19dfb8"
+          },
+          {
+            "file": "adversarial-43.php",
+            "sha256": "66204e9f4ace86a179148366b5b70fba3b1dd2fb80ba4f410054f9fcb7024582"
+          },
+          {
+            "file": "large-editing.php",
+            "sha256": "6e3ead1a92490d66cd4f8efb6edece5c88f86857f9b9ca88411746dd8743d1c3"
+          }
+        ]
+      },
+      "callableParity": {
+        "wholeTreeStates": 405,
+        "nestedSubtreesAlsoCompared": true,
+        "exactReasonRangeOrder": true
+      },
+      "temporaryLanguageSpecSuite": {
+        "files": 16,
+        "passed": 260,
+        "failed": 0,
+        "temporaryTestsWithdrawn": 11
+      }
+    }
+  ],
+  "profile": {
+    "ordinary": false,
+    "measurement": {
+      "checkpoint": "14fd8b5a",
+      "fixture": {
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "comments": 1500,
+        "constants": 1500,
+        "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "rounds": 100,
+        "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+      },
+      "engine": {
+        "path": "/var/www/node/php-companion/dist/language-server.js",
+        "sha256": "f3efbffc7ab447b5ae33a203f699dd6acbd1caac7c06c54cb826e97fd272b015"
+      },
+      "label": "current-CPU-profile",
+      "profileScope": "Separate exploratory profile; not ordinary latency qualification",
+      "started": "2026-10-05T10:34:48.111Z",
+      "profiled": true,
+      "explicitGc": false,
+      "runs": [
+        {
+          "version": "7.2",
+          "code": 0,
+          "result": {
+            "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 191.58,
+            "all": {
+              "p50Ms": 103.95,
+              "p95Ms": 150.39,
+              "maxMs": 240.01
+            },
+            "a": {
+              "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickZ",
+              "p50Ms": 104.84,
+              "p95Ms": 150.39,
+              "maxMs": 191.58,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickA",
+              "p50Ms": 101.82,
+              "p95Ms": 168.76,
+              "maxMs": 240.01,
+              "incomplete": 50
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "stderr": ""
+        }
+      ]
+    },
+    "sourceMapProof": {
+      "productionSha256": "f3efbffc7ab447b5ae33a203f699dd6acbd1caac7c06c54cb826e97fd272b015",
+      "mappedBodySha256": "f3efbffc7ab447b5ae33a203f699dd6acbd1caac7c06c54cb826e97fd272b015",
+      "exactProductionBody": true,
+      "buildId": "a007f70862b8e3a9be560109588f7996772985a652f417273c258c6c5d67ce6b"
+    }
+  },
+  "restoration": {
+    "sourceIdenticalToBase": true,
+    "temporaryTestsRemoved": true,
+    "buildExitCode": 0,
+    "productionAssetsIdenticalToBase": {
+      "language-server.js": "f3efbffc7ab447b5ae33a203f699dd6acbd1caac7c06c54cb826e97fd272b015",
+      "candidateWorker.js": "c40f71de613d927b4b8d8809a767e604f9246ebee10b5939417bf89710976292",
+      "portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    "extensionSha256FromD104": "ee119dfcc817ab8c63b3a352664ea4aad9ecc400a4b98ff6f831490070415185"
+  },
+  "limits": [
+    "Single ordinary run of 100 serial edits per version and implementation; no repeated equivalent measurements",
+    "Fresh baseline variance does not supersede the historical D100 PHP 7.2 P95 155.06 ms gap",
+    "Temporary candidate parity and tests are not current product qualification",
+    "No new full LSP, isolated host or real WSL qualification; no retained product change",
+    "No VSIX, Profile update, push or publication"
+  ]
+}
