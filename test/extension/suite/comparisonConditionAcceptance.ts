@@ -31,6 +31,7 @@ export async function run(): Promise<void> {
   const assignmentTargets = process.env.PHP_COMPANION_TEST_ASSIGNMENT_TARGET_ONLY === '1';
   const nativeXmlReaders = process.env.PHP_COMPANION_TEST_NATIVE_XML_READER_ONLY === '1';
   const functionLookups = process.env.PHP_COMPANION_TEST_FUNCTION_LOOKUP_ONLY === '1';
+  const canonicalConstructions = process.env.PHP_COMPANION_TEST_CANONICAL_CONSTRUCTION_ONLY === '1';
   const traitUseGenerics = process.env.PHP_COMPANION_TEST_TRAIT_USE_GENERIC_ONLY === '1';
   const inheritedConstructors = process.env.PHP_COMPANION_TEST_INHERITED_CONSTRUCTOR_ONLY === '1';
   const traitPhpDocs = process.env.PHP_COMPANION_TEST_TRAIT_PHPDOC_ONLY === '1';
@@ -64,7 +65,12 @@ export async function run(): Promise<void> {
   const callableHeader = '<?php class User{public function name():string{return "user";}} class View{public function title():string{return "view";}} ';
   const configuredPhpVersion = vscode.workspace.getConfiguration('phpCompanion', folder.uri).get<string>('phpVersion');
   const reflectionNewType = Number(configuredPhpVersion?.replace('.', '')) < 80 ? 'ReflectionType' : 'ReflectionNamedType';
-  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = traitUseGenerics ? [
+  const cases: Array<{ prefix: string; label: string; forbidden: string; addCall: boolean; marked: string; suffix?: string; consume?: number; hoverVariable?: string; hoverType?: string }> = canonicalConstructions ? [
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Mid;} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+    {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:'<?php declare(strict_types=1); namespace Consumer; class C {/** @use \\Origin\\Init<int> */ use \\Origin\\Init;} function run(string $offerA,int $offerZ){return new C($offer§);}'},
+  ] : traitUseGenerics ? [
     {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:"<?php namespace Origin; class User {} /** @template T */ trait Box {/** @param T $value */ public function __construct($value){}} namespace Consumer; class User {} class C {/** @use \\Origin\\Box<\\Origin\\User> */ use \\Origin\\Box;} function run(User $offerA,\\Origin\\User $offerZ){new C($offer\u00a7);}"},
     {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:"<?php namespace Origin; class User {} /** @template T */ trait Box {/** @param list<T> $value */ public function __construct(array $value){}} namespace Consumer; class User {} class C {/** @use \\Origin\\Box<\\Origin\\User> */ use \\Origin\\Box;} /** @param list<User> $offerA\n * @param list<\\Origin\\User> $offerZ */ function run(array $offerA,array $offerZ){new C($offer\u00a7);}"},
     {prefix:'$offer',label:'$offerZ',forbidden:'$outside',addCall:false,marked:"<?php namespace Origin; class User {} /** @template T */ trait Box {/** @param array{T:T, label:'T'} $value */ public function __construct(array $value){}} namespace Consumer; class User {} class C {/** @use \\Origin\\Box<\\Origin\\User> */ use \\Origin\\Box;} /** @param array{T:User, label:'T'} $offerA\n * @param array{T:\\Origin\\User, label:'T'} $offerZ */ function run(array $offerA,array $offerZ){new C($offer\u00a7);}"},
@@ -298,6 +304,7 @@ export async function run(): Promise<void> {
   ];
   const results: object[] = [];
   for (const item of cases) for (const key of ['Enter', 'Tab'] as const) {
+    const constructorSources: Array<{ name: string; source: string }> = [];
     console.log('Comparison condition case: ' + JSON.stringify({ index: cases.indexOf(item), key, marked: item.marked }));
     const uri = vscode.Uri.joinPath(folder.uri, 'src', `ComparisonCondition${cases.indexOf(item)}${key}.php`);
     const suffix = `${cases.indexOf(item)}${key}`;
@@ -313,6 +320,24 @@ export async function run(): Promise<void> {
       await vscode.workspace.fs.createDirectory(directory);
       await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(directory, 'Child.php'),
         Buffer.from(`<?php namespace App\\SeparatorGate${suffix}\\NamespaceUi${suffix}; class Child {}`));
+    }
+    if (canonicalConstructions) {
+      const namespace = `App\\CanonicalGate${suffix}`, directory = vscode.Uri.joinPath(folder.uri,'src',`CanonicalGate${suffix}`);
+      await vscode.workspace.fs.createDirectory(directory);
+      const index = cases.indexOf(item);
+      const init = `<?php namespace ${namespace}; ${index === 3 ? '/** @template T */ ' : ''}trait Init {${index === 3 ? '/** @param T $value */ ' : ''}public function ${index === 1 ? 'seed' : '__construct'}(${index === 3 ? '' : 'int '}$value){}}`;
+      constructorSources.push({name:'Init',source:init});
+      const initUri = vscode.Uri.joinPath(directory,'Init.php');
+      await vscode.workspace.fs.writeFile(initUri,Buffer.from(init)); await vscode.workspace.openTextDocument(initUri);
+      await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',initUri);
+      if(index === 2) {
+        const midUri=vscode.Uri.joinPath(directory,'Mid.php');
+        const midSource=`<?php namespace ${namespace}; trait Mid {use Init;}`;
+        constructorSources.push({name:'Mid',source:midSource});
+        await vscode.workspace.fs.writeFile(midUri,Buffer.from(midSource));
+        await vscode.workspace.openTextDocument(midUri); await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider',midUri);
+      }
+      marked = marked.replace('namespace Consumer;',`namespace App\\CallerGate${suffix};`).replaceAll('Origin\\',`${namespace}\\`);
     }
     if (traitPhpDocs || inheritedConstructors || traitUseGenerics) marked = marked.replaceAll('namespace Origin;',`namespace OriginGate${suffix};`)
       .replaceAll('namespace Consumer;',`namespace ConsumerGate${suffix};`).replaceAll('Origin\\',`OriginGate${suffix}\\`);
@@ -331,12 +356,24 @@ export async function run(): Promise<void> {
     const accepted = source.slice(0, offset - prefix.length) + label + (item.suffix ?? (item.addCall ? '()' : '')) + source.slice(offset + (consume ?? 0));
     await vscode.workspace.fs.writeFile(uri, Buffer.from(source));
     const document = await vscode.workspace.openTextDocument(uri); const editor = await vscode.window.showTextDocument(document);
+    if (canonicalConstructions) {
+      const replace = async (text: string): Promise<void> => {
+        assert.equal(await editor.edit(edit => edit.replace(new vscode.Range(document.positionAt(0),document.positionAt(document.getText().length)),text)),true);
+      };
+      const codes = (): string[] => vscode.languages.getDiagnostics(uri).map(diagnostic => typeof diagnostic.code === 'object' ? String(diagnostic.code.value) : String(diagnostic.code));
+      await replace(source.replace('new C($offer)','new C()'));
+      await until(async () => codes(),values => values.filter(code => code === 'php.argument.missing-required').length === 1);
+      await replace(source.replace('new C($offer)',"new C('wrong')"));
+      await until(async () => codes(),values => values.filter(code => code === 'php.argument.type-mismatch').length === 1 && !values.includes('php.argument.missing-required'));
+      await replace(source);
+      await until(async () => codes(),values => !values.includes('php.argument.type-mismatch') && !values.includes('php.argument.missing-required'));
+    }
     const position = document.positionAt(offset); editor.selection = new vscode.Selection(position, position);
     const provided = await until(() => vscode.commands.executeCommand<vscode.CompletionList>('vscode.executeCompletionItemProvider', uri, position),
       list => list?.items.some(value => value.label === label) === true);
     console.log('Comparison provided target: ' + JSON.stringify(provided.items.find(value => value.label === label)));
     if (item.forbidden) assert.equal(provided.items.some(value => value.label === item.forbidden), false);
-    if (classRelativeConstructions || traitConstructions || traitPhpDocs || inheritedConstructors || traitUseGenerics) {
+    if (classRelativeConstructions || traitConstructions || traitPhpDocs || inheritedConstructors || traitUseGenerics || canonicalConstructions) {
       const help = await vscode.commands.executeCommand<vscode.SignatureHelp>('vscode.executeSignatureHelpProvider', uri, position);
       assert.ok(help?.signatures.some(value => value.label.includes('$value')));
     }
@@ -370,10 +407,11 @@ export async function run(): Promise<void> {
     await vscode.commands.executeCommand('redo'); await until(async () => document.getText(), text => text === accepted);
     assert.equal(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), source);
     results.push({ label, key, visibleMs, visibleLabels: labels, acceptedText: accepted,
+      ...(canonicalConstructions ? { constructorDiagnostics: { missingWithdrawn: true, mismatchWithdrawn: true }, sourceDependencies: constructorSources } : {}),
       ...(item.hoverVariable ? { hover: { variable: item.hoverVariable, type: item.hoverType ?? null, checked: true } } : {}),
       caretOffset: document.offsetAt(editor.selection.active), exactText: true, caretMatched: true, addCall: item.addCall, undoRedo: true, diskUnchanged: true });
   }
   console.log('Comparison condition acceptance proof: ' + JSON.stringify({ platform: process.platform,
-    context: traitUseGenerics ? `trait-use-generics-${configuredPhpVersion}` : inheritedConstructors ? `inherited-construction-${configuredPhpVersion}` : traitPhpDocs ? `trait-phpdoc-${configuredPhpVersion}` : traitConstructions ? `trait-construction-${configuredPhpVersion}` : classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
+    context: canonicalConstructions ? `canonical-construction-${configuredPhpVersion}` : traitUseGenerics ? `trait-use-generics-${configuredPhpVersion}` : inheritedConstructors ? `inherited-construction-${configuredPhpVersion}` : traitPhpDocs ? `trait-phpdoc-${configuredPhpVersion}` : traitConstructions ? `trait-construction-${configuredPhpVersion}` : classRelativeConstructions ? `class-relative-construction-${configuredPhpVersion}` : reflectionConstructions ? `reflection-construction-${configuredPhpVersion}` : functionLookups ? 'contextual-callable-function-lookups' : nativeXmlReaders ? 'native-xmlreader-invocations' : assignmentTargets ? 'assignment-target-values' : flowValues ? 'control-flow-variable-values' : reassignedParameters ? 'reassigned-parameter-values' : largeLocalRanking ? 'large-local-and-construction-ranking' : largeRanking ? 'large-candidate-type-ranking' : blankInitializerTypes ? 'blank-initializer-native-types' : blankInitializers ? 'blank-initializers' : namespaceSeparators ? 'namespace-separators-and-middle-word-ranges' : rootImports ? 'root-imports-and-middle-word-ranges' : nativeHandles ? 'native-handle-type-references' : mixedCallables ? 'mixed-callable-values' : unclosedCallables ? 'unclosed-callable-values' : assignmentComments ? 'assignment-comment-values' : unclosedShapes ? 'unclosed-shape-values' : blankComments ? 'blank-comment-variables' : shapeComments ? 'shape-comment-values' : typeTails ? 'composite-type-positions' : shapeValues ? 'shape-field-values' : namedAttributeValues ? 'named-attribute-values' : functionIdentifiers ? 'function-identifiers' : initializerExpressions ? 'initializer-expressions' : constantInitializers ? 'constant-initializers'
       : defaultCallables ? 'declaration-callables' : declarationDefaults ? 'declaration-defaults' : 'comparison-conditions', results }));
 }

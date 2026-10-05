@@ -220,3 +220,7 @@ D44 与 readonly 负向试验材料作为本地源码里程碑收口（feat(core
 ## D102 Trait 使用泛型合同
 
 [本轮记录](reports/completion-trait-use-generics-2026-10-05.md)：实际 Trait `@use` 子句、嵌套映射、AST 类型名替换及缓存合同 86／4 已写入源码；完整语义 2689、定向 LSP 73、两版 16 次最终可见接受与实际 CLI 通过，324 输入摘要保持。onDemand 外部 Trait 构造诊断证明、fully qualified precedence 语法仍开放，记录原失败；D101 的完整 924 项不转移到改变后的源码。普通 PHP 7.2 编辑仍超 150 ms，真人／平台／规模／长会话继续开放。本地源码收口，不打包或更新 Profile，goal active。
+
+## D103 可证明的外部构造来源
+
+[本轮记录](reports/completion-canonical-construction-2026-10-05.md)：onDemand 对唯一完整构造来源图及 Composer 路径的证明已接入，覆盖外部 Trait／嵌套／继承／构造别名，并撤回异步等待期间的旧源码证明。完整语义 2718、定向 LSP 89、原方法证明 8、两版 16 次可见接受及实际 PHP 构造运行通过，450 输入保持；删除版本保护的两项临时对照均失败。D102 非规范路径来源仍撤回，qualified precedence、普通 PHP 7.2 编辑 155.06 ms、完整协议及真人／平台／规模／长会话仍开放。仅本地源码里程碑，不打包、推送或更新 Profile，goal active；下一项沿真实 PHP 对照处理 qualified Trait precedence 解析。

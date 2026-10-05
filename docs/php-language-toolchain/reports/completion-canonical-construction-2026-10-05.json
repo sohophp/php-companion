@@ -1,0 +1,1051 @@
+{
+  "milestone": "D103 Canonical external constructor diagnostics",
+  "createdAtUtc": "2026-10-05T09:58:00.600527+00:00",
+  "baseCommit": "99b231b70a67ed9f6dd873a7eda7bdf5534f2ad4",
+  "semanticSchema": 86,
+  "sourceDeclarationSchema": 4,
+  "sourceAndBundleSha256": {
+    "packages/semantic/src/index.ts": "4f309ff4e64a2c65519c5f21cd66f37e82547f52b3bff3e7f6f39b159b22f28b",
+    "packages/language-server/src/server.ts": "347973d8b7097aa7e81769726f4244c8de0423acb50c602f254b37cc152961f6",
+    "packages/semantic/test/constructor-source-proof.test.ts": "9656e748e816d647e411b36fdaaec49a10dd77d63fb5165e92d064a2419e2ab4",
+    "packages/language-server/test/canonical-construction-stdio.test.ts": "cb5159d118eafadefec8f4b2a7f9e8550b6ce93350e5bc7abe8f61861c825ca6",
+    "test/extension/suite/comparisonConditionAcceptance.ts": "e0ee71ee7abda21600b7913a951ba2b9aa81ecb92d96b12b7ad391508d3387a1",
+    "dist/extension.js": "78cf4eda8a136f29538330ec5ad4154bb56d7f7457d9175df286321020ab9823",
+    "dist/language-server.js": "966bb1243a078ce602f436f8a7dd445b87c000c68f916241c65892f8ce0311b9",
+    "packages/semantic/dist/index.js": "1aad4585aa14acc5360dce53e69ee804b56cfba37f983909dc4aa4d23f49a752",
+    "packages/language-server/dist/server.js": "a63b9c159ffa80fcc8248bb91c25db9a06bd003a4385272547e56698948573cd"
+  },
+  "frozenInputs": {
+    "count": 450,
+    "unchanged": true,
+    "manifest": "/tmp/sophp-d103-qualified-inputs.json",
+    "manifestSha256": "c9b82a27a0dd2a98595f335878f199630a38669264f2937d73715a13b365f8f4"
+  },
+  "semantic": {
+    "files": 117,
+    "total": 2718,
+    "passed": 2718,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "lsp": {
+    "files": 8,
+    "total": 89,
+    "passed": 89,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "ordinaryMethodProofSubset": {
+    "files": 1,
+    "total": 531,
+    "passed": 8,
+    "failed": 0,
+    "pending": 523,
+    "success": true
+  },
+  "newSemanticCases": 29,
+  "newLspServers": {
+    "main": 6,
+    "composerEvidence": 8,
+    "interruptedRevision": 2
+  },
+  "mainUnsavedStates": 118,
+  "composerEvidenceStates": 16,
+  "hosts": {
+    "7.2": {
+      "platform": "linux",
+      "context": "canonical-construction-7.2",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 223,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Enter; class C {use \\App\\CanonicalGate0Enter\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Enter; trait Init {public function __construct(int $value){}}"
+            }
+          ],
+          "caretOffset": 169,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 137,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Tab; class C {use \\App\\CanonicalGate0Tab\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Tab; trait Init {public function __construct(int $value){}}"
+            }
+          ],
+          "caretOffset": 165,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 131,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Enter; class C {use \\App\\CanonicalGate1Enter\\Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Init {public function seed(int $value){}}"
+            }
+          ],
+          "caretOffset": 191,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 144,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Tab; class C {use \\App\\CanonicalGate1Tab\\Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Init {public function seed(int $value){}}"
+            }
+          ],
+          "caretOffset": 187,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 156,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Enter; class C {use \\App\\CanonicalGate2Enter\\Mid;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Mid",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Mid {use Init;}"
+            }
+          ],
+          "caretOffset": 168,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 148,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Tab; class C {use \\App\\CanonicalGate2Tab\\Mid;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Mid",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Mid {use Init;}"
+            }
+          ],
+          "caretOffset": 164,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 141,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Enter; class C {/** @use \\App\\CanonicalGate3Enter\\Init<int> */ use \\App\\CanonicalGate3Enter\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Enter; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            }
+          ],
+          "caretOffset": 216,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 167,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Tab; class C {/** @use \\App\\CanonicalGate3Tab\\Init<int> */ use \\App\\CanonicalGate3Tab\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Tab; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            }
+          ],
+          "caretOffset": 210,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    },
+    "8.5": {
+      "platform": "linux",
+      "context": "canonical-construction-8.5",
+      "results": [
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 239,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Enter; class C {use \\App\\CanonicalGate0Enter\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Enter; trait Init {public function __construct(int $value){}}"
+            }
+          ],
+          "caretOffset": 169,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 154,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate0Tab; class C {use \\App\\CanonicalGate0Tab\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate0Tab; trait Init {public function __construct(int $value){}}"
+            }
+          ],
+          "caretOffset": 165,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 135,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Enter; class C {use \\App\\CanonicalGate1Enter\\Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Enter; trait Init {public function seed(int $value){}}"
+            }
+          ],
+          "caretOffset": 191,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 164,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate1Tab; class C {use \\App\\CanonicalGate1Tab\\Init {seed as __construct;}} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate1Tab; trait Init {public function seed(int $value){}}"
+            }
+          ],
+          "caretOffset": 187,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 119,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Enter; class C {use \\App\\CanonicalGate2Enter\\Mid;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Mid",
+              "source": "<?php namespace App\\CanonicalGate2Enter; trait Mid {use Init;}"
+            }
+          ],
+          "caretOffset": 168,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 123,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate2Tab; class C {use \\App\\CanonicalGate2Tab\\Mid;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Init {public function __construct(int $value){}}"
+            },
+            {
+              "name": "Mid",
+              "source": "<?php namespace App\\CanonicalGate2Tab; trait Mid {use Init;}"
+            }
+          ],
+          "caretOffset": 164,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Enter",
+          "visibleMs": 148,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Enter; class C {/** @use \\App\\CanonicalGate3Enter\\Init<int> */ use \\App\\CanonicalGate3Enter\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Enter; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            }
+          ],
+          "caretOffset": 216,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        },
+        {
+          "label": "$offerZ",
+          "key": "Tab",
+          "visibleMs": 143,
+          "visibleLabels": [
+            "$offerZ$offerZ: int",
+            "$offerA"
+          ],
+          "acceptedText": "<?php declare(strict_types=1); namespace App\\CallerGate3Tab; class C {/** @use \\App\\CanonicalGate3Tab\\Init<int> */ use \\App\\CanonicalGate3Tab\\Init;} function run(string $offerA,int $offerZ){return new C($offerZ);}",
+          "constructorDiagnostics": {
+            "missingWithdrawn": true,
+            "mismatchWithdrawn": true
+          },
+          "sourceDependencies": [
+            {
+              "name": "Init",
+              "source": "<?php namespace App\\CanonicalGate3Tab; /** @template T */ trait Init {/** @param T $value */ public function __construct($value){}}"
+            }
+          ],
+          "caretOffset": 210,
+          "exactText": true,
+          "caretMatched": true,
+          "addCall": false,
+          "undoRedo": true,
+          "diskUnchanged": true
+        }
+      ]
+    }
+  },
+  "visibleRangeMs": [
+    119,
+    239
+  ],
+  "native": {
+    "rows": [
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 0,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "190e4fa794c6aa8425f2e96a5bcbcd7528237dcbe2c1f3f69c92bffc45e484fb",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "5c7ae7a8867fe48112634e70009101925b8b68628e5eea62d0995c7cac3b69cb",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "fc55d46d0b48e0ae3a3db2cc0bdedde84ba3ea030de2879d8695729af66abe2d"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 1,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "31755bd7921550089a21dfaa1e5aac218e7fa0a673db5029cd107ecf28e38ba2",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "c0ad220c6bd20912583bacad962971917d8d5533be96a7da750aaf823dd5698d",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "90d861831012e9aa1cde5703018c9eeaa414ab3081066462b61d382494e1da50"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 2,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "37f8a98d57a22d058dfcb37381e8b030d165755bc162411030ab792cd98ffb27",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "f65ed080aedc525a8ba711bc99457362605d4c4ddc717861c12ceb1434a6762a",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "fbb7183b5b3ea8ff60ebfefea25704ed38ef91a5193fdd718134830bbbff4d92"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 3,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "c44c250f731e015641c5567aa9addc75e7a19afb00b03cafe5d2d7e2cb10b20a",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "931c9efa798430b53f97538a6a5087dc30c5b024b158cfcb613ef01d7dbde58f",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "e347e31d3d0dde4e99f6572a3e156c2364ed566faedff36c14f2843121272a20"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 4,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "262358818aa542bb09309d1353dfc54698574c1ab1ebf99141223531a03a41bb",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "fddb97f55bba7f1539541d902492525805189966b5815ee6fac3903a4cd8e7b8",
+            "exitCode": 0
+          },
+          {
+            "file": "Mid.php",
+            "sha256": "4016cc163783a833a86f243352688a81b72733388a7837015e8bcda89e900c08",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "fc2b7e975803105a5f5976464aac2d11bfca30683f3c2738de516e446bfbcc32"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 5,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "d2f42df6c1132e3ee5f88164eaeeeda9938311c9ec153ebae22a6eb7e2bd40bd",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "0165e0b80c8eb409e0a41e4fe82e43881d0895ffd7129b7d646e276214c2ed5f",
+            "exitCode": 0
+          },
+          {
+            "file": "Mid.php",
+            "sha256": "9185137c118b76f8d005b13ae044b7c8911985f561f2c319d81274f36ba53c2d",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "cc7210a2c11b2bd99714df074e737f01956efeffcb4aa919b9cdee29dfa0c0cb"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 6,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "3cc6f4a2502c80142f870a4e27e84a3773304f5f06710a453e0910dea1a77777",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "83842e983a5bc8cd7cdad329a5a980514d0600e9b62e74c28ef302fb7bdc4331",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "de013f322c97f8678169c44fcbbee229d99924575fc41ec0415b2d8270b04285"
+      },
+      {
+        "target": "7.2",
+        "phpVersion": "7.2.34",
+        "phpSha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "case": 7,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "40be0f33a4e65f05a0b38c5a32940f6d3ead5bcb96d85c68662ad23028cd0548",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "3cfc4200cad129ddfc2b873d2f7cd11ad5bfb62f411de0caaa9fabd5cfd3dbaf",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "5101b13331d59f190a585a52e8ebd8eb858f3d0d728907febbbe64e8d05f46aa"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 0,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "190e4fa794c6aa8425f2e96a5bcbcd7528237dcbe2c1f3f69c92bffc45e484fb",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "5c7ae7a8867fe48112634e70009101925b8b68628e5eea62d0995c7cac3b69cb",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "95abf3dc99a2dfe801ef658752e769570b141fb9eafd0b0ae8756557f00f0cb3"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 1,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "31755bd7921550089a21dfaa1e5aac218e7fa0a673db5029cd107ecf28e38ba2",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "c0ad220c6bd20912583bacad962971917d8d5533be96a7da750aaf823dd5698d",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "ff24bc5468eed9e07cbd8392d0391d7e7cb1b6a029fcc59df08597f3075c79c5"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 2,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "37f8a98d57a22d058dfcb37381e8b030d165755bc162411030ab792cd98ffb27",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "f65ed080aedc525a8ba711bc99457362605d4c4ddc717861c12ceb1434a6762a",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "8f8d830ff6d082d826a54123bf06ba305c4afdb66b4223c2865b5fdf06230da8"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 3,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "c44c250f731e015641c5567aa9addc75e7a19afb00b03cafe5d2d7e2cb10b20a",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "931c9efa798430b53f97538a6a5087dc30c5b024b158cfcb613ef01d7dbde58f",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "4ea206524fbdcc2f2b2b3cca6dddc0810d80c2ff679826ef2907b1e1c561ce05"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 4,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "262358818aa542bb09309d1353dfc54698574c1ab1ebf99141223531a03a41bb",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "fddb97f55bba7f1539541d902492525805189966b5815ee6fac3903a4cd8e7b8",
+            "exitCode": 0
+          },
+          {
+            "file": "Mid.php",
+            "sha256": "4016cc163783a833a86f243352688a81b72733388a7837015e8bcda89e900c08",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "e588d19c637209ec0141b87cae80e9a4f2aec4373a4ac4c18fe56eb029753f4d"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 5,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "d2f42df6c1132e3ee5f88164eaeeeda9938311c9ec153ebae22a6eb7e2bd40bd",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "0165e0b80c8eb409e0a41e4fe82e43881d0895ffd7129b7d646e276214c2ed5f",
+            "exitCode": 0
+          },
+          {
+            "file": "Mid.php",
+            "sha256": "9185137c118b76f8d005b13ae044b7c8911985f561f2c319d81274f36ba53c2d",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "b18b555d7782901c3743c64f45c30c726902cf5a4340d3b6c5b0f7779ed66207"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 6,
+        "key": "Enter",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "3cc6f4a2502c80142f870a4e27e84a3773304f5f06710a453e0910dea1a77777",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "83842e983a5bc8cd7cdad329a5a980514d0600e9b62e74c28ef302fb7bdc4331",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "3997c4d808de02aeb7dfaf96a1774f90d7d344bf17cb0359f5ae04c87d75a7ff"
+      },
+      {
+        "target": "8.5",
+        "phpVersion": "8.5.9",
+        "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "case": 7,
+        "key": "Tab",
+        "lint": [
+          {
+            "file": "Caller.php",
+            "sha256": "40be0f33a4e65f05a0b38c5a32940f6d3ead5bcb96d85c68662ad23028cd0548",
+            "exitCode": 0
+          },
+          {
+            "file": "Init.php",
+            "sha256": "3cfc4200cad129ddfc2b873d2f7cd11ad5bfb62f411de0caaa9fabd5cfd3dbaf",
+            "exitCode": 0
+          }
+        ],
+        "runtimeExitCode": 0,
+        "runtimeOutput": "construction-ok",
+        "bootstrapSha256": "59588746db5335c2f34546dbc6a882be9482416591cacf9e5cf832ac86a9b3ab"
+      }
+    ],
+    "cases": 16,
+    "lintedFiles": 36,
+    "passed": true,
+    "limit": "Native PHP checks syntax and actual construction; it does not enforce PHPDoc generic T."
+  },
+  "revisionMutationControl": {
+    "proof": {
+      "sourceSha256": "347973d8b7097aa7e81769726f4244c8de0423acb50c602f254b37cc152961f6",
+      "guardOccurrences": 1,
+      "mutation": "remove constructor revision equality",
+      "bundleSha256": "5091c46e9c854696db3a63e827931032bfd3ee37c213c494482db122e8791cf7"
+    },
+    "summary": {
+      "files": 1,
+      "total": 16,
+      "passed": 0,
+      "failed": 2,
+      "pending": 14,
+      "success": false
+    },
+    "currentSourceMatches": true,
+    "removedPredicates": 1,
+    "currentRaceCasesPassed": 2
+  },
+  "static": {
+    "extensionTypeScript": true,
+    "scopedESLint": true,
+    "diffCheck": true
+  },
+  "retainedFailures": [
+    {
+      "artifact": "/tmp/sophp-d103-baseline.json",
+      "summary": {
+        "files": 1,
+        "total": 6,
+        "passed": 0,
+        "failed": 6,
+        "pending": 0,
+        "success": false
+      },
+      "failedCases": [
+        {
+          "name": "proves canonical cross-file construction at PHP 7.2 (onDemand)",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:85:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "proves canonical cross-file construction at PHP 7.2 (experimental)",
+          "messages": [
+            "AssertionError: <?php namespace Consumer; class C {use \\Origin\\Init; public static function make(){return new static(§);}}{\"activeSignature\":0,\"activeParameter\":0,\"signatures\":[{\"label\":\"C(int $value): Consumer\\\\C\",\"parameters\":[{\"label\":\"int $value\"}]}]}: expected true to be false // Object.is equality\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:54:113)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:110:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "proves canonical cross-file construction at PHP 8.1 (onDemand)",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:85:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "proves canonical cross-file construction at PHP 8.1 (experimental)",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(other:42§);: expected [ 'php.argument.unknown-named' ] to deeply equal [ …(2) ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:89:30\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "proves canonical cross-file construction at PHP 8.5 (onDemand)",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:85:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "proves canonical cross-file construction at PHP 8.5 (experimental)",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(other:42§);: expected [ 'php.argument.unknown-named' ] to deeply equal [ …(2) ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:89:30\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    },
+    {
+      "artifact": "/tmp/sophp-d103-lsp-focused.json",
+      "summary": {
+        "files": 1,
+        "total": 6,
+        "passed": 4,
+        "failed": 2,
+        "pending": 0,
+        "success": false
+      },
+      "failedCases": [
+        {
+          "name": "proves canonical cross-file construction at PHP 7.2 (onDemand)",
+          "messages": [
+            "AssertionError: <?php new \\ArrayObject('wrong'); §: expected [] to deeply equal [ 'php.argument.type-mismatch' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:116:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "proves canonical cross-file construction at PHP 7.2 (experimental)",
+          "messages": [
+            "AssertionError: <?php new \\ArrayObject('wrong'); §: expected [] to deeply equal [ 'php.argument.type-mismatch' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:64:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:116:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    },
+    {
+      "artifact": "/tmp/sophp-d103-lsp-canonical.json",
+      "summary": {
+        "files": 1,
+        "total": 14,
+        "passed": 12,
+        "failed": 2,
+        "pending": 0,
+        "success": false
+      },
+      "failedCases": [
+        {
+          "name": "requires canonical Composer evidence: 'valid-classmap' at PHP '7.2'",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:188:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:206:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "requires canonical Composer evidence: 'valid-classmap' at PHP '8.5'",
+          "messages": [
+            "AssertionError: <?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C(§);: expected [] to deeply equal [ 'php.argument.missing-required' ]\n    at query (/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:188:27)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:206:5\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    },
+    {
+      "artifact": "/tmp/sophp-d103-mutant.json",
+      "summary": {
+        "files": 1,
+        "total": 16,
+        "passed": 0,
+        "failed": 2,
+        "pending": 14,
+        "success": false
+      },
+      "failedCases": [
+        {
+          "name": "withdraws an interrupted constructor diagnostic after a Trait contract changes at PHP 7.2",
+          "messages": [
+            "AssertionError: expected '[test-constructor-proof] revision=6 c…' to contain 'proven=0'\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:274:36\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        },
+        {
+          "name": "withdraws an interrupted constructor diagnostic after a Trait contract changes at PHP 8.5",
+          "messages": [
+            "AssertionError: expected '[test-constructor-proof] revision=9 c…' to contain 'proven=0'\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:274:36\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Only concrete constructor targets with a unique complete hierarchy and canonical Composer evidence are added; dynamic and ambiguous inputs remain unknown.",
+    "On-demand incompatible external arguments retain existing scalar and uniquely proven native scalar return restrictions; arbitrary object/collection/flow arguments are not claimed.",
+    "D102 Dependency.php is noncanonical without a literal generated classmap; its on-demand withdrawal expectation remains valid.",
+    "Qualified Trait precedence grammar gap is still open.",
+    "PHP 7.2 ArrayObject input has no native floor here; the existing unknown result is retained.",
+    "D101 full 924-case qualification belongs to b95c5b75; this source has directed LSP qualification only.",
+    "Ordinary PHP 7.2 edit P95 remains last measured 155.06 ms above 150 ms; not remeasured.",
+    "Visible times are isolated Linux explicit suggestions with dependencies preloaded, not natural typing or real WSL acceptance.",
+    "Native PHP validates actual construction and syntax, not PHPDoc generic enforcement."
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "goal": "active"
+}

@@ -7687,6 +7687,57 @@ export class SemanticWorkspace {
     } finally { temporaryTree?.delete(); }
   }
 
+  /** Exact constructor source and all declared hierarchy inputs for an argument diagnostic.
+   * The server still has to prove external inputs against Composer's canonical paths. */
+  constructorCallSource(uri: string, start: number, end: number, callable: string):
+    { target: TypeInfo; signature: SignatureInfo; dependencies: TypeInfo[] } | undefined {
+    const file = this.files.get(uri); if (!file) return undefined;
+    const calls = file.calls.filter(call => call.kind === 'constructor'
+      && (call.nameStart === start && call.nameEnd === end || call.arguments.some(argument => {
+        if (argument.nameStart === start && argument.nameEnd === end) return true;
+        const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':',argument.nameEnd);
+        const valueStart = separator >= 0 && separator < argument.end ? separator+1 : argument.start;
+        return valueStart === start && argument.end === end;
+      })));
+
+    for (const call of calls) {
+      if (this.constructorTargetMayVary(file,call)) continue;
+      const signature = this.signatureForParsedCall(file,call);
+      if (!signature || signature.synthetic || signature.fqcn.toLowerCase() !== callable.toLowerCase()) continue;
+      const scope = this.containingCallable(file,call.start)?.containerFqcn;
+      const name = file.source.slice(call.nameStart,call.nameEnd);
+      const targetName = this.resolveSourceType(file,name,this.namespaceAt(file,call.nameStart),scope);
+      if (!targetName) continue;
+      const dependencies = new Map<string,TypeInfo>(), active = new Set<string>();
+      const visit = (fqcn: string): boolean => {
+        const key = fqcn.toLowerCase(); if (active.has(key)) return false;
+        if (dependencies.has(key)) return true;
+        if (dependencies.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
+        const shortName = fqcn.slice(fqcn.lastIndexOf('\\')+1);
+        const declarations = this.typeDeclarationsNamed(shortName).filter(type => type.fqcn.toLowerCase() === key);
+        if (declarations.length !== 1) return false;
+        const type = declarations[0]!, owner = this.fileAndDeclaration(type.fqcn);
+        if (!owner || owner.declaration.anonymous || owner.file.syntaxErrors.some(error =>
+          error.start < owner.declaration.declarationEnd && owner.declaration.declarationStart < error.end)) return false;
+        dependencies.set(key,type); active.add(key);
+        const namespace = type.fqcn.split('\\').slice(0,-1).join('\\');
+        for (const parent of [...owner.declaration.extendsNames,...owner.declaration.implementsNames,...owner.declaration.traitNames]) {
+          const resolved = this.resolveSourceType(owner.file,parent,namespace,type.fqcn,owner.declaration.start);
+          if (!resolved || !visit(resolved)) return false;
+        }
+        active.delete(key); return true;
+      };
+      if (!visit(targetName)) continue;
+      const target = dependencies.get(targetName.toLowerCase())!;
+      const owner = this.fileAndDeclaration(targetName)!;
+      if (target.kind !== 'class' || owner.declaration.abstractClass
+        || ![...dependencies.values()].some(type => type.uri === signature.uri
+          && type.fqcn.toLowerCase() === (signature.declarationFqcn ?? signature.fqcn).split('::')[0]!.toLowerCase())) continue;
+      return {target,signature,dependencies:[...dependencies.values()]};
+    }
+    return undefined;
+  }
+
   stableLocalExactObjectReceiver(uri: string, argumentStart: number, ownerFqcn: string): boolean {
     const file = this.files.get(uri); if (!file) return false;
     const call = file.calls.find((candidate) => candidate.kind === 'method' && candidate.standalone

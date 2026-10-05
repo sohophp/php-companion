@@ -2013,19 +2013,18 @@ async function provenOnDemandExternalMethodCalls<T extends { callable: string; s
   root: string, document: TextDocument, candidates: T[], additionalProof: (item: T,
     uniqueAutoloadMethod: (callable: string, uri: string) => boolean) => boolean = () => true): Promise<T[]> {
   if (!candidates.length) return [];
+  const candidateRevision = workspace.revision();
+  const paused = testMode && testPauseNextQueries.has('constructorDiagnostics')
+    && candidates.some(item => workspace.constructorCallSource(document.uri,item.start,item.end,item.callable));
+  if (paused) await pauseTestQuery('constructorDiagnostics');
   const project = await composerProjectForRoot(root);
   if (!project?.inputEvidence?.complete) return [];
   const generated = await loadGeneratedClassmap(project);
   if (generated.kind === 'invalid') return [];
   const mappings = allPsr4Mappings(project);
-  const uniqueAutoloadMethod = (callable: string, uri: string): boolean => {
-    const separator = callable.lastIndexOf('::'); if (separator < 0) return false;
-    const owner = callable.slice(0, separator);
-    const shortName = owner.slice(owner.lastIndexOf('\\') + 1);
-    const declarations = workspace.typeDeclarationsNamed(shortName)
-      .filter((candidate) => candidate.fqcn.toLowerCase() === owner.toLowerCase());
-    if (declarations.length !== 1 || declarations[0]!.kind !== 'class' || declarations[0]!.uri !== uri) return false;
-    const declarationPath = pathForUri(uri);
+  const canonicalAutoloadType = (type: TypeInfo): boolean => {
+    if (type.uri.startsWith('php-companion-builtin:')) return true;
+    const owner = type.fqcn, declarationPath = pathForUri(type.uri);
     const mappedPath = generated.kind === 'complete' ? generated.classes.get(owner.toLowerCase()) : undefined;
     if (mappedPath) return Boolean(declarationPath && resolve(mappedPath) === resolve(declarationPath));
     if (declarationPath && [...project.classmap, ...project.files,
@@ -2034,7 +2033,20 @@ async function provenOnDemandExternalMethodCalls<T extends { callable: string; s
     const expectedPaths = new Set(resolvePsr4Class(owner, mappings).map((path) => resolve(path)));
     return Boolean(declarationPath && expectedPaths.size === 1 && expectedPaths.has(resolve(declarationPath)));
   };
-  return candidates.filter((item) => {
+  const uniqueAutoloadMethod = (callable: string, uri: string): boolean => {
+    const separator = callable.lastIndexOf('::'); if (separator < 0) return false;
+    const owner = callable.slice(0,separator), shortName = owner.slice(owner.lastIndexOf('\\')+1);
+    const declarations = workspace.typeDeclarationsNamed(shortName).filter(type => type.fqcn.toLowerCase() === owner.toLowerCase());
+    return declarations.length === 1 && declarations[0]!.kind === 'class' && declarations[0]!.uri === uri
+      && !uri.startsWith('php-companion-builtin:') && canonicalAutoloadType(declarations[0]!);
+  };
+  const proven = candidates.filter((item) => {
+    const construction = workspace.constructorCallSource(document.uri,item.start,item.end,item.callable);
+    if (construction) return workspace.revision() === candidateRevision
+      && construction.signature.uri !== document.uri
+      && !construction.signature.uri.startsWith('php-companion-builtin:')
+      && construction.dependencies.every(type => type.uri === document.uri || canonicalAutoloadType(type))
+      && additionalProof(item,uniqueAutoloadMethod);
     const separator = item.callable.lastIndexOf('::');
     const owner = item.callable.slice(0, separator);
     const callOpen = /^\s*\(/.exec(document.getText().slice(item.end));
@@ -2047,6 +2059,8 @@ async function provenOnDemandExternalMethodCalls<T extends { callable: string; s
       && (workspace.isFinalClass(owner) || signature.final === true
         || workspace.stableLocalExactObjectReceiver(document.uri, item.start, owner));
   });
+  if (paused) connection.console.info(`[test-constructor-proof] revision=${candidateRevision} current=${workspace.revision()} proven=${proven.length}`);
+  return proven;
 }
 
 async function provenOnDemandExternalArguments(workspace: SemanticWorkspace, root: string,
@@ -4155,7 +4169,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
     for (const method of initialization.testPauseNextQueries) {
-      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource'].includes(method)) testPauseNextQueries.add(method);
+      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource', 'constructorDiagnostics'].includes(method)) testPauseNextQueries.add(method);
     }
   }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
@@ -4227,7 +4241,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
