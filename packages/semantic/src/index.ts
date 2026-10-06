@@ -17139,9 +17139,10 @@ export class SemanticWorkspace {
   private conditionalSubjectBranch(source: PhpType, target: PhpType, matches: boolean,
     relation: TypeRelationContext): PhpType | undefined {
     if (source.kind === 'union') {
-      const possible = source.types.filter((item) => {
+      const possible = source.types.flatMap((item) => {
         const result = this.conditionalCompatibility(item, target, relation);
-        return matches ? result !== 'no' : result !== 'yes';
+        if (matches ? result === 'no' : result === 'yes') return [];
+        return [this.conditionalSubjectBranch(item, target, matches, relation) ?? item];
       });
       return possible.length ? union(...possible) : undefined;
     }
@@ -17755,13 +17756,20 @@ export class SemanticWorkspace {
     const assigned = new Set<number>(); const assignedNames = new Set<string>(); const mappedArguments = new Map<number, CallableArgument[]>();
     let positionalIndex = 0; let namedStarted = false;
     const relation = this.typeRelationContext();
+    const unprovenScalarArguments = new Map<CallableArgument, PhpType>();
     const acceptsArgument = (argument: CallableArgument, parameterIndex: number): boolean => {
       const expected = this.phpDocDiagnosticType(file, callable.parameters[parameterIndex]!.type, scope.containerFqcn ?? scope.id);
       if (!expected) return false;
       if (expected.kind === 'primitive' && expected.name === 'mixed') return true;
       const actual = argument.type ?? this.provenArgumentType(file, argument.start, argument.end); if (!actual) return false;
-      if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return true;
-      return compatibility(actual, expected, relation) === 'yes';
+      const compatible = compatibility(actual, expected, relation);
+      if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) {
+        // Keep the existing documented weak-input allowance, but PHPDoc does
+        // not prove conversion inside the unknown callback's native boundary.
+        if (compatible !== 'yes') unprovenScalarArguments.set(argument, expected);
+        return true;
+      }
+      return compatible === 'yes';
     };
     const mapArgument = (parameterIndex: number, argument: CallableArgument): void => {
       mappedArguments.set(parameterIndex, [...(mappedArguments.get(parameterIndex) ?? []), argument]);
@@ -17807,10 +17815,15 @@ export class SemanticWorkspace {
     return this.evaluatePhpDocType(file, callableReturnType, scope.containerFqcn ?? scope.id, relation, (name) => {
       const argument = callableArgument(name); if (!argument) return undefined;
       const text = file.source.slice(argument.start, argument.end).trim().toLowerCase();
-      return text === 'true' ? literal(true) : text === 'false' ? literal(false)
+      const actual = text === 'true' ? literal(true) : text === 'false' ? literal(false)
         : argument.type ?? this.provenArgumentType(file, argument.start, argument.end);
+      const documented = unprovenScalarArguments.get(argument);
+      return actual && documented ? union(actual, documented) : actual;
     }, (name) => {
       const argument = callableArgument(name); if (!argument) return undefined;
+      // Different parameters can have different native boundaries even when
+      // supplied from the same variable. Do not correlate unproved conversions.
+      if (unprovenScalarArguments.has(argument)) return undefined;
       const text = file.source.slice(argument.start, argument.end).trim();
       return /^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(text) ? `argument:${text}` : undefined;
     });

@@ -72,6 +72,9 @@ try {
     nativeCloneMember: { declaration: 'class Box {public Row $row;}', call: "$box=new Box();$box->row=new Row();$value=clone($box->row,['mode'=>42.]);" },
     documentedMethodFloat: { declaration: 'class IntResult{function intOnly(){}}/** @method IntResult pick(int $value)\n * @method Row pick(float $value) */class Maker{function __call($name,$arguments){return is_float($arguments[0])?new Row():new IntResult();}}', call: '$maker=new Maker();$value=$maker->pick(42.);' },
     documentedStaticFloat: { declaration: 'class IntResult{function intOnly(){}}/** @method static IntResult pick(int $value)\n * @method static Row pick(float $value) */class Maker{static function __callStatic($name,$arguments){return is_float($arguments[0])?new Row():new IntResult();}}', call: '$value=Maker::pick(42.);' },
+    documentedCallableConditional: { declaration: 'class OtherResult extends Row{function onlyOther(){}}',
+      call: '$value=$callback(1);',
+      consumerDeclaration: '/** @param callable(bool $flag): ($flag is true ? Row : OtherResult) $callback */\nfunction run(callable $callback): void' },
     variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
     variadicNamed: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill(first:$first,result:$value);' },
     variadicGeneric: { declaration: '/** @template T of object\n * @param class-string<T> $class\n * @param-out T $values */function fill(string $class,&...$values){}', call: 'fill(Row::class,$first,$value);' },
@@ -91,7 +94,7 @@ try {
   const coldFixtureFiles = {
     'src/OutputQuery/Row.php': "<?php namespace App\\OutputQuery; class Row {" + (cloneFamily ? 'public int $mode;' : '') + "public function name(): string {return 'row';}}",
     'src/output-query-functions.php': '<?php namespace App\\OutputQuery; ' + selected.declaration,
-    'OutputParameterConsumer.php': '<?php\n' + (cloneFamily ? 'declare(strict_types=1);\n' : '') + 'namespace App\\OutputQuery;\nfunction run(): void {\n    ' + selected.call + '\n    $value->;\n}\n',
+    'OutputParameterConsumer.php': '<?php\n' + (cloneFamily ? 'declare(strict_types=1);\n' : '') + 'namespace App\\OutputQuery;\n' + (selected.consumerDeclaration ?? 'function run(): void') + ' {\n    ' + selected.call + '\n    $value->;\n}\n',
   };
   const coldFixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';
   assert.equal(runner.split(coldFixtureCopy).length, 2, 'One fixture copy must precede editor launch');

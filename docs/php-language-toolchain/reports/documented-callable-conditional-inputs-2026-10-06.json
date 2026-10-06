@@ -1,0 +1,303 @@
+{
+  "milestone": "D153",
+  "capturedAtUtc": "2026-10-06T13:52:06.161059+00:00",
+  "baseHead": "ccae0b573a77d0a9f913a797efa99725af5d9178",
+  "committedAtEvidenceCapture": false,
+  "engineVersion": "semantic-v78-php-<version>",
+  "bundleSha256": "5fd5eeac52232956ac0cdf009ede646c10c2df597a636104eea8fa49a8a772b7",
+  "sourceSha256": "879c68b1de712f1907a807a21ce6e0d2f91dd658f72ee20109dcbdc60788fe8c",
+  "scope": "Documented callable conditional return ambiguity and repeated subject refinement; source-loading cold failure remains open.",
+  "originalBaselineRows": 40,
+  "nativeRuntimeVersions": {
+    "7.2": "7.2.34",
+    "7.4": "7.4.33",
+    "8.1": "8.1.34",
+    "8.2": "8.2.32",
+    "8.4": "8.4.23",
+    "8.5": "8.5.9"
+  },
+  "nativeObservations": 240,
+  "semanticBefore": {
+    "numTotalTests": 414,
+    "numPassedTests": 234,
+    "numFailedTests": 180,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "semanticAfter": {
+    "numTotalTests": 414,
+    "numPassedTests": 414,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "semanticWithParameterAlias": {
+    "numTotalTests": 432,
+    "numPassedTests": 432,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "firstFullSemantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 22620,
+      "numPassedTests": 22620,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 143,
+    "inputs": 3215,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 4125478,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d153-qualified-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T13:40:33.603296+00:00",
+      "exitCode": 0,
+      "durationSeconds": 73.35818199499045,
+      "finishedAtUtc": "2026-10-06T13:41:46.959870+00:00"
+    },
+    "bundleSha256": "5fd5eeac52232956ac0cdf009ede646c10c2df597a636104eea8fa49a8a772b7",
+    "sourceSha256": "879c68b1de712f1907a807a21ce6e0d2f91dd658f72ee20109dcbdc60788fe8c",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "finalFullSemantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 22638,
+      "numPassedTests": 22638,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 143,
+    "inputs": 3215,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 4135131,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d153-final-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T13:49:17.296637+00:00",
+      "exitCode": 0,
+      "durationSeconds": 72.8441495859879,
+      "finishedAtUtc": "2026-10-06T13:50:30.139322+00:00"
+    },
+    "bundleSha256": "5fd5eeac52232956ac0cdf009ede646c10c2df597a636104eea8fa49a8a772b7",
+    "sourceSha256": "879c68b1de712f1907a807a21ce6e0d2f91dd658f72ee20109dcbdc60788fe8c",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "relatedProtocol": {
+    "numTotalTests": 15,
+    "numPassedTests": 15,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "analysisProtocol": {
+    "numTotalTests": 48,
+    "numPassedTests": 48,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "distinctRelatedProtocolCases": 63,
+  "relatedProtocolFiles": 5,
+  "protocolCoverage": "Four new PHP 7.2/8.5 x onDemand/progressive scenarios: first request, unsaved bool/int/strict changes, completion, hover, signature, inherited definition, restart, disk unchanged. Classes in the open consumer, not external cold dependencies.",
+  "linuxVisibleHost": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 529,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 186,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedCallableConditional",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 546,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 223,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedCallableConditional",
+      "rendererExceptions": 0
+    }
+  ],
+  "externalColdFailure": {
+    "qualified": false,
+    "firstCompletion": [],
+    "expected": [
+      "rowOnly"
+    ],
+    "artifact": "sophp-d153-callable-conditional-hot.log",
+    "probe": "d153-callable-conditional-hot.mjs",
+    "source": "Cold PSR-4 classes named in documented callback returns were not loaded.",
+    "hotBudgetMeasured": false
+  },
+  "preparationErrors": [
+    {
+      "scope": "Initial standalone TypeScript command",
+      "cause": "Omitted existing noUncheckedIndexedAccess option; unchanged source produced two errors.",
+      "resolvedWithProjectOptions": true
+    },
+    {
+      "scope": "Initial related LSP command",
+      "cause": "analysis-stdio.test.ts filename did not exist; four real files produced 15 cases. Correct analysis.test.ts ran separately with 48 cases.",
+      "caseCountsAdjusted": true
+    }
+  ],
+  "evidence": {
+    "directory": ".vscode-test/d153-evidence",
+    "files": 62,
+    "manifestSha256": "e5abb8434168f8c717a494847e052e7acff239da263ce7140424c722b0eee750"
+  },
+  "entireCurrentLspQualified": false,
+  "realWslQualified": false,
+  "wholeRoadmapQualified": false,
+  "openScope": [
+    "Cold external documented callback return dependencies",
+    "D152 ordinary complete C1 type popup stability",
+    "Full current v78 LSP combination",
+    "Ordinary PHP 7.2 editing P95 155.06 > 150 ms",
+    "50k cached RSS 1659.99 > 1536 MiB",
+    "Bare variable candidate descriptions",
+    "Remaining dynamic and complex boundaries",
+    "Actual PHP CLI 7.3/8.0/8.3 and other platforms",
+    "Real WSL long session and complete C1-C4/R4"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "vsixPackaged": false,
+    "pushed": false,
+    "goalStatus": "active"
+  },
+  "strictTestTypecheck": {
+    "command": [
+      "pnpm",
+      "exec",
+      "tsc",
+      "--noEmit",
+      "--target",
+      "ES2022",
+      "--module",
+      "NodeNext",
+      "--moduleResolution",
+      "NodeNext",
+      "--strict",
+      "--noUncheckedIndexedAccess",
+      "--skipLibCheck",
+      "packages/semantic/test/phpdoc-callable-conditional-inputs.test.ts",
+      "packages/language-server/test/phpdoc-callable-conditional-inputs-stdio.test.ts"
+    ],
+    "startedAtUtc": "2026-10-06T13:51:27.837620+00:00",
+    "exitCode": 0
+  },
+  "scopedLintPassed": true
+}
