@@ -1,0 +1,953 @@
+{
+  "milestone": "D135",
+  "status": "formal source acceptance in stated scopes",
+  "baseCommit": "07c25c752dbbaddbfa62ef8fcb4d7b6e1d993bea",
+  "createdAtUtc": "2026-10-06T01:52:44.941854+00:00",
+  "cacheEngine": "v71",
+  "formalBundleSha256": "2a3ff3766f3ae9d0ca998b7ec27f5ed5cec0770215001393cc401b74e5158a84",
+  "formalInputs": {
+    "packages/semantic/src/index.ts": "11ce170b08bc4849bd2ef89fb9daa6af602c4e07dea59d669ddc11ca17426b06",
+    "packages/semantic/dist/index.js": "35976ffd2f17a0d7dc3072c59d9a3eb451a5b34597f2d55eb8943299e305b272",
+    "packages/semantic/test/phpdoc-native-conditional.test.ts": "2291e99dc051bcb512b02467b9048505e485f38f47c458476277e3dd0118c645",
+    "packages/language-server/src/cacheVersion.ts": "a732e0a5cc29bbe6f7d3e54699c83f31a190d90f5fde247bdc63131f88fe1e7d",
+    "packages/language-server/dist/cacheVersion.js": "8caac6d8ef5c7901781967391f2afb5c43c55c98f864091bb468314fc493e74d",
+    "packages/language-server/dist/server.js": "850ce45e4078112d0ed028182258adf0bcbdee1f636845a56ceaae93682e3fae",
+    "packages/language-server/test/phpdoc-native-conditional-stdio.test.ts": "e496dae26027f2ef7ef39ff86c6f3c1c419c3296bcbcdb981cd002dc5e6d309a",
+    "packages/language-server/test/trait-final-cache-stdio.test.ts": "a65d607de8f2a91825793a9c72480575a6779844269387337c52c2670f60b798",
+    "dist/language-server.js": "2a3ff3766f3ae9d0ca998b7ec27f5ed5cec0770215001393cc401b74e5158a84",
+    "dist/extension.js": "ee119dfcc817ab8c63b3a352664ea4aad9ecc400a4b98ff6f831490070415185",
+    "scripts/check-output-parameter-acceptance.mjs": "09aa1acc0f2682f1cfc9c6d6f21e6cacfdca80a3a021259ff0411cfd014f0115",
+    "test/extension/suite/outputParameterAcceptance.ts": "de88de0d8c7725d908670044a63bc9f7c26665096484a71d26a58493202e1a04"
+  },
+  "formalRecordedInputChanges": [],
+  "formalArtifacts": [
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-formal-full-semantic.json",
+      "sha256": "fdd648c13b456b6e7bf49112a9bc844e3b5dbcb8b06676564e7314ab4406f079",
+      "result": {
+        "numTotalTests": 3636,
+        "numPassedTests": 3636,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "success": true
+      },
+      "durationSeconds": 63.59613037109375
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-formal-targeted-lsp.json",
+      "sha256": "28ffbccef95f499fba64cf14066a2fd959bba5a27dea67387c7e161fdc7df5c6",
+      "result": {
+        "numTotalTests": 57,
+        "numPassedTests": 57,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "success": true
+      },
+      "durationSeconds": 153.41981372070313
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-formal-output-query-supplement.json",
+      "sha256": "ff390f76555a677fcb17f511b2ba3d21da4e9f9d5510ccbf63b38547faebb075",
+      "result": {
+        "numTotalTests": 14,
+        "numPassedTests": 12,
+        "numFailedTests": 2,
+        "numPendingTests": 0,
+        "success": false
+      },
+      "durationSeconds": 35.613431640625
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-formal-output-completion-recovery.json",
+      "sha256": "ee45a253b25b0dc9a894bc037e598a020ed22eddd34525f6bd24aad1aa8d9558",
+      "result": {
+        "numTotalTests": 14,
+        "numPassedTests": 2,
+        "numFailedTests": 0,
+        "numPendingTests": 12,
+        "success": true
+      },
+      "durationSeconds": 5.798696044921875
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-ui-weak-onDemand-php72.json",
+      "sha256": "d3df5c5ad77c29bb403ba9494f8cdc52f4aaf063d341d51c541ebb9d2d5907f3",
+      "proof": {
+        "platform": "linux",
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 508,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 230,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "fixtureFamily": "conditionalWeak",
+        "rendererExceptions": 0
+      }
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-ui-weak-progressive-php85.json",
+      "sha256": "d067cd304eea7704fc51d7566e15a0a6365a67a1f78f23dfdd513c8a504cdb5f",
+      "proof": {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 473,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 215,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "fixtureFamily": "conditionalWeak",
+        "rendererExceptions": 0
+      }
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-formal-build.log",
+      "sha256": "3f3c75e459e08267ab20bea0b7078a6ca59d0913c5ca943192a72a1144f47175"
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-formal-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d135-evidence/sophp-d135-root-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d135-evidence/output-completion-progressive.json",
+      "sha256": "040ef28a8811896965c533fc8f566afb13b5915e3814c8803149e1b6e4670c5d"
+    },
+    {
+      "path": ".vscode-test/d135-evidence/output-completion-onDemand.json",
+      "sha256": "a37a3d5e9ab3b4328b0095a6759b083babc93681d0f343252bade7ebc7cf60ad"
+    }
+  ],
+  "distinctPassedProtocolCases": 71,
+  "protocolRoundScopes": {
+    "initial": {
+      "passed": 57,
+      "misspelledFilter": "test/phpdoc-output-parameter-stdio.test.ts",
+      "actualFiles": [
+        "phpdoc-native-conditional-stdio.test.ts",
+        "trait-final-cache-stdio.test.ts"
+      ]
+    },
+    "supplement": {
+      "total": 14,
+      "passed": 12,
+      "failed": 2,
+      "failure": "missing timing directory ENOENT before budget assertion"
+    },
+    "recovery": {
+      "passed": 2,
+      "filtered": 12,
+      "sourceUnchanged": true
+    }
+  },
+  "timings": {
+    "output-completion-progressive": {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "firstQueryMs": 137.86544400000002,
+      "warmSamples": 20,
+      "p95Ms": 13.592658999999912,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    "output-completion-onDemand": {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "firstQueryMs": 105.89095199999974,
+      "warmSamples": 20,
+      "p95Ms": 7.520903999999973,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    }
+  },
+  "prototypeHistory": {
+    "milestone": "D135",
+    "status": "private prototype verified, formal integration pending",
+    "createdAtUtc": "2026-10-06T01:42:03.547693+00:00",
+    "base": {
+      "base": "07c25c752dbbaddbfa62ef8fcb4d7b6e1d993bea",
+      "semanticSha256": "d7c826f2e37add66dcce5605fce32b4961b6d8606b9f6fd526ce1e4bd9e5bf63",
+      "scope": "native input validity and conditional output in ignored copy; D134 product stays fixed"
+    },
+    "formalBundleSha256": "b02c7df097b54340f5f2e26985617a4c0d8696aa008d0c1a0f814dcab4d01929",
+    "artifacts": [
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-native-before.json",
+        "sha256": "1b3c26530e044071543d09f93fb8fac35837ba4c119f2695650eef6981ef8ad9",
+        "result": {
+          "numTotalTests": 26,
+          "numPassedTests": 12,
+          "numFailedTests": 14,
+          "numPendingTests": 0,
+          "success": false
+        },
+        "durationSeconds": 1.854622314453125
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-native-after.json",
+        "sha256": "e27f7eae7707de100bfd4cbfe4e51dde014617f2a47ef56cb6d2be624b114a90",
+        "result": {
+          "numTotalTests": 26,
+          "numPassedTests": 26,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        },
+        "durationSeconds": 2.295775146484375
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-native-expanded.json",
+        "sha256": "32aaa294ca31c0405ebd41eb124c647f620f700308cc2d27c3b9c1f6a51d1b74",
+        "result": {
+          "numTotalTests": 38,
+          "numPassedTests": 38,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        },
+        "durationSeconds": 2.134808837890625
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-return-output-matrix.json",
+        "sha256": "efc01790501e940c8e1682009b1c9527283ceba5a0c824a6ca2d37adeb43f723",
+        "result": {
+          "numTotalTests": 76,
+          "numPassedTests": 70,
+          "numFailedTests": 6,
+          "numPendingTests": 0,
+          "success": false
+        },
+        "durationSeconds": 2.449470458984375
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-native-compatible.json",
+        "sha256": "588866a4e4cef80548e415d0feefd97e03cf994755d50dd41e847625ed7f5007",
+        "result": {
+          "numTotalTests": 76,
+          "numPassedTests": 76,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        },
+        "durationSeconds": 2.390031494140625
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-formal-expanded-before.json",
+        "sha256": "00485e15740931a04a2464d64a6735f24c7af9d9664562c94f4f9ac2b5b9c313",
+        "result": {
+          "numTotalTests": 0,
+          "numPassedTests": 0,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": false
+        },
+        "durationSeconds": 0.0
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-formal-expanded-corrected.json",
+        "sha256": "1be04c4f71b8bb804b298b22125d3d42f32ae86f3333e6f979fcd45914859461",
+        "result": {
+          "numTotalTests": 76,
+          "numPassedTests": 44,
+          "numFailedTests": 32,
+          "numPendingTests": 0,
+          "success": false
+        },
+        "durationSeconds": 2.5757724609375
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-private-compatible-full-semantic.json",
+        "sha256": "013a6503ee5f9a35d5bd68b96c90abe2a15cb3401fea4e74fc12f3fe054f721b",
+        "result": {
+          "numTotalTests": 3552,
+          "numPassedTests": 3552,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        },
+        "durationSeconds": 78.38271899414063
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-private-native-protocol.json",
+        "sha256": "18d4879a85af0cc431dfc74f849ce4b514636110f79758db81d61118ecbb8716",
+        "result": {
+          "numTotalTests": 56,
+          "numPassedTests": 56,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        },
+        "durationSeconds": 117.61744604492188
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-phpstan-before.json",
+        "sha256": "c1519bcb8872b5a37416e6eae341b572891417c151334f06945b12eec06dfc6f"
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-phpstan-before.stderr",
+        "sha256": "5b25e9eb70353da01e6a05eeed012698cfe57d33e85e6b924f764d1967fce486"
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-private-eslint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-compatible-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-native-nonscalar-target-before.json",
+        "sha256": "4179939361446191984da2b9783aac8d41414457a949367cb204b10fdf6f1bc7",
+        "result": {
+          "numTotalTests": 84,
+          "numPassedTests": 80,
+          "numFailedTests": 4,
+          "numPendingTests": 0,
+          "success": false
+        }
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-native-target-guard-after.json",
+        "sha256": "3f81a7939c78172a0d74a9d577ac7b3f2d74a07ff643d7780cd40ee83dea2232",
+        "result": {
+          "numTotalTests": 84,
+          "numPassedTests": 84,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        }
+      },
+      {
+        "path": ".vscode-test/d135-evidence/sophp-d135-private-native-edit-protocol.json",
+        "sha256": "f562e60f85705528fe373adf23db0ab259ab3faa66fd65210a9b4b5e623999e2",
+        "result": {
+          "numTotalTests": 56,
+          "numPassedTests": 56,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true
+        }
+      }
+    ],
+    "runtime": {
+      "php": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "cases": [
+        {
+          "label": "strict scalar mismatch",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "2cb2789f0f539ef5984fa1683f4227c4a884bf7978785812fe8aed59490e2d4b",
+          "callerSha256": "0a56f5aa8334f5e7414e6517da75b71b942a8400bc1952952d7dbe9514a53cf3"
+        },
+        {
+          "label": "weak scalar conservative",
+          "exitCode": 0,
+          "stdout": "{\"error\":null,\"outputType\":\"Case1\\\\Row\"}",
+          "stderr": "",
+          "declarationSha256": "80e58b3d77a7190eb07801200eb5353142d31882783ab72660cdd3cc23e63870",
+          "callerSha256": "83d4967af217914e53b86b6581080003f30c89fff2e758918aa1a3e16e02f9af"
+        },
+        {
+          "label": "object to bool",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case2\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "5bd65251279d194cc113c25e95902401b76e62cf50159e73f061352a7433504b",
+          "callerSha256": "f37f9aff735c8cd43bacc133fa3dca39d55aeeb53c0ac2e1c7fe2522f3dc6204"
+        },
+        {
+          "label": "strict object to bool",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case3\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "c4dde796642569b58d492e2b72f0b4d650c8b41b64e11ac5f0e4855abaa639fa",
+          "callerSha256": "38b21c53852fd98bc8f6193c72887cbe835db3318341bcf2ff89cd5f980dadb9"
+        },
+        {
+          "label": "array to bool",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case4\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "2bad29e11b76132cf2a8f9da8c18ad71bdb8830bee6a786fbb69f5b82f9302d0",
+          "callerSha256": "622bb5501c7129f18645e87274e17d994577319b5bc8f5a9b7087b0bf59d5f6d"
+        },
+        {
+          "label": "null to nonnullable",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case5\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "7643fa33a4c1d89f590a96e563b6ef0383cf7956a6fefd2bd30f88c2da9b751b",
+          "callerSha256": "4447fe2d270ac4368ce354a4611b252edc5b81702bdd945c6f9a9813c5f3d577"
+        },
+        {
+          "label": "nullable null",
+          "exitCode": 0,
+          "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+          "stderr": "",
+          "declarationSha256": "e0c07d7f0350d2476b68b270d99d042943f6080cfa25c9da9e7e91bf847489d4",
+          "callerSha256": "b4f08922859da28f4abcab6c5913c82963d2ce0a3426825e64f2dc06d0a2a511"
+        },
+        {
+          "label": "bool true",
+          "exitCode": 0,
+          "stdout": "{\"error\":null,\"outputType\":\"Case7\\\\Row\"}",
+          "stderr": "",
+          "declarationSha256": "9fbfb12afbc96bb95c16c48cdf26794c82d3d08aa374c1c8acf9f8acf397eb09",
+          "callerSha256": "d3cacfcb002e9d479255aed1ca1684d5f896c7c5cc1df569a8ba9c2eb35d282d"
+        },
+        {
+          "label": "bool false",
+          "exitCode": 0,
+          "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+          "stderr": "",
+          "declarationSha256": "c34db36669a21498b683f7728a65bf3ee6490087285f51b901f1e9c7f1a394d5",
+          "callerSha256": "f0a49d25f6e89780e8a32ba6defa8224010e1976e25abe32555f00216b51894c"
+        },
+        {
+          "label": "strict literal string",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case9\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "aaa3268061aaf885d842a027551508eaea15b8d47d348b6039163424acff8095",
+          "callerSha256": "f007c393239e88a2583ef45d03a922fb45a76751ce933c40f632c9050ce42faa"
+        },
+        {
+          "label": "weak literal string",
+          "exitCode": 0,
+          "stdout": "{\"error\":null,\"outputType\":\"Case10\\\\Row\"}",
+          "stderr": "",
+          "declarationSha256": "fddcb49e5e52276b885059077dca5b14230ebac94ddd23baf545b7baedfed4e5",
+          "callerSha256": "17794d6661c262894fb4b2857333f9f2b43940d533aa807ade5eff47cc7ccaa1"
+        },
+        {
+          "label": "known native union mismatch",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case11\\\\Marker\"}",
+          "stderr": "",
+          "declarationSha256": "8a13700eb88add215efd109a13c32aa026cc7699b5f50389a6f108d9946ded2c",
+          "callerSha256": "abbe83c77ee973a87821203e8d1ab80b6152880ca5adc74d3e35b42d9edbb6a9"
+        }
+      ]
+    },
+    "runtimeProjection": [
+      {
+        "phpVersion": "7.2",
+        "case": "class literal weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"Case0\\\\Row\"}",
+        "stderr": "",
+        "callerSha256": "061f013fb8742ff5684735c78f2432f56ee0c45c5614bb6874a80c9583742b03"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "class literal strict",
+        "exitCode": 0,
+        "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+        "stderr": "",
+        "callerSha256": "0ad388944bdc7bb2c09376308ff3e4fff25add5e99244f519fe000917dc94563"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "range zero weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+        "stderr": "",
+        "callerSha256": "9f31317925c60056f89d17f0bc0ab47dd48378e34f5c7b1736a973712f8bdf3d"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "range positive weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"Case0\\\\Row\"}",
+        "stderr": "",
+        "callerSha256": "8bf1e6c4447686bb300c71b8ad1d6206934cbc01705538badfce05cc08d5ccfd"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "range positive strict",
+        "exitCode": 0,
+        "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+        "stderr": "",
+        "callerSha256": "de3376157fa55f5eb03a36ad0724132f348c0599523a4b3634a7e31d0e53208e"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "union int zero weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+        "stderr": "",
+        "callerSha256": "9f31317925c60056f89d17f0bc0ab47dd48378e34f5c7b1736a973712f8bdf3d"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "union string empty weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+        "stderr": "",
+        "callerSha256": "753403f3ee7ba8982a4f36c8cc6c3f91a95f0304d41be518fca9625166d333ba"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "union string nonempty weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"Case0\\\\Row\"}",
+        "stderr": "",
+        "callerSha256": "23bb7110ba0d719b02f044e03ca800d446e8a5e7bb25b747f50ec0dbba52bec1"
+      },
+      {
+        "phpVersion": "7.2",
+        "case": "union string strict",
+        "exitCode": 0,
+        "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+        "stderr": "",
+        "callerSha256": "ce810b10947be88baefd8c0abd380c6cd2e9e9c92ca2ddc2194090c635e6e510"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "class literal weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"Case0\\\\Row\"}",
+        "stderr": "",
+        "callerSha256": "061f013fb8742ff5684735c78f2432f56ee0c45c5614bb6874a80c9583742b03"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "class literal strict",
+        "exitCode": 0,
+        "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+        "stderr": "",
+        "callerSha256": "0ad388944bdc7bb2c09376308ff3e4fff25add5e99244f519fe000917dc94563"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "range zero weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+        "stderr": "",
+        "callerSha256": "9f31317925c60056f89d17f0bc0ab47dd48378e34f5c7b1736a973712f8bdf3d"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "range positive weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"Case0\\\\Row\"}",
+        "stderr": "",
+        "callerSha256": "8bf1e6c4447686bb300c71b8ad1d6206934cbc01705538badfce05cc08d5ccfd"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "range positive strict",
+        "exitCode": 0,
+        "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+        "stderr": "",
+        "callerSha256": "de3376157fa55f5eb03a36ad0724132f348c0599523a4b3634a7e31d0e53208e"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "union int zero weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+        "stderr": "",
+        "callerSha256": "9f31317925c60056f89d17f0bc0ab47dd48378e34f5c7b1736a973712f8bdf3d"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "union string empty weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"integer\"}",
+        "stderr": "",
+        "callerSha256": "753403f3ee7ba8982a4f36c8cc6c3f91a95f0304d41be518fca9625166d333ba"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "union string nonempty weak",
+        "exitCode": 0,
+        "stdout": "{\"error\":null,\"outputType\":\"Case0\\\\Row\"}",
+        "stderr": "",
+        "callerSha256": "23bb7110ba0d719b02f044e03ca800d446e8a5e7bb25b747f50ec0dbba52bec1"
+      },
+      {
+        "phpVersion": "8.5",
+        "case": "union string strict",
+        "exitCode": 0,
+        "stdout": "{\"error\":\"TypeError\",\"outputType\":\"Case0\\\\Marker\"}",
+        "stderr": "",
+        "callerSha256": "ce810b10947be88baefd8c0abd380c6cd2e9e9c92ca2ddc2194090c635e6e510"
+      }
+    ],
+    "protocolScope": {
+      "tests": 56,
+      "modes": [
+        "onDemand",
+        "progressive"
+      ],
+      "phpTargets": [
+        "7.2",
+        "8.5"
+      ],
+      "flavors": [
+        "output",
+        "return"
+      ],
+      "firstQuery": "member completion",
+      "followingQuery": "Hover",
+      "externalFunction": "autoload.files",
+      "classAlreadyActive": true,
+      "persistentEngineBuildIdentity": false
+    },
+    "formalIntegration": false,
+    "profileUpdated": false,
+    "goalStatus": "active",
+    "fullRoadmapComplete": false,
+    "followupGuard": {
+      "scope": "new scalar shapes only project through native bool; nonnumeric class strings cannot justify int or float input",
+      "expandedMatrix": 84,
+      "privateBefore": {
+        "passed": 80,
+        "failed": 4
+      },
+      "privateAfter": {
+        "passed": 84,
+        "failed": 0
+      },
+      "runtimeTargetRejections": [
+        {
+          "phpVersion": "7.2",
+          "target": "int",
+          "source": "class Row {} function make(int $mode, &$value) {$value=123;} $v=\"unchanged\"; try {make(Row::class,$v); echo json_encode([\"error\"=>null,\"value\"=>$v]);} catch (TypeError $e) {echo json_encode([\"error\"=>\"TypeError\",\"value\"=>$v]);}",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"value\":\"unchanged\"}",
+          "stderr": ""
+        },
+        {
+          "phpVersion": "7.2",
+          "target": "float",
+          "source": "class Row {} function make(float $mode, &$value) {$value=123;} $v=\"unchanged\"; try {make(Row::class,$v); echo json_encode([\"error\"=>null,\"value\"=>$v]);} catch (TypeError $e) {echo json_encode([\"error\"=>\"TypeError\",\"value\"=>$v]);}",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"value\":\"unchanged\"}",
+          "stderr": ""
+        },
+        {
+          "phpVersion": "8.5",
+          "target": "int",
+          "source": "class Row {} function make(int $mode, &$value) {$value=123;} $v=\"unchanged\"; try {make(Row::class,$v); echo json_encode([\"error\"=>null,\"value\"=>$v]);} catch (TypeError $e) {echo json_encode([\"error\"=>\"TypeError\",\"value\"=>$v]);}",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"value\":\"unchanged\"}",
+          "stderr": ""
+        },
+        {
+          "phpVersion": "8.5",
+          "target": "float",
+          "source": "class Row {} function make(float $mode, &$value) {$value=123;} $v=\"unchanged\"; try {make(Row::class,$v); echo json_encode([\"error\"=>null,\"value\"=>$v]);} catch (TypeError $e) {echo json_encode([\"error\"=>\"TypeError\",\"value\"=>$v]);}",
+          "exitCode": 0,
+          "stdout": "{\"error\":\"TypeError\",\"value\":\"unchanged\"}",
+          "stderr": ""
+        }
+      ],
+      "editProtocol": {
+        "passed": 56,
+        "failed": 0,
+        "statesPerCase": 3,
+        "callerDiskUnchanged": true
+      },
+      "formalIntegrationStartedAtUtc": "2026-10-06T01:47:44.224738+00:00"
+    },
+    "privateInputHashesAtOriginalReport": {
+      ".vscode-test/d135-output-native/Projection1.php": "0ad388944bdc7bb2c09376308ff3e4fff25add5e99244f519fe000917dc94563",
+      ".vscode-test/d135-output-native/Caller3.php": "38b21c53852fd98bc8f6193c72887cbe835db3318341bcf2ff89cd5f980dadb9",
+      ".vscode-test/d135-output-native/server.cjs": "0f909c1fd7a6164918cb9590582228c73069ff0fe07a34ed413212e156edd741",
+      ".vscode-test/d135-output-native/Definition6.php": "e0c07d7f0350d2476b68b270d99d042943f6080cfa25c9da9e7e91bf847489d4",
+      ".vscode-test/d135-output-native/Projection7.php": "23bb7110ba0d719b02f044e03ca800d446e8a5e7bb25b747f50ec0dbba52bec1",
+      ".vscode-test/d135-output-native/input.json": "425339c014d841e5a36d38c118df72ea85c5b3ec8e55812c538afd8a0a852e37",
+      ".vscode-test/d135-output-native/Projection8.php": "ce810b10947be88baefd8c0abd380c6cd2e9e9c92ca2ddc2194090c635e6e510",
+      ".vscode-test/d135-output-native/Projection6.php": "753403f3ee7ba8982a4f36c8cc6c3f91a95f0304d41be518fca9625166d333ba",
+      ".vscode-test/d135-output-native/Caller8.php": "f0a49d25f6e89780e8a32ba6defa8224010e1976e25abe32555f00216b51894c",
+      ".vscode-test/d135-output-native/Definition10.php": "fddcb49e5e52276b885059077dca5b14230ebac94ddd23baf545b7baedfed4e5",
+      ".vscode-test/d135-output-native/protocol.test.ts": "c9e8f8f7d0407df09c41a2bfe0a2c01ac53c49f1ea506fe3881be84f3ebb8dcc",
+      ".vscode-test/d135-output-native/Definition7.php": "9fbfb12afbc96bb95c16c48cdf26794c82d3d08aa374c1c8acf9f8acf397eb09",
+      ".vscode-test/d135-output-native/phpstan.neon": "e51eb029352b42df2f87d72296e9f11699c2e4ed98b7ad71df470dca1fc8f0f5",
+      ".vscode-test/d135-output-native/Definition2.php": "5bd65251279d194cc113c25e95902401b76e62cf50159e73f061352a7433504b",
+      ".vscode-test/d135-output-native/index.mjs": "5b2963ff70dec571462f14a031ce290cce7bee3b8a418599b19d0009451e5d76",
+      ".vscode-test/d135-output-native/Projection2.php": "9f31317925c60056f89d17f0bc0ab47dd48378e34f5c7b1736a973712f8bdf3d",
+      ".vscode-test/d135-output-native/Caller10.php": "17794d6661c262894fb4b2857333f9f2b43940d533aa807ade5eff47cc7ccaa1",
+      ".vscode-test/d135-output-native/Projection4.php": "de3376157fa55f5eb03a36ad0724132f348c0599523a4b3634a7e31d0e53208e",
+      ".vscode-test/d135-output-native/Caller4.php": "622bb5501c7129f18645e87274e17d994577319b5bc8f5a9b7087b0bf59d5f6d",
+      ".vscode-test/d135-output-native/Static7.php": "0c376db8624b701baadba82ecf3f0050ab2c2fe61955ef79e72ca181b96d8ca7",
+      ".vscode-test/d135-output-native/Static2.php": "8ea150a3244ebb7d34d677853ccb89fd71e26f9041aaa745609c1bc9871c1df5",
+      ".vscode-test/d135-output-native/runtime.json": "4eb783a4a0297957e5f1b8ae84521fc2a26d0768d4fe2c093de157507b876e0a",
+      ".vscode-test/d135-output-native/Caller2.php": "f37f9aff735c8cd43bacc133fa3dca39d55aeeb53c0ac2e1c7fe2522f3dc6204",
+      ".vscode-test/d135-output-native/Definition4.php": "2bad29e11b76132cf2a8f9da8c18ad71bdb8830bee6a786fbb69f5b82f9302d0",
+      ".vscode-test/d135-output-native/Definition1.php": "80e58b3d77a7190eb07801200eb5353142d31882783ab72660cdd3cc23e63870",
+      ".vscode-test/d135-output-native/Static6.php": "622a2992753d7203457f78a36a8202d13111dfd88560a503df93036169ec963d",
+      ".vscode-test/d135-output-native/native.test.ts": "b2b2e219f8bae3dff1fdfa7fd07ac7502fca5cf0279148e59c3c7426490aa605",
+      ".vscode-test/d135-output-native/vitest.config.mjs": "8bc39b3141a04ca3169e625c5979cba26bfe50a41f8510d7fb64f8f127df0e63",
+      ".vscode-test/d135-output-native/Definition9.php": "aaa3268061aaf885d842a027551508eaea15b8d47d348b6039163424acff8095",
+      ".vscode-test/d135-output-native/Definition8.php": "c34db36669a21498b683f7728a65bf3ee6490087285f51b901f1e9c7f1a394d5",
+      ".vscode-test/d135-output-native/Caller6.php": "b4f08922859da28f4abcab6c5913c82963d2ce0a3426825e64f2dc06d0a2a511",
+      ".vscode-test/d135-output-native/candidateWorker.js": "0e60b5803bd68b6c8302cbe657a162175068c71b4f6c5d18f091d92e3be99a12",
+      ".vscode-test/d135-output-native/Caller7.php": "d3cacfcb002e9d479255aed1ca1684d5f896c7c5cc1df569a8ba9c2eb35d282d",
+      ".vscode-test/d135-output-native/Static0.php": "94be8afb57203d36f21ba98ad62e1ca150622bdebfa2d30fe1776b874bbf9acb",
+      ".vscode-test/d135-output-native/native-formal.test.ts": "3c2da34f8c1a9f5965ef419d9e167a0dbdf3f6ac716942eb1d5e13d616a93cb9",
+      ".vscode-test/d135-output-native/formal-baseline.config.mjs": "ab1ed0937ebb6ced112ddb84a8ac97b1b03d7108dc9a14d08f44b946f3b5e0dd",
+      ".vscode-test/d135-output-native/Static4.php": "aecc705543f91e8d8f0a24a373940e2ee27d3188ec99b0f42afbd31ed98319a7",
+      ".vscode-test/d135-output-native/Static11.php": "c89ba6ac51a0377c8ed96abd9b2060598510577e6dd54178722dbaac8e77eac9",
+      ".vscode-test/d135-output-native/Static5.php": "62749884d092dd7b8ef22330f2e9c733a012d1fc9f068960614cf98d0f46aa79",
+      ".vscode-test/d135-output-native/full-semantic.config.mjs": "130a25d776826a2ceb3ff3f8ae1a29dc7eb17df709d915f20fac12dd1708268c",
+      ".vscode-test/d135-output-native/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      ".vscode-test/d135-output-native/Static9.php": "9ca7275b50480ab7b83d1c07b8b163773c2369ea600d9f500693b72e5b9c6158",
+      ".vscode-test/d135-output-native/Definition3.php": "c4dde796642569b58d492e2b72f0b4d650c8b41b64e11ac5f0e4855abaa639fa",
+      ".vscode-test/d135-output-native/Static3.php": "68d05db6ddbb31a97b9917e4063a080944d2c3493ce3cee972fd31f7f0a50363",
+      ".vscode-test/d135-output-native/Caller9.php": "f007c393239e88a2583ef45d03a922fb45a76751ce933c40f632c9050ce42faa",
+      ".vscode-test/d135-output-native/Projection0.php": "061f013fb8742ff5684735c78f2432f56ee0c45c5614bb6874a80c9583742b03",
+      ".vscode-test/d135-output-native/tsconfig.json": "2c1a4301f650d883d8982f8391e4bfb62e064f5a192dccbdfd552c0ad2146147",
+      ".vscode-test/d135-output-native/Static1.php": "d3484b57e2c676471ba599441911d016a4f79e0b08363621c91daeef83e183ce",
+      ".vscode-test/d135-output-native/Caller11.php": "abbe83c77ee973a87821203e8d1ab80b6152880ca5adc74d3e35b42d9edbb6a9",
+      ".vscode-test/d135-output-native/Caller0.php": "0a56f5aa8334f5e7414e6517da75b71b942a8400bc1952952d7dbe9514a53cf3",
+      ".vscode-test/d135-output-native/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      ".vscode-test/d135-output-native/Projection3.php": "8bf1e6c4447686bb300c71b8ad1d6206934cbc01705538badfce05cc08d5ccfd",
+      ".vscode-test/d135-output-native/Static8.php": "af88ded56cf8753a5a69949ce56c536329d5ccc4966676f0889381f118024e9c",
+      ".vscode-test/d135-output-native/Projection5.php": "9f31317925c60056f89d17f0bc0ab47dd48378e34f5c7b1736a973712f8bdf3d",
+      ".vscode-test/d135-output-native/protocol.config.mjs": "8b1e44fefab806c2d86ceb87172a4b24895c0acac4d7ef90536c072feac7acca",
+      ".vscode-test/d135-output-native/Definition11.php": "8a13700eb88add215efd109a13c32aa026cc7699b5f50389a6f108d9946ded2c",
+      ".vscode-test/d135-output-native/native.patch": "5c57882b73aec1e1ad85c91c9606449f3702a1e3fcb7a5712d269c193bd6720d",
+      ".vscode-test/d135-output-native/Caller5.php": "4447fe2d270ac4368ce354a4611b252edc5b81702bdd945c6f9a9813c5f3d577",
+      ".vscode-test/d135-output-native/runtime-projection.json": "2d8a7d63f21bff46348150c37e582f9a303d08fb9d71dbe4d6c9f8a9171c09ce",
+      ".vscode-test/d135-output-native/Caller1.php": "83d4967af217914e53b86b6581080003f30c89fff2e758918aa1a3e16e02f9af",
+      ".vscode-test/d135-output-native/Definition0.php": "2cb2789f0f539ef5984fa1683f4227c4a884bf7978785812fe8aed59490e2d4b",
+      ".vscode-test/d135-output-native/Static10.php": "da3f68b0ce1ef29fab10f874937a994bbfcc0d68e514cdb93194c2873888debd",
+      ".vscode-test/d135-output-native/Definition5.php": "7643fa33a4c1d89f590a96e563b6ef0383cf7956a6fefd2bd30f88c2da9b751b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/nette.configurator/Container_55e4fbf702.php": "36087593aadb5eee7631df93a127b78f6168326d5c4af4c3e048dde43b5a13b3",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/nette.configurator/Container_55e4fbf702.php.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/nette.configurator/Container_55e4fbf702.php.meta": "cc8ce3eabf9d3d0b13644a6a06d328a19c0b2afea4e5c5e9bbb9108562395100",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/nette.configurator/container.journal": "5547f9dff083d6a874f7778ed80da3692fc62612498ad03c23443e6802b19460",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-92ce63658d134abb8b77a2119c388eec364fe64b.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-51723e1c3bb31dcaf4d1e8c0997a12c5bf63b63e.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-7f909551e59c9cbea7d13103280bdc525ceb9a85.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-8fb2ac353ffa52f9b4aa8fdfc946d98467ad029c.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-2902e0087c12692ee372ba23af2247fd88398484.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-56f44108de5358147ed10880260934df4aaba55d.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-7009422f5744f76df0a2ea91da521f2ef8d8ddc8.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-9d3908494cab8ff338ee0a4d5c0bc390cf0271c6.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-7a25a94533fdd0179bed6fd5f50a94607f603007.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-0a7cf22ea7a690853e58269b33e473bf0dab3244.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-8080d53ed3ea172ee399534c7977e390e389cc25.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-49db859469cfac47794c40e5ef784bff751c4beb.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-42675b44ecc3e84058af67c2427d13786a2a7cd0.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-78882ec3117b47f24fe866c1fe36ae5147d664f5.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-6876bfb64e2f39f2fa718ec518040a9a44e374f2.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-3ca0793e826d1a2aacfec992d251340b122c28ae.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-a993d5ea8e36db2f398b07dd7cb379b58329dbdc.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-cf24e2b3f1c9f8b4cce0a18324bcc359f356329a.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-dad1deb5cc190b4297c6cc74420b67153727361a.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-cc15c0d4041244b3ac40eca0920eaa96c8271ac3.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-eb94a0ecc53cc1a339a8b1fe2ba453e8873958e5.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-7b7294c67e936ad085154f44be605e0a69e40d48.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-294a2e7003feda8f03ba17d6db45b26186c1b204.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-613548aa941b64e1c4ebbb16735000fddb1fcb96.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-3cfa1b00ba6bd68cc50e2c5df8239c4d7d00ff31.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-0699281f0a0e67b8d43ed19062306add5acfbe50.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-917b41ba2745c2ddc0db3ebf2ad28fdc407ba0d2.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-93d8118e06863088d4a5151f570973a51c1e4242.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-fd80a74df1752facdf6b13ae2bb5e60b81c05dcc.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-cf98a127c6b521e5ddb01852ecd7375ce70bb078.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-2dd4a33f8975258802c9cad7c50c4dbd50aba7ae.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-f26e196b0a28d8c45d814ae8bd2f0b1abf1ee9fb.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-e30a4e47793b61915f2cca898819da9525425924.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-fdbd60a73a207eb40522e8086a8e99c45b10329c.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-3d122ac27d249288af70af7249700e0493be469a.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-5905bc2d8891ad9ebf546b6be1ed8d6f15e1938f.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-41e52a90efdde02b9ffc222e99703679341d0075.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-d8f31e20578cd1571033acce6fd3d476d3353691.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-7fdf61247cda97e51b4b4dbcbdb5198e99ae63a6.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-0606e4cbb23acfce88f10936a7cd78a7f9fa2710.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/locks/odsl-24f50e35fa44fae54795bcbce4b9c83173bc77a5.lock": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/d1/96/d19677e7189bec216f2f0e9e0439074a3ead12866c35ae16623a940b712d7684.php": "44c04b48ab684ee8fd96d511f959a12e59ef137e99d59e39cb5cc3d841c17353",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/24/f4/24f4e2313f5547dfdbb0066f402fc61dd2e6e3e45753831bc9fd61ba9b8831ed.php": "f365104ea190e904e142fb259342730d4811ea1acb14162c84387f32d524199a",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/94/13/94133d582a64e496dc0d5951a0b1043a5932370e39d48af25aced57bad11811d.php": "dde9009124e41690f46b7a4f94a7d0f4104fcf7bcccd58c3c3de79a2465139ad",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/94/41/944141114b331b759578e3277187b4353c005b509c20b4fca5e97caf04764380.php": "21b864ee81c4f2d7fcf70eed6487e50c7c05cc157d54c49ed60a6aa30f56a76b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/c4/be/c4bef9ff131ea6ad81cfb1b6197f1ed41117edd805cbc9beeee6500e056933ae.php": "d41fb9aabf9942bbace2e9a0b1461c1e5b40b696f5e698f3001da36062fef4ab",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9f/8b/9f8b92d0780d767fcce41b3c9bdaba716c19a10d68f38d21e214abcee72d9e76.php": "eb9e220966049ada7d778341bcf265fd0d031bb9db35f8da2aaf460f7fb9848c",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9f/86/9f86c9479d3002820f9924eb70f568ca42f9969653f3f3c0996b9b3924bc32a1.php": "1839a9d09ab43d87946b30eca774817468fbbeb19ddccdc729d99d32e22ed960",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/dc/9a/dc9a69aa488af664dbc5ed88a55ba61391a2f071541d1a880f748d3f03f8eaf6.php": "1ae4fa77a3d816df4421b225e745ce3859a5561b8f2b0f57f242e5edbb66f247",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/c6/11/c611fe09c851291cdfd17d9908df0a4092984b8d98ba35e9c8e8ba4989d791ec.php": "8fc02b5a989383da1092ffd9b92aa0ae9b3448003b216d197d074b5492d4de19",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/b4/c8/b4c8b9c70331f5cfa7c7023bcb077bafb943e5a1fc9db21587989cc212d23135.php": "5beac65a5a3561001993738fd0c3c81bc85b8040c4587c5a630e95ea54e921e6",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/26/bd/26bd37276a7f8357c7f6dd7e712e635c37925d472f91c696bb6171a3ec829a80.php": "bfc8169830d59b14bc7c094db1df840e5ffca99a8c8a9fbe14f6b919e648eb4f",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/3a/f8/3af887011350ac36987b64a0c83c5ac07392be3d1dfd757fd358f391f90a29be.php": "5c05778fd716b83844babc90c7671bf2d085c9fb57ce36911c9938d0c038e55c",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/f2/37/f237723b08800284ab1b56ea9f4bb4a423901238491506305e54f342eec0e500.php": "456c9e555d85c15b13a4bd71a3e9216973d526dee757f665cfbbcd767f3f83a8",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/a1/83/a18386da539fa398fd26a3f63f3f14dbbbb88c5b60466321013e947f4d7cdca8.php": "b505b56335ba7287ca88290931c6dd3463721e08bc77f1096ce490bf6a4787b1",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/0d/6b/0d6bf087c783d1543e90d5b5d42f76d114956e87a62068b69bd450d6a13fcd0b.php": "1695d0894985677583babb27f8c9ea7137d85a34cbb9cde1bdaebb5d3276875b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/8f/84/8f84f26815d262dee0ebebcf1aa89e151c67e40b983950d7d38e52bcb77ccbca.php": "982e3ffe62f1ce5a411a0e59b94ddfdeafd960ff777c8bc58515c8eb8f23f6c0",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/d0/d4/d0d4d764c8858e1294d688ae2f9e702a5932f0106cee533b2c10f936d839fa15.php": "6e0bf7b6805d1d6f6c55e4f33648c6d813e6475f3ed4625f5cf236dbcf94e076",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/27/dc/27dc262dc9f3016eb64439de4349f9250c12284e8112874a82e39c108bd8dcef.php": "9df63ccdf8a429498cf0330bb08f32ddbbbb2200555f6640ee5974b008c7d1ee",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/91/1c/911cbf757252445e857192673eaa38d5cd481f5ace163a8074e7ed1a1492140b.php": "8e415bfc7d2420fc173ef3a43301ff2ead58a08fa8c4b9486374c3b31d67188c",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/62/5a/625a5626e8e522745e0970c1bb911b55b002757de06785399cb08a9fa1451ff2.php": "b41d1d992d888d723d40eb2065804d65a449ec5f6b3c1d69af4a5a7c90fc74ea",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/56/78/56781ef9152f2cf8ebe99f08c23b6e65f08e90f27e48bfc5108441517a09f5b9.php": "8cd8d995246bd6002e17c33eebf2c18e50d28fc2f15aa2bae09daa348fdd12aa",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/d8/1a/d81a614e752691605e76e8ee1201768a538b320800ccc3b8b24a668f3613c072.php": "3c198cc6e9be22df0ba1b11014bfee39452222777ca520a12660cb2e4472256b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/c2/71/c27169379a59cdc2c40a0505e6489c2421217fd94ab4ad103ab9502e940faa53.php": "709e79e1a0c7d5900ea997f4fbc54109e95e2b3de91ee1a010e764c783d68541",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/44/53/4453b8cc4345509ca03c96204eb3cf0de2224b32949710cf4e01b912801e86bf.php": "0d16c6c35c9199ed32f3e6940f1dcab8fcaaca58ef5cd0fafb6058a2bf28560a",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/25/b2/25b2986c5eb2aa5a938aff73c2e87c6f918e2a0b4f2b8ef8949dc368c94119dd.php": "dd291d49d9632d6fab3b5bae51a4ca47498ac8def510c40cce034f991ba8229d",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/25/53/25536211cfcf64591422e13caf441080fe997e35a7726711ee34b3b84ecb0934.php": "81242f8b575913bab64bea3af1c022d70604843b7b01228bd3d626829f4ce1bb",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/25/ec/25ecdd978f05fc3bee1b26da6c712388750e1373bbb2e6fb4f3b7bd8bee0e69d.php": "274226f7db0efff0d3891218c748d4556f42b91ddf925e75ac2289451e213600",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/25/20/25202e987baa41196491cefa351fb458cdb65db632626c95decd8f378d18c97b.php": "adce9e5063a58ecaa6edd6d764e34257b48a9aefda3eefc546ad4238145c5815",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e0/03/e003985ac865dd95d912bdaabf48edfe0595200ffa8fc949e989b26fb3c554d7.php": "9478bd56fbf9fd7fe9427e8f1b6ef510fa48170f7c84460eac06386bc676a487",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/b2/b1/b2b1a10e14ae44511d6a752cfd8adc980e75a4e55e2440f7080b53c0312ca83c.php": "397561e4b20c2b7df1a801169c482c3a1be232ec55767ae0a24fa16ebaf6022a",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/4a/2b/4a2b1171075a4710f59df65ca82b4e095b9e0b65cef7dbf2d5221a84a031e41b.php": "0b07f772be3744f424442fe437afeb7eb772486507c5542681f40f127eff1b41",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/73/49/7349843ee5f9cc886107844fcdafa5d1fb3c2f8ebec845bd6c593339dfaabede.php": "6fda7ef141b52002bb5828aa17cbeb796aff86e03b7655463cc2a19ea676944e",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/4e/38/4e3898ad5ef65736e345f7bc62e001cf26f8a96fb3cc138eca827d57fd2de18e.php": "8bf3aec0360cf387446dbf4db8f1cdaeb60d154742684d3ac84a1aca459fd9e4",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/7b/ea/7bea480306d0a9d1f4d052e31894dc29fd3f148862137d6d049a86dc57dd69ca.php": "ee5c8f245409c54b5af478847b9eee6207e5b5f0f05de57422a0597f10773bdb",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/6d/f9/6df99cd28173dd7b96e892d81a250425f16f64be7f6e8a21f2995dcf1fd93ea0.php": "09aea1d67010bd03c3e77f786534295541bf40517ef01f946c38f2289c9151cf",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/39/ff/39ff08960d7deb67a4d5f95c49713c076c58beaed2ac35db33557a0b299e678c.php": "639a63799952be9d0503d2e4c325f60cfdb95828187358bc8809585d140e4aad",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/54/8c/548c432a7595ab3ba3cae306417691e19bc16387c9417b05a6239ba6970a5e07.php": "e55dc9a193c51daabb7501ec273b5dc502dee47bd5ebf4053fc4a608b6d8dbd4",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/a9/14/a914af980a17faeee370bae087eec68ebe7c67dc3ae6b92d508150e0df4cc864.php": "f9c5982b9e126f82bfc0d444ab335b63ae92b4fc251afec116da8e85ac841fdc",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/a9/a7/a9a77abdeb245ecf3523264b25e1b26155aa141fa428056cf29c00732a5226ed.php": "e07b74bec578c623473df862b4ef8fcb61b7a105ea8114858e2ee103f82e95db",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/ab/d9/abd97dd432a7842f217d288ef6a22b940813b412021765a6f1a4dc39f4d07afc.php": "b877530f84a83d060e1f34c4fe51db098c450398a423dae34045a1e8a9e2ce4d",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/13/f4/13f4bf7973359e795c066b845b61ca3966024512818c26907d0c10eabce27dac.php": "f50eb45fcb782877d9e59e09768e896342328153d65844ddc72f68d8a474ff22",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/ce/ec/ceec4ca175d2c3471b45cdc34ce405db245073e35e97ca1e2b1be6eff116bf5c.php": "452657beac000ed115fc18d45e91e1469210b343f36b9ee144d1736b1962a6a5",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/16/65/1665428307778f3d6600be2bcecced940a3f0bfd3c4b5c46ea39c7a480870e70.php": "cf59f7173fe73d00bf28b5f4b5e81d07f73ac19a2da1c49a4816cd7923413078",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/15/58/1558facf388bd32f1eff2c1f180e5a76c7651f8e993e365de1a3dfc293eef89e.php": "111efb90e12559afbf246ac4a01eb8c868057042df7a89dcfa03268effc8b3db",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/68/22/68223b87ddd351d55e238dc806bb933dac737f35262e0c1eb43cce6c88d5ab3c.php": "d5a607263cb01087cc3e9b873eca3e9f05a895c0c850c2db8a26c384368e4ea5",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/88/fe/88fedb920876d6e6ca5390a7f695c25292170f03c63bf19b215a9e5ee0f053af.php": "99b4c6b31eed13fcd7d808884eb0d5959a27defdf8deabd752ca5ffcc50b7937",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/6e/09/6e09d8b623c63605592bcec758abc6827660d24437845ae80b03aecb621732a9.php": "9fdfb038b5d679c42de9e8ade647e1af1e6e33b75175cac9a018695e3fd463e5",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/4b/74/4b742f15377b137baa9e4004082f0a6e91ddf2f6355b31cd1640e568911b1fad.php": "8d80b6d3afe10c598516904813cd768dd74d78694c537550cfb127b5772fc428",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/ca/27/ca2764d026d09e16a992e80362d2779e199b870749953dcf888069c1ee63a3e9.php": "ba019c946f4a0eda67b610a239b01a444a2a55337aca281276e2c9c3ce9c3f20",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9a/7d/9a7d2ed444e69e16cb42e86bb15e971fffed81610b03d72598fec3cf29eceae8.php": "5a93285137376e0f38abf6db414beecdd2b789c41a973dad8591252e8eb20711",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9a/3e/9a3ef62fecbf7621da304c180bd2ecaae553701cb81ed1bfe0fb42ac624e6086.php": "c38bf82e472acdf62aafe941da5ea4e13de5f74bed043c01d74782aab62919d1",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9c/0a/9c0a4c4e3a9a862c5e932756ff12021e56637a4b64f3becac502cc527942eddc.php": "481eb6b4443cc37ea77af56b01eb9f91746758ea69807b8257391b6de6d81015",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9c/e3/9ce373058ed189e75a3dd41f698ffe476778842407eec87bbb3a6ddad0b420c8.php": "5bdac09b9918e18f2875bb04c93035cc18456881aef7b90d07603577f50356e5",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/a6/97/a6979ebb6d5b1aac357ce3da354e62773c67c54659a27aac6e75014a4f9cb3e2.php": "63ca54f0584b78a027525aa4bd2228ac2f0bbb120df6ea754eb01b0e763e5850",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/98/03/9803442e0e2a7771506a6e7ea2cdc59ba139523283266074f5ba3b71df5231cb.php": "f2136a7a45dba6281f1a31edaf26d7f951179afd56c84173a17210529f2c964d",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/98/75/9875d3961bfb646a3ac3a9440987c7c10c23d61a112457a1647674791b5e388c.php": "1719cab812dc6c1a10a0cd5dcea13aa7582a1d36cb5d1a126098df2172b394af",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/5f/4c/5f4c034a235365c2974e6af2d8f8e07ea31f206fb1b96e0fd70b4aaade425fe6.php": "440702d81a336c8a3f3938182acc07723eb8d331b5f47cee7c6115d67ba0da57",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/99/e4/99e4308eca574bf45ac5818b7d46673041dd1b8cce418fc2e22fdb23a590f67a.php": "53a45dd1b7deb78330c3c5568de97bb2be27ebc89409575b26529a21cc307e78",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/01/54/0154f81341e65ed9bfedeb55a9648717dc0c2e5dadca4bfba67bf7f430c2e462.php": "73df50791d3c0e4b44e04c355a98ac453eebed11ca894dfce986d563ec17c1b0",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/d9/d5/d9d565212410741af3ee67ab6873a008f25f530f96d33be6402576b147058cf3.php": "172e17106594d212dc20b2a368eadb8c2ed83719f69ea470d26e84a983bc6fd3",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/66/2d/662dde64e65b4361084817f15a46451a0d5531445d193cc07cc21c931e7a651b.php": "5a0e24b80169e9d61717429e9a5b994132ab98ec704dfeafb29ebe6bf4201b07",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/14/a7/14a78a0e18fd019eb49f74d7796bb4337a1ce7db6c50bee4d92facd535a97c65.php": "6db0d792f657e8747d9add5a4c7ffc1ebdfee49b88bcb506b2a638b7534f6d84",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e7/79/e77956f46f2a3f19eb798996b76cd82e943f7166d0ff5bef5697ae54453b4d89.php": "84f0f41a5a11575e8b51a03ebdc0eff51bf0bc22af1e2de7835312af7318d17e",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/d7/8d/d78d0659dd1bc02cc6866de066808140135dfede76a8c152331eb1b8c12b247b.php": "6053596d2cc12ba83acfb1b482ec48c72125664978ca75c3d5d005471e08e708",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/03/d6/03d600a5a634f46a7411c922953bb65c561ae267094cf74d8e166c0686c7d100.php": "052a89656966fedc7a5277a0502d929bae9b1fb4cc536300afde1fbc3c7ea66b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e1/8a/e18a72e29e31e7a9096e96d88e83850eefe61254e6fb907fa719e82e190854ca.php": "982aeab3d6aa6d0b1e3920596b530134298d3a13f1d2a52172aa483b09029fc4",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e8/e1/e8e1ff09780d8484dcb3bcc736139223c5687d35ee35539bdee654190798aee8.php": "1520884550e6691c7ebb0ce2f8ee0a6d304c8fea12692c034cc8c6f164289d2e",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9e/f5/9ef5a309ab164d1b631e78b30a5e2d53634e8e1a1d55d30c5474cbb0f69f2ff7.php": "147c7595f6054b34ccd68ff3cf89a51580374202916c51d04d2732956abe62b0",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/9d/8f/9d8f4adbf863ed37d06aaa84cd32cc8c73ab25fab330b2bf94538168907f41b7.php": "a6e05ea39c3e78e7dd3ff63d8bcbc73989c0a3649758fc9064bcdd89a2e876e0",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/33/b6/33b6675f5a1559a79c321b7147c6d89ca6fdfb2a458af0595ff92b56e7306547.php": "9d12f270695046c41b68f63bfa64481b33df762ead6e37f64122217dd12e2d45",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/05/91/059171c09cdbb67ef919eac4266f4cdeef4bf743d90363f8da5e934de266b1a0.php": "60113c088e563c25bd70c15f436368bd212904b8e810150cafaafe2862cf8022",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/20/da/20daabd6a3a5892b11ec4650333cbad8c0d26ea4d5ac5866bc4d8d43e2663d7c.php": "6f9f5f35a6c01af5192589fb69d0af9e4cb140e8015bdbefb0a5ca74e20932a3",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/20/b3/20b32beb9738f7b25b63e93a21a5365a94df5c7c03711b9b70b9c0ef783adb51.php": "0efa2bc0f64c3540641f2c60fd21c57eeea9a5e8221a3b1aae1454976109da16",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/5d/d7/5dd71ea5dc54680ba411f0691e954f7d5eefb82fa934115c29dccc8cac14554e.php": "b1bdc0922cbd3ee46f2fc69cbf2fb50bc66f17ad174698ec3d8b2385c7d12344",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/fa/ed/faed3e5e9bc73cb885d377baf5b196a12f6e07c109718619a2e621376760dc00.php": "5cf7c9695a7cb02103c97c6f11870f4d2e45a0fded40bca060d75542c0955958",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/09/e7/09e74cb18d358f1ef5615d680bbead600c0bb33959b15abdecd4ca1b97fbbb78.php": "6e87210c3f44a2e5a609df08a40ed7020163f52e90b9856086324ee0b73c6b36",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/b7/bf/b7bf94be910f449cd1a0e625da613d666abae2dcb1342c066c8adc8f45b174e8.php": "7ce9878e94c3571b47e0f5d642f34ab9a0a3429c0f39c631a5c008ccf9ab91b0",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/f6/69/f669f57dcd782eb926d18009cb3c3a78294627e1b1b0c2b01be43b8d1bc967ef.php": "6005803e8043bb9339720baee410eb904f5ec402ccaeb76983df5c0b34a9bfc3",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/2e/31/2e310b62544b802218af53ab75ecdc36ad97cd772ab653dfb411bf677e5cf650.php": "31f2be531154b5fbb3cf4c26cc9e0c9a3ffb2602d8820e2cd259c47605eecc72",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/6c/ab/6cab064003397c86e07e409cf1b80f3bfa0d04c1e47afc23dd9c3010db203dcb.php": "db8f7c8ba7737c68a99ea5337d4f4710158cdd1eb93e0009eceadf9eadd45672",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/6c/df/6cdfbf405e757fcc1556594ffaec013f520410a9c64fe46801a556a4833e30b0.php": "360865500bb4ae17cdc2c53e545ded2a49428756bc40ed012b447543da232705",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/4f/2d/4f2dcb778816967a0c5434d44750be3b1e18c5a3056c0c7ab170788328b8ce78.php": "54e2aaf04c27ced1fca70f83a123ca96007942ebc57608fbd25878deb2e4221b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/ef/46/ef46477a4929e820603588c8c5f9fee14a0abef906a47d8b0e84c862544342f7.php": "9e6cccaf78284a3c8098684967320369e28cd58926b74bc39895e68bd8a5f54a",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/ef/52/ef5257074fa34a0386635fcb7d01f921dd889fd33065f27a694a101d1cdc50ba.php": "71b912a76f9e26e7978092c6bc87fd246d2ce7a827abd0d8423f4549970d1a7d",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/f3/cb/f3cbe19e7d50469b29b421d18ffc6401cd8f28f6ca8a77f7596aee8ceb328104.php": "8715ddc345b8d62b87e5544854336b0720b0b677d27423cf75e789496a8deeca",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/a3/51/a35139c311f146d3a9f5f01e304f81ce8282958003746dbda1139251285bfb0a.php": "013c5913b45f9ad36dc6441fd3a71ea921141bb41a468a4e11a340c1e027c5a3",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/8e/df/8edfbdccc7e15ef408f7d2cddcece64cbfd122b7d3dd2161f5758fb97c04135f.php": "8017ee7af4b34c350e42de29d267462a07095e258fb2cd3a145421ad3d51b791",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/32/4a/324af1c29baf87d7c4260ad238329ac6f90256ec79d0088263132c023c5e9df4.php": "6d7b68621087117b69197a8faf893eb744d94159235a97737b9131177330184a",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/32/9d/329dcc0a6933b78394807e84e3bf7e95527cf0403c36c4befb4f99aecb9fed4c.php": "00314ed50e2f1b0530bb01578e82043224f58d6d163183edd6dd8eb1978b0044",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e2/fe/e2fefc10c6f8cfc82946c517eab53a28600e5c261a27319f0126ca39559f8b94.php": "b347be944ca776cff832f72d65f2e5f970c7070e4238fd69f8a86900ce7c1876",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/f5/68/f5689ea4de0ba341ec35f2477187daec2d6c6e8d69a62580355f776b32238cee.php": "7fb7c6d0bd44ba738dc4127c485c12104d3e9516847758fd975b2c18d75c3632",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/f5/3e/f53efac198b217ee836720a068a6e3f930907d8f20c57058168673ee4493ade0.php": "96ba8290499fd12201a92b8b3d8ef10946f3c9050df6a05481496eadeb3ce7f9",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e5/bb/e5bb81bd289df60a5f146272ec89e0f1e95f2d95dc938ebb62c75fcd0ee929b8.php": "72c11d19557f3e4b194b5b97d099957d71abcdd51cdefb7c7e68f3c859fab049",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/3d/20/3d2091ef36bad30586420e5e36ef88b3063117f6f9e6949c14c0f980e60aeb0a.php": "e6a25a1f417758ba8e406d76351b97e5cf57a316a9aad615d2ff5c3b707c5f13",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/3d/e4/3de4f1b67c69bef1da865eacde920de1e149edebed07cabd72e7c1589b14b441.php": "f86a8e8e9e188b648c553dc34fb674c86bab4f87a3971dcf537526e9d218b09a",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/90/96/90967696fbfd29e24f9885008ea3a513ee9f79cbd7560a41d3cc3c6cfa3ae940.php": "ac25f375047ba3ce16c1b892a1d38bd547793bc022af1e270c60bdc5616f5a7c",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/5c/ad/5cadabe35433acdd7683a6917d5434f65e8ad52fd8ec33034a3210f6cb9da343.php": "91cad4b5214cc1d5decf0956512409fdd66a53638792e1b1ff55e48999a5132d",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/2a/16/2a161729e5e7021853e0432a38af4aebd117be824471c1614cf8f40b5f4260a9.php": "70fc137116ab6b51c94afb681b21680a65bbc005d088610d40dd9a577c4244dc",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/3c/12/3c126f48ad288607cddc10844952ea51081904fed7989bc0776957b401fd0556.php": "68066de5a65e57f8bdf7aa5f3b083c2adee310a1fab2c414a0aa2b46d9a29746",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/e6/aa/e6aabfa799e2cdeb0e4a2f6d4545a2ccb5c58b4d0f0c06d9763b8cfc8fb95dbf.php": "616bf029acb6a53bfe4eddd79b12f058798a28129ce19b6d4bed83a2b0bf8c1c",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/8c/51/8c51944898a2f1da2ee84bcff3332caf1623a0c2a0ba331913d4eb7873a2fb69.php": "57bb14d03332d4e0475b666ae35e7522ca678b1ac838c46e64baa38ef59a6ea0",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/c1/72/c1726f7d89dd456d7fde2ede07d2a90ff11d85de09de8708ee4c2e69847766c0.php": "e253a52424329f28bf24279016d7158dd66c68b836712a66f5b716560e3474c3",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/86/52/865284b219606b9a5e908824af5598bd3303be62813bbebb37276ab91eaddaaf.php": "10292f3e66437596aa4845aff711129af9fe560b453a654f66e7217ec588c1e8",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/49/c0/49c0a6f0141b71bfac11d455ea8bee96ea7daedaef05c014e26305e2a0b7531e.php": "fd73343d5473bbee7d04743969c732ffbcf6a029d339ecbea5457096ab196f4b",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/49/71/4971fe104665e46f4904b3610440a2c955c24289e72bd0b2c8feae98d09e2aaa.php": "abb19398a23525f408fb86aaed5cf8f1efe69d96e069cbf60fc9fb826d940304",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/ba/1d/ba1db1fa9cf74c087fcc8032eef383b48c089b7928238ead857522336a16a7ae.php": "f88587db179d516e14b76556f866a3a7002a30c0b5cdcc1ea05752febe24f408",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/30/9b/309b78af27f95b6382c528608dc66bd6c3213cca5a26647cebfeedaf5ed1dd71.php": "2087692da9d81ce75c4ababb104a8a710d1821622d1e6681dba3c3c051292434",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/1c/84/1c847e942ab23fa694e0a8bef93866a35f44483267746a484381d0b696c7a11c.php": "14f7212ca3c371af4bd5a808cb595e4eef2f976395ca747c880535bd861610ce",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/00/2b/002b5bad94c18d59cc4cedae5bbd0a4db6662289fbce23ea54764dd121f8e118.php": "1f50b2c72c6807b43f327b00bffeb33fbd6f2c2065fa45ab4b46ef6b93d49878",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/2d/8f/2d8fe69eaf71b3c62e1aa8588b3482df4ab39dec3c952f54e8fe287ad13b1628.php": "e4b76c95de1031bd059397c4e68e4491bf31ee2a238a506c5edfb02c685e7791",
+      ".vscode-test/d135-output-native/phpstan-cache/cache/PHPStan/2d/49/2d49d1d868724f62f0503f79c76f04e759cb2ca69ca387ac68ca95dbc9def77b.php": "9ec414da2d0fe855df83a9048f68d547ef0daa6c2b9767b2707e26fe87b4eba8",
+      ".vscode-test/d135-output-native/src/index.ts": "745f136e763dfe11c7ddfccbb01a635916c8d4492f538de8fc247370a202c716",
+      ".vscode-test/d135-output-native/src/completionMatching.ts": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5",
+      ".vscode-test/d135-output-native/src/quotedCompletion.ts": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c",
+      ".vscode-test/d135-output-native/src/completionTrivia.ts": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196",
+      ".vscode-test/d135-output-native/src/completionTypeTail.ts": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec",
+      ".vscode-test/d135-output-native/src/completionIdentifier.ts": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d",
+      ".vscode-test/d135-output-native/src/phpDocNameBinding.ts": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    "guardedSourceSha256": "11ce170b08bc4849bd2ef89fb9daa6af602c4e07dea59d669ddc11ca17426b06",
+    "editedProtocolSha256": "59152d817f2c25959d571de5748c6e3cbfa088ab46e564cc994e46e63068e92f"
+  },
+  "formalIntegration": true,
+  "formalWholeLspQualification": "D134 covers previous D133 only; current D135 not rerun whole LSP",
+  "profileUpdated": false,
+  "goalStatus": "active",
+  "fullRoadmapComplete": false
+}

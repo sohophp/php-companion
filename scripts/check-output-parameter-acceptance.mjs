@@ -58,6 +58,7 @@ try {
     inherited: { declaration: '/** @template T */class Base{/** @param-out T $value */function __construct(&$value){}}/** @extends Base<Row> */class Maker extends Base{}', call: 'new Maker($value);' },
     trait: { declaration: '/** @template T */trait Build{/** @param-out T $value */function __construct(&$value){}}class Maker{/** @use Build<Row> */use Build;}', call: 'new Maker($value);' },
     conditional: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(bool $mode,&$value){}', call: 'fill(true,$value);' },
+    conditionalWeak: { declaration: '/** @param-out ($mode is true ? Row : Row) $value */function fill(bool $mode,&$value){}', call: 'fill(Row::class,$value);' },
     conditionalDefault: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(&$value,bool $mode=true){}', call: 'fill($value);' },
     variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
     variadicNamed: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill(first:$first,result:$value);' },

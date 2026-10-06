@@ -108,7 +108,7 @@ it('keeps final trait aliases across persisted restarts, old cache fallback and 
         const path = join(cacheDirectory, file); const manifest = JSON.parse(await readFile(path, 'utf8'));
         if (manifest.version === semanticIndexCacheVersion('8.5')) {
           expect(Object.keys(manifest.entries)).toHaveLength(3); manifests.push(path);
-          if (run === 1) { manifest.version = 'semantic-v69-php-8.5'; await writeFile(path, JSON.stringify(manifest)); }
+          if (run === 1) { manifest.version = 'semantic-v70-php-8.5'; await writeFile(path, JSON.stringify(manifest)); }
         }
       }
       expect(manifests).toHaveLength(1);

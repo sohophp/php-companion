@@ -15551,8 +15551,7 @@ export class SemanticWorkspace {
           }
         }
         const native = input.nativeType && this.nativeType(declaration.file, nativeParameterType(input, declaration.file.uri), scope);
-        return actual && native && (actual.kind === 'literal' || isDirectScalar(actual)) && acceptsWeakScalarCoercion(native)
-          && compatibility(actual, native, relation) !== 'yes' ? native : actual;
+        return this.conditionalSubjectInputType(file, actual, native || undefined, relation);
       }, name => {
         const value = mapped.find(item => item.parameter.name === name)?.target;
         return value?.type === 'variable_name' ? `argument:${value.text}` : undefined;
@@ -16782,8 +16781,7 @@ export class SemanticWorkspace {
         const parameter = signature.parameters.find((parameter) => parameter.name === name);
         const native = parameter?.nativeType && this.nativeType(declarationFile, nativeParameterType(parameter, declarationFile.uri), signature.typeScopeFqcn);
         // Weak scalar conversion cannot select a literal condition using the source type.
-        return actual && native && (actual.kind === 'literal' || isDirectScalar(actual)) && acceptsWeakScalarCoercion(native)
-          && compatibility(actual, native, relation) !== 'yes' ? native : actual;
+        return this.conditionalSubjectInputType(file, actual, native || undefined, relation);
       }, argumentIdentity);
       if (!result) return undefined;
       if (requiredTemplates.some(template => !alternative?.[template.name]
@@ -16905,6 +16903,25 @@ export class SemanticWorkspace {
     const whenTrue = this.evaluatePhpDocType(file, type.ifTrue, typeScopeFqcn, relation, parameterSubject, parameterIdentity, branchConstraints(true), budget);
     const whenFalse = this.evaluatePhpDocType(file, type.ifFalse, typeScopeFqcn, relation, parameterSubject, parameterIdentity, branchConstraints(false), budget);
     return whenTrue && whenFalse ? union(whenTrue, whenFalse) : undefined;
+  }
+
+  private weakScalarSubject(type: PhpType, depth = 0): boolean {
+    return depth <= 16 && (type.kind === 'literal' || isDirectScalar(type)
+      || type.kind === 'class-string' || type.kind === 'integer-range'
+      || type.kind === 'union' && type.types.every(item => this.weakScalarSubject(item, depth + 1)));
+  }
+
+  private conditionalSubjectInputType(file: SemanticFile, actual: PhpType | undefined, native: PhpType | undefined,
+    relation: TypeRelationContext): PhpType | undefined {
+    if (!actual || !native) return actual;
+    const compatible = compatibility(actual, native, relation);
+    if (compatible === 'yes') return actual;
+    const weakScalar = actual.kind === 'literal' || isDirectScalar(actual)
+      || native.kind === 'primitive' && native.name === 'bool' && this.weakScalarSubject(actual);
+    if (weakScalar && acceptsWeakScalarCoercion(native) && !this.hasStrictTypes(file)) return native;
+    // A known native mismatch cannot justify selecting a PHPDoc branch. Other
+    // unknown native relationships remain subject to the existing evaluator.
+    return compatible === 'no' ? undefined : actual;
   }
 
   private conditionalCompatibility(source: PhpType, target: PhpType, relation: TypeRelationContext): Compatibility {
@@ -17494,7 +17511,8 @@ export class SemanticWorkspace {
         || type.kind === 'union' && type.types.some(acceptsCallable);
       const actual = (acceptsCallable(expected) ? this.resolvedCallbackExpressionType(callerFile, argument.start, argument.end) : undefined)
         ?? argument.type ?? this.provenArgumentType(callerFile, argument.start, argument.end); if (!actual) return false;
-      if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(callerFile)) continue;
+      if ((isDirectScalar(actual) || expected.kind === 'primitive' && expected.name === 'bool' && this.weakScalarSubject(actual))
+        && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(callerFile)) continue;
       if (compatibility(actual, expected, relation) !== 'yes') return false;
     }
     return !signature.parameters.some((parameter, index) => parameter.defaultValue === undefined && !parameter.variadic && !assigned.has(index));
