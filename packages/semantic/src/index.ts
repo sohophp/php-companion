@@ -11958,6 +11958,35 @@ export class SemanticWorkspace {
     return [{ ...member, name: displayVariable, activeParameter: 0, usedNamedArguments: [] }];
   }
 
+  private stableCallableRead(file: SemanticFile, scope: ParsedScope, reference: ParsedVariableReference, before: number): boolean {
+    // Invocation reads a local callable value. A closure with a reference to
+    // that binding can still replace it, even when no assignment is visible here.
+    if (file.scopes.some(candidate => candidate.parentId === scope.id && candidate.start < before
+      && candidate.captures.some(capture => capture.variable === reference.variable && capture.byReference))) return false;
+    const completed = (candidate: ParsedCall): boolean => !candidate.firstClassCallable && candidate.end <= before
+      && candidate.start >= scope.start && candidate.end <= scope.end
+      && this.containingScope(file, candidate.start)?.id === scope.id;
+    // Select the invocation itself before a parent consuming its return value.
+    // `accept($callback())` reads the callback as a callee, not as accept's argument.
+    const call = file.calls.find(candidate => candidate.nameStart === reference.start
+      && candidate.nameEnd === reference.end && completed(candidate))
+      ?? file.calls.find(candidate => candidate.arguments.some(argument => reference.start >= argument.start
+        && reference.end <= argument.end) && completed(candidate));
+    if (!call) return false;
+    // Variable calls intentionally have no named-function kind in parser facts.
+    // Require the whole call to start at its callee to exclude dynamic member calls.
+    if ((call.kind === undefined || call.kind === 'function') && call.start === reference.start
+      && call.nameStart === reference.start && call.nameEnd === reference.end) return true;
+    // An unknown consumer may accept &, so absence of a recorded mutation is
+    // insufficient. Reuse the existing unique-declaration/value-argument proof.
+    return call.arguments.some(argument => {
+      const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':', argument.nameEnd);
+      const start = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
+      return reference.start >= start && reference.end <= argument.end
+        && file.source.slice(start, argument.end).trim() === reference.variable;
+    }) && this.knownCallHasOnlyValueArguments(file, call);
+  }
+
   private phpDocCallableVariable(file: SemanticFile, variable: string, callStart: number): {
     scope: ParsedScope;
     declaration: SourceRange;
@@ -11977,15 +12006,15 @@ export class SemanticWorkspace {
       parameter = scope.parameters.find((candidate) => `$${candidate.name}` === sourceVariable);
       const aliasReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
         && reference.variable === variable && reference.end <= callStart);
-      if (!aliasReferences.length || aliasReferences.some((reference) => reference.start < aliasAssignment!.start
-        || reference.end > aliasAssignment!.end)) return undefined;
+      if (!aliasReferences.length || aliasReferences.some((reference) => (reference.start < aliasAssignment!.start
+        || reference.end > aliasAssignment!.end) && !this.stableCallableRead(file, scope, reference, callStart))) return undefined;
       if (!parameter) {
         const source = this.phpDocLocalCallableVariable(file, sourceVariable, aliasAssignment.start, scope);
         if (!source) return undefined;
         const sourceReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
           && reference.variable === sourceVariable && reference.start >= source.stableAfter && reference.end <= callStart);
         const allowedSourceReference = (reference: ParsedVariableReference): boolean => reference.start >= aliasAssignment!.start
-          && reference.end <= aliasAssignment!.end;
+          && reference.end <= aliasAssignment!.end || this.stableCallableRead(file, scope, reference, callStart);
         const mutationCount = this.priorReferenceMutations(file, scope, sourceVariable, callStart).length
           - this.priorReferenceMutations(file, scope, sourceVariable, source.stableAfter).length;
         if (!sourceReferences.length || sourceReferences.some((reference) => !allowedSourceReference(reference)) || mutationCount > 0) return undefined;
@@ -11996,7 +12025,8 @@ export class SemanticWorkspace {
     const priorReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
       && reference.variable === sourceVariable && reference.end <= callStart);
     const allowedReference = (reference: ParsedVariableReference): boolean => (reference.start >= parameter!.start && reference.end <= parameter!.end)
-      || Boolean(aliasAssignment && reference.start >= aliasAssignment.start && reference.end <= aliasAssignment.end);
+      || Boolean(aliasAssignment && reference.start >= aliasAssignment.start && reference.end <= aliasAssignment.end)
+      || this.stableCallableRead(file, scope, reference, callStart);
     if (!priorReferences.some((reference) => reference.start >= parameter.start && reference.end <= parameter.end)
       || priorReferences.some((reference) => !allowedReference(reference))
       || file.assignments.some((assignment) => assignment.scopeId === scope.id
@@ -12015,7 +12045,7 @@ export class SemanticWorkspace {
     if (standaloneTag?.type && standaloneCallable) {
       const interveningReferences = file.variableReferences.filter((reference) => reference.scopeId === scope.id
         && reference.variable === variable && reference.start >= standaloneTag.end && reference.end <= callStart);
-      if (!interveningReferences.length) {
+      if (interveningReferences.every(reference => this.stableCallableRead(file, scope, reference, callStart))) {
         return { declaration: { start: standaloneTag.type.start, end: standaloneTag.type.end },
           callable: standaloneCallable, stableAfter: standaloneTag.end };
       }
@@ -12034,7 +12064,7 @@ export class SemanticWorkspace {
       && reference.variable === variable && reference.start >= annotatedAssignment.end && reference.end <= callStart);
     const mutationCount = this.priorReferenceMutations(file, scope, variable, callStart).length
       - this.priorReferenceMutations(file, scope, variable, annotatedAssignment.end).length;
-    return !interveningReferences.length && mutationCount === 0
+    return interveningReferences.every(reference => this.stableCallableRead(file, scope, reference, callStart)) && mutationCount === 0
       ? { declaration: { start: tag.type.start, end: tag.type.end }, callable: annotatedCallable, stableAfter: annotatedAssignment.end }
       : undefined;
   }

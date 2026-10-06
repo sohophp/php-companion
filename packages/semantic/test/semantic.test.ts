@@ -11587,6 +11587,8 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
         acceptReady($chooseMismatch(false));
         $crossAlias = $chooseCross($dynamic, $dynamic); $crossAlias->shared();
         $crossIndependent = $chooseCross($dynamic, $otherDynamic); $crossIndependent->shared();
+        unknownConsumer($chooseCross);
+        $crossInvalidated = $chooseCross($dynamic, $otherDynamic); $crossInvalidated->shared();
       }`;
     workspace.update('file:///ConditionalCallableUse.php', source);
     expect(workspace.completeMembers('file:///ConditionalCallableUse.php', source.indexOf('$ready->only') + '$ready->only'.length).map((item) => item.name))
@@ -11597,7 +11599,9 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
       .toEqual(['common']);
     expect(workspace.completeMembers('file:///ConditionalCallableUse.php', source.indexOf('$invalid->missing') + '$invalid->missing'.length)).toEqual([]);
     expect(workspace.definition('file:///ConditionalCallableUse.php', source.indexOf('$crossAlias->shared') + '$crossAlias->shared'.length)).toHaveLength(2);
-    expect(workspace.completeMembers('file:///ConditionalCallableUse.php', source.indexOf('$crossIndependent->shared') + '$crossIndependent->shared'.length)).toEqual([]);
+    expect(workspace.completeMembers('file:///ConditionalCallableUse.php', source.indexOf('$crossIndependent->shared') + '$crossIndependent->shared'.length)
+      .map(item => item.name)).toEqual(['shared']);
+    expect(workspace.completeMembers('file:///ConditionalCallableUse.php', source.indexOf('$crossInvalidated->shared') + '$crossInvalidated->shared'.length)).toEqual([]);
     expect(workspace.incompatibleArguments('file:///ConditionalCallableUse.php').map((item) => [item.actualType, item.expectedType])).toEqual([
       ['ConditionalCallable\\OtherResult', 'bool'],
       ['ConditionalCallable\\OtherResult', 'ConditionalCallable\\ReadyResult'],

@@ -1,3 +1,3 @@
 export function semanticIndexCacheVersion(phpVersion: string): string {
-  return `semantic-v79-php-${phpVersion}`;
+  return `semantic-v80-php-${phpVersion}`;
 }

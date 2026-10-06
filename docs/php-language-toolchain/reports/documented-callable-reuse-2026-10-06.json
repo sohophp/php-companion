@@ -1,0 +1,735 @@
+{
+  "milestone": "D156",
+  "updatedAtUtc": "2026-10-06T15:40:36.500719+00:00",
+  "status": "source increment verified in the stated scopes; whole roadmap remains open",
+  "goalStatus": "active",
+  "currentProduct": {
+    "headBeforeCommit": "05b936f46556981734b3c80dba063532570ee4ab",
+    "bundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+    "engineVersion": "semantic-v80-php-<version>",
+    "sourceSha256": "3e39186cdcb3d55ff39d7c714f6dfd96e13b71f6e0a2af2399520b43753f243c"
+  },
+  "initialObservation": {
+    "rows": 72,
+    "firstCallRetained": true,
+    "repeatedParameterLocalStandaloneAliasLostTypeMembersAndSignature": true
+  },
+  "baseline": {
+    "original96": {
+      "passed": 52,
+      "failed": 44
+    },
+    "correctedReferenceCapture96": {
+      "passed": 56,
+      "failed": 40
+    },
+    "firstCollectorAttempt665": {
+      "passed": 625,
+      "failed": 40,
+      "selectionIssue": "Misnamed documented-callable-conditional-inputs filter did not collect the original phpdoc-callable-conditional-inputs file; actual scope was three files."
+    },
+    "refinedFourFiles": {
+      "passed": 650,
+      "failed": 0
+    },
+    "nestedBaseline104": {
+      "passed": 96,
+      "failed": 8
+    },
+    "nestedFourFiles": {
+      "passed": 658,
+      "failed": 0
+    }
+  },
+  "priorCompleteSemantic": {
+    "result": {
+      "numTotalTests": 22806,
+      "numPassedTests": 22800,
+      "numFailedTests": 6,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": false
+    },
+    "run": {
+      "status": "exited",
+      "phase": "semantic",
+      "parentPid": 11853,
+      "childPid": 11907,
+      "startedAtUtc": "2026-10-06T15:07:23.594927+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d156-current-semantic-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/semantic",
+      "exitCode": 1,
+      "durationSeconds": 83.13635903398972,
+      "finishedAtUtc": "2026-10-06T15:08:46.728870+00:00"
+    },
+    "audit": {
+      "inputs": 3218,
+      "changedInputs": [],
+      "runtimeChanges": [
+        {
+          "version": "8.1",
+          "old": {
+            "path": "/opt/remi/php81/root/usr/bin/php",
+            "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+            "version": "8.1.34"
+          },
+          "current": {
+            "path": "/opt/remi/php81/root/usr/bin/php",
+            "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+            "version": null,
+            "observationError": "Command '['/opt/remi/php81/root/usr/bin/php', '-r', 'echo PHP_VERSION;']' timed out after 5 seconds"
+          }
+        },
+        {
+          "version": "8.2",
+          "old": {
+            "path": "/opt/remi/php82/root/usr/bin/php",
+            "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+            "version": "8.2.32"
+          },
+          "current": {
+            "path": "/opt/remi/php82/root/usr/bin/php",
+            "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+            "version": null,
+            "observationError": "Command '['/opt/remi/php82/root/usr/bin/php', '-r', 'echo PHP_VERSION;']' timed out after 5 seconds"
+          }
+        },
+        {
+          "version": "8.4",
+          "old": {
+            "path": "/opt/remi/php84/root/usr/bin/php",
+            "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+            "version": "8.4.23"
+          },
+          "current": {
+            "path": "/opt/remi/php84/root/usr/bin/php",
+            "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+            "version": null,
+            "observationError": "Command '['/opt/remi/php84/root/usr/bin/php', '-r', 'echo PHP_VERSION;']' timed out after 5 seconds"
+          }
+        }
+      ],
+      "nodeChanged": false,
+      "headChanged": false,
+      "worktreeChanged": false,
+      "collectionChanged": false,
+      "expectedCases": 22806,
+      "actualCases": 22806,
+      "expectedFiles": 145,
+      "actualFiles": 145,
+      "missing": [],
+      "extra": [],
+      "preexistingDuplicateLabels": [
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+          "name": "collects member query dependencies beyond completion prefixes, retained=true",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+          "name": "collects member query dependencies beyond completion prefixes, retained=false",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+          "name": "ranks default callable references as Closure rather than call results with retained tree=true: function run(Closure $callback = demo§) {}",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+          "name": "ranks default callable references as Closure rather than call results with retained tree=false: function run(Closure $callback = demo§) {}",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/direct-function-query-dependencies.test.ts",
+          "name": "rejects non function positions, retained=true",
+          "count": 12
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/direct-function-query-dependencies.test.ts",
+          "name": "rejects non function positions, retained=false",
+          "count": 12
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "keeps unsupported query sources conservative, retained=true",
+          "count": 5
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "keeps unsupported query sources conservative, retained=false",
+          "count": 5
+        }
+      ],
+      "duplicateMultiplicityPreserved": true
+    },
+    "qualified": false
+  },
+  "focusedOriginalFailures": {
+    "casesPassed": 6,
+    "otherCasesNotExecuted": 514,
+    "sourceCorrection": "The original crossIndependent callback expectation is now shared; unknownConsumer then crossInvalidated still requires no members. First five original failure reasons remain unproven; their generic error stacks are retained."
+  },
+  "intermediateCompleteSemantic": {
+    "result": {
+      "numTotalTests": 22806,
+      "numPassedTests": 22806,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "scope": "Only the preceding 3100caf6 product; not final nested-consumer qualification."
+  },
+  "finalCompleteSemantic": {
+    "run": {
+      "status": "exited",
+      "phase": "semantic",
+      "parentPid": 30928,
+      "childPid": 30982,
+      "startedAtUtc": "2026-10-06T15:29:31.280805+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d156-nested-semantic-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/semantic",
+      "exitCode": 0,
+      "durationSeconds": 74.97204079700168,
+      "finishedAtUtc": "2026-10-06T15:30:46.251485+00:00"
+    },
+    "audit": {
+      "inputs": 3218,
+      "changedInputs": [],
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "headChanged": false,
+      "worktreeChanged": false,
+      "collectionChanged": false,
+      "expectedCases": 22814,
+      "actualCases": 22814,
+      "expectedFiles": 145,
+      "actualFiles": 145,
+      "missing": [],
+      "extra": [],
+      "preexistingDuplicateLabels": [
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+          "name": "collects member query dependencies beyond completion prefixes, retained=true",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+          "name": "collects member query dependencies beyond completion prefixes, retained=false",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+          "name": "ranks default callable references as Closure rather than call results with retained tree=true: function run(Closure $callback = demo§) {}",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+          "name": "ranks default callable references as Closure rather than call results with retained tree=false: function run(Closure $callback = demo§) {}",
+          "count": 2
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/direct-function-query-dependencies.test.ts",
+          "name": "rejects non function positions, retained=true",
+          "count": 12
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/direct-function-query-dependencies.test.ts",
+          "name": "rejects non function positions, retained=false",
+          "count": 12
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "keeps unsupported query sources conservative, retained=true",
+          "count": 5
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+          "name": "keeps unsupported query sources conservative, retained=false",
+          "count": 5
+        }
+      ],
+      "duplicateMultiplicityPreserved": true
+    },
+    "result": {
+      "numTotalTests": 22814,
+      "numPassedTests": 22814,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "qualified": true
+  },
+  "relatedLsp": {
+    "files": 3,
+    "cases": 37,
+    "passed": 37,
+    "failed": 0,
+    "skipped": 0,
+    "coldQueryCases": 32,
+    "originalColdCasesPreserved": 16,
+    "newRepeatedAndNestedColdCases": 16,
+    "strictnessAndCacheCases": 5
+  },
+  "hosts": [
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 592,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 205,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedCallableReuse",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 610,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 232,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedCallableReuse",
+      "rendererExceptions": 0
+    }
+  ],
+  "hot": {
+    "scope": "Fixed PHP 8.5 documented conditional callback reuse with nested consumer project, three PHP files; first completion without query prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 222.55982399999994,
+        "p95Ms": 8.218116000000009,
+        "warmSamples": 20,
+        "samples": [
+          8.218116000000009,
+          21.721332000000075,
+          6.058653999999933,
+          6.94237800000019,
+          5.1952980000000935,
+          5.958882000000358,
+          6.894228999999996,
+          6.241161999999804,
+          5.089852999999948,
+          4.319383000000016,
+          4.494591000000128,
+          3.8136850000000777,
+          4.1053460000002815,
+          4.123400999999831,
+          3.810410000000047,
+          3.8399129999997967,
+          3.616031000000021,
+          3.673330000000078,
+          4.344188000000031,
+          4.473960000000261
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 192.52329099999952,
+        "p95Ms": 8.996767000000546,
+        "warmSamples": 20,
+        "samples": [
+          6.920141999999942,
+          11.788896000000022,
+          5.2918509999999515,
+          4.612801000000218,
+          4.150998000000072,
+          4.799336000000039,
+          4.707664000000477,
+          4.585156000000097,
+          3.9962329999998474,
+          4.517248000000109,
+          3.868322999999691,
+          8.996767000000546,
+          4.299378000000615,
+          5.460051000000021,
+          5.771238999999696,
+          4.088884999999209,
+          3.501726999999846,
+          3.7284480000007534,
+          3.747417999999925,
+          5.216996999999537
+        ]
+      }
+    ]
+  },
+  "remaining": [
+    "Original C1-C4/R4 whole qualification remains open.",
+    "Current entire v80 LSP combination is not proven by the related 37 cases; D155 qualified the preceding frozen v79 product only.",
+    "Ordinary PHP 7.2 editing P95 155.06 >150 ms and 50k warm cache RSS 1659.99 >1536 MiB remain open.",
+    "Bare $ descriptions, batch getItemsByProvider and ordinary complete C1 type-popup stability remain open.",
+    "Actual PHP CLI 7.3/8.0/8.3, other platforms and real WSL long use remain open.",
+    "Unknown consumers, reference exposure/capture, writes, first-class acquisition and other unproven callable uses remain conservative."
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d156-evidence/d156-current-semantic-input.json",
+      "sha256": "6c29c93721d6a0777c94f67950ac04504fed64cd1d9598f4251c21a0c199fbfa"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-current-semantic-run.json",
+      "sha256": "5bb7af3a3cc53199925c351ce312dd40970fa111f8d05e2150f9f5996eae4c88"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-current-semantic-audit.json",
+      "sha256": "a8488d381f6f7a4726fad3c2b472ddcb5ea077c3a0db0a78e5c4175d29867ba9"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-semantic-input.json",
+      "sha256": "f1f7bdcbf7df5a508c975cc2f39264e2e971ae17da4b4b0abc1101871c0fc874"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-semantic-run.json",
+      "sha256": "4626c39120ff93b4761b99e88d169f61056c731a0e5c05d5fb90b3d927b6e546"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-semantic-audit.json",
+      "sha256": "6d5772462f669abae6d402211a1e2e4e885937db02e75abd9d0b9c4f34601c6b"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-semantic-input.json",
+      "sha256": "0bf1ab3efc6de5270396c24839a84ade2967e06e2e07930bc16a284e172c6ee3"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-semantic-run.json",
+      "sha256": "0e6624eb221e2575cb7826a68075140f52e4d738f2a9ff398aab03b7a5f43810"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-semantic-audit.json",
+      "sha256": "be546a2f4143006e4b0286ff72007c36557bfe23ab039df61fdcf61d524e052c"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d155-next-callable-read-probe.mjs",
+      "sha256": "2a8e7f62b7f91c8614dcb3aa2326aa461cf168096eafbf76781bf8bb2529827c"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d155-next-callable-read-observation.json",
+      "sha256": "2a8aa24270f888aa02eb61bed676eee90c0e1eba54d08afdef159f05f3774c4e"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d155-next-callable-read-audit.json",
+      "sha256": "f76b91b80ec56d1d21561ab89615e77029bec059b73cb80f6ffa896db351f825"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-first-audit-observation-error.json",
+      "sha256": "6d6386dc603c68cfb362e8b5f6a679803125bc4eed120c97c9db4c9cb4be8cdd"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-runtime-startup-observation.json",
+      "sha256": "ef07d7903352c996c23be40036f11208f080c785f2c4a25b2be90e83a2f9cab4"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-callable-reuse-hot.mjs",
+      "sha256": "c19cadfd659454fac2ed49c0a1dfc68897f272f8fb94bf29f00e42c608fcac59"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-callable-reuse-hot.json",
+      "sha256": "96a1b39636d30ca600159caffb99be3c49d9e1a90cf779f21e99d05dcb9c6ca1"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-callable-reuse-hot.mjs",
+      "sha256": "60bb1ef010c1a9a27b225fbef8f571d4efcaf2f3bc7d20d65cec7d524e78c72d"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-callable-reuse-hot.json",
+      "sha256": "2ed204ab8501d796e99835bce7f6ea0886f7dbd200c0a401875a3a5f667ef69d"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-report.py",
+      "sha256": "e5d8d3311b3de2a3dfc9870224a8ab3da547a9fa11e54bdf1a08160906d55a58"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-host-callable-reuse-onDemand.json",
+      "sha256": "534f3d998dfc41a0d97ff577832b62768a2782ddbf4ba3ecee80b520a0dd8a77"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-host-callable-reuse-onDemand.log",
+      "sha256": "8536133591d03ff21b5dc0de50ac6cf0ac70f4b954b33627de4fe62c3cab5144"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-host-callable-reuse-onDemand.json",
+      "sha256": "cb69615251e2cea9d8163e269a92587cebf4b45b9c657bf3bd6df0a114d5cc6d"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-host-callable-reuse-onDemand.log",
+      "sha256": "1bd793ec4a279ff6addb6b58670054bb0856111e9d13259846a666d2b7545ca7"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-host-callable-reuse-progressive.json",
+      "sha256": "dac29643b6443ae20433b2860e83d55991c02ca1d2523afe494f30533e2b5916"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-host-callable-reuse-progressive.log",
+      "sha256": "8875b61bdcbf403f75df101892b8b50b320a53b334c47cb5115f679aa6efa4c4"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-host-callable-reuse-progressive.json",
+      "sha256": "a2de22dd29ddcc43396c622fd59b09c3834162fd3ae8a3acbc2caec3799a321d"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-host-callable-reuse-progressive.log",
+      "sha256": "7da603412580162e9c466464029af775d62c0e729940ee8a66abb90272a5ecf1"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-related-lsp.json",
+      "sha256": "5beec7d6921a306d01a30daec4306c3a89e0ce738e33c6ea8f15156bb5ea38f7"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-final-semantic-full.json",
+      "sha256": "2326775312ac2c55b29fb420723914b377423eadb4a1af9619fb4b08ead24804"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-final-semantic-full.log",
+      "sha256": "a32a4d7087446e4640f04a0a9bc197f9be92cfb6c2cbd060337e99f47ced0a24"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-semantic-wrapper.log",
+      "sha256": "be6ea550137783292d2d4545aceff7b0a3b210adaa90541cb30d625214f1c3a8"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-current-semantic-wrapper.log",
+      "sha256": "db7e0ba51d3049f8f632baf597ef505bafaac6166a068ccd032d89c461e7b846"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-semantic-collection.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-semantic-collection.json",
+      "sha256": "6ab5d218d90446045267bc441fc6ed3807105e6742ec2a342d1c097f1ae5fad2"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-refined.json",
+      "sha256": "88d1e323a5e46efcb287d6931005a3653647f4eb8957f8cd47e5a1e02557eb86"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-semantic-full.json",
+      "sha256": "96addeb93d6d839714b54bddbe0960147f1e48006a906706f007ac5471d70ac5"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-related.log",
+      "sha256": "172731268053f65e02be2068d7d13558ad34e3e6bc6f68571ebbab569767ee42"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-current-semantic-audit.log",
+      "sha256": "b11f50546c9c64ad75428d38cda38c3daa929539d651a8206b2997cad5be946d"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-related.json",
+      "sha256": "b83a8b3972bf8d2daa27a48ee84b467230005b081db31237e55818b376979f88"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-callable-reuse-hot.log",
+      "sha256": "f1dd7d80e9971b00a0f7766c75ab8dab4871a7abede6d65e8d3d5dd50ef9fe0c"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-refined.log",
+      "sha256": "234973e4275552e90618d08fa82eca87d020bf422de86aad465e13e820ad9abd"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-before.json",
+      "sha256": "d514d0d9319abdffd44477114d8ca141a7d9594fc3fb6cfdb62e6f7310131837"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-related.log",
+      "sha256": "70a2c8e02d9a70c0607e6f946d8f298bf8cc8f2a0cd3ccf4caf5b07aab2f4b73"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-qualified-before.json",
+      "sha256": "8cdedf6e04d4368670e6fd8ba105352ea659c1b5b95e5483113222fc2241eb4a"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-final-semantic-audit.log",
+      "sha256": "0552bd923a74790316a26027544d2b6de10bf92d3889d6fc1045e7f923f69dd2"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-before.log",
+      "sha256": "f6f7142f757eed7214194bad7c253768e29cf33416419d1abeda5b1af1c14c49"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-current-semantic-full.log",
+      "sha256": "be3c2271fc99c285bbbb00102448a3b1c72b1cc7fbae7584231254bd730c0f64"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-related-lsp.log",
+      "sha256": "60a1e9cedf6bd7ff85795ac4fd7dcb9f1a3726b5a75bd3a59fec922b440f1453"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-semantic-collection.json",
+      "sha256": "0bac1633ac727feddac75a7f95a3a2a9195695a476f90721372634fbb39b0a9d"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-before.log",
+      "sha256": "e8e5c199f0891218150aa543b3a65d4a23c170b6e8ffa7ca4220bd22218c82c5"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-qualified-before.log",
+      "sha256": "53b5dade52186ffabfaf583d41f3c5810b6a2998787f26015902504ac65d612b"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-final-callable-reuse-hot.log",
+      "sha256": "e34eb70a30d4fc5f7a683293c834ab1a0faf78e9035beb1420bb42e9148f63ea"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-related-lsp.json",
+      "sha256": "1a79cb8c4e05fbaeec68a202c0a669295db92f2e0c020dc20e1cebf2270ed164"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-reuse-related.json",
+      "sha256": "9e849cb408e3f101db86501a743c10aa8f56454b2cf4c2b762c51b14ceb33f93"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-related-lsp.log",
+      "sha256": "84478a5b0b4f00177fa255146df6c662e316481a99ba1148b472521b4dd77d86"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-semantic-audit.log",
+      "sha256": "ad3e22cccee2e8248bfdfbf9a9b7f71f2352bceafc3a125a4bdd266e1b23f115"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-before.json",
+      "sha256": "5a183853ec7db14245a04c9e5bab0af5cd37a76e7bca59989423e16856b0d7e0"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-semantic-full.log",
+      "sha256": "7f5e543ef5d1d0272f45356e06e1cfc6859a59c9b281ecdc820b2c3389ccd0bc"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-current-semantic-full.json",
+      "sha256": "fba7d8fd842033d28a14e07d281f55fd95a8a7c8cd3b3178bd5ae568607a1d17"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-original-failure-focused.log",
+      "sha256": "55b4a92dd47adee7c35a81bc1ed0bcc8707b306290ac684c2b8d3585daa74a54"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-final-semantic-wrapper.log",
+      "sha256": "4ffa4310c52d760752531d79f521b7291a08fb81656fea721b82fe8a0e93134e"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/sophp-d156-nested-semantic-collection.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-current-full-run.py",
+      "sha256": "9bf00b0a22610bcd71b9b08d8ce9bca17c2cf7cf3fc9c2663aefa2603e16b93f"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-current-audit.py",
+      "sha256": "9a2e5a1e48660f1a44b13c8a53420b40cd6d28eafe8c22b8c84274c551be0970"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-current-freeze.py",
+      "sha256": "7068811e62d5ac1a73cce52d5760b3eef614c8023b0381d88c61d52d339e4955"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-full-run.py",
+      "sha256": "aaa73777353599dc4bc927bbedcb8f8d89708d4c407caea2bd397e1aacb8dd66"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-audit.py",
+      "sha256": "addd1b12d40d65cee11239b7cbe33f6e87635808cd3f5384df4ca95f66709883"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-final-freeze.py",
+      "sha256": "7068811e62d5ac1a73cce52d5760b3eef614c8023b0381d88c61d52d339e4955"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-full-run.py",
+      "sha256": "2d65706683af83b72900cbe7a9163abb120a1a23a423a893e2d4c1e223ee5477"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-audit.py",
+      "sha256": "5a231c15bfdab2e9e961be0724ec3c2cf84aadd5f432842ca4d5785a1b38110f"
+    },
+    {
+      "path": ".vscode-test/d156-evidence/d156-nested-freeze.py",
+      "sha256": "7068811e62d5ac1a73cce52d5760b3eef614c8023b0381d88c61d52d339e4955"
+    }
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}

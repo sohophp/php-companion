@@ -15,15 +15,19 @@ function position(source: string, offset: number): { line: number; character: nu
 const scenarios = (['7.2', '8.5'] as const).flatMap(phpVersion =>
   (['onDemand', 'progressive'] as const).flatMap(indexingMode =>
     (['completion', 'hover', 'definition', 'signatureHelp'] as const).map(firstQuery => ({ phpVersion, indexingMode, firstQuery }))));
-it.each(scenarios)('loads external callback returns for first $firstQuery PHP $phpVersion $indexingMode', async ({ phpVersion, indexingMode, firstQuery }) => {
+it.each(scenarios)('loads external callback returns for first $firstQuery PHP $phpVersion $indexingMode', scenario => checkColdQuery(scenario), 40_000);
+it.each(scenarios)('retains repeated callback returns for first $firstQuery PHP $phpVersion $indexingMode', scenario => checkColdQuery(scenario, true), 40_000);
+
+async function checkColdQuery({ phpVersion, indexingMode, firstQuery }: typeof scenarios[number], repeated = false): Promise<void> {
   const root = await mkdtemp(join(tmpdir(), 'sophp-callback-cold-'));
   let server: ChildProcessWithoutNullStreams | undefined;
   const base = '<?php namespace CallbackCold;class BaseResult{public function common(): string{return "ok";}}';
   const sourceFor = (argument: string, strict = false): string => `<?php declare(strict_types=${Number(strict)});
 use CallbackCold\\Row as Ready;
 use CallbackCold\\Other;
+${repeated ? 'function consume($value): void {}' : ''}
 /** @param callable(bool $flag): ($flag is true ? Ready : Other) $callback */
-function run(callable $callback): void {$v=$callback(${argument});$v->common();}`;
+function run(callable $callback): void {${repeated ? '$prior=$callback(false);$copy=$callback;consume($copy(true));' : ''}$v=${repeated ? '$copy' : '$callback'}(${argument});$v->common();}`;
   try {
     await mkdir(join(root, 'src'));
     await writeFile(join(root, 'src', 'BaseResult.php'), base);
@@ -56,6 +60,12 @@ function run(callable $callback): void {$v=$callback(${argument});$v->common();}
       // Every query family gets an independent cold process, without indexing or diagnostic barriers.
       notify('textDocument/didOpen', { textDocument: { uri, languageId: 'php', version: 1, text: original } });
       verify(firstQuery, await query(firstQuery, original), ['common'], ['Other', 'Row']);
+      if (repeated) {
+        const callbackSignature = await request('textDocument/signatureHelp', { textDocument: { uri },
+          position: position(original, original.lastIndexOf('$copy(') + '$copy('.length) });
+        expect(callbackSignature.signatures).toHaveLength(1);
+        expect(callbackSignature.signatures[0].label).toContain('bool $flag');
+      }
       const stages = launch === 0 ? [
         { argument: 'true', strict: false, owners: ['Row'], members: ['common', 'onlyRow'] },
         { argument: 'false', strict: false, owners: ['Other'], members: ['common', 'onlyOther'] },
@@ -69,6 +79,16 @@ function run(callable $callback): void {$v=$callback(${argument});$v->common();}
           verify(method, await query(method, text), stage.members, stage.owners);
       }
       if (launch === 0) {
+        if (repeated) {
+          const invalid = original.replace('$v=$copy(1)', 'unknown($copy);$v=$copy(1)');
+          notify('textDocument/didChange', { textDocument: { uri, version: 6 }, contentChanges: [{ text: invalid }] });
+          expect(members(await query('completion', invalid))).toEqual([]);
+          const signature = await request('textDocument/signatureHelp', { textDocument: { uri },
+            position: position(invalid, invalid.lastIndexOf('$copy(') + '$copy('.length) });
+          expect(signature?.signatures ?? []).toEqual([]);
+          notify('textDocument/didChange', { textDocument: { uri, version: 7 }, contentChanges: [{ text: original }] });
+          expect(members(await query('completion', original))).toEqual(['common']);
+        }
         notify('textDocument/didOpen', { textDocument: { uri: baseUri, languageId: 'php', version: 1,
           text: base.replace('common', 'fresh') } });
         expect(members(await query('completion', original))).toEqual(['fresh']);
@@ -86,7 +106,7 @@ function run(callable $callback): void {$v=$callback(${argument});$v->common();}
     if (server) { const exited = once(server, 'exit'); server.kill(); await exited; }
     await rm(root, { recursive: true, force: true });
   }
-}, 40_000);
+}
 
 function client(server: ChildProcessWithoutNullStreams): {
   notify: (method: string, params: unknown) => void;
