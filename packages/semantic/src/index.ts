@@ -16933,22 +16933,27 @@ export class SemanticWorkspace {
           && (parameters.some((parameter) => parameter.variadic) || parameters.length >= 1)
           && !parameters[0]!.byReference;
       };
-      const compatible = (actual: PhpType, expected: PhpType): boolean => {
+      const compatible = (input: ScalarInputFact, expected: PhpType, native?: PhpType): boolean => {
+        const projected = native && nativeScalarInput(input.type, native, this.hasStrictTypes(file), this.targetPhpVersion, input.numericKind);
+        if (projected?.accepted === 'no') return false;
+        const actual = projected?.type ?? input.type;
         if (expected.kind === 'primitive' && expected.name === 'mixed') return true;
-        if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return true;
+        if (!projected && isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return true;
         return compatibility(actual, expected, this.typeRelationContext()) === 'yes';
       };
-      const closureStage = (node: SyntaxNode, input: PhpType): PhpType | undefined => {
+      const closureStage = (node: SyntaxNode, input: ScalarInputFact): PhpType | undefined => {
         const callable = this.closureLiteralType(file, node.startIndex, node.endIndex);
         if (callable?.kind !== 'callable' || !acceptsOne(callable.parameters.map((parameter) => ({
           type: displayType(parameter.type), variadic: Boolean(parameter.variadic), byReference: Boolean(parameter.byReference),
           ...(parameter.optional ? { defaultValue: 'default' } : {}),
         })))) return undefined;
         const parameter = callable.parameters[0]!;
-        return compatible(input, parameter.type) && displayType(callable.returnType).toLowerCase() !== 'void'
+        const raw = file.scopes.find(scope => scope.start === node.startIndex && scope.end === node.endIndex)?.parameters[0];
+        const native = raw?.nativeType && this.nativeSourceType(file, nativeParameterType(raw, file.uri), this.containingCallable(file, node.startIndex)?.containerFqcn, raw.start);
+        return compatible(input, parameter.type, native || undefined) && displayType(callable.returnType).toLowerCase() !== 'void'
           ? callable.returnType : undefined;
       };
-      const callableStage = (node: SyntaxNode, input: PhpType): PhpType | undefined => {
+      const callableStage = (node: SyntaxNode, input: ScalarInputFact): PhpType | undefined => {
         let target = node;
         while (target.type === 'parenthesized_expression' && target.namedChildren.length === 1) target = target.namedChildren[0]!;
         if (target.type === 'arrow_function' || target.type === 'anonymous_function') return closureStage(target, input);
@@ -16970,7 +16975,9 @@ export class SemanticWorkspace {
           const expected = documented ? this.phpDocDiagnosticType(declarationFile, documented, candidate.typeScopeFqcn)
             : parameter.nativeType ? this.nativeType(declarationFile,
               specializeTemplateType(nativeParameterType(parameter, declarationFile.uri), candidate.templateArguments)!, candidate.typeScopeFqcn) : undefined;
-          return Boolean(expected && compatible(input, expected));
+          const native = parameter.nativeType && this.nativeSourceType(declarationFile,
+            specializeTemplateType(nativeParameterType(parameter, declarationFile.uri), candidate.templateArguments)!, candidate.typeScopeFqcn);
+          return Boolean(expected && compatible(input, expected, native || undefined));
         });
         const results = candidates.flatMap((candidate) => {
           const result = this.memberDiagnosticType(candidate); return result ? [result] : [];
@@ -16979,17 +16986,19 @@ export class SemanticWorkspace {
         const unique = new Map(results.map((result) => [displayType(result).toLowerCase(), result]));
         return unique.size === 1 ? [...unique.values()][0] : undefined;
       };
-      const infer = (node: SyntaxNode, depth: number): PhpType | undefined => {
+      const infer = (node: SyntaxNode, depth: number): ScalarInputFact | undefined => {
         if (depth >= MAX_LOCAL_CONTROL_FLOW_DEPTH) return undefined;
         if (node.type !== 'binary_expression' || operator(node) !== '|>') {
-          return this.provenArgumentType(file, node.startIndex, node.endIndex);
+          while (node.type === 'parenthesized_expression' && node.namedChildren.length === 1) node = node.namedChildren[0]!;
+          return this.scalarArgumentFact(file, node.startIndex, node.endIndex);
         }
         const left = node.childForFieldName('left'); const right = node.childForFieldName('right');
         if (!left || !right) return undefined;
         const input = infer(left, depth + 1);
-        return input ? callableStage(right, input) : undefined;
+        const result = input ? callableStage(right, input) : undefined;
+        return result ? { type: result } : undefined;
       };
-      return infer(root, 0);
+      return infer(root, 0)?.type;
     } finally {
       temporaryTree?.delete();
     }

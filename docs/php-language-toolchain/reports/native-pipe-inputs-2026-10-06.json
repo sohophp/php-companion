@@ -1,0 +1,366 @@
+{
+  "milestone": "D147",
+  "createdAtUtc": "2026-10-06T06:38:57.558410+00:00",
+  "parentHead": "c4f59fba",
+  "binding": {
+    "scope": "D147 native pipe production build before full semantic audit",
+    "files": {
+      "packages/semantic/src/index.ts": "e82b33a1a321b4472dc7d33dae4302a25b9d05fed6b6e5475a6407dc4ca3d189",
+      "packages/semantic/dist/index.js": "7ba3f435a98efe2c132a46d69cf43bf1c8edcf76cd38efb3c001e9d02bd1f1f0",
+      "packages/language-server/src/cacheVersion.ts": "363106657f4c9a8154e87139ab02ee46a59ef81093167ad5f0b8739d434ea0a9",
+      "packages/language-server/dist/server.js": "7cd7f335cedcc38c1018b0ca0886092105aaf848444c4678085a724b39e3fe39",
+      "dist/language-server.js": "667108d4106f50f62dd0289dfabf5fc01807d26affebc38f079cab5ffd721ecd",
+      "scripts/check-output-parameter-acceptance.mjs": "4066dd8733e2472ae7e9f5d65151251cc06265e5ff6eaf3bb9f279511a17e6ac"
+    }
+  },
+  "engine": "v74",
+  "persistentSchemas": [
+    89,
+    7,
+    13
+  ],
+  "semantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 17810,
+      "numPassedTests": 17810,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 139,
+    "inputs": 3102,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 3667006,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d147-final-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T06:35:00.534004+00:00",
+      "exitCode": 0,
+      "durationSeconds": 71.2172535249847,
+      "finishedAtUtc": "2026-10-06T06:36:11.749711+00:00"
+    },
+    "bundleSha256": "667108d4106f50f62dd0289dfabf5fc01807d26affebc38f079cab5ffd721ecd",
+    "sourceSha256": "e82b33a1a321b4472dc7d33dae4302a25b9d05fed6b6e5475a6407dc4ca3d189",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "native": {
+    "total": 640,
+    "matching": 640,
+    "mismatching": 0,
+    "runtime": {
+      "executable": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "intSize": 8,
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "fixtureSha256": "9a966b767aa0be01c8cf38daf83199a609dbce19d104f08d60bbc81ea9003042"
+  },
+  "protocol": {
+    "passed": 10,
+    "failed": 0,
+    "pending": 0,
+    "cases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'function' results in 'onDemand' mode",
+        "status": "passed",
+        "duration": 5759.134748
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'static' results in 'onDemand' mode",
+        "status": "passed",
+        "duration": 5616.626886000001
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'instance' results in 'onDemand' mode",
+        "status": "passed",
+        "duration": 5398.938990000001
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'arrow' results in 'onDemand' mode",
+        "status": "passed",
+        "duration": 5354.03298
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'closure' results in 'onDemand' mode",
+        "status": "passed",
+        "duration": 5401.273559000001
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'function' results in 'progressive' mode",
+        "status": "passed",
+        "duration": 5292.816983999997
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'static' results in 'progressive' mode",
+        "status": "passed",
+        "duration": 5450.923771000002
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'instance' results in 'progressive' mode",
+        "status": "passed",
+        "duration": 5287.911405999999
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'arrow' results in 'progressive' mode",
+        "status": "passed",
+        "duration": 5609.101004999997
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+        "name": "refreshes native pipe 'closure' results in 'progressive' mode",
+        "status": "passed",
+        "duration": 5427.830371999997
+      }
+    ],
+    "scope": "Native pipe stdio, five forms and two modes; not full LSP."
+  },
+  "prototypeComparisons": {
+    "total": 3626,
+    "baselineMismatches": 36,
+    "prototypeMismatches": 0
+  },
+  "hot": {
+    "scope": "Fixed PHP 8.5 native pipe document, two files; first completion without query prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "667108d4106f50f62dd0289dfabf5fc01807d26affebc38f079cab5ffd721ecd",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 127.64983200000006,
+        "p95Ms": 4.201970999999958,
+        "warmSamples": 20,
+        "samples": [
+          4.586412999999993,
+          3.799663999999666,
+          3.678421999999955,
+          3.9796689999998307,
+          4.103542000000289,
+          3.6393729999999778,
+          4.201970999999958,
+          4.129377999999633,
+          2.785400000000209,
+          2.663927000000058,
+          2.676437999999962,
+          2.5173580000000584,
+          2.685323000000153,
+          2.6468379999996614,
+          2.6896069999997962,
+          2.3342569999999796,
+          2.7768599999999424,
+          2.6485170000000835,
+          2.6991350000002967,
+          2.3158159999998134
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 148.06272700000045,
+        "p95Ms": 6.96842899999956,
+        "warmSamples": 20,
+        "samples": [
+          4.813617000000704,
+          6.96842899999956,
+          5.215316000000712,
+          3.6477090000007593,
+          3.2531349999999293,
+          3.5132549999998446,
+          4.126581999999871,
+          4.1141860000007,
+          3.2657239999998637,
+          2.4207679999999527,
+          2.713232000000062,
+          2.6235530000003564,
+          2.256948999999622,
+          2.412245999999868,
+          2.2207579999994778,
+          2.52827200000047,
+          2.382118000000446,
+          8.676612999999634,
+          4.384748999999829,
+          2.4784319999998843
+        ]
+      }
+    ]
+  },
+  "host": {
+    "platform": "linux",
+    "phpVersion": "8.5",
+    "indexingMode": "onDemand",
+    "otherQueriesBeforeTyping": [],
+    "completionProviderPrewarm": false,
+    "explicitTriggerSuggest": false,
+    "hoverMatched": true,
+    "definitionMatched": true,
+    "diskUnchanged": true,
+    "results": [
+      {
+        "key": "Enter",
+        "visible": {
+          "visible": true,
+          "labels": [
+            "nameApp\\OutputQuery\\Row::name(): string"
+          ]
+        },
+        "visibleWaitMs": 543,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true
+      },
+      {
+        "key": "Tab",
+        "visible": {
+          "visible": true,
+          "labels": [
+            "nameApp\\OutputQuery\\Row::name(): string"
+          ]
+        },
+        "visibleWaitMs": 222,
+        "exactText": true,
+        "caretMatched": true,
+        "undoRedo": true
+      }
+    ],
+    "fixtureFamily": "nativeNumericPipeReturn",
+    "rendererExceptions": 0
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d147-evidence/d147-build.json",
+      "sha256": "e91d35e235506429b0a49f474e308dd19497a4198b934b16956fcb492ffdfc88"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-consumer-baseline.json",
+      "sha256": "6e4d7311e0bf71aa31de04f65aff33aa35fd862067391774e761aec641888dd6"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-dependent-baseline.json",
+      "sha256": "424f8a75e7587974c1b4ce591d1f689a612a5452215382383eecf99bd5fe2f2c"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-dependent-prototype.json",
+      "sha256": "2cf193a4df99194d5e58ca1fc858cf2e4d13f678e3543247cc433c10bead08d3"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-formal-pipe-native.json",
+      "sha256": "3b628887ac31a88e453f169a3a3ebf936d2b11b83f3489369ea703f16ff413b4"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-pipe-native.json",
+      "sha256": "f748a411c3e00caff2a42a3a71cdf77feccc120e22b983e00aa08ece47fa2356"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-host-pipe-8.5-onDemand.json",
+      "sha256": "a792fb95df6c39e1eea833be5b175c025f8834e68613648638818233bc39485b"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-pipe-hot.json",
+      "sha256": "f0cfc75b7d71e07141047b8fe2e1d05b4f03a1469015f72aca142830675cc084"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-pipe-hot.mjs",
+      "sha256": "66b68654bdea8c1532400dc41f1d29089d6d9d7ce72e19b2090bc0e632eb7274"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-final-semantic.py",
+      "sha256": "520a470f59b7df79f914cfcb0556e9a2764ed19acd63d20af803617ae4b9b0ff"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-final-semantic-input.json",
+      "sha256": "11bca2559cc6bbfd4fb5ea28852f88a122b074242c59251a9139d1b8dc6a6efb"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-final-semantic-audit.json",
+      "sha256": "9bbb3f7b6d6bd7f29bcfe7dca93511a28de8282b4592a39c4c26a968a135bf60"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-final-semantic-run.json",
+      "sha256": "9ecd402731f3daa52138fa3a5a36f7902174bb8fe8defcabd4dc2dc9c8d2d36f"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/d147-dependent-consumer-probe.mjs",
+      "sha256": "85e7fc66dfcb3b85e4acf91a5860b1461d2026a773a2edd0e1ba566dde94f95d"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-pipe-semantic.json",
+      "sha256": "f9b0360e7769965bb65ac00cacccfc654cbc6f74398411c7d142888ba4c5a1c4"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-pipe-semantic-final.json",
+      "sha256": "d84d4661f58e68190e061cd8f127ac9c23e9a32f2ba30306efbb1d153dfa98fb"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-pipe-lsp.json",
+      "sha256": "1603157c914c410504e6595f2663199cc6a13009df08ec512eae0bfd14fcb29a"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-final-semantic-full.json",
+      "sha256": "778520e53710eee1d1b851cd946c7e34cdf582185ffbae8b0b00402c2c8ac522"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-final-semantic-collection.json",
+      "sha256": "737be1e2a1487705321452423a6a087c19957a98e5df843ec54d809775d4fffa"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-final-semantic-full.log",
+      "sha256": "2634005189f30254ed82420ebdec128db75758b5db55792cbc7dd5d7238e7e1f"
+    },
+    {
+      "path": ".vscode-test/d147-evidence/sophp-d147-host-pipe-8.5-onDemand.log",
+      "sha256": "e260bab82a4256ee6101b0d8f4088792774c5dd86418f5c632c07c8e3ddb7057"
+    }
+  ],
+  "failureHistory": {
+    "firstProbe": "Plain declared return types were initially treated as input-dependent; these observations are exploratory, not the acceptance matrix. Dependent function/method returns preserve existing behavior.",
+    "firstNativeProbe": "Deprecation output broke JSON decoding; warnings are now recorded by the native checker.",
+    "firstSafetyTest": "2582/2584; a string-typed parameter was incorrectly labelled wholly unknown. Final tests distinguish its normal-return conversion from an untyped input; 2586/2586."
+  },
+  "openScope": [
+    "other weak scalar consumers",
+    "conditional or template-dependent pipe returns",
+    "full current LSP",
+    "ordinary edit P95 155.06 ms",
+    "50k cache RSS 1659.99 MiB",
+    "bare variable descriptions",
+    "other native versions and platforms",
+    "real WSL and long-session use"
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "postVerificationEdits": [
+    {
+      "path": "packages/language-server/test/native-pipe-stdio.test.ts",
+      "change": "Removed trailing empty lines only; test code and production inputs remain identical.",
+      "beforeSha256": "e3af5e6d5c860efb8531e3b21b7aa8b593560145545c8e092d62e1cdf21c2d10",
+      "afterSha256": "e1346b20652143054550e0e03a5ee9dc3dd78f27fd22aa92a4c440e3c77b17f5"
+    }
+  ]
+}

@@ -65,6 +65,7 @@ try {
     conditionalDefault: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(&$value,bool $mode=true){}', call: 'fill($value);' },
     conditionalNumericDefaultReturn: { declaration: '/** @return ($mode is int ? int : Row) */function fill(float $mode=42){}', call: '$value=fill();' },
     conditionalNumericDefaultOutput: { declaration: '/** @param-out ($mode is int ? int : Row) $value */function fill(&$value,float $mode=42){}', call: 'fill($value);' },
+    nativeNumericPipeReturn: { declaration: 'function fill(int $mode): Row { return new Row(); }', call: '$input="42";$value=$input |> fill(...);' },
     variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
     variadicNamed: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill(first:$first,result:$value);' },
     variadicGeneric: { declaration: '/** @template T of object\n * @param class-string<T> $class\n * @param-out T $values */function fill(string $class,&...$values){}', call: 'fill(Row::class,$first,$value);' },
