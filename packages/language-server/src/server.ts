@@ -1260,6 +1260,7 @@ const referenceEngineInputs: ReferenceEngineInputs | undefined = typeof __PHP_CO
       collation: new Intl.Collator().resolvedOptions() }) } : undefined;
 const initialReferenceEngineIdentity = referenceEngineInputs ? captureReferenceEngineIdentity(referenceEngineInputs) : Promise.resolve(undefined);
 function parser(): Promise<PhpSyntaxParser> {
+  if (shuttingDown) return Promise.reject(new ResponseError(LSPErrorCodes.RequestCancelled, 'SoPHP is shutting down.'));
   const paths = parserPaths();
   parserPromise ??= paths ? PhpSyntaxParser.create(paths) : PhpSyntaxParser.createDefault();
   return parserPromise;
@@ -1575,6 +1576,7 @@ function workspaceUriAlias(uri: string): string {
 }
 
 function semanticForKey(key: string): Promise<SemanticWorkspace> {
+  if (shuttingDown) return Promise.reject(new ResponseError(LSPErrorCodes.RequestCancelled, 'SoPHP is shutting down.'));
   let workspace = semanticWorkspaces.get(key);
   if (workspace) return workspace;
   workspace = parser().then(async (value) => {
@@ -2072,6 +2074,7 @@ async function refreshInteropDocument(document: TextDocument): Promise<void> {
 }
 
 async function refreshDoctrineDocument(root: string, uri: string, source: string, workspace: SemanticWorkspace): Promise<void> {
+  if (testPauseNextQueries.has('declarationFacts')) await pauseTestQuery('declarationFacts');
   const byFile = doctrineMethodsByRoot.get(root) ?? new Map<string, DoctrineMethodFact[]>();
   const propertiesByFile = doctrinePropertiesByRoot.get(root) ?? new Map<string, DoctrineAssociationPropertyFact[]>();
   const lookupsByFile = doctrineRepositoryLookupsByRoot.get(root) ?? new Map<string, DoctrineRepositoryLookupFact[]>();
@@ -2089,6 +2092,7 @@ async function refreshDoctrineDocument(root: string, uri: string, source: string
   workspace.replaceExternalFacts(semanticFacts('doctrine', String(indexingGeneration), {
     methods: mergedDoctrineMethods(byFile), properties: [...propertiesByFile.values()].flat(), literalMethodReturns: [...lookupsByFile.values()].flat(),
   }));
+  if (testMode) connection.console.info(`[test-declaration-facts-refreshed] uri=${uri}`);
 }
 
 async function ensureDoctrineQueryFacts(root: string, workspace: SemanticWorkspace): Promise<void> {
@@ -4357,9 +4361,16 @@ connection.onInitialized(() => {
     // Bound startup work for multi-root workspaces; remaining roots stay lazy.
     for (const root of workspaceRoots.slice(0, 2)) {
       await semanticForRoot(root);
+      if (testPauseNextQueries.has('startupWarmup')) await pauseTestQuery('startupWarmup');
       await yieldToEventLoop();
     }
-  })().catch((error) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticWarmupFailed', error instanceof Error ? error.message : String(error))));
+  })().catch((error) => {
+    if (shuttingDown && error instanceof ResponseError && error.code === LSPErrorCodes.RequestCancelled) {
+      if (testMode) connection.console.info('[test-startup-warmup-cancelled]');
+      return;
+    }
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticWarmupFailed', error instanceof Error ? error.message : String(error)));
+  }).finally(() => { if (testMode) connection.console.info('[test-startup-warmup-finished]'); });
   void connection.client.register(DidChangeWatchedFilesNotification.type, { watchers: [
     { globPattern: '**/*.php' }, { globPattern: '**/*.{yaml,yml}' }, { globPattern: '**/composer.json' }, { globPattern: '**/composer.lock' },
     { globPattern: '**/config/**/*.xml' }, { globPattern: '**/var/cache/dev/*DebugContainer.xml' },
@@ -4374,7 +4385,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument', 'startupWarmup', 'declarationFacts'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -5872,7 +5883,9 @@ async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWor
     return stale.workspace;
   }
   const root = rootForUri(document.uri);
-  if (!root || projectWorkspace.source(document.uri) !== undefined || !hasPossibleOpenPhysicalAlias(document, root)) {
+  // Hydration can retain this source row while another physical alias owns
+  // the selected project type. Resolve the local view from the actual aliases.
+  if (!root || !hasPossibleOpenPhysicalAlias(document, root)) {
     if (stale) { stale.workspace.dispose(); localAliasQueryWorkspaces.delete(document.uri); }
     return projectWorkspace;
   }

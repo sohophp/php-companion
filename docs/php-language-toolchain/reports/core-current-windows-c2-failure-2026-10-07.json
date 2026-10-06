@@ -1,0 +1,887 @@
+{
+  "status": "current-native-full-C2-failed",
+  "qualified": false,
+  "recordedAtUtc": "2026-10-06T20:41:33.268782+00:00",
+  "run": {
+    "status": "exited",
+    "parentPid": 305164,
+    "childPid": 305259,
+    "startedAtUtc": "2026-10-06T20:39:10.810084+00:00",
+    "manifestSha256": "32851caf4ba978e84a66561def70d1b2157fb9221939f282b34950b5754e3dba",
+    "driverSha256": "f19aa7c418dc5a59f5855ba2f415a00c9be12bddea1cf270baa5fc40da3c4280",
+    "powershellSha256": "19dd6a539708a301c6fda06bb88750df970caca3c05cfadc2952c02f84df5c30",
+    "bootstrapSha256": "3c136ba71c74881284ea5f3e95bcd437f1f0f25bd96ab664fcae8714e98950ea",
+    "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+    "scope": "Original complete current native Windows C2 with no subset flags; archive logs and assert no unexpected close/restart. No ordinary Profile or VSIX change; not real WSL acceptance.",
+    "firstMetadataAttemptPreserved": ".vscode-test/d169-native-editor-run.json",
+    "firstMetadataAttemptEditorExecuted": false,
+    "exitCode": 1,
+    "durationSeconds": 28.521626194007695,
+    "finishedAtUtc": "2026-10-06T20:39:39.322425+00:00",
+    "stdoutSha256": "f8be073ea9cbf41138cb705ea491d32eb071e239bad866084a986e2e4b57e0b3",
+    "stderrSha256": "c39261c2ec76c3c0f7c06dc78bbb6d0338ef9b447b34f715753a969884384db9",
+    "changedInputs": [],
+    "changedAssets": [],
+    "changedArtifacts": [],
+    "changedRuntimes": [],
+    "changedInstalledPackages": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "bootstrapChanged": false,
+    "profileUpdated": false,
+    "packaged": false
+  },
+  "input": {
+    "status": "prepared",
+    "recordedAtUtc": "2026-10-06T20:35:27.932Z",
+    "scratch": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA",
+    "core": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-DU1xdA\\core",
+    "suite": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-DU1xdA\\observed-full-c2.cjs",
+    "baseline": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-DU1xdA\\baseline",
+    "runner": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-DU1xdA\\runner.mjs",
+    "archiver": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-DU1xdA\\preserve-logs.cjs",
+    "evidence": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-DU1xdA\\evidence",
+    "copied": [
+      {
+        "source": "dist/builtinSnapshotWorker.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/builtinSnapshotWorker.js",
+        "sha256": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd"
+      },
+      {
+        "source": "dist/candidateWorker.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/candidateWorker.js",
+        "sha256": "48a98b81df828f1039f2fcd9f58d58a0b9e50c9365c87f10d54674f3794f4188"
+      },
+      {
+        "source": "dist/candidateWorker.js.map",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/candidateWorker.js.map",
+        "sha256": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad"
+      },
+      {
+        "source": "dist/extension.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/extension.js",
+        "sha256": "8832fdf8b216168aeb6b90878146d1308521836103469392c349b43df7c46582"
+      },
+      {
+        "source": "dist/extension.js.map",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/extension.js.map",
+        "sha256": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421"
+      },
+      {
+        "source": "dist/language-server.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/language-server.js",
+        "sha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d"
+      },
+      {
+        "source": "dist/language-server.js.map",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/language-server.js.map",
+        "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+      },
+      {
+        "source": "dist/node_modules/web-tree-sitter/index.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/node_modules/web-tree-sitter/index.js",
+        "sha256": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+      },
+      {
+        "source": "dist/portableCandidateSearchWorker.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      {
+        "source": "dist/portableCandidateSearchWorker.js.map",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/portableCandidateSearchWorker.js.map",
+        "sha256": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb"
+      },
+      {
+        "source": "dist/sourceStatWorker.js",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "source": "dist/sourceStatWorker.js.map",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/sourceStatWorker.js.map",
+        "sha256": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3"
+      },
+      {
+        "source": "dist/tree-sitter-php.wasm",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "source": "dist/web-tree-sitter.wasm",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "source": "package.json",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/package.json",
+        "sha256": "419171cd1037fdef41f128b2f2e0e52a2bee314fde853d44ffce4740a5165556"
+      },
+      {
+        "source": "package.nls.json",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/package.nls.json",
+        "sha256": "0b5940ea30a9e349222f24668e8edc26c277305d6e34ff37a3ec231ecb1d2ad4"
+      },
+      {
+        "source": "package.nls.zh-cn.json",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/package.nls.zh-cn.json",
+        "sha256": "bd49214298181204d5c9ca30e27d76d71e2bf15dbf0cbbe3af7a19cd09ddefbe"
+      },
+      {
+        "source": "resources/icon.png",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/resources/icon.png",
+        "sha256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a"
+      },
+      {
+        "source": "LICENSE",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/LICENSE",
+        "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff"
+      },
+      {
+        "source": "LICENSE-phpstorm-stubs.txt",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/LICENSE-phpstorm-stubs.txt",
+        "sha256": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408"
+      },
+      {
+        "source": "THIRD_PARTY_NOTICES.md",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/core/THIRD_PARTY_NOTICES.md",
+        "sha256": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9"
+      }
+    ],
+    "inputs": {
+      ".vscode-test/d169-native-editor-prepare.mjs": "7d085c7c0b48e7963c549d712c69c39ffc525bc59f852609932c82108f0600f5",
+      "scripts/check-native-windows-host.mjs": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928",
+      "test/extension/tsconfig.json": "a741c1935c54171fbfa4945d926e72a7a13994df36e0ebdd5b5bc047b268fc39",
+      "test/extension/suite/arrayAccessFixture.ts": "f3336560e45dbae455fe6c6e87d02ea073c90dae600b7a65446a112e7315539c",
+      "test/extension/suite/quotedPrefixFixture.ts": "4acce0a41c2a350127cd2c028c79ccaac1f2835e743bd806165dcc5550ffc134",
+      "test/extension/suite/unfinishedShapeFixture.ts": "31d70d380a66e482b8a8281ec366f2d59a67535a6a0df665bf4a289f5c4adb29",
+      "test/extension/suite/existingShapeArrowFixture.ts": "07df826e41a4f6853d32ad5e008b82b19b0e482e4e9ca41fe3e26d187ea200e2",
+      "test/extension/suite/wordMiddleShapeFixture.ts": "9e998054ce14daeb7456ba550d0c68acb90cd2c1401ef42a604ee089b2eac5fa",
+      "test/extension/suite/c1Ui.ts": "87031d54aa64d7336d8f29e4b2fbd8f2909d4440e6f7dd6e64d5493291c4d074",
+      "test/extension/suite/c2.ts": "823170c4d9e2ec533125e002577e8ca4c7acb67bf18ee624c2c657f9822ce174",
+      "test/extension/suite/nativeWindowsC2.ts": "5419e4b08b14145498fff67ed875010d0ee29f91db71ee7c1caae8c2f9f3ed7b"
+    },
+    "baselineInputs": [
+      {
+        "source": "test/extension/baseline/.vscode/settings.json",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/.vscode/settings.json",
+        "sha256": "8d509458f40ca832333e7056f54ccf2b931e657bd1a58bde53cf63a11f7cf9a8"
+      },
+      {
+        "source": "test/extension/baseline/composer.json",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/composer.json",
+        "sha256": "69f52738052b71c8c6f47fd868da5cc3f42531b166ecf6ec00a14a8418efeba1"
+      },
+      {
+        "source": "test/extension/baseline/config/routes.yaml",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/config/routes.yaml",
+        "sha256": "bfa20ecd51a89c4e44374a412e74be3d1b99e45fb7be9b91ec3711aa311a5f1b"
+      },
+      {
+        "source": "test/extension/baseline/config/services.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/config/services.php",
+        "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+      },
+      {
+        "source": "test/extension/baseline/config/services.xml",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/config/services.xml",
+        "sha256": "2ae9a18db909bb7effc969e6b4f0f91de9b7e1ded69ab03cba597d20c25c8967"
+      },
+      {
+        "source": "test/extension/baseline/config/services.yaml",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/config/services.yaml",
+        "sha256": "ac475be4a131988c3cdbb2af17122a932eefc254b454aa742a564c401b92ecfc"
+      },
+      {
+        "source": "test/extension/baseline/src/Broken.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Broken.php",
+        "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+      },
+      {
+        "source": "test/extension/baseline/src/Contact/.gitkeep",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Contact/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "source": "test/extension/baseline/src/Contract/ExportContract.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Contract/ExportContract.php",
+        "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+      },
+      {
+        "source": "test/extension/baseline/src/Contract/Mailer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Contract/Mailer.php",
+        "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+      },
+      {
+        "source": "test/extension/baseline/src/Contract/MessageHandler.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Contract/MessageHandler.php",
+        "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+      },
+      {
+        "source": "test/extension/baseline/src/Contract/Runner.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "source": "test/extension/baseline/src/Contract/Traceable.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Contract/Traceable.php",
+        "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/BuiltinConsumer.php",
+        "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/ClassConstantConsumer.php",
+        "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/CompletionConsumer.php",
+        "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/ConstantConsumer.php",
+        "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/ContextualCallableConsumer.php",
+        "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/EnumCaseConsumer.php",
+        "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/ImportConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/LocalVarDocConsumer.php",
+        "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/MatchExpressionConsumer.php",
+        "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/MessageHandlerConsumer.php",
+        "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/MoveConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/NativeAssertConsumer.php",
+        "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/NullCoalescingConsumer.php",
+        "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/OptimizeConsumer.php",
+        "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/OptimizeImports.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/OptimizeImports.php",
+        "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/PublicPropertyConsumer.php",
+        "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/RouteConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/RouteConsumer.php",
+        "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/TraitConstantConsumer.php",
+        "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/TypePredicateConsumer.php",
+        "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+      },
+      {
+        "source": "test/extension/baseline/src/Controller/UserController.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Controller/UserController.php",
+        "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+      },
+      {
+        "source": "test/extension/baseline/src/Legacy/Duplicate.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Legacy/Duplicate.php",
+        "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ActivityService.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ActivityService.php",
+        "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/AliasConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/AliasConsumer.php",
+        "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/AlternateFeature.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/AlternateFeature.php",
+        "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/AssertionConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/AssertionConsumer.php",
+        "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/AttributeConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/AttributeConsumer.php",
+        "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/AutowiredConsumer.php",
+        "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/BaseService.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/BaseService.php",
+        "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/CompletionService.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/CompletionService.php",
+        "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ConstantBase.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ConstantBase.php",
+        "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ConstantChild.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ConstantChild.php",
+        "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ConstructedReadonlyState.php",
+        "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ConstructorTarget.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ConstructorTarget.php",
+        "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ContainerConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ContainerConsumer.php",
+        "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ControlFlowDiagnostics.php",
+        "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/DeliveryState.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/DeliveryState.php",
+        "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/DiagnosticUnknowns.php",
+        "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/DuplicateDeclarations.php",
+        "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/DynamicProperties.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/DynamicProperties.php",
+        "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ExportService.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ExportService.php",
+        "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/ImplicitNullable.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/ImplicitNullable.php",
+        "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/Mailer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/Mailer.php",
+        "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/MessageHandler.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/MessageHandler.php",
+        "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/MissingRunner.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/MissingRunner.php",
+        "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/MovableService.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/OverrideTarget.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/OverrideTarget.php",
+        "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/PhpDocTypeConflicts.php",
+        "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/PromotedPropertyBase.php",
+        "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/PromotedPropertyChild.php",
+        "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/PublicPropertyBase.php",
+        "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/PublicPropertyChild.php",
+        "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/RunnerImplementation.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/RunnerImplementation.php",
+        "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/SharedFeature.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/SharedFeature.php",
+        "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/StrictScalarDiagnostics.php",
+        "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/TraitFeatureChild.php",
+        "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/TraitFeatureHost.php",
+        "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/UnusedImport.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/UnusedImport.php",
+        "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+      },
+      {
+        "source": "test/extension/baseline/src/Service/UserService.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Service/UserService.php",
+        "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+      },
+      {
+        "source": "test/extension/baseline/src/Support/Constants.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Support/Constants.php",
+        "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+      },
+      {
+        "source": "test/extension/baseline/src/Support/LogsActivity.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "source": "test/extension/baseline/src/WrongNamespace.php",
+        "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/baseline/src/WrongNamespace.php",
+        "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+      }
+    ],
+    "artifacts": {
+      "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/nativeWindowsC2.cjs": "d2b6d2f4f255f032e591859efdcc6098a8c07fba6f23c611a7dedb42f62f7d07",
+      "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/observed-full-c2.cjs": "d3ca8123939fb70e68d3d882fbb40e4ef54e5981379ddb8f337aa989d482da8f",
+      "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/runner.mjs": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928",
+      "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/preserve-logs.cjs": "c61b4383e7e14c55717fd100f8d5a62c917c69ba7a0c0ef7ee33b1fda742db59"
+    },
+    "runtimes": {
+      "node": {
+        "path": "/mnt/c/Program Files/nodejs/node.exe",
+        "windows": "C:\\Program Files\\nodejs\\node.exe",
+        "sha256": "b3094d0b49f9ad602262a9921551737bb97637c05dd357a06ae98188d7290aa3"
+      },
+      "code": {
+        "path": "/mnt/c/Users/sohop/AppData/Local/Programs/Microsoft VS Code/Code.exe",
+        "windows": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "sha256": "96851792952c34ead53462ad36d973356af2e737b5ed4e433e23c4647e0d6318"
+      }
+    },
+    "installedPackages": [
+      {
+        "path": "/mnt/c/Users/sohop/AppData/Local/Programs/Microsoft VS Code/07f806f999/resources/app/package.json",
+        "sha256": "e14233999f854d6ae0d8e0415286b5adaf030d2d9a0cf1de21befedb8f151762",
+        "version": "1.140.0"
+      }
+    ],
+    "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+    "worktreeStatus": " M docs/php-language-toolchain/future-core-plan.md\n?? docs/php-language-toolchain/reports/core-current-native-windows-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-current-native-windows-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-f14472c2-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-f14472c2-full-regression-2026-10-07.md\n",
+    "prerequisiteAuditSha256": "f9854406702fff4ff3d108c7fc965024620002a1ea3181c88e0b4f86cae0e525",
+    "scope": "Original complete current native Windows C2 with no subset flags; archive logs and assert no unexpected close/restart. No ordinary Profile or VSIX change; not real WSL acceptance.",
+    "compiledTestSource": true,
+    "productRebuilt": false,
+    "testsExecuted": false,
+    "profileUpdated": false,
+    "packaged": false
+  },
+  "failure": "The non-owner tab lost Hover for its unsaved local method.",
+  "actualRuntime": {
+    "platform": "win32",
+    "wrapperNode": "v24.16.0",
+    "editorNode": "v24.21.0",
+    "vscode": "1.140.0"
+  },
+  "fullC2CompletionProofPresent": false,
+  "lifecycleFinalProofPresent": false,
+  "actualRunRawStreamsArchivedWithMatchingHashes": true,
+  "firstMetadataAttemptEditorExecuted": false,
+  "firstMetadataRawStreamsOverwrittenByCorrectionDriver": true,
+  "firstMetadataRunAndInvocationRetained": true,
+  "artifacts": [
+    {
+      "source": ".vscode-test/d169-native-editor-input.json",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-input.json",
+      "sha256": "32851caf4ba978e84a66561def70d1b2157fb9221939f282b34950b5754e3dba"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-run.json",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-run.json",
+      "sha256": "81e73ac6379f8308a1cf49a28db6912d67227024a0d94a62614a8c94ce14c187"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-run.py",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-run.py",
+      "sha256": "83dd507e0fe978e1ab2b976c4841de407ad3e94a7b18ca18f73ccee970e826ab"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-invoke.ps1",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-invoke.ps1",
+      "sha256": "5d2a7cea0d39ec8ada2ceb47ffc1126cba2ad453f47c4ddaeccae454e2002ccc"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-driver.log",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-driver.log",
+      "sha256": "7cc7aae5873db58dc1c01ea146e0e1c71f3e761e034ca575b58e28494458a8a1"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-file-bootstrap-run.py",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-file-bootstrap-run.py",
+      "sha256": "f19aa7c418dc5a59f5855ba2f415a00c9be12bddea1cf270baa5fc40da3c4280"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-file-bootstrap-run.json",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-file-bootstrap-run.json",
+      "sha256": "a6b23e6f09aa0666306c073652d1df9e09f066123974069db9993bcb2a281406"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-file-bootstrap-invoke.ps1",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-file-bootstrap-invoke.ps1",
+      "sha256": "19dd6a539708a301c6fda06bb88750df970caca3c05cfadc2952c02f84df5c30"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-file-bootstrap-driver.log",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-file-bootstrap-driver.log",
+      "sha256": "192aa47bf47ab4fa8a873bff081af92e41a4961dfbc9e17cbbaa624cd1a9ccf6"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-bootstrap.json",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-bootstrap.json",
+      "sha256": "35d5d3c7087ba9b2a7ebaae43dd1825725e79e791bb43fcd1aed94a1db78b3c8"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor-preflight-failure.json",
+      "archive": ".vscode-test/d169-native-editor-evidence/d169-native-editor-preflight-failure.json",
+      "sha256": "632e988b2b34bd3753e50dd0b20de75266aa884d1fc5d2f7dbcd8e2054bdb2f3"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor.stdout",
+      "archive": ".vscode-test/d169-native-editor-evidence/file-bootstrap.stdout",
+      "sha256": "f8be073ea9cbf41138cb705ea491d32eb071e239bad866084a986e2e4b57e0b3"
+    },
+    {
+      "source": ".vscode-test/d169-native-editor.stderr",
+      "archive": ".vscode-test/d169-native-editor-evidence/file-bootstrap.stderr",
+      "sha256": "c39261c2ec76c3c0f7c06dc78bbb6d0338ef9b447b34f715753a969884384db9"
+    },
+    {
+      "source": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/nativeWindowsC2.cjs",
+      "archive": ".vscode-test/d169-native-editor-evidence/nativeWindowsC2.cjs",
+      "sha256": "d2b6d2f4f255f032e591859efdcc6098a8c07fba6f23c611a7dedb42f62f7d07"
+    },
+    {
+      "source": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/observed-full-c2.cjs",
+      "archive": ".vscode-test/d169-native-editor-evidence/observed-full-c2.cjs",
+      "sha256": "d3ca8123939fb70e68d3d882fbb40e4ef54e5981379ddb8f337aa989d482da8f"
+    },
+    {
+      "source": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/runner.mjs",
+      "archive": ".vscode-test/d169-native-editor-evidence/runner.mjs",
+      "sha256": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928"
+    },
+    {
+      "source": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/preserve-logs.cjs",
+      "archive": ".vscode-test/d169-native-editor-evidence/preserve-logs.cjs",
+      "sha256": "c61b4383e7e14c55717fd100f8d5a62c917c69ba7a0c0ef7ee33b1fda742db59"
+    },
+    {
+      "source": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-editor-DU1xdA/native-editor-bootstrap.cjs",
+      "archive": ".vscode-test/d169-native-editor-evidence/native-editor-bootstrap.cjs",
+      "sha256": "3c136ba71c74881284ea5f3e95bcd437f1f0f25bd96ab664fcae8714e98950ea"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/settings.json",
+      "sha256": "a99fe25153e8e92a245c7bd96ccd1b01612a2f45d92d47935fb43dfc90b685cc"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/sharedprocess.log",
+      "sha256": "9ec5943f8ee369f37245120a8b0eff30a12cbabec844b96203787d4602660011"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/agenthost.log",
+      "sha256": "88709d602f24d3cabef60c4811e775847c12173d4409b30fc3d68366295875b6"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/userDataSync.log",
+      "sha256": "4655a3fec2d2792ee8167faedf5a07cd5b9a25c647544aaa173a67c1ad74efce"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/main.log",
+      "sha256": "0a3e7356d8aee15699ca9b99878d5c065e6a63d68ec59830d101bf32613d152a"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/editSessions.log",
+      "sha256": "04751313de200fdcae42ba7b68e770d6bdb249874620cf83fa73c1a6f6d65fa6"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/mcpGateway.log",
+      "sha256": "9ba28b5aaea522955453dc699df3ffb206f4c586af4b5ffea5f2b69b0a124220"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/renderer.log",
+      "sha256": "4b0420faa00349b5ce096e60bbc224ed011409bc4e2732221a5f1ee1bbf05779"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/exthost.log",
+      "sha256": "b89772fdfc41e663657e642f3af3c37bd2bd167100ff451edfe1bbcdc8cf5727"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "75546da4ec9a2690088f52dd0b0bfc0092c1ec4a368342d5a3d55964c15c2836"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/vscode.git/Git.log",
+      "sha256": "2b41209fb22d41a2e93a4a7cb5a46e4d466019502eeed6bbc801a4982d8043bf"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "337f53f51f089418406f4be0a359686bbc69be36bf40418c022627bb0bfd2353"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "c86ed22a0d5f3b71207bdee1561d35e7f55863c42967adbce4f66becb4db29bf"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/output_20261007T043917/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "archive": ".vscode-test/d169-native-editor-evidence/host-logs/sophp-native-windows-host-nXuCYS/logs/20261007T043912/window1/output_20261007T043917/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scratchCleaned": false,
+  "productChanged": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "goalStatus": "active",
+  "editorRuntime": {
+    "platform": "win32",
+    "node": "v24.21.0",
+    "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+    "vscode": "1.140.0"
+  },
+  "wrapperRuntime": {
+    "platform": "win32",
+    "node": "v24.16.0",
+    "arch": "x64",
+    "execPath": "C:\\Program Files\\nodejs\\node.exe"
+  },
+  "completedC2ProofLines": [
+    "C2 PHP 7.2/8.5 Fileinfo constructor signatures, inherited parameters, unsaved override and Undo/Redo passed",
+    "C2 missing closing delimiter: unsaved syntax diagnostic and Undo withdrawal",
+    "C2 onDemand native never diagnostics: {\"sequential\":[10,7,10],\"rapidFinal\":7,\"events\":5,\"finalVisibleMs\":200,\"clearedMs\":36,\"blankMs\":165,\"serverDiagnosticsMs\":111.02070000000003,\"serverChangeMs\":114.76059999999961,\"unsaved\":true}",
+    "C2 onDemand same-file argument diagnostics: 5 → 0, unsaved",
+    "C2 onDemand nested-array calls: two diagnostics, two parameter hints, unsaved repair clears diagnostics",
+    "C2 nested named arguments: outer completion and Signature Help keep the second parameter",
+    "C2 attributed arrow input: unsaved outer named completion and Signature Help use second",
+    "C2 named arguments: Signature Help and completion skip filled parameters after unsaved mixed arguments",
+    "C2 dynamic argument unpack: uncertain signature highlight and named completions suppressed",
+    "C2 literal argument unpack: signature and named completion follow known array entries",
+    "C2 literal argument unpack: invalid order diagnostic appears and clears after an unsaved repair",
+    "C2 documented overload: punctuation in argument comment keeps the matching signature",
+    "C2 signature context: no ghost hints in declarations or text, real call remains available",
+    "C2 onDemand nested-array never call: unreachable after native never only",
+    "C2 interpolated string argument: direct/local type, strict mismatch, weak coercion, unsaved restore",
+    "C2 onDemand exact receiver diagnostic: final class → open class → final method → exact new receiver; exact receiver has → no → has",
+    "C2 onDemand cross-file literal diagnostic: {\"visible\":[true,false,true],\"removedMs\":155,\"restoredMs\":144,\"unsaved\":true}",
+    "C2 onDemand cross-file named and missing arguments: wrong → corrected; missing → optional → required; unsaved",
+    "C2 onDemand cross-file local literal diagnostic: {\"visible\":[false,true,false,true,false],\"restoredMs\":199,\"declarationUnsaved\":true,\"consumerUnsaved\":true}",
+    "C2 onDemand cross-file native return argument: string → int → string → PHPDoc-only, diagnostic has → no → has → no",
+    "C2 onDemand local native return argument: PHPDoc-only → native string → possible mutation → restored, diagnostic no → has → no → has"
+  ],
+  "dataIntegrity": {
+    "actualEditorRunRawStreams": "byte-identical archived and hashes checked against original terminal record",
+    "firstMetadataAttempt": "driver, invocation and terminal record retained; raw stdout/stderr overwritten by incorrect correction-driver filenames; console summary retained, not a byte-identical restoration"
+  },
+  "linuxFullQualification": "Separate D168 original 98 files / 1286 tests all passed on the same product bundle.",
+  "nextAction": "Use a targeted alias control and causal source-state trace before changing ownership or query behavior.",
+  "filesystemControl": {
+    "scope": "Native filesystem/junction and editor-shaped URI control only; no LSP or editor qualification",
+    "platform": "win32",
+    "node": "v24.16.0",
+    "direct": "c:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-native-alias-control-L0lDX9\\src\\Service\\PathAliasRecord.php",
+    "alias": "c:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-native-alias-control-L0lDX9\\alias\\Service\\PathAliasRecord.php",
+    "directReal": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-native-alias-control-L0lDX9\\src\\Service\\PathAliasRecord.php",
+    "aliasReal": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-native-alias-control-L0lDX9\\src\\Service\\PathAliasRecord.php",
+    "directKey": "c:\\users\\sohop\\appdata\\local\\temp\\sophp-native-alias-control-l0ldx9\\src\\service\\pathaliasrecord.php",
+    "aliasKey": "c:\\users\\sohop\\appdata\\local\\temp\\sophp-native-alias-control-l0ldx9\\src\\service\\pathaliasrecord.php",
+    "samePhysicalKey": true,
+    "directEditorUri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-alias-control-L0lDX9/src/Service/PathAliasRecord.php",
+    "aliasEditorUri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-alias-control-L0lDX9/alias/Service/PathAliasRecord.php",
+    "directDecoded": "c:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-native-alias-control-L0lDX9\\src\\Service\\PathAliasRecord.php",
+    "aliasDecoded": "c:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-native-alias-control-L0lDX9\\alias\\Service\\PathAliasRecord.php"
+  }
+}

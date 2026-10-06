@@ -1,0 +1,572 @@
+{
+  "milestone": "D167",
+  "recordedAtUtc": "2026-10-06T19:55:35.857805+00:00",
+  "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+  "bundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d",
+  "sourceInputs": {
+    "scripts/check-native-platform-lsp.mjs": "8bbb6e92e76ce7d0951306f5cf98192a084df591369501dd107aa627b9d781ee",
+    "packages/testkit/dist/index.js": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f",
+    "packages/language-spec/dist/index.js": "4474b8f5a0a541079696acbb074e30d2dc43ba4ecc6b56d2770c00380e1787d9",
+    "packages/language-server/src/server.ts": "39bcd43f7d77a19fed098cc19cfd1a0243d505ad264d26f7ed6a759af77544d1",
+    ".vscode-test/d167-native-windows-prepare.mjs": "adcb24b42d6cced2e6ede810986258d64e3e0ebfb80bffd62ba00e4c14998543"
+  },
+  "copiedCoreAssets": [
+    {
+      "source": "dist/language-server.js",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/language-server.js",
+      "sha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d"
+    },
+    {
+      "source": "dist/candidateWorker.js",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/candidateWorker.js",
+      "sha256": "48a98b81df828f1039f2fcd9f58d58a0b9e50c9365c87f10d54674f3794f4188"
+    },
+    {
+      "source": "dist/portableCandidateSearchWorker.js",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "source": "dist/sourceStatWorker.js",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "source": "dist/builtinSnapshotWorker.js",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/builtinSnapshotWorker.js",
+      "sha256": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd"
+    },
+    {
+      "source": "dist/web-tree-sitter.wasm",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "source": "dist/tree-sitter-php.wasm",
+      "copy": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-current-platform-wIJL6t/engine/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "terminalCopiedCoreAssetsMatch": true,
+  "nativeProtocolMatrix": {
+    "qualified": true,
+    "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+    "recordedAtUtc": "2026-10-06T19:50:52.432380+00:00",
+    "run": {
+      "status": "exited",
+      "childPid": 258300,
+      "parentPid": 258226,
+      "startedAtUtc": "2026-10-06T19:47:31.619162+00:00",
+      "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+      "manifestSha256": "f9740483fa94c82d787de28e3e180fc58db41df82265bdce52d12533abd74eed",
+      "driverSha256": "25aa82a6e144e24583bb434fb676b5534376b49ba5586dd38610582fadf0d8b9",
+      "powershellSha256": "d5c054250e959d33f4f6e0296510af30bba81fee1cbbd16b12bb4dac2d32cc0c",
+      "runtimes": {
+        "node": {
+          "path": "/mnt/c/Program Files/nodejs/node.exe",
+          "sha256": "b3094d0b49f9ad602262a9921551737bb97637c05dd357a06ae98188d7290aa3"
+        },
+        "php": {
+          "path": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-windows-php-_bvaznna/php with spaces/php.exe",
+          "sha256": "d256e5d6bfd86905f336bf39b2f4a68d3fde0faabbce3080330de9600cd8e6c4"
+        }
+      },
+      "sourceAndCopiedAssetIdentityChecked": true,
+      "scope": "Exact current Core bundle on native Windows Node through the existing platform protocol harness. Configured nine target PHP versions and three modes; not nine actual PHP CLIs or an editor/UI/Remote/performance qualification.",
+      "exitCode": 0,
+      "durationSeconds": 101.97917403199244,
+      "finishedAtUtc": "2026-10-06T19:49:13.592068+00:00",
+      "stdoutSha256": "6fd3b1227057e35fe6a9b3916a380c9427f4aa768cd913c58bb2cd9ed6795f80",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedInputs": [],
+      "changedAssets": [],
+      "bootstrapChanged": false,
+      "runnerChanged": false,
+      "runtimeChanges": [],
+      "headChanged": false,
+      "worktreeChanged": false
+    },
+    "bundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d",
+    "nativeNode": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "arch": "x64",
+      "execPath": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "actualPhpMetadata": {
+      "status": 0,
+      "signal": null,
+      "stdout": "{\"version\":\"8.5.11\",\"sapi\":\"cli\",\"os\":\"Windows\",\"loadedIni\":false,\"strContains\":true}",
+      "stderr": "",
+      "error": null,
+      "scope": "Read-only actual CLI metadata; no existing PHP ini or installation changed. Independent of the configured-version LSP matrix.",
+      "metadata": {
+        "version": "8.5.11",
+        "sapi": "cli",
+        "os": "Windows",
+        "loadedIni": false,
+        "strContains": true
+      }
+    },
+    "matrix": {
+      "schema": 1,
+      "platform": "win32",
+      "node": "v24.16.0",
+      "proofs": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.3",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.3",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.3",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.4",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.4",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "7.4",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.0",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.0",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.0",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.1",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.1",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.1",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.2",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.2",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.2",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.3",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.3",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.3",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.4",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.4",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.4",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "experimental",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "queries": 18,
+          "cancelledHover": true,
+          "sameVersionReopen": true,
+          "versionedBuiltins": true
+        }
+      ]
+    },
+    "completeTupleCount": 27,
+    "coreQueryCount": 486,
+    "scope": "Exact current Core bundle on native Windows Node through the existing platform protocol harness. Configured nine target PHP versions and three modes; not nine actual PHP CLIs or an editor/UI/Remote/performance qualification.",
+    "firstPreflightAttemptPreserved": ".vscode-test/d167-native-windows-run.json",
+    "firstPreflightLspExecuted": false,
+    "nativePhpInformationMethod": "Native Node spawnSync with PHP code through stdin and -n; no existing ini changed.",
+    "profileUpdated": false,
+    "packaged": false,
+    "goalStatus": "active"
+  },
+  "nativeCacheRecovery": {
+    "qualified": true,
+    "run": {
+      "status": "exited",
+      "childPid": 259527,
+      "parentPid": 259445,
+      "startedAtUtc": "2026-10-06T19:51:00.907579+00:00",
+      "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+      "manifestSha256": "f9740483fa94c82d787de28e3e180fc58db41df82265bdce52d12533abd74eed",
+      "driverSha256": "407840fe76a44a9106fca43df5790ff3ee90e7742a9165c2c99d521706a96fa0",
+      "powershellSha256": "f26c5911be5040235b67601e5717adf2496a9efd5c843377f776f5115d0c6474",
+      "runtimes": {
+        "node": {
+          "path": "/mnt/c/Program Files/nodejs/node.exe",
+          "sha256": "b3094d0b49f9ad602262a9921551737bb97637c05dd357a06ae98188d7290aa3"
+        },
+        "php": {
+          "path": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-windows-php-_bvaznna/php with spaces/php.exe",
+          "sha256": "d256e5d6bfd86905f336bf39b2f4a68d3fde0faabbce3080330de9600cd8e6c4"
+        }
+      },
+      "sourceAndCopiedAssetIdentityChecked": true,
+      "scope": "Exact current Core on native Windows, five persistent cache recovery sessions, PHP 8.5/onDemand; not full editor, actual CLI version matrix, Remote or performance qualification.",
+      "exitCode": 0,
+      "durationSeconds": 17.02099787001498,
+      "finishedAtUtc": "2026-10-06T19:51:17.921174+00:00",
+      "stdoutSha256": "c998ccde078240432173ee49fe33526e852b7edb98323369d37bafb503eca304",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedInputs": [],
+      "changedAssets": [],
+      "bootstrapChanged": false,
+      "runnerChanged": false,
+      "runtimeChanges": [],
+      "headChanged": false,
+      "worktreeChanged": false
+    },
+    "result": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "phases": [
+        {
+          "phase": "cold",
+          "pid": 26284,
+          "referenceCount": 1,
+          "candidateScan": "[named-candidates] files=4 cached=0 parsed=3 restored=0 declarations=1 restoredDeclarations=0 prepared=2 preparedRestores=0 elapsedMs=152",
+          "completionHoverDefinitionCorrect": true
+        },
+        {
+          "phase": "warm reload",
+          "pid": 49748,
+          "referenceCount": 1,
+          "candidateScan": "[named-candidates] files=4 cached=3 parsed=1 restored=2 declarations=0 restoredDeclarations=1 prepared=0 preparedRestores=2 elapsedMs=109",
+          "completionHoverDefinitionCorrect": true
+        },
+        {
+          "phase": "changed source",
+          "pid": 30380,
+          "referenceCount": 0,
+          "candidateScan": "[named-candidates] files=4 cached=2 parsed=2 restored=1 declarations=1 restoredDeclarations=1 prepared=1 preparedRestores=1 elapsedMs=146",
+          "completionHoverDefinitionCorrect": true
+        },
+        {
+          "phase": "corrupt cache",
+          "pid": 3620,
+          "referenceCount": 0,
+          "candidateScan": "[named-candidates] files=4 cached=0 parsed=3 restored=0 declarations=2 restoredDeclarations=0 prepared=2 preparedRestores=0 elapsedMs=176",
+          "completionHoverDefinitionCorrect": true
+        },
+        {
+          "phase": "warm after recovery",
+          "pid": 19872,
+          "referenceCount": 0,
+          "candidateScan": "[named-candidates] files=4 cached=3 parsed=1 restored=2 declarations=0 restoredDeclarations=2 prepared=0 preparedRestores=2 elapsedMs=124",
+          "completionHoverDefinitionCorrect": true
+        }
+      ],
+      "scope": "Native stdio LSP, onDemand PHP 8.5; no editor UI"
+    },
+    "nativeNode": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "arch": "x64",
+      "execPath": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "actualPhpMetadata": {
+      "status": 0,
+      "signal": null,
+      "stdout": "{\"version\":\"8.5.11\",\"sapi\":\"cli\",\"os\":\"Windows\",\"loadedIni\":false,\"strContains\":true}",
+      "stderr": "",
+      "error": null,
+      "scope": "Read-only actual CLI metadata; no existing PHP ini or installation changed. Independent of the configured-version LSP matrix.",
+      "metadata": {
+        "version": "8.5.11",
+        "sapi": "cli",
+        "os": "Windows",
+        "loadedIni": false,
+        "strContains": true
+      }
+    },
+    "scope": "Exact current Core on native Windows, five persistent cache recovery sessions, PHP 8.5/onDemand; not full editor, actual CLI version matrix, Remote or performance qualification.",
+    "bundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d"
+  },
+  "priorPreparationErrorsPreserved": [
+    {
+      "path": ".vscode-test/d167-preparation-failure.json",
+      "reason": "Nonexistent transport helper filename; actual transport exports are in testkit/dist/index.js. No native test executed. Failed owned scratch identity checked and cleaned before corrected preparation."
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-run.json",
+      "reason": "First PowerShell PHP metadata preflight exited 1 before any LSP matrix ran. Exact cause not independently captured. Native Node/stdio metadata succeeded in the subsequent independent protocol run."
+    }
+  ],
+  "scratchCleaned": true,
+  "archivedRunnerDirectory": ".vscode-test/d167-native-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d167-preparation-failure.json",
+      "sha256": "67617760ba2aed5d6ed639c32ce6963e2c119757a55791556f7858148fb09ed8"
+    },
+    {
+      "path": ".vscode-test/d167-preparation-failure.log",
+      "sha256": "6dfcaeb8dd1cb293dcab7f84b287d41e6517118150498abcf1afe2dda7191ad5"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-prepare.mjs",
+      "sha256": "adcb24b42d6cced2e6ede810986258d64e3e0ebfb80bffd62ba00e4c14998543"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-input.json",
+      "sha256": "f9740483fa94c82d787de28e3e180fc58db41df82265bdce52d12533abd74eed"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-run.py",
+      "sha256": "948b6a2c13871ec4f0c7fbff59a73ca6a12672507216a4020b4f54e87765f310"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-run.json",
+      "sha256": "d264fa3175c9ee48eaff1b68895a063d87ced5b2eab78eadc4d15f1df6a14619"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows.stdout",
+      "sha256": "81af9bbde825964dafccb684280bb92ad95e9268fe7380eb7a392b0ba30313ab"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows.stderr",
+      "sha256": "c29860963f1e06bc61e8140505cdfe0930819b10d038dc98a6f0f570744418da"
+    },
+    {
+      "path": ".vscode-test/d167-native-bootstrap.json",
+      "sha256": "727fd6bce3296d2a477a6c4268bd2737f6c8116914d4ad937b2f5e02eb4b740d"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-protocol.py",
+      "sha256": "25aa82a6e144e24583bb434fb676b5534376b49ba5586dd38610582fadf0d8b9"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-protocol-invoke.ps1",
+      "sha256": "d5c054250e959d33f4f6e0296510af30bba81fee1cbbd16b12bb4dac2d32cc0c"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-protocol-run.json",
+      "sha256": "298777e38adb4fa58885d1e3d8296ae9f404368299dd7bf24df82232c6edaadd"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-protocol.stdout",
+      "sha256": "6fd3b1227057e35fe6a9b3916a380c9427f4aa768cd913c58bb2cd9ed6795f80"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-protocol.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d167-native-protocol-audit.json",
+      "sha256": "1a048fecac27c125ba29dc483670f0d525edc76c528eb98bd28b3502612d251d"
+    },
+    {
+      "path": ".vscode-test/d167-native-protocol-audit.py",
+      "sha256": "353fcaadebb18f7cdfd71116b066b61c18d6efe30b7011ab0429b4d5d911ed8c"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-cache.py",
+      "sha256": "407840fe76a44a9106fca43df5790ff3ee90e7742a9165c2c99d521706a96fa0"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-cache-invoke.ps1",
+      "sha256": "f26c5911be5040235b67601e5717adf2496a9efd5c843377f776f5115d0c6474"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-cache-run.json",
+      "sha256": "22b29ac769ab0fa62dab1e3adc8c99f0b336621912d2140e6c4d4295142f1f96"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-cache.stdout",
+      "sha256": "c998ccde078240432173ee49fe33526e852b7edb98323369d37bafb503eca304"
+    },
+    {
+      "path": ".vscode-test/d167-native-windows-cache.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d167-native-cache-audit.json",
+      "sha256": "889315c4dbd466f8b78e6820a37bb8c26bb12a66cdeac4cbd563e881740ff5e8"
+    },
+    {
+      "path": ".vscode-test/d167-native-evidence/native-platform-runner.mjs",
+      "sha256": "ad890f9c2b5b3ee574b4d50392559d3ab53c67008209850dfd54eb2759388695"
+    },
+    {
+      "path": ".vscode-test/d167-native-evidence/native-preflight-and-protocol.mjs",
+      "sha256": "cef5a363d0143a45db2a970c154a65d8207474ea063668825c202ef5602ce000"
+    },
+    {
+      "path": ".vscode-test/d167-write-report.py",
+      "sha256": "7036945da67d8c019e7a5da7f3b9a7c62d1ab5b6eec1c4bc0b885f94a2cf9980"
+    }
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "scope": "Current native Windows stdio Core; nine configured PHP targets / three modes and five persistent-cache sessions. One actual Windows PHP 8.5.11 metadata observation. Does not qualify nine actual CLIs, Windows editor UI, WSL Remote, complete tool pack, scale or performance.",
+  "remainingScope": [
+    "Current complete Linux LSP combination",
+    "Current Windows editor host, macOS and Remote matrix",
+    "Actual missing PHP CLI versions",
+    "Real WSL user use and long sessions",
+    "Original C1-C4/R4 requirements and all unpassed performance/scale gates"
+  ]
+}

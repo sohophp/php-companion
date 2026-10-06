@@ -1,0 +1,145 @@
+{
+  "stage": "D172",
+  "qualified": true,
+  "scope": "Normal complete native Windows C2, unchanged full suite and deadline. No diagnostic instrumentation. No transfer of historical full LSP, ordinary-edit P95, visible waiting or real WSL qualification.",
+  "sourceCommit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+  "sourceSha256": "82696278e4c5a1cf86acc687ab239c6ab6746e9051cc085ff9575c343dc7c034",
+  "bundleSha256": "fb5db6da3ec2ea7b4b56ef407f09e040fa94f2403c8f05f435a368a49b1ad273",
+  "productionChange": "Remove source-row presence as proof that the project selected type belongs to this open URI; retain physical alias detection and the existing local fork/cache.",
+  "causalEvidence": {
+    "path": ".vscode-test/d171-native-alias-cause.json",
+    "sha256": "7273cb31bcaab19d70b7acd7587a232a704f86a2f79d48b0139b8901f9a04081",
+    "status": "causal-invalid-view-selection-proven"
+  },
+  "run": {
+    "status": "exited",
+    "parentPid": 320120,
+    "childPid": 320258,
+    "startedAtUtc": "2026-10-06T21:07:07.494805+00:00",
+    "manifestSha256": "57aab32c9ca23babafbf35443d4695b6081f07635dba2aedfa185530e168be50",
+    "driverSha256": "f848ef3c62a8decc2ad34a7f80db371627e78c0f7bf8557d704296bf8a89c66f",
+    "stdoutPath": "/var/www/node/php-companion/.vscode-test/d172-native-editor.stdout",
+    "stderrPath": "/var/www/node/php-companion/.vscode-test/d172-native-editor.stderr",
+    "command": [
+      "/mnt/c/Program Files/nodejs/node.exe",
+      "--require",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-IjSNEw\\preserve-logs.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-IjSNEw\\bootstrap.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-IjSNEw\\core",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-IjSNEw\\observed-full-c2.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-IjSNEw\\baseline"
+    ],
+    "scope": "Normal current alias-view fix; original complete native Windows C2 with no subset flags; archive logs and assert no unexpected close/restart. No ordinary Profile or VSIX change; not real WSL acceptance.",
+    "exitCode": 0,
+    "durationSeconds": 86.86488829297014,
+    "finishedAtUtc": "2026-10-06T21:08:34.355272+00:00",
+    "stdoutSha256": "efda188e7f119b7ffeb9de8b5f57a90fb54a655313ec1db3d3799f75f7e8fc7f",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sourceUnchanged": true,
+    "productBundleUnchanged": true,
+    "changedCopies": [],
+    "changedArtifacts": [],
+    "changedRuntimes": [],
+    "headUnchanged": true,
+    "worktreeUnchanged": true
+  },
+  "proofs": {
+    "runtime": {
+      "platform": "win32",
+      "node": "v24.21.0",
+      "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "vscode": "1.140.0"
+    },
+    "settings": {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand"
+    },
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "acceptance": {
+      "suite": "fullC2",
+      "platform": "win32",
+      "node": "v24.21.0",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand"
+    },
+    "wrapper": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "proof": {
+        "suite": "fullC2",
+        "platform": "win32",
+        "node": "v24.21.0",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      }
+    },
+    "aliasEdits": {
+      "rounds": 10,
+      "hoverP95Ms": 21,
+      "declarationUnsaved": true
+    }
+  },
+  "coreAssets": 21,
+  "frozenTestInputs": 12,
+  "baselineInputs": 83,
+  "evidence": "/var/www/node/php-companion/.vscode-test/d172-native-editor-evidence",
+  "archivedHashes": {
+    "d172-native-editor.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "d172-native-editor-prepare.mjs": "6bee50b2d2c00759b1bf61c537414ba2b07e0e8475e3e36bd59661cf5eddfc14",
+    "nativeWindowsC2.cjs": "d2b6d2f4f255f032e591859efdcc6098a8c07fba6f23c611a7dedb42f62f7d07",
+    "d172-native-editor.stdout": "efda188e7f119b7ffeb9de8b5f57a90fb54a655313ec1db3d3799f75f7e8fc7f",
+    "d172-native-editor-input.json": "57aab32c9ca23babafbf35443d4695b6081f07635dba2aedfa185530e168be50",
+    "d172-native-editor-run.py": "f848ef3c62a8decc2ad34a7f80db371627e78c0f7bf8557d704296bf8a89c66f",
+    "d172-native-editor-driver.log": "688694ff15386d902c000e125efec37c8b923ed8deaa725f17496e5f891169cb",
+    "bootstrap.cjs": "b59529e976275377f632dbc2ebcd0563a5b3202b9e8f113772cf18e23001178a",
+    "observed-full-c2.cjs": "b6a129effad27bac60bf9be0a562d2a0bea28b5fb9dee0c638586ae555d722ad",
+    "language-server.js": "fb5db6da3ec2ea7b4b56ef407f09e040fa94f2403c8f05f435a368a49b1ad273",
+    "preserve-logs.cjs": "e4f08e365615768fd7f205671d0af5e13d0727765d74a61a2da4e1d4cfa4bc05",
+    "d172-native-editor-run.json": "740acbf88509ab0e86566f53d46ada2370a5b660e72690ec6403f7703d8f612d",
+    "runner.mjs": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928",
+    "d172-native-editor-audit.py": "22158b9f7630d5ae3a0b3cab29a24f3ee20b0ce32262efdd51a8635341e9d12f",
+    "language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+    "host-logs/sophp-native-windows-host-YA8v6d/settings.json": "a99fe25153e8e92a245c7bd96ccd1b01612a2f45d92d47935fb43dfc90b685cc",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/sharedprocess.log": "c113dcbb25a911e05ed83961297fd4344f6bf65f4856f74d0e397d783c09c177",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/network-shared.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/agenthost.log": "ea8b19757f66659ccd70dfeac23dfe85363b86dcac6e7b9b91a3bd17c7cc9835",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/telemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/userDataSync.log": "5c53369999053b62bfe3f268bd03b29006d254bc3ab047fe61ba78f837b0c34b",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/terminal.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/main.log": "5880565b8c3d5084360d358e79ca1c8d06cef7a699ff60172c0c9ddf567ee04f",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/editSessions.log": "93007047fb0165d85c88cfcb486bb23b41f95db222a319804df26b1689e03421",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/agentHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/remoteTunnelService.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/mcpGateway.log": "228bf5721dea1b56523e8bb4cad3a639f5e9fc3731cc13c60f2598b3ac922b88",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/notebook.rendering.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/views.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/textModelChanges.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/renderer.log": "6d40e54c2312b2af8f6420f5577ccfbfd97c731d2bfd36a637f0739effad1a93",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/network.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/extHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/exthost.log": "a24b6db4423e5c5dafc52b10471e9d39a11e8e23f093e8907e92d646eeb2d044",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/vscode.github-authentication/GitHub Authentication.log": "afdc909f02fda2389d43fa4b7363ac8578df5ce63b136584dcc4f2a8a2b96141",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/vscode.git/Git.log": "475edf25ad9d5bd209087117027ab687fa174654e5e0269749e17ee250a5f858",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/vscode.github/GitHub.log": "6d35b5642ca7d911731d08a6acdbc755ae2c82a6c460088ec5d7a21bfb2d4199",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/sohophp.php-companion/SoPHP.log": "ddeaa316ad01ba476f8a0781e41063abb838794fa68244cfc3cf49905e3cdcd8",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/exthost/vscode.json-language-features/JSON Language Server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/output_20261007T050713/agentSessionsOutput.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/sophp-native-windows-host-YA8v6d/logs/20261007T050708/window1/output_20261007T050713/tasks.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "limitations": [
+    "Historical D168 full LSP remains bound to f14472c2/7159d89f; not transferred to this modified bundle.",
+    "Ten dual-path Hover samples are specific to that fixture, not ordinary-edit or visible-popup P95.",
+    "Native full C2 is not manual WSL or long-session acceptance."
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "goalStatus": "active"
+}

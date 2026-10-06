@@ -1,0 +1,619 @@
+{
+  "stage": "D173",
+  "recordedAtUtc": "2026-10-06T21:15:35.822445+00:00",
+  "sourceSha256": "c2bdaef8174371cefde6c72bfd07fc5b32bf26c1a13f1a560cb782f3cd44cc49",
+  "bundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+  "productionChanges": [
+    "Cancel parser and semantic workspace factory calls after shutdown before creating or reusing resources.",
+    "Handle expected startup warmup cancellation; keep other errors visible.",
+    "Test-mode-only pause/completion hooks for the retained startup and declaration continuations."
+  ],
+  "oldDiagnosticFindings": [
+    {
+      "boundary": "startupWarmup",
+      "shutdownBeforeRelease": false,
+      "before": {
+        "shuttingDown": false,
+        "parserCreated": true,
+        "workspaceCount": 2,
+        "pendingBuiltinRoots": 0
+      },
+      "closedState": null,
+      "afterCausalCompletion": {
+        "shuttingDown": false,
+        "parserCreated": true,
+        "workspaceCount": 2,
+        "pendingBuiltinRoots": 0
+      },
+      "resourcesRemainClosed": null
+    },
+    {
+      "boundary": "startupWarmup",
+      "shutdownBeforeRelease": true,
+      "before": {
+        "shuttingDown": false,
+        "parserCreated": true,
+        "workspaceCount": 2,
+        "pendingBuiltinRoots": 0
+      },
+      "closedState": {
+        "shuttingDown": true,
+        "parserCreated": false,
+        "workspaceCount": 0,
+        "pendingBuiltinRoots": 0
+      },
+      "afterCausalCompletion": {
+        "shuttingDown": true,
+        "parserCreated": true,
+        "workspaceCount": 1,
+        "pendingBuiltinRoots": 0
+      },
+      "resourcesRemainClosed": false
+    },
+    {
+      "boundary": "declarationFacts",
+      "shutdownBeforeRelease": false,
+      "before": {
+        "shuttingDown": false,
+        "parserCreated": true,
+        "workspaceCount": 1,
+        "pendingBuiltinRoots": 0
+      },
+      "closedState": null,
+      "afterCausalCompletion": {
+        "shuttingDown": false,
+        "parserCreated": true,
+        "workspaceCount": 1,
+        "pendingBuiltinRoots": 0
+      },
+      "resourcesRemainClosed": null
+    },
+    {
+      "boundary": "declarationFacts",
+      "shutdownBeforeRelease": true,
+      "before": {
+        "shuttingDown": false,
+        "parserCreated": true,
+        "workspaceCount": 1,
+        "pendingBuiltinRoots": 0
+      },
+      "closedState": {
+        "shuttingDown": true,
+        "parserCreated": false,
+        "workspaceCount": 0,
+        "pendingBuiltinRoots": 0
+      },
+      "afterCausalCompletion": {
+        "shuttingDown": true,
+        "parserCreated": true,
+        "workspaceCount": 0,
+        "pendingBuiltinRoots": 0
+      },
+      "resourcesRemainClosed": false
+    }
+  ],
+  "firstFormalRun": {
+    "qualified": false,
+    "checks": {
+      "terminalExitZero": false,
+      "all36Passed": false,
+      "zeroFailedPendingTodo": false,
+      "original28Retained": true,
+      "exactly8Added": true,
+      "frozenInputsUnchanged": true,
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "nodeUnchanged": true,
+      "resultMatchesTerminal": true,
+      "stdoutMatchesTerminal": true,
+      "stderrMatchesTerminal": true,
+      "driverUnchanged": true
+    },
+    "run": {
+      "status": "exited",
+      "parentPid": 321778,
+      "childPid": 321860,
+      "startedAtUtc": "2026-10-06T21:10:40.690457+00:00",
+      "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+      "worktreeStatus": " M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n M packages/language-server/test/shutdown-version-refresh-stdio.test.ts\n?? docs/php-language-toolchain/reports/core-current-native-windows-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-current-native-windows-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-current-windows-c2-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-current-windows-c2-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-f14472c2-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-f14472c2-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/windows-physical-alias-local-queries-2026-10-07.json\n?? docs/php-language-toolchain/reports/windows-physical-alias-local-queries-2026-10-07.md\n",
+      "inputs": {
+        "packages/language-server/src/server.ts": "c2bdaef8174371cefde6c72bfd07fc5b32bf26c1a13f1a560cb782f3cd44cc49",
+        "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "9aedd273d989e2248f40c0d28b548cdcde53e088cc4295479897c5917d9fc69c",
+        "packages/language-server/vitest.config.ts": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad",
+        "packages/language-server/package.json": "73e62616459b15885ebc1d3703f749db6c1e876a2f7cea3dd2b26b30dd97ca66",
+        "pnpm-lock.yaml": "fca87642f66123e0f5dcfcf43dda5fd31d4c13e0a5a12153987c18467fe4573e",
+        "dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+        "dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "dist/extension.js": "8832fdf8b216168aeb6b90878146d1308521836103469392c349b43df7c46582",
+        "dist/candidateWorker.js": "48a98b81df828f1039f2fcd9f58d58a0b9e50c9365c87f10d54674f3794f4188",
+        "dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+        "dist/language-server.js": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+        "dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/builtinSnapshotWorker.js": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd",
+        "dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+        "dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+        "dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+        "dist/node_modules/web-tree-sitter/index.js": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+      },
+      "node": {
+        "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "version": "v22.14.0",
+        "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1"
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d173-background-formal.json"
+      ],
+      "driverSha256": "d31e62b1b89df6d0d19c5e3a873d5c24f4423aed7094528814a7474ed1de23e0",
+      "exitCode": 1,
+      "durationSeconds": 176.92151547095273,
+      "finishedAtUtc": "2026-10-06T21:13:37.609901+00:00",
+      "stdoutSha256": "4eb7bc580ff3fe13c487f83ede201e981c1daf3be6447270dfe1089cf1c9e8e4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedInputs": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "nodeUnchanged": true,
+      "resultSha256": "57c880670bc7dd5bfcd3d538c6a4573e6b6416382a22abd990edd908eed920d3",
+      "counts": {
+        "numTotalTestSuites": 1,
+        "numTotalTests": 36,
+        "numPassedTests": 30,
+        "numFailedTests": 6,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "newBoundaryCases": [
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=false",
+          "status": "failed"
+        },
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=true",
+          "status": "failed"
+        },
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=false",
+          "status": "failed"
+        },
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=true",
+          "status": "failed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in onDemand, shutdown=false",
+          "status": "failed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in onDemand, shutdown=true",
+          "status": "passed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in progressive, shutdown=false",
+          "status": "failed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in progressive, shutdown=true",
+          "status": "passed"
+        }
+      ],
+      "qualified": false
+    },
+    "originalDriverQualified": false,
+    "auditCorrection": "The driver mistakenly expected 44 tests by treating the previous three-file collection of 36 as one file. The selected shutdown file actually had 28; all 28 plus the 8 new cases are required here. Original driver/result preserved; no rerun or gate relaxation.",
+    "missingPriorCases": {},
+    "addedCases": {
+      "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=false": 1,
+      "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=true": 1,
+      "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=false": 1,
+      "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=true": 1,
+      "finishes declaration facts without reopening closed resources in onDemand, shutdown=false": 1,
+      "finishes declaration facts without reopening closed resources in onDemand, shutdown=true": 1,
+      "finishes declaration facts without reopening closed resources in progressive, shutdown=false": 1,
+      "finishes declaration facts without reopening closed resources in progressive, shutdown=true": 1
+    },
+    "counts": {
+      "numTotalTests": 36,
+      "numPassedTests": 30,
+      "numFailedTests": 6,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "evidence": "/var/www/node/php-companion/.vscode-test/d173-background-formal-evidence",
+    "archivedHashes": {
+      "server.ts": "c2bdaef8174371cefde6c72bfd07fc5b32bf26c1a13f1a560cb782f3cd44cc49",
+      "d173-background-formal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "d173-background-formal.stdout": "4eb7bc580ff3fe13c487f83ede201e981c1daf3be6447270dfe1089cf1c9e8e4",
+      "sophp-d173-background-formal.json": "57c880670bc7dd5bfcd3d538c6a4573e6b6416382a22abd990edd908eed920d3",
+      "d173-background-formal-driver.log": "59b529d0a9898fc702fd0e93e1e9a38457b5bcbeb7bb50599003da3253101f00",
+      "d173-background-formal.json": "62b52a8c2e9a90742986fd9725bd3907f5cf59a6eb7ff82af4e7228ba6872862",
+      "shutdown-version-refresh-stdio.test.ts": "9aedd273d989e2248f40c0d28b548cdcde53e088cc4295479897c5917d9fc69c",
+      "d173-background-formal-run.py": "d31e62b1b89df6d0d19c5e3a873d5c24f4423aed7094528814a7474ed1de23e0",
+      "d173-background-formal-post-audit.py": "a5ad653903865bb6b14af3182b8f7b46ecf107cfd0a3ba272c370addbcf75e27"
+    },
+    "scope": "Complete shutdown test file, including eight new startup/declaration causal controls. Not entire current LSP, editor host, ordinary-edit P95, or manual WSL."
+  },
+  "correctedSelectedBoundaries": {
+    "qualified": true,
+    "run": {
+      "status": "exited",
+      "parentPid": 325356,
+      "childPid": 325424,
+      "startedAtUtc": "2026-10-06T21:14:12.663877+00:00",
+      "commit": "f14472c291b7361ef226ef8ba07bff965f23ea46",
+      "worktreeStatus": " M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n M packages/language-server/test/shutdown-version-refresh-stdio.test.ts\n?? docs/php-language-toolchain/reports/core-current-native-windows-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-current-native-windows-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-current-windows-c2-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-current-windows-c2-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-f14472c2-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-f14472c2-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/windows-physical-alias-local-queries-2026-10-07.json\n?? docs/php-language-toolchain/reports/windows-physical-alias-local-queries-2026-10-07.md\n",
+      "inputs": {
+        "packages/language-server/src/server.ts": "c2bdaef8174371cefde6c72bfd07fc5b32bf26c1a13f1a560cb782f3cd44cc49",
+        "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "ad7791a4e21f933b8c8227a814c1c08f02219257ba286e4adfd7d89f8d4688ef",
+        "packages/language-server/vitest.config.ts": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad",
+        "packages/language-server/package.json": "73e62616459b15885ebc1d3703f749db6c1e876a2f7cea3dd2b26b30dd97ca66",
+        "pnpm-lock.yaml": "fca87642f66123e0f5dcfcf43dda5fd31d4c13e0a5a12153987c18467fe4573e",
+        "dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+        "dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+        "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "dist/extension.js": "8832fdf8b216168aeb6b90878146d1308521836103469392c349b43df7c46582",
+        "dist/candidateWorker.js": "48a98b81df828f1039f2fcd9f58d58a0b9e50c9365c87f10d54674f3794f4188",
+        "dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+        "dist/language-server.js": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+        "dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "dist/builtinSnapshotWorker.js": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd",
+        "dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+        "dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+        "dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+        "dist/node_modules/web-tree-sitter/index.js": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+      },
+      "node": {
+        "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "version": "v22.14.0",
+        "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1"
+      },
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "-t",
+        "finishes (startup warmup|declaration facts)",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d173-background-boundaries.json"
+      ],
+      "driverSha256": "02aed4e6db672f16747b30d68502fb1068770d3f59777165444c5910e590943e",
+      "exitCode": 0,
+      "durationSeconds": 32.88095047802199,
+      "finishedAtUtc": "2026-10-06T21:14:45.542354+00:00",
+      "stdoutSha256": "f3debe8096f3206c4f105dba3e92b050ac701566a916bf56538176541de78d42",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "changedInputs": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "nodeUnchanged": true,
+      "resultSha256": "668812c966a3b5ea6ccbd24f5fc6915b1126da21db5dc30a5dbb949104851158",
+      "counts": {
+        "numTotalTestSuites": 1,
+        "numTotalTests": 36,
+        "numPassedTests": 8,
+        "numFailedTests": 0,
+        "numPendingTests": 28,
+        "numTodoTests": 0
+      },
+      "newBoundaryCases": [
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=false",
+          "status": "passed"
+        },
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=true",
+          "status": "passed"
+        },
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=false",
+          "status": "passed"
+        },
+        {
+          "name": "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=true",
+          "status": "passed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in onDemand, shutdown=false",
+          "status": "passed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in onDemand, shutdown=true",
+          "status": "passed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in progressive, shutdown=false",
+          "status": "passed"
+        },
+        {
+          "name": "finishes declaration facts without reopening closed resources in progressive, shutdown=true",
+          "status": "passed"
+        }
+      ],
+      "qualified": true
+    },
+    "evidence": "/var/www/node/php-companion/.vscode-test/d173-background-boundaries-evidence",
+    "archivedHashes": {
+      "server.ts": "c2bdaef8174371cefde6c72bfd07fc5b32bf26c1a13f1a560cb782f3cd44cc49",
+      "sophp-d173-background-boundaries.json": "668812c966a3b5ea6ccbd24f5fc6915b1126da21db5dc30a5dbb949104851158",
+      "d173-background-boundaries.stdout": "f3debe8096f3206c4f105dba3e92b050ac701566a916bf56538176541de78d42",
+      "d173-background-boundaries-driver.log": "0276512461fa0656f59bedfd5c46398c067d1962d6ec7341194ae8035fe3b9c4",
+      "d173-background-boundaries.json": "92677c49468b0affb7ff3529b48c6ee5e806b8cffee11dc00d860597e3d907fb",
+      "d173-background-boundaries.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "d173-background-boundaries-run.py": "02aed4e6db672f16747b30d68502fb1068770d3f59777165444c5910e590943e",
+      "shutdown-version-refresh-stdio.test.ts": "ad7791a4e21f933b8c8227a814c1c08f02219257ba286e4adfd7d89f8d4688ef"
+    },
+    "sameProductAsFirstRun": true,
+    "scope": "Eight selected new causal cases, 12 normal/shutdown/version/mode combinations. The other 28 collected cases were not selected, not a complete latest-file or full LSP qualification."
+  },
+  "newCausalCombinations": 12,
+  "firstRunFailuresPreserved": [
+    "Four new startup assertions incorrectly expected one workspace; initialize had already prepared both roots.",
+    "Two normal-control Hovers queried declaration names and returned null; corrected controls query an actual unsaved method call.",
+    "Driver mistakenly expected 44 tests from an older three-file count; actual selected file retains 28 and adds 8. Original terminal and audit retained."
+  ],
+  "originalExistingCasesPassed": 28,
+  "latestFullLspQualified": false,
+  "latestWholeShutdownFileQualified": false,
+  "ordinaryHostQualification": "D174 original complete ordinary C1 passed on this exact bundle; no unexpected closes/restart failures/pending refreshes. Not real WSL or full roadmap.",
+  "artifacts": {
+    ".vscode-test/d170-background-causal-probe.json": "21d1b0819323465501b02012ba5987631d2ad111a3c7dca90cb60921963b4e2d",
+    ".vscode-test/d170-background-causal-probe.mjs": "5331e573cbd5100dc8027ff218785bb542e1881ea2602665d5740db001642759",
+    ".vscode-test/d173-background-formal.json": "62b52a8c2e9a90742986fd9725bd3907f5cf59a6eb7ff82af4e7228ba6872862",
+    ".vscode-test/d173-background-formal-post-audit.json": "4f28f55bd72a294969546a639f5604ae131ed8b626ca4be5ae3007ed74689acd",
+    ".vscode-test/d173-background-boundaries.json": "92677c49468b0affb7ff3529b48c6ee5e806b8cffee11dc00d860597e3d907fb",
+    ".vscode-test/d173-background-boundaries-audit.json": "7037fcbc85deed076921f230892fe79b490c454113d3a4d84da9fbc4fd6b16e2",
+    ".vscode-test/d173-background-package-build.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    ".vscode-test/d173-background-product-build.log": "84d295270942bb2333e183b37edd8b8278345eb5815d3d529dcfb33d2954253a",
+    ".vscode-test/d173-background-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".vscode-test/d173-native-owned-scratch-cleanup.json": "5057ced5d2781c51a51c02b6196615e82d254dc35d03e8afb5a900ef6d61fe43",
+    ".vscode-test/d174-ordinary-c1-audit.json": "d61deb33c5690df49dc87da1c861c5ba7f9eb73f819459b182d97e320c92c357"
+  },
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "ordinaryCompleteC1": {
+    "qualified": true,
+    "recordedAtUtc": "2026-10-06T21:17:56.793335+00:00",
+    "run": {
+      "status": "exited",
+      "childPid": 326516,
+      "parentPid": 326410,
+      "startedAtUtc": "2026-10-06T21:15:39.450596+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d174-ordinary-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 133.32240129000274,
+      "finishedAtUtc": "2026-10-06T21:17:52.771223+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "logSha256": "882280c944fcd0476c2ba9c52fee46888dc092f21e1c478d06e7482f4a1e035f"
+    },
+    "bundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+    "inputCount": 4866,
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "archivedSoPHPLogs": [
+      {
+        "path": ".vscode-test/d174-ordinary-c1-log-archive/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "sha256": "99e66a1863311b6fa67a736216000ee4407368ae6b8c76a0798d692aa9708877",
+        "bytes": 268034
+      }
+    ],
+    "detectedLifecycleFailures": [],
+    "visibleObservations": {
+      "local": {
+        "samplesMs": [
+          244,
+          232,
+          250,
+          231,
+          243,
+          249
+        ],
+        "inputSamplesMs": [
+          88,
+          34,
+          81,
+          21,
+          72,
+          39
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791321429295,
+            "input": 1791321429383,
+            "visible": 1791321429539
+          },
+          {
+            "started": 1791321429773,
+            "input": 1791321429807,
+            "visible": 1791321430005
+          },
+          {
+            "started": 1791321430213,
+            "input": 1791321430293,
+            "visible": 1791321430463
+          },
+          {
+            "started": 1791321430723,
+            "input": 1791321430744,
+            "visible": 1791321430953
+          },
+          {
+            "started": 1791321431181,
+            "input": 1791321431253,
+            "visible": 1791321431424
+          },
+          {
+            "started": 1791321431658,
+            "input": 1791321431697,
+            "visible": 1791321431908
+          }
+        ],
+        "medianMs": 244,
+        "maxMs": 250,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          2.6000330000024405,
+          2.4397119999994175,
+          2.0476609999968787,
+          3.041176999999152,
+          4.965781999999308,
+          4.013870999995561
+        ]
+      },
+      "crossNamespace": {
+        "samplesMs": [
+          322,
+          236,
+          223,
+          305,
+          280,
+          254
+        ],
+        "inputSamplesMs": [
+          40,
+          35,
+          25,
+          50,
+          37,
+          74
+        ],
+        "medianMs": 267,
+        "maxMs": 322,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      },
+      "vendor": {
+        "samplesMs": [
+          237,
+          276,
+          275,
+          240,
+          246,
+          257
+        ],
+        "inputSamplesMs": [
+          34,
+          45,
+          37,
+          72,
+          28,
+          33
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791321436915,
+            "input": 1791321436949,
+            "visible": 1791321437153
+          },
+          {
+            "started": 1791321437348,
+            "input": 1791321437393,
+            "visible": 1791321437624
+          },
+          {
+            "started": 1791321437843,
+            "input": 1791321437880,
+            "visible": 1791321438118
+          },
+          {
+            "started": 1791321438357,
+            "input": 1791321438429,
+            "visible": 1791321438597
+          },
+          {
+            "started": 1791321438803,
+            "input": 1791321438831,
+            "visible": 1791321439049
+          },
+          {
+            "started": 1791321439263,
+            "input": 1791321439295,
+            "visible": 1791321439520
+          }
+        ],
+        "medianMs": 252,
+        "maxMs": 276,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      },
+      "unsavedReceiverSwitch": {
+        "beforeMs": 310,
+        "afterMs": 211,
+        "restoredMs": 208,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    },
+    "scope": "D174 current physical-alias query fix plus allocation shutdown guards. Original complete C1 ordinary host, runtime PHP 7.2 and automatic project version detection. Adds a final lifecycle gate for unexpected closes, restart failures and outstanding folder/config refreshes; no tracing, profiler or fatal monitor. Not real WSL acceptance.",
+    "ordinaryHost": true,
+    "shadow": false,
+    "fatalMonitor": false,
+    "readOnlyLogArchiver": true
+  },
+  "ordinaryC1ArchiveHashes": {
+    "d174-ordinary-c1-audit.py": "b6e90f8f35865df4c54b03f83b3bec7336bf7f717f79923a1866515bdd355cf6",
+    "d174-ordinary-c1.py": "1378895f2c665b85519cfa35c85d5001f549456174ba8b8e7adf7407b24f6b9b",
+    "d174-ordinary-c1-run.json": "35a5171ed006a6ee24010858e2f99d65be81e2d1607df3dd8b7a99e363ea70c2",
+    "d174-ordinary-c1-driver.log": "79158ec3d6816a0f1c04f29a41f3bd97153f376fcdf4efabe25218367a679fed",
+    "d174-ordinary-c1-input.json": "8811dfdfd7b8a5d87ecad8b3f0b9036bb5b578acec7d25421ddb9d77e20cef45",
+    "d174-ordinary-c1.log": "882280c944fcd0476c2ba9c52fee46888dc092f21e1c478d06e7482f4a1e035f",
+    "d174-ordinary-c1-audit.json": "d61deb33c5690df49dc87da1c861c5ba7f9eb73f819459b182d97e320c92c357",
+    "host-logs/php-companion-extension-jChTSH/c1.code-workspace": "c3339703bdf654e2d157f193bafb6f268e2695b086704fa4f1c0bde1b7ad2374",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/sharedprocess.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/network-shared.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/agenthost.log": "a95cea7e3e405767a85e7c7d6e326e04ddc07c8741d9a54a6e866ae405d37717",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/telemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/userDataSync.log": "dc9e22b6ddd8fbe1716cfe213d58f1d983a05f58d2f6f082af9d90f2412457ec",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/terminal.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/main.log": "8508be973ec708e17dc7997af42e6ed3e394302fa5f8ec9b189fa924ceac55de",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/editSessions.log": "456fa8ff05dd9d862dfce4c865ecb23ac3e3e6e505352084a34abf5dccfea604",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/agentHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/remoteTunnelService.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/mcpGateway.log": "d2b9759e00829a070376b407135f98e471dc02ad152b4d4666e773ff104c894b",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/notebook.rendering.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/views.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/textModelChanges.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/renderer.log": "6f69cb5bdc7b829e7177d21e47e62c364343b7e26f562df2fdaad74318d0b32f",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/network.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/extHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/exthost.log": "66a1d52ea6672f82547d34206ecf192f962cb19ce415ef2020fafc82a5ab23be",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/vscode.github-authentication/GitHub Authentication.log": "516a119307641803eb8460763230c7135d46677b0936d4bdae3b7a1ae17d4d09",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/vscode.git/Git.log": "254b11f219f555f13a7eebc75095351a23d2516743819b58f7d5b642321ff976",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/vscode.github/GitHub.log": "2d653639e1042f142bacd7caaf00a36873568db3c6da91391cd7f99d0cddc31a",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/sohophp.php-companion/SoPHP.log": "99e66a1863311b6fa67a736216000ee4407368ae6b8c76a0798d692aa9708877",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/vscode.json-language-features/JSON Language Server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/output_20261007T051608/agentSessionsOutput.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-logs/php-companion-extension-jChTSH/logs/20261007T051554/window1/output_20261007T051608/tasks.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

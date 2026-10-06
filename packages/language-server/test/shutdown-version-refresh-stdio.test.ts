@@ -276,15 +276,20 @@ type LifecycleFixture = {
   close: () => Promise<void>; cleanup: () => Promise<void>;
 };
 
-async function lifecycleFixture(indexingMode: 'onDemand' | 'progressive', phpVersion: string): Promise<LifecycleFixture> {
+async function lifecycleFixture(indexingMode: 'onDemand' | 'progressive', phpVersion: string,
+  options: { pauseStartupWarmup?: boolean } = {}): Promise<LifecycleFixture> {
   const base = await mkdtemp(join(tmpdir(), 'sophp-closed-semantic-lifecycle-'));
   let server: ChildProcessWithoutNullStreams | undefined;
   try {
     const text = '<?php namespace App; class Item { public function ping(): int { return 1; } }';
-    const rootUri = pathToFileURL(base).toString();
-    const uri = pathToFileURL(join(base, 'Item.php')).toString();
-    await writeFile(join(base, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
-    await writeFile(join(base, 'Item.php'), text);
+    const projectRoot = options.pauseStartupWarmup ? join(base, 'one') : base;
+    const roots = options.pauseStartupWarmup ? [projectRoot, join(base, 'two')] : [projectRoot];
+    if (options.pauseStartupWarmup) await Promise.all(roots.map(root => mkdir(root)));
+    const rootUri = pathToFileURL(projectRoot).toString();
+    const uri = pathToFileURL(join(projectRoot, 'Item.php')).toString();
+    await Promise.all(roots.map(root => writeFile(join(root, 'composer.json'),
+      JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }))));
+    await writeFile(join(projectRoot, 'Item.php'), text);
     const provider = join(base, 'provider.mjs');
     await writeFile(provider, `let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'lifecycle.fixture',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:[]}}));`);
     server = spawn(process.execPath, [resolve('../../dist/language-server.js'), '--stdio',
@@ -304,8 +309,12 @@ async function lifecycleFixture(indexingMode: 'onDemand' | 'progressive', phpVer
     };
     const state = (): Promise<any> => request('phpCompanion/testSemanticLifecycle');
     await request('initialize', { processId: null, capabilities: {}, rootUri,
+      ...(options.pauseStartupWarmup ? { workspaceFolders: roots.map(root => ({ uri: pathToFileURL(root).toString(), name: root })) } : {}),
       initializationOptions: { phpVersion, indexingMode, testMode: true } });
+    if (options.pauseStartupWarmup) expect(await request('phpCompanion/testPauseNextQuery', { method: 'startupWarmup' })).toBe(true);
     notify('initialized', {});
+    if (options.pauseStartupWarmup) await output.waitFor(message => message.method === 'window/logMessage'
+      && message.params.message === '[test-query-paused] method=startupWarmup');
     const before = await state();
     expect(before).toMatchObject({ shuttingDown: false, parserCreated: true });
     expect(before.workspaceCount).toBeGreaterThan(0);
@@ -322,6 +331,70 @@ async function lifecycleFixture(indexingMode: 'onDemand' | 'progressive', phpVer
 function expectClosedSemanticState(state: unknown): void {
   expect(state).toEqual({ shuttingDown: true, parserCreated: false, workspaceCount: 0, pendingBuiltinRoots: 0 });
 }
+
+it.each(['7.2', '8.5'].flatMap(phpVersion => [false, true].map(shutdownBeforeRelease => [phpVersion, shutdownBeforeRelease] as const)))(
+  'finishes startup warmup without reopening closed resources in PHP %s, shutdown=%s', async (phpVersion, shutdownBeforeRelease) => {
+    const fixture = await lifecycleFixture('onDemand', phpVersion, { pauseStartupWarmup: true });
+    try {
+      // initialize already prepares both roots; shutdown must clear them before
+      // the retained warmup continuation attempts to reuse the next root.
+      expect((await fixture.state()).workspaceCount).toBe(2);
+      if (shutdownBeforeRelease) {
+        await fixture.request('shutdown');
+        expectClosedSemanticState(await fixture.state());
+      }
+      expect(await fixture.request('phpCompanion/testReleaseQuery', { method: 'startupWarmup' })).toBe(true);
+      await fixture.output.waitFor(message => message.method === 'window/logMessage'
+        && message.params.message === '[test-startup-warmup-finished]');
+      const cancellations = fixture.output.messages.filter((message: any) => message.method === 'window/logMessage'
+        && message.params.message === '[test-startup-warmup-cancelled]');
+      expect(cancellations).toHaveLength(shutdownBeforeRelease ? 1 : 0);
+      if (shutdownBeforeRelease) expectClosedSemanticState(await fixture.state());
+      else {
+        expect(await fixture.state()).toMatchObject({ shuttingDown: false, parserCreated: true, workspaceCount: 2 });
+        await fixture.request('shutdown');
+        expectClosedSemanticState(await fixture.state());
+      }
+      await fixture.close();
+    } finally { await fixture.cleanup(); }
+  }, 60_000);
+
+it.each(['onDemand', 'progressive'].flatMap(indexingMode => [false, true].map(shutdownBeforeRelease =>
+  [indexingMode as 'onDemand' | 'progressive', shutdownBeforeRelease] as const)))(
+  'finishes declaration facts without reopening closed resources in %s, shutdown=%s', async (indexingMode, shutdownBeforeRelease) => {
+    for (const phpVersion of ['7.2', '8.5']) {
+      const fixture = await lifecycleFixture(indexingMode, phpVersion);
+      try {
+        // Keep the unsaved declaration distinct from the progressive disk scan.
+        const source = '<?php namespace App; class Item { public function freshFact(): int { return 1; } public function inspect(): int { return $this->freshFact(); } }';
+        expect(await fixture.request('phpCompanion/testPauseNextQuery', { method: 'declarationFacts' })).toBe(true);
+        fixture.notify('textDocument/didOpen', { textDocument: { uri: fixture.uri, languageId: 'php', version: 1, text: source } });
+        await fixture.output.waitFor(message => message.method === 'window/logMessage'
+          && message.params.message === '[test-query-paused] method=declarationFacts');
+        if (shutdownBeforeRelease) {
+          await fixture.request('shutdown');
+          expectClosedSemanticState(await fixture.state());
+        }
+        expect(await fixture.request('phpCompanion/testReleaseQuery', { method: 'declarationFacts' })).toBe(true);
+        const marker = shutdownBeforeRelease ? `[test-open-publication-cancelled] uri=${fixture.uri}`
+          : `[test-declaration-facts-refreshed] uri=${fixture.uri}`;
+        await fixture.output.waitFor(message => message.method === 'window/logMessage' && message.params.message === marker);
+        if (shutdownBeforeRelease) {
+          expectClosedSemanticState(await fixture.state());
+          expect(fixture.output.messages.some((message: any) => message.method === 'window/logMessage'
+            && message.params.message === `[test-declaration-facts-refreshed] uri=${fixture.uri}`)).toBe(false);
+        } else {
+          expect(await fixture.state()).toMatchObject({ shuttingDown: false, parserCreated: true, workspaceCount: 1 });
+          const hover = await fixture.request('textDocument/hover', { textDocument: { uri: fixture.uri },
+            position: { line: 0, character: source.lastIndexOf('freshFact') + 2 } });
+          expect(JSON.stringify(hover)).toContain('freshFact');
+          await fixture.request('shutdown');
+          expectClosedSemanticState(await fixture.state());
+        }
+        await fixture.close();
+      } finally { await fixture.cleanup(); }
+    }
+  }, 60_000);
 
 it.each(['onDemand', 'progressive'] as const)('keeps semantic resources closed after pending open/change interop in %s mode', async indexingMode => {
   for (const phpVersion of ['7.2', '8.5']) for (const event of ['open', 'change']) {
