@@ -68,6 +68,8 @@ try {
     nativeNumericPipeReturn: { declaration: 'function fill(int $mode): Row { return new Row(); }', call: '$input="42";$value=$input |> fill(...);' },
     conditionalNativeFalseReturn: { declaration: '/** @return ($mode is false ? Row : int) */function fill(false|int $mode){}', call: '$value=fill(false);' },
     conditionalNativeTrueOutput: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(true|int $mode,&$value){}', call: 'fill(true,$value);' },
+    nativeCloneWeak: { declaration: '', call: "$original=new Row();$value=clone($original,['mode'=>'42 ']);" },
+    nativeCloneMember: { declaration: 'class Box {public Row $row;}', call: "$box=new Box();$box->row=new Row();$value=clone($box->row,['mode'=>42.]);" },
     variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
     variadicNamed: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill(first:$first,result:$value);' },
     variadicGeneric: { declaration: '/** @template T of object\n * @param class-string<T> $class\n * @param-out T $values */function fill(string $class,&...$values){}', call: 'fill(Row::class,$first,$value);' },
@@ -80,11 +82,14 @@ try {
     'Native false union fixture requires PHP 8');
   assert.ok(fixtureFamily !== 'conditionalNativeTrueOutput' || Number(process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5') >= 8.2,
     'Native true fixture requires PHP 8.2');
+  const cloneFamily = ['nativeCloneWeak', 'nativeCloneMember'].includes(fixtureFamily);
+  assert.ok(!cloneFamily || Number(process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5') >= 8.5,
+    'Clone-with fixture requires PHP 8.5');
   const selected = outputFamilies[fixtureFamily];
   const coldFixtureFiles = {
-    'src/OutputQuery/Row.php': "<?php namespace App\\OutputQuery; class Row {public function name(): string {return 'row';}}",
+    'src/OutputQuery/Row.php': "<?php namespace App\\OutputQuery; class Row {" + (cloneFamily ? 'public int $mode;' : '') + "public function name(): string {return 'row';}}",
     'src/output-query-functions.php': '<?php namespace App\\OutputQuery; ' + selected.declaration,
-    'OutputParameterConsumer.php': '<?php\nnamespace App\\OutputQuery;\nfunction run(): void {\n    ' + selected.call + '\n    $value->;\n}\n',
+    'OutputParameterConsumer.php': '<?php\n' + (cloneFamily ? 'declare(strict_types=1);\n' : '') + 'namespace App\\OutputQuery;\nfunction run(): void {\n    ' + selected.call + '\n    $value->;\n}\n',
   };
   const coldFixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';
   assert.equal(runner.split(coldFixtureCopy).length, 2, 'One fixture copy must precede editor launch');

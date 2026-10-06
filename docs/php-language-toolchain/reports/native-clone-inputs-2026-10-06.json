@@ -1,0 +1,300 @@
+{
+  "milestone": "D150",
+  "auditedAtUtc": "2026-10-06T08:20:34.582040+00:00",
+  "baseCommit": "1884d233dc23f2a991a4fdf1dd132e21dec03382",
+  "goalStatus": "active",
+  "product": {
+    "bundleSha256": "51d8a87e6bafeb08b80522881fc3ce980db0272f7eae3eb7cc9d5a06c4f50fee",
+    "semanticSourceSha256": "314afe9e7f5470452935c090056e9a5999c95dadca6e9403f8bbd62d0f17053c",
+    "parserSourceSha256": "1212ec34881440d2da5a463c62d6995e66751d25847070d9adfe922ff917e082",
+    "languageSpecSourceSha256": "33f1d7190a1fd3daa082e1df921ad37d6bd13b3cf4ac9ae8ac95017a55f1b9dd",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "engineVersion": "v76"
+  },
+  "baseline": {
+    "nativeObservations": 384,
+    "ordinaryAssignmentDifferences": 70,
+    "semantic": {
+      "cases": 512,
+      "mismatching": 260,
+      "falseNegatives": 204,
+      "falsePositives": 56
+    }
+  },
+  "prototype": {
+    "numericCases": 512,
+    "numericMismatches": [
+      260,
+      16,
+      0
+    ],
+    "safetyNativeObservations": 60,
+    "safetyCases": 120,
+    "safetyMismatches": [
+      24,
+      0
+    ],
+    "recoveryCases": 98,
+    "recoveryPassed": 98
+  },
+  "native": {
+    "runtime": {
+      "executable": "/opt/remi/php85/root/usr/bin/php",
+      "version": "8.5.9",
+      "intSize": 8,
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    "observations": 444,
+    "mismatching": 0,
+    "fixtureSha256": "90ba8557261aa3c64ece967102899f985658aa4e8c89207230a7575af63fb6c1"
+  },
+  "parser": {
+    "numTotalTests": 158,
+    "numPassedTests": 158,
+    "numFailedTests": 0,
+    "success": true
+  },
+  "languageSpec": {
+    "numTotalTests": 312,
+    "numPassedTests": 312,
+    "numFailedTests": 0,
+    "success": true
+  },
+  "semantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 20820,
+      "numPassedTests": 20820,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 141,
+    "inputs": 3111,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 3747992,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d150-final-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T08:15:23.931832+00:00",
+      "exitCode": 0,
+      "durationSeconds": 72.34054181800457,
+      "finishedAtUtc": "2026-10-06T08:16:36.270523+00:00"
+    },
+    "bundleSha256": "51d8a87e6bafeb08b80522881fc3ce980db0272f7eae3eb7cc9d5a06c4f50fee",
+    "sourceSha256": "314afe9e7f5470452935c090056e9a5999c95dadca6e9403f8bbd62d0f17053c",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "lsp": {
+    "scope": "Four related files, not whole LSP",
+    "total": 63,
+    "passed": 63,
+    "failed": 0,
+    "pending": 0,
+    "files": [
+      {
+        "file": "analysis.test.ts",
+        "cases": 48
+      },
+      {
+        "file": "native-boundary-diagnostics-stdio.test.ts",
+        "cases": 6
+      },
+      {
+        "file": "native-clone-stdio.test.ts",
+        "cases": 8
+      },
+      {
+        "file": "php-runtime-syntax.test.ts",
+        "cases": 1
+      }
+    ]
+  },
+  "hosts": [
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 598,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 195,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "nativeCloneWeak",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 483,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 228,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "nativeCloneMember",
+      "rendererExceptions": 0
+    }
+  ],
+  "hot": {
+    "scope": "Fixed PHP 8.5 strict caller clone-with native scalar document, two files; first completion without query prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "51d8a87e6bafeb08b80522881fc3ce980db0272f7eae3eb7cc9d5a06c4f50fee",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 150.50826299999972,
+        "p95Ms": 5.175435000000107,
+        "warmSamples": 20,
+        "samples": [
+          5.175435000000107,
+          3.5897009999998772,
+          3.4008460000000014,
+          5.57189900000003,
+          3.4399349999998776,
+          2.962532999999894,
+          3.9579759999996895,
+          3.8862919999996848,
+          3.153263000000152,
+          2.686153000000104,
+          2.862492000000202,
+          2.3847359999999753,
+          2.2418689999999515,
+          2.8154319999998734,
+          2.7771609999999782,
+          2.226050000000214,
+          2.298591000000215,
+          2.746552999999949,
+          2.874242999999751,
+          2.6136350000001585
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 140.4592560000001,
+        "p95Ms": 5.319781000000148,
+        "warmSamples": 20,
+        "samples": [
+          5.274957000000541,
+          3.8838880000002973,
+          3.628873999999996,
+          4.683003000000099,
+          3.9939610000001267,
+          3.5418879999997444,
+          4.613945000000058,
+          4.22041900000022,
+          3.471624000000702,
+          2.9518010000001595,
+          2.7136970000001384,
+          9.436897999999928,
+          5.319781000000148,
+          3.250815999999759,
+          3.4085549999999785,
+          5.171319999999469,
+          5.120050999999876,
+          5.115066000000297,
+          3.192305999999917,
+          2.64981699999953
+        ]
+      }
+    ]
+  },
+  "freezeRecheck": {
+    "inputs": 3111,
+    "changedInputs": []
+  },
+  "evidence": {
+    "directory": ".vscode-test/d150-evidence",
+    "artifacts": 41,
+    "manifestSha256": "1697acb8dacc8fee17522fbf194521ed3c4a34dff06fde075fbc813682a2eeb1"
+  },
+  "sources": {
+    "acceptedRfc": "https://wiki.php.net/rfc/clone_with_v2",
+    "manual": "https://www.php.net/manual/en/language.oop5.cloning.php",
+    "runtimeCloneHandler": "https://raw.githubusercontent.com/php/php-src/php-8.5.9/Zend/zend_objects.c",
+    "runtimePropertyHandler": "https://raw.githubusercontent.com/php/php-src/php-8.5.9/Zend/zend_object_handlers.c"
+  },
+  "limits": [
+    "Variable/member object operands and proven literal update maps; arbitrary expressions, collection variables, escaped dynamic keys and custom handlers remain outside this batch.",
+    "Hook input acceptance follows native setter declarations and assumes normal return; it is not execution or side-effect proof of every hook or __clone body.",
+    "Object identity/type is retained; no new per-instance PHPDoc shape rewrite is claimed.",
+    "All automation here is Linux source or isolated host, not real WSL usage.",
+    "Full current LSP, D148 shutdown root cause, ordinary editing budget, bare-dollar descriptions, 50k RSS, missing native versions/platforms and full C1-C4/R4 remain open."
+  ]
+}

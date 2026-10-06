@@ -1,0 +1,1534 @@
+{
+  "scope": "Actual PHP 8.5.9 64-bit clone-with; caller strictness differs from ordinary property assignment.",
+  "runtime": {
+    "executable": "/opt/remi/php85/root/usr/bin/php",
+    "version": "8.5.9",
+    "intSize": 8,
+    "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+  },
+  "originalObservationSha256": "582d3455b99ddc96e6706fd82922fa4f3bb093f25233f84a1fd7da72defa62ad",
+  "cases": [
+    {
+      "case": "integer-string",
+      "native": "int",
+      "input": "'42'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "integer-string",
+      "native": "int",
+      "input": "'42'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integer-string",
+      "native": "float",
+      "input": "'42'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "integer-string",
+      "native": "float",
+      "input": "'42'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integer-string",
+      "native": "int|float",
+      "input": "'42'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "integer-string",
+      "native": "int|float",
+      "input": "'42'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integer-string",
+      "native": "int|string",
+      "input": "'42'",
+      "strict": false,
+      "accepted": true,
+      "type": "string",
+      "assignmentAccepted": true,
+      "assignmentType": "string"
+    },
+    {
+      "case": "integer-string",
+      "native": "int|string",
+      "input": "'42'",
+      "strict": true,
+      "accepted": true,
+      "type": "string",
+      "assignmentAccepted": true,
+      "assignmentType": "string"
+    },
+    {
+      "case": "decimal-string",
+      "native": "int",
+      "input": "'42.5'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "decimal-string",
+      "native": "int",
+      "input": "'42.5'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "decimal-string",
+      "native": "float",
+      "input": "'42.5'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "decimal-string",
+      "native": "float",
+      "input": "'42.5'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "decimal-string",
+      "native": "int|float",
+      "input": "'42.5'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "decimal-string",
+      "native": "int|float",
+      "input": "'42.5'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "scientific-string",
+      "native": "int",
+      "input": "'1e3'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "scientific-string",
+      "native": "int",
+      "input": "'1e3'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "scientific-string",
+      "native": "float",
+      "input": "'1e3'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "scientific-string",
+      "native": "float",
+      "input": "'1e3'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "scientific-string",
+      "native": "int|float",
+      "input": "'1e3'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "scientific-string",
+      "native": "int|float",
+      "input": "'1e3'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "leading-space",
+      "native": "int",
+      "input": "' 42'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "leading-space",
+      "native": "int",
+      "input": "' 42'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "leading-space",
+      "native": "float",
+      "input": "' 42'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "leading-space",
+      "native": "float",
+      "input": "' 42'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "trailing-space",
+      "native": "int",
+      "input": "'42 '",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "trailing-space",
+      "native": "int",
+      "input": "'42 '",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "trailing-space",
+      "native": "float",
+      "input": "'42 '",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "trailing-space",
+      "native": "float",
+      "input": "'42 '",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "int",
+      "input": "'wrong'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "int",
+      "input": "'wrong'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "float",
+      "input": "'wrong'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "float",
+      "input": "'wrong'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "int|float",
+      "input": "'wrong'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "int|float",
+      "input": "'wrong'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nonnumeric",
+      "native": "int|bool",
+      "input": "'wrong'",
+      "strict": false,
+      "accepted": true,
+      "type": "boolean",
+      "assignmentAccepted": true,
+      "assignmentType": "boolean"
+    },
+    {
+      "case": "nonnumeric",
+      "native": "int|bool",
+      "input": "'wrong'",
+      "strict": true,
+      "accepted": true,
+      "type": "boolean",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "numeric-prefix-only",
+      "native": "int",
+      "input": "'42x'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "numeric-prefix-only",
+      "native": "int",
+      "input": "'42x'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "numeric-prefix-only",
+      "native": "float",
+      "input": "'42x'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "numeric-prefix-only",
+      "native": "float",
+      "input": "'42x'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "empty-string",
+      "native": "int",
+      "input": "''",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "empty-string",
+      "native": "int",
+      "input": "''",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "empty-string",
+      "native": "float",
+      "input": "''",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "empty-string",
+      "native": "float",
+      "input": "''",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "empty-string",
+      "native": "int|bool",
+      "input": "''",
+      "strict": false,
+      "accepted": true,
+      "type": "boolean",
+      "assignmentAccepted": true,
+      "assignmentType": "boolean"
+    },
+    {
+      "case": "empty-string",
+      "native": "int|bool",
+      "input": "''",
+      "strict": true,
+      "accepted": true,
+      "type": "boolean",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "overflow-string",
+      "native": "int",
+      "input": "'9223372036854775808'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "overflow-string",
+      "native": "int",
+      "input": "'9223372036854775808'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "overflow-string",
+      "native": "float",
+      "input": "'9223372036854775808'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "overflow-string",
+      "native": "float",
+      "input": "'9223372036854775808'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "overflow-string",
+      "native": "int|float",
+      "input": "'9223372036854775808'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "overflow-string",
+      "native": "int|float",
+      "input": "'9223372036854775808'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nullable-null",
+      "native": "?int",
+      "input": "null",
+      "strict": false,
+      "accepted": true,
+      "type": "NULL",
+      "assignmentAccepted": true,
+      "assignmentType": "NULL"
+    },
+    {
+      "case": "nullable-null",
+      "native": "?int",
+      "input": "null",
+      "strict": true,
+      "accepted": true,
+      "type": "NULL",
+      "assignmentAccepted": true,
+      "assignmentType": "NULL"
+    },
+    {
+      "case": "nullable-null",
+      "native": "int",
+      "input": "null",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "nullable-null",
+      "native": "int",
+      "input": "null",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "strict-int-to-float",
+      "native": "float",
+      "input": "42",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "strict-int-to-float",
+      "native": "float",
+      "input": "42",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "bool-to-number",
+      "native": "int",
+      "input": "true",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "bool-to-number",
+      "native": "int",
+      "input": "true",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "bool-to-number",
+      "native": "float",
+      "input": "true",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "bool-to-number",
+      "native": "float",
+      "input": "true",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "float-to-int",
+      "native": "int",
+      "input": "42.5",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "float-to-int",
+      "native": "int",
+      "input": "42.5",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "array-mismatch",
+      "native": "int",
+      "input": "[]",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "array-mismatch",
+      "native": "int",
+      "input": "[]",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "array-mismatch",
+      "native": "float",
+      "input": "[]",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "array-mismatch",
+      "native": "float",
+      "input": "[]",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integral-float",
+      "native": "int",
+      "input": "42.0",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "integral-float",
+      "native": "int",
+      "input": "42.0",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integral-float",
+      "native": "float",
+      "input": "42.0",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "integral-float",
+      "native": "float",
+      "input": "42.0",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "integral-float",
+      "native": "int|float",
+      "input": "42.0",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "integral-float",
+      "native": "int|float",
+      "input": "42.0",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "integral-float",
+      "native": "int|string",
+      "input": "42.0",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "integral-float",
+      "native": "int|string",
+      "input": "42.0",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "exponent-float",
+      "native": "int",
+      "input": "1e3",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "exponent-float",
+      "native": "int",
+      "input": "1e3",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "exponent-float",
+      "native": "float",
+      "input": "1e3",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "exponent-float",
+      "native": "float",
+      "input": "1e3",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "exponent-float",
+      "native": "int|float",
+      "input": "1e3",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "exponent-float",
+      "native": "int|float",
+      "input": "1e3",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "negative-integral-float",
+      "native": "int",
+      "input": "-42.0",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "negative-integral-float",
+      "native": "int",
+      "input": "-42.0",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "negative-integral-float",
+      "native": "int|float",
+      "input": "-42.0",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "negative-integral-float",
+      "native": "int|float",
+      "input": "-42.0",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "large-float",
+      "native": "int",
+      "input": "1e20",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "large-float",
+      "native": "int",
+      "input": "1e20",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "large-float",
+      "native": "float",
+      "input": "1e20",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "large-float",
+      "native": "float",
+      "input": "1e20",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "large-float",
+      "native": "int|string",
+      "input": "1e20",
+      "strict": false,
+      "accepted": true,
+      "type": "string",
+      "assignmentAccepted": true,
+      "assignmentType": "string"
+    },
+    {
+      "case": "large-float",
+      "native": "int|string",
+      "input": "1e20",
+      "strict": true,
+      "accepted": true,
+      "type": "string",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integral-decimal-string",
+      "native": "int",
+      "input": "'42.0'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "integral-decimal-string",
+      "native": "int",
+      "input": "'42.0'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "integral-decimal-string",
+      "native": "int|float",
+      "input": "'42.0'",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "integral-decimal-string",
+      "native": "int|float",
+      "input": "'42.0'",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "negative-integer-string",
+      "native": "int",
+      "input": "'-42'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "negative-integer-string",
+      "native": "int",
+      "input": "'-42'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "negative-integer-string",
+      "native": "int|float",
+      "input": "'-42'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "negative-integer-string",
+      "native": "int|float",
+      "input": "'-42'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "int64-min-string",
+      "native": "int",
+      "input": "'-9223372036854775808'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "int64-min-string",
+      "native": "int",
+      "input": "'-9223372036854775808'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "int64-min-string",
+      "native": "int|float",
+      "input": "'-9223372036854775808'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "int64-min-string",
+      "native": "int|float",
+      "input": "'-9223372036854775808'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "int64-max-string",
+      "native": "int",
+      "input": "'9223372036854775807'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "int64-max-string",
+      "native": "int",
+      "input": "'9223372036854775807'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "int64-max-string",
+      "native": "int|float",
+      "input": "'9223372036854775807'",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "int64-max-string",
+      "native": "int|float",
+      "input": "'9223372036854775807'",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "hex-string",
+      "native": "int",
+      "input": "'0x2a'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "hex-string",
+      "native": "int",
+      "input": "'0x2a'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "hex-string",
+      "native": "float",
+      "input": "'0x2a'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "hex-string",
+      "native": "float",
+      "input": "'0x2a'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "unfinished-exponent-string",
+      "native": "int",
+      "input": "'42e'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "unfinished-exponent-string",
+      "native": "int",
+      "input": "'42e'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "unfinished-exponent-string",
+      "native": "float",
+      "input": "'42e'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "unfinished-exponent-string",
+      "native": "float",
+      "input": "'42e'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "non-ascii-space",
+      "native": "int",
+      "input": "' 42'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "non-ascii-space",
+      "native": "int",
+      "input": "' 42'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "non-ascii-space",
+      "native": "float",
+      "input": "' 42'",
+      "strict": false,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "non-ascii-space",
+      "native": "float",
+      "input": "' 42'",
+      "strict": true,
+      "accepted": false,
+      "type": null,
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "trailing-dot-float",
+      "native": "int",
+      "input": "42.",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "trailing-dot-float",
+      "native": "int",
+      "input": "42.",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "trailing-dot-float",
+      "native": "int|float",
+      "input": "42.",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "trailing-dot-float",
+      "native": "int|float",
+      "input": "42.",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "leading-dot-float",
+      "native": "int",
+      "input": ".5",
+      "strict": false,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": true,
+      "assignmentType": "integer"
+    },
+    {
+      "case": "leading-dot-float",
+      "native": "int",
+      "input": ".5",
+      "strict": true,
+      "accepted": true,
+      "type": "integer",
+      "assignmentAccepted": false,
+      "assignmentType": null
+    },
+    {
+      "case": "leading-dot-float",
+      "native": "int|float",
+      "input": ".5",
+      "strict": false,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    },
+    {
+      "case": "leading-dot-float",
+      "native": "int|float",
+      "input": ".5",
+      "strict": true,
+      "accepted": true,
+      "type": "double",
+      "assignmentAccepted": true,
+      "assignmentType": "double"
+    }
+  ],
+  "safetyCases": [
+    {
+      "id": "public-weak",
+      "declaration": "public int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "public-invalid",
+      "declaration": "public int $mode;",
+      "input": "'wrong'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "doc-refined-native",
+      "declaration": "/** @var positive-int */ public int $mode;",
+      "input": "0",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "doc-only-untyped",
+      "declaration": "/** @var int */ public $mode;",
+      "input": "'wrong'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "untyped",
+      "declaration": "public $mode;",
+      "input": "null",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "readonly-outside",
+      "declaration": "public readonly int $mode;",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "readonly-inside",
+      "declaration": "public readonly int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "readonly-public-set",
+      "declaration": "public public(set) readonly int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "private-outside",
+      "declaration": "private int $mode;",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "private-inside",
+      "declaration": "private int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "protected-outside",
+      "declaration": "protected int $mode;",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "protected-inside",
+      "declaration": "protected int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "private-set-outside",
+      "declaration": "public private(set) int $mode;",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "private-set-inside",
+      "declaration": "public private(set) int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "protected-set-outside",
+      "declaration": "public protected(set) int $mode;",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "protected-set-inside",
+      "declaration": "public protected(set) int $mode;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "setter-backed",
+      "declaration": "public int $mode { set { $this->mode=$value; } }",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "setter-wide",
+      "declaration": "public int $mode { set(string|int $value) { $this->mode=(int)$value; } }",
+      "input": "'wrong'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "getter-only",
+      "declaration": "public int $mode { get => 42; }",
+      "input": "42",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "setter-virtual",
+      "declaration": "public int $mode { set {} get => 42; }",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "promoted",
+      "declaration": "public function __construct(public int $mode=1){}",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "promoted-readonly",
+      "declaration": "public function __construct(public readonly int $mode=1){}",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "inherited",
+      "declaration": "",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": "class Base {public int $mode;}"
+    },
+    {
+      "id": "trait",
+      "declaration": "use Shared;",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": "trait Shared {public int $mode;}"
+    },
+    {
+      "id": "private-clone-outside",
+      "declaration": "public int $mode;private function __clone(){}",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "private-clone-inside",
+      "declaration": "public int $mode;private function __clone(){}",
+      "input": "'42'",
+      "accepted": true,
+      "scope": "inside",
+      "prefix": ""
+    },
+    {
+      "id": "protected-clone-outside",
+      "declaration": "public int $mode;protected function __clone(){}",
+      "input": "'42'",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "duplicate-array-key",
+      "declaration": "public int $mode;",
+      "input": "'wrong','mode'=>'42'",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "null-native",
+      "declaration": "public ?int $mode;",
+      "input": "null",
+      "accepted": true,
+      "scope": "outside",
+      "prefix": ""
+    },
+    {
+      "id": "invalid-null",
+      "declaration": "public int $mode;",
+      "input": "null",
+      "accepted": false,
+      "scope": "outside",
+      "prefix": ""
+    }
+  ]
+}

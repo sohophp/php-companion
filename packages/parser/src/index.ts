@@ -581,6 +581,14 @@ export class PhpSyntaxParser {
         if (node.type === 'use_list') replacements.push(...traitFinalAdaptationMasks(node, source));
         for (const child of node.namedChildren) inspect(child);
       };
+      // PHP 8.5 clone-with is an intrinsic call. The older grammar treats
+      // its argument comma as an error and can discard surrounding statements.
+      // Mask only lexed clone tokens, never text inside strings/comments.
+      for (const token of tree.rootNode.descendantsOfType('clone')) {
+        if (/^\s*\(/u.test(source.slice(token.endIndex))) replacements.push({
+          start: token.startIndex, end: token.endIndex, value: '_lone',
+        });
+      }
       inspect(tree.rootNode);
       const candidates = traitPrecedenceMaskCandidates(tree.rootNode,source);
       if (candidates.length) {
@@ -1112,7 +1120,8 @@ export class PhpSyntaxParser {
         const callReceiverNode = node.childForFieldName('object') ?? node.childForFieldName('scope');
         const bracedCallName = Boolean(nameNode && callReceiverNode && /\{\s*$/.test(source.slice(callReceiverNode.endIndex, nameNode.startIndex)));
         const preciseDynamicName = nameNode && bracedCallName ? dynamicMemberName(nameNode) : undefined;
-        if ((argumentsNode || nodeType === 'object_creation_expression') && nameNode && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
+        if ((argumentsNode || nodeType === 'object_creation_expression') && nameNode
+          && !(nodeType === 'function_call_expression' && source.slice(nameNode.startIndex, nameNode.endIndex).toLowerCase() === 'clone') && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
           || (nodeType === 'function_call_expression' && nameNode.type === 'variable_name') || preciseDynamicName)) {
           const arguments_ = argumentsNode?.namedChildren.filter((child) => child.type === 'argument') ?? [];
           const firstClassCallable = argumentsNode?.namedChildren.some((child) => child.type === 'variadic_placeholder') ?? false;
@@ -1545,7 +1554,7 @@ export class PhpSyntaxParser {
         if (right.type === 'function_call_expression') {
           const functionNode = right.childForFieldName('function');
           if (functionNode?.type === 'variable_name') sourceCall = { kind: 'callable-variable', variable: functionNode.text };
-          else if (functionNode) sourceCall = { kind: 'function', name: functionNode.text };
+          else if (functionNode && source.slice(functionNode.startIndex, functionNode.endIndex).toLowerCase() !== 'clone') sourceCall = { kind: 'function', name: functionNode.text };
         } else if (right.type === 'scoped_call_expression') {
           const typeNode = right.childForFieldName('scope'); const methodNode = right.childForFieldName('name');
           if (typeNode && methodNode) sourceCall = { kind: 'static', typeName: typeNode.text, method: methodNode.text };

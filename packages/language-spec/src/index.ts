@@ -3740,7 +3740,7 @@ export function isSyntaxAvailable(target: SupportedPhpVersion, introduced: Suppo
   return semver.gte(`${target}.0`, `${introduced}.0`);
 }
 
-export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVersion): UnsupportedSyntax[] {
+export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVersion, source?: string): UnsupportedSyntax[] {
   // Every rule's minimum is a SupportedPhpVersion. The newest supported
   // target cannot reject a known feature; syntax validity is checked separately.
   if (target === SUPPORTED_PHP_VERSIONS.at(-1)) return [];
@@ -3833,7 +3833,13 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
         range = operator;
       }
     }
-    if (nodeType === 'clone_expression' && /^clone\s*\(/i.test(node.text)) rule = { feature: 'clone with properties', version: '8.5' };
+    const recoveredClone = nodeType === 'function_call_expression' && source !== undefined
+      && /^clone\s*\(/iu.test(source.slice(node.startIndex, node.endIndex));
+    if (recoveredClone && fieldNode('arguments')?.children?.some(child => child.type === ',')) {
+      rule = { feature: 'clone with properties', version: '8.5' };
+    } else if (source === undefined && nodeType === 'clone_expression' && /^clone\s*\(/i.test(node.text)) {
+      rule = { feature: 'clone with properties', version: '8.5' };
+    }
     if (nodeType === 'class_constant_access_expression' && /::\s*\{/.test(node.text)) {
       rule = { feature: 'dynamic class constant access', version: '8.3' };
       range = fieldNode('name') ?? node;

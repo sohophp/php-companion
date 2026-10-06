@@ -8249,33 +8249,7 @@ export class SemanticWorkspace {
     const file = this.files.get(uri); if (!file) return [];
     const properties: IncompatibleAssignment[] = [];
     const uniqueHierarchies = new Map<string, boolean>();
-    const uniqueHierarchy = (fqcn: string, visiting = new Set<string>()): boolean => {
-      const key = fqcn.toLowerCase();
-      if (visiting.has(key) || visiting.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
-      const cached = uniqueHierarchies.get(key); if (cached !== undefined) return cached;
-      const owners = this.filesForReferenceKeys(`declaration:type:${key}`).flatMap(owner => owner.declarations
-        .filter(declaration => declaration.fqcn.toLowerCase() === key).map(declaration => ({ owner, declaration })));
-      if (owners.length !== 1) { uniqueHierarchies.set(key, false); return false; }
-      const { owner, declaration } = owners[0]!;
-      const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
-      const next = new Set(visiting); next.add(key);
-      const complete = [...declaration.extendsNames, ...declaration.implementsNames, ...declaration.traitNames].every(name => {
-        const inherited = this.resolveSourceType(owner, name, namespace, declaration.fqcn);
-        return Boolean(inherited && uniqueHierarchy(inherited, next));
-      });
-      uniqueHierarchies.set(key, complete); return complete;
-    };
-    // Recover native declaration syntax separately from PHPDoc-specialized members.
-    const nativeProperties = (owner: SemanticFile): ParsedPropertyDeclaration[] => {
-      let properties = this.nativePropertyDeclarationsByArray.get(owner.properties);
-      if (!properties) {
-        const parsed = this.parser.parseDeclarations(owner.source, owner.uri);
-        try { properties = parsed.properties; }
-        finally { parsed.tree.delete(); }
-        this.nativePropertyDeclarationsByArray.set(owner.properties, properties);
-      }
-      return properties;
-    };
+    const uniqueHierarchy = (fqcn: string): boolean => this.hasUniqueCompleteHierarchy(fqcn, new Set(), uniqueHierarchies);
     const pattern = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*->\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*=(?!=|>)\s*(new\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*(?:\s*\([^;]*\))?|\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*|null|true|false|[+-]?(?:[0-9][0-9_]*\.(?:[0-9][0-9_]*)?(?:[eE][+-]?[0-9][0-9_]*)?|\.[0-9][0-9_]*(?:[eE][+-]?[0-9][0-9_]*)?|[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*|0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\[\s*\]|array\s*\(\s*\))\s*(?=;)/giu;
     for (const match of file.source.matchAll(pattern)) {
       const matchStart = match.index; const matchEnd = matchStart + match[0].length;
@@ -8291,7 +8265,7 @@ export class SemanticWorkspace {
       const expected = documented ? this.phpDocDiagnosticType(declarationFile, documented, member.typeScopeFqcn)
         : this.nativeSourceType(declarationFile, expectedText, member.typeScopeFqcn);
       if (!expected) continue;
-      const original = member.synthetic ? undefined : nativeProperties(declarationFile)
+      const original = member.synthetic ? undefined : this.nativePropertyDeclarations(declarationFile)
         .find(property => property.start === member.start && property.name === member.name);
       const nativeText = original?.writeType ?? original?.type;
       const native = nativeText && this.nativeSourceType(declarationFile, nativeText, original?.containerFqcn);
@@ -18031,13 +18005,45 @@ export class SemanticWorkspace {
     }
   }
 
+  private hasUniqueCompleteHierarchy(fqcn: string, visiting = new Set<string>(),
+    uniqueHierarchies = new Map<string, boolean>()): boolean {
+    const key = fqcn.toLowerCase();
+    if (visiting.has(key) || visiting.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
+    const cached = uniqueHierarchies.get(key); if (cached !== undefined) return cached;
+    const owners = this.filesForReferenceKeys(`declaration:type:${key}`).flatMap(owner => owner.declarations
+      .filter(declaration => declaration.fqcn.toLowerCase() === key).map(declaration => ({ owner, declaration })));
+    if (owners.length !== 1) { uniqueHierarchies.set(key, false); return false; }
+    const { owner, declaration } = owners[0]!;
+    const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+    const next = new Set(visiting); next.add(key);
+    const complete = [...declaration.extendsNames, ...declaration.implementsNames, ...declaration.traitNames].every(name => {
+      const inherited = this.resolveSourceType(owner, name, namespace, declaration.fqcn);
+      return Boolean(inherited && this.hasUniqueCompleteHierarchy(inherited, next, uniqueHierarchies));
+    });
+    uniqueHierarchies.set(key, complete); return complete;
+  }
+
+  // Native syntax must not inherit PHPDoc refinements. Key this cache by the
+  // immutable declaration array so edits and restored files cannot reuse it.
+  private nativePropertyDeclarations(owner: SemanticFile): ParsedPropertyDeclaration[] {
+    let properties = this.nativePropertyDeclarationsByArray.get(owner.properties);
+    if (!properties) {
+      const parsed = this.parser.parseDeclarations(owner.source, owner.uri);
+      try { properties = parsed.properties; }
+      finally { parsed.tree.delete(); }
+      this.nativePropertyDeclarationsByArray.set(owner.properties, properties);
+    }
+    return properties;
+  }
+
   private cloneExpressionType(file: SemanticFile, start: number, end: number): PhpType | undefined {
     const retainedTree = this.trees.get(file.uri);
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const tree = retainedTree ?? temporaryTree!;
     try {
       const clone = deepestLocalSyntax(tree.rootNode, start, end, (candidate) => candidate.startIndex === start
-        && candidate.endIndex === end && candidate.type === 'clone_expression');
+        && candidate.endIndex === end && (candidate.type === 'clone_expression'
+          || candidate.type === 'function_call_expression' && /^clone\s*\(/iu.test(file.source.slice(start, end))));
       if (!clone) return undefined;
       const source = file.source.slice(start, end);
       let operand: { start: number; end: number } | undefined;
@@ -18045,10 +18051,13 @@ export class SemanticWorkspace {
       if (/^clone\s*\(/i.test(source)) {
         const stringLiteral = String.raw`(?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")`;
         const key = String.raw`(?:${stringLiteral}|[0-9]+)`;
-        const value = String.raw`(?:${stringLiteral}|-?[0-9]+(?:\.[0-9]+)?|true|false|null)`;
+        const number = String.raw`[+-]?(?:[0-9][0-9_]*\.(?:[0-9][0-9_]*)?(?:[eE][+-]?[0-9][0-9_]*)?|\.[0-9][0-9_]*(?:[eE][+-]?[0-9][0-9_]*)?|[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|0|[1-9][0-9_]*)`;
+        const value = String.raw`(?:${stringLiteral}|${number}|true|false|null)`;
         const properties = String.raw`\[\s*(?:${key}\s*=>\s*${value}\s*(?:,\s*${key}\s*=>\s*${value}\s*)*,?\s*)?\]`;
-        const match = new RegExp(String.raw`^clone\s*\(\s*(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\s*->\s*[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*)(?:\s*,\s*(${properties}))?\s*\)$`, 'iu').exec(source);
+        const match = new RegExp(String.raw`^clone\s*\(\s*(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\s*->\s*[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*)(?:\s*,\s*(${properties}))?\s*(,?)\s*\)$`, 'iu').exec(source);
         if (!match) return undefined;
+        const version = this.targetPhpVersion?.split('.').map(Number);
+        if ((match[2] || match[3]) && version && (version[0]! < 8 || version[0] === 8 && version[1]! < 5)) return undefined;
         const relative = source.indexOf(match[1]!);
         operand = { start: start + relative, end: start + relative + match[1]!.length };
         if (match[2]) {
@@ -18071,17 +18080,41 @@ export class SemanticWorkspace {
       const objects = type && this.objectGroups(type);
       if (!type || !objects?.groups.length || objects.nullable) return undefined;
       const accessFrom = this.containingCallable(file, start)?.containerFqcn;
+      const uniqueHierarchies = new Map<string, boolean>();
+      const uniqueHierarchy = (fqcn: string): boolean => this.hasUniqueCompleteHierarchy(fqcn, new Set(), uniqueHierarchies);
+      for (const variant of objects.groups.flat()) {
+        if (!uniqueHierarchy(variant.fqcn)) return undefined;
+        const owner = this.fileAndDeclaration(variant.fqcn);
+        if (!owner || owner.declaration.kind === 'enum') return undefined;
+        const cloneMethod = this.members(variant.fqcn, accessFrom, new Set(), true, variant.typeArguments)
+          .find(member => member.kind === 'method' && !member.synthetic && member.name.toLowerCase() === '__clone');
+        if (cloneMethod && !this.memberVisibilityAllowed(cloneMethod.visibility, cloneMethod.typeScopeFqcn, accessFrom)) return undefined;
+      }
+      // An array literal resolves repeated keys before clone writes any value.
+      propertyUpdates = [...new Map(propertyUpdates.map(update => [update.name, update])).values()];
       for (const update of propertyUpdates) for (const variant of objects.groups.flat()) {
-        const property = this.members(variant.fqcn, accessFrom, new Set(), false, variant.typeArguments)
-          .find((candidate) => candidate.kind === 'property' && !candidate.static && candidate.name === update.name && candidate.writable !== false);
-        const declarationFile = property && this.files.get(property.uri);
-        const expectedText = property?.writeType ?? property?.returnType;
-        const documented = expectedText ? parsePhpDocType(expectedText).type : undefined;
-        const expected = declarationFile && property && documented
-          ? this.phpDocDiagnosticType(declarationFile, documented, property.typeScopeFqcn) : undefined;
-        const actual = this.provenArgumentType(file, update.start, update.end);
-        if (!expected || !actual || (!(isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file))
-          && compatibility(actual, expected, this.typeRelationContext()) !== 'yes')) return undefined;
+        const candidates = this.members(variant.fqcn, accessFrom, new Set(), true, variant.typeArguments)
+          .filter(candidate => candidate.kind === 'property' && !candidate.static && candidate.name === update.name);
+        if (candidates.length !== 1) return undefined;
+        const property = candidates[0]!;
+        if (property.synthetic || property.writable === false) return undefined;
+        const writeVisibility = property.writeVisibility ?? (property.readonly || property.readonlyClass
+          ? property.visibility === 'private' ? 'private' : 'protected' : property.visibility);
+        if (!this.memberVisibilityAllowed(writeVisibility, property.typeScopeFqcn, accessFrom)) return undefined;
+        const declarationFile = this.files.get(property.uri);
+        const original = declarationFile && this.nativePropertyDeclarations(declarationFile)
+          .find(item => item.start === property.start && item.name === property.name);
+        if (!declarationFile || !original) return undefined;
+        const fact = this.scalarArgumentFact(file, update.start, update.end);
+        const actual = fact?.type ?? this.provenArgumentType(file, update.start, update.end);
+        if (!actual) return undefined;
+        const nativeText = original.writeType ?? original.type;
+        if (!nativeText) continue;
+        const native = this.nativeSourceType(declarationFile, nativeText, property.typeScopeFqcn, original.start);
+        // The internal clone-with frame applies weak native conversion even
+        // when its caller uses strict_types. Visibility still uses the caller.
+        const scalar = nativeScalarInput(actual, native, false, this.targetPhpVersion, fact?.numericKind);
+        if ((scalar?.accepted ?? compatibility(actual, native, this.typeRelationContext())) !== 'yes') return undefined;
       }
       return type;
     } finally {

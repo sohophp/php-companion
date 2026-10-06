@@ -743,7 +743,7 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         nodes.push(...node.namedChildren);
       }
     }
-    const versionFeatures = unsupportedSyntax(parsed.tree.rootNode, targetVersion);
+    const versionFeatures = unsupportedSyntax(parsed.tree.rootNode, targetVersion, source);
     if (!isSyntaxAvailable(targetVersion, '8.3')) for (const declaration of parsed.declarations) {
       for (const adaptation of declaration.traitAdaptations) if (adaptation.kind === 'alias' && adaptation.final) {
         versionFeatures.push({ feature: 'final trait method', minimumVersion: '8.3', start: adaptation.start, end: adaptation.end });
