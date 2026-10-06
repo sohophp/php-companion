@@ -70,9 +70,10 @@ export class VersionManager implements vscode.Disposable {
       const configuration = vscode.workspace.getConfiguration('phpCompanion', workspaceFolder.uri);
       const lookupGeneration = this.nextGeneration;
       const composerRoot = await findComposerRoot(workspaceFolder.uri.fsPath, workspaceFolder.uri.fsPath);
+      const projectKey = composerRoot ?? workspaceFolder.uri.fsPath;
       if (!this.isCurrentFolder(workspaceFolder, generations.get(workspaceFolder.uri.toString())!)
-        || composerRoot && (this.projectGenerations.get(composerRoot) ?? 0) > lookupGeneration) return;
-      const projectGeneration = composerRoot ? this.nextProjectGeneration(composerRoot) : undefined;
+        || (this.projectGenerations.get(projectKey) ?? 0) > lookupGeneration) return;
+      const projectGeneration = this.nextProjectGeneration(projectKey);
       const includeDev = configuration.get<boolean>('composer.includeDevAutoload', true);
       const composer = composerRoot ? await loadComposerProject(composerRoot, includeDev) : undefined;
       const setting = configuration.get<PhpVersionSetting>('phpVersion', 'auto');
@@ -80,13 +81,11 @@ export class VersionManager implements vscode.Disposable {
       const resolution = await resolvePhpVersion({ setting, configuredExecutable, composer });
       const runtime = await this.runtimeFor(resolution, configuredExecutable);
       if (!this.isCurrentFolder(workspaceFolder, generations.get(workspaceFolder.uri.toString())!)
-        || composerRoot && this.projectGenerations.get(composerRoot) !== projectGeneration) return;
+        || this.projectGenerations.get(projectKey) !== projectGeneration) return;
       const state = { folder: workspaceFolder, ...(composerRoot ? { projectRoot: composerRoot } : {}), composer, resolution, ...(runtime ? { runtime } : {}) };
       this.states.set(workspaceFolder.uri.toString(), state);
-      if (composerRoot) {
-        this.projectStates.set(composerRoot, state);
-        this.watchComposerProject(composerRoot, workspaceFolder.uri);
-      }
+      if (composerRoot) this.projectStates.set(composerRoot, state);
+      this.watchComposerProject(projectKey, workspaceFolder.uri);
       this.stateEmitter.fire(state);
     }));
     this.activeFolder ??= vscode.window.activeTextEditor
@@ -106,19 +105,14 @@ export class VersionManager implements vscode.Disposable {
     this.folderGenerations.set(folder.uri.toString(), generation);
     const lookupGeneration = this.nextGeneration;
     const composerRoot = await findComposerRoot(uri.fsPath, folder.uri.fsPath);
+    const projectKey = composerRoot ?? folder.uri.fsPath;
     if (!this.isCurrentFolder(folder, generation)
-      || composerRoot && (this.projectGenerations.get(composerRoot) ?? 0) > lookupGeneration) return this.stateForUri(uri);
-    if (!composerRoot) {
-      const existing = this.states.get(folder.uri.toString());
-      if (existing) return existing;
-      await this.refresh(folder);
-      return this.states.get(folder.uri.toString());
-    }
-    const cached = this.projectStates.get(composerRoot);
-    if (cached) { this.render(); return cached; }
-    const projectGeneration = this.nextProjectGeneration(composerRoot);
+      || (this.projectGenerations.get(projectKey) ?? 0) > lookupGeneration) return this.stateForUri(uri);
+    const cached = composerRoot ? this.projectStates.get(composerRoot) : this.states.get(folder.uri.toString());
+    if (cached && (composerRoot || !cached.projectRoot)) { this.render(); return cached; }
+    const projectGeneration = this.nextProjectGeneration(projectKey);
     const configuration = vscode.workspace.getConfiguration('phpCompanion', uri);
-    const composer = await loadComposerProject(composerRoot, configuration.get<boolean>('composer.includeDevAutoload', true));
+    const composer = composerRoot ? await loadComposerProject(composerRoot, configuration.get<boolean>('composer.includeDevAutoload', true)) : undefined;
     const resolution = await resolvePhpVersion({
       setting: configuration.get<PhpVersionSetting>('phpVersion', 'auto'),
       configuredExecutable: configuration.get<string | null>('phpExecutablePath') ?? undefined,
@@ -126,11 +120,12 @@ export class VersionManager implements vscode.Disposable {
     });
     const configuredExecutable = configuration.get<string | null>('phpExecutablePath') ?? undefined;
     const runtime = await this.runtimeFor(resolution, configuredExecutable);
-    if (!this.isCurrentFolder(folder, generation) || this.projectGenerations.get(composerRoot) !== projectGeneration) return this.stateForUri(uri);
-    const state = { folder, projectRoot: composerRoot, composer, resolution, ...(runtime ? { runtime } : {}) };
-    this.projectStates.set(composerRoot, state);
-    this.watchComposerProject(composerRoot, uri);
-    if (composerRoot === folder.uri.fsPath) this.states.set(folder.uri.toString(), state);
+    if (!this.isCurrentFolder(folder, generation) || this.projectGenerations.get(projectKey) !== projectGeneration) return this.stateForUri(uri);
+    const state = { folder, ...(composerRoot ? { projectRoot: composerRoot } : {}), composer, resolution, ...(runtime ? { runtime } : {}) };
+    if (composerRoot) this.projectStates.set(composerRoot, state);
+    else this.projectStates.delete(projectKey);
+    this.watchComposerProject(projectKey, uri);
+    if (!composerRoot || composerRoot === folder.uri.fsPath) this.states.set(folder.uri.toString(), state);
     this.stateEmitter.fire(state);
     this.render();
     return state;
@@ -222,6 +217,8 @@ export class VersionManager implements vscode.Disposable {
       if (this.disposed) return;
       this.nextProjectGeneration(root);
       this.projectStates.delete(root);
+      const folder = vscode.workspace.getWorkspaceFolder(uri);
+      if (folder?.uri.fsPath === root) this.states.delete(folder.uri.toString());
       const pending = this.refreshTimers.get(root);
       if (pending) clearTimeout(pending);
       this.refreshTimers.set(root, setTimeout(() => {

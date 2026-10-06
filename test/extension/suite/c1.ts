@@ -1,6 +1,7 @@
 import { arrayAccessCases } from './arrayAccessFixture.js';
 import { quotedPrefixCases } from './quotedPrefixFixture.js';
 import * as assert from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import * as vscode from 'vscode';
 import { unfinishedShapeContexts, unfinishedShapeSource, unfinishedShapeTail } from './unfinishedShapeFixture.js';
 import { existingShapeArrowCases } from './existingShapeArrowFixture.js';
@@ -3699,4 +3700,75 @@ accept(1, /* note */);`;
     (folders) => !folders.includes(removedFolder.uri.toString()) && folders.includes(workspace.uri.toString()),
     'SoPHP retained version state for a removed Composer workspace.');
   console.log('C1 removed Composer workspace no longer appears in active PHP version states');
+  if (!targetPhpVersion) {
+    const composerUri = vscode.Uri.joinPath(removedFolder.uri, 'composer.json');
+    const settingsUri = vscode.Uri.joinPath(removedFolder.uri, '.vscode', 'settings.json');
+    const composerBytes = await vscode.workspace.fs.readFile(composerUri);
+    const settingsBytes = await vscode.workspace.fs.readFile(settingsUri);
+    const settings = JSON.parse(Buffer.from(settingsBytes).toString('utf8'));
+    settings['phpCompanion.phpVersion'] = 'auto';
+    delete settings['phpCompanion.phpExecutablePath'];
+    const cliVersion = execFileSync('php', ['-r', 'echo PHP_MAJOR_VERSION,".",PHP_MINOR_VERSION;'],
+      { encoding: 'utf8', timeout: 3_000 }).trim();
+    assert.match(cliVersion, /^(?:7\.[234]|8\.[0-5])$/u);
+    const createdVersion = cliVersion === '8.1' ? '8.5' : '8.1';
+    const parentVersion = await vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', workspace.uri);
+    const coldUri = vscode.Uri.joinPath(removedFolder.uri, 'src', 'C1', 'Versioned.php');
+    const checkRootVersion = async (version: string): Promise<void> => {
+      await waitForResult(async () => Promise.all([
+        vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', coldUri),
+        vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+      ]), values => values[0] === version && values[1]?.includes(`SoPHP: ${version}`) === true,
+      `SoPHP did not update the projectless/root Composer document and status to PHP ${version}.`);
+      const unsupportedCount = version.startsWith('7.') ? 3 : version === '8.0' ? 2 : version === '8.5' ? 0 : 1;
+      const currentDocument = await vscode.workspace.openTextDocument(coldUri);
+      const serverDocument = await waitForResult(async () => {
+        try {
+          return await timingApi.requestLanguageServer!<{ version: number | null }>('phpCompanion/testQueryState', {
+            method: 'textDocument/documentSymbol', uri: coldUri.toString(),
+          });
+        } catch (error) { return { version: null, error: String(error) }; }
+      }, value => value?.version === currentDocument.version,
+      'The restarted language server did not reopen the retained root document.');
+      console.log('C1 root version observation: ' + JSON.stringify({ version,
+        documentVersion: currentDocument.version, serverDocument,
+        diagnostics: vscode.languages.getDiagnostics(coldUri).map(item => ({ code: item.code, source: item.source, message: item.message })) }));
+      await waitForResult(() => Promise.resolve(vscode.languages.getDiagnostics(coldUri)),
+        values => values.filter(item => item.code === 'php.version.unsupported').length === unsupportedCount
+          && (version === cliVersion || values.some(item => item.code === 'php.type.filename')),
+        `The language server did not follow the root Composer transition to PHP ${version}.`);
+    };
+    const composer = { require: { php: '>=7.2' }, config: { platform: { php: `${createdVersion}.0` } },
+      autoload: { 'psr-4': { 'App\\': 'src/' } } };
+    let readded = false;
+    try {
+      await vscode.workspace.fs.writeFile(settingsUri, Buffer.from(JSON.stringify(settings)));
+      await vscode.workspace.fs.delete(composerUri);
+      assert.ok(vscode.workspace.updateWorkspaceFolders(removedFolder.index, 0,
+        { uri: removedFolder.uri, name: removedFolder.name }), 'Could not reopen the projectless workspace.');
+      readded = true;
+      await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(coldUri));
+      await checkRootVersion(cliVersion);
+      await vscode.workspace.fs.writeFile(composerUri, Buffer.from(JSON.stringify(composer)));
+      await checkRootVersion(createdVersion);
+      await vscode.workspace.fs.delete(composerUri);
+      await checkRootVersion(cliVersion);
+      await vscode.workspace.fs.writeFile(composerUri, Buffer.from(JSON.stringify(composer)));
+      await checkRootVersion(createdVersion);
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', workspace.uri),
+        parentVersion, 'Root Composer changes altered the independent first workspace version.');
+      console.log(`C1 root Composer lifecycle: CLI ${cliVersion} -> created ${createdVersion} -> deleted ${cliVersion} -> restored ${createdVersion} passed; diagnostics and status matched.`);
+    } finally {
+      if (readded) {
+        const reopened = vscode.workspace.getWorkspaceFolder(coldUri);
+        if (reopened) {
+          assert.ok(vscode.workspace.updateWorkspaceFolders(reopened.index, 1));
+          await waitForResult(versionStateFolders, folders => !folders.includes(removedFolder.uri.toString()),
+            'Root lifecycle cleanup left the reopened workspace version state behind.');
+        }
+      }
+      await vscode.workspace.fs.writeFile(composerUri, composerBytes);
+      await vscode.workspace.fs.writeFile(settingsUri, settingsBytes);
+    }
+  }
 }

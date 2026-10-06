@@ -1,0 +1,183 @@
+{
+  "milestone": "D139",
+  "createdAtUtc": "2026-10-06T03:25:33.630287+00:00",
+  "baseHead": "2cc00e14d9dc9a135d90e9074f0632e0b9876724",
+  "qualifiedSourceGates": true,
+  "inputs": {
+    "src/extension/versionManager.ts": "f740d4f25c8aa7263014fc9ad57921ce416f039f9bf8ed4045d5d11b4d8d1e7c",
+    "src/extension/languageServer.ts": "0384d328ca065accb14ffcef345c22029bbfd3317f33fd8124d9e7b099007771",
+    "src/extension/workspaceRestartQueue.ts": "7eb39ba50089c661261796185f612d8403ff168945a98736db4d6ba2f955d368",
+    "test/unit/version-manager-refresh.test.ts": "a6921062335a7fdaa01e88e2efc20f6864dfefd2bf167c6792b02a998342b319",
+    "test/unit/workspace-restart-queue.test.ts": "4f46453242a9f5f113e8a8991bf1c7e9da529af5d531c2ed49c1353387b6ac21",
+    "test/extension/suite/c1.ts": "e150427c8b108316bbe07568326f44d3ff63e22fb6679814cbc4a9b39d2a5bf3",
+    "packages/language-server/test/projectless-version-stdio.test.ts": "e0fcd57a78d8b432152fb4c46a5d2d9bbefc536e617590190a5810b51184bddc",
+    "dist/extension.js": "fae23b4d821a1d50f29d8543705881d3969c5a2a8e44508af1290fa4cf2e4f8a",
+    "dist/language-server.js": "2a3ff3766f3ae9d0ca998b7ec27f5ed5cec0770215001393cc401b74e5158a84",
+    "dist-test/suite/c1.js": "7c9b68708b7ac3be15ccd88bfa7067a4fb5cd29ce4b527c1a77d448205c87476",
+    "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+    "scripts/run-extension-test.mjs": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e"
+  },
+  "rootUnit": {
+    "files": 21,
+    "tests": 113,
+    "passed": 113,
+    "failed": 0
+  },
+  "versionManagerTests": 17,
+  "restartQueueTests": 3,
+  "projectlessVersionProtocol": {
+    "modes": [
+      "onDemand",
+      "progressive"
+    ],
+    "tests": 2,
+    "passed": 2,
+    "unchangedDocumentVersion": 1,
+    "targets": [
+      "7.2",
+      "8.5"
+    ],
+    "independentComposerRoot": "8.5"
+  },
+  "host": {
+    "platform": "Linux",
+    "mode": "C1 auto source",
+    "exitCode": 0,
+    "visiblePopupMeasurement": false,
+    "rootLifecycle": [
+      "CLI 7.2",
+      "Composer 8.1",
+      "CLI 7.2",
+      "Composer 8.1"
+    ],
+    "retainedDocumentVersion": 1,
+    "independentRootTarget": "8.5",
+    "historicalFailuresRetained": true
+  },
+  "cli": {
+    "path": "/opt/remi/php72/root/usr/bin/php",
+    "version": "7.2.34",
+    "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+  },
+  "restart": {
+    "previousStopTimeoutMs": 2000,
+    "currentStopTimeoutMs": 30000,
+    "serial": true,
+    "shutdownLatencyImprovementClaim": false
+  },
+  "scope": {
+    "profileUpdated": false,
+    "vsixPackaged": false,
+    "pushed": false,
+    "realWslAccepted": false,
+    "goal": "active",
+    "fullRoadmapComplete": false,
+    "lspBundleUnchanged": true
+  },
+  "evidence": {
+    "/tmp/sophp-d139-root-unit.json": {
+      "archive": ".vscode-test/d139-evidence/00-sophp-d139-root-unit.json",
+      "sha256": "c2f1546f4494d9bbe277822fd519428c3a24f84058cdc0e4334372e3b598a5ef"
+    },
+    "/tmp/sophp-d139-root-unit-restart.json": {
+      "archive": ".vscode-test/d139-evidence/01-sophp-d139-root-unit-restart.json",
+      "sha256": "1a74e9f584be6cfb030edd274c08ad4c898a6ac02ec7ec3c447acdc59bbdcd91"
+    },
+    "/tmp/sophp-d139-root-unit-restart.log": {
+      "archive": ".vscode-test/d139-evidence/02-sophp-d139-root-unit-restart.log",
+      "sha256": "8254c436aadcfa789a6631ab7b2e1b36241b7a088ddb1180695d99ecd4b4ad06"
+    },
+    "/tmp/sophp-d139-projectless-before.json": {
+      "archive": ".vscode-test/d139-evidence/03-sophp-d139-projectless-before.json",
+      "sha256": "8000e1633fde4020530092ebbbbb45408c459a67b2afaa9362a53c9c404fedd7"
+    },
+    "/tmp/sophp-d139-projectless-lsp-before.json": {
+      "archive": ".vscode-test/d139-evidence/04-sophp-d139-projectless-lsp-before.json",
+      "sha256": "da01210245fb7fb982f5d5bb3350337a7ccd7f154bf0d2d5fd227331d0cd0941"
+    },
+    "/tmp/sophp-d139-projectless-lsp-normalized-before.json": {
+      "archive": ".vscode-test/d139-evidence/05-sophp-d139-projectless-lsp-normalized-before.json",
+      "sha256": "05e3d9805f0fb490d9ca63e3a1f75fad23310430a27255bdcf77af786a267b43"
+    },
+    "/tmp/sophp-d139-projectless-versioned-transitions.json": {
+      "archive": ".vscode-test/d139-evidence/06-sophp-d139-projectless-versioned-transitions.json",
+      "sha256": "7955bd5cccecb6fd9dcb784afd5e8b3515211b4b875fe27f3cad12a0528c7140"
+    },
+    "/tmp/sophp-d139-projectless-versioned-settled.json": {
+      "archive": ".vscode-test/d139-evidence/07-sophp-d139-projectless-versioned-settled.json",
+      "sha256": "c8136016874c60b661166df7fc9970a9c59177d7a88b7c999cb3dc3071b23453"
+    },
+    "/tmp/sophp-d139-c1-auto-host.log": {
+      "archive": ".vscode-test/d139-evidence/08-sophp-d139-c1-auto-host.log",
+      "sha256": "39f6c0d95cc25b4ff97ba6404137b0d4e8e4095c849ff3020dfa1cc0361a8bf4"
+    },
+    "/tmp/sophp-d139-c1-auto-observation.log": {
+      "archive": ".vscode-test/d139-evidence/09-sophp-d139-c1-auto-observation.log",
+      "sha256": "7e6c3766f31e73155f4cbf9b946f6babdb5621a9e468032e88499170805bd579"
+    },
+    "/tmp/sophp-d139-c1-auto-ready.log": {
+      "archive": ".vscode-test/d139-evidence/10-sophp-d139-c1-auto-ready.log",
+      "sha256": "2d7128384565ecc06b71c797dd5498b1755deed1329e8760e919220de64673bb"
+    },
+    "/tmp/sophp-d139-c1-auto-preserved.log": {
+      "archive": ".vscode-test/d139-evidence/11-sophp-d139-c1-auto-preserved.log",
+      "sha256": "2138b58b9e8d16c6499db64056bae9ccc18a8ec4fd8aa37d5115ddad78641e78"
+    },
+    "/tmp/sophp-d139-c1-auto-serial.log": {
+      "archive": ".vscode-test/d139-evidence/12-sophp-d139-c1-auto-serial.log",
+      "sha256": "86c638e0dedbd2fadd6854fdccc0307eb17173d067fa3369b42802a132585400"
+    },
+    "/tmp/sophp-d139-restart-typecheck.log": {
+      "archive": ".vscode-test/d139-evidence/13-sophp-d139-restart-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d139-host-typecheck.log": {
+      "archive": ".vscode-test/d139-evidence/14-sophp-d139-host-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d139-observation-ready-typecheck.log": {
+      "archive": ".vscode-test/d139-evidence/15-sophp-d139-observation-ready-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d139-lint-current.log": {
+      "archive": ".vscode-test/d139-evidence/16-sophp-d139-lint-current.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d139-transition-lint.log": {
+      "archive": ".vscode-test/d139-evidence/17-sophp-d139-transition-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d139-restart-lint.log": {
+      "archive": ".vscode-test/d139-evidence/18-sophp-d139-restart-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d139-restart-build.log": {
+      "archive": ".vscode-test/d139-evidence/19-sophp-d139-restart-build.log",
+      "sha256": "13a4c38b5b2d48b998d5c026abacd2097d3738c295f04a9f91b13bea71be77e0"
+    },
+    ".vscode-test/d139-input.json": {
+      "archive": ".vscode-test/d139-evidence/20-d139-input.json",
+      "sha256": "87770b3a888d518d53e8566947cb54cf935af5fe2214c1a42d625d862ac70e39"
+    },
+    ".vscode-test/d139-current-input.json": {
+      "archive": ".vscode-test/d139-evidence/21-d139-current-input.json",
+      "sha256": "96f5ea4452b34eb96717994fb8be1831f008d57a2bf76d99ef4dfa8f0995ac38"
+    },
+    ".vscode-test/d139-serial-input.json": {
+      "archive": ".vscode-test/d139-evidence/22-d139-serial-input.json",
+      "sha256": "d475192b79a0af8af0589404217f807bca2f75437b60df89d8ab3187820591bd"
+    },
+    ".vscode-test/d139-host-failures/extension-failure-fqKfC7/fixture/profile-user-data/logs/20261006T111808/window1/exthost/sohophp.php-companion/SoPHP.log": {
+      "archive": ".vscode-test/d139-evidence/23-SoPHP.log",
+      "sha256": "eba32b8d99dc6c3d9cddafe0c471f2cea1c0ea2f628c27fcedca18e4b89b9bcd"
+    },
+    ".vscode-test/d139-parent-composer/creation-evidence.json": {
+      "archive": ".vscode-test/d139-evidence/24-creation-evidence.json",
+      "sha256": "635d99126a86ec551803749c35d4bf5df5dd5a232c0bcee4554dee2c8bd1b75f"
+    },
+    ".vscode-test/d139-parent-composer/prototype16/evidence.json": {
+      "archive": ".vscode-test/d139-evidence/25-evidence.json",
+      "sha256": "728733bbfa841e5f44dafa89eeca1fe152fcdb172d79d56c321f0950823b6896"
+    }
+  }
+}

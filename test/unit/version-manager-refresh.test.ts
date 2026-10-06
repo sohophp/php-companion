@@ -262,3 +262,60 @@ it('does not publish or show a late version result after disposal', async () => 
   manager.dispose(); old.finish('7.2'); await pending;
   expect(state.events).toEqual([]); expect(status.show).not.toHaveBeenCalled();
 });
+
+
+it('recomputes the root folder version after its Composer file is deleted and restores it on creation', async () => {
+  vi.useFakeTimers();
+  const document = uri('/projects/first/File.php'); state.activeUri = document;
+  state.resolve.mockImplementation(async ({ composer }) => ({ target: composer?.platformPhp ?? '8.5', source: 'setting', sourceDetail: 'controlled fallback', discovered: [], warnings: [] }));
+  state.composerPlatforms.set(folder.uri.fsPath, '8.1');
+  const status = { text: '', hide(): void {}, show(): void {} }, manager = new VersionManager(status as any);
+  try {
+    await manager.refresh(); expect(status.text).toContain('SoPHP: 8.1');
+    state.findRoot.mockResolvedValue(undefined); state.missingComposers.add(folder.uri.fsPath);
+    state.watchers.get(folder.uri.fsPath)![0]!(); await vi.advanceTimersByTimeAsync(250);
+    expect(manager.stateForUri(document)?.resolution.target).toBe('8.5');
+    expect(manager.stateForUri(document)?.projectRoot).toBeUndefined(); expect(status.text).toContain('SoPHP: 8.5');
+    state.findRoot.mockResolvedValue(folder.uri.fsPath); state.missingComposers.delete(folder.uri.fsPath);
+    state.composerPlatforms.set(folder.uri.fsPath, '7.2'); state.watchers.get(folder.uri.fsPath)![0]!();
+    await vi.advanceTimersByTimeAsync(250);
+    expect(manager.stateForUri(document)?.resolution.target).toBe('7.2'); expect(status.text).toContain('SoPHP: 7.2');
+    expect(state.events.map(event => event.resolution.target)).toEqual(['8.1', '8.5', '7.2']);
+  } finally { manager.dispose(); vi.useRealTimers(); }
+});
+
+it('does not cancel an independent nested version probe when its parent Composer file is deleted', async () => {
+  vi.useFakeTimers();
+  const document = uri('/projects/first/nested/File.php'), root = '/projects/first/nested', child = deferred();
+  state.roots.set(document.fsPath, root);
+  state.resolve.mockResolvedValueOnce({ target: '8.1', source: 'setting', sourceDetail: 'parent', discovered: [], warnings: [] })
+    .mockReturnValueOnce(child.promise).mockResolvedValue({ target: '8.5', source: 'setting', sourceDetail: 'fallback', discovered: [], warnings: [] });
+  const manager = new VersionManager({ hide() {}, show() {} } as any);
+  try {
+    await manager.refresh(); const pending = manager.ensureForUri(document); await vi.advanceTimersByTimeAsync(0);
+    state.findRoot.mockImplementation(async (path: string) => state.roots.get(path));
+    state.watchers.get(folder.uri.fsPath)![0]!(); await vi.advanceTimersByTimeAsync(250);
+    child.finish('7.2'); await pending;
+    expect(manager.stateForUri(document)?.resolution.target).toBe('7.2');
+    expect(manager.stateForUri(uri('/projects/first/Other.php'))?.resolution.target).toBe('8.5');
+    expect(state.events.map(event => [event.projectRoot, event.resolution.target])).toEqual([
+      [folder.uri.fsPath, '8.1'], [undefined, '8.5'], [root, '7.2'],
+    ]);
+  } finally { manager.dispose(); vi.useRealTimers(); }
+});
+
+
+it('discovers a Composer file created after a projectless workspace was initialized', async () => {
+  vi.useFakeTimers(); const document = uri('/projects/first/File.php'); state.activeUri = document;
+  state.findRoot.mockResolvedValue(undefined);
+  state.resolve.mockImplementation(async ({ composer }) => ({ target: composer?.platformPhp ?? '8.5', source: 'setting', sourceDetail: 'controlled fallback', discovered: [], warnings: [] }));
+  const status = { text: '', hide(): void {}, show(): void {} }, manager = new VersionManager(status as any);
+  try {
+    await manager.refresh(); expect(status.text).toContain('SoPHP: 8.5');
+    const change = state.watchers.get(folder.uri.fsPath)?.[0]; expect(change).toBeTypeOf('function');
+    state.findRoot.mockResolvedValue(folder.uri.fsPath); state.composerPlatforms.set(folder.uri.fsPath, '7.2');
+    change!(); await vi.advanceTimersByTimeAsync(250);
+    expect(manager.stateForUri(document)?.resolution.target).toBe('7.2'); expect(status.text).toContain('SoPHP: 7.2');
+    expect(state.events.map(event => event.resolution.target)).toEqual(['8.5', '7.2']);
+  } finally { manager.dispose(); vi.useRealTimers(); }
+});

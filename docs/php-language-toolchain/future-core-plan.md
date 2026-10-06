@@ -6,6 +6,8 @@
 
 | 项目 | 当前事实 |
 | --- | --- |
+| D139 根 Composer 与重启 | [目录生命周期](reports/workspace-root-composer-restart-2026-10-06.md)：无 Composer 冷启动监听、根删除／创建／恢复已接入；113 项根单测、两模式未编辑文档版本协议及 Linux 自动模式完整 C1 通过。根链 CLI 7.2 → Composer 8.1 → CLI 7.2 → Composer 8.1，文档 version 1 与诊断／状态一致。原 2 秒停止超时和重叠重启已记录，串行停止最多 30 秒；长退出等待性能仍开放。不更新 Profile；原 C1–C4／R4 继续 |
+| D138 当前完整 LSP | [固定当前组合回归](reports/core-2cc00e14-full-regression-2026-10-06.md)：绑定 `2cc00e14`／v71；冻结 3078 输入与六个 PHP CLI，87 文件／1153 项一次全部通过，零失败／跳过／TODO，1714.878 秒。采集与结果逐项核对、输入与运行环境哈希保持；只覆盖冻结组合，不转移为后续扩展修改或真人验收，不更新 Profile |
 | D137 Composer 根生命周期 | [根查找与删除／恢复](reports/workspace-composer-root-lifetime-2026-10-06.md)：迟到根查找不恢复已删除嵌套项目、不取消较新探测；缓存回退刷新状态栏。14 个交错、根扩展 107 项与 Linux 自动模式完整 C1 通过，首轮状态栏失败保留。与 D136 集中收口为本地源码里程碑，不更新 Profile；原路线图继续 |
 | D136 Composer 探测顺序 | [项目代次与迟到结果](reports/workspace-composer-probe-order-2026-10-06.md)：已复现并修复两种 8.5 被旧 7.2 覆盖；10 个交错、根扩展完整 103 项和 Linux 显式 8.5 C1 分支通过。分组导入旧断言失败与修正保留；原宿主未运行 Composer 自动／嵌套分支，已更正。源码由 D137 集中收口，未更新 Profile；真人／平台和规模范围保持 |
 | D135 原生条件源码 | [原生输入与条件类型](reports/phpdoc-native-conditional-acceptance-2026-10-06.md)：正式完整语义 134 文件／3636 项、协议／缓存 71 个不同用例及两组 Linux 宿主四次精确接受有通过证据；v71／`2a3ff376`。协议分为 57、12／14、2 项恢复，误写路径与 ENOENT 保留；原型 44／76、70／76、80／84 历史保持。D134 只绑定旧 D133，当前完整 LSP、普通编辑、规模与真人继续开放，不更新 Profile |

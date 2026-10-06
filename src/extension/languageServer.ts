@@ -6,6 +6,7 @@ import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
 import { phpRuntimePayload, type PhpExtensionRuntimePayload } from './phpRuntimePayload.js';
+import { WorkspaceRestartQueue } from './workspaceRestartQueue.js';
 
 interface PhpExtensionAvailabilityEntry {
   uri: string;
@@ -324,6 +325,12 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     }
   }));
   let stopping = false;
+  const workspaceRestarts = new WorkspaceRestartQueue(
+    () => client.stop(30_000),
+    async () => { await client.start(); },
+    error => output.warn(`Unable to restart SoPHP for PHP version settings: ${String(error)}`),
+  );
+  context.subscriptions.push(workspaceRestarts);
   let versionRestartTimer: ReturnType<typeof setTimeout> | undefined;
   let versionSignature = JSON.stringify(projectPhpVersions());
   const scheduleVersionRestart = (): void => {
@@ -331,7 +338,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     if (versionRestartTimer) clearTimeout(versionRestartTimer);
     versionRestartTimer = setTimeout(() => {
       versionRestartTimer = undefined;
-      if (!stopping) void client.restart().catch((error: unknown) => output.warn(`Unable to restart SoPHP for PHP version settings: ${String(error)}`));
+      if (!stopping) workspaceRestarts.request();
     }, 250);
   };
   let referencePrewarmTimer: ReturnType<typeof setTimeout> | undefined;
