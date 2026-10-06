@@ -1,0 +1,158 @@
+{
+  "milestone": "D136",
+  "status": "historical D136 source qualification; consolidated with D137 as a local source milestone",
+  "createdAtUtc": "2026-10-06T02:09:38.736994+00:00",
+  "inputSnapshot": {
+    "baseCommit": "bae8c307d94431cff7dc6bd6e61ed618102306df",
+    "createdAtUtc": "2026-10-06T02:05:40.414743+00:00",
+    "inputs": {
+      "src/extension/versionManager.ts": "e3a2e0eeada96392bd0082adfda2f9e7626a7414aabfb890e8b9b6d6b1e5b339",
+      "test/unit/version-manager-refresh.test.ts": "23bb4fbad9746937cc80369bef72ee88906f05b9a6526dd85af49700112deb78",
+      "test/extension/suite/c1.ts": "db16fe701079d56cc11668e96fc698e493f27c5c3577eb33ecbcda742c9c8ba8",
+      "dist/extension.js": "89862a28fa25e514631119931e31cf290386596821cf9ac9ce910b1cb46fe1ad",
+      "dist/language-server.js": "2a3ff3766f3ae9d0ca998b7ec27f5ed5cec0770215001393cc401b74e5158a84",
+      "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+      "dist-test/suite/c1.js": "13aef93de2928c5098ece637c2ac7b6aad5f508c577c0254d39905a5e5561779",
+      "scripts/run-extension-test.mjs": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e"
+    }
+  },
+  "finalInputChanges": [],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-version-before.json",
+      "sha256": "666c2305a0070f9439a2ed3f11269dd01646d64a36b743acdd6593c60cdad956",
+      "result": {
+        "numTotalTests": 7,
+        "numPassedTests": 5,
+        "numFailedTests": 2,
+        "numPendingTests": 0,
+        "success": false
+      },
+      "durationSeconds": 4.81343994140625
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-version-after.json",
+      "sha256": "b81183b9ea03bc4ce4ad2eb34f1c27e00a6094c76357f135c28e5c97103cc1a1",
+      "result": {
+        "numTotalTests": 7,
+        "numPassedTests": 7,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "success": true
+      },
+      "durationSeconds": 5.150861083984375
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-version-expanded.json",
+      "sha256": "3a2e9934aaccd952c8987c3fcb857a68eb538a1d2f9ee02b30b4b38fa27abd85",
+      "result": {
+        "numTotalTests": 10,
+        "numPassedTests": 10,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "success": true
+      },
+      "durationSeconds": 5.238138916015625
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-root-unit-full.json",
+      "sha256": "ce5bf4eaecff6164010343dfc8f828dc211f353d31350f27c9ae86afa30d5abd",
+      "result": {
+        "numTotalTests": 103,
+        "numPassedTests": 103,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "success": true
+      },
+      "durationSeconds": 5.68977587890625
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-eslint.log",
+      "sha256": "783b366f2fe7e1bdee3ad05ca3b5f5b2f7ba44993dcf2849972b84252f7eeb52"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-eslint-with-host.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-extension-final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-build.log",
+      "sha256": "6c855db92c82fcc01953ea6b6c1c2fac734f855518692ff1bb3765d394eeb868"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-c1-host.log",
+      "sha256": "20918fa1ef0d315ed25d4efbdeb1dad1c7946fb67530819deeba98f2386dcd65"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-c1-host-observed.log",
+      "sha256": "464feed8cb62172102dd4e111aadd495455fdbe9c8a0c42e78ff4f21084d3e9e"
+    },
+    {
+      "path": ".vscode-test/d136-evidence/sophp-d136-c1-host-final.log",
+      "sha256": "51257eff7c0c58ba55e860b9372cc97b0588d7c01b9160de3c1e76b55a678b1c"
+    }
+  ],
+  "host": {
+    "platform": "linux",
+    "vscodeVersion": "1.140.0",
+    "coreOnly": true,
+    "command": "PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C1_ONLY=1 PHP_COMPANION_TEST_C1_PHP_VERSION=8.5 node scripts/run-extension-test.mjs ./dist-test/runTest.js",
+    "initialExitCode": 1,
+    "observedExitCode": 1,
+    "finalExitCode": 0,
+    "groupedImportFinalTextObservations": [
+      {
+        "kind": "group-function",
+        "appliedSource": "<?php namespace App\\C1; use function App\\C1\\{c1_mix_function",
+        "expectedSource": "<?php namespace App\\C1; use function App\\C1\\{c1_mix_function"
+      },
+      {
+        "kind": "group-closed-function",
+        "appliedSource": "<?php namespace App\\C1; use function App\\C1\\{c1_mix_function}; class GroupImportConsumer {}",
+        "expectedSource": "<?php namespace App\\C1; use function App\\C1\\{c1_mix_function}; class GroupImportConsumer {}"
+      },
+      {
+        "kind": "group-const",
+        "appliedSource": "<?php namespace App\\C1; use const App\\C1\\{C1_MIX_CONSTANT",
+        "expectedSource": "<?php namespace App\\C1; use const App\\C1\\{C1_MIX_CONSTANT"
+      },
+      {
+        "kind": "mixed-function",
+        "appliedSource": "<?php namespace App\\C1; use App\\C1\\{const C1_MIX_CONSTANT, function c1_mix_function",
+        "expectedSource": "<?php namespace App\\C1; use App\\C1\\{const C1_MIX_CONSTANT, function c1_mix_function"
+      },
+      {
+        "kind": "mixed-const",
+        "appliedSource": "<?php namespace App\\C1; use App\\C1\\{function c1_mix_function, const C1_MIX_CONSTANT",
+        "expectedSource": "<?php namespace App\\C1; use App\\C1\\{function c1_mix_function, const C1_MIX_CONSTANT"
+      }
+    ],
+    "firstCompletionMs": 121,
+    "warmSamplesPerCommand": 12,
+    "warmCommandMaxMs": {
+      "completion": 15,
+      "hover": 26,
+      "signature": 6,
+      "definition": 5,
+      "implementation": 6,
+      "references": 101
+    },
+    "visibleWslStatusScreenshot": false,
+    "controlledRealCliCompletionOrder": false,
+    "autoVersionBranchesExecuted": false,
+    "scopeCorrection": "Explicit PHP 8.5 skipped if (!targetPhpVersion): Composer automatic version, platform change and nested Composer host branches. Controlled unit coverage remains valid; automatic host qualification is separate."
+  },
+  "scope": "extension project version coordination and C1 acceptance assertions; no semantic or language-server implementation changes",
+  "unitFixtureFollowup": "explicit return type annotation only after full 103 unit gate; production source unchanged",
+  "profileUpdated": false,
+  "goalStatus": "active",
+  "fullRoadmapComplete": false,
+  "followup": "D137 corrects auto host scope and consolidates the source milestone"
+}

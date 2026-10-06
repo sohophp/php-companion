@@ -23,6 +23,14 @@ async function waitForResult<T>(read: () => PromiseLike<T>, ready: (value: T) =>
   assert.fail(`${message} Last result: ${JSON.stringify(lastResult)}; last error: ${String(lastError)}`);
 }
 
+function textAfterCompletion(document: vscode.TextDocument, item: vscode.CompletionItem): string {
+  const range = item.range instanceof vscode.Range ? item.range : item.range?.replacing;
+  assert.ok(range, 'Completion must provide a replacement range.');
+  assert.strictEqual(typeof item.insertText, 'string', 'Import completion must insert plain text.');
+  const source = document.getText();
+  return source.slice(0, document.offsetAt(range.start)) + item.insertText + source.slice(document.offsetAt(range.end));
+}
+
 async function verifyVisibleArrayAccessKeys(folder: vscode.Uri, port: number): Promise<void> {
   const uri = vscode.Uri.joinPath(folder, 'C1VisibleArrayAccessKeys.php');
   await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php'));
@@ -1603,11 +1611,10 @@ export async function run(): Promise<void> {
       `SoPHP added another use statement while completing the ${kind} import.`);
     if (kind.startsWith('group') || kind.startsWith('mixed')) {
       const selected = result.items.find((item) => item.label === expected)!;
-      const range = selected.range instanceof vscode.Range ? selected.range : selected.range?.replacing;
-      const groupStart = source.indexOf('{');
-      const expectedRange = source.slice(groupStart, offset + (source[offset] === '}' ? 1 : 0));
-      const expectedText = `${source.slice(groupStart, offset - 'c1_mix'.length)}${expected}${source[offset] === '}' ? '}' : ''}`;
-      assert.ok(range && document.getText(range) === expectedRange && selected.insertText === expectedText,
+      const expectedSource = source.slice(0, offset - 'c1_mix'.length) + expected + source.slice(offset);
+      console.log('C1 grouped import edit observation: ' + JSON.stringify({ kind,
+        appliedSource: textAfterCompletion(document, selected), expectedSource }));
+      assert.strictEqual(textAfterCompletion(document, selected), expectedSource,
         `SoPHP would damage a member or brace in the ${kind} import.`);
     }
   }
@@ -1632,10 +1639,7 @@ export async function run(): Promise<void> {
     'SoPHP did not suggest a namespace inside a function group use.',
   );
   const groupedFunctionItem = groupedFunctionCompletion.items.find((item) => item.label === 'Nested\\')!;
-  const groupedFunctionRange = groupedFunctionItem.range instanceof vscode.Range
-    ? groupedFunctionItem.range : groupedFunctionItem.range?.replacing;
-  assert.ok(groupedFunctionRange && groupedFunctionDocument.getText(groupedFunctionRange) === '{Nes}'
-    && groupedFunctionItem.insertText === '{Nested\\}',
+  assert.strictEqual(textAfterCompletion(groupedFunctionDocument, groupedFunctionItem), groupedFunctionSource.replace('{Nes}', '{Nested\\}'),
   'The function group namespace suggestion would change the braces.');
   groupedFunctionEditor.selection = new vscode.Selection(groupedFunctionDocument.positionAt(groupedFunctionOffset),
     groupedFunctionDocument.positionAt(groupedFunctionOffset));
@@ -2831,9 +2835,7 @@ class C1ConstructionPositions {
   );
   assert.strictEqual(groupImportCompletion.items.filter((item) => item.label === 'C1ExternalTypeProbe').length, 1);
   const groupItem = groupImportCompletion.items.find((item) => item.label === 'C1ExternalTypeProbe')!;
-  const groupRange = groupItem.range instanceof vscode.Range ? groupItem.range : groupItem.range?.replacing;
-  assert.ok(groupRange && groupImportDocument.getText(groupRange) === '{C1ExternalTypePro}'
-    && groupItem.insertText === '{C1ExternalTypeProbe}',
+  assert.strictEqual(textAfterCompletion(groupImportDocument, groupItem), groupImportSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
   'The group use completion would lose its braces while replacing the member.');
   groupImportEditor.selection = new vscode.Selection(groupImportDocument.positionAt(groupImportOffset),
     groupImportDocument.positionAt(groupImportOffset));
@@ -2881,9 +2883,7 @@ class C1ConstructionPositions {
     'SoPHP did not complete a nested class member in a group use.',
   );
   const nestedGroupItem = nestedGroupCompletion.items.find((item) => item.label === 'C1ExternalTypeProbe')!;
-  const nestedGroupRange = nestedGroupItem.range instanceof vscode.Range ? nestedGroupItem.range : nestedGroupItem.range?.replacing;
-  assert.ok(nestedGroupRange && nestedGroupDocument.getText(nestedGroupRange) === '{External\\C1ExternalTypePro}'
-    && nestedGroupItem.insertText === '{External\\C1ExternalTypeProbe}',
+  assert.strictEqual(textAfterCompletion(nestedGroupDocument, nestedGroupItem), nestedGroupSource.replace('C1ExternalTypePro}', 'C1ExternalTypeProbe}'),
   'The nested group use completion would change its namespace prefix or braces.');
   nestedGroupEditor.selection = new vscode.Selection(nestedGroupDocument.positionAt(nestedGroupOffset),
     nestedGroupDocument.positionAt(nestedGroupOffset));
@@ -2907,10 +2907,7 @@ class C1ConstructionPositions {
     'SoPHP did not suggest a namespace inside a class group use.',
   );
   const groupNamespaceItem = groupNamespaceCompletion.items.find((item) => item.label === 'External\\')!;
-  const groupNamespaceRange = groupNamespaceItem.range instanceof vscode.Range
-    ? groupNamespaceItem.range : groupNamespaceItem.range?.replacing;
-  assert.ok(groupNamespaceRange && groupNamespaceDocument.getText(groupNamespaceRange) === '{Exte}'
-    && groupNamespaceItem.insertText === '{External\\}',
+  assert.strictEqual(textAfterCompletion(groupNamespaceDocument, groupNamespaceItem), groupNamespaceSource.replace('{Exte}', '{External\\}'),
   'The group namespace suggestion would alter an existing group member or brace.');
   groupNamespaceEditor.selection = new vscode.Selection(groupNamespaceDocument.positionAt(groupNamespaceOffset),
     groupNamespaceDocument.positionAt(groupNamespaceOffset));
@@ -3509,6 +3506,32 @@ accept(1, /* note */);`;
         'The PHP version picker did not explain its workspace-wide setting scope.');
       assert.strictEqual(nestedVersionChoices.items.find((item) => item.label === 'PHP 8.5')?.description, '$(check)',
         'The PHP version picker marked the parent version instead of the active nested project version.');
+      const nestedComposerUri = vscode.Uri.joinPath(nestedRoot, 'composer.json');
+      const nestedComposerBytes = await vscode.workspace.fs.readFile(nestedComposerUri);
+      const changedNestedVersion = firstTargetPhpVersion === '8.5' ? '8.1' : '8.5';
+      const changedNestedComposer = JSON.parse(Buffer.from(nestedComposerBytes).toString('utf8'));
+      changedNestedComposer.config.platform.php = `${changedNestedVersion}.0`;
+      await vscode.workspace.fs.writeFile(nestedComposerUri, Buffer.from(JSON.stringify(changedNestedComposer)));
+      await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+        (value) => value?.includes(`SoPHP: ${changedNestedVersion}`) === true,
+        'SoPHP did not update the active nested version after its Composer platform changed.');
+      await vscode.workspace.fs.delete(nestedComposerUri);
+      await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+        (value) => value?.includes(`SoPHP: ${firstTargetPhpVersion}`) === true,
+        'SoPHP kept a deleted nested Composer version instead of falling back to its parent.');
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', nestedVersionUri),
+        firstTargetPhpVersion, 'The active document kept the deleted nested Composer version.');
+      await vscode.workspace.fs.writeFile(nestedComposerUri, Buffer.from(JSON.stringify(changedNestedComposer)));
+      await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+        (value) => value?.includes(`SoPHP: ${changedNestedVersion}`) === true,
+        'SoPHP did not rediscover the nested Composer version after its file was restored.');
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', nestedVersionUri), changedNestedVersion);
+      await vscode.workspace.fs.writeFile(nestedComposerUri, nestedComposerBytes);
+      await waitForResult(() => vscode.commands.executeCommand<string>('phpCompanion._testVersionStatus'),
+        (value) => value?.includes('SoPHP: 8.5') === true,
+        'SoPHP did not restore the original nested Composer platform version.');
+      assert.strictEqual(await vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', nestedVersionUri), '8.5');
+      console.log(`C1 nested Composer change/delete/restore: ${changedNestedVersion} -> ${firstTargetPhpVersion} -> ${changedNestedVersion} -> 8.5 passed.`);
       const parentVersionAfterNestedUri = vscode.Uri.joinPath(folder, 'AfterNestedVersioned.php');
       await vscode.workspace.fs.writeFile(parentVersionAfterNestedUri, Buffer.from(versionSource));
       await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(parentVersionAfterNestedUri));

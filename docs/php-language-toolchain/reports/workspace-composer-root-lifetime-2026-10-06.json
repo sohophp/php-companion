@@ -1,0 +1,186 @@
+{
+  "milestone": "D137",
+  "status": "source-verified-local-milestone",
+  "createdAtUtc": "2026-10-06T02:23:41.732106+00:00",
+  "baseHead": "bae8c307d94431cff7dc6bd6e61ed618102306df",
+  "finalInputSnapshot": {
+    "createdAt": "2026-10-06T02:21:21.441378+00:00",
+    "head": "bae8c307d94431cff7dc6bd6e61ed618102306df",
+    "inputs": [
+      {
+        "path": "src/extension/versionManager.ts",
+        "sha256": "d03d3c0c93c75e5a3d929ce2c92f87500f1ffb96bdf230d23dc53aeb96894dcb"
+      },
+      {
+        "path": "test/unit/version-manager-refresh.test.ts",
+        "sha256": "e76f764c2e16f699b0bc7b26031f332165d56895e3b4adf818273ea012d32342"
+      },
+      {
+        "path": "test/extension/suite/c1.ts",
+        "sha256": "974c64d913984d59fed0cc199c32bb5531907dde11d4108a874df71f18401521"
+      },
+      {
+        "path": "dist/extension.js",
+        "sha256": "001323ac86c3104d6e9d329583901b332eb3012a3488677dfad40a5d60531b15"
+      },
+      {
+        "path": "dist/language-server.js",
+        "sha256": "2a3ff3766f3ae9d0ca998b7ec27f5ed5cec0770215001393cc401b74e5158a84"
+      },
+      {
+        "path": "dist-test/runTest.js",
+        "sha256": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707"
+      },
+      {
+        "path": "dist-test/suite/c1.js",
+        "sha256": "3c2e242ca46bcea8d3fac1122c8ee3aa3c30612a2139e02a297295742010f69c"
+      },
+      {
+        "path": "scripts/run-extension-test.mjs",
+        "sha256": "65bfdb284edd6fd46a971b72acb46e2d3873b15826990ff527cf8444ee150a7e"
+      }
+    ]
+  },
+  "finalInputChanges": [],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-version-before.json",
+      "sha256": "8a4622d9f69770bcc7400ff5972ad8b18e57ff6783a2f35880531786565d68f9"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-version-after.json",
+      "sha256": "35eccaaeef2681ee67736b2c9b29099ac3b4dea4cafb1b62a4cc16022809009a"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-status-before.json",
+      "sha256": "c01d06cd953e369b03b939374be90cae7d1bf468b2a07faf32837807535659a5"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-root-unit.json",
+      "sha256": "60c9d408baef7fd2a793ebe145f120732139bec3d437a77ef81afa180290d19a"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-root-unit-final.json",
+      "sha256": "0f3de3059cf0b84154c8c83de112f9fd556ad928c12e9d50ca3e70c3c4c50b51"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-root-unit-verified.json",
+      "sha256": "814d9cd05d5a744ff97aec824b91b0e87945c96aae2545ec626f128f4ebc80b3"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-root-unit-verified.log",
+      "sha256": "f6115548e68803a055e8e73812d5352e2ed070760a9e1f9ee6c7b8ac96913d0a"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-host-typecheck-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-eslint-final.log",
+      "sha256": "e3e8ffcc4f08a476f2c84763f54176ba2a9662bacaa301a75baba09ac27b7f6d"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-eslint-verified.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-build-final.log",
+      "sha256": "4f922e1ff11eafa067acb08773db161348e3219fc11f50cdd1790f7f51ad1996"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-c1-auto-host.log",
+      "sha256": "1809cb933282eb8bf6f81a85e7818f702254670d19e492726e7b4f0c3246eec2"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/sophp-d137-c1-auto-host-final.log",
+      "sha256": "2839a2a1f55ed2122fc6005abf8aa4ce18f8f0926ad8ab042ad675b3963a1620"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/d137-input.json",
+      "sha256": "4298500689f6dcd082c159264d8c22cc4bb69e9e5dbf6fbea6e010572db01918"
+    },
+    {
+      "path": ".vscode-test/d137-evidence/d137-final-input.json",
+      "sha256": "10f3734226eb51f81e0f97e45ca002d3f30127bd36322b6dac9a426ce936e420"
+    }
+  ],
+  "controlledInitialRootCases": {
+    "total": 13,
+    "passed": 11,
+    "failed": 2
+  },
+  "controlledStatusCounterexample": {
+    "total": 14,
+    "passed": 13,
+    "failed": 1
+  },
+  "finalUnit": {
+    "files": 20,
+    "total": 107,
+    "passed": 107,
+    "failed": 0,
+    "skipped": 0,
+    "versionCases": 14
+  },
+  "gates": {
+    "rootTypecheckExit": 0,
+    "hostTypecheckExit": 0,
+    "lintInitialExit": 1,
+    "lintFinalExit": 0,
+    "productionBuildExit": 0
+  },
+  "host": {
+    "platform": "linux",
+    "vscodeVersion": "1.140.0",
+    "command": "env -u PHP_COMPANION_TEST_C1_PHP_VERSION PHP_COMPANION_TEST_CORE_ONLY=1 PHP_COMPANION_TEST_C1_ONLY=1 node scripts/run-extension-test.mjs ./dist-test/runTest.js",
+    "initialExitCode": 1,
+    "initialFailure": "Deleted nested Composer retained SoPHP: 8.1 in the status bar.",
+    "finalExitCode": 0,
+    "autoVersionBranchesExecuted": true,
+    "nestedTransitions": [
+      "8.1",
+      "parent 8.5 after deletion",
+      "nested 8.1 after recreation",
+      "nested original 8.5"
+    ],
+    "warmSamplesPerCommand": 12,
+    "warmCommandLatencyMs": {
+      "completion": {
+        "median": 12,
+        "max": 15
+      },
+      "hover": {
+        "median": 5,
+        "max": 22
+      },
+      "signature": {
+        "median": 4,
+        "max": 8
+      },
+      "definition": {
+        "median": 4,
+        "max": 4
+      },
+      "implementation": {
+        "median": 4,
+        "max": 5
+      },
+      "references": {
+        "median": 76,
+        "max": 109
+      }
+    },
+    "visibleWslAcceptance": false,
+    "forcedRealCliCompletionOrder": false
+  },
+  "d136Correction": "Explicit PHP 8.5 C1 did not execute Composer auto/platform/nested branches; corrected its report without discarding controlled unit evidence.",
+  "scope": "Workspace version coordination and cached status refresh; no language-server implementation changes",
+  "profileUpdated": false,
+  "pushed": false,
+  "goalStatus": "active",
+  "fullRoadmapComplete": false
+}
