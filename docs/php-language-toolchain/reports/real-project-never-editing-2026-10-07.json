@@ -1,0 +1,1037 @@
+{
+  "milestone": "D187-D193",
+  "createdAtUtc": "2026-10-06T22:37:24.019560+00:00",
+  "baseCommit": "7e726abe00daf697db61ca62e12159c65d2e8853",
+  "baselineBundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+  "candidateBundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+  "sourceHashes": {
+    "packages/semantic/src/index.ts": "d164cdfb688cfc7e297532c3bd333a1a1230ebc84f5184ca2ccfcc2a4c7c178d",
+    "packages/semantic/test/nested-call-never.test.ts": "a577967387d3b13c80209b8c9c927390b16ba1bd68f2e86200695bf1d4e792cf"
+  },
+  "changes": [
+    "Reject impossible local-only native never proofs from declaration facts before resolving calls; explicit nonfunction calls are also excluded, unknown cached call kinds keep the old fallback. Existing unique same-file/native return/argument compatibility proofs remain.",
+    "Accepted full/declaration/source-declaration restores release prior retained syntax trees. Rejected restores are unchanged; no deleted or stale tree is reattached during deferred source hydration."
+  ],
+  "baselinePerformance": {
+    "status": "exited",
+    "parentPid": 443806,
+    "startedAtUtc": "2026-10-06T22:22:57.462142+00:00",
+    "node": {
+      "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "version": "v22.14.0"
+    },
+    "head": "7e726abe00daf697db61ca62e12159c65d2e8853",
+    "worktreeStatus": "",
+    "coreBundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+    "inputCount": 4868,
+    "inputsDigest": "54456f41559735208b5e31f8be55ca4afa389134f97e2db4f4dc614df344f71e",
+    "externalInputHashes": {
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/composer.json": "cea789276c58625c4d03724af8120f41f74a104e9d888849c08de6d931d2114c",
+      "/var/www/php/8.5/winstar2024/composer.json": "d14a960d379050d8b30a245ab5436fd24dae2d72632f9157916fb73ebd7e963e",
+      "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+      "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php": "276a98f41c5e3d406b0b6706e91a294321b5eec6e6c9c4ae257fe80530c4c34a",
+      "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6"
+    },
+    "hotQueryBudgetMs": 150,
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.28",
+    "loadAverageAtStart": [
+      5.74,
+      4.2,
+      3.97
+    ],
+    "roundsPerCase": 100,
+    "qualified": false,
+    "scope": "Original production-bundle serial unsaved-edit plus immediate completion benchmark, no CPU profiler/forced GC/testMode. Two configured PHP-version controls and three read-only real-project files, 100 requests each including first query; first and P50/P95/max reported separately. onDemand only; not UI latency, diagnostic/hover/definition qualification, whole-project or long-session/per-platform acceptance. External RSS samples are not retained heap or 50k-cache qualification.",
+    "finishedAtUtc": "2026-10-06T22:24:11.185289+00:00",
+    "changedInputs": [],
+    "changedExternalInputs": [],
+    "nodeUnchanged": true,
+    "headUnchanged": true,
+    "worktreeUnchanged": true
+  },
+  "candidatePerformance": {
+    "status": "exited",
+    "parentPid": 457526,
+    "startedAtUtc": "2026-10-06T22:28:56.692492+00:00",
+    "node": {
+      "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "version": "v22.14.0"
+    },
+    "head": "7e726abe00daf697db61ca62e12159c65d2e8853",
+    "worktreeStatus": " M packages/semantic/src/index.ts\n M packages/semantic/test/nested-call-never.test.ts\n",
+    "coreBundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+    "inputCount": 4868,
+    "inputsDigest": "f40d08c470c0fe4d83693e44d8678562b3c7ba39f5a7dac72aa324aad5b100fb",
+    "externalInputHashes": {
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/composer.json": "cea789276c58625c4d03724af8120f41f74a104e9d888849c08de6d931d2114c",
+      "/var/www/php/8.5/winstar2024/composer.json": "d14a960d379050d8b30a245ab5436fd24dae2d72632f9157916fb73ebd7e963e",
+      "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+      "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php": "276a98f41c5e3d406b0b6706e91a294321b5eec6e6c9c4ae257fe80530c4c34a",
+      "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6"
+    },
+    "hotQueryBudgetMs": 150,
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.28",
+    "loadAverageAtStart": [
+      5.65,
+      5.93,
+      5.02
+    ],
+    "roundsPerCase": 100,
+    "qualified": false,
+    "scope": "First normal candidate measurement after D188 native never prefilter and accepted-restore tree invalidation; original production-bundle serial unsaved-edit plus immediate completion benchmark, no CPU profiler/forced GC/testMode. Two configured PHP-version controls and three read-only real-project files, 100 requests each including first query; first and P50/P95/max reported separately. onDemand only; not UI latency, diagnostic/hover/definition qualification, whole-project or long-session/per-platform acceptance. External RSS samples are not retained heap or 50k-cache qualification.",
+    "finishedAtUtc": "2026-10-06T22:30:00.844989+00:00",
+    "changedInputs": [],
+    "changedExternalInputs": [],
+    "nodeUnchanged": true,
+    "headUnchanged": true,
+    "worktreeUnchanged": true
+  },
+  "performanceComparisons": [
+    {
+      "label": "fixed-7.2",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "version": "7.2",
+      "baseline": {
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 203.87,
+        "all": {
+          "p50Ms": 102,
+          "p95Ms": 139.01,
+          "maxMs": 203.87
+        },
+        "a": {
+          "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickZ",
+          "p50Ms": 101.49,
+          "p95Ms": 123.04,
+          "maxMs": 203.87,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickA",
+          "p50Ms": 102,
+          "p95Ms": 142.68,
+          "maxMs": 189.17,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 222.73
+            },
+            {
+              "round": 50,
+              "rssMiB": 295.29
+            },
+            {
+              "round": 100,
+              "rssMiB": 299.15
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidate": {
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 374.06,
+        "all": {
+          "p50Ms": 112.56,
+          "p95Ms": 144.1,
+          "maxMs": 374.06
+        },
+        "a": {
+          "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickZ",
+          "p50Ms": 112.68,
+          "p95Ms": 146.04,
+          "maxMs": 374.06,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickA",
+          "p50Ms": 109.17,
+          "p95Ms": 140.66,
+          "maxMs": 209.48,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 210.51
+            },
+            {
+              "round": 50,
+              "rssMiB": 279.83
+            },
+            {
+              "round": 100,
+              "rssMiB": 326.23
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidateWithin150Ms": true
+    },
+    {
+      "label": "fixed-8.5",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "version": "8.5",
+      "baseline": {
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 195.58,
+        "all": {
+          "p50Ms": 96.44,
+          "p95Ms": 140.97,
+          "maxMs": 195.58
+        },
+        "a": {
+          "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickZ",
+          "p50Ms": 96.3,
+          "p95Ms": 140.97,
+          "maxMs": 195.58,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickA",
+          "p50Ms": 96.44,
+          "p95Ms": 144.9,
+          "maxMs": 179.6,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 246.14
+            },
+            {
+              "round": 50,
+              "rssMiB": 341.64
+            },
+            {
+              "round": 100,
+              "rssMiB": 378.1
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidate": {
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 198.1,
+        "all": {
+          "p50Ms": 109.11,
+          "p95Ms": 146.76,
+          "maxMs": 203.05
+        },
+        "a": {
+          "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickZ",
+          "p50Ms": 109.79,
+          "p95Ms": 149.51,
+          "maxMs": 198.1,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "expected": "shapePickA",
+          "p50Ms": 107.83,
+          "p95Ms": 124.92,
+          "maxMs": 203.05,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 235.8
+            },
+            {
+              "round": 50,
+              "rssMiB": 332.05
+            },
+            {
+              "round": 100,
+              "rssMiB": 368.61
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidateWithin150Ms": true
+    },
+    {
+      "label": "real-data-service",
+      "sourceBytes": 82773,
+      "sourceSha256": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+      "version": "8.5",
+      "baseline": {
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 189.24,
+        "all": {
+          "p50Ms": 66.99,
+          "p95Ms": 116.14,
+          "maxMs": 189.24
+        },
+        "a": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueZ",
+          "p50Ms": 66.3,
+          "p95Ms": 116.14,
+          "maxMs": 189.24,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueA",
+          "p50Ms": 67.22,
+          "p95Ms": 116.55,
+          "maxMs": 118.58,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 244.87
+            },
+            {
+              "round": 50,
+              "rssMiB": 295.05
+            },
+            {
+              "round": 100,
+              "rssMiB": 335.5
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidate": {
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 219.25,
+        "all": {
+          "p50Ms": 69.33,
+          "p95Ms": 105.41,
+          "maxMs": 219.25
+        },
+        "a": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueZ",
+          "p50Ms": 68.35,
+          "p95Ms": 121.11,
+          "maxMs": 219.25,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueA",
+          "p50Ms": 71.27,
+          "p95Ms": 105.41,
+          "maxMs": 111.58,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 230.36
+            },
+            {
+              "round": 50,
+              "rssMiB": 275.44
+            },
+            {
+              "round": 100,
+              "rssMiB": 310.82
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidateWithin150Ms": true
+    },
+    {
+      "label": "real-large-controller",
+      "sourceBytes": 46273,
+      "sourceSha256": "276a98f41c5e3d406b0b6706e91a294321b5eec6e6c9c4ae257fe80530c4c34a",
+      "version": "8.5",
+      "baseline": {
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 239.1,
+        "all": {
+          "p50Ms": 201.86,
+          "p95Ms": 323.82,
+          "maxMs": 443.37
+        },
+        "a": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueZ",
+          "p50Ms": 209.41,
+          "p95Ms": 336.78,
+          "maxMs": 409.54,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueA",
+          "p50Ms": 199.93,
+          "p95Ms": 308.18,
+          "maxMs": 443.37,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 259.23
+            },
+            {
+              "round": 50,
+              "rssMiB": 404.05
+            },
+            {
+              "round": 100,
+              "rssMiB": 399.55
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidate": {
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 270.31,
+        "all": {
+          "p50Ms": 132.98,
+          "p95Ms": 166.28,
+          "maxMs": 270.31
+        },
+        "a": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueZ",
+          "p50Ms": 128.59,
+          "p95Ms": 166.28,
+          "maxMs": 270.31,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueA",
+          "p50Ms": 133.8,
+          "p95Ms": 167.28,
+          "maxMs": 208.96,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 227.23
+            },
+            {
+              "round": 50,
+              "rssMiB": 435.33
+            },
+            {
+              "round": 100,
+              "rssMiB": 444.91
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidateWithin150Ms": false
+    },
+    {
+      "label": "real-blog-controller",
+      "sourceBytes": 13815,
+      "sourceSha256": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+      "version": "8.5",
+      "baseline": {
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 142.93,
+        "all": {
+          "p50Ms": 51.81,
+          "p95Ms": 192.88,
+          "maxMs": 358.39
+        },
+        "a": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueZ",
+          "p50Ms": 50.98,
+          "p95Ms": 206.2,
+          "maxMs": 219.4,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueA",
+          "p50Ms": 52.8,
+          "p95Ms": 190.99,
+          "maxMs": 358.39,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 241.77
+            },
+            {
+              "round": 50,
+              "rssMiB": 324.06
+            },
+            {
+              "round": 100,
+              "rssMiB": 289.97
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidate": {
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+        "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+        "rounds": 100,
+        "expectFirst": true,
+        "expectEmptyForDash": false,
+        "sharedCandidates": true,
+        "resolveDetails": false,
+        "firstMs": 181.49,
+        "all": {
+          "p50Ms": 52.51,
+          "p95Ms": 79.64,
+          "maxMs": 181.49
+        },
+        "a": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueZ",
+          "p50Ms": 51.67,
+          "p95Ms": 81.95,
+          "maxMs": 181.49,
+          "incomplete": 50
+        },
+        "b": {
+          "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "expected": "sophpPerfValueA",
+          "p50Ms": 53.74,
+          "p95Ms": 78.97,
+          "maxMs": 83.42,
+          "incomplete": 50
+        },
+        "memory": {
+          "collectedGc": false,
+          "metric": "process RSS; not retained heap",
+          "samples": [
+            {
+              "round": 1,
+              "rssMiB": 226.21
+            },
+            {
+              "round": 50,
+              "rssMiB": 332.65
+            },
+            {
+              "round": 100,
+              "rssMiB": 376.44
+            }
+          ]
+        },
+        "readOnly": true,
+        "diskUnchanged": true
+      },
+      "candidateWithin150Ms": true
+    }
+  ],
+  "profileAudit": {
+    "originalDriverExitReason": "Harness expected exactly one CPU profile but Node also profiled its builtin snapshot worker; both benchmark children exited 0. Original false diagnosticCompleted record retained. No rerun.",
+    "status": "exited",
+    "checks": [
+      {
+        "label": "real-large-controller",
+        "exitCode": 0,
+        "mainProfiles": 1,
+        "additionalWorkerProfiles": 1,
+        "profilesUnchanged": true
+      },
+      {
+        "label": "real-blog-controller",
+        "exitCode": 0,
+        "mainProfiles": 1,
+        "additionalWorkerProfiles": 1,
+        "profilesUnchanged": true
+      }
+    ],
+    "changedInputs": [],
+    "changedExternalInputs": [],
+    "mainMappingProof": {
+      "productionSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "mappedBodySha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "exactProductionBody": true,
+      "buildId": "eabc06e22d520ec6eb36d61200b93add4bed08e56776f1f79fab953e8bbd0ea8"
+    }
+  },
+  "profileHotspots": [
+    {
+      "label": "real-large-controller",
+      "neverReturningCallsInclusiveMs": 9007.442999999997,
+      "mappingProof": {
+        "productionSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+        "mappedBodySha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+        "exactProductionBody": true,
+        "buildId": "eabc06e22d520ec6eb36d61200b93add4bed08e56776f1f79fab953e8bbd0ea8"
+      }
+    },
+    {
+      "label": "real-blog-controller",
+      "neverReturningCallsInclusiveMs": 3213.189999999995,
+      "mappingProof": {
+        "productionSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+        "mappedBodySha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+        "exactProductionBody": true,
+        "buildId": "eabc06e22d520ec6eb36d61200b93add4bed08e56776f1f79fab953e8bbd0ea8"
+      }
+    }
+  ],
+  "tests": {
+    "baselineRegression": {
+      "files": 1,
+      "total": 9,
+      "passed": 5,
+      "failed": 4,
+      "pendingOrFilterExcluded": 0,
+      "todo": 0,
+      "success": false,
+      "rawPath": "/tmp/sophp-d190-baseline-never.json",
+      "rawSha256": "62cbbbb22700ae9aff90cb25c9ec24a96837e8e1ab47575bd7c8d63556f3efd5",
+      "failures": [
+        {
+          "file": "/var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts",
+          "name": "native never calls with nested arguments keeps the local-only proof boundary with source-restored facts",
+          "durationMs": 80.60653899999988,
+          "messages": [
+            "TypeError: Cannot read properties of null (reading 'startIndex')\n    at /var/www/node/php-companion/packages/semantic/src/index.ts:550:22\n    at walkLocalSyntax (/var/www/node/php-companion/packages/semantic/src/index.ts:519:22)\n    at deepestLocalSyntax (/var/www/node/php-companion/packages/semantic/src/index.ts:549:21)\n    at SemanticWorkspace.signaturesWithImplementation (/var/www/node/php-companion/packages/semantic/src/index.ts:11681:46)\n    at /var/www/node/php-companion/packages/semantic/src/index.ts:11502:45\n    at SemanticWorkspace.withImplementationAt (/var/www/node/php-companion/packages/semantic/src/index.ts:1740:27)\n    at SemanticWorkspace.signatures (/var/www/node/php-companion/packages/semantic/src/index.ts:11502:15)\n    at SemanticWorkspace.signature (/var/www/node/php-companion/packages/semantic/src/index.ts:11772:27)\n    at SemanticWorkspace.signatureForParsedCall (/var/www/node/php-companion/packages/semantic/src/index.ts:9878:23)\n    at SemanticWorkspace.isNativeNeverCall (/var/www/node/php-companion/packages/semantic/src/index.ts:12196:5)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts",
+          "name": "native never calls with nested arguments queries the restored source after replacing an open document through full restore",
+          "durationMs": 11.736365999999634,
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ 'stop(\\'new\\')' ]\n    at /var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts:106:12\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts",
+          "name": "native never calls with nested arguments queries the restored source after replacing an open document through declarations restore",
+          "durationMs": 4.673170000000027,
+          "messages": [
+            "AssertionError: expected [] to deeply equal [ 'stop(\\'new\\')' ]\n    at /var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts:106:12\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts",
+          "name": "native never calls with nested arguments queries the restored source after replacing an open document through source restore",
+          "durationMs": 4.021772999999939,
+          "messages": [
+            "TypeError: Cannot read properties of null (reading 'startIndex')\n    at /var/www/node/php-companion/packages/semantic/src/index.ts:550:22\n    at walkLocalSyntax (/var/www/node/php-companion/packages/semantic/src/index.ts:519:22)\n    at deepestLocalSyntax (/var/www/node/php-companion/packages/semantic/src/index.ts:549:21)\n    at SemanticWorkspace.signaturesWithImplementation (/var/www/node/php-companion/packages/semantic/src/index.ts:11681:46)\n    at /var/www/node/php-companion/packages/semantic/src/index.ts:11502:45\n    at SemanticWorkspace.withImplementationAt (/var/www/node/php-companion/packages/semantic/src/index.ts:1740:27)\n    at SemanticWorkspace.signatures (/var/www/node/php-companion/packages/semantic/src/index.ts:11502:15)\n    at SemanticWorkspace.signature (/var/www/node/php-companion/packages/semantic/src/index.ts:11772:27)\n    at /var/www/node/php-companion/.vscode-test/d188-baseline-never.test.ts:102:22\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60"
+          ]
+        }
+      ]
+    },
+    "firstCompleteSemantic": {
+      "files": 145,
+      "total": 22822,
+      "passed": 22821,
+      "failed": 1,
+      "pendingOrFilterExcluded": 0,
+      "todo": 0,
+      "success": false,
+      "rawPath": "/tmp/sophp-d190-complete-semantic.json",
+      "rawSha256": "9e5bccd4a0f8b964d4cfb6dc63677cacfadaf1c867bf397f6e7c49bb83fb1f3b",
+      "failures": [
+        {
+          "file": "/var/www/node/php-companion/packages/semantic/test/builtin-construction-completion.test.ts",
+          "name": "preserves same-named user classes, including when native extensions are disabled",
+          "durationMs": 5489.6660550000015,
+          "messages": [
+            "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at /var/www/node/php-companion/packages/semantic/test/builtin-construction-completion.test.ts:44:1\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at VitestModuleRunner.directRequest (file:///var/www/node/php-companion/node_modules/.pnpm/vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1259:59)\n    at VitestModuleRunner.cachedRequest (file:///var/www/node/php-companion/node_modules/.pnpm/vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1166:73)\n    at VitestModuleRunner.import (file:///var/www/node/php-companion/node_modules/.pnpm/vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1120:10)"
+          ]
+        }
+      ]
+    },
+    "focusedSemantic": {
+      "files": 2,
+      "total": 19,
+      "passed": 19,
+      "failed": 0,
+      "pendingOrFilterExcluded": 0,
+      "todo": 0,
+      "success": true,
+      "rawPath": "/tmp/sophp-d192-semantic-focused.json",
+      "rawSha256": "78afdd6ba677c6f4b8aaa9a51cf7ab8a135e88e8ea18b0339eba5f934e464a7b",
+      "failures": []
+    },
+    "analysis": {
+      "files": 1,
+      "total": 48,
+      "passed": 48,
+      "failed": 0,
+      "pendingOrFilterExcluded": 0,
+      "todo": 0,
+      "success": true,
+      "rawPath": "/tmp/sophp-d192-analysis.json",
+      "rawSha256": "a79b4db3f2d8ced09c11062e518462912cc3d83899f9d5f9a0733ff306c2c54d",
+      "failures": []
+    },
+    "neverProtocol": {
+      "files": 1,
+      "total": 534,
+      "passed": 2,
+      "failed": 0,
+      "pendingOrFilterExcluded": 532,
+      "todo": 0,
+      "success": true,
+      "rawPath": "/tmp/sophp-d192-never-protocol.json",
+      "rawSha256": "e33fbe07cc16941055dbd7ef8a08084ccf5f141d9173b79897c044a26ea4bc47",
+      "failures": []
+    },
+    "boundedCompleteSemantic": {
+      "files": 145,
+      "total": 22822,
+      "passed": 22822,
+      "failed": 0,
+      "pendingOrFilterExcluded": 0,
+      "todo": 0,
+      "success": true,
+      "rawPath": "/tmp/sophp-d193-complete-semantic.json",
+      "rawSha256": "bd1ccc1e66f43e14a6371f78595fcae696841fee7e7ba624bc398f7ad36a26c5",
+      "failures": []
+    }
+  },
+  "sameCompleteTestNamesAndMultiplicities": true,
+  "completeSemanticFourWorkersQualified": true,
+  "defaultParallelCompleteSemanticQualified": false,
+  "normalC1": {
+    "qualified": true,
+    "recordedAtUtc": "2026-10-06T22:37:15.375531+00:00",
+    "run": {
+      "status": "exited",
+      "childPid": 466206,
+      "parentPid": 466112,
+      "startedAtUtc": "2026-10-06T22:35:07.308228+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d191-ordinary-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 119.01718936103862,
+      "finishedAtUtc": "2026-10-06T22:37:06.323626+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "logSha256": "4a654cd91d44b826957764553e09dbc29d81657205e1c87b4404476291fc36b2"
+    },
+    "bundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+    "inputCount": 4871,
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "archivedSoPHPLogs": [
+      {
+        "path": ".vscode-test/d191-ordinary-c1-log-archive/php-companion-extension-mngfIi/logs/20261007T063512/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "sha256": "d92c96a0f935743057be17a62f50a6c5b7c7dd1e8201047d02819e63892098db",
+        "bytes": 260680
+      }
+    ],
+    "detectedLifecycleFailures": [],
+    "visibleObservations": {
+      "local": {
+        "samplesMs": [
+          245,
+          241,
+          224,
+          226,
+          266,
+          303
+        ],
+        "inputSamplesMs": [
+          34,
+          37,
+          27,
+          49,
+          28,
+          39
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791326182548,
+            "input": 1791326182582,
+            "visible": 1791326182792
+          },
+          {
+            "started": 1791326183018,
+            "input": 1791326183056,
+            "visible": 1791326183259
+          },
+          {
+            "started": 1791326183566,
+            "input": 1791326183593,
+            "visible": 1791326183790
+          },
+          {
+            "started": 1791326184057,
+            "input": 1791326184106,
+            "visible": 1791326184283
+          },
+          {
+            "started": 1791326184529,
+            "input": 1791326184557,
+            "visible": 1791326184794
+          },
+          {
+            "started": 1791326185084,
+            "input": 1791326185123,
+            "visible": 1791326185387
+          }
+        ],
+        "medianMs": 243,
+        "maxMs": 303,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          2.338764000000083,
+          2.284994999994524,
+          2.3539870000022347,
+          2.5183560000004945,
+          4.837530999997398,
+          3.7063120000093477
+        ]
+      },
+      "crossNamespace": {
+        "samplesMs": [
+          346,
+          331,
+          253,
+          295,
+          237,
+          282
+        ],
+        "inputSamplesMs": [
+          34,
+          39,
+          37,
+          41,
+          25,
+          39
+        ],
+        "medianMs": 289,
+        "maxMs": 346,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      },
+      "vendor": {
+        "samplesMs": [
+          266,
+          255,
+          264,
+          259,
+          269,
+          224
+        ],
+        "inputSamplesMs": [
+          89,
+          35,
+          40,
+          39,
+          39,
+          31
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791326190940,
+            "input": 1791326191029,
+            "visible": 1791326191206
+          },
+          {
+            "started": 1791326191641,
+            "input": 1791326191677,
+            "visible": 1791326191897
+          },
+          {
+            "started": 1791326192317,
+            "input": 1791326192358,
+            "visible": 1791326192582
+          },
+          {
+            "started": 1791326193051,
+            "input": 1791326193089,
+            "visible": 1791326193310
+          },
+          {
+            "started": 1791326193767,
+            "input": 1791326193806,
+            "visible": 1791326194035
+          },
+          {
+            "started": 1791326194457,
+            "input": 1791326194488,
+            "visible": 1791326194681
+          }
+        ],
+        "medianMs": 262,
+        "maxMs": 269,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      },
+      "unsavedReceiverSwitch": {
+        "beforeMs": 237,
+        "afterMs": 222,
+        "restoredMs": 214,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    },
+    "scope": "D191 native never local-proof prefilter and accepted snapshot syntax-tree invalidation. Original complete C1 ordinary host, runtime PHP 7.2 and automatic project version detection. Adds a final lifecycle gate for unexpected closes, restart failures and outstanding folder/config refreshes; no tracing, profiler or fatal monitor. Not real WSL acceptance.",
+    "ordinaryHost": true,
+    "shadow": false,
+    "fatalMonitor": false,
+    "readOnlyLogArchiver": true
+  },
+  "ordinaryEditingAllFiveQualified": false,
+  "evidenceManifest": {
+    "path": ".vscode-test/d193-milestone-evidence/manifest.json",
+    "sha256": "5d1c856fade4115f5b7bb007d172c84ba90dc8479d9cede4fdf63e14c8446dca",
+    "artifacts": 129
+  },
+  "limitations": [
+    "Large controller P95 166.28 ms still exceeds 150 ms. Fixed synthetic P50/max worsened in this single before/after pair; no all-project performance claim.",
+    "Three external RSS observations per process are not retained heap or peak RSS; real controller observations increased, no memory qualification.",
+    "The original default-parallel complete semantic failure (STACK_TRACE_ERROR, 5489.666ms) is retained; isolated control and unchanged four-worker complete run pass, but the first failure cause is not proven.",
+    "Normal C1 is automated Linux VS Code evidence, not manual WSL. Current whole LSP/native Windows C2/C3/full Pack/macOS/Remote/scale/long-session evidence is not inferred from this batch.",
+    "Configured PHP 7.2/8.5 benchmark targets are not actual CLI invocations. Prior nine-CLI syntax evidence remains scoped to that original syntax test file."
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "vsixPackaged": false,
+    "pushed": false,
+    "goal": "active"
+  }
+}

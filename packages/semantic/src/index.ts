@@ -2661,6 +2661,9 @@ export class SemanticWorkspace {
       || !dependencies.indexed && dependencies.nodes.length > 0) return false;
     this.clearSourceImplementation(restoredFile.uri);
     this.clearLocalProofCaches();
+    // Restored facts replace the source that owned any retained syntax tree.
+    // Never let lazy implementation loading save and reattach a deleted tree.
+    this.trees.get(restoredFile.uri)?.delete(); this.trees.delete(restoredFile.uri);
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
     this.referenceResultCache.clear();
     this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
@@ -2739,6 +2742,7 @@ export class SemanticWorkspace {
     const uri = declarationSnapshot.uri;
     this.clearSourceImplementation(uri);
     this.clearLocalProofCaches();
+    this.trees.get(uri)?.delete(); this.trees.delete(uri);
     this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(declarationSnapshot, implementationSnapshotValue));
     this.referenceResultCache.clear();
     this.controlFlowAssignments.delete(uri);
@@ -12187,6 +12191,11 @@ export class SemanticWorkspace {
   /** Guaranteed expressions containing a call proven to resolve uniquely to native `never`. */
   neverReturningCalls(uri: string, localFunctionsOnly = false): SourceRange[] {
     const file = this.files.get(uri); if (!file) return [];
+    // In incomplete projects only a unique, same-file native function can
+    // prove termination. Its declaration must exist before resolving any
+    // call; PHPDoc-only returns and methods cannot satisfy that contract.
+    if (localFunctionsOnly && !file.callables.some((callable) => callable.kind === 'function'
+      && callable.nativeReturnType?.trim().toLowerCase() === 'never')) return [];
     const ranges = file.calls.flatMap((call) => {
       return call.terminatingExpression && this.isNativeNeverCall(file, call, localFunctionsOnly) ? [call.terminatingExpression] : [];
     });
@@ -12195,6 +12204,7 @@ export class SemanticWorkspace {
 
   private isNativeNeverCall(file: SemanticFile, call: ParsedCall, localFunctionsOnly = false): boolean {
     if (!call.terminatingExpression || call.kind === 'constructor') return false;
+    if (localFunctionsOnly && call.kind !== undefined && call.kind !== 'function') return false;
     const signature = this.signatureForParsedCall(file, call);
     if (signature?.nativeReturnType?.trim().toLowerCase() !== 'never') return false;
     if (localFunctionsOnly && (signature.kind !== 'function' || signature.uri !== file.uri)) return false;
