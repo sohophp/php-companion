@@ -1,0 +1,1654 @@
+{
+  "milestone": "D175/D177/D178/D180/D179",
+  "recordedAtUtc": "2026-10-06T22:08:36.476692+00:00",
+  "basisCommit": "21396cde16eb5a1557693e676385c2191aa0cd98",
+  "coreBundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+  "fullLsp": {
+    "qualified": true,
+    "run": {
+      "status": "exited",
+      "phase": "lsp",
+      "parentPid": 333116,
+      "childPid": 333177,
+      "startedAtUtc": "2026-10-06T21:19:06.278920+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d175-current-lsp-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/language-server",
+      "exitCode": 0,
+      "durationSeconds": 2165.162182161992,
+      "finishedAtUtc": "2026-10-06T21:55:11.440417+00:00"
+    },
+    "result": {
+      "numTotalTests": 1294,
+      "numPassedTests": 1294,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "audit": {
+      "inputs": 4865,
+      "changedInputs": [],
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "headChanged": false,
+      "worktreeChanged": false,
+      "collectionChanged": false,
+      "expectedCases": 1294,
+      "actualCases": 1294,
+      "expectedFiles": 98,
+      "actualFiles": 98,
+      "missing": [],
+      "extra": [],
+      "preexistingDuplicateLabels": [],
+      "duplicateMultiplicityPreserved": true
+    },
+    "inputCount": 4865,
+    "inputMapDigest": "6491aebc6776417088f350b31f22524ca9d27885ffd49f91403356cb2ecf4e2f",
+    "runtimes": {
+      "7.2": {
+        "path": "/opt/remi/php72/root/usr/bin/php",
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "version": "7.2.34"
+      },
+      "7.4": {
+        "path": "/opt/remi/php74/root/usr/bin/php",
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+        "version": "7.4.33"
+      },
+      "8.1": {
+        "path": "/opt/remi/php81/root/usr/bin/php",
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "version": "8.1.34"
+      },
+      "8.2": {
+        "path": "/opt/remi/php82/root/usr/bin/php",
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+        "version": "8.2.32"
+      },
+      "8.4": {
+        "path": "/opt/remi/php84/root/usr/bin/php",
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+        "version": "8.4.23"
+      },
+      "8.5": {
+        "path": "/opt/remi/php85/root/usr/bin/php",
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "version": "8.5.9"
+      }
+    },
+    "node": {
+      "nodePath": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "nodeVersion": "v22.14.0",
+      "nodeSha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1"
+    },
+    "addedCases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=false",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes startup warmup without reopening closed resources in PHP 7.2, shutdown=true",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=false",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes startup warmup without reopening closed resources in PHP 8.5, shutdown=true",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes declaration facts without reopening closed resources in onDemand, shutdown=false",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes declaration facts without reopening closed resources in onDemand, shutdown=true",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes declaration facts without reopening closed resources in progressive, shutdown=false",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "finishes declaration facts without reopening closed resources in progressive, shutdown=true",
+        "count": 1
+      }
+    ],
+    "missingPriorCases": [],
+    "artifacts": [
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/d175-current-lsp-input.json",
+        "sha256": "f3a4b264afcd6409870be80fe8c6cb3b6aa42a7f2bcbe1cdb72a93882fd962a5"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/d175-current-lsp-run.json",
+        "sha256": "398b76f7b787d72eb840b85c8cd43b7072ee0f9f557161986f0297a7b8d98366"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/sophp-d175-current-lsp-full.json",
+        "sha256": "03f171f1bb54d54326f37c9c9e183cfc2b00764615cffadc489050d73ba11208"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/sophp-d175-current-lsp-collection.json",
+        "sha256": "af328cfee42758b4765b128f3211bebd20ddf5dc5d0045a0a687dcb1665ad69a"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/sophp-d175-current-lsp-full.log",
+        "sha256": "2dfd5a2f4bef3750cc4159d427276ff5d004d8453f3003f19dc9a5bc46cd8217"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/d175-current-full-run.py",
+        "sha256": "c51bf819be28384bf8e6964fe5f7ef481e10183972f1e49e83eb968c2111f98e"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/d175-current-audit.py",
+        "sha256": "077cecf144b6ac725beb9a11c30732a83ba1a29e757470f6db8a62abeee4c07a"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/d175-current-freeze.py",
+        "sha256": "f9998f3ee3a80b6507e35ccdb789587e34400909077960a54960b6626c6cde1d"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/output-completion-progressive.json",
+        "sha256": "5cd9676d89c31094c21bf1fad9d786ddb59aa45227f5a613bc177a7439a7e89b"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/output-completion-onDemand.json",
+        "sha256": "cba04e12df2518dc624394aa13e7aa73e2a3dc5d68b9557a40f4e1ca4d150778"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/onDemand-true.json",
+        "sha256": "1f99fe52b5b822e33c51bee4aa1b2a6ae70dbe2fecd14963420148fda31653d3"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/onDemand-true-gap5.json",
+        "sha256": "e0ac988770576ecac9f8b67242ae23f616511d201e8d7e550d70d3a0a6eb1cb6"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/progressive-false.json",
+        "sha256": "7f8a4120413aeb6ec85b5c23279ecc43849dbe8138f6d0ce726a591b1fb6a12a"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/progressive-true.json",
+        "sha256": "6925994403ed111c12d89bf000cfdf3742ab28562983c74b4079a7f2b4fba294"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/progressive-true-gap5.json",
+        "sha256": "cafa49499a4012dca5baec729471d39e3e6fbe82ac90b1237a43ee6b2a23328e"
+      },
+      {
+        "path": ".vscode-test/d175-current-lsp-evidence/onDemand-false.json",
+        "sha256": "31b06ae69291641d30330f090e65693b75d2d3f5ac31658ac2a5804cf89b0345"
+      }
+    ],
+    "scope": "Full combined physical-alias local query and allocation shutdown fixes; all 1286 D168 cases and budgets retained plus eight startup/declaration causal cases. Current ordinary C1 evidence stays separate; prior Windows qualifications are not transferred. Not full roadmap or real WSL.",
+    "providerAssetsAtRun": "Before the later D180 four-Provider refresh; do not relabel this whole run as post-refresh."
+  },
+  "ordinaryC1": {
+    "qualified": true,
+    "recordedAtUtc": "2026-10-06T21:17:56.793335+00:00",
+    "run": {
+      "status": "exited",
+      "childPid": 326516,
+      "parentPid": 326410,
+      "startedAtUtc": "2026-10-06T21:15:39.450596+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d174-ordinary-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 133.32240129000274,
+      "finishedAtUtc": "2026-10-06T21:17:52.771223+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "logSha256": "882280c944fcd0476c2ba9c52fee46888dc092f21e1c478d06e7482f4a1e035f"
+    },
+    "bundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+    "inputCount": 4866,
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "archivedSoPHPLogs": [
+      {
+        "path": ".vscode-test/d174-ordinary-c1-log-archive/php-companion-extension-jChTSH/logs/20261007T051554/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "sha256": "99e66a1863311b6fa67a736216000ee4407368ae6b8c76a0798d692aa9708877",
+        "bytes": 268034
+      }
+    ],
+    "detectedLifecycleFailures": [],
+    "visibleObservations": {
+      "local": {
+        "samplesMs": [
+          244,
+          232,
+          250,
+          231,
+          243,
+          249
+        ],
+        "inputSamplesMs": [
+          88,
+          34,
+          81,
+          21,
+          72,
+          39
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791321429295,
+            "input": 1791321429383,
+            "visible": 1791321429539
+          },
+          {
+            "started": 1791321429773,
+            "input": 1791321429807,
+            "visible": 1791321430005
+          },
+          {
+            "started": 1791321430213,
+            "input": 1791321430293,
+            "visible": 1791321430463
+          },
+          {
+            "started": 1791321430723,
+            "input": 1791321430744,
+            "visible": 1791321430953
+          },
+          {
+            "started": 1791321431181,
+            "input": 1791321431253,
+            "visible": 1791321431424
+          },
+          {
+            "started": 1791321431658,
+            "input": 1791321431697,
+            "visible": 1791321431908
+          }
+        ],
+        "medianMs": 244,
+        "maxMs": 250,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          2.6000330000024405,
+          2.4397119999994175,
+          2.0476609999968787,
+          3.041176999999152,
+          4.965781999999308,
+          4.013870999995561
+        ]
+      },
+      "crossNamespace": {
+        "samplesMs": [
+          322,
+          236,
+          223,
+          305,
+          280,
+          254
+        ],
+        "inputSamplesMs": [
+          40,
+          35,
+          25,
+          50,
+          37,
+          74
+        ],
+        "medianMs": 267,
+        "maxMs": 322,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      },
+      "vendor": {
+        "samplesMs": [
+          237,
+          276,
+          275,
+          240,
+          246,
+          257
+        ],
+        "inputSamplesMs": [
+          34,
+          45,
+          37,
+          72,
+          28,
+          33
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791321436915,
+            "input": 1791321436949,
+            "visible": 1791321437153
+          },
+          {
+            "started": 1791321437348,
+            "input": 1791321437393,
+            "visible": 1791321437624
+          },
+          {
+            "started": 1791321437843,
+            "input": 1791321437880,
+            "visible": 1791321438118
+          },
+          {
+            "started": 1791321438357,
+            "input": 1791321438429,
+            "visible": 1791321438597
+          },
+          {
+            "started": 1791321438803,
+            "input": 1791321438831,
+            "visible": 1791321439049
+          },
+          {
+            "started": 1791321439263,
+            "input": 1791321439295,
+            "visible": 1791321439520
+          }
+        ],
+        "medianMs": 252,
+        "maxMs": 276,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      },
+      "unsavedReceiverSwitch": {
+        "beforeMs": 310,
+        "afterMs": 211,
+        "restoredMs": 208,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    },
+    "scope": "D174 current physical-alias query fix plus allocation shutdown guards. Original complete C1 ordinary host, runtime PHP 7.2 and automatic project version detection. Adds a final lifecycle gate for unexpected closes, restart failures and outstanding folder/config refreshes; no tracing, profiler or fatal monitor. Not real WSL acceptance.",
+    "ordinaryHost": true,
+    "shadow": false,
+    "fatalMonitor": false,
+    "readOnlyLogArchiver": true
+  },
+  "windowsC2": {
+    "qualified": true,
+    "run": {
+      "status": "exited",
+      "parentPid": 413566,
+      "childPid": 413649,
+      "startedAtUtc": "2026-10-06T21:55:52.760716+00:00",
+      "manifestSha256": "67702f5e96fa8a06bd3cf2e210f4602223e88166a15057e4219579ac30dc9a48",
+      "driverSha256": "7f65d766b9feb40988d497188d79bd66dd160166018a43629a17f04062a31dcc",
+      "stdoutPath": "/var/www/node/php-companion/.vscode-test/d177-native-editor.stdout",
+      "stderrPath": "/var/www/node/php-companion/.vscode-test/d177-native-editor.stderr",
+      "command": [
+        "/mnt/c/Program Files/nodejs/node.exe",
+        "--require",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-2GNfjk\\preserve-logs.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-2GNfjk\\bootstrap.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-2GNfjk\\core",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-2GNfjk\\observed-full-c2.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-2GNfjk\\baseline"
+      ],
+      "scope": "Current combined physical-alias queries and allocation shutdown guards; original complete native Windows C2 with no subset flags; archive logs and assert no unexpected close/restart. No ordinary Profile or VSIX change; not real WSL acceptance.",
+      "exitCode": 0,
+      "durationSeconds": 93.84696555795381,
+      "finishedAtUtc": "2026-10-06T21:57:26.601499+00:00",
+      "stdoutSha256": "736bd1782595108ca389da2509212a752d7162451d8e24f43858d698576de233",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceUnchanged": true,
+      "productBundleUnchanged": true,
+      "changedCopies": [],
+      "changedArtifacts": [],
+      "changedRuntimes": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true
+    },
+    "proofs": {
+      "runtime": {
+        "platform": "win32",
+        "node": "v24.21.0",
+        "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "vscode": "1.140.0"
+      },
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      },
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "acceptance": {
+        "suite": "fullC2",
+        "platform": "win32",
+        "node": "v24.21.0",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      },
+      "wrapper": {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "proof": {
+          "suite": "fullC2",
+          "platform": "win32",
+          "node": "v24.21.0",
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand"
+        }
+      },
+      "aliasEdits": {
+        "rounds": 10,
+        "hoverP95Ms": 13,
+        "declarationUnsaved": true
+      }
+    },
+    "changedInputs": [],
+    "copiedAssets": 21,
+    "baselineInputs": 83,
+    "evidence": "/var/www/node/php-companion/.vscode-test/d177-native-editor-evidence",
+    "archivedHashes": {
+      "d177-native-editor-run.py": "7f65d766b9feb40988d497188d79bd66dd160166018a43629a17f04062a31dcc",
+      "nativeWindowsC2.cjs": "d2b6d2f4f255f032e591859efdcc6098a8c07fba6f23c611a7dedb42f62f7d07",
+      "d177-native-editor-run.json": "aca79d487a3dad6e797bb42aeff73e27fc0c41222fd114807aed68dd6ccf6256",
+      "d177-native-editor.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "d177-native-editor-audit.py": "2428d0e81be04be03fccdd720dd9f85befb1aae0b4314231a8c62d68d1ff2eff",
+      "bootstrap.cjs": "9d2491f323d2d178165c802ae5c437e727b67d49b9cb1ef9bb0c2c9d87510cc3",
+      "observed-full-c2.cjs": "e46fe6db9f00377f64f77c4adb6610245178fdd7b4d6d55601aeaa90d3941856",
+      "d177-native-editor.stdout": "736bd1782595108ca389da2509212a752d7162451d8e24f43858d698576de233",
+      "language-server.js": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "d177-native-editor-driver.log": "a8c2bc7c4f0f01938867906255b70ebd90a6be588d19528bcffb55c22e8fba83",
+      "preserve-logs.cjs": "59dae00b8937d5de968176389de8b2c38c75ee6b9937d60522e95dd05db173bd",
+      "d177-native-editor-prepare.mjs": "b5a674a07db86f861901bceb80a1aab56841639921acf77e400a6d51229d89e1",
+      "runner.mjs": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928",
+      "d177-native-editor-input.json": "67702f5e96fa8a06bd3cf2e210f4602223e88166a15057e4219579ac30dc9a48",
+      "language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+      "host-logs/sophp-native-windows-host-aH4umi/settings.json": "a99fe25153e8e92a245c7bd96ccd1b01612a2f45d92d47935fb43dfc90b685cc",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/sharedprocess.log": "a6487c94fa39c426fe2046b29d09b15e732cf66a65a14f134f0f0ea66bb8bb61",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/network-shared.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/agenthost.log": "9164ce4ca698effddcc8f680b38028f513bf2bb4dd1dd6f32c2352071115bf60",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/telemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/userDataSync.log": "6139e0a6222c3b3e8fcb3000ee8388c1ee4f7d614a593ded0522769c6453cb01",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/terminal.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/main.log": "6bdb8937a2c73a7f6fad6cff719df139a7677beda40aaacbe9ac5e4dd605d7ad",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/editSessions.log": "bec7e5dbdd7404676493d195a594ccbec036975bc16a1029cdd0cd84a932f46b",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/agentHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/remoteTunnelService.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/mcpGateway.log": "b6ecc643003dc813c1c83af91ff6680f79f11857de667814a379656d46ea7af9",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/notebook.rendering.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/views.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/textModelChanges.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/renderer.log": "c2d9786fa291e5852d38a36e0f034b5bd4794a7e8429ad49bf5f08d3764832ff",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/network.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/extHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/exthost.log": "acc60f064cc0f63e0bf3af5338b7a6e18adf2ca268e2796b8133fb8661c385a3",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/vscode.github-authentication/GitHub Authentication.log": "128a88d8f1157d98db72455ecdb4681dfb25359aec1f7c3cdf6069ec96e72a10",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/vscode.git/Git.log": "6342d13c7d35861ae424da55571448f1442d2ec50b769f1230b9678b44fd4b1f",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/vscode.github/GitHub.log": "8ac20c74b7d0641a56777393d7a186644710322474a1194e89e0d2a528c74aa4",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/sohophp.php-companion/SoPHP.log": "cec6feee1b8915eec0689355dac5318bb02d3b8a9097c5ada5ad16bc0fb6d44b",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/exthost/vscode.json-language-features/JSON Language Server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/output_20261007T055558/agentSessionsOutput.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-aH4umi/logs/20261007T055553/window1/output_20261007T055558/tasks.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "Normal complete native Windows C2, unchanged full suite and deadline. No diagnostic instrumentation. No transfer of historical full LSP, ordinary-edit P95, visible waiting or real WSL qualification."
+  },
+  "symfonySourceBuild": {
+    "initialComparison": {
+      "status": "comparison-completed",
+      "sourceBuildMatchesExistingProduct": false,
+      "changedFrozenInputs": [],
+      "scratch": "/var/www/node/php-companion/.vscode-test/d178-symfony-source-pTKDIy"
+    },
+    "comparison": {
+      "normalBuildConfigurationSha256": "bd899ea5b0d66e7288850b0b9202ae46f376258e365d4f5e14e7ff14685cc572",
+      "outputs": [
+        {
+          "path": "/var/www/node/php-companion/packages/php-companion-symfony/dist/extension.js",
+          "normalOutputSha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+          "productSha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+          "identical": true
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/php-companion-symfony/dist/service-provider.js",
+          "normalOutputSha256": "6a623be4275e4643521fbe9fbcd5fb54d3390a01b09d2464932bf0fc535b8ad3",
+          "productSha256": "32a17c8c88cd39fafa962a942e98991d072e09f5d911495ad291c6c18ccc3265",
+          "identical": false
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/php-companion-symfony/dist/event-provider.js",
+          "normalOutputSha256": "97acc074fd1ae6f06f5cabea9911c59a8fd946cb9fce6fad5073cd361f74f37e",
+          "productSha256": "3f6b9b1aea0a3796e98b2e0f15f459de64a437c39d8eefadfaa0aba9990e63f7",
+          "identical": false
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/php-companion-symfony/dist/controller-context-provider.js",
+          "normalOutputSha256": "24a6e6f1c1e659d0d31d4afd9f9c602bdb4d2be2b875c3344e9ee9ead4bf2a0d",
+          "productSha256": "a274b7d7c0b07e704fcdf7d876ff4b5f5bb6ebf380a392d4324e01b9b3a3565c",
+          "identical": false
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/php-companion-symfony/dist/static-route-provider.js",
+          "normalOutputSha256": "9948902618994dd665c8e074944c47f441c2faac2c6a3821789043dcb3fac114",
+          "productSha256": "28042b5a99cd0eca2403a2bbc82342eb34067c9a9b29fa6c4fda6be3adc2739f",
+          "identical": false
+        },
+        {
+          "path": "/var/www/node/php-companion/packages/php-companion-symfony/dist/winstar-route-provider.js",
+          "normalOutputSha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+          "productSha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+          "identical": true
+        }
+      ],
+      "wasmCopies": [
+        {
+          "source": "/var/www/node/php-companion/node_modules/web-tree-sitter/web-tree-sitter.wasm",
+          "target": "/var/www/node/php-companion/packages/php-companion-symfony/dist/web-tree-sitter.wasm",
+          "sourceSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "productSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "identical": true
+        },
+        {
+          "source": "/var/www/node/php-companion/node_modules/tree-sitter-php/tree-sitter-php.wasm",
+          "target": "/var/www/node/php-companion/packages/php-companion-symfony/dist/tree-sitter-php.wasm",
+          "sourceSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "productSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "identical": true
+        }
+      ],
+      "inputs": {
+        "/var/www/node/php-companion/packages/php-companion-symfony/src/integration.ts": "51a73438ec6792727774c8774dfaf7df41d70fcf81a8a24263567a5e81251dca",
+        "/var/www/node/php-companion/packages/php-companion-symfony/src/localize.ts": "f4569cb2fcaf24fa5e50adc980202feb143002590414e7ff7b672fa9f5160138",
+        "/var/www/node/php-companion/packages/php-companion-symfony/src/languageFeatures.ts": "f7ef88e703318ddc9b9db5dc7e56bc3ee453ac3370b61cb4652a7c1d8e449168",
+        "/var/www/node/php-companion/packages/php-companion-symfony/src/extension.ts": "4b3ab856fd7c98f091e0b22e180b2f3eb7461a5f1b3396282fc9e5238b7f7057",
+        "/var/www/node/php-companion/node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/web-tree-sitter.js": "0c868236a47296b4ff3c1570f20e0899e4a784ff6e5cd7bfc9c3a55225463e4a",
+        "/var/www/node/php-companion/packages/parser/dist/index.js": "758b538c482139f9e568c1227a4bc5e0dc4e7ce12e1c372e7681d08c9397437b",
+        "/var/www/node/php-companion/packages/interop/dist/index.js": "57d27408c6312e3127661a06f1e6e30fa15c6bc54846a2221e66390701f54c20",
+        "/var/www/node/php-companion/packages/semantic-provider/dist/index.js": "839557294a27ceb35a9aaf797a595e7da14ea40c3313d10d741ffa97ff1d55e2",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/util.js": "870ccd88a5d51e35ef8cbc59e7f2a35d31defc87aded9c06023ae57838851901",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/validator.js": "e818788b069429443a97756a4c458999d6751461c4ef41c7bfe1cc58bd70dde4",
+        "/var/www/node/php-companion/node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/entities.js": "96ec5d127a4e8cd77bdc678422f0d57c8ff9e37bcec999983da71a7b72ce9a0e",
+        "/var/www/node/php-companion/node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/EntityDecoder.js": "a56cf2bf8174e0adf94970d70e003afcfc3923a53d0cf973f92d374cfe684544",
+        "/var/www/node/php-companion/node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/all-entities.js": "2f1340ab32dce314f41638b7ee6d0368b974e3302983154b815a6d49a6dfb63b",
+        "/var/www/node/php-companion/node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/entityTries.js": "fa2838d141fba0e8ee5bd2197956c3f6b1d23668be2c8841a585614ea7051f99",
+        "/var/www/node/php-companion/node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/EntityEncoder.js": "812a2077e073564d6470b8fda8ac0d20ecaaf75ddb1594d55d28acc2da8a1a71",
+        "/var/www/node/php-companion/node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/index.js": "79a65ddeda08664d00b7b82f5a903ea437de1dff54a02ed469e9cb1067cb568b",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js": "4f177e43f1ac36dc25b2b6a44970c97918091416bd15722b65ac938256bda687",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js": "758d7a8b80ea22d19872b5219c874b4039ea2725e7af5ef0afe2a3e295b779e7",
+        "/var/www/node/php-companion/node_modules/.pnpm/xml-naming@0.3.0/node_modules/xml-naming/src/index.js": "1a5d9fd32360e2cec4adbee9e56221fb26def66bb9d122e0b5745cebc963d92e",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js": "e693e1e1b6b972aa641bd2d3f7e18b653088a1f4af2c89d05b6f1f9897f4d7b8",
+        "/var/www/node/php-companion/node_modules/.pnpm/anynum@1.0.1/node_modules/anynum/digitTable.js": "c649d39c53ebe6817c71407de8105b6d8cbc2326867f90d59f49ab02d9271b44",
+        "/var/www/node/php-companion/node_modules/.pnpm/anynum@1.0.1/node_modules/anynum/anynum.js": "f8c6a9b031489dfc1573e7a669e4860223ddeedc0007db5dbf5878a14249776d",
+        "/var/www/node/php-companion/node_modules/.pnpm/strnum@2.4.2/node_modules/strnum/strnum.js": "2d8d2377f8c39b0805c9badf048cb22ffb52033f6db0d50a9576fa8bbd5c3dd0",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/ignoreAttributes.js": "40bdf3ab37f544b9f8ea7e474114f489a77ed3247e0be597b9e83e01688e8c80",
+        "/var/www/node/php-companion/node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/Expression.js": "c24531320e7f2a69708fa8127b660bfb0efaa3a26636e6f56209f8cf4e984b9a",
+        "/var/www/node/php-companion/node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/ExpressionSet.js": "a6250aa83ce7f238614fb7421f31e541c63c415a295e3764687693464918f3c4",
+        "/var/www/node/php-companion/node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/Matcher.js": "d3b6ddfa1e9a07d6db63939e55106f4df3e8f2e48119c81e372f60f157914d66",
+        "/var/www/node/php-companion/node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/index.js": "ebbf22c6979f6b2b05c580922e7dd197f4f4a246d504d4c0cc8e64778f12d4ed",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/html.js": "5f378567e5be461b0850876c91b8f1c8ffdc8d29201d87edd7aa666eecabb9f3",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/xml.js": "2ae9cb95ada7140a80c1ad378f2c4c5f7360bc3f3f6480a96247712df8d8ab16",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/svg.js": "eb9e106e81226ab9547882079e7fd6a9d885d2c71ba78784f7edaa7db61bb941",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/sql.js": "4de8a60302e6ab22ef5607ee88ab6dd6559221fb8620780fb874a1dcf3000d06",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/shell.js": "c26834ef2c968e8a4223a89b2d0e5653952bbf6f3eed95e5ba45465e1870eb65",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/redos.js": "59ceb09d3fd2402e81ed7e5992245f2b398c7ceeb80141138f4eab5da0244586",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/nosql.js": "e20a132033f105a29db1cfdb3d85bbadbb7206b9a7e3336bcb030a63d66b4ab2",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/log.js": "fe1678ab1c98db7387bea6892ec10a90a06a8e2ed01efb1ee577c3d155e4a395",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/contexts/sql-strict.js": "16d6522ee4ecf4a91c4d29357ebc874844c266f2ae89ef2a92ec2d391f3762e9",
+        "/var/www/node/php-companion/node_modules/.pnpm/is-unsafe@2.0.2/node_modules/is-unsafe/src/index.js": "24f5eb575e633b68771328cc12fa6fde751ecc5f2700a6f52ea325938dc94342",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js": "d1d5d64ecfb3df9b07ba3bd5ee020d166eaecbf569ebce67be692aa5892a21b5",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js": "cce0e8a8876bd1d3305a666e70cd556fd1ae57560fbca9f4ff0577d91178a0b1",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js": "286c659a8f940c313077afe8a00c0dc128d4a138edf6d9a4519f29538b58c94f",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-builder@1.3.1/node_modules/fast-xml-builder/src/util.js": "f585f26c6fa18af890c32d00fbb00fbfd05b9c7217419b6fe8675bdcee264140",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-builder@1.3.1/node_modules/fast-xml-builder/src/orderedJs2Xml.js": "4d5b4d0e3a8b3bfa4535e85a2182446f05f32e179dffba00e07422da84cbdb69",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-builder@1.3.1/node_modules/fast-xml-builder/src/ignoreAttributes.js": "40bdf3ab37f544b9f8ea7e474114f489a77ed3247e0be597b9e83e01688e8c80",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-builder@1.3.1/node_modules/fast-xml-builder/src/fxb.js": "44d54aa1500d8b179b56c47003530ade9220c0daec31caeeeb1a59760eca6d88",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js": "bcc5325758b3b940384c7bf2a7132874421989c2561a59dc49c4ef0b88c352dc",
+        "/var/www/node/php-companion/node_modules/.pnpm/fast-xml-parser@5.11.1/node_modules/fast-xml-parser/src/fxp.js": "587bee5d27b6dbc99d24f472ea93028659610c3496be7d667e72483483c3f3ba",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/identity.js": "1a7cb042ae725ff68d05dc503efbbecbe65281f18b23dfc23f12d1749a440cfe",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/visit.js": "a757e3b924af184b25e2386d1678b1fe341805a516ebf9bccee219b47aebd5e7",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/doc/directives.js": "8f02c3c03571e377e33680b68027d4336234d7a6da3d8c6a8b7f1183c1c428ff",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/doc/anchors.js": "ea9a479b1e98d88235ffa6736d0405e2119e9dde7b5249b72185488ab2527261",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/doc/applyReviver.js": "7271668f41f264e4b9aeb184629cfd11c510b401c5a797fa7194d17a9652976e",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/toJS.js": "34de93bb4e16abbf317210a7bd1b062ed20acb028cd8395b69b591f433e277b6",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/Node.js": "b57b42071f7ebab633626858656ec5187617f2290c272e87edc57467ef591215",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/Alias.js": "80a8109b7cb1d0d73eee18463fdd3095d120fa21f49b282444d90d867e291ea1",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/Scalar.js": "616ac0f6a0a5a6565307a4bb4443691b0dd019c03d6bb8777353750bd3459487",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/doc/createNode.js": "a39d14026d4cc6ff8d76d90db30c41facc26a146ebed30783bcf28e40b5caa65",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/Collection.js": "e2d3ffdc9a997774602e72b296fba641558bc7355c9f12a3ee0502fb1e541306",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringifyComment.js": "490bff57104b7cfdb1893f14528610bb4d0a63c29b314e122233cf308cf96662",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/foldFlowLines.js": "7819679e80222b80c564ea4a9cf3145fa4d5e28a6cfbac248283ac55b0249761",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringifyString.js": "4113b71a9c4c087a197f71452794a6acb9929111f569c973ff4efe7caee8f777",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringify.js": "38efb5bc5553e98fee58c825a88131c59184368d8689e3e6f43c652a06e9c167",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringifyPair.js": "bc03ae533d85bf9122e87c0a256c841ae7fbf063499bc3034d49fd9f7b200659",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/log.js": "f6ccc3593357801851aa1023b202f842733043ac3b25773048d836f89de8108d",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/merge.js": "9c85b5e026e4369a96f3f7b5bc6c05da102dfa2968950b17986201cfe0be542c",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/addPairToJSMap.js": "e4977864d75c1fdbf7fc78c9f4329406e153deccfff090fd812dae2b27e6c2c2",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/Pair.js": "d5dad67916ba0e864a892da63265a062c45c15a191349ef50a540f2ddbae93e5",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringifyCollection.js": "b55fd3b6e3f1346bbcd1fcdc48a59c089b7a4b0e6fac2b46846f7828f9488600",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/YAMLMap.js": "d140cfc5aa8d28737bd3c993d977d5a10ab81efe221e36708ac45b3cf18f5dce",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/common/map.js": "769207eaa56e34c113da10cdc22da845f92b4080ff2b921a72847a38d3ac03d8",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/nodes/YAMLSeq.js": "9f89417f3cba5f22a4436f67a9ff9dce627344b5874d2ed7957ff9acffb030e4",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/common/seq.js": "51fc0e8bfc63d1d9c7c66b0370a069bb33e0dad865080ff76802803597b9909a",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/common/string.js": "51d0b3aafab2ffa4ad9d86656a3b92c4b4824d0a8806423882ea5f92a1bf8d11",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/common/null.js": "f5d5f694ea3a42ef136e0fbcc674dfd7aa0a3da2b8d62183fb750166a12e52bb",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/core/bool.js": "9fa696b1efc38cf8c73a398f30d9f9841658aa5afd0b7a6b0822947c3991ba7a",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringifyNumber.js": "26a1980d34a21a80704d356d475a0187a24ebcbeb37a2e3b149d4d791bb65598",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/core/float.js": "139e3964f0e626ad3741500faf51d855ff98eafa2d9e7523cac06260e4515382",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/core/int.js": "f0e474254f6877d5dd23bb57017980931ab333a7eaa3d33872247a80d11f754d",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/core/schema.js": "481d7c64817b40090d519fb65bd83730dadd4c6baec1440b9bf85d29e52c046e",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/json/schema.js": "9efdd848455f6e0621feb13f3eb762453cb02b09d5e04b6501163cfb26af27ed",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/binary.js": "15d7b0b8516c8190b191ec9a0adaab16808d09751ef534d7829512944072011f",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/pairs.js": "46ba76da72ad65a6202358c486c6a3084ab7c48a8eb5be60d241d9e198c5a9b5",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/omap.js": "3174270cd59c0f0e3ffd73b3b44c4de679efd5c681325b7aac8e0935d547bee8",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/bool.js": "80a0046224dac3437f22e3b27b0180e1aad82277ab2fee4769094c6d12d67b6f",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/float.js": "a90c44db83152e4d902d46f667737dac90aa86b401abdefe89371ac3bd03abfe",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/int.js": "5ff72b08fecc3a924d4a76658a304859db5edb4fadf8893ee837aa06bba60a52",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/set.js": "e4553b0cbde79090884908f44bb3b4afd04935fc23656a1b87ec1af87f24427a",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/timestamp.js": "b157c946dc1b8854aadc4e7994b268ec8afe6d916721cb3580e0752c7d15a5f7",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/yaml-1.1/schema.js": "a7320808484dc6d04817b33b2d09b65ead7ffc1c672ab54e068a80972b17702e",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/tags.js": "dba2f42d4dbe8cc8b13f662fd97d253da2da5567e71c47115305efede5a888f2",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/schema/Schema.js": "d3b1bc956a766e2489c36114366f3b3f89762a257ae05ff6271ee3fc8c2a9bf5",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/stringify/stringifyDocument.js": "dd5ba1813a16b62955c466bce8d1c16254e90b36d688f863c508dc8fe38f2afe",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/doc/Document.js": "9bc1c9a56de3902d554e77193125b6aadcfaec743073b3417b22c95a8f7d7923",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/errors.js": "c389d9c448193ce1bcb9641f5eda62cbe56467b2104357d2fc8dd86df88cb07b",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-props.js": "0b49c6af0145c309883dbf24d1a00260c0c090412be10aaa301de126dad15983",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/util-contains-newline.js": "60182618fc9fa669e74ab74f4231c15b5d24bc52ab0a419684bb827a00d69be6",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/util-flow-indent-check.js": "c7c0c9837a1f828de19eb3ee0947dff39c4f69222c762aed9fa2fe14fc46ee3e",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/util-map-includes.js": "0330dc34072cb499493176b293228631ca8ebaaaddcdc0e63b02bf24f6a25c2d",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-block-map.js": "dcfada448c8fc532ebba96d6788a4b41bb015fc5e697a9544ff429b9c4e4c70a",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-block-seq.js": "18f54a39d73b600ebbd74a343e6671d0d08423f125bd86963b72dc24d6261911",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-end.js": "532bf56299183e75bb7c20db75321367c28393b66ecb8ffd540faedd9817f116",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-flow-collection.js": "242470b54c0deba1507babba2e879f3005ed2ee3bd53a36affb6ecf82fddd375",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/compose-collection.js": "a7db11a1a7987d6412df8adbbb85ccd4370171f82265703b2b6af2d13c45d646",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-block-scalar.js": "af562e2e3cd7ee7b3cb9342984177f6b5c77de73121e87695db3ff635e12d152",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/resolve-flow-scalar.js": "167fa296e6fb75618bb7b315acaa926d4e88b2b63a9ff139f1a7de9c78db4610",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/compose-scalar.js": "37920472755bdaa76399b6d33872f0015ae1fd9ba7faa031c03d501aa8c3e903",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/util-empty-scalar-position.js": "460516395ef7e961d5248e047ee6d52084f279b76e8af9f3c2bac92da1c7d656",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/compose-node.js": "86562c85e4e5737d28b24aae2030b97bc9b672e1f2de5da9e4d25c4571e4345c",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/compose-doc.js": "0f388537747b5c1a241639413f17fc2b5f831451b5017d6902e46db6842a5fe4",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/compose/composer.js": "509c0bdb4cef641cc784c130b6cc2b350752f6841798daa1a13cbcaf4fc74c46",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/cst-scalar.js": "2f72b634348b04b395408ac427fb4f8ee67432244c327561d4b755a28a783b34",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/cst-stringify.js": "4d14a7a286cff9c1a578ab15839388ea76f77ae79293db25b235394bcc377b51",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/cst-visit.js": "525535fc05841407420be6505804c74d873eb3aaa9319679896f7a24a474ca01",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/cst.js": "acc25760d010068844f36f4aefc7fe6f5f6048fd7f8fcc29d4290e154819d1a4",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/lexer.js": "cb30a2c4628e270ee810530217f3f7bb0f2730ab89f8fbaf1f8a73ccd1883cf5",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/line-counter.js": "ddfd11ca2cdd42d36bc6c3090a31c21e6bbcc90bf3498bf6aacfbb30c5d79436",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/parse/parser.js": "0adc5ffa51ffa4c0ceed1f80efa8b188d10f58c7b9389a6d46bc861e6bff34e1",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/public-api.js": "9b318ac7b3a3751127c74f59dd1dd209230a70ca116000348b82faae189f72f0",
+        "/var/www/node/php-companion/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml/dist/index.js": "2d58984e0ae80de4acbd8f009fab332f5ce77d9e1a5f138a3058a0ada6567fb9",
+        "/var/www/node/php-companion/packages/framework-symfony/dist/routes.js": "2af2650d96a4bd14d207d7342069d008c484754c9ec67a96e2ebed1b65273774",
+        "/var/www/node/php-companion/packages/framework-symfony/dist/index.js": "deb5c513855211cd3bd605f2e22876162e6650d5361864e863ed5ec3a1c5aa29",
+        "/var/www/node/php-companion/packages/project/dist/index.js": "3a0b20f826e6bee4b64e3040d64b6bbaecee2673c500666d52ab78c48c476e46",
+        "/var/www/node/php-companion/packages/provider-symfony-services/src/index.ts": "09747d186385fd2b20dc417f092ea3f7401f79cc4ba72ba3613b67cb110dc180",
+        "/var/www/node/php-companion/packages/provider-symfony-services/src/cli.ts": "cf28593ff6937b186964b28823969a5123c7aec9446ab518e23ac92750fc4c8e",
+        "/var/www/node/php-companion/packages/provider-symfony-events/src/index.ts": "f8c7f0854bc3f1ae197fb5b02500e45913f8ac99e81cb0b03f1d88e6e05f8154",
+        "/var/www/node/php-companion/packages/provider-symfony-events/src/cli.ts": "9d6256457c97f3e58b68fdfbc74ace9cad5e8001ddde83f4e48850ee557a5acd",
+        "/var/www/node/php-companion/packages/provider-symfony-controller-contexts/src/index.ts": "aa59c43e545a5773519f1d779d3f38f79020974cefcaf6dc00d2ad744048baf9",
+        "/var/www/node/php-companion/packages/provider-symfony-controller-contexts/src/cli.ts": "7a66b4e3c834565bcda9b4b9888551759b9cf5e153d6f5da6f39ae264f0aa54c",
+        "/var/www/node/php-companion/packages/route-provider/dist/index.js": "4d9bce6e113e9d2a83e171ef624eb7e4d1f193a8e494b5f4c3e644aa5ce0b131",
+        "/var/www/node/php-companion/node_modules/.pnpm/balanced-match@4.0.4/node_modules/balanced-match/dist/esm/index.js": "3070c820855fe9e6596fc2a00effd7a18882dff166d6326903e1940d6eb4082a",
+        "/var/www/node/php-companion/node_modules/.pnpm/brace-expansion@5.0.7/node_modules/brace-expansion/dist/esm/index.js": "c6ddd49dd56b0fee854bb06495d4fa11d81dda170b05360d022e2ac76d67a706",
+        "/var/www/node/php-companion/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch/dist/esm/assert-valid-pattern.js": "90e8d3327d573b9d2391edf03dc7d50c1c0b468d720a4c0fb4a08a36ee5c50dc",
+        "/var/www/node/php-companion/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch/dist/esm/brace-expressions.js": "7c888d47a86b751d5e876938095c0875e837e7dd30da626ede6117c00481baeb",
+        "/var/www/node/php-companion/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch/dist/esm/unescape.js": "2cd61ba96e616969f152445c61ec2ca129a0afd2028ea71309b862a4222304d6",
+        "/var/www/node/php-companion/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch/dist/esm/ast.js": "ec35db8358a5a7333dbd6bdb1ea6bd3f03d1433297de7d615f24f7df5fba06b5",
+        "/var/www/node/php-companion/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch/dist/esm/escape.js": "8418e37c202bcd247e76b1c205d4eff9474f15fb76c1db1ef0688cb6a8ec3c94",
+        "/var/www/node/php-companion/node_modules/.pnpm/minimatch@10.2.5/node_modules/minimatch/dist/esm/index.js": "59821ec2ce0d3df968292036e5c831ad322b33e9c33a949ecbc9dfe125d165be",
+        "/var/www/node/php-companion/packages/provider-symfony-routes/src/index.ts": "9d2a49a59fc051b55aa49c39508d5933281c8ecc12b62e36987987928d765137",
+        "/var/www/node/php-companion/packages/provider-symfony-routes/src/cli.ts": "44fd640397b5264e30d79c9b7239bcf4a515b7bc9aedbde348b8935b2dc0119f",
+        "/var/www/node/php-companion/packages/provider-winstar-routes/src/index.ts": "2647ca7464d73a1bbebf4901b575f93ad4ab0791c768fb2d1c8f04b8bedf81e4",
+        "/var/www/node/php-companion/packages/provider-winstar-routes/src/cli.ts": "19b6e52c5e129dee9cd6b5a14805990d1b4e737189743cb6bfa0cc93e5a28f6a"
+      },
+      "write": false
+    },
+    "refresh": {
+      "status": "exited",
+      "qualified": true,
+      "parentPid": 418938,
+      "startedAtUtc": "2026-10-06T21:59:27.957091+00:00",
+      "evidenceDirectory": "/var/www/node/php-companion/.vscode-test/d180-provider-build-evidence-v2",
+      "basisCommit": "21396cde16eb5a1557693e676385c2191aa0cd98",
+      "fullAuditSha256": "64d059b8f7ad35c6dcd85848a5bc330d6d35306b29716b5f9059c7b6e48f7619",
+      "comparisonSha256": "abdeb1ca937a7b26903d634b4c6498865242fcacad908bcba815e025c6434ea1",
+      "coreBundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "expectedChangedInputs": {
+        "packages/php-companion-symfony/dist/service-provider.js": "6a623be4275e4643521fbe9fbcd5fb54d3390a01b09d2464932bf0fc535b8ad3",
+        "packages/php-companion-symfony/dist/event-provider.js": "97acc074fd1ae6f06f5cabea9911c59a8fd946cb9fce6fad5073cd361f74f37e",
+        "packages/php-companion-symfony/dist/controller-context-provider.js": "24a6e6f1c1e659d0d31d4afd9f9c602bdb4d2be2b875c3344e9ee9ead4bf2a0d",
+        "packages/php-companion-symfony/dist/static-route-provider.js": "9948902618994dd665c8e074944c47f441c2faac2c6a3821789043dcb3fac114"
+      },
+      "expectedOutputs": {
+        "packages/php-companion-symfony/dist/extension.js": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+        "packages/php-companion-symfony/dist/service-provider.js": "6a623be4275e4643521fbe9fbcd5fb54d3390a01b09d2464932bf0fc535b8ad3",
+        "packages/php-companion-symfony/dist/event-provider.js": "97acc074fd1ae6f06f5cabea9911c59a8fd946cb9fce6fad5073cd361f74f37e",
+        "packages/php-companion-symfony/dist/controller-context-provider.js": "24a6e6f1c1e659d0d31d4afd9f9c602bdb4d2be2b875c3344e9ee9ead4bf2a0d",
+        "packages/php-companion-symfony/dist/static-route-provider.js": "9948902618994dd665c8e074944c47f441c2faac2c6a3821789043dcb3fac114",
+        "packages/php-companion-symfony/dist/winstar-route-provider.js": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+        "packages/php-companion-symfony/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "packages/php-companion-symfony/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      "steps": [
+        {
+          "label": "normal-build",
+          "command": [
+            "node",
+            "esbuild.mjs",
+            "--production"
+          ],
+          "cwd": "/var/www/node/php-companion/packages/php-companion-symfony",
+          "status": "exited",
+          "childPid": 419062,
+          "exitCode": 0,
+          "durationSeconds": 0.2726393530028872,
+          "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderrSha256": "78294bd13771abc7eeb90698bc7ee6d39f8dae4f1a93b751753c2407ee0d1c06"
+        },
+        {
+          "label": "services",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "--reporter=json",
+            "--outputFile=/tmp/sophp-d180-services.json"
+          ],
+          "cwd": "/var/www/node/php-companion/packages/provider-symfony-services",
+          "status": "exited",
+          "childPid": 419107,
+          "exitCode": 0,
+          "durationSeconds": 3.8468347280286252,
+          "stdoutSha256": "cf292c0399bb262a4678e8186254297fcfbe1fc69208f37e1bfb90e249e0ddd7",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "success": true,
+            "numTotalTests": 14,
+            "numPassedTests": 14,
+            "numFailedTests": 0,
+            "numPendingTests": 0,
+            "numTodoTests": 0
+          }
+        },
+        {
+          "label": "events",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "--reporter=json",
+            "--outputFile=/tmp/sophp-d180-events.json"
+          ],
+          "cwd": "/var/www/node/php-companion/packages/provider-symfony-events",
+          "status": "exited",
+          "childPid": 419395,
+          "exitCode": 0,
+          "durationSeconds": 3.1227706039790064,
+          "stdoutSha256": "d9f4017c4bd89c24ef54c07c4449ea2ef092281ace57821b73ab67daa141ed77",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "success": true,
+            "numTotalTests": 5,
+            "numPassedTests": 5,
+            "numFailedTests": 0,
+            "numPendingTests": 0,
+            "numTodoTests": 0
+          }
+        },
+        {
+          "label": "controller-contexts",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "--reporter=json",
+            "--outputFile=/tmp/sophp-d180-controller-contexts.json"
+          ],
+          "cwd": "/var/www/node/php-companion/packages/provider-symfony-controller-contexts",
+          "status": "exited",
+          "childPid": 419635,
+          "exitCode": 0,
+          "durationSeconds": 3.1787157190265134,
+          "stdoutSha256": "b1ba7fba460855c24860d2feafbf31909abfe1bfb088a6e0407738ea64fc090e",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "success": true,
+            "numTotalTests": 12,
+            "numPassedTests": 12,
+            "numFailedTests": 0,
+            "numPendingTests": 0,
+            "numTodoTests": 0
+          }
+        },
+        {
+          "label": "routes",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "--reporter=json",
+            "--outputFile=/tmp/sophp-d180-routes.json"
+          ],
+          "cwd": "/var/www/node/php-companion/packages/provider-symfony-routes",
+          "status": "exited",
+          "childPid": 419902,
+          "exitCode": 0,
+          "durationSeconds": 5.44398907100549,
+          "stdoutSha256": "1087748f4215e3710bc995b927b35755e74bcbc9bfd0156f1e55d5e163abca4d",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "success": true,
+            "numTotalTests": 14,
+            "numPassedTests": 14,
+            "numFailedTests": 0,
+            "numPendingTests": 0,
+            "numTodoTests": 0
+          }
+        },
+        {
+          "label": "bundled-provider-protocol",
+          "command": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "test/stdio.test.ts",
+            "-t",
+            "^language server stdio restores proven references across processes and rejects changed query inputs$",
+            "--reporter=json",
+            "--outputFile=/tmp/sophp-d180-bundled-provider-protocol.json"
+          ],
+          "cwd": "/var/www/node/php-companion/packages/language-server",
+          "status": "exited",
+          "childPid": 420303,
+          "exitCode": 0,
+          "durationSeconds": 105.77157840196742,
+          "stdoutSha256": "e55d4cbf02aa8c09b3fc5837495dab2be0b321b5e6beaea00d27c9c7de56d3af",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "success": true,
+            "numTotalTests": 534,
+            "numPassedTests": 1,
+            "numFailedTests": 0,
+            "numPendingTests": 533,
+            "numTodoTests": 0
+          }
+        }
+      ],
+      "scope": "Normal Symfony build from current source, four complete Provider unit files and the original bundled-Provider persistent-reference protocol case. Full 1294 LSP remains bound to its pre-refresh Provider assets; this is separate affected-scope evidence. No package/Profile/source change.",
+      "changedInputs": [
+        "packages/php-companion-symfony/dist/controller-context-provider.js",
+        "packages/php-companion-symfony/dist/event-provider.js",
+        "packages/php-companion-symfony/dist/service-provider.js",
+        "packages/php-companion-symfony/dist/static-route-provider.js"
+      ],
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-06T22:01:30.585598+00:00"
+    },
+    "firstPreflightFailure": {
+      "status": "preflight-failed-before-build",
+      "exitCode": 1,
+      "reason": "Missing owned original-products archive subdirectory",
+      "productBuildExecuted": false,
+      "testsExecuted": false,
+      "recordedAtUtc": "2026-10-06T21:59:26.879181+00:00",
+      "preservedScript": "d180-first-preflight-script.py",
+      "preservedDriverLog": "d180-first-preflight-driver.log"
+    },
+    "scope": "Six normal JS outputs and two WASM checked; four Providers refreshed. 45 complete unit cases plus one original packaged-Provider protocol case passed; 533 protocol cases filter-excluded, not another full run."
+  },
+  "windowsC3": {
+    "qualified": false,
+    "run": {
+      "status": "exited",
+      "parentPid": 426139,
+      "childPid": 426258,
+      "startedAtUtc": "2026-10-06T22:02:11.437208+00:00",
+      "manifestSha256": "f8949f7f50c79019de82ab562ff0099f7d1ac53f1f87e6c069d6705d3448cde5",
+      "driverSha256": "8358e689a6998aa04f72c539cd8f96ba41b1376f7b15ec659c6950f2a6e8b4e1",
+      "stdoutPath": "/var/www/node/php-companion/.vscode-test/d179-native-editor.stdout",
+      "stderrPath": "/var/www/node/php-companion/.vscode-test/d179-native-editor.stderr",
+      "command": [
+        "/mnt/c/Program Files/nodejs/node.exe",
+        "--require",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-0DRYLH\\preserve-logs.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-0DRYLH\\bootstrap.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-0DRYLH\\core",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-0DRYLH\\observed-full-c3.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-0DRYLH\\baseline",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-0DRYLH\\symfony"
+      ],
+      "scope": "Current Core plus source/build-verified Symfony; original complete native Windows C3 at PHP 8.5 experimental with unchanged suite and 300-second deadline. No subset flags or Profile update. Does not qualify onDemand/progressive C3, Pack/Twig/formatter/debug/test composition, or real WSL acceptance.",
+      "exitCode": 1,
+      "durationSeconds": 198.05470483598765,
+      "finishedAtUtc": "2026-10-06T22:05:29.485984+00:00",
+      "stdoutSha256": "4540c475ce997fd3c0db34b7713fc46d827836bd36d653ce498b75645eaedf55",
+      "stderrSha256": "0b2f324484c2d76ca6e24d012393239a7cbbfdc0c16f51747cfff9b426d70761",
+      "sourceUnchanged": true,
+      "productBundleUnchanged": true,
+      "changedCopies": [],
+      "changedArtifacts": [],
+      "changedRuntimes": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true
+    },
+    "failure": [
+      "Error: Error mutex already exists",
+      "AssertionError [ERR_ASSERTION]: Missing cross-namespace Implement 1 interface method Action"
+    ],
+    "changedInputs": [],
+    "evidence": "/var/www/node/php-companion/.vscode-test/d179-native-editor-evidence",
+    "archivedHashes": {
+      "nativeWindowsC3.cjs": "206d45e569df51c485778dcdfaee181095d391bfa6295042a7130a3baeff040e",
+      "bootstrap.cjs": "4dc308d236f01dbbaf7a5950e6b3f69a8eaae41d7363877ff6efbc26010639a4",
+      "d178-compare-symfony-build.mjs": "4ea08717691a8035a0e0f1e85a0d22abe77f6ac387588749d496363324ff4495",
+      "d178-symfony-build-comparison.json": "abdeb1ca937a7b26903d634b4c6498865242fcacad908bcba815e025c6434ea1",
+      "d179-native-editor.stderr": "0b2f324484c2d76ca6e24d012393239a7cbbfdc0c16f51747cfff9b426d70761",
+      "observed-full-c3.cjs": "f01ec19457b84cb1195157401a8fefb9b5012e282e017e07f02eec256781851f",
+      "d179-native-editor-driver.log": "aad7ace7aebcc9ce618c020a3929a70872b46d5f583d5648697bb3501fab8c0c",
+      "d179-native-editor.stdout": "4540c475ce997fd3c0db34b7713fc46d827836bd36d653ce498b75645eaedf55",
+      "d180-refresh-symfony-providers.py": "e380893e47dc7a756464b0821c3f77c614ef93a644f1d0761c97346761bf2d9b",
+      "d179-native-editor-run.json": "f829eeb36605f885596d2be158ea980b118410b8125fee0d40a6b30c7a55df72",
+      "language-server.js": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "preserve-logs.cjs": "b850d1d4dd7ca16026eee1c0c0f1761a5f117ff1ff3cd62d07c01ca3842645a2",
+      "runner.mjs": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928",
+      "d179-native-editor-input.json": "f8949f7f50c79019de82ab562ff0099f7d1ac53f1f87e6c069d6705d3448cde5",
+      "d180-provider-build-run.json": "6f791e23c09829fdee1c4d47a756c78e99c3d5e0a51f410cffc8b990540a46ba",
+      "language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+      "d179-native-editor-audit.py": "90e1e47dd7bcf730600db999acb29bd56a7a6887394eb4b37c7a87cd4d597d94",
+      "d179-native-editor-prepare.mjs": "197f6a557ce5782c4e1902f75812773576d1ca0e2e99968b8d915c742639cd5d",
+      "d179-native-editor-run.py": "8358e689a6998aa04f72c539cd8f96ba41b1376f7b15ec659c6950f2a6e8b4e1",
+      "host-logs/sophp-native-windows-host-IbUY76/settings.json": "87d20c1ceb651144fd29370ba9a319c99f57a7a74a84a6464b600ba29bd30c70",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/sharedprocess.log": "b90cf6cce202ee426a70ca6f83f1b95332d4512b9eecc2401a59f654daad4edc",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/network-shared.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/agenthost.log": "2b868b036dcd9675d1f894e44d936e427c1c5e8181260d3da5843dec095f8e02",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/telemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/userDataSync.log": "6f9a575e634a6ff609ddde0b24198cbffca6f19f3c1823a6800035cc42edc402",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/terminal.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/main.log": "14db2e85933d6c0948f0a29a9a888e65463170cac257549ffb0f5b1c7456dc33",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/editSessions.log": "6a8c64a993909b911cbfb636f09f583fe38651dd6a2990527043ed3c7f5c5c18",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/agentHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/remoteTunnelService.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/mcpGateway.log": "edf80bdadde557a47b0ed81a94da0e120c01eb270ced5a83d2f14aff12c34fe7",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/notebook.rendering.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/views.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/textModelChanges.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/renderer.log": "8e74610c9d3e791dd4cecb50a203eb9e0cd9d9f3fc45ef63493c9080ceb9513c",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/fileWatcher.log": "8a008f907ad4ef38f1b744ecdddf99f8bd249addebadb10227254ed34247c731",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/network.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/extHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/exthost.log": "2fd26915a9c54102909e9c0304506e5086b5bf7aeda57413529e1c23e8157604",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/vscode.github-authentication/GitHub Authentication.log": "13c9880595f8f0f1b0a32d82bfebe7138bc48fdbc5e9bfe967be0a67e6c1c8a7",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/vscode.git/Git.log": "c47978b4da137b49e925839a60f4fa0bbbbcf09bfdb4f008a5dcf3933968332a",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/vscode.github/GitHub.log": "efba231febbbea3b62175ff3d5456f938cde52e76515225f96ad0795bc681d21",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/sohophp.php-companion/SoPHP.log": "54329c3575aa1e4f5b34ac6e88fa5027c8c1f46175b3cd8a882f99b4d32fb41f",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/exthost/vscode.json-language-features/JSON Language Server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/output_20261007T060217/agentSessionsOutput.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-IbUY76/logs/20261007T060212/window1/output_20261007T060217/tasks.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "symfony-product/package.json": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd",
+      "symfony-product/package.nls.json": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318",
+      "symfony-product/README.md": "49c89f475688811da16d7d495abfee176e792edd9b1ff4b707c5fec3724920b3",
+      "symfony-product/CHANGELOG.md": "462f54a6fdead5c7bfad1504b02a307bd25eb1bcc5057a30b4c6d6c3d871df02",
+      "symfony-product/package.nls.zh-cn.json": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee",
+      "symfony-product/LICENSE": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+      "symfony-product/dist/service-provider.js": "6a623be4275e4643521fbe9fbcd5fb54d3390a01b09d2464932bf0fc535b8ad3",
+      "symfony-product/dist/event-provider.js": "97acc074fd1ae6f06f5cabea9911c59a8fd946cb9fce6fad5073cd361f74f37e",
+      "symfony-product/dist/controller-context-provider.js": "24a6e6f1c1e659d0d31d4afd9f9c602bdb4d2be2b875c3344e9ee9ead4bf2a0d",
+      "symfony-product/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "symfony-product/dist/extension.js": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+      "symfony-product/dist/static-route-provider.js": "9948902618994dd665c8e074944c47f441c2faac2c6a3821789043dcb3fac114",
+      "symfony-product/dist/winstar-route-provider.js": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+      "symfony-product/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "symfony-product/resources/icon.png": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a"
+    },
+    "scope": "Normal complete native Windows C3 with source/build-verified Symfony at PHP 8.5 experimental and unchanged 300-second deadline. Does not qualify onDemand/progressive C3, Pack/Twig/formatter/debug/test composition, ordinary-edit P95, visible waiting, or real WSL acceptance.",
+    "failureBoundary": "Missing cross-namespace Implement 1 interface method Action at test/extension/suite/c3.ts:4565. No complete C3 proof; later cross-signature, defaults, Symfony event and second-root blocks not completed.",
+    "sourceOnlyControl": {
+      "path": ".vscode-test/d181-cross-generation-semantic.json",
+      "sha256": "a862e18242f7aae20e435c724955044041a15eabe9b649817e7d679ff0cf0825",
+      "result": "Same five source fixtures produce the expected qualified accept signature and hierarchy in the pure semantic workspace. This is diagnostic only, not protocol/editor qualification."
+    },
+    "nextAction": "Minimal identical Linux and native Windows protocol fixture; inspect checked generation refresh before changing source or rerunning the complete host."
+  },
+  "originalFullInputsCurrentlyChangedOnlyByProviderRefresh": [
+    "packages/php-companion-symfony/dist/controller-context-provider.js",
+    "packages/php-companion-symfony/dist/event-provider.js",
+    "packages/php-companion-symfony/dist/service-provider.js",
+    "packages/php-companion-symfony/dist/static-route-provider.js"
+  ],
+  "roadmapComplete": false,
+  "goalStatus": "active",
+  "packaged": false,
+  "profileUpdated": false,
+  "pushed": false,
+  "realWslQualified": false,
+  "knownOpenGates": [
+    "Current ordinary editing P95 and long sessions",
+    "50k warm-cache RSS 1659.99 > 1536 MiB",
+    "Bare-dollar descriptions",
+    "External renderer batch limitation",
+    "Remaining version semantics, macOS and Remote matrices; nine actual CLIs have only the frozen syntax-file qualification",
+    "F09-F12 full framework/Twig/formatter/debug/test composition",
+    "Original C1-C4/R4 and real WSL usage"
+  ],
+  "originalAuditRecords": [
+    {
+      "path": ".vscode-test/d175-current-lsp-audit.json",
+      "sha256": "64d059b8f7ad35c6dcd85848a5bc330d6d35306b29716b5f9059c7b6e48f7619"
+    },
+    {
+      "path": ".vscode-test/d174-ordinary-c1-audit.json",
+      "sha256": "d61deb33c5690df49dc87da1c861c5ba7f9eb73f819459b182d97e320c92c357"
+    },
+    {
+      "path": ".vscode-test/d177-native-editor-audit.json",
+      "sha256": "721fd119ebcdb87895bb93746769263108c5cfa0a95d6b4ac1d672ecb6ef1583"
+    },
+    {
+      "path": ".vscode-test/d178-symfony-build-comparison.json",
+      "sha256": "abdeb1ca937a7b26903d634b4c6498865242fcacad908bcba815e025c6434ea1"
+    },
+    {
+      "path": ".vscode-test/d180-provider-build-run.json",
+      "sha256": "6f791e23c09829fdee1c4d47a756c78e99c3d5e0a51f410cffc8b990540a46ba"
+    },
+    {
+      "path": ".vscode-test/d179-native-editor-audit.json",
+      "sha256": "a791ac5fb8975da1fdc7cf0efc669bf2d8176b3e8b5730536b5daf47784d2856"
+    },
+    {
+      "path": ".vscode-test/d184-native-editor-audit.json",
+      "sha256": "f09ce6af844685b175d6e63ba02932ccb9abe806f70671042404a734117af6a7"
+    },
+    {
+      "path": ".vscode-test/d185-actual-nine-cli-syntax-run.json",
+      "sha256": "8f1547848d4be5cf1ea8ef56e12e61c680377751d1b58b60301aa0c448e8a778"
+    },
+    {
+      "path": ".vscode-test/d176-isolated-clis.json",
+      "sha256": "b09381dafc7e582fe7e6be63ae9e30da78f996daf58dbdb4d0185d8b79001590"
+    }
+  ],
+  "windowsC3FollowUp": {
+    "qualified": true,
+    "run": {
+      "status": "exited",
+      "parentPid": 438068,
+      "childPid": 438156,
+      "startedAtUtc": "2026-10-06T22:12:59.170643+00:00",
+      "manifestSha256": "6c5fa087b8aa640054c74db0f960b5c7b82cd535f002aabb216a97cebb7ff1c4",
+      "driverSha256": "838427f9ecd56f757613df2d6912d55cd2c620312e6a324794b269d6f44a4355",
+      "stdoutPath": "/var/www/node/php-companion/.vscode-test/d184-native-editor.stdout",
+      "stderrPath": "/var/www/node/php-companion/.vscode-test/d184-native-editor.stderr",
+      "command": [
+        "/mnt/c/Program Files/nodejs/node.exe",
+        "--require",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-AZZPZJ\\preserve-logs.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-AZZPZJ\\bootstrap.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-AZZPZJ\\core",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-AZZPZJ\\observed-full-c3.cjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-AZZPZJ\\baseline",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-current-editor-AZZPZJ\\symfony"
+      ],
+      "scope": "Current Core plus source/build-verified Symfony; original complete native Windows C3 at PHP 8.5 experimental with unchanged suite and 300-second deadline. No subset flags or Profile update. Does not qualify onDemand/progressive C3, Pack/Twig/formatter/debug/test composition, or real WSL acceptance.",
+      "exitCode": 0,
+      "durationSeconds": 199.86784418398747,
+      "finishedAtUtc": "2026-10-06T22:16:19.033706+00:00",
+      "stdoutSha256": "8f2f72d2b0ea2357b1938b0099f8f92381d25643010e625623d3c74f1846b8d9",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceUnchanged": true,
+      "productBundleUnchanged": true,
+      "changedCopies": [],
+      "changedArtifacts": [],
+      "changedRuntimes": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true
+    },
+    "proofs": {
+      "runtime": {
+        "platform": "win32",
+        "node": "v24.21.0",
+        "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "vscode": "1.140.0"
+      },
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "experimental"
+      },
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "acceptance": {
+        "suite": "fullC3",
+        "platform": "win32",
+        "node": "v24.21.0",
+        "phpVersion": "8.5",
+        "indexingMode": "experimental"
+      },
+      "wrapper": {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "proof": {
+          "suite": "fullC3",
+          "platform": "win32",
+          "node": "v24.21.0",
+          "phpVersion": "8.5",
+          "indexingMode": "experimental"
+        }
+      },
+      "guardedCrossNamespaceGeneration": [
+        {
+          "title": "Implement 1 interface method",
+          "command": "phpCompanion.applyPreviewedExtract",
+          "rawEdit": false,
+          "cancelledWithoutChange": true,
+          "applied": true
+        },
+        {
+          "title": "Implement 1 abstract method",
+          "command": "phpCompanion.applyPreviewedExtract",
+          "rawEdit": false,
+          "cancelledWithoutChange": true,
+          "applied": true
+        },
+        {
+          "title": "Override App\\Contract\\C3CrossBase::convert",
+          "command": "phpCompanion.applyPreviewedExtract",
+          "rawEdit": false,
+          "cancelledWithoutChange": true,
+          "applied": true
+        },
+        {
+          "title": "Override App\\Contract\\C3CrossBase::choose",
+          "command": "phpCompanion.applyPreviewedExtract",
+          "rawEdit": false,
+          "cancelledWithoutChange": true,
+          "applied": true
+        },
+        {
+          "title": "Override App\\Contract\\C3CrossDefaults::defaults",
+          "command": "phpCompanion.applyPreviewedExtract",
+          "rawEdit": false,
+          "cancelledWithoutChange": true,
+          "applied": true
+        }
+      ]
+    },
+    "changedInputs": [],
+    "correctedTest": {
+      "path": "test/extension/suite/c3.ts",
+      "sha256": "ec82f738b975b99b949758282d3abf34647337f63ed24d31ee5902db4e97dd54",
+      "priorSha256": "b68761a16e588aa027865a4ae7eb3b3c506edc501a15e73ae8d5bf0ae8fb18cf",
+      "reason": "Exercise existing guarded preview commands instead of removed raw edits; add cancellation assertions and retain signature/Undo/Redo checks."
+    },
+    "copiedAssets": 36,
+    "baselineInputs": 83,
+    "evidence": "/var/www/node/php-companion/.vscode-test/d184-native-editor-evidence",
+    "archivedHashes": {
+      "d184-native-editor-prepare.mjs": "d38be2644f0d04791de00043b46cb37117cf5fb2fca5427faa77b4ee9e2e06e5",
+      "d184-native-editor-input.json": "6c5fa087b8aa640054c74db0f960b5c7b82cd535f002aabb216a97cebb7ff1c4",
+      "nativeWindowsC3.cjs": "099189a9677853a32bd3a5c84c248955f364f3770f943d2415b44c6e87c57709",
+      "bootstrap.cjs": "272ff82b952fdbab72cd7fc3ba2fabc57cb3cfa46197c0c31e3fb128ee684937",
+      "d184-native-editor.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "d184-native-editor-audit.py": "c415b97b777a3cc2c8f0ca8cd4695a924e37624157f7fc4ed7547750bf12fa53",
+      "d178-compare-symfony-build.mjs": "4ea08717691a8035a0e0f1e85a0d22abe77f6ac387588749d496363324ff4495",
+      "d178-symfony-build-comparison.json": "abdeb1ca937a7b26903d634b4c6498865242fcacad908bcba815e025c6434ea1",
+      "d184-native-editor-run.json": "902bcf17a359961b96023a74a5eb2f13a7c7915cb36fcaf0afd3c3beb1e6d15d",
+      "observed-full-c3.cjs": "5f418acdb617f075644da8c8479f187c50c431c6d919276c239b8adbe78a98f8",
+      "d180-refresh-symfony-providers.py": "e380893e47dc7a756464b0821c3f77c614ef93a644f1d0761c97346761bf2d9b",
+      "language-server.js": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "d184-native-editor-run.py": "838427f9ecd56f757613df2d6912d55cd2c620312e6a324794b269d6f44a4355",
+      "preserve-logs.cjs": "952782639671a2a492b1040a3c64d00d93eae1f7175d5dae745fb810c081a30d",
+      "d184-native-editor.stdout": "8f2f72d2b0ea2357b1938b0099f8f92381d25643010e625623d3c74f1846b8d9",
+      "runner.mjs": "3d48212ab458f648d5ab874e5f43c6d8af09040c7fbffe0781c4667babc3a928",
+      "d184-native-editor-driver.log": "7aac78302ba64a26a1d66b7e9a09ece11cdc848fe5998418240f25327f9ac277",
+      "d180-provider-build-run.json": "6f791e23c09829fdee1c4d47a756c78e99c3d5e0a51f410cffc8b990540a46ba",
+      "language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+      "host-logs/sophp-native-windows-host-AG1boI/settings.json": "87d20c1ceb651144fd29370ba9a319c99f57a7a74a84a6464b600ba29bd30c70",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/sharedprocess.log": "50e108b89a3c99c923eaa9d156102d7f0b77b545443dd5f75817df5956a03d7e",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/network-shared.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/agenthost.log": "8cc9aa28e0ea5daf3f4903517e2d1bac5b58872ebbce5b9cfe82fcc5124b285a",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/telemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/userDataSync.log": "199dd84115efe2c4e828e5cac02dd9b2da87935a08a475057f27014a643e2428",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/terminal.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/main.log": "529e3992ffeafbf5b3f101d0d03216f903a20e7e160427e6430a500436362710",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/editSessions.log": "f192a3a2a596217826cf24ca1fa43e1a5bb636510845e947bbba6c89ea3199e0",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/agentHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/remoteTunnelService.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/mcpGateway.log": "d648d17c4ebbd747342e38f5b8d4856541a64834d470f6058b304d07abfc6af1",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/notebook.rendering.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/views.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/textModelChanges.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/renderer.log": "6d10ff53bfc96517ecfcc0e72db45d7ee56a778375a2f6f6d68fa5685eea29bb",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/fileWatcher.log": "19d9bb084c8ddec429ed8abee5f55914b67742b2922299051b2098aa074b4188",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/network.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/extHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/exthost.log": "1519c83ea0335a430dc1b4f55efd9f1e7d28a6a9328abdb7bb453b41cd96cf02",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/vscode.github-authentication/GitHub Authentication.log": "df3688de2f7aaf79ac237ca7b392084e89e9ed2532b22ac23db168bf05971cb8",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/vscode.git/Git.log": "2145786a6fa920db34f7d08db923e513b75d240f9690d6aba0206b4abf37bdc5",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/vscode.github/GitHub.log": "5164b408a638df5b31647a030bd62c97e7b9d0fefd79657d717d69934b2e1658",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/sohophp.php-companion/SoPHP.log": "8c9d44aa0af5753ecea542f250df7db8ac9baa87a97066e8721595c95902ea11",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/exthost/vscode.json-language-features/JSON Language Server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/output_20261007T061304/agentSessionsOutput.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "host-logs/sophp-native-windows-host-AG1boI/logs/20261007T061300/window1/output_20261007T061304/tasks.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "symfony-product/package.json": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd",
+      "symfony-product/package.nls.json": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318",
+      "symfony-product/README.md": "49c89f475688811da16d7d495abfee176e792edd9b1ff4b707c5fec3724920b3",
+      "symfony-product/CHANGELOG.md": "462f54a6fdead5c7bfad1504b02a307bd25eb1bcc5057a30b4c6d6c3d871df02",
+      "symfony-product/package.nls.zh-cn.json": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee",
+      "symfony-product/LICENSE": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+      "symfony-product/dist/service-provider.js": "6a623be4275e4643521fbe9fbcd5fb54d3390a01b09d2464932bf0fc535b8ad3",
+      "symfony-product/dist/event-provider.js": "97acc074fd1ae6f06f5cabea9911c59a8fd946cb9fce6fad5073cd361f74f37e",
+      "symfony-product/dist/controller-context-provider.js": "24a6e6f1c1e659d0d31d4afd9f9c602bdb4d2be2b875c3344e9ee9ead4bf2a0d",
+      "symfony-product/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "symfony-product/dist/extension.js": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+      "symfony-product/dist/static-route-provider.js": "9948902618994dd665c8e074944c47f441c2faac2c6a3821789043dcb3fac114",
+      "symfony-product/dist/winstar-route-provider.js": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+      "symfony-product/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "symfony-product/resources/icon.png": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a"
+    },
+    "scope": "Normal complete native Windows C3 with source/build-verified Symfony at PHP 8.5 experimental and unchanged 300-second deadline. Does not qualify onDemand/progressive C3, Pack/Twig/formatter/debug/test composition, ordinary-edit P95, visible waiting, or real WSL acceptance.",
+    "cause": "Original cross-namespace test required raw CodeAction.edit; existing editor middleware replaces generation refactor edits with phpCompanion.applyPreviewedExtract. Test now exercises mandatory guarded preview, cancel/apply, exact signature and existing one Undo/Redo. Production source and Core bundle unchanged.",
+    "typecheck": {
+      "command": "pnpm exec tsc -p test/extension/tsconfig.json --noEmit",
+      "exitCode": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "protocolControls": {
+      "linux": {
+        "path": ".vscode-test/d183-linux-generation-protocol-v2.json",
+        "sha256": "37f1d3e8415ee5bf6d55f212a648e45da9140a6900fea3d48efa6d14ded751b0",
+        "cases": [
+          {
+            "platform": "linux",
+            "node": "v22.14.0",
+            "style": "node",
+            "timing": "initial",
+            "matched": true,
+            "attempts": 1,
+            "exit": {
+              "code": 0,
+              "signal": null
+            }
+          },
+          {
+            "platform": "linux",
+            "node": "v22.14.0",
+            "style": "node",
+            "timing": "late",
+            "matched": true,
+            "attempts": 1,
+            "exit": {
+              "code": 0,
+              "signal": null
+            }
+          }
+        ]
+      },
+      "windows": {
+        "path": ".vscode-test/d183-windows-generation-protocol.json",
+        "sha256": "d979bd57b980831c87587486cf5b7acc7eea09e2fb57b5182139a2ec1579c7ab",
+        "cases": [
+          {
+            "platform": "win32",
+            "node": "v24.16.0",
+            "style": "node",
+            "timing": "initial",
+            "matched": true,
+            "attempts": 1,
+            "exit": {
+              "code": 0,
+              "signal": null
+            }
+          },
+          {
+            "platform": "win32",
+            "node": "v24.16.0",
+            "style": "node",
+            "timing": "late",
+            "matched": true,
+            "attempts": 1,
+            "exit": {
+              "code": 0,
+              "signal": null
+            }
+          },
+          {
+            "platform": "win32",
+            "node": "v24.16.0",
+            "style": "vscode",
+            "timing": "initial",
+            "matched": true,
+            "attempts": 1,
+            "exit": {
+              "code": 0,
+              "signal": null
+            }
+          },
+          {
+            "platform": "win32",
+            "node": "v24.16.0",
+            "style": "vscode",
+            "timing": "late",
+            "matched": true,
+            "attempts": 1,
+            "exit": {
+              "code": 0,
+              "signal": null
+            }
+          }
+        ]
+      }
+    },
+    "firstDiagnosticLaunchFailure": {
+      "path": ".vscode-test/d183-linux-generation-protocol.json",
+      "sha256": "4ec22182aa3f87ff10358db44359df1be5fdc434cfc6aee80bc3056e162cf7a9",
+      "reason": "Probe omitted explicit WASM paths; initialization failed before any generation query. Original output and script retained."
+    },
+    "controlEvidence": "/var/www/node/php-companion/.vscode-test/d183-generation-control-evidence",
+    "controlEvidenceManifestSha256": "7bb3c0ee3e581278dd9a83c568e1a7e720fe1441a4e0bb68bcfbf70bf6f0219f"
+  },
+  "actualNineCliSyntax": {
+    "qualified": true,
+    "run": {
+      "status": "exited",
+      "parentPid": 440332,
+      "startedAtUtc": "2026-10-06T22:17:44.335398+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/php-runtime-syntax.test.ts",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d185-actual-nine-cli-syntax.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/language-server",
+      "preflight": {
+        "7.2": {
+          "actualVersion": "7.2.34",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "ini-loaded",
+          "path": "/opt/remi/php72/root/usr/bin/php",
+          "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+        },
+        "7.3": {
+          "actualVersion": "7.3.33",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "no-ini",
+          "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73",
+          "sha256": "5564207ec9f30fa67f822b031ce74ab701805e9506d5db953faed50d12149be6"
+        },
+        "7.4": {
+          "actualVersion": "7.4.33",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "ini-loaded",
+          "path": "/opt/remi/php74/root/usr/bin/php",
+          "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+        },
+        "8.0": {
+          "actualVersion": "8.0.30",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "no-ini",
+          "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+          "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958"
+        },
+        "8.1": {
+          "actualVersion": "8.1.34",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "ini-loaded",
+          "path": "/opt/remi/php81/root/usr/bin/php",
+          "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+        },
+        "8.2": {
+          "actualVersion": "8.2.32",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "ini-loaded",
+          "path": "/opt/remi/php82/root/usr/bin/php",
+          "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+        },
+        "8.3": {
+          "actualVersion": "8.3.35",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "no-ini",
+          "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+          "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae"
+        },
+        "8.4": {
+          "actualVersion": "8.4.23",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "ini-loaded",
+          "path": "/opt/remi/php84/root/usr/bin/php",
+          "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+        },
+        "8.5": {
+          "actualVersion": "8.5.9",
+          "sapi": "cli",
+          "os": "Linux",
+          "ini": "ini-loaded",
+          "path": "/opt/remi/php85/root/usr/bin/php",
+          "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+        }
+      },
+      "inputCount": 4865,
+      "inputsDigest": "aa962906093c1cfbbdd526e4e1769eedb6a0ce818805674d9c3dc22b876c106c",
+      "head": "21396cde16eb5a1557693e676385c2191aa0cd98",
+      "worktreeStatus": " M docs/php-language-toolchain/future-core-plan.md\n M test/extension/suite/c3.ts\n?? docs/php-language-toolchain/reports/core-21396cde-combined-acceptance-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-21396cde-combined-acceptance-2026-10-07.md\n",
+      "coreBundleSha256": "c2b9da31bee847a2651f8c28207a33af9d562699c5a7404c2e78b15159ca9c44",
+      "actualCliCount": 9,
+      "qualified": true,
+      "scope": "One unchanged formal PHP syntax file, all nine actual CLI versions, 20 feature boundaries each plus void operands. Six existing runtimes use their normal ini, three isolated extracted CLIs use -n. Not whole PHP language support, nine complete LSP suites or real WSL acceptance.",
+      "childPid": 440417,
+      "exitCode": 0,
+      "durationSeconds": 17.72737426398089,
+      "stdoutSha256": "19fbf0ab6586ecbbcb72598e516e20ba71eec36bb04cef4c4291ae62d4423ab4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "finishedAtUtc": "2026-10-06T22:18:02.085847+00:00",
+      "changedInputs": [],
+      "changedRuntimes": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "result": {
+        "success": true,
+        "numTotalTests": 10,
+        "numPassedTests": 10,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "cases": [
+        {
+          "fullName": "requires a PHP 8.5 void cast operand without flagging comments or string content",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 7.2 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 7.3 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 7.4 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 8.0 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 8.1 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 8.2 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 8.3 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 8.4 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        },
+        {
+          "fullName": "real PHP syntax versus SoPHP diagnostics matches PHP 8.5 syntax acceptance",
+          "status": "passed",
+          "failureMessages": []
+        }
+      ],
+      "resultSha256": "d692968be36ba2374c9ec786724a0f24fc53f5121eff36c512ab5644db6b1104"
+    },
+    "newCliPreflight": {
+      "status": "cli-preflight-passed",
+      "startedAtUtc": "2026-10-06T22:16:52.293602+00:00",
+      "scratch": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8",
+      "driverSha256": "7d169e60b8763b19033d2e416b672fca1280d2a3a04e6977e1eb37ef75cd31dc",
+      "prerequisiteAuditSha256": "64d059b8f7ad35c6dcd85848a5bc330d6d35306b29716b5f9059c7b6e48f7619",
+      "discoverySha256": "12ced56e8dd1284b3d290577caa4195be329247ed7a86e2a62df351e2a096922",
+      "runtimes": {
+        "7.3": {
+          "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73",
+          "sha256": "5564207ec9f30fa67f822b031ce74ab701805e9506d5db953faed50d12149be6",
+          "binary": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73.bin",
+          "binarySha256": "56a4c29357bcf04b321868439cb765f3c01fcebc8620af249e430690b7ca552b",
+          "version": "7.3.33",
+          "sapi": "cli",
+          "os": "Linux",
+          "iniLoaded": false,
+          "stdin": true,
+          "rpm": {
+            "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73-php-cli-7.3.33-22.el8.remi.x86_64.rpm",
+            "url": "https://rpms.remirepo.net/enterprise/8/safe/x86_64/php73-php-cli-7.3.33-22.el8.remi.x86_64.rpm",
+            "sha256": "db81ffcd2b7b7ba4552bf89490ab8cf4495dfad23d2c2a4eb0533aaeae84a300",
+            "name": "php73-php-cli",
+            "version": "7.3.33",
+            "release": "22.el8.remi",
+            "arch": "x86_64",
+            "license": "PHP and Zend and BSD and MIT and ASL 1.0 and NCSA and PostgreSQL",
+            "signatureOutput": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73-php-cli-7.3.33-22.el8.remi.x86_64.rpm: digests signatures OK\n"
+          }
+        },
+        "8.0": {
+          "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+          "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958",
+          "binary": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80.bin",
+          "binarySha256": "710e2b340911f23ba163dbcbd9b969402b3b8b87bd3fa006b2297ee185a665dd",
+          "version": "8.0.30",
+          "sapi": "cli",
+          "os": "Linux",
+          "iniLoaded": false,
+          "stdin": true,
+          "rpm": {
+            "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80-php-cli-8.0.30-19.el8.remi.x86_64.rpm",
+            "url": "https://rpms.remirepo.net/enterprise/8/safe/x86_64/php80-php-cli-8.0.30-19.el8.remi.x86_64.rpm",
+            "sha256": "7d223ebcbc3dc4e870f898c3c8d92ef7ec49573227a4b9cd040825b29bbe2894",
+            "name": "php80-php-cli",
+            "version": "8.0.30",
+            "release": "19.el8.remi",
+            "arch": "x86_64",
+            "license": "PHP and Zend and BSD and MIT and ASL 1.0 and NCSA and PostgreSQL",
+            "signatureOutput": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80-php-cli-8.0.30-19.el8.remi.x86_64.rpm: digests signatures OK\n"
+          }
+        },
+        "8.3": {
+          "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+          "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae",
+          "binary": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83.bin",
+          "binarySha256": "5afff8e11e85ae7cae9f35bcddfe28ab1587c5fde387d0c4d26378a43f9cf1b5",
+          "version": "8.3.35",
+          "sapi": "cli",
+          "os": "Linux",
+          "iniLoaded": false,
+          "stdin": true,
+          "rpm": {
+            "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83-php-cli-8.3.35-1.el8.remi.x86_64.rpm",
+            "url": "https://rpms.remirepo.net/enterprise/8/safe/x86_64/php83-php-cli-8.3.35-1.el8.remi.x86_64.rpm",
+            "sha256": "eb26aaf4671257e60822d8542c932a233800a019da21a8ab43b833870bd577e3",
+            "name": "php83-php-cli",
+            "version": "8.3.35",
+            "release": "1.el8.remi",
+            "arch": "x86_64",
+            "license": "PHP-3.01 AND Zend-2.0 AND BSD-2-Clause AND MIT AND Apache-1.0 AND NCSA AND PostgreSQL",
+            "signatureOutput": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83-php-cli-8.3.35-1.el8.remi.x86_64.rpm: digests signatures OK\n"
+          }
+        }
+      },
+      "systemPackagesInstalled": false,
+      "profileUpdated": false,
+      "testsExecuted": false,
+      "syntaxMatrixQualified": false,
+      "scope": "Owned extracted CLI binaries with no ini, for actual missing-version syntax verification. No rpm install/scripts or system paths changed; CLI preflight is not syntax/full LSP qualification.",
+      "finishedAtUtc": "2026-10-06T22:17:02.328242+00:00"
+    },
+    "featureBoundaryCount": 20,
+    "featureVersionObservations": 180,
+    "malformedVoidVersionObservations": 27,
+    "validVoidRuntimeObservations": 2,
+    "totalRuntimeLintInvocations": 209,
+    "scope": "One unchanged formal PHP syntax file, all nine actual CLI versions, 20 feature boundaries each plus void operands. Six existing runtimes use their normal ini, three isolated extracted CLIs use -n. Not whole PHP language support, nine complete LSP suites or real WSL acceptance.",
+    "wholeLspRerun": false,
+    "full1294QualificationExtended": false
+  },
+  "currentCompleteWindowsC3Qualified": true,
+  "updatedAtUtc": "2026-10-06T22:19:42.483837+00:00"
+}

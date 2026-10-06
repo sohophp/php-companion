@@ -4558,11 +4558,20 @@ class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $
     while (Date.now() < deadline && !action) {
       const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
         'vscode.executeCodeActionProvider', uri, new vscode.Range(position, position), vscode.CodeActionKind.RefactorRewrite.value) ?? [];
-      action = actions.find((candidate): candidate is vscode.CodeAction => 'edit' in candidate && candidate.title === item.title);
+      action = actions.find((candidate): candidate is vscode.CodeAction => 'command' in candidate && candidate.title === item.title);
       if (!action) await new Promise((resolve) => setTimeout(resolve, 50));
     }
-    assert.ok(action?.edit, `Missing cross-namespace ${item.title} Action`);
-    assert.ok(await vscode.workspace.applyEdit(action.edit), `Could not apply cross-namespace ${item.title}`);
+    assert.ok(action?.command, `Missing cross-namespace ${item.title} Action`);
+    assert.strictEqual(action.edit, undefined, `${item.title} bypassed generation preview`);
+    assert.strictEqual(action.command.command, 'phpCompanion.applyPreviewedExtract',
+      `${item.title} did not use guarded generation preview`);
+    assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [],
+      { testPreviewAction: async () => 'cancel' }), false, `${item.title} did not cancel`);
+    assert.strictEqual(document.getText(), original, `${item.title} changed the source after cancellation`);
+    assert.strictEqual(await vscode.commands.executeCommand(action.command.command, ...action.command.arguments ?? [],
+      { testPreviewAction: async () => 'apply' }), true, `Could not apply cross-namespace ${item.title}`);
+    console.log(`C3 cross-namespace generation route: ${JSON.stringify({ title: item.title,
+      command: action.command.command, rawEdit: Boolean(action.edit), cancelledWithoutChange: true, applied: true })}`);
     assert.ok(document.getText().includes(`${item.method}${item.signature}`), `${item.title} copied an unresolved source alias, default constant or DNF type`);
     await vscode.window.showTextDocument(document);
     await vscode.commands.executeCommand('undo');
@@ -4582,12 +4591,21 @@ class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $
   while (Date.now() < defaultsDeadline && !defaultsAction) {
     const actions = await vscode.commands.executeCommand<Array<vscode.CodeAction | vscode.Command>>(
       'vscode.executeCodeActionProvider', defaultsUri, new vscode.Range(defaultsPosition, defaultsPosition), vscode.CodeActionKind.RefactorRewrite.value) ?? [];
-    defaultsAction = actions.find((candidate): candidate is vscode.CodeAction => 'edit' in candidate
+    defaultsAction = actions.find((candidate): candidate is vscode.CodeAction => 'command' in candidate
       && candidate.title === 'Override App\\Contract\\C3CrossDefaults::defaults');
     if (!defaultsAction) await new Promise((resolve) => setTimeout(resolve, 50));
   }
-  assert.ok(defaultsAction?.edit, 'Missing cross-namespace Action for namespace, imported and new-expression defaults');
-  assert.ok(await vscode.workspace.applyEdit(defaultsAction.edit), 'Could not apply cross-namespace default expression Action');
+  assert.ok(defaultsAction?.command, 'Missing cross-namespace Action for namespace, imported and new-expression defaults');
+  assert.strictEqual(defaultsAction.edit, undefined, 'Default expression Action bypassed generation preview');
+  assert.strictEqual(defaultsAction.command.command, 'phpCompanion.applyPreviewedExtract',
+    'Default expression Action did not use guarded generation preview');
+  assert.strictEqual(await vscode.commands.executeCommand(defaultsAction.command.command, ...defaultsAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'cancel' }), false, 'Default expression Action did not cancel');
+  assert.strictEqual(defaultsDocument.getText(), defaultsSource, 'Cancelling default expression generation changed the source');
+  assert.strictEqual(await vscode.commands.executeCommand(defaultsAction.command.command, ...defaultsAction.command.arguments ?? [],
+    { testPreviewAction: async () => 'apply' }), true, 'Could not apply cross-namespace default expression Action');
+  console.log(`C3 cross-namespace generation route: ${JSON.stringify({ title: defaultsAction.title,
+    command: defaultsAction.command.command, rawEdit: Boolean(defaultsAction.edit), cancelledWithoutChange: true, applied: true })}`);
   const generatedDefaults = "defaults(int $local = \\App\\Contract\\LOCAL_LIMIT, int $imported = \\App\\Service\\C3_IMPORTED_LIMIT, object $value = new \\App\\Service\\C3SignatureType(), int $explicit = \\App\\Contract\\LOCAL_LIMIT, int $relative = \\App\\Contract\\Limits\\RELATIVE_LIMIT, int $aliased = \\App\\Service\\Limits\\ALIASED_LIMIT, string $label = 'namespace\\LOCAL_LIMIT'): void";
   assert.ok(defaultsDocument.getText().includes(generatedDefaults),
     `Override did not preserve the source default expressions: ${defaultsDocument.getText()}`);
