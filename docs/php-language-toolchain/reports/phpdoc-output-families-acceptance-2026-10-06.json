@@ -1,0 +1,294 @@
+{
+  "milestone": "D133",
+  "date": "2026-10-06",
+  "status": "qualified source increment; entire current LSP and real WSL acceptance remain open",
+  "input": {
+    "milestone": "D133",
+    "baseCommit": "f0d5d7decd66aa68c9a74736de403454086112c5",
+    "dateUtc": "2026-10-06T01:06:19.615679+00:00",
+    "engineVersion": "semantic-v70",
+    "qualifiedInputs": {
+      "packages/semantic/src/index.ts": "d7c826f2e37add66dcce5605fce32b4961b6d8606b9f6fd526ce1e4bd9e5bf63",
+      "packages/semantic/dist/index.js": "a22955c028c8e3cdb428b16ab20b72bcf4820f363fa92d44f21bc642b0bbdf50",
+      "packages/language-server/src/server.ts": "8a4ad798e7a4d15dda266995372db255afdd827f279f6254942a1645c3593811",
+      "packages/language-server/src/cacheVersion.ts": "88f4e2ef18eb85fab820a9e8caf89dd2812b4d7a938c921f36817e4cf4c771ea",
+      "packages/language-server/dist/server.js": "850ce45e4078112d0ed028182258adf0bcbdee1f636845a56ceaae93682e3fae",
+      "dist/language-server.js": "b02c7df097b54340f5f2e26985617a4c0d8696aa008d0c1a0f814dcab4d01929",
+      "packages/semantic/test/phpdoc-output-families.test.ts": "6a984e0b5a489f5fcb0ff2be7e398acaac50a149362d969319eea20d0537e578",
+      "packages/language-server/test/phpdoc-output-families-stdio.test.ts": "1d0965805fbc3f14f7724555da5684f8a1d9648400971d17dcfcea0adbfe9e44",
+      "packages/language-server/test/trait-final-cache-stdio.test.ts": "a2973430f87e607086a1f6a25db3ba2a8258599a84daa8aa34b75ba87a84bc76",
+      "scripts/check-output-parameter-acceptance.mjs": "98107c8bc8ab3f33dfa379cf7f98b5608cedc94cb243d648099a94a02a89c1ff",
+      "test/extension/suite/outputParameterAcceptance.ts": "de88de0d8c7725d908670044a63bc9f7c26665096484a71d26a58493202e1a04"
+    },
+    "profileUpdated": false
+  },
+  "implementation": [
+    "transport proven inherited/Trait and own-input constructor bindings",
+    "reuse existing conditional PHPDoc evaluation with complete argument mapping and conservative weak coercion",
+    "accept distinct positional/named variadic outputs; reject duplicate targets, names and unpacking",
+    "map named variadic reference mutations for completion consistency",
+    "collect class-literal/callback-return and raw inherited/Trait constructor dependencies without creating value facts",
+    "hydrate Composer files for unresolved constructor owners through existing bounded explicit-file path",
+    "semantic engine cache version v70 and restart rejection of v69"
+  ],
+  "tests": [
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-output-members-before.json",
+      "sha256": "b40fbe10ee863199cc6bd3d257a75b3cbf83b5cfcbb62473e5781f333cff520c",
+      "files": 1,
+      "tests": 116,
+      "passed": 114,
+      "failed": 2,
+      "pending": 0,
+      "success": false
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-output-members-final.json",
+      "sha256": "72175e213e9c440c74db17d27ee874409484af7c710ada778844a952899ac46b",
+      "files": 1,
+      "tests": 116,
+      "passed": 116,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-private-full-semantic.json",
+      "sha256": "737afe3916bf76873aa38846f4fa1e07da6df5c505f2a975f47adbfeea2af0bc",
+      "files": 132,
+      "tests": 3428,
+      "passed": 3428,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-formal-semantic.json",
+      "sha256": "9275584413fdcf9d4175a06671ef9f808ea90aff4f2a7779327f29c90cbad3ef",
+      "files": 133,
+      "tests": 3544,
+      "passed": 3544,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-formal-first-queries.json",
+      "sha256": "8e1b9cbe97318f0ece651d6f07577e39751cc7f6583c42e8fe93dbf67d3024f8",
+      "files": 1,
+      "tests": 60,
+      "passed": 22,
+      "failed": 38,
+      "pending": 0,
+      "success": false
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-first-queries-sources.json",
+      "sha256": "fa0c5f1b5b595088718e8ffc78fa768f65d0964d6a8ddcdc1acf93a01348a885",
+      "files": 1,
+      "tests": 60,
+      "passed": 42,
+      "failed": 18,
+      "pending": 0,
+      "success": false
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-source-dependencies.json",
+      "sha256": "c0f2b0ff849b6005cdafc5e1c968aab2a6d848736e0e2b706d01c2f3b6d8a629",
+      "files": 1,
+      "tests": 124,
+      "passed": 122,
+      "failed": 2,
+      "pending": 0,
+      "success": false
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-source-dependencies-final.json",
+      "sha256": "33b98454367333c5c27291e9f8c5619b90c6f2798820b1607194376f0b496f01",
+      "files": 1,
+      "tests": 124,
+      "passed": 124,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-semantic-final.json",
+      "sha256": "198058f867ce4885acb2e224be45c6304af5a2197d49599a3edcae60a6e71823",
+      "files": 133,
+      "tests": 3552,
+      "passed": 3552,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-first-queries-final.json",
+      "sha256": "8a75b83baaaea6edcd8956df2d16293a2d3acd61c353e28b6bc0a5c291a3f64e",
+      "files": 1,
+      "tests": 60,
+      "passed": 60,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-protocol-regression.json",
+      "sha256": "b17271154c19f92bc61a06ffab875b05a581ca1278f8a64dd62163562f0e650b",
+      "files": 5,
+      "tests": 44,
+      "passed": 44,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-cache-migration.json",
+      "sha256": "4dcaaae12f02e1f27f79641f2926db3c0f7c37d97981193596d15cc2cf608e0d",
+      "files": 0,
+      "tests": 0,
+      "passed": 0,
+      "failed": 0,
+      "pending": 0,
+      "success": false
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-cache-migration-corrected.json",
+      "sha256": "4e518f91ab367292d0aa596b9d0c476b54bd9c19ce51ea639c9b68238fdc0805",
+      "files": 2,
+      "tests": 2,
+      "passed": 2,
+      "failed": 0,
+      "pending": 0,
+      "success": true
+    }
+  ],
+  "ui": [
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-ui-variadicNamed-onDemand.json",
+      "sha256": "03710ccde5cd4331818c5cbadc506bcd3d8ca1bed26a2a520232329a73d4eac2",
+      "proof": {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 1003,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 227,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "fixtureFamily": "variadicNamed",
+        "rendererExceptions": 0
+      }
+    },
+    {
+      "path": ".vscode-test/d133-evidence/sophp-d133-ui-inherited-progressive.json",
+      "sha256": "018539a7a6f480ee9b66c842b095d69a52be02e6d3da0aad6146fe5740e69005",
+      "proof": {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 450,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 228,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "fixtureFamily": "inherited",
+        "rendererExceptions": 0
+      }
+    }
+  ],
+  "hotQueryControl": [
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "firstQueryMs": 113.55059000000074,
+      "warmSamples": 20,
+      "p95Ms": 5.448309000001245,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "firstQueryMs": 126.55178700000033,
+      "warmSamples": 20,
+      "p95Ms": 9.184456000002683,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    }
+  ],
+  "failureHistory": [
+    "member API 114/116 before named-variadic reference mapping; fixed with final 116/116",
+    "first protocol 22/60 before Composer file and template argument source hydration",
+    "second protocol 42/60; 18 inherited/Trait sources still unavailable before raw annotation dependency collection",
+    "dependency unit 122/124 before raw inheritance contract collection; final 124/124",
+    "cache command initially ran from repo root with package-relative filters: exit 1 and zero collected tests; corrected package cwd 2/2",
+    "earlier generic union display mismatch and boolean-local shadowing remain recorded in D132/D133 scratch history"
+  ],
+  "limits": [
+    "D131 complete-plus-supplement qualifies previous f0d5d7de/bundle7f4ca6e5, not D133 current product",
+    "semantic 3544 and private 3428 belong to earlier prototypes; final current complete semantic is 133 files/3552",
+    "UI is Linux isolated PHP8.5, two selected families and four Enter/Tab accepts; not Windows/macOS, PHP7.2 UI or real WSL long-use",
+    "first visible wait 1003ms preserved; hot 3-file unchanged-document budget does not close ordinary editing P95 155.06ms",
+    "unknown factories, unpacking, ambiguous declarations and unknown condition subjects remain unproved; conditional variadic subjects and unbound template branches not inferred",
+    "scale RSS, bare-$ completion detail and original full C1-C4 matrices remain open"
+  ],
+  "profileUpdated": false,
+  "goalStatus": "active"
+}

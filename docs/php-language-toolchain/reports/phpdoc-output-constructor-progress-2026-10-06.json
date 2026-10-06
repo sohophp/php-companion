@@ -1,0 +1,314 @@
+{
+  "milestone": "D132",
+  "date": "2026-10-06",
+  "status": "isolated constructor prototype qualified; not merged into product; goal active",
+  "productInput": {
+    "milestone": "D131",
+    "status": "starting full current LSP qualification",
+    "startedAt": "2026-10-06T00:26:37.776562+00:00",
+    "commit": "f0d5d7decd66aa68c9a74736de403454086112c5",
+    "worktreeStatus": "",
+    "bundleSha256": "7f4ca6e5f1b2ecce92eceeec8d4b4883e7f50de03f3a154c1bcc0dce81e02459",
+    "configSha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad",
+    "command": "pnpm exec vitest run --reporter=json --outputFile=/tmp/sophp-d131-current-full-lsp.json",
+    "cwd": "/var/www/node/php-companion/packages/language-server",
+    "goalStatus": "active",
+    "profileUpdated": false
+  },
+  "prototype": {
+    "root": "/var/www/node/php-companion/.vscode-test/d132-output-boundaries",
+    "input": {
+      "commit": "f0d5d7decd66aa68c9a74736de403454086112c5",
+      "semanticSha256": "0b0bf41a5a98f3f3ba79b751cf47b6101fe12b9baf08b5a3c3f2510e8e77b71e",
+      "scope": "private boundary qualification; current product frozen for D131"
+    },
+    "semanticSha256": "cad0b1d91e2f8cfd8aeff3e2a3a43d2f5c0ea42b41643a59fa8e5010d55c20c0",
+    "bundleSha256": "20c855946e8bfe8acd907813aeda13caa685119faed049a7c8deea6c1fb5b3cc",
+    "patchSha256": "6b98b4b583955d977a724d13daabb3b28c2a6a022e170710ef2ead6294ee975e",
+    "typecheckExit": 0,
+    "patchApplyCheckExit": 0,
+    "changes": "transport existing proven class/Trait constructor bindings into signatures; infer own class output templates from existing input argument inference; use specialized constructor callable bounds"
+  },
+  "history": [
+    {
+      "path": "/tmp/sophp-d132-boundaries-before.json",
+      "sha256": "58eed7ca622ddf0eaa384a1c21f307e9050e43a101c1fff3a39d33d003f000ef",
+      "passed": 22,
+      "failed": 22,
+      "pending": 0,
+      "files": 1
+    },
+    {
+      "path": "/tmp/sophp-d132-constructor-binding-applied.json",
+      "sha256": "15bf12ca4d68080cc55c7ed47e571ebc9a0ce01e97c7777b12559a12d583255c",
+      "passed": 26,
+      "failed": 18,
+      "pending": 0,
+      "files": 1
+    },
+    {
+      "path": "/tmp/sophp-d132-constructor-inference.json",
+      "sha256": "a34635c7b8794d22b191816846a840e28ac837883d3ec6d0046e4e63454d367a",
+      "passed": 28,
+      "failed": 16,
+      "pending": 0,
+      "files": 1
+    },
+    {
+      "path": "/tmp/sophp-d132-constructor-expanded.json",
+      "sha256": "7aac004f8fe6a0a70431d12dbd71b2bed86c06bdef1fe9b2a54f5692841d9a07",
+      "passed": 54,
+      "failed": 18,
+      "pending": 0,
+      "files": 1
+    },
+    {
+      "path": "/tmp/sophp-d132-constructor-qualified.json",
+      "sha256": "0e812bb974e29b12dd1706fe9d398333fddb31ff13c698f09da9f5e61934870f",
+      "passed": 56,
+      "failed": 16,
+      "pending": 0,
+      "files": 1
+    }
+  ],
+  "scriptFailure": "first patch script count assertion stopped before writing; dependent build/test accidentally continued on unchanged baseline, giving no repair evidence; subsequent orchestration checks exit codes before dependent work",
+  "qualifiedConstructorCases": {
+    "count": 46,
+    "passed": 46,
+    "phpTarget": "8.5",
+    "retainedModes": [
+      true,
+      false
+    ]
+  },
+  "fullBoundaryMatrix": {
+    "path": "/tmp/sophp-d132-constructor-qualified.json",
+    "sha256": "0e812bb974e29b12dd1706fe9d398333fddb31ff13c698f09da9f5e61934870f",
+    "passed": 56,
+    "failed": 16,
+    "pending": 0,
+    "files": 1
+  },
+  "remainingBoundaryFailures": [
+    "conditional true, retained=true",
+    "conditional false, retained=true",
+    "conditional native bool, retained=true",
+    "conditional default, retained=true",
+    "conditional named later, retained=true",
+    "conditional nested, retained=true",
+    "variadic outputs, retained=true",
+    "variadic second output, retained=true",
+    "conditional true, retained=false",
+    "conditional false, retained=false",
+    "conditional native bool, retained=false",
+    "conditional default, retained=false",
+    "conditional named later, retained=false",
+    "conditional nested, retained=false",
+    "variadic outputs, retained=false",
+    "variadic second output, retained=false"
+  ],
+  "existingConstructorRegression": {
+    "path": "/tmp/sophp-d132-constructor-regression-qualified.json",
+    "sha256": "5e1aaf5f34aad7003532a28939312d35cc979b2793cca7d886a45416c85e14d5",
+    "passed": 66,
+    "failed": 0,
+    "pending": 0,
+    "files": 2
+  },
+  "privateFullSemantic": {
+    "path": "/tmp/sophp-d132-private-full-semantic.json",
+    "sha256": "4f04032c30d61b6ec5b034d2a9a8d311de7fb4b8097cc185b5f874d81c349038",
+    "passed": 3428,
+    "failed": 0,
+    "pending": 0,
+    "files": 132,
+    "configSha256": "d94e3ae43dc746deec52533d383e2100953fd66e45d0eda763ff39f77ea005ae",
+    "scope": "existing product semantic matrix through exact import alias to prototype bundle; four workers and 20s wrapper default; source test explicit deadlines preserved; not formal product or protocol qualification",
+    "maxObservedCaseMs": 7190.760867999998,
+    "largestCase": "local string callbacks, source explicit 15000ms deadline"
+  },
+  "reference": {
+    "tool": "PHPStan 2.2.9",
+    "php": "8.5.9",
+    "exitCode": 1,
+    "totals": {
+      "errors": 0,
+      "file_errors": 67
+    },
+    "notes": "22 dumpType messages are intentional diagnostics; other fixture diagnostics remain, no zero-error claim; declaration files scanned, caller file analysed; stricter unknown/private/duplicate policies need not equal reference",
+    "messages": [
+      {
+        "name": "ordinary constructor",
+        "expectedSemanticType": "Row",
+        "namespace": "Case0",
+        "line": 2,
+        "type": "Case0\\Row"
+      },
+      {
+        "name": "method template constructor",
+        "expectedSemanticType": "Row",
+        "namespace": "Case1",
+        "line": 3,
+        "type": "Case1\\Row"
+      },
+      {
+        "name": "class input template constructor",
+        "expectedSemanticType": "Row",
+        "namespace": "Case2",
+        "line": 4,
+        "type": "Case2\\Row"
+      },
+      {
+        "name": "inherited bound constructor",
+        "expectedSemanticType": "Row",
+        "namespace": "Case3",
+        "line": 5,
+        "type": "Case3\\Row"
+      },
+      {
+        "name": "trait bound constructor",
+        "expectedSemanticType": "Row",
+        "namespace": "Case4",
+        "line": 6,
+        "type": "Case4\\Row"
+      },
+      {
+        "name": "constructor self",
+        "expectedSemanticType": "Maker",
+        "namespace": "Case5",
+        "line": 7,
+        "type": "Case5\\Maker"
+      },
+      {
+        "name": "constructor late static",
+        "expectedSemanticType": "Maker",
+        "namespace": "Case6",
+        "line": 8,
+        "type": "static(Case6\\Base)"
+      },
+      {
+        "name": "private constructor",
+        "expectedSemanticType": null,
+        "namespace": "Case7",
+        "line": 9,
+        "type": "Case7\\Row"
+      },
+      {
+        "name": "conditional true",
+        "expectedSemanticType": "Row",
+        "namespace": "Case8",
+        "line": 10,
+        "type": "Case8\\Row"
+      },
+      {
+        "name": "conditional false",
+        "expectedSemanticType": "int",
+        "namespace": "Case9",
+        "line": 11,
+        "type": "int"
+      },
+      {
+        "name": "conditional native bool",
+        "expectedSemanticType": "Row|int",
+        "namespace": "Case10",
+        "line": 12,
+        "type": "Case10\\Row|int"
+      },
+      {
+        "name": "conditional default",
+        "expectedSemanticType": "int",
+        "namespace": "Case11",
+        "line": 13,
+        "type": "int"
+      },
+      {
+        "name": "conditional named later",
+        "expectedSemanticType": "Row",
+        "namespace": "Case12",
+        "line": 14,
+        "type": "Case12\\Row"
+      },
+      {
+        "name": "conditional nested",
+        "expectedSemanticType": "Other",
+        "namespace": "Case13",
+        "line": 15,
+        "type": "Case13\\Other"
+      },
+      {
+        "name": "conditional unknown subject",
+        "expectedSemanticType": null,
+        "namespace": "Case14",
+        "line": 16,
+        "type": "Case14\\Row|int"
+      },
+      {
+        "name": "conditional missing branch",
+        "expectedSemanticType": null,
+        "namespace": "Case15",
+        "line": 17,
+        "type": "Case15\\Missing"
+      },
+      {
+        "name": "callback factory",
+        "expectedSemanticType": "Row",
+        "namespace": "Case16",
+        "line": 18,
+        "type": "Case16\\Row"
+      },
+      {
+        "name": "callback unknown",
+        "expectedSemanticType": null,
+        "namespace": "Case17",
+        "line": 19,
+        "type": "object"
+      },
+      {
+        "name": "callback constructor",
+        "expectedSemanticType": "Row",
+        "namespace": "Case18",
+        "line": 20,
+        "type": "Case18\\Row"
+      },
+      {
+        "name": "variadic outputs",
+        "expectedSemanticType": "Row",
+        "namespace": "Case19",
+        "line": 21,
+        "type": "Case19\\Row"
+      },
+      {
+        "name": "variadic second output",
+        "expectedSemanticType": "Row",
+        "namespace": "Case20",
+        "line": 22,
+        "type": "Case20\\Row"
+      },
+      {
+        "name": "variadic duplicate output",
+        "expectedSemanticType": null,
+        "namespace": "Case21",
+        "line": 23,
+        "type": "Case21\\Row"
+      }
+    ],
+    "toolSha256": "f626b1b670ebf6570b6beb30a1085d320e01a79fad87c7ec062d27652b327ba2",
+    "phpSha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+    "sourceSha256": {
+      "Consumers.php": "3ecb81e7e2399653160d3af194aeef09f19da2182a31b88d4fd693d771fbab65",
+      "Declarations.php": "f8c46b3c6c5310fe058fa6dfc10b1ede4e58a9672b0d51130cd6a461f39ae250",
+      "phpstan.neon": "c1e6b0cffd856d6b1ff798b01bcbbad9b80ab86897d3550c805387b6e46f70d7"
+    },
+    "officialContract": "https://phpstan.org/writing-php-code/phpdocs-basics#setting-parameter-type-passed-by-reference",
+    "officialVariadicArgumentMapping": "https://apiref.phpstan.org/2.1.x/source-src.Analyser.NodeScopeResolver.html"
+  },
+  "next": [
+    "observe same live D131 full LSP session 25575 until terminal; never restart on an observation timeout",
+    "after D131 qualification assess product patch, engine version and formal tests",
+    "qualify current PHP 7.2 and 8.5 first-query sources, cache/unsaved/cancellation and editor gates",
+    "conditional and variadic output boundary work remains separate; known callback contracts already work"
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "committedThisProgress": false
+}

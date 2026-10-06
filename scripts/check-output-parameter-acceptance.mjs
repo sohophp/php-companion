@@ -51,7 +51,28 @@ try {
           await require('node:fs/promises').writeFile(workspaceFile, JSON.stringify(modeWorkspace, null, 2));
         }\n` + workspaceReady);
   }
-  const coldFixtureFiles = {"src/OutputQuery/Row.php": "<?php namespace App\\OutputQuery; class Row {public function name(): string {return 'row';}}", "src/output-query-functions.php": "<?php namespace App\\OutputQuery; /** @param-out Row $value */ function fill(&$value): void {}", "OutputParameterConsumer.php": "<?php\nnamespace App\\OutputQuery;\nfunction run(): void {\n    fill($value);\n    $value->;\n}\n"};
+  const fixtureFamily = process.env.SOPHP_OUTPUT_FAMILY ?? 'ordinary';
+  const outputFamilies = {
+    ordinary: { declaration: '/** @param-out Row $value */ function fill(&$value): void {}', call: 'fill($value);' },
+    classInput: { declaration: '/** @template T of object */class Maker{/** @param class-string<T> $class\n * @param-out T $value */function __construct(string $class,&$value){}}', call: 'new Maker(Row::class,$value);' },
+    inherited: { declaration: '/** @template T */class Base{/** @param-out T $value */function __construct(&$value){}}/** @extends Base<Row> */class Maker extends Base{}', call: 'new Maker($value);' },
+    trait: { declaration: '/** @template T */trait Build{/** @param-out T $value */function __construct(&$value){}}class Maker{/** @use Build<Row> */use Build;}', call: 'new Maker($value);' },
+    conditional: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(bool $mode,&$value){}', call: 'fill(true,$value);' },
+    conditionalDefault: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(&$value,bool $mode=true){}', call: 'fill($value);' },
+    variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
+    variadicNamed: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill(first:$first,result:$value);' },
+    variadicGeneric: { declaration: '/** @template T of object\n * @param class-string<T> $class\n * @param-out T $values */function fill(string $class,&...$values){}', call: 'fill(Row::class,$first,$value);' },
+    callback: { declaration: 'class Maker{/** @template T of object\n * @param callable():T $factory\n * @param-out T $value */function __construct(callable $factory,&$value){}}', call: 'new Maker(function():Row{return new Row();},$value);' },
+  };
+  assert.ok(Object.hasOwn(outputFamilies, fixtureFamily), 'Unknown output fixture family');
+  assert.ok(fixtureFamily !== 'variadicNamed' || Number(process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5') >= 8,
+    'Named variadic fixture requires PHP 8');
+  const selected = outputFamilies[fixtureFamily];
+  const coldFixtureFiles = {
+    'src/OutputQuery/Row.php': "<?php namespace App\\OutputQuery; class Row {public function name(): string {return 'row';}}",
+    'src/output-query-functions.php': '<?php namespace App\\OutputQuery; ' + selected.declaration,
+    'OutputParameterConsumer.php': '<?php\nnamespace App\\OutputQuery;\nfunction run(): void {\n    ' + selected.call + '\n    $value->;\n}\n',
+  };
   const coldFixtureCopy = '    await (0, promises_1.cp)(sourceFixture, fixture, { recursive: true });';
   assert.equal(runner.split(coldFixtureCopy).length, 2, 'One fixture copy must precede editor launch');
   runner = runner.replace(coldFixtureCopy, `${coldFixtureCopy}
@@ -90,6 +111,7 @@ try {
   const match = /Output parameter acceptance proof: (\{[^\r\n]*\})/u.exec(output);
   assert.ok(match, 'Host completed without the output parameter proof');
   const proof = JSON.parse(match[1]);
+  proof.fixtureFamily = fixtureFamily;
   assert.equal(proof.indexingMode, isolatedIndexingMode);
   assert.equal(proof.results.length, 2);
   assert.deepEqual(proof.otherQueriesBeforeTyping, []);

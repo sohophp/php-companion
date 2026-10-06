@@ -1,0 +1,407 @@
+{
+  "milestone": "D131",
+  "date": "2026-10-06",
+  "product": {
+    "milestone": "D131",
+    "status": "starting full current LSP qualification",
+    "startedAt": "2026-10-06T00:26:37.776562+00:00",
+    "commit": "f0d5d7decd66aa68c9a74736de403454086112c5",
+    "worktreeStatus": "",
+    "bundleSha256": "7f4ca6e5f1b2ecce92eceeec8d4b4883e7f50de03f3a154c1bcc0dce81e02459",
+    "configSha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad",
+    "command": "pnpm exec vitest run --reporter=json --outputFile=/tmp/sophp-d131-current-full-lsp.json",
+    "cwd": "/var/www/node/php-companion/packages/language-server",
+    "goalStatus": "active",
+    "profileUpdated": false
+  },
+  "terminal": {
+    "exitCode": 0,
+    "files": 85,
+    "total": 1037,
+    "passed": 1036,
+    "failed": 0,
+    "pending": 1,
+    "durationSeconds": 1635.17,
+    "duplicateFileAndTestNames": 0,
+    "nonPassed": [
+      {
+        "file": "test/stdio.test.ts",
+        "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+        "status": "skipped"
+      }
+    ]
+  },
+  "supplement": {
+    "exitCode": 0,
+    "passed": 1,
+    "failed": 0,
+    "filteredOut": 530,
+    "command": "PHP_COMPANION_TEST_REFERENCE_BUNDLE=/var/www/node/php-companion/dist/language-server.js pnpm exec vitest run test/stdio.test.ts -t \"restores proven references across processes and rejects changed query inputs\"",
+    "bundleSha256": "7f4ca6e5f1b2ecce92eceeec8d4b4883e7f50de03f3a154c1bcc0dce81e02459",
+    "scope": "same unchanged D130 source/bundle, missing bundle-path opt-in; 530 unmatched tests not rerun"
+  },
+  "qualification": "1037 distinct tests have passing evidence over one complete run and one targeted supplement; original complete run retains one skip, not single-run zero-skip green",
+  "raw": [
+    {
+      "path": ".vscode-test/d131-full-result/sophp-d131-current-full-lsp.json",
+      "sha256": "78ec2e875d297330b3194f71d75dfe4f7464ca1a7103e3b31dc3ad1920171b30"
+    },
+    {
+      "path": ".vscode-test/d131-full-result/sophp-d131-current-full-lsp-input.json",
+      "sha256": "5a82a44dbdddc43b58a7e8e9efe5c4feaa48dcdb3a4d5841bfc8bd514075c53b"
+    },
+    {
+      "path": ".vscode-test/d131-full-result/sophp-d131-reference-supplement.json",
+      "sha256": "5c192a59c7dd4396fc17f8605fd391e62314c2958bd81c1f7541517fd8d0f5aa"
+    }
+  ],
+  "fileCounts": [
+    {
+      "file": "test/analysis-null-coalescing-throw.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/analysis.test.ts",
+      "tests": 48
+    },
+    {
+      "file": "test/array-column-return-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-combine-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-count-values-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-fill-keys-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-flip-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-inline-doc-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-key-preservation-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/array-receiver-origin-completion-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/array-reduce-carry-completion-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/assignment-target-completion-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/call-trivia-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/callable-facts-cache.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/candidate-worker-project-facts.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/candidate-workers.test.ts",
+      "tests": 5
+    },
+    {
+      "file": "test/canonical-construction-stdio.test.ts",
+      "tests": 16
+    },
+    {
+      "file": "test/captured-array-values-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/class-relative-construction-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/code-action-messages.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/cold-function-result-queries-stdio.test.ts",
+      "tests": 24
+    },
+    {
+      "file": "test/completion-call-trivia.test.ts",
+      "tests": 18
+    },
+    {
+      "file": "test/completion-prefix-refresh-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/construction-trivia-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/controller-context-concurrency-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "file": "test/csv-fields-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/declaration-variable-boundaries-stdio.test.ts",
+      "tests": 3
+    },
+    {
+      "file": "test/diagnostic-messages.test.ts",
+      "tests": 5
+    },
+    {
+      "file": "test/direct-function-queries-stdio.test.ts",
+      "tests": 24
+    },
+    {
+      "file": "test/enum-magic-declaration-stdio.test.ts",
+      "tests": 3
+    },
+    {
+      "file": "test/flow-value-completion-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/getrusage-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/headers-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/highlight-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/image-size-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/implicit-nullable-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/inheritance-list-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/inheritance-trivia-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/inheritance-validity-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/inherited-constructor-generics-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "file": "test/inherited-final-magic-stdio.test.ts",
+      "tests": 3
+    },
+    {
+      "file": "test/iterator-apply-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/large-candidate-ranking-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/large-local-ranking-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/legacy-constructor-rename-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/legacy-project-construction-stdio.test.ts",
+      "tests": 3
+    },
+    {
+      "file": "test/magic-declaration-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/match-condition-completion-stdio.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/native-array-template-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/output-messages.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/php-runtime-syntax.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/phpdoc-output-queries-stdio.test.ts",
+      "tests": 14
+    },
+    {
+      "file": "test/phpdoc-tag-boundaries-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/portableCandidatePaths.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/progress-messages.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/project-facts.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/project-index.test.ts",
+      "tests": 133
+    },
+    {
+      "file": "test/property-case-rename-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/property-hook-keywords-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/protocol-messages.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/readonly-anonymous-stdio.test.ts",
+      "tests": 3
+    },
+    {
+      "file": "test/readonly-anonymous.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/reassigned-parameter-completion-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/reference-candidate-evidence.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/reference-dependency-evidence.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/reference-engine-identity.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/reference-input-snapshot.test.ts",
+      "tests": 15
+    },
+    {
+      "file": "test/reference-progress-lifecycle-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/reference-result-store.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/reflection-construction-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/root-import-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/sourceStatBatches.test.ts",
+      "tests": 6
+    },
+    {
+      "file": "test/static-property-value-completion-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/stdio.test.ts",
+      "tests": 531
+    },
+    {
+      "file": "test/string-replacement-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/stubs-flow-completion-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/switch-condition-completion-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/trait-construction-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/trait-constructor-phpdoc-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/trait-final-cache-stdio.test.ts",
+      "tests": 1
+    },
+    {
+      "file": "test/trait-precedence-names-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "file": "test/trait-use-generics-stdio.test.ts",
+      "tests": 6
+    },
+    {
+      "file": "test/variable-value-hover-stdio.test.ts",
+      "tests": 4
+    },
+    {
+      "file": "test/xmlreader-invocation-stdio.test.ts",
+      "tests": 2
+    },
+    {
+      "file": "test/magic-modifier-stdio.test.ts",
+      "tests": 2
+    }
+  ],
+  "limits": [
+    "qualified product is D130 f0d5d7de / 7f4ca6e5, not later D133 source",
+    "no separate test-name collection snapshot or six-runtime frozen manifest in this invocation",
+    "does not close ordinary-editing P95 155.06 ms, cold-scale RSS, bare-$ details, Windows/macOS or real WSL acceptance"
+  ],
+  "profileUpdated": false,
+  "goalStatus": "active"
+}

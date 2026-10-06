@@ -6422,7 +6422,11 @@ async function hydrateQueryFunctionDependencies(workspace: SemanticWorkspace, ro
   uri: string, offset: number, cancelled: () => boolean): Promise<boolean> {
   const names = [...new Set([...workspace.directCallFunctionNamesAt(uri, offset), ...workspace.variableValueFunctionNamesAt(uri, offset),
     ...workspace.memberReceiverFunctionNamesAt(uri, offset)])];
-  return hydrateNamedFunctionDependencies(workspace, root, names, cancelled);
+  const owners = [...workspace.variableValueOwnerTypeNamesAt(uri, offset), ...workspace.memberOwnerTypeNamesAt(uri, offset)];
+  // Composer files can declare constructors as well as named functions. Keep
+  // the same bounded, current-buffer-aware explicit-file hydration path.
+  const unloadedOwners = owners.filter(name => !workspace.typeByFqcn(name));
+  return hydrateNamedFunctionDependencies(workspace, root, [...new Set([...names, ...unloadedOwners])], cancelled);
 }
 
 async function hydrateOnDemandNamespaceTypeCandidates(workspace: SemanticWorkspace, root: string,
@@ -7080,8 +7084,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (!resolvedMembers.length && completionContext.kind === 'member') {
     const root = rootForUri(document.uri);
     if (root) {
-      const functions = workspace.memberReceiverFunctionNamesAt(document.uri, offset);
-      const complete = await hydrateNamedFunctionDependencies(workspace, root, functions,
+      const complete = await hydrateQueryFunctionDependencies(workspace, root, document.uri, offset,
         () => !currentQueryDocument(document, token, queryVersion));
       if (!complete || !currentQueryDocument(document, token, queryVersion)) return [];
       resolvedMembers = workspace.completeMembers(document.uri, offset);
