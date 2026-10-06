@@ -14346,6 +14346,8 @@ class Worker {
     expect(workspace.incompatibleReturns(uri).map((item) => [item.callable, item.actualType, item.expectedType])).toEqual([
       ['invalidIntFilter', 'false|int', 'string'],
       ['invalidTextFilter', 'false|string', 'int'],
+      ['invalidArrayMode', 'array', 'string'],
+      ['invalidStringMode', 'string', 'int'],
     ]);
     workspace.remove(uri); workspace.remove(declarationsUri);
   });

@@ -1,0 +1,589 @@
+{
+  "productionBaseline": {
+    "path": ".vscode-test/d142-native-numeric/semantic-baseline.json",
+    "sha256": "d52fdae98256aff69e543a1f1e65e63d17c99d940631295eb66f92b700928e38",
+    "total": 3008,
+    "matching": 2032,
+    "mismatching": 976
+  },
+  "firstPrototype": {
+    "path": ".vscode-test/d144-numeric-prototype/baseline-v1.json",
+    "sha256": "2fe535af4d290390d641fb03a7b741c248c8dbc4317128bca46dfb269d8df11a",
+    "total": 3008,
+    "matching": 3008,
+    "mismatching": 0
+  },
+  "extendedFirstPrototype": {
+    "path": ".vscode-test/d144-numeric-prototype/extended-baseline-v1.json",
+    "sha256": "b0c72b228f76b5a8f93b00582e1f55eff611794d2d09255a883ceb78880f27b5",
+    "total": 2528,
+    "matching": 1840,
+    "mismatching": 688
+  },
+  "extendedFloatFacts": {
+    "path": ".vscode-test/d144-numeric-prototype/extended-baseline-v2.json",
+    "sha256": "a5413c4c16c01b1f0a3ec3674697065716ea89baad224f3f576d9f81ad4d0902",
+    "total": 2528,
+    "matching": 2480,
+    "mismatching": 48
+  },
+  "extendedCorrected": {
+    "path": ".vscode-test/d144-numeric-prototype/extended-baseline-v3.json",
+    "sha256": "b98795f29973bf0bec103d1227459aa1dd57a16209e4a59973b6bcd2d489e09e",
+    "total": 2528,
+    "matching": 2528,
+    "mismatching": 0
+  },
+  "scope": "Explicit numeric native parameter arguments, conditional return/output, literal/local facts and first source dependencies; original C1-C4/R4 remains active.",
+  "fixture": {
+    "path": "packages/semantic/test/fixtures/native-numeric-inputs.json",
+    "sha256": "9a966b767aa0be01c8cf38daf83199a609dbce19d104f08d60bbc81ea9003042",
+    "observations": 692,
+    "versions": [
+      "7.2",
+      "7.4",
+      "8.1",
+      "8.2",
+      "8.4",
+      "8.5"
+    ]
+  },
+  "createdAtUtc": "2026-10-06T04:59:13.272767+00:00",
+  "productionHead": "6862203494eb6b2cda3ad324ad323308bd412396",
+  "finalInputs": {
+    "createdAtUtc": "2026-10-06T04:56:10.374142+00:00",
+    "head": "6862203494eb6b2cda3ad324ad323308bd412396",
+    "inputs": {
+      "packages/language-server/src/cacheVersion.ts": "ab02ba8d895fcda1243838c85bdcaf18707dff8fc6892d5551e91c6963042b49",
+      "packages/semantic/src/index.ts": "efa6fe7ed6b9906144fc3ceedc61692da4a4e376e3d1c47e316afd85627351e9",
+      "packages/semantic/test/semantic.test.ts": "429912333f795ee9ef13e1041164d7afa21aff7a18c45452203f23bc47bb722a",
+      "scripts/check-output-parameter-acceptance.mjs": "1e0d21e0eb9ace728cebf09632df76a05fbb4d38b8cce988c13d38243c1cb774",
+      "packages/language-server/test/phpdoc-native-numeric-stdio.test.ts": "43420be37a4e4e9a1752d054bce82aa190da2e7c393be153eaebf3cd3d263141",
+      "packages/semantic/src/nativeScalarInput.ts": "69d11bad9c287e18ebb53fed6936fcf74e2a779e495b49291583cf809383c495",
+      "packages/semantic/test/fixtures/native-numeric-inputs.json": "9a966b767aa0be01c8cf38daf83199a609dbce19d104f08d60bbc81ea9003042",
+      "packages/semantic/test/phpdoc-native-numeric.test.ts": "08b1894470333a0ea2da416c1db34ccd2c22d29da4403115dcdd6cd2c0b3407d",
+      "scripts/check-native-numeric-inputs.mjs": "8ebd42ee114dd6a99038427d33fb3224d1242297d690b6c88e877ea427335f19",
+      "packages/semantic/dist/index.js": "e6e5ff2e74d70fa96ca271f44e4fe25c27cf8ed8a6a28aa9c375b83c6b04e6c8",
+      "packages/language-server/dist/server.js": "4ad7579657dd3933c768b9c4e14fe2d35919721717b488c0ef2d937012cc70e8",
+      "dist/language-server.js": "4ce23359edd9384a42190fa70159ebb04a67da7f1c58dec5d4bbf2c71c9df852"
+    }
+  },
+  "finalInputsUnchanged": true,
+  "cache": {
+    "schema": 89,
+    "declarations": 7,
+    "implementation": 13,
+    "engine": "v72"
+  },
+  "gates": {
+    "semanticBeforeColdFix": {
+      "path": "/tmp/sophp-d144-semantic-full.json",
+      "sha256": "827256819410b4c94ac88c9f499145bebb28b85f608dd240ecdf6e3ed814dc7c",
+      "files": 135,
+      "total": 9190,
+      "passed": 9190,
+      "failed": 0,
+      "skipped": 0,
+      "success": true,
+      "failures": []
+    },
+    "semanticFinal": {
+      "path": "/tmp/sophp-d144-semantic-full-cold-final.json",
+      "sha256": "c981efd8008afdaa81faf151d76f12f671702325e72a49bf4eb656f25c7766f2",
+      "files": 135,
+      "total": 9192,
+      "passed": 9191,
+      "failed": 1,
+      "skipped": 0,
+      "success": false,
+      "failures": [
+        {
+          "name": "preserves same-named user classes, including when native extensions are disabled",
+          "durationMs": 5779.442498999997,
+          "message": "Error: STACK_TRACE_ERROR"
+        }
+      ]
+    },
+    "builtinRecovery": {
+      "path": "/tmp/sophp-d144-semantic-builtins-recovery.json",
+      "sha256": "bd18deeb312f8cbb75bcbcebbd76168388bbe98539e0cb064303d558eda13713",
+      "files": 1,
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "success": true,
+      "failures": []
+    },
+    "protocolBeforeColdFix": {
+      "path": "/tmp/sophp-d144-lsp-targeted.json",
+      "sha256": "48af8556811a9aeda9f2e3203ee83410d05f09335a04a3fa9185973c60f0a86e",
+      "files": 4,
+      "total": 130,
+      "passed": 126,
+      "failed": 4,
+      "skipped": 0,
+      "success": false,
+      "failures": [
+        {
+          "name": "numeric native input coherence 'return' / 'onDemand' / PHP '7.2'",
+          "durationMs": 2298.77128,
+          "message": "AssertionError: expected [] to deeply equal [ 'rowOnly' ]"
+        },
+        {
+          "name": "numeric native input coherence 'return' / 'onDemand' / PHP '8.5'",
+          "durationMs": 2543.103755,
+          "message": "AssertionError: expected [] to deeply equal [ 'rowOnly' ]"
+        },
+        {
+          "name": "numeric native input coherence 'return' / 'progressive' / PHP '7.2'",
+          "durationMs": 2172.1425249999993,
+          "message": "AssertionError: expected [] to deeply equal [ 'rowOnly' ]"
+        },
+        {
+          "name": "numeric native input coherence 'return' / 'progressive' / PHP '8.5'",
+          "durationMs": 2585.683750999997,
+          "message": "AssertionError: expected [] to deeply equal [ 'rowOnly' ]"
+        }
+      ]
+    },
+    "protocolFinal": {
+      "path": "/tmp/sophp-d144-lsp-cold-final.json",
+      "sha256": "3d13e25cf649f00322ecf2789ec53bcd485288635a85902023774820e8665ebf",
+      "files": 4,
+      "total": 70,
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "success": true,
+      "failures": []
+    },
+    "incidentalRootUnit": {
+      "path": "/tmp/sophp-d144-root-unit.json",
+      "sha256": "3fd6c9df4701b422559186b43625c8e5ab2e93f1d2187b632ba3729874e4b2e5",
+      "files": 21,
+      "total": 113,
+      "passed": 113,
+      "failed": 0,
+      "skipped": 0,
+      "success": true,
+      "failures": []
+    }
+  },
+  "hosts": {
+    "numericOutput": {
+      "path": ".vscode-test/d144-host-ondemand72.json",
+      "sha256": "85ea636f7f86d719ed40b065e84c6643236a2148c7179a2018d3de526052e884",
+      "phase": "before cold-return source fix",
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 442,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 223,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalNumeric",
+      "rendererExceptions": 0
+    },
+    "integralFloatOutput": {
+      "path": ".vscode-test/d144-host-progressive85.json",
+      "sha256": "6e4e7dfbb1fc1068ad80e7c252079b4854dd644c6fd989be6c37e56321171800",
+      "phase": "before cold-return source fix",
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 472,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 221,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalIntegralFloat",
+      "rendererExceptions": 0
+    },
+    "numericReturnFinal": {
+      "path": ".vscode-test/d144-host-return-final.json",
+      "sha256": "524d5c9461d955b1583e81c3d0dd492e8920b28ef8f97c76fcdd85d77f78387f",
+      "phase": "current final product",
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 651,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 198,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalNumericReturn",
+      "rendererExceptions": 0
+    }
+  },
+  "nativeConfirmation": {
+    "scope": "Observed 64-bit native parameter conversion, not casts or arithmetic; unavailable minors excluded.",
+    "fixtureSha256": "9a966b767aa0be01c8cf38daf83199a609dbce19d104f08d60bbc81ea9003042",
+    "runtimes": {
+      "7.2": {
+        "executable": "/opt/remi/php72/root/usr/bin/php",
+        "arguments": [
+          "-n",
+          "-d",
+          "extension=json"
+        ],
+        "version": "7.2.34",
+        "intSize": 8,
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+      },
+      "7.4": {
+        "executable": "/opt/remi/php74/root/usr/bin/php",
+        "arguments": [
+          "-n",
+          "-d",
+          "extension=json"
+        ],
+        "version": "7.4.33",
+        "intSize": 8,
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+      },
+      "8.1": {
+        "executable": "/opt/remi/php81/root/usr/bin/php",
+        "arguments": [
+          "-n"
+        ],
+        "version": "8.1.34",
+        "intSize": 8,
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      "8.2": {
+        "executable": "/opt/remi/php82/root/usr/bin/php",
+        "arguments": [
+          "-n"
+        ],
+        "version": "8.2.32",
+        "intSize": 8,
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      "8.4": {
+        "executable": "/opt/remi/php84/root/usr/bin/php",
+        "arguments": [
+          "-n"
+        ],
+        "version": "8.4.23",
+        "intSize": 8,
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      "8.5": {
+        "executable": "/opt/remi/php85/root/usr/bin/php",
+        "arguments": [
+          "-n"
+        ],
+        "version": "8.5.9",
+        "intSize": 8,
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    },
+    "total": 692,
+    "matching": 692,
+    "mismatching": 0,
+    "path": ".vscode-test/d144-native-confirmation.json",
+    "sha256": "acf67e8d0420bb3139f816ad9bd64ee4b930d56932f32297aa37d504820481e3"
+  },
+  "safety": [
+    {
+      "name": "latest valid assignment",
+      "retained": true,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "latest invalid assignment",
+      "retained": true,
+      "expected": 1,
+      "diagnostics": [
+        {
+          "uri": "file:///Safety.php",
+          "start": 56,
+          "end": 62,
+          "callable": "make",
+          "parameter": "mode",
+          "actualType": "string",
+          "expectedType": "int"
+        }
+      ],
+      "matches": true
+    },
+    {
+      "name": "unrelated literal assignment",
+      "retained": true,
+      "expected": 1,
+      "diagnostics": [
+        {
+          "uri": "file:///Safety.php",
+          "start": 55,
+          "end": 61,
+          "callable": "make",
+          "parameter": "mode",
+          "actualType": "string",
+          "expectedType": "int"
+        }
+      ],
+      "matches": true
+    },
+    {
+      "name": "alias mutates input",
+      "retained": true,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "shared input mutates input",
+      "retained": true,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "unknown mutating call",
+      "retained": true,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "branch may change input",
+      "retained": true,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "prior argument mutates input",
+      "retained": true,
+      "expected": 1,
+      "diagnostics": [
+        {
+          "uri": "file:///Safety.php",
+          "start": 46,
+          "end": 52,
+          "callable": "make",
+          "parameter": "mode",
+          "actualType": "string",
+          "expectedType": "int"
+        }
+      ],
+      "matches": true
+    },
+    {
+      "name": "earlier argument mutates input",
+      "retained": true,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "latest valid assignment",
+      "retained": false,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "latest invalid assignment",
+      "retained": false,
+      "expected": 1,
+      "diagnostics": [
+        {
+          "uri": "file:///Safety.php",
+          "start": 56,
+          "end": 62,
+          "callable": "make",
+          "parameter": "mode",
+          "actualType": "string",
+          "expectedType": "int"
+        }
+      ],
+      "matches": true
+    },
+    {
+      "name": "unrelated literal assignment",
+      "retained": false,
+      "expected": 1,
+      "diagnostics": [
+        {
+          "uri": "file:///Safety.php",
+          "start": 55,
+          "end": 61,
+          "callable": "make",
+          "parameter": "mode",
+          "actualType": "string",
+          "expectedType": "int"
+        }
+      ],
+      "matches": true
+    },
+    {
+      "name": "alias mutates input",
+      "retained": false,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "shared input mutates input",
+      "retained": false,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "unknown mutating call",
+      "retained": false,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "branch may change input",
+      "retained": false,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    },
+    {
+      "name": "prior argument mutates input",
+      "retained": false,
+      "expected": 1,
+      "diagnostics": [
+        {
+          "uri": "file:///Safety.php",
+          "start": 46,
+          "end": 52,
+          "callable": "make",
+          "parameter": "mode",
+          "actualType": "string",
+          "expectedType": "int"
+        }
+      ],
+      "matches": true
+    },
+    {
+      "name": "earlier argument mutates input",
+      "retained": false,
+      "expected": 0,
+      "diagnostics": [],
+      "matches": true
+    }
+  ],
+  "preservedToolFailures": [
+    "Initial PHP 7 -n probe omitted shared JSON; 104 probe errors preserved.",
+    "Prototype first compile: three optional-version TypeScript errors.",
+    "First Vitest prototype config path duplicated its root.",
+    "Float boundary extended matrix: 688, then 48 mismatches preserved.",
+    "Prototype broad semantic run 3616/3631, followed by 496/497 in main file.",
+    "Native confirmation first comparison treated null and absent branch differently: 306/692; corrected tool matched 692/692.",
+    "First safety expectation for later argument mutation was wrong: six native CLIs proved its by-value argument remained invalid; corrected assertion.",
+    "Overload probe script first had a syntax typo; corrected before obtaining evidence.",
+    "One command used root Vitest config: actually 113 root unit cases, not semantic qualification.",
+    "Final broad semantic result 9191/9192 remains failed; ten builtin cases recovered separately."
+  ],
+  "remainingOriginalScope": [
+    "Original C1-C4/R4 and full completion roadmap unchanged.",
+    "Current entire LSP combination unqualified; D141 full failed, D143 and D144 focused recovery are not a full pass.",
+    "Default arguments and remaining weak-scalar consumers (returns/properties/ranking) need their own parity checks; this batch is explicit native arguments.",
+    "64-bit six installed PHP runtimes only; native 7.3/8.0/8.3, 32-bit and other platforms not qualified.",
+    "Unknown/escaped strings, arbitrary aliases and dynamic effects remain conservative; no Stringable extension in this batch.",
+    "Ordinary PHP7.2 edit P95 155.06 ms remains above 150 ms; visible cold waits are not that budget.",
+    "D117 details and D118/D119/D123 scale/cache memory failures remain open.",
+    "True WSL UI and long-use feedback remain separate; no Profile/VSIX/push/release."
+  ],
+  "wholeSemanticQualification": false,
+  "wholeLspQualification": false,
+  "goalStatus": "active"
+}

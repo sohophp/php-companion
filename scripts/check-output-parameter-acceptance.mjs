@@ -58,6 +58,9 @@ try {
     inherited: { declaration: '/** @template T */class Base{/** @param-out T $value */function __construct(&$value){}}/** @extends Base<Row> */class Maker extends Base{}', call: 'new Maker($value);' },
     trait: { declaration: '/** @template T */trait Build{/** @param-out T $value */function __construct(&$value){}}class Maker{/** @use Build<Row> */use Build;}', call: 'new Maker($value);' },
     conditional: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(bool $mode,&$value){}', call: 'fill(true,$value);' },
+    conditionalNumericReturn: { declaration: '/** @return ($mode is int ? Row : int) */function fill(int $mode){}', call: "$value=fill('42');" },
+    conditionalNumeric: { declaration: '/** @param-out ($mode is int ? Row : int) $value */function fill(int $mode,&$value){}', call: "fill('42',$value);" },
+    conditionalIntegralFloat: { declaration: '/** @param-out ($mode is int ? int : Row) $value */function fill(int|float $mode,&$value){}', call: 'fill(42.0,$value);' },
     conditionalWeak: { declaration: '/** @param-out ($mode is true ? Row : Row) $value */function fill(bool $mode,&$value){}', call: 'fill(Row::class,$value);' },
     conditionalDefault: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(&$value,bool $mode=true){}', call: 'fill($value);' },
     variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
@@ -66,8 +69,8 @@ try {
     callback: { declaration: 'class Maker{/** @template T of object\n * @param callable():T $factory\n * @param-out T $value */function __construct(callable $factory,&$value){}}', call: 'new Maker(function():Row{return new Row();},$value);' },
   };
   assert.ok(Object.hasOwn(outputFamilies, fixtureFamily), 'Unknown output fixture family');
-  assert.ok(fixtureFamily !== 'variadicNamed' || Number(process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5') >= 8,
-    'Named variadic fixture requires PHP 8');
+  assert.ok(!['variadicNamed', 'conditionalIntegralFloat'].includes(fixtureFamily) || Number(process.env.SOPHP_VISIBLE_PHP_VERSION ?? '8.5') >= 8,
+    'Selected fixture requires PHP 8');
   const selected = outputFamilies[fixtureFamily];
   const coldFixtureFiles = {
     'src/OutputQuery/Row.php': "<?php namespace App\\OutputQuery; class Row {public function name(): string {return 'row';}}",
