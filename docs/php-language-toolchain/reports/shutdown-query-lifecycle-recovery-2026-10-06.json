@@ -1,0 +1,172 @@
+{
+  "milestone": "D143",
+  "source": "8368d7ba plus uncommitted D140/D143 changes",
+  "inputSnapshot": {
+    "createdAtUtc": "2026-10-06T04:22:52.529637+00:00",
+    "inputs": {
+      "packages/language-server/src/server.ts": "cd3b7b2da04b1bc065a87ad88150952eb540f5ed3cf3f7d58b12a5df1b554a4a",
+      "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "5e3d5d2cd3009dd39a6ecc37969f8e7e35bc750992f2def9c00bd75894508ecb",
+      "packages/language-server/test/projectless-version-stdio.test.ts": "be65480e202dd3a3c511e4f75c1ba193f2a690ae4c7b3a77197099b669f30aaf",
+      "packages/language-server/dist/server.js": "4ad7579657dd3933c768b9c4e14fe2d35919721717b488c0ef2d937012cc70e8",
+      "dist/language-server.js": "0d94c8d150e52d153c29a87b1991b6a94c6602c36a256797e73ce5ad0274eca8",
+      "dist/candidateWorker.js": "0e60b5803bd68b6c8302cbe657a162175068c71b4f6c5d18f091d92e3be99a12",
+      "dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    }
+  },
+  "qualifiedTargetedGates": true,
+  "entireLspQualified": false,
+  "selectedCases": [
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-conditional-stdio.test.ts",
+      "name": "'output' 'unknown subject', 'progressive' PHP '8.5'",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "name": "first 'variadic named' output query 'hover' / 'onDemand' / PHP '8.5'",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+      "name": "resolves a first output variable query in progressive/hover without index prewarm",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+      "name": "uses real builtin output contracts at PHP '8.5' in 'progressive'",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/projectless-version-stdio.test.ts",
+      "name": "keeps version and built-ins scoped to a folder without Composer in onDemand mode",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/projectless-version-stdio.test.ts",
+      "name": "keeps version and built-ins scoped to a folder without Composer in progressive mode",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "name": "finishes cold, cached and cancelled reference preparation at PHP 7.2",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "name": "finishes cold, cached and cancelled reference preparation at PHP 8.5",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "stops a pending multi-root version refresh in onDemand mode with waiting completion=false",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "stops a pending multi-root version refresh in progressive mode with waiting completion=false",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "stops a pending multi-root version refresh in onDemand mode with waiting completion=true",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "stops a pending multi-root version refresh in progressive mode with waiting completion=true",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "exits cleanly with pending opened-document diagnostics in onDemand mode",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "exits cleanly with pending opened-document diagnostics in progressive mode",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio keeps shared-source workspace symbol locations current after unsaved edits",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "name": "keeps final trait aliases across persisted restarts, old cache fallback and disk edits",
+      "status": "passed"
+    }
+  ],
+  "unselectedCases": 655,
+  "originalD141FailuresRetained": true,
+  "hostGate": {
+    "status": "passed",
+    "exitCode": 0,
+    "scope": "Linux isolated extension host full C1 in Composer auto mode; not real WSL UI acceptance",
+    "rootLifecycle": "CLI 7.2 -> created Composer 8.1 -> deleted CLI 7.2 -> restored Composer 8.1; unchanged document version 1",
+    "nestedLifecycle": "8.1 -> 8.5 -> 8.1 -> 8.5",
+    "finishedAtUtc": "2026-10-06T04:24:35.515Z"
+  },
+  "profileUpdated": false,
+  "gitCommitted": true,
+  "pushed": false,
+  "parallelActivity": "Targeted protocol run had the independent raw stdio probe and ESLint concurrently; not a standalone performance qualification. Linux C1 started after all those processes exited.",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d143-evidence/sophp-d143-failure-repro.json",
+      "sha256": "cada5a99bcfb3bddf06e6850171a7110ea340182a1abacdfb1476143b3dae0da"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/sophp-d143-failure-repro.log",
+      "sha256": "22d21139db140486cf08afc28c69f99f20f0da4389d74b3c4224a3f8a80e9d85"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/sophp-d143-order-probe.log",
+      "sha256": "fa698e2e742c5ab4d918e576b9d559c434c06e07ff8b7c52f6429ad875b7c77d"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/d141-order-probe.json",
+      "sha256": "f9d98e121fec4742244fe60b92942a7201e4c77d4d5e2fd4f827da07339bb466"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/d143-failure-repro.py",
+      "sha256": "704524c4bb2376303584370cd3dad22f20dab1a6fff7067a5a8a5a0c83e4def5"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/d143-failure-repro-run.json",
+      "sha256": "48ffb6df62cc504d3f72ad557d93e361699bad2f8ed00f273bbb13f59f8558c5"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/d143-input.json",
+      "sha256": "95ac097712efd18d03de73a800fb44012799c37777ac1703f4ca692cd0c6494e"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/sophp-d143-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/sophp-d143-bundle.log",
+      "sha256": "1a24cdedee515c1bfa651c549313688486756c063b2f04cc78fdf0090f60270e"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/sophp-d143-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d143-evidence/d143-c1-auto.log",
+      "sha256": "5305733c5524bd6042edeed49c6ae3dc721f55061037b99be9d4ad1d5cb6adc4"
+    }
+  ],
+  "goalStatus": "active",
+  "finalInputAudit": {
+    "count": 8,
+    "changed": []
+  },
+  "commitScope": "D140/D141/D143 local source checkpoint; the commit id is authoritative in git log, not embedded in its own payload."
+}

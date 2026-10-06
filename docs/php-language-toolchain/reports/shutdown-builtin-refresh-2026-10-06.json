@@ -1,0 +1,179 @@
+{
+  "milestone": "D140",
+  "auditedAtUtc": "2026-10-06T03:42:54.229037+00:00",
+  "input": {
+    "head": "8368d7ba832e10cf013dbd544881c664ee618b03",
+    "inputs": {
+      "packages/language-server/src/server.ts": "c9d3d9975629a50d6ea73957ba40299c70e34d103d5d0c80f1d31566bf08d489",
+      "packages/language-server/test/projectless-version-stdio.test.ts": "be65480e202dd3a3c511e4f75c1ba193f2a690ae4c7b3a77197099b669f30aaf",
+      "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "7107a8e84f0eec4e1122aa9efb972b56a00fff75fdff678d46ff7a462520e997",
+      "src/extension/languageServer.ts": "0384d328ca065accb14ffcef345c22029bbfd3317f33fd8124d9e7b099007771",
+      "test/extension/suite/c1.ts": "e150427c8b108316bbe07568326f44d3ff63e22fb6679814cbc4a9b39d2a5bf3",
+      "dist/language-server.js": "bc4f4f5b37f7775db9ed85aaf84f86ed94533d76f749cd47efb34e072fa28123",
+      "dist/extension.js": "fae23b4d821a1d50f29d8543705881d3969c5a2a8e44508af1290fa4cf2e4f8a",
+      "dist-test/suite/c1.js": "7c9b68708b7ac3be15ccd88bfa7067a4fb5cd29ce4b527c1a77d448205c87476"
+    }
+  },
+  "changedInputs": [],
+  "qualifiedTargetedGates": true,
+  "qualifiedEntireLsp": false,
+  "beforeShutdownMs": [
+    6700.929104999999,
+    6303.9914659999995
+  ],
+  "prototype1": {
+    "targetedPassed": 5,
+    "immediateQueryPassed": 0,
+    "immediateQueryFailed": 2
+  },
+  "final": {
+    "protocolPassed": 29,
+    "cancelAndFirstQueryPassed": 6,
+    "hostExitCode": 0,
+    "standardCancelCode": -32800,
+    "thresholdMs": 2000,
+    "timings": [
+      {
+        "indexingMode": "onDemand",
+        "waitingCompletion": true,
+        "roots": 5,
+        "elapsedMs": 10.96422899999925
+      },
+      {
+        "indexingMode": "progressive",
+        "waitingCompletion": false,
+        "roots": 5,
+        "elapsedMs": 23.067230999999992
+      },
+      {
+        "indexingMode": "progressive",
+        "waitingCompletion": true,
+        "roots": 5,
+        "elapsedMs": 24.1937999999991
+      },
+      {
+        "indexingMode": "onDemand",
+        "waitingCompletion": false,
+        "roots": 5,
+        "elapsedMs": 14.420779999999922
+      }
+    ]
+  },
+  "cpuAttribution": {
+    "profiledMs": 8330.857,
+    "builtinRefreshMs": 7756.525,
+    "builtinRefreshShare": 0.9310596736926345,
+    "symbolMapping": {
+      "nC": "updateBuiltinForRoot",
+      "N0": "refreshBuiltinForRoot"
+    },
+    "method": "ancestry attribution, instrumented CPU sampling; not wall-clock benchmark"
+  },
+  "evidence": {
+    ".vscode-test/d140-final-input.json": {
+      "archive": ".vscode-test/d140-evidence/00-d140-final-input.json",
+      "sha256": "c42b15d49515103da3bed7c6e48515d3600eb8b00dbf22548c53fa98ef6325f7"
+    },
+    ".vscode-test/d140-shutdown-cpu/input.json": {
+      "archive": ".vscode-test/d140-evidence/01-input.json",
+      "sha256": "8699f3d07a315cb44c0694d0be5d78e800b00e2f8f6e47fa7a0276c19178ff26"
+    },
+    ".vscode-test/d140-shutdown-cpu/host.log": {
+      "archive": ".vscode-test/d140-evidence/02-host.log",
+      "sha256": "076dbb67d91fb1b43f444c22e95047d11d53d0ca170ce5e0a69023d18fa657a4"
+    },
+    ".vscode-test/d140-shutdown-cpu/run.json": {
+      "archive": ".vscode-test/d140-evidence/03-run.json",
+      "sha256": "55bbaff8a798f044f22f47e4079f57d9c92379a9b53b55d02a5135b7feea24f9"
+    },
+    ".vscode-test/d140-shutdown-cpu/summary.json": {
+      "archive": ".vscode-test/d140-evidence/04-summary.json",
+      "sha256": "ea717d5f55651bd5bc9bd5a195e4f491275f7e62fcfac94a7f65a7754fa0b8d4"
+    },
+    ".vscode-test/d140-shutdown-cpu/shutdown.cpuprofile": {
+      "archive": ".vscode-test/d140-evidence/05-shutdown.cpuprofile",
+      "sha256": "249d8fb0eee3c04ac35b1b566eb8d470a1944b012eac8c7a30c296185979b145"
+    },
+    "/tmp/sophp-d140-shutdown-before.json": {
+      "archive": ".vscode-test/d140-evidence/06-sophp-d140-shutdown-before.json",
+      "sha256": "6307c3e0bc9aaba21a0b64be6dd4d1b871f9065cc382c9c34b9cd56cff091eae"
+    },
+    "/tmp/sophp-d140-shutdown-after.json": {
+      "archive": ".vscode-test/d140-evidence/07-sophp-d140-shutdown-after.json",
+      "sha256": "0d0ea0425a4d38e22a0507828671b2ff9acc432523035401cca5e308a5809ad8"
+    },
+    "/tmp/sophp-d140-immediate-query-before.json": {
+      "archive": ".vscode-test/d140-evidence/08-sophp-d140-immediate-query-before.json",
+      "sha256": "2d90284bea39e47ceb4fb5720718013374fc17371a92216f97ee941b0f559285"
+    },
+    "/tmp/sophp-d140-final-protocol.json": {
+      "archive": ".vscode-test/d140-evidence/09-sophp-d140-final-protocol.json",
+      "sha256": "53d02f738d1c5579cdbc9d4f7ac3ac049c42297ccf659af2ded2ed5d783cc6a8"
+    },
+    "/tmp/sophp-d140-cancel-protocol.json": {
+      "archive": ".vscode-test/d140-evidence/10-sophp-d140-cancel-protocol.json",
+      "sha256": "8f1e34221aabd169fcfc31b2aff175b6a785ef6760144523c2d6df8fd09d31d4"
+    },
+    "/tmp/sophp-d140-c1-auto.log": {
+      "archive": ".vscode-test/d140-evidence/11-sophp-d140-c1-auto.log",
+      "sha256": "fb5cf96634cd9df455f2782c2f0662cb5584398cc33cd44323f5d05aad13771b"
+    },
+    "/tmp/sophp-d140-final-typecheck.log": {
+      "archive": ".vscode-test/d140-evidence/12-sophp-d140-final-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d140-final-eslint.log": {
+      "archive": ".vscode-test/d140-evidence/13-sophp-d140-final-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d140-cancel-eslint.log": {
+      "archive": ".vscode-test/d140-evidence/14-sophp-d140-cancel-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/sophp-d140-final-build.log": {
+      "archive": ".vscode-test/d140-evidence/15-sophp-d140-final-build.log",
+      "sha256": "932a55f07dfb990c84ec82a33924a52f8dbc8b4ea2bf2b5a3a31fe6b89c5e77c"
+    },
+    ".vscode-test/d140-shutdown-final-timings/progressive.json": {
+      "archive": ".vscode-test/d140-evidence/16-progressive.json",
+      "sha256": "f1d7050fbca3e52fe4d99cd2fd0b1d5462c8d1315d07174503e540ed9cdbdd98"
+    },
+    ".vscode-test/d140-shutdown-final-timings/onDemand.json": {
+      "archive": ".vscode-test/d140-evidence/17-onDemand.json",
+      "sha256": "99e578ed3051cea51636b972ecd61521f4a49e889abbab5fec19949912a49b68"
+    },
+    ".vscode-test/d140-shutdown-cancel-timings/onDemand-true.json": {
+      "archive": ".vscode-test/d140-evidence/18-onDemand-true.json",
+      "sha256": "d8aab5ee9e0e02d1a24835eb0db98384a847cb8285a16df852d962d708acdaee"
+    },
+    ".vscode-test/d140-shutdown-cancel-timings/progressive-false.json": {
+      "archive": ".vscode-test/d140-evidence/19-progressive-false.json",
+      "sha256": "0445107bc3b96fd04d758ffed49ec471d5650cf88ec836639e190a0baf61fd45"
+    },
+    ".vscode-test/d140-shutdown-cancel-timings/progressive-true.json": {
+      "archive": ".vscode-test/d140-evidence/20-progressive-true.json",
+      "sha256": "ab402498b97eb9cb7333c03c632c981c92945ad4bda43d8e4240968a7a7f1e33"
+    },
+    ".vscode-test/d140-shutdown-cancel-timings/onDemand-false.json": {
+      "archive": ".vscode-test/d140-evidence/21-onDemand-false.json",
+      "sha256": "a28007ff231221e7e90a72b807d78b3a34abb5e9ef695be419434e0b9acd47e9"
+    }
+  },
+  "scope": {
+    "profileUpdated": false,
+    "pushed": false,
+    "packaged": false,
+    "committed": false,
+    "goalStatus": "active",
+    "realWslAccepted": false,
+    "generalCancellationAndShutdownBudgetClosed": false,
+    "remainingFullLspGate": "D141"
+  },
+  "parallelActivity": "Final six-case cancellation/first-query run overlapped with Linux C1 host; first profiling run had Node Inspector overhead; neither substitutes for an uninstrumented broad performance matrix.",
+  "sourceReview": {
+    "path": ".vscode-test/d140-evidence/d140-source-review.json",
+    "sha256": "9ac3000cbf2b0c61731135f470ae9a2f8ba5e04eb4940c7ffeba091cc186f0c2",
+    "kind": "read-only review; not an additional passing runtime gate",
+    "rootlessAndInternalCancellationQualified": false
+  }
+}

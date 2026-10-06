@@ -159,6 +159,8 @@ const callableFactCachesByRoot = new Map<string, CallableFactCache>();
 const callableFactCommitTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const callableFactCommitChains = new Map<string, Promise<void>>();
 let targetPhpVersion: SupportedPhpVersion = '8.5';
+let shuttingDown = false;
+const builtinRefreshesByRoot = new Map<string, Promise<void>>();
 const targetPhpVersionsByRoot = new Map<string, SupportedPhpVersion>();
 
 function phpVersionForRoot(root?: string): SupportedPhpVersion {
@@ -601,8 +603,21 @@ function phpExtensionSymbolCatalog(version: SupportedPhpVersion): Promise<PhpExt
 }
 
 async function refreshBuiltinForRoot(root: string): Promise<void> {
-  const workspace = await semanticForRoot(root);
-  updateBuiltinForRoot(workspace, root);
+  const pending = builtinRefreshesByRoot.get(root);
+  if (pending) return pending;
+  const refresh = (async (): Promise<void> => {
+    // Give the next queued protocol message a turn before expensive root work.
+    await yieldToEventLoop();
+    await yieldToEventLoop();
+    if (shuttingDown) return;
+    const workspace = await semanticForRoot(root);
+    if (shuttingDown) return;
+    updateBuiltinForRoot(workspace, root);
+  })().finally(() => {
+    if (builtinRefreshesByRoot.get(root) === refresh) builtinRefreshesByRoot.delete(root);
+  });
+  builtinRefreshesByRoot.set(root, refresh);
+  return refresh;
 }
 
 function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void {
@@ -1279,6 +1294,7 @@ connection.onNotification('phpCompanion/phpExtensionAvailability', async (params
   setConfiguredExtensionAvailability(params?.roots);
   const changedRoots = workspaceRoots.filter((root) => previous.get(root) !== phpEnvironmentSignatureForRoot(root));
   await Promise.all(changedRoots.map(refreshBuiltinForRoot));
+  if (shuttingDown) return;
   await Promise.all(documents.all().filter((document) => document.languageId === 'php'
     && changedRoots.includes(rootForUri(document.uri) ?? '')).map((document) => publishDocumentDiagnostics(document)));
 });
@@ -1311,6 +1327,7 @@ connection.onNotification('phpCompanion/phpVersions', async (params: { versions?
     }
   }
   await Promise.all(changedRoots.map(refreshBuiltinForRoot));
+  if (shuttingDown) return;
   await Promise.all(documents.all().filter((document) => document.languageId === 'php'
     && (changedRoots.includes(rootForUri(document.uri) ?? '') || (!rootForUri(document.uri) && previousFallback !== targetPhpVersion)))
     .map((document) => publishDocumentDiagnostics(document)));
@@ -1566,17 +1583,24 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
   await pending;
 }
 
+function semanticForQueryRoot(root: string | undefined): Promise<SemanticWorkspace> {
+  if (shuttingDown) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'SoPHP is shutting down.');
+  const pending = root ? builtinRefreshesByRoot.get(root) : undefined;
+  if (pending) return pending.then(() => semanticForQueryRoot(root));
+  return root ? semanticForRoot(root) : semanticForKey('loose');
+}
+
 async function semanticForUri(uri: string): Promise<SemanticWorkspace> {
   const initialRoot = rootForUri(uri);
   const closing = initialRoot ? pendingDocumentClosesByRoot.get(initialRoot) : undefined;
   if (closing?.size) await Promise.allSettled([...closing]);
   if (indexingMode !== 'onDemand') {
     const root = rootForUri(uri);
-    return root ? semanticForRoot(root) : semanticForKey('loose');
+    return semanticForQueryRoot(root);
   }
   await ensureComposerRootForUri(uri);
   const root = rootForUri(uri);
-  return root ? semanticForRoot(root) : semanticForKey('loose');
+  return semanticForQueryRoot(root);
 }
 
 const SYMFONY_SERVICE_CONFIGS = ['config/services.yaml', 'config/services.yml', 'config/packages/services.yaml', 'config/packages/services.yml', 'config/symfony/services.yaml', 'config/symfony/services.yml', 'app/config/services.yaml', 'app/config/services.yml'];
@@ -2099,26 +2123,31 @@ async function provenOnDemandExternalMissingArguments(workspace: SemanticWorkspa
 }
 
 async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0, onlyIfChanged = false): Promise<void> {
+  if (shuttingDown) return;
   const diagnosticStarted = testMode ? performance.now() : 0;
   const version = document.version;
   if (coalesceMs > 0) {
     await new Promise<void>((resolve) => setTimeout(resolve, coalesceMs));
     if (documents.get(document.uri) !== document || document.version !== version) return;
   }
-  const workspace = await semanticForUri(document.uri);
+  let workspace: SemanticWorkspace;
+  try { workspace = await semanticForUri(document.uri); }
+  catch (error) { if (shuttingDown) return; throw error; }
+  if (shuttingDown) return;
   const root = rootForUri(document.uri);
   const targetPhpVersion = phpVersionForUri(document.uri);
   const semanticTerminators = isSyntaxAvailable(targetPhpVersion, '8.1')
     ? workspace.neverReturningCalls(document.uri, !root || !completeRoots.has(root)) : [];
   const syntaxParser = await parser();
+  if (shuttingDown) return;
   const namespace = await expectedNamespace(document.uri);
-  if (documents.get(document.uri) !== document || document.version !== version) return;
+  if (shuttingDown || documents.get(document.uri) !== document || document.version !== version) return;
   const result = analyzePhpDocument(document, syntaxParser, targetPhpVersion, namespace, semanticTerminators, clientDiagnosticLanguage);
   const typeSymbolKinds = new Set<SymbolKind>([SymbolKind.Class, SymbolKind.Interface, SymbolKind.Struct, SymbolKind.Enum]);
   const documentPath = pathForUri(document.uri); const typeSymbols = result.symbols.filter((symbol) => typeSymbolKinds.has(symbol.kind));
   const primaryType = typeSymbols.length === 1 ? typeSymbols[0] : undefined;
   const project = root && documentPath && primaryType ? await composerProjectForRoot(root) : undefined;
-  if (documents.get(document.uri) !== document || document.version !== version) return;
+  if (shuttingDown || documents.get(document.uri) !== document || document.version !== version) return;
   const classmapPath = Boolean(project && documentPath && !isAutoloadPathExcluded(project, documentPath)
     && [...project.classmap, ...project.files,
       ...project.dependencies.flatMap((dependency) => [...dependency.classmap, ...dependency.files])]
@@ -8744,6 +8773,9 @@ connection.onCodeAction(async (params, token) => {
 });
 
 connection.onShutdown(async () => {
+  shuttingDown = true;
+  await Promise.allSettled(builtinRefreshesByRoot.values());
+  builtinRefreshesByRoot.clear();
   disposeSourceStatWorkers();
   indexingGeneration += 1;
   activeIndexing = undefined;

@@ -107,6 +107,14 @@ it.each(['onDemand', 'progressive'] as const)('keeps version and built-ins scope
           .toBe(index === 1 || version === '8.5');
       }
     }
+    notify('phpCompanion/phpVersions', { fallback: '8.5', versions: roots.map(root => ({
+      uri: pathToFileURL(root).toString(), version: '8.5',
+    })) });
+    const immediateCompletion = await request('textDocument/completion', { textDocument: { uri: uris[0] },
+      position: lspPosition(source, source.indexOf('str_con') + 'str_con'.length) });
+    const immediateItems = Array.isArray(immediateCompletion) ? immediateCompletion : immediateCompletion?.items ?? [];
+    expect(immediateItems.some((item: any) => item.label === 'str_contains'), 'first query after a version notification')
+      .toBe(true);
     await request('shutdown',{}); notify('exit',{});
   } finally { server?.kill(); await rm(base,{recursive:true,force:true}); }
 }, 30_000);
