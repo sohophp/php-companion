@@ -3856,6 +3856,7 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
 
 connection.onNotification('phpCompanion/prewarmReferenceAt', async (params: {
   uri?: unknown; version?: unknown; position?: { line?: unknown; character?: unknown } } | undefined) => {
+  if (shuttingDown) return;
   if (typeof params?.uri !== 'string' || !Number.isSafeInteger(params.version)
     || !Number.isSafeInteger(params.position?.line) || !Number.isSafeInteger(params.position?.character)
     || (params.position?.line as number) < 0 || (params.position?.character as number) < 0) return;
@@ -3865,12 +3866,23 @@ connection.onNotification('phpCompanion/prewarmReferenceAt', async (params: {
   if (!document) return;
   const root = rootForUri(params.uri);
   if (!document || document.languageId !== 'php' || !root || document.version !== params.version) return;
-  const workspace = await semanticForUri(params.uri);
-  if (documents.get(params.uri)?.version !== params.version) return;
-  // The text document can arrive before its semantic update finishes. Keep
-  // the selection pending and let didOpen/didChange schedule it after update.
-  if (workspace.source(params.uri) !== document.getText()) return;
-  scheduleReferencePrewarm(document, root, workspace, position);
+  // JSON-RPC does not await notifications. A folder restart can stop this
+  // server while semantic setup is pending, so handle that cancellation here.
+  try {
+    if (testPauseNextQueries.has('prewarmReferenceAt')) await pauseTestQuery('prewarmReferenceAt');
+    const workspace = await semanticForUri(params.uri);
+    if (shuttingDown || documents.get(params.uri)?.version !== params.version) return;
+    // The text document can arrive before its semantic update finishes. Keep
+    // the selection pending and let didOpen/didChange schedule it after update.
+    if (workspace.source(params.uri) !== document.getText()) return;
+    scheduleReferencePrewarm(document, root, workspace, position);
+  } catch (error) {
+    if (shuttingDown && error instanceof ResponseError && error.code === LSPErrorCodes.RequestCancelled) {
+      if (testMode) connection.console.info(`[test-reference-selection-cancelled] uri=${params.uri}`);
+      return;
+    }
+    connection.console.warn(outputMessage(clientDiagnosticLanguage, 'referencePrewarmFailed', String(error)));
+  }
 });
 
 async function scanSymfonyPhpServiceReferences(root: string, serviceId: string, cancelled: () => boolean, retries = 2): Promise<Array<{ uri: string; source: string; start: number; end: number }> | undefined> {
@@ -4335,7 +4347,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });

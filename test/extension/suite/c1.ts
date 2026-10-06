@@ -3779,4 +3779,12 @@ accept(1, /* note */);`;
       await vscode.workspace.fs.writeFile(settingsUri, settingsBytes);
     }
   }
+  type Lifecycle = { unexpectedCloses: number; restartFailures: number; restarting: boolean; scheduled: boolean; pendingVersionRefreshes: number };
+  const lifecycle = await waitForResult(async () => vscode.commands.executeCommand<Lifecycle>('phpCompanion._testLanguageServerLifecycle'),
+    value => Boolean(value && !value.restarting && !value.scheduled && value.pendingVersionRefreshes === 0),
+    'The final C1 language-server restart did not settle.');
+  assert.ok(lifecycle, 'The C1 lifecycle observer was unavailable.');
+  assert.strictEqual(lifecycle.unexpectedCloses, 0, 'C1 recovered from an unexpected server close; restart stability is not qualified.');
+  assert.strictEqual(lifecycle.restartFailures, 0, 'C1 recovered after a failed folder restart; restart stability is not qualified.');
+  console.log('C1 no-crash lifecycle: ' + JSON.stringify(lifecycle));
 }

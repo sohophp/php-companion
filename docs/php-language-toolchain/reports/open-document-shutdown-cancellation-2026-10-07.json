@@ -368,7 +368,7 @@
       "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs"
     }
   },
-  "wholeC1Qualified": true,
+  "wholeC1Qualified": false,
   "visibleObservations": [
     {
       "label": "C1 visible PHP suggestion after typing",
@@ -1060,5 +1060,35 @@
       "path": ".vscode-test/d160-evidence/sophp-d160-fixed-candidate.json",
       "sha256": "a77bcb2d9929b1b50974e55c437c97bd3667085a644968a0fec521fbeee7ff62"
     }
-  ]
+  ],
+  "wholeC1AssertionsPassed": true,
+  "restartStabilityQualified": false,
+  "intermediateFatalExitReview": {
+    "status": "prepared-not-running",
+    "createdAtUtc": "2026-10-06T17:44:01.915806+00:00",
+    "sourceCommit": "42d1628e3f193cd21478d965ce12946fbd254127",
+    "sourceBundle": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+    "ordinaryC1AssertionsPassed": true,
+    "restartStabilityQualified": false,
+    "originalLog": ".vscode-test/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/sohophp.php-companion/SoPHP.log",
+    "originalLogSha256": "e860e6c36f65e22c70d31a3bd5104c5ec87b90c72bc548ef3a67653ea6b57fe9",
+    "fatalExitObservations": [
+      {
+        "line": 607,
+        "text": "2026-10-07 01:29:07.186 [info] [Error - 1:29:07 AM] Server process exited with code 1."
+      }
+    ],
+    "finding": "The two Sending notification failed lines followed one real server exit 1 and restart failure, not merely benign stop logging. The full C1 resumed after a later workspace change; its exit 0 does not prove no-crash stability.",
+    "staticRisk": {
+      "file": "packages/language-server/src/server.ts",
+      "line": 3857,
+      "description": "Async prewarmReferenceAt invokes semanticForUri outside a shutdown cancellation boundary; JSON-RPC notification dispatcher does not await returned promises. This is a hypothesis pending monitored exception, not a proven cause."
+    },
+    "nextAction": "After D161 actually exits, run the guarded shadow-entry monitored original C1 once. Capture first process as well as restarts; do not repeat the incomplete root-only probe or suppress client warnings. Correct D160 public qualification scope when frozen D161 run ends.",
+    "currentLspSession": 4703,
+    "currentLspChildPid": 151336,
+    "trackedFilesChanged": false,
+    "profileUpdated": false
+  },
+  "scopeCorrection": "Original C1 assertions exited 0, but one intermediate server exit 1 and failed folder restart were found in the same archived log. Later recovery does not qualify restart stability."
 }

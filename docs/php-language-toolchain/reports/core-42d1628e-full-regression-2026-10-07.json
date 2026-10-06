@@ -1,0 +1,402 @@
+{
+  "milestone": "D161",
+  "status": "qualified frozen current LSP combination",
+  "commit": "42d1628e3f193cd21478d965ce12946fbd254127",
+  "bundleSha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+  "auditedAtUtc": "2026-10-06T18:15:10.729962+00:00",
+  "frozenInputs": {
+    "count": 3219,
+    "audit": {
+      "inputs": 3219,
+      "changedInputs": [],
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "headChanged": false,
+      "worktreeChanged": false,
+      "collectionChanged": false,
+      "expectedCases": 1268,
+      "actualCases": 1268,
+      "expectedFiles": 98,
+      "actualFiles": 98,
+      "missing": [],
+      "extra": [],
+      "preexistingDuplicateLabels": [],
+      "duplicateMultiplicityPreserved": true
+    }
+  },
+  "runtimes": {
+    "7.2": {
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34"
+    },
+    "7.4": {
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33"
+    },
+    "8.1": {
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34"
+    },
+    "8.2": {
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32"
+    },
+    "8.4": {
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23"
+    },
+    "8.5": {
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9"
+    }
+  },
+  "node": {
+    "nodePath": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+    "nodeSha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+    "nodeVersion": "v22.14.0"
+  },
+  "phase": {
+    "run": {
+      "status": "exited",
+      "phase": "lsp",
+      "parentPid": 151282,
+      "childPid": 151336,
+      "startedAtUtc": "2026-10-06T17:38:01.660249+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d161-current-lsp-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/language-server",
+      "exitCode": 0,
+      "durationSeconds": 2180.521705688967,
+      "finishedAtUtc": "2026-10-06T18:14:22.179739+00:00"
+    },
+    "result": {
+      "numTotalTests": 1268,
+      "numPassedTests": 1268,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "qualified": true,
+    "failuresOrSkipped": []
+  },
+  "collection": {
+    "oldCases": 1246,
+    "currentCases": 1268,
+    "added": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'successive' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'cancel' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'edit' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'delete' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'deadline' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'successive' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'cancel' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'edit' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'delete' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'deadline' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'successive' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'cancel' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'edit' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'delete' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'deadline' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'successive' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'cancel' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'edit' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'delete' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+        "name": "recovers type candidates safely after 'deadline' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "cancels replayed open/change publications cleanly in onDemand mode",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "cancels replayed open/change publications cleanly in progressive mode",
+        "count": 1
+      }
+    ],
+    "missingOriginal": [],
+    "scope": "All 1246 D157 cases retained; D158 adds 20 type recovery protocol cases, D160 adds two tests executing eight open/change shutdown combinations. Original reference-bundle condition and every budget remain enabled."
+  },
+  "timings": {
+    "onDemand-true.json": {
+      "indexingMode": "onDemand",
+      "waitingCompletion": true,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 13.09331199999724
+    },
+    "output-completion-progressive.json": {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "firstQueryMs": 182.19953700000042,
+      "warmSamples": 20,
+      "p95Ms": 16.417727000000014,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    "onDemand-true-gap5.json": {
+      "indexingMode": "onDemand",
+      "waitingCompletion": true,
+      "gapMs": 5,
+      "roots": 5,
+      "elapsedMs": 19.31369999999879
+    },
+    "progressive-false.json": {
+      "indexingMode": "progressive",
+      "waitingCompletion": false,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 25.510671000000002
+    },
+    "progressive-true.json": {
+      "indexingMode": "progressive",
+      "waitingCompletion": true,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 28.49293899999975
+    },
+    "output-completion-onDemand.json": {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "firstQueryMs": 319.53615100000025,
+      "warmSamples": 20,
+      "p95Ms": 8.874667000000045,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    "progressive-true-gap5.json": {
+      "indexingMode": "progressive",
+      "waitingCompletion": true,
+      "gapMs": 5,
+      "roots": 5,
+      "elapsedMs": 63.3378870000015
+    },
+    "onDemand-false.json": {
+      "indexingMode": "onDemand",
+      "waitingCompletion": false,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 9.922762000000148
+    }
+  },
+  "ordinaryFixedFixture": {
+    "7.2": {
+      "p50Ms": 97.62,
+      "p95Ms": 141.69,
+      "maxMs": 383.36
+    },
+    "8.5": {
+      "p50Ms": 97.96,
+      "p95Ms": 138.4,
+      "maxMs": 197.38
+    }
+  },
+  "c1HostStabilityReview": {
+    "status": "prepared-not-running",
+    "createdAtUtc": "2026-10-06T17:44:01.915806+00:00",
+    "sourceCommit": "42d1628e3f193cd21478d965ce12946fbd254127",
+    "sourceBundle": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+    "ordinaryC1AssertionsPassed": true,
+    "restartStabilityQualified": false,
+    "originalLog": ".vscode-test/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/sohophp.php-companion/SoPHP.log",
+    "originalLogSha256": "e860e6c36f65e22c70d31a3bd5104c5ec87b90c72bc548ef3a67653ea6b57fe9",
+    "fatalExitObservations": [
+      {
+        "line": 607,
+        "text": "2026-10-07 01:29:07.186 [info] [Error - 1:29:07 AM] Server process exited with code 1."
+      }
+    ],
+    "finding": "The two Sending notification failed lines followed one real server exit 1 and restart failure, not merely benign stop logging. The full C1 resumed after a later workspace change; its exit 0 does not prove no-crash stability.",
+    "staticRisk": {
+      "file": "packages/language-server/src/server.ts",
+      "line": 3857,
+      "description": "Async prewarmReferenceAt invokes semanticForUri outside a shutdown cancellation boundary; JSON-RPC notification dispatcher does not await returned promises. This is a hypothesis pending monitored exception, not a proven cause."
+    },
+    "nextAction": "After D161 actually exits, run the guarded shadow-entry monitored original C1 once. Capture first process as well as restarts; do not repeat the incomplete root-only probe or suppress client warnings. Correct D160 public qualification scope when frozen D161 run ends.",
+    "currentLspSession": 4703,
+    "currentLspChildPid": 151336,
+    "trackedFilesChanged": false,
+    "profileUpdated": false
+  },
+  "restartStabilityQualified": false,
+  "artifacts": [
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/d161-current-lsp-input.json",
+      "sha256": "d104d55f6c4146e239797c3b5a680a2dc9b62ab8841f1f6a1b1e162aa2843702"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/d161-current-lsp-run.json",
+      "sha256": "b0633ee9cd63d8a81940972e9f5c82b3e08f17bc8b3ee0068a9a3100720df881"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/sophp-d161-current-lsp-full.json",
+      "sha256": "5eedbe2a0b9bb4a366b29a04c0e34b3a15018ac2848ffcd6832f49ac3181c166"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/sophp-d161-current-lsp-collection.json",
+      "sha256": "6e40dc1544e288dcc28efaa5190c4b28e3eb9100eb4f380afce651eed98b7a6d"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/sophp-d161-current-lsp-full.log",
+      "sha256": "4adfd3aa4d7497bb0a4b2d2ef18c19e9b79e079eeb789127e8242543bcd9801d"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/d161-current-full-run.py",
+      "sha256": "89715f6e152bc09411ac96064564a20faf7ede50c16b2f668fd5a012d8f2922f"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/d161-current-audit.py",
+      "sha256": "a5604a95b48086617f274821f30f7606eb0e4bff12ca863a958096b417f41358"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/d161-current-freeze.py",
+      "sha256": "5e2e5145ae67ee248c18e58127b5628eb73429510e9655bf4fd23f57e3f0e190"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/output-completion-progressive.json",
+      "sha256": "9cab0dde9947dba61b9d99870cb29d91b4b99708752a9d6bb242719942e95b44"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "f6a714355cdbd36cc2be7cda690801d463a9f9f91a18daaec16d6e978ca2201b"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/onDemand-true.json",
+      "sha256": "e330441af99e656a3966856d35a353b53400ba544a3d08b081bf7c647c247ed1"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "872d5a678605b393c1336676d864e080db5d3cdcfbeee42e356f2bda37d5a72e"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/progressive-false.json",
+      "sha256": "a37fc036874ddd14d8f66ce6237c2c77c2200f4e5874ec3174b5c0208dca1560"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/progressive-true.json",
+      "sha256": "1fb2e35327b68102233ab932767c7e44262e4287745acf02d27ddefc675ce778"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "c5c80c63a5b5e0bae62d8bd6671b9b61a81c4239678b670d703a4b21f669bc95"
+    },
+    {
+      "path": ".vscode-test/d161-current-lsp-evidence/onDemand-false.json",
+      "sha256": "bafa83306f4a5a1941d95a78cb7a4627cf5815113018daf8f4b8d7dd73c0bc0a"
+    },
+    {
+      "path": ".vscode-test/d161-current-report.py",
+      "sha256": "6ac4a496a0be7a7764b308b4752abdda5399376ba1c5d1975005ff1a35a3d0dd"
+    },
+    {
+      "path": ".vscode-test/d162-preparation-review.json",
+      "sha256": "a851c9b258257cbc829531e6bec38bd384a1047209dc186d680a8d76d133f47c"
+    }
+  ],
+  "scope": "Full current LSP combination on D159-D160 checkpoint, all D157 cases and budgets retained plus D158 recovery and D160 notification cancellation tests. Not full roadmap or real WSL.",
+  "remaining": [
+    "Original C1-C4/R4 whole qualification remains open.",
+    "One intermediate ordinary C1 server exit 1 and failed restart despite final assertion exit 0; no-crash host stability remains unqualified.",
+    "Ordinary project and long-session performance beyond the fixed 242801-byte fixture remains open.",
+    "50k cache RSS 1659.99 MiB exceeds 1536 MiB.",
+    "Bare-dollar completion descriptions retain 17 boundaries after two unsuccessful prototypes.",
+    "Batch renderer getItemsByProvider exception remains open.",
+    "Actual PHP CLI 7.3/8.0/8.3, other platforms and real WSL long use remain unverified.",
+    "Dynamic and complex inference limits retain stated support boundaries."
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}

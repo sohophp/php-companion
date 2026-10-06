@@ -205,3 +205,57 @@ it.each(['onDemand', 'progressive'] as const)('cancels replayed open/change publ
     } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }
   }
 }, 60_000);
+
+// JSON-RPC does not await notification handlers. A reference selection that is
+// already waiting when a folder restart stops the server must not reject globally.
+it.each(['onDemand', 'progressive'] as const)('cancels waiting reference selections cleanly in %s mode', async indexingMode => {
+  for (const phpVersion of ['7.2', '8.5']) {
+    const base = await mkdtemp(join(tmpdir(), 'sophp-reference-selection-shutdown-'));
+    let server: ChildProcessWithoutNullStreams | undefined;
+    try {
+      const text = '<?php namespace App; class Item { public function ping(): int { return 1; } }';
+      const uri = pathToFileURL(join(base, 'Item.php')).toString();
+      await writeFile(join(base, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      await writeFile(join(base, 'Item.php'), text);
+      server = spawn(process.execPath, [resolve('../../dist/language-server.js'), '--stdio',
+        '--parser-core-wasm', resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe' });
+      let stderr = '';
+      server.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+      const exited = new Promise<number | null>(done => server!.once('exit', code => done(code)));
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(base).toString(),
+        initializationOptions: { phpVersion, indexingMode, testMode: true },
+      } }));
+      expect((await output.waitFor(message => message.id === 1)).error).toBeUndefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} })
+        + encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text },
+        } }) + encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/documentSymbol', params: { textDocument: { uri } } }));
+      expect((await output.waitFor(message => message.id === 2)).error).toBeUndefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 3, method: 'phpCompanion/testPauseNextQuery', params: { method: 'prewarmReferenceAt' } }));
+      expect((await output.waitFor(message => message.id === 3)).result).toBe(true);
+      const selection = { uri, version: 1, position: { line: 0, character: text.indexOf('ping') } };
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: selection }));
+      await output.waitFor(message => message.method === 'window/logMessage'
+        && message.params.message === '[test-query-paused] method=prewarmReferenceAt');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 4, method: 'shutdown', params: {} }));
+      expect((await output.waitFor(message => message.id === 4)).error).toBeUndefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 5, method: 'phpCompanion/testReleaseQuery', params: { method: 'prewarmReferenceAt' } }));
+      expect((await output.waitFor(message => message.id === 5)).result).toBe(true);
+      await output.waitFor(message => message.method === 'window/logMessage'
+        && message.params.message === `[test-reference-selection-cancelled] uri=${uri}`, 2_000);
+      // The editor can also send a late selection after shutdown completed.
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/prewarmReferenceAt', params: selection })
+        + encode({ jsonrpc: '2.0', id: 6, method: 'phpCompanion/testQueryState', params: { method: 'prewarmReferenceAt', uri } }));
+      expect((await output.waitFor(message => message.id === 6)).result.paused).toBe(false);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: {} }));
+      expect(await exited, `PHP ${phpVersion}: ${stderr.slice(-500)}`).toBe(0);
+      expect(stderr).toBe('');
+      expect(output.messages.filter(message => (message as { method?: string; params?: { type?: number } }).method === 'window/logMessage'
+        && (message as { params?: { type?: number } }).params?.type === 2)).toEqual([]);
+      expect(output.messages.filter(message => (message as { params?: { message?: string } }).params?.message?.includes('[reference-prewarm] semantic count='))).toEqual([]);
+      console.log('Cancelled reference selection: ' + JSON.stringify({ indexingMode, phpVersion }));
+    } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }
+  }
+}, 60_000);

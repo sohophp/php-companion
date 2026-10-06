@@ -1,0 +1,372 @@
+{
+  "stage": "D162",
+  "createdAtUtc": "2026-10-06T18:30:42.397564+00:00",
+  "basisCommit": "42d1628e3f193cd21478d965ce12946fbd254127",
+  "candidateSourceHashes": {
+    "packages/language-server/src/server.ts": "1bfa3bb37b418992d431b0ce5702d11a6421e555e1c8ef3f74f30317324eee13",
+    "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "1c5536c3af7ece29446645878a36eed5ecd40259efdee273e2eeca8d8e139e8a",
+    "src/extension/languageServer.ts": "d7ab04a17ad41116ddc9975bf523ea5a0f2b6c1a158d0ce6169d8c78d1810cff",
+    "src/extension/workspaceRestartQueue.ts": "077387d5fabec772893c8b5019930dd98642ff85a7f7c4970a8030ea752106f4",
+    "test/extension/suite/c1.ts": "0b551a9d2f8b51ae831151022ef4d9ab9c3a83e3534f83a9b6f3232c9bdd9ed7"
+  },
+  "candidateBundleSha256": "d8881971ccf6d75e07cf263ed54b2f34584b35d1c19c4f8e2307ca395b7f9517",
+  "rootCause": {
+    "method": "phpCompanion/prewarmReferenceAt",
+    "origin": "unhandledRejection",
+    "exception": {
+      "pid": 187673,
+      "origin": "unhandledRejection",
+      "name": "Error",
+      "message": "SoPHP is shutting down.",
+      "stack": "Error: SoPHP is shutting down.\n    at Wh (/var/www/node/php-companion/dist/language-server.js:11401:30005)\n    at /var/www/node/php-companion/dist/language-server.js:11401:30135\n    at async /var/www/node/php-companion/dist/language-server.js:11401:99901",
+      "cause": "undefined",
+      "at": "2026-10-06T18:17:49.462Z"
+    },
+    "processExit": {
+      "pid": 187673,
+      "code": 1,
+      "signal": null,
+      "finishedAtUtc": "2026-10-06T18:17:49.522Z"
+    },
+    "exceptionPath": ".vscode-test/d162-server-capture/187673.exception.json",
+    "exitPath": ".vscode-test/d162-server-capture/187673.exit.json",
+    "mapping": {
+      "proof": {
+        "productionSha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+        "mappedBodySha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+        "exactProductionBody": true,
+        "buildId": "a2d494c8f52adb9c04b63e4ffe79da0284654d3bd2b57590c5887f09c491be4d"
+      },
+      "frames": [
+        {
+          "generatedLine": 11401,
+          "generatedColumn": 30005,
+          "column": 30004,
+          "path": "../../var/www/node/php-companion/packages/language-server/src/server.ts",
+          "line": 1635,
+          "sourceColumn": 27
+        },
+        {
+          "generatedLine": 11401,
+          "generatedColumn": 30135,
+          "column": 30134,
+          "path": "../../var/www/node/php-companion/packages/language-server/src/server.ts",
+          "line": 1637,
+          "sourceColumn": 42
+        },
+        {
+          "generatedLine": 11401,
+          "generatedColumn": 99901,
+          "column": 99900,
+          "path": "../../var/www/node/php-companion/packages/language-server/src/server.ts",
+          "line": 3868,
+          "sourceColumn": 21
+        }
+      ]
+    },
+    "scope": "Original full C1 diagnostic shadow entry captured a real intermediate server exit 1. The mapped body was proven byte-for-byte identical to the ordinary failing production engine; the monitored run is diagnostic, not ordinary qualification."
+  },
+  "baseline": {
+    "path": ".vscode-test/d162-hook-baseline.json",
+    "failed": 1,
+    "unexecuted": 11,
+    "bundleSha256": "d23564ff57a7ff43ab5ef353c14c50a4cd2e498b5d3ccbec4411aa94c2bdfe40",
+    "scope": "Hook-only deterministic baseline failed after releasing a prewarm notification during shutdown. Baseline test/source files were not independently frozen; this is supporting diagnostic evidence, not full baseline qualification."
+  },
+  "tests": {
+    "d162-candidate-shutdown": {
+      "path": ".vscode-test/d162-candidate-shutdown.json",
+      "sha256": "70e6d8803cd95ed0623cd69390f984dd9484301eb0d89c27680cf29fcce779c1",
+      "passed": 12,
+      "failed": 0,
+      "unexecuted": 0,
+      "selectedNames": [
+        "stops a pending multi-root version refresh in onDemand mode with waiting completion=false",
+        "stops a pending multi-root version refresh in progressive mode with waiting completion=false",
+        "stops a pending multi-root version refresh in onDemand mode with waiting completion=true",
+        "stops a pending multi-root version refresh in progressive mode with waiting completion=true",
+        "stops fragmented version/completion/shutdown transport in onDemand mode",
+        "stops fragmented version/completion/shutdown transport in progressive mode",
+        "exits cleanly with pending opened-document diagnostics in onDemand mode",
+        "exits cleanly with pending opened-document diagnostics in progressive mode",
+        "cancels replayed open/change publications cleanly in onDemand mode",
+        "cancels replayed open/change publications cleanly in progressive mode",
+        "cancels waiting reference selections cleanly in onDemand mode",
+        "cancels waiting reference selections cleanly in progressive mode"
+      ]
+    },
+    "d162-normal-prewarm": {
+      "path": ".vscode-test/d162-normal-prewarm.json",
+      "sha256": "d4eab2ba8e0dbfd03fce2573adcff034b9b3f93d0fe97c5c9c12b73c6831d4b7",
+      "passed": 8,
+      "failed": 0,
+      "unexecuted": 526,
+      "selectedNames": [
+        "language server stdio prewarms references through a deferred vendor property receiver",
+        "language server stdio prewarms selected references with framework snapshots even when disk cache is false",
+        "language server stdio prewarms selected references with framework snapshots even when disk cache is true",
+        "language server stdio shares an in-flight selected-symbol scan with a References click inside the same word",
+        "language server stdio prewarms an early selection before the experimental source-only index is ready",
+        "language server stdio prewarms an early selection before the progressive source-only index is ready",
+        "language server stdio reuses a completed experimental source-only index and hydrates a vendor receiver before References",
+        "language server stdio reuses a completed progressive source-only index and hydrates a vendor receiver before References"
+      ]
+    },
+    "d162-restart-unit": {
+      "path": ".vscode-test/d162-restart-unit.json",
+      "sha256": "5e1baff5b68bf051f1fe54a9314c0701acff1464b689530fa0714102c94b46dd",
+      "passed": 20,
+      "failed": 0,
+      "unexecuted": 0,
+      "selectedNames": [
+        "renders the cached parent version when the active nested Composer file is deleted",
+        "does not restore a deleted nested Composer root from a late root lookup",
+        "does not let a late folder root lookup cancel a newer document version probe",
+        "allows an older root lookup to finish when only a different nested project changed",
+        "does not let an older cold document resolution overwrite a newer Composer snapshot",
+        "keeps the newer Composer watcher refresh when the previous document probe finishes late",
+        "withdraws the pending Composer result as soon as a new change arrives, before debounce expires",
+        "preserves independent nested Composer projects inside the same workspace folder",
+        "does not cancel the parent folder refresh when a nested Composer watcher changes",
+        "keeps the newer folder refresh when an older global refresh finishes later",
+        "does not restore a removed workspace folder from an outstanding version resolution",
+        "discards an outstanding document resolution after a newer folder refresh",
+        "preserves another root refresh when only the first root is refreshed again",
+        "does not publish or show a late version result after disposal",
+        "recomputes the root folder version after its Composer file is deleted and restores it on creation",
+        "does not cancel an independent nested version probe when its parent Composer file is deleted",
+        "discovers a Composer file created after a projectless workspace was initialized",
+        "coalesces folder changes during stop and serializes another change during start",
+        "does not start or report an error after disposal during stop",
+        "reports a failed stop once and accepts a later folder change without an automatic retry loop"
+      ]
+    }
+  },
+  "ordinaryC1": {
+    "run": {
+      "status": "exited",
+      "childPid": 194775,
+      "parentPid": 194473,
+      "startedAtUtc": "2026-10-06T18:28:04.471988+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d162-ordinary-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 142.6446853490197,
+      "finishedAtUtc": "2026-10-06T18:30:27.115263+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "logSha256": "2cfd2e925d9f03fcd827d97dee7f3d8d2827ee0e5cef39e1befc3135a24882ac"
+    },
+    "inputManifest": ".vscode-test/d162-ordinary-c1-input.json",
+    "inputCount": 4843,
+    "manifestSha256": "fb25f9a262637b5a0cf9b7f33d342046c9f7032a660762cda8cc89d9f48abad1",
+    "environment": {
+      "PHP_COMPANION_TEST_C1_ONLY": "1",
+      "PHP_COMPANION_TEST_C1_UI": "1",
+      "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php",
+      "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d162-ordinary-c1-failures",
+      "D152_HOST_LOG_ARCHIVE": "/var/www/node/php-companion/.vscode-test/d162-ordinary-c1-log-archive",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs"
+    },
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "languageClientLogAudit": [
+      {
+        "path": ".vscode-test/d162-ordinary-c1-log-archive/php-companion-extension-ZEv3YU/logs/20261007T022809/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "sha256": "728bf49709319cc9b62384a86f1ff851f4b6c9520ca2218e8f9bfffcf34efee4",
+        "fatalExitCodes": [],
+        "restartFailureCount": 0
+      }
+    ],
+    "qualified": true,
+    "scope": "Original complete C1 ordinary host, runtime PHP 7.2 and automatic project version detection. Adds a final lifecycle gate for unexpected closes, restart failures and outstanding folder/config refreshes; no tracing, profiler or fatal monitor. Not real WSL acceptance.",
+    "visibleUiObservations": {
+      "data": {
+        "C1 visible PHP suggestion after typing": {
+          "samplesMs": [
+            255,
+            219,
+            252,
+            244,
+            284,
+            248
+          ],
+          "inputSamplesMs": [
+            55,
+            43,
+            42,
+            31,
+            70,
+            32
+          ],
+          "phaseEpochMs": [
+            {
+              "started": 1791311384053,
+              "input": 1791311384107,
+              "visible": 1791311384308
+            },
+            {
+              "started": 1791311385143,
+              "input": 1791311385186,
+              "visible": 1791311385362
+            },
+            {
+              "started": 1791311386024,
+              "input": 1791311386067,
+              "visible": 1791311386276
+            },
+            {
+              "started": 1791311387013,
+              "input": 1791311387044,
+              "visible": 1791311387257
+            },
+            {
+              "started": 1791311387769,
+              "input": 1791311387838,
+              "visible": 1791311388052
+            },
+            {
+              "started": 1791311388431,
+              "input": 1791311388463,
+              "visible": 1791311388679
+            }
+          ],
+          "medianMs": 250,
+          "maxMs": 284,
+          "labels": [
+            "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+          ],
+          "serverCompletionMs": [
+            2.1177980000065872,
+            2.4711309999984223,
+            2.0330810000014026,
+            1.8408849999977974,
+            1.6874710000120103,
+            1.854871000003186
+          ]
+        },
+        "C1 visible cross-namespace type suggestion after typing": {
+          "samplesMs": [
+            284,
+            256,
+            316,
+            234,
+            295,
+            255
+          ],
+          "inputSamplesMs": [
+            44,
+            57,
+            42,
+            26,
+            27,
+            42
+          ],
+          "medianMs": 270,
+          "maxMs": 316,
+          "labels": [
+            "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+          ]
+        },
+        "C1 visible vendor suggestion after typing": {
+          "samplesMs": [
+            220,
+            275,
+            244,
+            234,
+            246,
+            259
+          ],
+          "inputSamplesMs": [
+            53,
+            40,
+            68,
+            29,
+            47,
+            45
+          ],
+          "phaseEpochMs": [
+            {
+              "started": 1791311394095,
+              "input": 1791311394148,
+              "visible": 1791311394315
+            },
+            {
+              "started": 1791311394543,
+              "input": 1791311394583,
+              "visible": 1791311394818
+            },
+            {
+              "started": 1791311395048,
+              "input": 1791311395116,
+              "visible": 1791311395292
+            },
+            {
+              "started": 1791311395519,
+              "input": 1791311395548,
+              "visible": 1791311395753
+            },
+            {
+              "started": 1791311396145,
+              "input": 1791311396192,
+              "visible": 1791311396391
+            },
+            {
+              "started": 1791311396654,
+              "input": 1791311396698,
+              "visible": 1791311396913
+            }
+          ],
+          "medianMs": 245,
+          "maxMs": 275,
+          "labels": [
+            "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+          ]
+        },
+        "C1 visible unsaved receiver switch": {
+          "beforeMs": 273,
+          "afterMs": 208,
+          "restoredMs": 207,
+          "beforeLabels": [
+            "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+          ],
+          "afterLabels": [
+            "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+          ],
+          "restoredLabels": [
+            "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+          ]
+        },
+        "C1 Language Client round trip (12 samples, ms)": {
+          "median": 7,
+          "max": 10
+        }
+      },
+      "scope": "Single complete Linux isolated C1 host. Visible waiting starts before typing, includes input and rendering; six samples per candidate family. Not a hot-query P95, real WSL or general performance qualification."
+    }
+  },
+  "previousWholeLsp": {
+    "commit": "42d1628e3f193cd21478d965ce12946fbd254127",
+    "passed": 1268,
+    "files": 98,
+    "scope": "D161 qualified the previous exact engine d5377990. This D162 source change is covered by the selected current regressions and complete C1; the old whole LSP result is not current-engine qualification."
+  },
+  "remaining": [
+    "Entire current LSP combination and original C1-C4/R4 qualification",
+    "General projects and long-running WSL sessions",
+    "50k warm-cache RSS over original budget",
+    "Bare-variable descriptions and batch renderer issues",
+    "Missing actual PHP 7.3/8.0/8.3 and other platforms"
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "goal": "active"
+}

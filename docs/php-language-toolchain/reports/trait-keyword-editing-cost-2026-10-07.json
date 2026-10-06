@@ -2018,6 +2018,9 @@
       "8.5": 138.4
     },
     "cause": "Unhandled expected shutdown cancellation in retained document notification; not a Trait parser fault.",
-    "wholeCurrentLspQualified": false
+    "wholeCurrentLspQualified": false,
+    "finalWholeC1AssertionsPassed": true,
+    "restartStabilityQualified": false,
+    "intermediateServerExitCode": 1
   }
 }

@@ -126,6 +126,8 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     return [...entries.values()];
   };
   let lastEmptyDefinition: { key: string; at: number } | undefined;
+  const testLifecycle = context.extensionMode === vscode.ExtensionMode.Test
+    ? { unexpectedCloses: 0, restartFailures: 0, pendingVersionRefreshes: 0 } : undefined;
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ language: 'php', scheme: 'file' }, { language: 'php', scheme: 'vscode-remote' }],
     outputChannel: output,
@@ -289,6 +291,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
           message: (count ?? 1) <= 3 ? undefined : 'SoPHP Language Server encountered repeated protocol errors.',
         }),
         closed: (): CloseHandlerResult => {
+          if (testLifecycle) testLifecycle.unexpectedCloses += 1;
           const decision = budget.recordClose();
           return decision.restart
             ? { action: CloseAction.Restart, message: `SoPHP Language Server stopped unexpectedly; restarting (${decision.recentCloses}/3).` }
@@ -360,7 +363,10 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   const workspaceRestarts = new WorkspaceRestartQueue(
     () => client.stop(30_000),
     async () => { await client.start(); },
-    error => output.warn(`Unable to restart SoPHP for PHP version settings: ${String(error)}`),
+    error => {
+      if (testLifecycle) testLifecycle.restartFailures += 1;
+      output.warn(`Unable to restart SoPHP for PHP version settings: ${String(error)}`);
+    },
   );
   context.subscriptions.push(workspaceRestarts);
   let versionRestartTimer: ReturnType<typeof setTimeout> | undefined;
@@ -453,13 +459,17 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       if (event.affectsConfiguration('phpCompanion.symfony.winstarRoutes.enabled')) updateBundledRouteProviders();
       if (event.affectsConfiguration('phpCompanion.disabledExtensions')) updatePhpExtensionAvailability();
       if (event.affectsConfiguration('phpCompanion.phpExecutablePath') || event.affectsConfiguration('phpCompanion.phpVersion')) {
+        if (testLifecycle) testLifecycle.pendingVersionRefreshes += 1;
         void versions.refresh().catch((error: unknown) =>
-          output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`));
+          output.warn(`Unable to refresh PHP runtime detection: ${String(error)}`))
+          .finally(() => { if (testLifecycle) testLifecycle.pendingVersionRefreshes -= 1; });
       }
     }),
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
+      if (testLifecycle) testLifecycle.pendingVersionRefreshes += 1;
       void versions.refresh().then(scheduleVersionRestart).catch((error: unknown) =>
-        output.warn(`Unable to refresh PHP folders: ${String(error)}`));
+        output.warn(`Unable to refresh PHP folders: ${String(error)}`))
+        .finally(() => { if (testLifecycle) testLifecycle.pendingVersionRefreshes -= 1; });
       updateRouteProviders(); updateBundledRouteProviders(); updatePhpExtensionAvailability();
     }),
     vscode.extensions.onDidChange(() => { updateRouteProviders(); updateBundledRouteProviders(); }),
@@ -490,6 +500,9 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     if (!await client.sendRequest<boolean>('phpCompanion/testCrash')) throw new Error('Language Server rejected the test crash request.');
     await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 100));
   }));
+  if (testLifecycle) context.subscriptions.push(vscode.commands.registerCommand('phpCompanion._testLanguageServerLifecycle', () => ({
+    ...testLifecycle, restarting: workspaceRestarts.isRunning, scheduled: versionRestartTimer !== undefined,
+  })));
   // This is intentionally registered last so it runs first during disposal.
   context.subscriptions.push({ dispose: () => { stopping = true; } });
   output.info('SoPHP Language Server started.');

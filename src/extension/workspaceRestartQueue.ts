@@ -7,6 +7,8 @@ export class WorkspaceRestartQueue {
   constructor(private readonly stop: () => Promise<void>, private readonly start: () => Promise<void>,
     private readonly onError: (error: unknown) => void) {}
 
+  get isRunning(): boolean { return this.running; }
+
   request(): void {
     if (this.disposed) return;
     this.revision += 1;
