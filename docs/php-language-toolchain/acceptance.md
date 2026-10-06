@@ -98,6 +98,8 @@ F08 的支持范围必须在实现前确定。例如提取方法遇到跨边界 
 
 ## 测试层次
 
+[D202–D213 默认模式复测](reports/parser-cache-trial-and-on-demand-recovery-2026-10-07.md)保留原基准默认入口，新增 `SOPHP_BENCHMARK_INDEXING_MODE=onDemand` 与 `SOPHP_BENCHMARK_FIXTURE_LAYOUT=psr4`；噪声函数仍以 `SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS=500` 配置。100 次预热＋1000 次正式编辑通过，正反取消对照及实际候选缓存损坏／重写、未保存补全／Hover／精确 Definition／References 恢复通过。PSR-4 四文件布局与历史 eager 两文件布局分别报告，不能相互转移资格；原不合规布局的空列表和两次生命周期／缓存准备失败保留。原 150／500／100 ms 与 RSS 差值门槛保持；真实大 Controller 167.30 ms、其它平台／长会话／规模和真人仍开放。
+
 1. parser/phpdoc/type-system 纯函数与标记 fixture 测试。
 2. 增量编辑与全量分析结果一致性测试，包含随机编辑和错误恢复。
 3. 索引/语义/重构跨文件集成与缓存版本测试。

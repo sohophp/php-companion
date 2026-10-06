@@ -70,12 +70,15 @@ describe('@php-companion/parser', () => {
     const second = parser.parse(source, undefined, uri);
     try {
       const { tree: secondTree, ...again } = second;
-      expect(again).toEqual(expected);
+      expect(again).toStrictEqual(expected);
       expect(secondTree.rootNode.text).toBe(source);
       again.constants.length = 0; again.rawNames.length = 0;
+      again.declarations[0]!.attributeMarkers![0]!.arguments = 'changed on cache hit';
+      again.callables[0]!.parameters[0]!.type = 'ChangedOnCacheHit';
+      again.scopes.find(scope => scope.kind === 'method')!.parameters.length = 0;
     } finally { second.tree.delete(); }
     const third = parser.parse(source, undefined, uri);
-    try { const { tree: thirdTree, ...finalFacts } = third; expect(finalFacts).toEqual(expected); expect(thirdTree.rootNode.text).toBe(source); }
+    try { const { tree: thirdTree, ...finalFacts } = third; expect(finalFacts).toStrictEqual(expected); expect(thirdTree.rootNode.text).toBe(source); }
     finally { third.tree.delete(); }
   });
 

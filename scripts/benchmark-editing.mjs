@@ -19,6 +19,14 @@ if (Boolean(parserCoreWasm) !== Boolean(phpWasm) || arguments_.length > 5) {
   throw new Error('Both parser WASM paths are required when overriding parser assets.');
 }
 const completionNoiseFunctions = Number(process.env.SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS ?? 0);
+const indexingMode = process.env.SOPHP_BENCHMARK_INDEXING_MODE ?? 'experimental';
+const fixtureLayout = process.env.SOPHP_BENCHMARK_FIXTURE_LAYOUT ?? 'legacy';
+if (!['onDemand', 'experimental'].includes(indexingMode)) {
+  throw new Error('SOPHP_BENCHMARK_INDEXING_MODE must be onDemand or experimental.');
+}
+if (!['legacy', 'psr4'].includes(fixtureLayout)) {
+  throw new Error('SOPHP_BENCHMARK_FIXTURE_LAYOUT must be legacy or psr4.');
+}
 if (![iterations, warmupIterations].every(Number.isInteger) || iterations < 100 || warmupIterations < 0) {
   throw new Error('Usage: benchmark-editing.mjs [iterations >= 100] [warmup iterations >= 0] [server entry] [parser core WASM] [PHP WASM]');
 }
@@ -107,13 +115,16 @@ function startLanguageServer() {
 async function initialize(server, rootUri, cacheDirectory, id) {
   server.send({ jsonrpc: '2.0', id, method: 'initialize', params: {
     processId: null, rootUri, capabilities: { textDocument: { publishDiagnostics: { versionSupport: true } } },
-    initializationOptions: { phpVersion: '8.5', indexingMode: 'experimental', cacheDirectory },
+    initializationOptions: { phpVersion: '8.5', indexingMode, cacheDirectory },
   } });
   const response = await server.waitFor((message) => message.id === id);
   if (response.error) throw new Error(`Language server initialization failed: ${JSON.stringify(response.error)}.`);
   const after = server.messages.length;
   server.send({ jsonrpc: '2.0', method: 'initialized', params: {} });
-  await server.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'), { after, timeoutMs: 30_000 });
+  // onDemand prepares sources lazily after didOpen/query; it does not start a
+  // workspace index or emit its completion message during initialization.
+  if (indexingMode === 'experimental') await server.waitFor((message) => message.method === 'window/logMessage'
+    && message.params?.message?.includes('complete=true'), { after, timeoutMs: 30_000 });
 }
 
 function memberFor(type) { return type === 'Beta' ? 'betaOnly' : 'alphaOnly'; }
@@ -127,10 +138,26 @@ const cacheDirectory = join(root, '.cache');
 let server;
 try {
   await mkdir(join(root, 'src'), { recursive: true });
-  await writeFile(join(root, 'composer.json'), `${JSON.stringify({ autoload: { 'psr-4': { 'Editing\\': 'src/' } } }, null, 2)}\n`);
+  await writeFile(join(root, 'composer.json'), `${JSON.stringify({ autoload: { 'psr-4': { 'Editing\\': 'src/' },
+    ...(fixtureLayout === 'psr4' ? { files: ['src/Types.php'] } : {}) } }, null, 2)}\n`);
   const typesSource = `<?php\nnamespace Editing;\nclass Alpha { public function alphaOnly(): string {} public function makeNumber(): int { return 1; } public function makeUnknown() {} public function makeText(): string { return 'a'; } }\nclass Beta { public function betaOnly(): string {} public function makeNumber(): int { return 1; } public function makeUnknown() {} public function makeText(): string { return 'b'; } }\n${Array.from({ length: completionNoiseFunctions }, (_, index) => `function helper${index}(): string { return 'noise'; }`).join('\n')}\n`;
   const typesPath = join(root, 'src', 'Types.php'); const typesUri = pathToFileURL(typesPath).toString();
-  await writeFile(typesPath, typesSource);
+  const typeDefinitions = new Map();
+  if (fixtureLayout === 'psr4') {
+    // The historical eager-index fixture puts both classes in Types.php. Give
+    // the lazy-mode fixture real Composer-resolvable files, retaining the same
+    // declarations, noise functions, edits and query assertions.
+    for (const type of ['Alpha', 'Beta']) {
+      const classSource = `<?php\nnamespace Editing;\n${typesSource.split('\n').find(line => line.startsWith(`class ${type} {`))}\n`;
+      const classPath = join(root, 'src', `${type}.php`);
+      await writeFile(classPath, classSource);
+      typeDefinitions.set(type, { source: classSource, uri: pathToFileURL(classPath).toString() });
+    }
+    await writeFile(typesPath, `<?php\nnamespace Editing;\n${typesSource.split('\n').slice(4).join('\n')}`);
+  } else {
+    await writeFile(typesPath, typesSource);
+    for (const type of ['Alpha', 'Beta']) typeDefinitions.set(type, { source: typesSource, uri: typesUri });
+  }
   const editPath = join(root, 'src', 'Editing.php'); const uri = pathToFileURL(editPath).toString(); const rootUri = pathToFileURL(root).toString();
   let source = sourceFor('Alpha', 0); await writeFile(editPath, source);
   server = startLanguageServer(); await initialize(server, rootUri, cacheDirectory, 1);
@@ -202,14 +229,33 @@ try {
     server.send({ jsonrpc: '2.0', id: definitionId, method: 'textDocument/definition', params: { textDocument: { uri }, position } });
     const definition = await server.waitFor((message) => message.id === definitionId); const definitionDuration = performance.now() - definitionStarted;
     const locations = Array.isArray(definition.result) ? definition.result : definition.result ? [definition.result] : [];
-    const expectedStart = positionAt(typesSource, typesSource.indexOf(expected));
-    if (locations.length !== 1 || locations[0].uri !== typesUri
+    const expectedDefinition = typeDefinitions.get(type);
+    const expectedStart = positionAt(expectedDefinition.source, expectedDefinition.source.indexOf(expected));
+    if (locations.length !== 1 || locations[0].uri !== expectedDefinition.uri
       || locations[0].range?.start?.line !== expectedStart.line || locations[0].range?.start?.character !== expectedStart.character) {
       throw new Error(`Iteration ${index + 1} returned stale definition: ${JSON.stringify(definition.result)}.`);
     }
     if (measured) { updates.push(updateDuration); completions.push(completionDuration); typedArgumentCompletions.push(argumentDuration); bareArgumentCompletions.push(bareDuration); typedMemberCompletions.push(typedMemberDuration); hovers.push(hoverDuration); definitions.push(definitionDuration); }
     if (index % 10 === 0) rssSamples.push(await rssMb(server.child.pid));
   }
+  const verifyCurrentReferences = async (activeServer) => {
+    const type = source.includes('Beta $item') ? 'Beta' : 'Alpha';
+    const offset = source.indexOf(`$item->${memberFor(type)}`) + '$item->'.length;
+    const id = requestId++;
+    activeServer.send({ jsonrpc: '2.0', id, method: 'textDocument/references', params: {
+      textDocument: { uri }, position: positionAt(source, offset + 1), context: { includeDeclaration: false },
+    } });
+    const response = await activeServer.waitFor(message => message.id === id, { timeoutMs: 30_000 });
+    const expected = positionAt(source, offset);
+    if (response.error || !Array.isArray(response.result) || response.result.length !== 1
+      || response.result[0].uri !== uri || response.result[0].range?.start?.line !== expected.line
+      || response.result[0].range?.start?.character !== expected.character) {
+      throw new Error(`References did not match the current unsaved member: ${JSON.stringify(response)}.`);
+    }
+  };
+  // Direct PSR-4 completion can succeed without writing any persistent index.
+  // Exercise normal references to populate the lazy candidate cache explicitly.
+  if (indexingMode === 'onDemand') await verifyCurrentReferences(server);
   const cancellationProbes = [];
   // Preserve the original global query and also prove a known fixture query.
   // An empty-query result is capped, so it need not contain a specific class.
@@ -242,19 +288,20 @@ try {
     && !name.endsWith('.callable.json') && !name.endsWith('.symfony.json'));
   const samePath = (left, right) => process.platform === 'win32'
     ? resolve(left).toLowerCase() === resolve(right).toLowerCase() : resolve(left) === resolve(right);
-  let corruptedCacheFile;
+  let corruptedCacheFile; let corruptedCacheVersion;
   for (const name of cacheFiles) {
     const value = JSON.parse(await readFile(join(cacheDirectory, name), 'utf8'));
     if (typeof value.root === 'string' && samePath(value.root, root)
       && value.entries && typeof value.entries === 'object' && Object.keys(value.entries).length) {
-      corruptedCacheFile = name; break;
+      corruptedCacheFile = name; corruptedCacheVersion = value.version; break;
     }
   }
   if (!corruptedCacheFile) throw new Error('Language server did not create a populated persistent semantic cache for this project.');
   await writeFile(join(cacheDirectory, corruptedCacheFile), '{broken');
   const restarted = startLanguageServer(); server = restarted; await initialize(restarted, rootUri, cacheDirectory, requestId++);
-  await restarted.waitFor((message) => message.method === 'window/logMessage'
-    && message.params?.message?.includes('Persistent index cache was unreadable and will be rebuilt.'));
+  const corruptionWarning = (message) => message.method === 'window/logMessage'
+    && message.params?.message?.includes('Persistent index cache was unreadable and will be rebuilt.');
+  if (indexingMode === 'experimental') await restarted.waitFor(corruptionWarning);
   // Replay text that differs from the disk fixture, including when an even
   // number of alternating edits ended on its original Alpha parameter.
   source = sourceFor('Beta', warmupIterations + iterations + 1);
@@ -281,19 +328,31 @@ try {
   const recoveredDefinitionId = requestId++;
   restarted.send({ jsonrpc: '2.0', id: recoveredDefinitionId, method: 'textDocument/definition', params: { textDocument: { uri }, position: recoveredPosition } });
   const recoveredDefinition = await restarted.waitFor((message) => message.id === recoveredDefinitionId);
-  const expectedRecoveredStart = positionAt(typesSource, typesSource.indexOf(expectedAfterRestart));
+  const recoveredDefinitionSource = typeDefinitions.get(expectedAfterRestart === 'betaOnly' ? 'Beta' : 'Alpha');
+  const expectedRecoveredStart = positionAt(recoveredDefinitionSource.source, recoveredDefinitionSource.source.indexOf(expectedAfterRestart));
   if (!Array.isArray(recoveredDefinition.result) || recoveredDefinition.result.length !== 1
-    || recoveredDefinition.result[0].uri !== typesUri
+    || recoveredDefinition.result[0].uri !== recoveredDefinitionSource.uri
     || recoveredDefinition.result[0].range?.start?.line !== expectedRecoveredStart.line
     || recoveredDefinition.result[0].range?.start?.character !== expectedRecoveredStart.character) {
     throw new Error('Definition did not recover after cache rebuild and process restart.');
   }
+  if (indexingMode === 'onDemand') await verifyCurrentReferences(restarted);
+  const corruptionWarningObserved = restarted.messages.some(corruptionWarning);
   await restarted.stop(requestId++); server = undefined;
+  // The on-demand candidate index rebuilds lazily and does not publish the
+  // eager index's warning. Require actual repair of the same damaged cache.
+  const rebuiltCache = JSON.parse(await readFile(join(cacheDirectory, corruptedCacheFile), 'utf8'));
+  if (rebuiltCache.schema !== 1 || rebuiltCache.version !== corruptedCacheVersion
+    || typeof rebuiltCache.root !== 'string' || !samePath(rebuiltCache.root, root)
+    || !rebuiltCache.entries || typeof rebuiltCache.entries !== 'object' || Array.isArray(rebuiltCache.entries)
+    || !Object.keys(rebuiltCache.entries).length) {
+    throw new Error('The corrupted persistent cache was not rebuilt with project entries.');
+  }
 
   const sampledPeakRssMb = Math.max(...rssSamples); const rssEndMinusBaselineMb = finalRssMb - baselineRssMb;
   const report = {
-    schema: 2, iterations, warmupIterations, completionNoiseFunctions, runtime: process.version,
-    phpVersion: '8.5', indexingMode: 'experimental', diagnosticsVersionMatched: true,
+    schema: 2, iterations, warmupIterations, completionNoiseFunctions, fixtureLayout, runtime: process.version,
+    phpVersion: '8.5', indexingMode, diagnosticsVersionMatched: true,
     platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
     updateToDiagnosticsMs: summarizeDurations(updates), hotCompletionMs: summarizeDurations(completions),
     hotTypedArgumentCompletionMs: summarizeDurations(typedArgumentCompletions),
@@ -304,6 +363,8 @@ try {
     languageServerRssMb: { baseline: baselineRssMb, sampledPeak: sampledPeakRssMb, final: finalRssMb, endMinusBaseline: rssEndMinusBaselineMb,
       samples: rssSamples.length, sampledEveryIterations: 10, metric: 'external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap' },
     persistentCache: { files: cacheFiles.length, corruptedFile: corruptedCacheFile, corruptCacheRecovered: true,
+      rebuiltCacheValidated: true, corruptionWarningObserved,
+      referencesRecoveredAfterRestart: indexingMode === 'onDemand' ? true : null,
       completionRecoveredAfterRestart: true, hoverRecoveredAfterRestart: true, definitionRecoveredAfterRestart: true,
       unsavedReplayDiffersFromDisk },
     staleCompletionFailures: 0, staleHoverFailures: 0, staleDefinitionFailures: 0,
