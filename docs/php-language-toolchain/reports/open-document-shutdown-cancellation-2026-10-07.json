@@ -1,0 +1,1064 @@
+{
+  "milestone": "D160",
+  "createdAtUtc": "2026-10-06T17:34:14.560453+00:00",
+  "baseCommit": "3d35199c053eb66c342741ec03ab19d64881790e",
+  "bundleSha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+  "failedBundleSha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+  "cause": {
+    "exception": {
+      "pid": 131909,
+      "origin": "unhandledRejection",
+      "name": "Error",
+      "message": "SoPHP is shutting down.",
+      "stack": "Error: SoPHP is shutting down.\n    at Wh (/var/www/node/php-companion/dist/language-server.js:11401:30005)\n    at va (/var/www/node/php-companion/dist/language-server.js:11401:30450)\n    at async /var/www/node/php-companion/dist/language-server.js:11401:165651",
+      "cause": "undefined",
+      "at": "2026-10-06T17:21:37.233Z"
+    },
+    "mapping": {
+      "proof": {
+        "productionSha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+        "mappedBodySha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+        "exactProductionBody": true,
+        "buildId": "2f94cfbfe698c122fe501ff85995516c1b6413d843683619a7a4660b6801cff6"
+      },
+      "frames": [
+        {
+          "generatedLine": 11401,
+          "generatedColumn": 30005,
+          "column": 30004,
+          "path": "../../var/www/node/php-companion/packages/language-server/src/server.ts",
+          "line": 1635,
+          "sourceColumn": 27
+        },
+        {
+          "generatedLine": 11401,
+          "generatedColumn": 30450,
+          "column": 30449,
+          "path": "../../var/www/node/php-companion/packages/language-server/src/server.ts",
+          "line": 1653,
+          "sourceColumn": 10
+        },
+        {
+          "generatedLine": 11401,
+          "generatedColumn": 165651,
+          "column": 165650,
+          "path": "../../var/www/node/php-companion/packages/language-server/src/server.ts",
+          "line": 5884,
+          "sourceColumn": 21
+        }
+      ]
+    },
+    "transport": {
+      "count": 15,
+      "messages": [
+        {
+          "method": "initialize",
+          "id": 0
+        },
+        {
+          "method": "initialized",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/symfonyRouteProviders",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/symfonyRouteProviders",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/bundledRouteProviders",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/phpExtensionAvailability",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/phpVersions",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/phpExtensionAvailability",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/phpExtensionAvailability",
+          "id": null
+        },
+        {
+          "method": "phpCompanion/testQueryState",
+          "id": 1
+        },
+        {
+          "method": "textDocument/didOpen",
+          "id": null,
+          "uri": "file:///tmp/php-companion-extension-Mg0UpR/src/C1/Versioned.php",
+          "version": 1
+        },
+        {
+          "method": "textDocument/didOpen",
+          "id": null,
+          "uri": "file:///tmp/php-companion-extension-second-I3mxUk/src/C1/Versioned.php",
+          "version": 1
+        },
+        {
+          "method": "workspace/didChangeConfiguration",
+          "id": null
+        },
+        {
+          "method": "shutdown",
+          "id": 2
+        },
+        {
+          "method": null,
+          "id": 0
+        }
+      ],
+      "trailingBytes": 0
+    },
+    "description": "TextDocuments does not await notification promises. Retained document replay overlapped a subsequent shutdown; semanticForQueryRoot threw the expected RequestCancelled ResponseError as an unhandled rejection."
+  },
+  "change": "Handle RequestCancelled from an open/change publication only during shutdown; finish the barrier and preserve unexpected failures and normal query cancellation. No global exception handler in product. Test pause hook and cancellation observation are testMode only.",
+  "failedOriginalWholeC1": {
+    "status": "exited",
+    "childPid": 115373,
+    "parentPid": 115254,
+    "startedAtUtc": "2026-10-06T17:01:00.865984+00:00",
+    "manifest": "/var/www/node/php-companion/.vscode-test/d159-ordinary-c1-input.json",
+    "exitCode": 1,
+    "durationSeconds": 122.09744160296395,
+    "finishedAtUtc": "2026-10-06T17:03:02.961599+00:00",
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "logSha256": "9bc6dd6562d96c89a24cbc35f0df95314dc717aa263b66158916406c596c5a16"
+  },
+  "diagnostics": {
+    "initialHost": {
+      "status": "exited",
+      "startedAtUtc": "2026-10-06T17:13:39.377Z",
+      "inputHashes": {
+        "dist/extension.js": "724903bd63a42c0a87c1e1fb09b4601a81035a56eaf998b3cf04a6fd3b887ff5",
+        "dist/language-server.js": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+        "dist/builtinSnapshotWorker.js": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "src/extension/languageServer.ts": "ada49e392513ded4efb9fd844cebf20e90cbc34c9e0580d77edd287a0ef5cb94",
+        "test/extension/suite/c1Ui.ts": "87031d54aa64d7336d8f29e4b2fbd8f2909d4440e6f7dd6e64d5493291c4d074",
+        ".vscode-test/d160-root-probe.ts": "29acb6573fa899617158079e1b1565c22c89ef531ed4e7104996fdf23c788669",
+        ".vscode-test/d160-root-host.mjs": "9afc50c10b49579c5fd48182b27d18722cb413db8718f116471bc18c044d3f94",
+        ".vscode-test/d160-capture-server.cjs": "2b857037553167d63afd3f5009d55efbed3fc52c1f06f505f6f90aeec12c8251"
+      },
+      "productCommit": "39fbfcad479de69ddfcc5bb04bec51aa97bd03d2",
+      "bundleSha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+      "previousQualifiedBundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+      "uncommittedRecoverySource": true,
+      "profileUpdated": false,
+      "scope": "Focused original root Composer lifecycle with initial documents, original 30-second checks and direct server stdin/stdout/stderr capture. Not the original complete C1 host.",
+      "childPid": 125217,
+      "environment": {
+        "PHP_COMPANION_TEST_CORE_ONLY": "1",
+        "PHP_COMPANION_TEST_C1_ONLY": "1",
+        "PHP_COMPANION_TEST_C1_UI": "1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php",
+        "SOPHP_TEST_SERVER_CAPTURE_DIR": "/var/www/node/php-companion/.vscode-test/d160-server-capture",
+        "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d160-capture-server.cjs",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d160-root-failures"
+      },
+      "code": 1,
+      "signal": null,
+      "finishedAtUtc": "2026-10-06T17:14:35.254Z",
+      "durationSeconds": 55.87713649300001,
+      "observations": [],
+      "traces": [],
+      "changedInputs": [],
+      "rawLog": {
+        "path": "/var/www/node/php-companion/.vscode-test/d160-root-host.log",
+        "sha256": "9ba6acf576f980bdd91efef883a927317359ff7c87c15d1e0025a9e3f0ec87f4"
+      },
+      "ordinaryCompleteC1Qualified": false
+    },
+    "rawCapturedHost": {
+      "status": "exited",
+      "startedAtUtc": "2026-10-06T17:19:17.489Z",
+      "inputHashes": {
+        "dist/extension.js": "724903bd63a42c0a87c1e1fb09b4601a81035a56eaf998b3cf04a6fd3b887ff5",
+        "dist/language-server.js": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+        "dist/builtinSnapshotWorker.js": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "src/extension/languageServer.ts": "ada49e392513ded4efb9fd844cebf20e90cbc34c9e0580d77edd287a0ef5cb94",
+        "test/extension/suite/c1Ui.ts": "87031d54aa64d7336d8f29e4b2fbd8f2909d4440e6f7dd6e64d5493291c4d074",
+        ".vscode-test/d160-root-captured-probe.ts": "3d5484ce73156c222c0bdece8cc328bf3f9b0af4c26a9c3e399a3fa52c7bec29",
+        ".vscode-test/d160-root-captured-host.mjs": "9475471e359b1b90009babd50abce969b6cb3cfde784c448971d63a49339e3a0",
+        ".vscode-test/d160-capture-server.cjs": "2b857037553167d63afd3f5009d55efbed3fc52c1f06f505f6f90aeec12c8251"
+      },
+      "productCommit": "3d35199c053eb66c342741ec03ab19d64881790e",
+      "bundleSha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+      "previousQualifiedBundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+      "uncommittedParserSource": true,
+      "profileUpdated": false,
+      "scope": "Focused original root Composer lifecycle with initial documents, original 30-second checks and direct server stdin/stdout/stderr capture. Not the original complete C1 host.",
+      "childPid": 128425,
+      "environment": {
+        "PHP_COMPANION_TEST_CORE_ONLY": "1",
+        "PHP_COMPANION_TEST_C1_ONLY": "1",
+        "PHP_COMPANION_TEST_C1_UI": "1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php",
+        "SOPHP_TEST_SERVER_CAPTURE_DIR": "/var/www/node/php-companion/.vscode-test/d160-server-captured",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d160-root-captured-failures"
+      },
+      "code": 1,
+      "signal": null,
+      "finishedAtUtc": "2026-10-06T17:20:11.138Z",
+      "durationSeconds": 53.648220269999996,
+      "observations": [],
+      "traces": [],
+      "changedInputs": [],
+      "rawLog": {
+        "path": "/var/www/node/php-companion/.vscode-test/d160-root-captured-host.log",
+        "sha256": "ec1d79426971192f423e37ac4066e30b8e75f8d2de973f1ead5685121b3a5c69"
+      },
+      "ordinaryCompleteC1Qualified": false
+    },
+    "exceptionMonitoredHost": {
+      "status": "exited",
+      "startedAtUtc": "2026-10-06T17:21:12.519Z",
+      "inputHashes": {
+        "dist/extension.js": "724903bd63a42c0a87c1e1fb09b4601a81035a56eaf998b3cf04a6fd3b887ff5",
+        "dist/language-server.js": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+        "dist/builtinSnapshotWorker.js": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd",
+        "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+        "src/extension/languageServer.ts": "ada49e392513ded4efb9fd844cebf20e90cbc34c9e0580d77edd287a0ef5cb94",
+        "test/extension/suite/c1Ui.ts": "87031d54aa64d7336d8f29e4b2fbd8f2909d4440e6f7dd6e64d5493291c4d074",
+        ".vscode-test/d160-root-monitored-probe.ts": "9079f9720aa90c8bb063ca00c5c1a94ad08867eb30a2ab6ce6bf2eb186bee651",
+        ".vscode-test/d160-root-monitored-host.mjs": "34fadcbd83836220027c9096cf4e06378979540a610f67095d75c70c7a261a62",
+        ".vscode-test/d160-capture-monitored-server.cjs": "a173fba3c86d36b9484c23f4592ee24ebbb4562267ff4865913890e5c0787566",
+        ".vscode-test/d160-fatal-monitor.cjs": "925f11095b716028d824ee564d6ac25df4f8aa0a4c24ad2189d62cd3328259a3"
+      },
+      "productCommit": "3d35199c053eb66c342741ec03ab19d64881790e",
+      "bundleSha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7",
+      "previousQualifiedBundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+      "uncommittedParserSource": true,
+      "profileUpdated": false,
+      "scope": "Focused original root Composer lifecycle with initial documents, original 30-second checks and direct server stdin/stdout/stderr capture. Not the original complete C1 host.",
+      "childPid": 130627,
+      "environment": {
+        "PHP_COMPANION_TEST_CORE_ONLY": "1",
+        "PHP_COMPANION_TEST_C1_ONLY": "1",
+        "PHP_COMPANION_TEST_C1_UI": "1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php",
+        "SOPHP_TEST_SERVER_CAPTURE_DIR": "/var/www/node/php-companion/.vscode-test/d160-server-monitored",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d160-root-monitored-failures"
+      },
+      "code": 1,
+      "signal": null,
+      "finishedAtUtc": "2026-10-06T17:22:07.895Z",
+      "durationSeconds": 55.376191811000005,
+      "observations": [],
+      "traces": [],
+      "changedInputs": [],
+      "rawLog": {
+        "path": "/var/www/node/php-companion/.vscode-test/d160-root-monitored-host.log",
+        "sha256": "117b452ed47fcf208524bcb6bb1aa3a838796d3b771665a53d7609676f479fa9"
+      },
+      "ordinaryCompleteC1Qualified": false
+    },
+    "scope": "Diagnostic hosts only; original complete C1 not executed. Initial harness typecheck and external preloader setup defects are retained. Monitor persists uncaughtExceptionMonitor data synchronously, without handling the exception."
+  },
+  "beforeCancelDiagnosticTests": {
+    "numTotalTests": 10,
+    "numPassedTests": 0,
+    "numFailedTests": 2,
+    "numPendingTests": 8,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "beforeCancelDiagnosticScope": "Two selected failures and eight intentionally unexecuted cases. Hook-only bundle was not independently frozen; original monitored host and byte-identical source mapping provide the root cause evidence.",
+  "completeShutdownTests": {
+    "numTotalTests": 10,
+    "numPassedTests": 10,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "strengthenedSelectedTests": {
+    "numTotalTests": 10,
+    "numPassedTests": 2,
+    "numFailedTests": 0,
+    "numPendingTests": 8,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "strengthenedScope": "Eight combinations inside two tests: open/change, onDemand/progressive, PHP 7.2/8.5. Require a new cancellation observation after release, not one emitted earlier. Eight original cases intentionally unexecuted here; they passed in the complete ten-case run. Only the assertion changed after original complete C1; product source and bundle remained byte-identical.",
+  "duplicatePreparationRun": {
+    "result": {
+      "numTotalTests": 10,
+      "numPassedTests": 10,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "classification": "An incorrect cwd prevented the intended assertion edit; the shell still ran the unchanged ten-case test file. Retained as a preparation error, not a separate fix or selected qualification sample."
+  },
+  "ordinaryWholeC1": {
+    "status": "exited",
+    "childPid": 138711,
+    "parentPid": 138624,
+    "startedAtUtc": "2026-10-06T17:27:27.972168+00:00",
+    "manifest": "/var/www/node/php-companion/.vscode-test/d160-ordinary-c1-input.json",
+    "exitCode": 0,
+    "durationSeconds": 116.30132237600628,
+    "finishedAtUtc": "2026-10-06T17:29:24.272241+00:00",
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "logSha256": "ecdbea2a0816a0c23ad94dd523e1202456cd47c1620a0fe4a6861ff34c5cd0b5"
+  },
+  "ordinaryWholeC1Inputs": {
+    "inputCount": 3222,
+    "manifestSha256": "70a94bc78048b6189cb54731e9c6ce16c210ad4aac3743fe200e95426ef050f7",
+    "bundleSha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66",
+    "runtimes": {
+      "7.2": {
+        "path": "/opt/remi/php72/root/usr/bin/php",
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "version": "7.2.34"
+      },
+      "7.4": {
+        "path": "/opt/remi/php74/root/usr/bin/php",
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+        "version": "7.4.33"
+      },
+      "8.1": {
+        "path": "/opt/remi/php81/root/usr/bin/php",
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "version": "8.1.34"
+      },
+      "8.2": {
+        "path": "/opt/remi/php82/root/usr/bin/php",
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+        "version": "8.2.32"
+      },
+      "8.4": {
+        "path": "/opt/remi/php84/root/usr/bin/php",
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+        "version": "8.4.23"
+      },
+      "8.5": {
+        "path": "/opt/remi/php85/root/usr/bin/php",
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "version": "8.5.9"
+      }
+    },
+    "nodeSha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+    "scope": "Original whole C1 ordinary host with runtime PHP 7.2 and automatic project detection; no completion timing or tracing. Not real WSL acceptance.",
+    "environment": {
+      "PHP_COMPANION_TEST_C1_ONLY": "1",
+      "PHP_COMPANION_TEST_C1_UI": "1",
+      "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php",
+      "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d160-ordinary-c1-failures",
+      "D152_HOST_LOG_ARCHIVE": "/var/www/node/php-companion/.vscode-test/d160-ordinary-c1-log-archive",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs"
+    }
+  },
+  "wholeC1Qualified": true,
+  "visibleObservations": [
+    {
+      "label": "C1 visible PHP suggestion after typing",
+      "value": {
+        "samplesMs": [
+          295,
+          240,
+          230,
+          254,
+          229,
+          238
+        ],
+        "inputSamplesMs": [
+          51,
+          26,
+          28,
+          35,
+          30,
+          34
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791307722779,
+            "input": 1791307722830,
+            "visible": 1791307723074
+          },
+          {
+            "started": 1791307723299,
+            "input": 1791307723325,
+            "visible": 1791307723539
+          },
+          {
+            "started": 1791307724946,
+            "input": 1791307724974,
+            "visible": 1791307725176
+          },
+          {
+            "started": 1791307725391,
+            "input": 1791307725425,
+            "visible": 1791307725644
+          },
+          {
+            "started": 1791307725865,
+            "input": 1791307725895,
+            "visible": 1791307726094
+          },
+          {
+            "started": 1791307727027,
+            "input": 1791307727060,
+            "visible": 1791307727264
+          }
+        ],
+        "medianMs": 239,
+        "maxMs": 295,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          1.8970320000007632,
+          1.682121999998344,
+          1.5744070000000647,
+          3.0221639999945182,
+          2.0814619999946444,
+          1.5746610000060173
+        ]
+      }
+    },
+    {
+      "label": "C1 visible cross-namespace type suggestion after typing",
+      "value": {
+        "samplesMs": [
+          239,
+          237,
+          264,
+          304,
+          327,
+          284
+        ],
+        "inputSamplesMs": [
+          48,
+          27,
+          29,
+          34,
+          34,
+          26
+        ],
+        "medianMs": 274,
+        "maxMs": 327,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      }
+    },
+    {
+      "label": "C1 visible vendor suggestion after typing",
+      "value": {
+        "samplesMs": [
+          262,
+          279,
+          247,
+          253,
+          222,
+          224
+        ],
+        "inputSamplesMs": [
+          42,
+          90,
+          80,
+          86,
+          32,
+          36
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791307735721,
+            "input": 1791307735763,
+            "visible": 1791307735983
+          },
+          {
+            "started": 1791307736195,
+            "input": 1791307736285,
+            "visible": 1791307736474
+          },
+          {
+            "started": 1791307736686,
+            "input": 1791307736766,
+            "visible": 1791307736933
+          },
+          {
+            "started": 1791307737140,
+            "input": 1791307737226,
+            "visible": 1791307737393
+          },
+          {
+            "started": 1791307738445,
+            "input": 1791307738477,
+            "visible": 1791307738666
+          },
+          {
+            "started": 1791307739474,
+            "input": 1791307739510,
+            "visible": 1791307739698
+          }
+        ],
+        "medianMs": 250,
+        "maxMs": 279,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      }
+    },
+    {
+      "label": "C1 visible unsaved receiver switch",
+      "value": {
+        "beforeMs": 284,
+        "afterMs": 199,
+        "restoredMs": 225,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    }
+  ],
+  "renderer": {
+    "errorLines": [
+      "2026-10-07 01:27:38.828 [error] Extension 'github.copilot-chat' appears in product.json but enables LESS API proposals than the extension wants.",
+      "2026-10-07 01:27:38.828 [error] Proceeding with EXTRA proposals (authIssuers) because extension is in development mode. Still, this EXTENSION WILL BE BROKEN unless product.json is updated.",
+      "2026-10-07 01:27:56.841 [error] (node:139493) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+      "2026-10-07 01:29:07.192 [error] Sending notification failed.",
+      "2026-10-07 01:29:07.195 [error] Sending notification failed."
+    ],
+    "getItemsByProviderOccurrences": 0,
+    "scope": "This whole C1 log contains five errors: Copilot proposals two, url.parse deprecation one, notification failures during restart two. No renderer-error-free or batch-provider qualification claimed."
+  },
+  "ordinaryFixedFixture": {
+    "checkpoint": "3d35199c",
+    "currentFullQualification": false,
+    "fixture": {
+      "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+      "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+      "sourceBytes": 242801,
+      "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "comments": 1500,
+      "constants": 1500,
+      "fragmentA": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "fragmentB": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+      "rounds": 100,
+      "scope": "same fixture, ordinary serial unsaved edit plus immediate completion; one before and one prototype measurement per configured version; original D65 fixture differs"
+    },
+    "engine": {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66"
+    },
+    "label": "candidate",
+    "started": "2026-10-06T17:31:58.323Z",
+    "status": "exited",
+    "profiled": false,
+    "explicitGc": false,
+    "runs": [
+      {
+        "version": "7.2",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 383.36,
+          "all": {
+            "p50Ms": 97.62,
+            "p95Ms": 141.69,
+            "maxMs": 383.36
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 104.84,
+            "p95Ms": 151.85,
+            "maxMs": 383.36,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 94.04,
+            "p95Ms": 133.76,
+            "maxMs": 209.38,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      },
+      {
+        "version": "8.5",
+        "code": 0,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 197.38,
+          "all": {
+            "p50Ms": 97.96,
+            "p95Ms": 138.4,
+            "maxMs": 197.38
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 96.58,
+            "p95Ms": 143.6,
+            "maxMs": 197.38,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 98.27,
+            "p95Ms": 138.4,
+            "maxMs": 174.83,
+            "incomplete": 50
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "stderr": ""
+      }
+    ],
+    "childPid": 146145
+  },
+  "fixedFixtureCurrentPairPassed": true,
+  "validation": {
+    "languageServerBuildExit": 0,
+    "productionBundleExit": 0,
+    "rootTypecheckExit": 0,
+    "scopedEslintExit": 0
+  },
+  "sourceHashes": {
+    "packages/parser/src/index.ts": "4b8510296665204e4810266a9892ea731e4d5fe7f69c7f8e5a4f5f2b6aa048f3",
+    "packages/language-server/src/server.ts": "d2d66b6bb046615e5e74ca6eaec661bef58d1f7adf46945ebe439b3b858e4ca8",
+    "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "bed8417a3ce257615a0de6917be5e0b587b8054d9cffa1819e48d527f87fc055"
+  },
+  "open": [
+    "entire current LSP combination",
+    "general ordinary projects and long-session editing performance",
+    "50k cache RSS",
+    "bare-dollar description boundaries",
+    "batch renderer exception and restart notification errors",
+    "missing PHP CLI versions, other platforms and real WSL long use",
+    "original complete C1-C4/R4 scope"
+  ],
+  "profileUpdated": false,
+  "pushed": false,
+  "goalStatus": "active",
+  "evidenceManifest": [
+    {
+      "path": ".vscode-test/d160-evidence/d160-after-cancel-tests.json",
+      "sha256": "4ecacde0052a1038816b172f1b6aaef4b6df087b78c05b158fd21adffb76febc"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-after-cancel-tests.log",
+      "sha256": "66757d1a083afc8cd176457b5a2ddfa338ec881acfa022b30467d8a38bcfd4d1"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-before-cancel-tests.json",
+      "sha256": "8da470390ed0f013899f13249ee5501ee9e376a7fdfb6f98a725a495415eed43"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-before-cancel-tests.log",
+      "sha256": "ca194164a98684458ff7cc369c0f775a969a38ae74251a6bcf80c5567f4f66f0"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-build-mapping.mjs",
+      "sha256": "31ea0d6d15f3b14833602695551aac19047835cebe0226380d3a982d3dbc0137"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-capture-monitored-server.cjs",
+      "sha256": "a173fba3c86d36b9484c23f4592ee24ebbb4562267ff4865913890e5c0787566"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-capture-server.cjs",
+      "sha256": "2b857037553167d63afd3f5009d55efbed3fc52c1f06f505f6f90aeec12c8251"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-captured-probe-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-fatal-monitor.cjs",
+      "sha256": "925f11095b716028d824ee564d6ac25df4f8aa0a4c24ad2189d62cd3328259a3"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-final-cancel-tests.json",
+      "sha256": "da44a60fd121b9698849fa7f3f8de1bf62b3f9d940e6066958fe61595d675391"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-final-cancel-tests.log",
+      "sha256": "e1bed4596987f6354d92786adcfe373d0128d40dbac79d4b4aa5d32fda070733"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-final-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-fixed-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-fixed-bundle.log",
+      "sha256": "1470fca59098536b8e182efc69f3fbcb46d407211e93334cdaec989d0cb9d7d3"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-fixed-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-fixed-measure-driver.log",
+      "sha256": "97ed3fdf7d97c5285048c349b045c863a1427380df152657f316bb34eddd1f19"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-fixed-ordinary-measure.mjs",
+      "sha256": "b6553f5f9f764ee576eb62ea57abb78b6c2e77e6fce1f7165a34f2556171daaa"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-hook-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-hook-bundle.log",
+      "sha256": "706ecad26f83de9249e1abc0acf86b5329263f4526c2d2e1deda27699a391edf"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-map-exception.mjs",
+      "sha256": "78250d7afc919bd70065484a658fb9b769d41e886361f633c681780a96341f9c"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-mapped-exception.json",
+      "sha256": "6fd2f38e70b0186f89abc9527990e956bcc54254cf2d224d516bda64d2a4b000"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-mapping.log",
+      "sha256": "758f9069ba92df311346924524538925c4d06cbd4952ec8a49f7bae65562fc72"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-monitored-probe-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-driver.log",
+      "sha256": "f1c5da08ad2522bea2e8d6c9a9d3bcd76c9c2c2e058d24a87f4022f0ed565124"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-input.json",
+      "sha256": "70a94bc78048b6189cb54731e9c6ce16c210ad4aac3743fe200e95426ef050f7"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/c1.code-workspace",
+      "sha256": "0abdfe6928f01d44fc3f448af8ee53ca9f0430d7fd8a5b9b6e86f8a3607c231a"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/agenthost.log",
+      "sha256": "1a2fe03b45f1dd97cf1f4a07760ebfa2c605989c1ce32cb9f05d2d664a2b3a3b"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/editSessions.log",
+      "sha256": "085f5372bbeb4624e80ba8257ed7a93e804891d291b73354728a8018c925e340"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/main.log",
+      "sha256": "358dfacbda62642dc409d89da4ed85f6d4bb7ecde81fce3a231bffa8688d8512"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/mcpGateway.log",
+      "sha256": "f41176c50ef411884197b0af05bce9d1451b6424e06334dc41d71401cf73e709"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/userDataSync.log",
+      "sha256": "2034e062cce670c1c98f1de7571bdc5e7ae4ccf9776bb695e50932f437f13544"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/exthost.log",
+      "sha256": "198a22e0b634aaf56edfcdcdd1c1950367f8fd43f284d575467fa041fdd2b2c0"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "e860e6c36f65e22c70d31a3bd5104c5ec87b90c72bc548ef3a67653ea6b57fe9"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/vscode.git/Git.log",
+      "sha256": "54972ff6ba5edf21ec99497d1286a4dbd81a9c42059ee1736879f33c68d20d72"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "3f582b39f99b9eb0f29dbeda07003c64093b6fecbf6a401086c6423a202e029d"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "feb98d4c5a8452664c88942b7b83480298f4e24047a641a25574cb461dc846ec"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/output_20261007T012738/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/output_20261007T012738/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/renderer.log",
+      "sha256": "c12824341aa3321824c141d07d13e56d78f4839571f80f0f6c5742428d3821fc"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-log-archive/php-companion-extension-GUe7HN/logs/20261007T012734/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1-run.json",
+      "sha256": "a311df75fce07d60accd73531f4e24419fd5db50060128c3764496152d6b8f08"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1.log",
+      "sha256": "ecdbea2a0816a0c23ad94dd523e1202456cd47c1620a0fe4a6861ff34c5cd0b5"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-ordinary-c1.py",
+      "sha256": "ca40da0078835efe662796e35be1c44311cc6a888b13cfaa766a36588a04a480"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-probe-tsconfig.json",
+      "sha256": "49f6247194068ecf3bbbeae8e2e2b3b1d606c2b442ebff9c1daa1dac1312740d"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-probe-typecheck.log",
+      "sha256": "0c00b8622be339857e5b158b2691d15d9ebd8a8c91c4a49f8b0b0b8d351233e3"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-report.py",
+      "sha256": "557661765affe81da451cfbb75a22d5f7b4fb2786a080a53fbba68d51065965f"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-restart-transport-summary.json",
+      "sha256": "ae637d6ad0485cbc0b821d2de6a8c1920dd9b2d781f090b21f684855c6ba1f41"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-captured-driver.log",
+      "sha256": "75e65b6e5f45d99a8a4fe42f667d4df3a4318d2366fc29efdd48a9fcc9566d9c"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-captured-host.json",
+      "sha256": "ca574aac54457aa7a5b7af43eb54452ff78e2f3e85db17aa608268feeb111379"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-captured-host.log",
+      "sha256": "ec1d79426971192f423e37ac4066e30b8e75f8d2de973f1ead5685121b3a5c69"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-captured-host.mjs",
+      "sha256": "9475471e359b1b90009babd50abce969b6cb3cfde784c448971d63a49339e3a0"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-captured-probe.ts",
+      "sha256": "3d5484ce73156c222c0bdece8cc328bf3f9b0af4c26a9c3e399a3fa52c7bec29"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-host.json",
+      "sha256": "d248f17ca3723017f220a87a271b295068e7909676978548969c93c80180aa97"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-host.log",
+      "sha256": "9ba6acf576f980bdd91efef883a927317359ff7c87c15d1e0025a9e3f0ec87f4"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-host.mjs",
+      "sha256": "9afc50c10b49579c5fd48182b27d18722cb413db8718f116471bc18c044d3f94"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-monitored-driver.log",
+      "sha256": "8b367a328dcc171f8c6cca37ca94bcfd63fd09948b2939636b163a92a1c22e04"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-monitored-host.json",
+      "sha256": "bec0e7f5c4e43e99b39ea8ed4e6ad60527831c8a95888894141b49e35ee6a16a"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-monitored-host.log",
+      "sha256": "117b452ed47fcf208524bcb6bb1aa3a838796d3b771665a53d7609676f479fa9"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-monitored-host.mjs",
+      "sha256": "34fadcbd83836220027c9096cf4e06378979540a610f67095d75c70c7a261a62"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-monitored-probe.ts",
+      "sha256": "9079f9720aa90c8bb063ca00c5c1a94ad08867eb30a2ab6ce6bf2eb186bee651"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-probe.ts",
+      "sha256": "29acb6573fa899617158079e1b1565c22c89ef531ed4e7104996fdf23c788669"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-root-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-captured/129605.exit.json",
+      "sha256": "cee2c0c525520b0a8c8efe6a78af904c576e762177d76a30e1b8b85598a83764"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-captured/129605.start.json",
+      "sha256": "3d8950d7e057377e044a5057a45334279e59a3ba26088b85917cb89a1162d8f2"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-captured/129605.stderr",
+      "sha256": "49f55130ecbacf015141b760d8a0c066709bdeb6af3c787b70dc95f7cfbe65be"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-captured/129605.stdin",
+      "sha256": "d6c1f6d15672fa478955a28cd6dda371253628785aa6645ffad77d36fc4f3be2"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-captured/129605.stdout",
+      "sha256": "f88d6730e65f10cd60a9dde1ae71d886d4f65800161be9307aa2b706e8233954"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-monitored/131909.exception.json",
+      "sha256": "48f4ed81712ca92d607945d49ed38d84ebb8fc0de0ac74c59b4331f2d2fa89c3"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-monitored/131909.exit.json",
+      "sha256": "7a74205b31ff7a97e31733e65d73ea2273110edbcd0798e51ff0903ae30baa08"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-monitored/131909.start.json",
+      "sha256": "b183a119e6e6f9ed2cf6e807b515c81a209ecba446fddb94847589dab28fc3a9"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-monitored/131909.stderr",
+      "sha256": "0db92124bbd037c48ad122e18e665b95b59b76d33d1a7314d5167a6f79647f07"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-monitored/131909.stdin",
+      "sha256": "7a662e292cf0dd08cfc588f5b88af6ce307f132d9d012043b65cd2dab7dae04e"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-server-monitored/131909.stdout",
+      "sha256": "a1b97139b1a6c4b96587824fbc7e512c9166d6eccc7ce127017ade440a7efaa7"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-strengthened-cancel-tests.json",
+      "sha256": "396eff7accb7db45d8fe3fd02b1702ab2aa9a1205ad927b1b8ebeee7deef96c2"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-strengthened-cancel-tests.log",
+      "sha256": "a6d38d6d3739a0e6549c69ff4c9217d00b19ad979ddb52d50ddc08d7b5b67ae9"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/d160-strengthened-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/failure-bundle-mapping/language-server.js",
+      "sha256": "b8158652800a4d0246847c28ac99d65bd2d67ceccd4765633342e922f29220e7"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/failure-bundle-mapping/language-server.js.map",
+      "sha256": "16b8e2740345a7d38f09e376960dbec06515e80092d21b00406951d403571412"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/failure-bundle-mapping/proof.json",
+      "sha256": "243b5ec7d34fc5bc53142b08da221128e95b921abb6c1f8d1e6d7639b9273b0b"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/fixed-language-server.js",
+      "sha256": "d53779903dbc901a868d94aa05ead1a2f2bab9882a7b0abfe6b7639d346cce66"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/sophp-d160-fixed-candidate-7.2.log",
+      "sha256": "4104e73bb09e9cb5a82caa33d18839ec9e5b166906ab269117ee3808e289d10e"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/sophp-d160-fixed-candidate-8.5.log",
+      "sha256": "f70ce75399da52f856935608b8e4dd1c85c4e1d773fb43a2063065c3a3abcbb2"
+    },
+    {
+      "path": ".vscode-test/d160-evidence/sophp-d160-fixed-candidate.json",
+      "sha256": "a77bcb2d9929b1b50974e55c437c97bd3667085a644968a0fec521fbeee7ff62"
+    }
+  ]
+}

@@ -383,7 +383,11 @@ function traitFinalAdaptationMasks(node: SyntaxNode, source: string): Array<{ st
 type SyntaxMask = { start: number; end: number; value: string };
 
 function traitPrecedenceMaskCandidates(root: SyntaxNode, source: string): Array<{ keyword: SourceRange; masks: SyntaxMask[] }> {
-  if (!/\binsteadof\b/iu.test(source)) return [];
+  // PHP keywords use ASCII case folding. This deliberately broad preflight
+  // only rejects an absent substring; real tokens below still exclude names,
+  // strings and comments. Unicode word-boundary matching scans large edited
+  // files without providing additional proof about those tokens.
+  if (!/insteadof/i.test(source)) return [];
   const keywords = root.descendantsOfType('insteadof');
   if (!keywords.length) return [];
   // Work from real keyword tokens and comment-free source, never string contents.

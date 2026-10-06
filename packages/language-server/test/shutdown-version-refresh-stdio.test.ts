@@ -150,3 +150,58 @@ it.each(['onDemand', 'progressive'] as const)('exits cleanly with pending opened
     expect(stderr).not.toContain('memory access out of bounds');
   } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }
 }, 30_000);
+
+// A language-client restart replays retained documents and can stop again before
+// their semantic setup finishes. TextDocuments does not await event callbacks.
+it.each(['onDemand', 'progressive'] as const)('cancels replayed open/change publications cleanly in %s mode', async indexingMode => {
+  for (const phpVersion of ['7.2', '8.5']) for (const event of ['open', 'change']) {
+    const base = await mkdtemp(join(tmpdir(), 'sophp-replayed-publication-'));
+    let server: ChildProcessWithoutNullStreams | undefined;
+    try {
+      const text = '<?php namespace App; class Item { public function ping(): int { return 1; } }';
+      const uri = pathToFileURL(join(base, 'Item.php')).toString();
+      await writeFile(join(base, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
+      await writeFile(join(base, 'Item.php'), text);
+      server = spawn(process.execPath, [resolve('../../dist/language-server.js'), '--stdio',
+        '--parser-core-wasm', resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe' });
+      let stderr = '';
+      server.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+      const exited = new Promise<number | null>(done => server!.once('exit', code => done(code)));
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        processId: null, capabilities: {}, rootUri: pathToFileURL(base).toString(),
+        initializationOptions: { phpVersion, indexingMode, testMode: true },
+      } }));
+      expect((await output.waitFor(message => message.id === 1)).error).toBeUndefined();
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      const opened = encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+        textDocument: { uri, languageId: 'php', version: 1, text },
+      } });
+      if (event === 'change') {
+        server.stdin.write(opened + encode({ jsonrpc: '2.0', id: 2, method: 'textDocument/documentSymbol', params: { textDocument: { uri } } }));
+        expect((await output.waitFor(message => message.id === 2)).error).toBeUndefined();
+      }
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 3, method: 'phpCompanion/testPauseNextQuery', params: { method: 'openSourcePublication' } }));
+      expect((await output.waitFor(message => message.id === 3)).result).toBe(true);
+      server.stdin.write(event === 'open' ? opened : encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+        textDocument: { uri, version: 2 }, contentChanges: [{ text: text.replace('return 1;', 'return 2;') }],
+      } }));
+      await output.waitFor(message => message.method === 'window/logMessage'
+        && message.params.message === '[test-query-paused] method=openSourcePublication');
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 4, method: 'shutdown', params: {} }));
+      expect((await output.waitFor(message => message.id === 4)).error).toBeUndefined();
+      const cancellationMessage = `[test-open-publication-cancelled] uri=${uri}`;
+      const cancellationCount = (): number => output.messages.filter(message =>
+        (message as { params?: { message?: string } }).params?.message === cancellationMessage).length;
+      const cancellationsBeforeRelease = cancellationCount();
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 5, method: 'phpCompanion/testReleaseQuery', params: { method: 'openSourcePublication' } }));
+      expect((await output.waitFor(message => message.id === 5)).result).toBe(true);
+      await output.waitFor(message => message.method === 'window/logMessage'
+        && message.params.message === cancellationMessage && cancellationCount() > cancellationsBeforeRelease, 2_000);
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: {} }));
+      expect(await exited, `PHP ${phpVersion} ${event}: ${stderr.slice(-500)}`).toBe(0);
+      expect(stderr).toBe('');
+      console.log('Cancelled open publication: ' + JSON.stringify({ indexingMode, phpVersion, event }));
+    } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }
+  }
+}, 60_000);

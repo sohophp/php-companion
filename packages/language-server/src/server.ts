@@ -4335,7 +4335,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -5760,8 +5760,19 @@ function trackOpenSourcePublication(document: TextDocument, update: (published: 
     if (pendingOpenSourcePublications.get(document.uri) === publication) pendingOpenSourcePublications.delete(document.uri);
   } };
   pendingOpenSourcePublications.set(document.uri, publication);
+  // TextDocuments fires these event callbacks without awaiting their promises.
+  // A restart can cancel semantic setup while the opened document is replayed.
+  const paused = testMode && testPauseNextQueries.has('openSourcePublication')
+    ? pauseTestQuery('openSourcePublication') : undefined;
+  const updating = paused ? paused.then(() => update(publication.finish)) : update(publication.finish);
   // Finish abandoned versions and errors too; a newer edit retains its own barrier.
-  return update(publication.finish).finally(publication.finish);
+  return updating.catch((error: unknown) => {
+    if (shuttingDown && error instanceof ResponseError && error.code === LSPErrorCodes.RequestCancelled) {
+      if (testMode) connection.console.info(`[test-open-publication-cancelled] uri=${document.uri}`);
+      return;
+    }
+    throw error;
+  }).finally(publication.finish);
 }
 
 async function waitForOpenSourcePublications(token: CancellationToken): Promise<boolean> {
