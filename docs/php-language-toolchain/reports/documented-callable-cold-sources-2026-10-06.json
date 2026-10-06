@@ -1,0 +1,319 @@
+{
+  "milestone": "D154",
+  "capturedAtUtc": "2026-10-06T14:14:55.976569+00:00",
+  "baseHead": "28efb9c6de3cc351884ec913c24276d6e1eefdd5",
+  "committedAtEvidenceCapture": false,
+  "engineVersion": "semantic-v79-php-<version>",
+  "bundleSha256": "67cdbe36cd6c2fb5d3c13666236ec0bfc630d335691db26ecf3ff4213efee63f",
+  "sourceSha256": "e98527ee905ef1a6db23ef0a82044d37f0ea297bce16b85f70815cbb138f955a",
+  "serverSha256": "2b21f1a670614887a906e92ba58c6671c5eafae440bc73ab35638f3c597f3ae3",
+  "scope": "External documented callback return sources and live known inheritance source refresh; original C1-C4/R4 remains open.",
+  "baseline": {
+    "numTotalTests": 60,
+    "numPassedTests": 28,
+    "numFailedTests": 32,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "firstCollector": {
+    "numTotalTests": 520,
+    "numPassedTests": 516,
+    "numFailedTests": 4,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "scalarRefined": {
+    "numTotalTests": 520,
+    "numPassedTests": 520,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "finalDependencyMatrix": {
+    "numTotalTests": 72,
+    "numPassedTests": 72,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "fullSemantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 22710,
+      "numPassedTests": 22710,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 144,
+    "inputs": 3217,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 4153912,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d154-final-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T14:12:31.975404+00:00",
+      "exitCode": 0,
+      "durationSeconds": 71.94427537196316,
+      "finishedAtUtc": "2026-10-06T14:13:43.917671+00:00"
+    },
+    "bundleSha256": "67cdbe36cd6c2fb5d3c13666236ec0bfc630d335691db26ecf3ff4213efee63f",
+    "sourceSha256": "e98527ee905ef1a6db23ef0a82044d37f0ea297bce16b85f70815cbb138f955a",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "firstColdProtocols": {
+    "numTotalTests": 16,
+    "numPassedTests": 16,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "liveParentFailure": {
+    "numTotalTests": 25,
+    "numPassedTests": 17,
+    "numFailedTests": 8,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "finalRelatedProtocol": {
+    "numTotalTests": 31,
+    "numPassedTests": 31,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "originalInheritanceSelection": {
+    "numTotalTests": 534,
+    "numPassedTests": 4,
+    "numFailedTests": 0,
+    "numPendingTests": 530,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "distinctRelatedProtocolCases": 35,
+  "coldCoverage": "PHP 7.2/8.5 x onDemand/progressive x completion/hover/definition/signatureHelp, each starts an independent server; unsaved true/false/strict edits, open parent common->fresh->common, exact inherited definition, restart, unchanged disk.",
+  "linuxVisibleHost": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 523,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 268,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedCallableConditional",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 531,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 215,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedCallableConditional",
+      "rendererExceptions": 0
+    }
+  ],
+  "fixedProjectHot": {
+    "scope": "Fixed PHP 8.5 documented conditional callback project, three PHP files; first completion without query prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "67cdbe36cd6c2fb5d3c13666236ec0bfc630d335691db26ecf3ff4213efee63f",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 139.95700699999998,
+        "p95Ms": 9.889447000000018,
+        "warmSamples": 20,
+        "samples": [
+          12.418476000000283,
+          5.5919480000002295,
+          4.918727000000217,
+          4.568895999999768,
+          4.338697000000138,
+          9.889447000000018,
+          5.350672999999915,
+          4.779536000000007,
+          3.529019999999946,
+          6.960100000000239,
+          6.9707439999997405,
+          3.547939999999926,
+          3.75883500000009,
+          3.256323000000066,
+          2.952444999999898,
+          3.01709800000026,
+          3.376675000000432,
+          2.692340999999942,
+          3.2640449999998964,
+          3.481217999999899
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 175.72002300000077,
+        "p95Ms": 9.856097999999292,
+        "warmSamples": 20,
+        "samples": [
+          13.674135999999635,
+          5.975007000000005,
+          4.926577000000179,
+          5.2577540000002045,
+          4.3692739999996775,
+          9.856097999999292,
+          6.017612000000554,
+          6.639252999999371,
+          3.9838780000000042,
+          4.336787000000186,
+          3.8820660000001226,
+          3.982082999999875,
+          3.7615859999996246,
+          7.889734000000317,
+          4.590285000000222,
+          3.596002000000226,
+          3.6129140000002735,
+          3.4538069999998697,
+          4.4934540000003835,
+          3.611738000000514
+        ]
+      }
+    ]
+  },
+  "typecheck": {
+    "command": [
+      "pnpm",
+      "exec",
+      "tsc",
+      "--noEmit",
+      "--target",
+      "ES2022",
+      "--module",
+      "NodeNext",
+      "--moduleResolution",
+      "NodeNext",
+      "--strict",
+      "--noUncheckedIndexedAccess",
+      "--skipLibCheck",
+      "packages/semantic/test/documented-callable-query-dependencies.test.ts",
+      "packages/language-server/test/documented-callable-cold-queries-stdio.test.ts"
+    ],
+    "exitCode": 0
+  },
+  "scopedLintPassed": true,
+  "preparationErrors": [
+    {
+      "cause": "Initial test creation used the package working directory with a repo-relative path, so no file was created.",
+      "artifact": "sophp-d154-query-before.log",
+      "subsequentBaseline": "sophp-d154-query-baseline.json"
+    }
+  ],
+  "evidence": {
+    "directory": ".vscode-test/d154-evidence",
+    "files": 51,
+    "manifestSha256": "2368f02ad8eb41c2b8bb291e4a6a02d03fda3819e6ac83efc5adf86e31274b2b"
+  },
+  "entireCurrentLspQualified": false,
+  "realWslQualified": false,
+  "wholeRoadmapQualified": false,
+  "openScope": [
+    "Current complete v79 LSP combination",
+    "D152 ordinary complete C1 type popup stability",
+    "Ordinary editing P95 155.06 > 150 ms",
+    "50k cached RSS 1659.99 > 1536 MiB",
+    "Bare variable descriptions and remaining dynamic/complex boundaries",
+    "Actual CLI 7.3/8.0/8.3 and other platforms",
+    "Real WSL long use and full C1-C4/R4"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "vsixPackaged": false,
+    "pushed": false,
+    "goalStatus": "active"
+  }
+}

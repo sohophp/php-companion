@@ -4122,12 +4122,21 @@ function refreshStaleOpenTypeSourceAt(workspace: SemanticWorkspace, uri: string,
   ]);
   // The indexed declaration already identifies the file. Refresh its live buffer
   // directly, including Composer classmap files without a PSR lookup path.
+  const refreshedUris = new Set<string>();
+  const refresh = (targetUri: string): void => {
+    if (refreshedUris.has(targetUri)) return;
+    refreshedUris.add(targetUri);
+    const opened = documents.get(targetUri);
+    if (opened && workspace.source(targetUri) !== opened.getText()) workspace.update(targetUri, opened.getText(), true);
+  };
   for (const typeName of typeNames) {
     if (!typeName) continue;
     const indexed = workspace.typeByFqcn(typeName);
     if (!indexed) continue;
-    const opened = documents.get(indexed.uri);
-    if (opened && workspace.source(indexed.uri) !== opened.getText()) workspace.update(indexed.uri, opened.getText(), true);
+    refresh(indexed.uri);
+    // An inherited member can come from a newer open parent or Trait buffer.
+    // Reuse the bounded, known declaration hierarchy; this performs no file reads.
+    for (const targetUri of workspace.declarationHierarchySourceUris(typeName) ?? []) refresh(targetUri);
   }
 }
 

@@ -5118,6 +5118,26 @@ export class SemanticWorkspace {
       }
       if (expression.type === 'function_call_expression') {
         const name = expression.childForFieldName('function');
+        if (!functionNames && name?.type === 'variable_name') {
+          const documented = this.phpDocCallableVariable(file, name.text, expression.startIndex);
+          if (documented?.callable.returnType) {
+            const scope = documented.scope;
+            const templates = new Set(file.templates.filter(template => [scope.id, scope.containerFqcn]
+              .some(owner => owner?.toLowerCase() === template.ownerFqcn.toLowerCase())).map(template => template.name));
+            // Return annotations identify possible source files; collecting both
+            // conditional branches neither selects a value nor validates a call.
+            bindPhpDocTypeNames(displayPhpDocType(documented.callable.returnType), (candidate, role) => {
+              if (templates.has(candidate) || BUILTIN_PARAMETER_TYPES.has(candidate.toLowerCase())
+                || this.phpDocRuntimeUpperBound(candidate) || candidate.startsWith('$') || candidate === '*'
+                || role === 'integer-bound' || role === 'generic-base'
+                  && ['list', 'class-string', 'key-of', 'value-of'].includes(candidate.toLowerCase())) return candidate;
+              const resolved = this.resolveSourceType(file, candidate.split('::')[0]!,
+                this.namespaceAt(file, expression.startIndex), scope.containerFqcn, documented.declaration.start);
+              if (resolved) owners.add(resolved);
+              return candidate;
+            });
+          }
+        }
         if (name && ['name', 'qualified_name', 'relative_name'].includes(name.type)) {
           const fqfn = this.resolveFunction(file, name.text, this.namespaceAt(file, name.startIndex), name.startIndex);
           if (functionNames) functionNames.add(fqfn);
@@ -14899,7 +14919,9 @@ export class SemanticWorkspace {
     if (parsed.kind === 'generic' && parsed.base.kind === 'name') {
       return { name: parsed.base.name, nullable: mayBeNull, arguments: parsed.arguments.map(displayPhpDocType) };
     }
-    return parsed.kind === 'name' ? { name: parsed.name, nullable: mayBeNull, arguments: [] } : undefined;
+    return parsed.kind === 'name' && !BUILTIN_PARAMETER_TYPES.has(parsed.name.toLowerCase())
+      && !this.phpDocRuntimeUpperBound(parsed.name)
+      ? { name: parsed.name, nullable: mayBeNull, arguments: [] } : undefined;
   }
 
   private templateArgumentsFor(ownerFqcn: string, arguments_: string[], contextFile: SemanticFile, namespace: string, scopeFqcn?: string): Record<string, string> | undefined {
