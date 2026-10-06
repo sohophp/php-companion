@@ -131,18 +131,50 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
     outputChannel: output,
     middleware: {
       provideCompletionItem: async (document, position, completionContext, token, next) => {
-        if (process.env.PHP_COMPANION_TEST_COMPLETION_TIMING !== '1')
-          return next(document, position, completionContext, token);
+        const timing = process.env.PHP_COMPANION_TEST_COMPLETION_TIMING === '1';
+        const trace = process.env.PHP_COMPANION_TEST_COMPLETION_TRACE === '1';
+        if (!timing && !trace) return next(document, position, completionContext, token);
         const started = performance.now();
         const startedEpochMs = performance.timeOrigin + started;
-        try { return await next(document, position, completionContext, token); }
-        finally {
+        const requestedVersion = document.version;
+        const requestedSource = trace ? document.getText() : undefined;
+        const requestedOffset = trace ? document.offsetAt(position) : undefined;
+        let outcome: Awaited<ReturnType<typeof next>> = undefined;
+        let failure: string | undefined;
+        try {
+          outcome = await next(document, position, completionContext, token);
+          return outcome;
+        } catch (error) {
+          failure = String(error); throw error;
+        } finally {
           const finished = performance.now();
-          console.log(`SoPHP client Completion timing: ${JSON.stringify({
-            uri: document.uri.toString(), version: document.version, line: position.line, character: position.character,
+          const observation = {
+            uri: document.uri.toString(), version: requestedVersion, finishedVersion: document.version,
+            line: position.line, character: position.character,
             startedEpochMs: Math.round(startedEpochMs), finishedEpochMs: Math.round(performance.timeOrigin + finished),
             elapsedMs: Math.round(finished - started), cancelled: token.isCancellationRequested,
-          })}`);
+          };
+          if (timing) console.log(`SoPHP client Completion timing: ${JSON.stringify(observation)}`);
+          if (trace) {
+            const items = Array.isArray(outcome) ? outcome : outcome?.items ?? [];
+            console.log(`SoPHP client Completion trace: ${JSON.stringify({ ...observation,
+              triggerKind: completionContext.triggerKind, triggerCharacter: completionContext.triggerCharacter,
+              sourceHash: createHash('sha256').update(requestedSource!).digest('hex'),
+              sourceLength: requestedSource!.length, offset: requestedOffset,
+              before: requestedSource!.slice(Math.max(0, requestedOffset! - 256), requestedOffset),
+              after: requestedSource!.slice(requestedOffset, requestedOffset! + 80),
+              outcome: failure ? 'error' : outcome === undefined ? 'undefined' : outcome === null ? 'null'
+                : Array.isArray(outcome) ? 'array' : 'list', failure,
+              isIncomplete: !Array.isArray(outcome) ? outcome?.isIncomplete : undefined,
+              count: items.length, truncated: items.length > 256,
+              items: items.slice(0, 256).map(item => ({
+                label: item.label, kind: item.kind, filterText: item.filterText, sortText: item.sortText,
+                preselect: item.preselect, range: item.range, textEdit: item.textEdit,
+                insertText: typeof item.insertText === 'string' ? item.insertText : item.insertText?.value,
+                additionalTextEdits: item.additionalTextEdits,
+              })),
+            })}`);
+          }
         }
       },
       provideHover: async (document, position, token, next) => {

@@ -1,0 +1,974 @@
+{
+  "milestone": "D158",
+  "createdAtUtc": "2026-10-06T16:45:53.656242+00:00",
+  "sourceBaseCommit": "2a067ccb990a46cd28bc7f3fe09afc6aa62eefc1",
+  "bundleSha256": "426850aab126f9cf0be151f1d2a0e4608450f893e1d228a120bd46eeba55aff5",
+  "scope": "Type completion recovery from successive watcher invalidations; existing complete ordinary C1 rerun after this source fix, not entire new LSP qualification or real WSL acceptance.",
+  "implementation": {
+    "recoveryWindowMs": 1000,
+    "hotBudgetMs": 150,
+    "normalQueriesHaveNoRecoveryDelay": true,
+    "checks": [
+      "current document object and version",
+      "request cancellation",
+      "time-bounded recovery",
+      "yield before retry",
+      "stale searches retried or returned as empty incomplete after expiry"
+    ]
+  },
+  "protocol": {
+    "originalSelectedPassed": 1,
+    "originalOtherNotExecuted": 533,
+    "newLifecyclePassed": 20,
+    "newLifecycleFailed": 0,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "progressive"
+    ],
+    "actions": [
+      "successive three invalidations",
+      "cancellation",
+      "unsaved document replacement",
+      "candidate deletion",
+      "recovery window expiration and later fresh query"
+    ]
+  },
+  "visibleDiagnostic": {
+    "status": "exited",
+    "startedAtUtc": "2026-10-06T16:37:51.140Z",
+    "inputHashes": {
+      "dist/extension.js": "7da3b3740fa2efcc17261c138edba154984c53dd36d8d9c26a0919203dc69a88",
+      "dist/language-server.js": "426850aab126f9cf0be151f1d2a0e4608450f893e1d228a120bd46eeba55aff5",
+      "dist/builtinSnapshotWorker.js": "80ebe5ecaeb056a833b779c91f5fba3691aace3ec4e8706edf4409a4032c566c",
+      "dist-test/runTest.js": "445e6aee2e2fa4ad343c2d057b7cd68e2259ddbbab99d0d2521ed3a876811707",
+      "src/extension/languageServer.ts": "ada49e392513ded4efb9fd844cebf20e90cbc34c9e0580d77edd287a0ef5cb94",
+      "test/extension/suite/c1Ui.ts": "87031d54aa64d7336d8f29e4b2fbd8f2909d4440e6f7dd6e64d5493291c4d074",
+      ".vscode-test/d158-type-popup-probe.ts": "70f037b582938a284bca8c6c821292016a44637e99089972ed68e52cf7a97df6",
+      ".vscode-test/d158-type-popup-host-indexed.mjs": "a165e96bb807edb52410a42e96752c71769b3e1d0e0672158d13d339657ab3ec"
+    },
+    "productCommit": "39fbfcad479de69ddfcc5bb04bec51aa97bd03d2",
+    "bundleSha256": "426850aab126f9cf0be151f1d2a0e4608450f893e1d228a120bd46eeba55aff5",
+    "previousQualifiedBundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+    "uncommittedRecoverySource": true,
+    "profileUpdated": false,
+    "scope": "Diagnostic onDemand PHP 8.5 natural type popup with original 1000 vendor noise; normal control then two candidate epoch interruptions. Not the original complete C1 host.",
+    "childPid": 94309,
+    "environment": {
+      "PHP_COMPANION_TEST_CORE_ONLY": "1",
+      "PHP_COMPANION_TEST_C1_ONLY": "1",
+      "PHP_COMPANION_TEST_C1_UI": "1",
+      "PHP_COMPANION_TEST_C1_PHP_VERSION": "8.5",
+      "PHP_COMPANION_TEST_C1_REAL_VENDOR": "1",
+      "PHP_COMPANION_TEST_C1_REAL_VENDOR_NOISE": "1000",
+      "PHP_COMPANION_TEST_COMPLETION_TRACE": "1",
+      "PHP_COMPANION_TEST_COMPLETION_TIMING": "1",
+      "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d158-type-popup-failures"
+    },
+    "code": 0,
+    "signal": null,
+    "finishedAtUtc": "2026-10-06T16:38:15.710Z",
+    "durationSeconds": 24.570104321000002,
+    "observations": [
+      {
+        "rows": [
+          {
+            "disrupted": false,
+            "name": "C1ControlTypeProbe",
+            "mode": "onDemand",
+            "visible": true,
+            "elapsedMs": 663,
+            "afterReleaseMs": 455,
+            "typedVersion": 2,
+            "epochs": [],
+            "text": "<?php namespace App\\C1; function visible(): void { new C1ControlTypeProbe; }",
+            "cursor": {
+              "line": 0,
+              "character": 73
+            },
+            "transitions": [
+              {
+                "elapsedMs": 27,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 452,
+                "visible": true,
+                "labels": [
+                  "C1ControlTypeProbeApp\\C1\\External\\C1ControlTypeProbe"
+                ]
+              }
+            ],
+            "diskUnchanged": true,
+            "otherCompletionQueries": [],
+            "explicitSuggestTriggers": [],
+            "keysAfterRelease": []
+          }
+        ]
+      },
+      {
+        "rows": [
+          {
+            "disrupted": false,
+            "name": "C1ControlTypeProbe",
+            "mode": "onDemand",
+            "visible": true,
+            "elapsedMs": 663,
+            "afterReleaseMs": 455,
+            "typedVersion": 2,
+            "epochs": [],
+            "text": "<?php namespace App\\C1; function visible(): void { new C1ControlTypeProbe; }",
+            "cursor": {
+              "line": 0,
+              "character": 73
+            },
+            "transitions": [
+              {
+                "elapsedMs": 27,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 452,
+                "visible": true,
+                "labels": [
+                  "C1ControlTypeProbeApp\\C1\\External\\C1ControlTypeProbe"
+                ]
+              }
+            ],
+            "diskUnchanged": true,
+            "otherCompletionQueries": [],
+            "explicitSuggestTriggers": [],
+            "keysAfterRelease": []
+          },
+          {
+            "disrupted": true,
+            "name": "C1PausedTypeProbe",
+            "mode": "onDemand",
+            "visible": true,
+            "elapsedMs": 1165,
+            "afterReleaseMs": 144,
+            "typedVersion": 2,
+            "epochs": [
+              {
+                "change": 1,
+                "indexLog": "2026-10-07 00:38:14.007 [info] [Info  - 12:38:14 AM] [index:delta] complete uri=file:///tmp/php-companion-extension-tg8r9b/src/C1/UnrelatedPause1.php",
+                "uri": "file:///tmp/php-companion-extension-tg8r9b/src/C1/UnrelatedPause1.php",
+                "previousEpoch": 5,
+                "epoch": 6,
+                "changeStartedEpochMs": 1791304693619,
+                "observedEpochMs": 1791304694036,
+                "pausedDocumentVersion": 2
+              },
+              {
+                "change": 2,
+                "indexLog": "2026-10-07 00:38:14.469 [info] [Info  - 12:38:14 AM] [index:delta] complete uri=file:///tmp/php-companion-extension-tg8r9b/src/C1/UnrelatedPause2.php",
+                "uri": "file:///tmp/php-companion-extension-tg8r9b/src/C1/UnrelatedPause2.php",
+                "previousEpoch": 7,
+                "epoch": 8,
+                "changeStartedEpochMs": 1791304694082,
+                "observedEpochMs": 1791304694488,
+                "pausedDocumentVersion": 2
+              }
+            ],
+            "text": "<?php namespace App\\C1; function visible(): void { new C1PausedTypeProbe; }",
+            "cursor": {
+              "line": 0,
+              "character": 72
+            },
+            "transitions": [
+              {
+                "elapsedMs": 12,
+                "visible": false,
+                "labels": []
+              },
+              {
+                "elapsedMs": 142,
+                "visible": true,
+                "labels": [
+                  "C1PausedTypeProbeApp\\C1\\External\\C1PausedTypeProbe"
+                ]
+              }
+            ],
+            "diskUnchanged": true,
+            "otherCompletionQueries": [],
+            "explicitSuggestTriggers": [],
+            "keysAfterRelease": []
+          }
+        ]
+      }
+    ],
+    "traces": [
+      {
+        "uri": "file:///tmp/php-companion-extension-tg8r9b/src/C1/C1ControlTypeProbeConsumer.php",
+        "version": 2,
+        "finishedVersion": 2,
+        "line": 0,
+        "character": 73,
+        "startedEpochMs": 1791304692369,
+        "finishedEpochMs": 1791304692588,
+        "elapsedMs": 219,
+        "cancelled": false,
+        "triggerKind": 0,
+        "sourceHash": "3a8380f553c5ae282256af4f184c2c09d1a472493c9bfd94df0dd4128514a708",
+        "sourceLength": 76,
+        "offset": 73,
+        "before": "<?php namespace App\\C1; function visible(): void { new C1ControlTypeProbe",
+        "after": "; }",
+        "outcome": "list",
+        "isIncomplete": true,
+        "count": 1,
+        "truncated": false,
+        "items": [
+          {
+            "label": "C1ControlTypeProbe",
+            "kind": 6,
+            "sortText": "2000000",
+            "preselect": false,
+            "range": [
+              {
+                "line": 0,
+                "character": 55
+              },
+              {
+                "line": 0,
+                "character": 73
+              }
+            ],
+            "insertText": "C1ControlTypeProbe($0)",
+            "additionalTextEdits": [
+              {
+                "range": [
+                  {
+                    "line": 0,
+                    "character": 23
+                  },
+                  {
+                    "line": 0,
+                    "character": 23
+                  }
+                ],
+                "newText": "\n\nuse App\\C1\\External\\C1ControlTypeProbe;"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "uri": "file:///tmp/php-companion-extension-tg8r9b/src/C1/C1PausedTypeProbeConsumer.php",
+        "version": 2,
+        "finishedVersion": 2,
+        "line": 0,
+        "character": 72,
+        "startedEpochMs": 1791304693575,
+        "finishedEpochMs": 1791304694512,
+        "elapsedMs": 937,
+        "cancelled": false,
+        "triggerKind": 0,
+        "sourceHash": "3a2f1b29886223cdbaa66f73b67c825bad0b6d3743e732a517c7639c8b77e728",
+        "sourceLength": 75,
+        "offset": 72,
+        "before": "<?php namespace App\\C1; function visible(): void { new C1PausedTypeProbe",
+        "after": "; }",
+        "outcome": "list",
+        "isIncomplete": true,
+        "count": 1,
+        "truncated": false,
+        "items": [
+          {
+            "label": "C1PausedTypeProbe",
+            "kind": 6,
+            "sortText": "2000000",
+            "preselect": false,
+            "range": [
+              {
+                "line": 0,
+                "character": 55
+              },
+              {
+                "line": 0,
+                "character": 72
+              }
+            ],
+            "insertText": "C1PausedTypeProbe($0)",
+            "additionalTextEdits": [
+              {
+                "range": [
+                  {
+                    "line": 0,
+                    "character": 23
+                  },
+                  {
+                    "line": 0,
+                    "character": 23
+                  }
+                ],
+                "newText": "\n\nuse App\\C1\\External\\C1PausedTypeProbe;"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "changedInputs": [],
+    "rawLog": {
+      "path": "/var/www/node/php-companion/.vscode-test/d158-type-popup-host-indexed.log",
+      "sha256": "08e8dae407ac5a55e743493b10658c66efc3e35bcca67e666f2b5a67c0fe5fa9"
+    },
+    "ordinaryCompleteC1Qualified": false
+  },
+  "hotFixedThreeFiles": {
+    "scope": "Fixed three-file PHP 8.5 cross-namespace import type completion, original 150 ms warm budget; first query without prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "426850aab126f9cf0be151f1d2a0e4608450f893e1d228a120bd46eeba55aff5",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 76.23270699999966,
+        "p95Ms": 3.6492990000001555,
+        "warmSamples": 20,
+        "samples": [
+          8.161678999999822,
+          2.9003210000000763,
+          2.9082039999998415,
+          3.2151309999999285,
+          2.5888460000001032,
+          3.3133130000001074,
+          3.6492990000001555,
+          3.3879579999997986,
+          3.1366369999996095,
+          2.4943570000000364,
+          2.4625120000000607,
+          1.8799329999997099,
+          2.0250300000002426,
+          1.7910389999997278,
+          1.8123860000000604,
+          1.9589089999999487,
+          1.9280439999997725,
+          1.8253939999999602,
+          1.8973689999997987,
+          2.0342209999998886
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 94.35802200000035,
+        "p95Ms": 6.250988000000689,
+        "warmSamples": 20,
+        "samples": [
+          4.17530700000043,
+          4.278348000000733,
+          6.250988000000689,
+          4.989485000000059,
+          2.707741000000169,
+          3.398360999999568,
+          3.998239999999896,
+          22.565700000000106,
+          4.41948500000035,
+          4.662700000000768,
+          4.4356429999998,
+          3.9340500000007523,
+          3.8486820000007356,
+          3.879496000000472,
+          3.944948000000295,
+          2.5709769999994023,
+          2.455638000000363,
+          2.3087350000005245,
+          2.5735100000001694,
+          2.422429000000193
+        ]
+      }
+    ]
+  },
+  "ordinaryWholeC1": {
+    "status": "exited",
+    "childPid": 98634,
+    "parentPid": 98537,
+    "startedAtUtc": "2026-10-06T16:41:59.119878+00:00",
+    "manifest": "/var/www/node/php-companion/.vscode-test/d158-ordinary-c1-input.json",
+    "exitCode": 0,
+    "durationSeconds": 108.06960449804319,
+    "finishedAtUtc": "2026-10-06T16:43:47.187621+00:00",
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "logSha256": "630391f3c0f9267ef7c9acdc2d603e047833e225889d3e99a69de34eb230a3f1"
+  },
+  "ordinaryInputCount": 3222,
+  "ordinaryRendererFiles": 1,
+  "ordinaryRendererErrors": [
+    {
+      "file": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/renderer.log",
+      "line": 74,
+      "text": "2026-10-07 00:42:08.964 [error] Extension 'github.copilot-chat' appears in product.json but enables LESS API proposals than the extension wants."
+    },
+    {
+      "file": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/renderer.log",
+      "line": 208,
+      "text": "2026-10-07 00:42:08.965 [error] Proceeding with EXTRA proposals (authIssuers) because extension is in development mode. Still, this EXTENSION WILL BE BROKEN unless product.json is updated."
+    },
+    {
+      "file": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/renderer.log",
+      "line": 240,
+      "text": "2026-10-07 00:42:27.020 [error] (node:99353) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities."
+    }
+  ],
+  "preservedFailures": [
+    {
+      "run": "d158-type-popup-host-before",
+      "reason": "Missing required real-vendor fixture flag; no editor observations executed."
+    },
+    {
+      "run": "d158-type-popup-host-configured",
+      "reason": "Original product returned empty incomplete completion after successive invalidations; unchanged document, non-cancelled request, no popup within original 10 seconds. First project epoch change not attributable to the intended unrelated file."
+    },
+    {
+      "run": "d158-type-popup-host-recovered",
+      "reason": "Probe released on a project epoch change caused by a pending consumer/target event; second intended pause not reached. One candidate returned but disrupted UI acceptance not executed."
+    }
+  ],
+  "probeCorrection": "Wait for exact watcher index-delta complete lines before typing and before each release; no completion prewarm or extra key. Original probe preserved at its exact SHA.",
+  "open": [
+    "historical ordinary C1 failure cause is not conclusively mapped to this controlled mechanism",
+    "current changed combination entire LSP qualification",
+    "continuous ordinary PHP 7.2 editing P95 155.06 ms",
+    "50k cache RSS 1659.99 MiB",
+    "17 bare-dollar description boundaries",
+    "batch renderer getItemsByProvider exception",
+    "actual CLI 7.3/8.0/8.3 and other platforms",
+    "real WSL long use and original full C1-C4/R4 scope"
+  ],
+  "profileUpdated": false,
+  "pushed": false,
+  "goalStatus": "active",
+  "ordinaryRendererErrorClassification": {
+    "copilotProposalDiagnostics": 2,
+    "nodeUrlParseDeprecation": 1,
+    "getItemsByProviderOccurrences": 0,
+    "rawErrorsPreserved": true
+  },
+  "sourceHashes": {
+    "src/extension/languageServer.ts": "ada49e392513ded4efb9fd844cebf20e90cbc34c9e0580d77edd287a0ef5cb94",
+    "packages/language-server/src/server.ts": "a8a460756a248074927f86e69a2a9a13e676350050561639027d1429cb0570e0",
+    "packages/language-server/test/stdio.test.ts": "33688493a20b938d75c265c03e7bc7ffda931375c2198a8a63ea2f0e14b5311b",
+    "packages/language-server/test/type-completion-recovery-stdio.test.ts": "2f6c8107863f472c183561a1014e2918e3992908e25a69b5d3b672591a72f315"
+  },
+  "evidenceManifest": [
+    {
+      "path": ".vscode-test/d158-evidence/d158-client-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-cross-namespace-protocol.json",
+      "sha256": "64affdfcbd3b929014bd91352fcad2ff7c87d5c718f9dcc2b8d13c943c18d7d1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-cross-namespace-protocol.log",
+      "sha256": "97ec377f39d1d022c8ac6ed16d2876deb6c5fdca400f0763040aa7873aac0e36"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-final-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-indexed-probe-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-lifecycle-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-input.json",
+      "sha256": "448419f7c7c15ae78b0dcf1618ead12b5a979ab67a332f1bab883be53a755b73"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/c1.code-workspace",
+      "sha256": "8d761671c40e13c7581bf640e2000676d0f0e2a5aa6b63781e816227fd88f33b"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/agenthost.log",
+      "sha256": "1b906b4c5e6e81ef6473f7e3c10ab41cf8daa07a67f5058cefda6f8283d24340"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/editSessions.log",
+      "sha256": "15f2beb79a41311709cbd0b25e91fba3dadf0d356598abf05e69dadee5bb0143"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/main.log",
+      "sha256": "2c9f38fbf25246bd6a7b24884209262e1e67bf47b286aba076c5fab2d74b1636"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/mcpGateway.log",
+      "sha256": "cf7b1c51cfb27ced92f485c7d09d24a3f5c3198780c3abd20d5a1f5be9587548"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/userDataSync.log",
+      "sha256": "1a43619095454d3562eee3acc6a14b602b3c50c255bc936b02857e794584d596"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/exthost.log",
+      "sha256": "0faba704bf26f92f537856be102c0edff2f874a2d76ef5efcdf57fb92dfff322"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "04c9325635ffd205403667bfd33142f791ff607b44cf373f1e178123a4336cc6"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/vscode.git/Git.log",
+      "sha256": "66ad7b46e283619ebcaa08b368b7bf2a58700c3c511c24a9b07952d53e33c270"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "80d3c8c7163f4ba90fbd96260c79ad9b0d6f5692526a6a380a9508e75f48c887"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "c8332cb0c446ff07d53bc340a808866d6d34049e4275f513ba4561454c7459cd"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/output_20261007T004208/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/output_20261007T004208/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/renderer.log",
+      "sha256": "5944c7bbfec6f1be65cda2ab394a00dde0120d6698df7b7911e771bc3a68983c"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-log-archive/php-companion-extension-aizeeU/logs/20261007T004204/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1-run.json",
+      "sha256": "c76e23a04d00806d3d45f325ef50ceb689f44e228662167129c2edc8d813eecd"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1.log",
+      "sha256": "630391f3c0f9267ef7c9acdc2d603e047833e225889d3e99a69de34eb230a3f1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-ordinary-c1.py",
+      "sha256": "9f7be8bfaecf8fd9f8f03c0584b6e25ef791dafafa2ab9e4f0e8c10178b31db4"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-recovery-build.log",
+      "sha256": "63baad797117474a28ea08a1e2b1bd9e76e192a2f067e2f598631fbfb8f1d0a1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-recovery-lifecycle.json",
+      "sha256": "4a2257610ac543978c03ed3417909d4bab2ecbac3c6cbe5c1685f860d19ed163"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-recovery-lifecycle.log",
+      "sha256": "fab57351e3f5025015acc341ac06913417209efad7a784848d19cf3be5dc131b"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-report.py",
+      "sha256": "885b7ba293e02cb2c29d84abed7c2b520b2e7cb294e7fd81753c647389e0e453"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-server-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-completion-hot.json",
+      "sha256": "ad9b68c8eedf4d05cfdead2fb4d244266508efa6a368f78bdb973b01f0125fa2"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-completion-hot.log",
+      "sha256": "5270510c1a716c93d98f15517e05beaebb5b9f1e9ad1768b876dba984881a5ee"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-completion-hot.mjs",
+      "sha256": "cbb4734ea690bf34c2ba0a2c37616d7929f1b06ea6ed5de40c4531b6fcc5e339"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/.vscode/settings.json",
+      "sha256": "2a6af4e888474003ec2abaa21f17bbea25862ad66234125936b57572fc059552"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/c1.code-workspace",
+      "sha256": "7bf5121863bbd1b1677dac79a7adc416c6430673ffe213224e2ddfcc990da1a8"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/composer.json",
+      "sha256": "69f52738052b71c8c6f47fd868da5cc3f42531b166ecf6ec00a14a8418efeba1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/Local Storage/leveldb/000003.log",
+      "sha256": "6921b4449a856bd8caab1c596ae3db2029804fadd4d010b4ba7f574bae5620ee"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/Session Storage/000003.log",
+      "sha256": "ace9875fef7e1426d3590993377bc2e4af93c1c323a00266cdca240e91c0c82a"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/agenthost.log",
+      "sha256": "29a2503a6cf8a0bc3bd74fbf41eb3cff76998a2c3f9567cf3e0afbf7ad3e1c23"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/editSessions.log",
+      "sha256": "ee1604ec0e9fd137538c2414220aeb6d00a4c469bfbdcb870efdf2266724d90b"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/main.log",
+      "sha256": "e4219593dba1cf67ea1218b6009309829fc6b133736c60812863eaa7ecb4e932"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/mcpGateway.log",
+      "sha256": "f9b88b5495d69761b3ba66d99f0c7ba8e6939b3abe3a546fb259f0df6412168d"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/userDataSync.log",
+      "sha256": "db958db95d4bb779b47af07f5d3c22c1b75cc7223c2310f9d89775dc755e01c1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/exthost/exthost.log",
+      "sha256": "4f3c7e78624c5bd5bb66719e398ebb5d5982132ac572cc2e8fcebd479e4c5bac"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "835fb22b46cd458636055be2884992c30a6e7f6ee61ec5a9ad523ea5156ad262"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/exthost/vscode.git/Git.log",
+      "sha256": "aa74e187f6fa79228d336e29be9effb67aa23030eca36ff9538b1c09facf8e9e"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "96c8e4585338e8c62185b49a6ffd0d7e9ccf1a2b155040e446d6b728148f6070"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "973d13a05d660eeadb5f87aaee73d856a7a5a94b613e01dd80547b4bf7dd3f2f"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/output_20261007T003542/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/output_20261007T003542/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/renderer.log",
+      "sha256": "5c50740cac2dc83202c04df7e4ada849723e584a662b2b83633253def9457495"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/profile-user-data/logs/20261007T003538/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/src/C1/C1ControlTypeProbeConsumer.php",
+      "sha256": "ca0bc064ef84fa3b57a5e1f447fa20c61845ab0240c1ad798424abf5891847e6"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/src/C1/C1PausedTypeProbeConsumer.php",
+      "sha256": "d96b8cca71c16f39c18f17d02bc18164778beed3b692421d23852b0884823cfd"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/src/C1/External/C1ControlTypeProbe.php",
+      "sha256": "e4a8d12e504d436169b7995c58c2cec86d02c3abe59fa558a110a51ddba65fb6"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/src/C1/External/C1PausedTypeProbe.php",
+      "sha256": "84ca6a1eae912fe98017a223b91b98c414f6dba952489e7b5f3da1a700eb79ce"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-Behdm2/fixture/src/C1/UnrelatedPause1.php",
+      "sha256": "c37dbba8cbea539cb6b91e80530f364eb6b303313a4d8a49a9764b35424e3fb8"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/.vscode/settings.json",
+      "sha256": "2a6af4e888474003ec2abaa21f17bbea25862ad66234125936b57572fc059552"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/c1.code-workspace",
+      "sha256": "f8a0f5017f9fec886e82f43e00f984f378dc0dd2cacf4dd3af150bd0896ccd22"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/composer.json",
+      "sha256": "69f52738052b71c8c6f47fd868da5cc3f42531b166ecf6ec00a14a8418efeba1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/Local Storage/leveldb/000003.log",
+      "sha256": "33f4f602ef2a77e94815c6b329980d65205b2f89412c1ef91c770b68893496ff"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/Session Storage/000003.log",
+      "sha256": "ffd700cf04be6fe8d51e2ffb8a2e37bc3fa95a6679a4102fa35e8494c2350eae"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/agenthost.log",
+      "sha256": "0be801730dde1b5c8bdf7fd75e83267cec6279b3e5048582319c521770e84a2e"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/editSessions.log",
+      "sha256": "0fa7d1eb3869b7cce574fafddf03c6b880e5e231766ae69fa03eab05494f9b06"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/main.log",
+      "sha256": "994c169594a166d96dba62d0a5d7f5dc5ae2a1da45d2efdb55ace940b955efaf"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/mcpGateway.log",
+      "sha256": "344a77e69a8db0d5ddc174f196fc59fad44adf0950c56395b283af2135c88bbf"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/userDataSync.log",
+      "sha256": "4058baaf31f9212559640af493810d8cf775467da57b0dcdab9a3619234804c2"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/exthost/exthost.log",
+      "sha256": "474ad0ebd6fb68fd05a64988ba4fb2ae9a212eacfe1eed2eab23f012f2351799"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "0ddb5a3fd9ff04a8b9d754f47fffdb7b2cb88c373475541f80408f4a5b4dc7f0"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/exthost/vscode.git/Git.log",
+      "sha256": "78eb3dd51050c58fdf8355efcad74c03fc3e501be2c9ac6ae0606b88c91a600c"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "3b497dc14d3ae9a10b77cacc0ae1018a0cb98de2e7b9533169c18e94c8fb6cec"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "645c2ab17c07eacdda8f338dac9a4466ff5b9a59830ec8056f9cb7e65b5197c7"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/output_20261007T003225/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/output_20261007T003225/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/renderer.log",
+      "sha256": "3c1066a5258748aa0c339c5e5db9f10031f3e0715a6bbad0538cff267a46a0fe"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/profile-user-data/logs/20261007T003221/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/src/C1/C1ControlTypeProbeConsumer.php",
+      "sha256": "ca0bc064ef84fa3b57a5e1f447fa20c61845ab0240c1ad798424abf5891847e6"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/src/C1/C1PausedTypeProbeConsumer.php",
+      "sha256": "d96b8cca71c16f39c18f17d02bc18164778beed3b692421d23852b0884823cfd"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/src/C1/External/C1ControlTypeProbe.php",
+      "sha256": "e4a8d12e504d436169b7995c58c2cec86d02c3abe59fa558a110a51ddba65fb6"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/src/C1/External/C1PausedTypeProbe.php",
+      "sha256": "84ca6a1eae912fe98017a223b91b98c414f6dba952489e7b5f3da1a700eb79ce"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/src/C1/UnrelatedPause1.php",
+      "sha256": "c37dbba8cbea539cb6b91e80530f364eb6b303313a4d8a49a9764b35424e3fb8"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-failures/extension-failure-qczkPp/fixture/src/C1/UnrelatedPause2.php",
+      "sha256": "7c94cf2e1c8aca0f8939ea4b8ff3f85970bfed9241bab81b3cbd75fb23aa6322"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-before.json",
+      "sha256": "a5cadc12a121ac5984681074f22f873a7c8956de12c033dc5ca26406b53b9df0"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-before.log",
+      "sha256": "a2fc53efa545d118e7547dfe7b1abe2d188ec690aad73bbc13ea395e8378cbbb"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-configured.json",
+      "sha256": "d656c0f4310e0d0cfe44b963f061aef121ddd3d62813b90856a4ac3bc6dc463e"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-configured.log",
+      "sha256": "66be1e80cb66dbd8dfec12811b92599a868b793328afb7019e38da72edd18595"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-configured.mjs",
+      "sha256": "dea9bd53acdd7f35e7a423e8c94a34f53fa3d10a5c49f6429582d846cf4ff883"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-indexed.json",
+      "sha256": "7c23c3509b8a250f10144702655239f649b5163b715c9e9191856f2c256b4578"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-indexed.log",
+      "sha256": "08e8dae407ac5a55e743493b10658c66efc3e35bcca67e666f2b5a67c0fe5fa9"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-indexed.mjs",
+      "sha256": "a165e96bb807edb52410a42e96752c71769b3e1d0e0672158d13d339657ab3ec"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-recovered.json",
+      "sha256": "208ed1d9f2a89d9dea1b16e8be512ad06da0bb14cd5c69b28f75c5d4fdcafd71"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-recovered.log",
+      "sha256": "1718f3c4dddf631b8e7d7f21062d450d2303eb26296fc3d60ae7b07af75c7ff1"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host-recovered.mjs",
+      "sha256": "76c896c4a023d53cb100ab952a0bd2f27015cdaf19f35c6710c671bf73f8f0d2"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-host.mjs",
+      "sha256": "d2a80d5cb4a44ddaa946165969fc7d8eb97c3727f540fdde8dcecdf288ff06fc"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-probe-original.ts",
+      "sha256": "978fc7318ab54f13aff81e21ae0b526f282bb76e54bf9fab214ed14732170645"
+    },
+    {
+      "path": ".vscode-test/d158-evidence/d158-type-popup-probe.ts",
+      "sha256": "70f037b582938a284bca8c6c821292016a44637e99089972ed68e52cf7a97df6"
+    }
+  ],
+  "archiveBoundary": "Full diagnostic failure fixtures are retained in the ignored evidence directory; manifest lists relevant logs, runner/probe sources, frozen inputs and focused PHP files, excluding unrelated cache/vendor files."
+}

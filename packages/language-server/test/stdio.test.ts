@@ -4988,8 +4988,12 @@ function inspect(Sink $sink, ?Sink $optional): void {
         method: 'typeCompletionCandidates',
       } }));
       expect((await output.waitFor((message) => message.id === 134)).result).toBe(true);
-      expect((await output.waitFor((message) => message.id === 131)).result)
-        .toMatchObject({ isIncomplete: true, items: [] });
+      // The same request must recover the second invalidation. An incomplete
+      // empty response does not reopen VS Code's popup without another key.
+      expect(completionItems((await output.waitFor((message) => message.id === 131)).result))
+        .toEqual(expect.arrayContaining([
+          expect.objectContaining({ label: 'InventoryThree', detail: 'Domain\\Billing\\InventoryThree' }),
+        ]));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 135, method: 'textDocument/completion', params: {
         textDocument: { uri }, position: lspPosition(source, source.indexOf('@template T of Inv') + '@template T of Inv'.length),
       } }));

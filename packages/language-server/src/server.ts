@@ -7414,16 +7414,25 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   ]);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   // A file event can invalidate the candidate search while the document itself
-  // remains current. Retry once against the new index epoch so the first popup
-  // can contain the newly discovered type. A second change stays retryable.
-  if (segments === 'stale' || typeOutcome === 'stale') {
+  // remains current. VS Code does not re-request an empty incomplete list when
+  // the user stops typing, so recover successive watcher invalidations inside
+  // this request. Bound recovery time and retain document/cancellation checks;
+  // a continuous stream of project changes must not keep a request alive.
+  const candidateRecoveryDeadline = performance.now() + 1_000;
+  while ((segments === 'stale' || typeOutcome === 'stale')
+    && currentQueryDocument(document, token, queryVersion)
+    && performance.now() < candidateRecoveryDeadline) {
+    await yieldToEventLoop();
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+    const recoveryCancelled = (): boolean => !currentQueryDocument(document, token, queryVersion)
+      || performance.now() >= candidateRecoveryDeadline;
     [segments, typeOutcome] = await Promise.all([
       segments === 'stale' && namespaceContext && root
-        ? importNamespaceSegments(workspace, root, namespaceContext, () => token.isCancellationRequested)
+        ? importNamespaceSegments(workspace, root, namespaceContext, recoveryCancelled)
         : Promise.resolve(segments),
       typeOutcome === 'stale' && (indexingMode === 'onDemand' || importNamespaceContext !== undefined) && typeContext && root
         ? hydrateOnDemandNamespaceTypeCandidates(workspace, root, typeContext, qualifiedTypeContext,
-          () => token.isCancellationRequested)
+          recoveryCancelled)
         : Promise.resolve(typeOutcome),
     ]);
   }
