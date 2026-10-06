@@ -1,0 +1,350 @@
+{
+  "milestone": "D157",
+  "status": "qualified frozen current LSP combination",
+  "auditedAtUtc": "2026-10-06T16:26:41.956815+00:00",
+  "commit": "39fbfcad479de69ddfcc5bb04bec51aa97bd03d2",
+  "bundleSha256": "ac2b0a0ec69643824faf0eba51ed4976d1d7b1914e985618781ff4929dd45458",
+  "engineVersion": "semantic-v80-php-<version>",
+  "frozenInputs": {
+    "count": 3218,
+    "audit": {
+      "inputs": 3218,
+      "changedInputs": [],
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "headChanged": false,
+      "worktreeChanged": false,
+      "collectionChanged": false,
+      "expectedCases": 1246,
+      "actualCases": 1246,
+      "expectedFiles": 97,
+      "actualFiles": 97,
+      "missing": [],
+      "extra": [],
+      "preexistingDuplicateLabels": [],
+      "duplicateMultiplicityPreserved": true
+    }
+  },
+  "runtimes": {
+    "7.2": {
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34"
+    },
+    "7.4": {
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33"
+    },
+    "8.1": {
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34"
+    },
+    "8.2": {
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32"
+    },
+    "8.4": {
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23"
+    },
+    "8.5": {
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9"
+    }
+  },
+  "node": {
+    "nodePath": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+    "nodeSha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+    "nodeVersion": "v22.14.0"
+  },
+  "phase": {
+    "run": {
+      "status": "exited",
+      "phase": "lsp",
+      "parentPid": 47125,
+      "childPid": 47179,
+      "startedAtUtc": "2026-10-06T15:50:52.601098+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d157-current-lsp-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/language-server",
+      "exitCode": 0,
+      "durationSeconds": 2128.8687624309678,
+      "finishedAtUtc": "2026-10-06T16:26:21.469325+00:00"
+    },
+    "result": {
+      "numTotalTests": 1246,
+      "numPassedTests": 1246,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "qualified": true,
+    "failuresOrSkipped": []
+  },
+  "timings": {
+    "onDemand-true.json": {
+      "indexingMode": "onDemand",
+      "waitingCompletion": true,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 19.947638999998162
+    },
+    "output-completion-progressive.json": {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "firstQueryMs": 236.24403700000403,
+      "warmSamples": 20,
+      "p95Ms": 26.978727000001527,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    "onDemand-true-gap5.json": {
+      "indexingMode": "onDemand",
+      "waitingCompletion": true,
+      "gapMs": 5,
+      "roots": 5,
+      "elapsedMs": 23.002558000000136
+    },
+    "progressive-false.json": {
+      "indexingMode": "progressive",
+      "waitingCompletion": false,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 18.752300000000105
+    },
+    "progressive-true.json": {
+      "indexingMode": "progressive",
+      "waitingCompletion": true,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 20.393898000002082
+    },
+    "output-completion-onDemand.json": {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "firstQueryMs": 220.61904700000014,
+      "warmSamples": 20,
+      "p95Ms": 16.74274200000218,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    "progressive-true-gap5.json": {
+      "indexingMode": "progressive",
+      "waitingCompletion": true,
+      "gapMs": 5,
+      "roots": 5,
+      "elapsedMs": 38.212306999994325
+    },
+    "onDemand-false.json": {
+      "indexingMode": "onDemand",
+      "waitingCompletion": false,
+      "gapMs": 0,
+      "roots": 5,
+      "elapsedMs": 23.574020999998538
+    }
+  },
+  "collectionDeltaFromD155": {
+    "oldCases": 1230,
+    "currentCases": 1246,
+    "missingOriginal": [],
+    "added": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'completion' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'hover' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'definition' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'signatureHelp' PHP '7.2' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'completion' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'hover' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'definition' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'signatureHelp' PHP '7.2' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'completion' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'hover' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'definition' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'signatureHelp' PHP '8.5' 'onDemand'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'completion' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'hover' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'definition' PHP '8.5' 'progressive'",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'signatureHelp' PHP '8.5' 'progressive'",
+        "count": 1
+      }
+    ]
+  },
+  "collectionPreparation": {
+    "collectedCases": 1246,
+    "reason": "Preserve original PHP_COMPANION_TEST_REFERENCE_BUNDLE case and every D155 case; D156 adds sixteen cold documented-callback reuse first-query cases."
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/d157-current-lsp-input.json",
+      "sha256": "d042d28c47912d56b185e5a0cd883641967c8c628c39d2c3f9a85a60ec5581a2"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/d157-current-lsp-run.json",
+      "sha256": "08a09747e2ac562e2156bfa802fd94920dea07db29a60f791834bc3a3d449fc3"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/sophp-d157-current-lsp-full.json",
+      "sha256": "e5dedbfd8c27808955a7edb08e00a111d5553488d5321ceb61af809b5b8fb99a"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/sophp-d157-current-lsp-collection.json",
+      "sha256": "5fb94efe9de4c496a3d30d573f3b6e26aefb082e18495e9c7e28be92e10e5007"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/sophp-d157-current-lsp-full.log",
+      "sha256": "c4b837134a8710f04c420f321429a4e24528f5b7eb882ce3aeea950b50d662a2"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/d157-current-full-run.py",
+      "sha256": "f574ab9dbcd1a6bdb27264794e9d7f2979592e305e465fd3e828507dddc3a1b0"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/d157-current-audit.py",
+      "sha256": "e9a398ff74dfadef7e9ef1b3828f2db9b5d22dd286fc05469ff37729b992318f"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/d157-current-freeze.py",
+      "sha256": "05197231faf2cfc359b520632fec895039fd5dd3d66f640a1882fb6842be484b"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/output-completion-progressive.json",
+      "sha256": "3e4979b16d85b9025fbe70b99dc62b82b9e8d9fc2ada5727b163e0e944b44086"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "5b78949c252a0a4e07eec72f32a920a12d07469c8f79b7b6468e95fcb7346000"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/onDemand-true.json",
+      "sha256": "3ae853e0211f4a3ce1a1735567fe7c83b8e2b1147b2d6f39037a4c810f4832ca"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "c61e7ca52f12cb430deb8d06404391ebb0ba0bf9838b17ab18a276347799fbc2"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/progressive-false.json",
+      "sha256": "aa6f841185829332250a938331f0de0dea77f432f66df21089edc917bc3d3f12"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/progressive-true.json",
+      "sha256": "9e6973ec57b76ad04b3dbd2a15b6caaef0056a3cb4cc9d0ec3e1befd01241067"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "21386d9bc607636b026b8395136c244a93345e3ea06f26d6ac11656f49861a9b"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/onDemand-false.json",
+      "sha256": "a4fa7bcc2cbe5e276da01701166b656ce65e45911aa23bfd0fac557ad1438943"
+    },
+    {
+      "path": ".vscode-test/d157-current-report.py",
+      "sha256": "8c3d41d01bb00f28710b1c697a2e2256c0da5bdd14ebb862888ad51a69c3f56e"
+    },
+    {
+      "path": ".vscode-test/d157-current-lsp-evidence/d157-current-report.py",
+      "sha256": "8c3d41d01bb00f28710b1c697a2e2256c0da5bdd14ebb862888ad51a69c3f56e"
+    }
+  ],
+  "scope": "Full current v80 LSP combination on D156 checkpoint, all original cases and budgets retained. Not full roadmap or real WSL.",
+  "remaining": [
+    "Original C1-C4/R4 whole qualification remains open.",
+    "Ordinary PHP 7.2 continuous editing P95 155.06 ms exceeds 150 ms; fixed unchanged-document hot queries do not close it.",
+    "50k warm cache RSS 1659.99 MiB exceeds 1536 MiB.",
+    "Bare $ completion descriptions retain 17 boundaries after two failed prototypes.",
+    "Batch renderer getItemsByProvider exception and ordinary complete C1 type-popup stability remain unproven.",
+    "Actual PHP CLI 7.3, 8.0 and 8.3, other platforms and real WSL long use remain unverified.",
+    "Dynamic and complex inference limits retain their stated support boundaries.",
+    "Current stable documented callback reuse is part of this frozen combination; focused host evidence does not close ordinary complete C1 popup stability."
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "originalBudgetCases": [
+    {
+      "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+      "durationMs": 98070.96864600002,
+      "budgetMs": 120000,
+      "status": "passed"
+    },
+    {
+      "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+      "durationMs": 15712.853558999952,
+      "budgetMs": 20000,
+      "status": "passed"
+    }
+  ]
+}
