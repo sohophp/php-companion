@@ -1,0 +1,132 @@
+{
+  "cases": [
+    {
+      "name": "unknown parameter return",
+      "definitions": "",
+      "consumer": "function make($input):int{return $input;}",
+      "query": "return",
+      "contract": "No literal value proof; no new definite scalar rejection."
+    },
+    {
+      "name": "unknown property value",
+      "definitions": "class Holder{public int $mode;}",
+      "consumer": "function run(Holder $holder,$input){$holder->mode=$input;}",
+      "query": "property",
+      "contract": "No literal value proof; no new definite scalar rejection."
+    },
+    {
+      "name": "alias mutation before property write",
+      "definitions": "class Holder{public int $mode;}function mutate(&$v){$v=42;}",
+      "consumer": "function run(Holder $holder){$input='wrong';$alias=&$input;mutate($alias);$holder->mode=$input;}",
+      "query": "property",
+      "contract": "Alias mutation must not retain a stale literal value.",
+      "preservedPolicy": {
+        "strict": 0,
+        "weak": 0
+      }
+    },
+    {
+      "name": "unknown call before property write",
+      "definitions": "class Holder{public int $mode;}",
+      "consumer": "function run(Holder $holder){$input='wrong';mutate($input);$holder->mode=$input;}",
+      "query": "property",
+      "contract": "Do not treat a stale literal as a guaranteed runtime value.",
+      "preservedPolicy": {
+        "strict": 0,
+        "weak": 0
+      }
+    },
+    {
+      "name": "branch before property write",
+      "definitions": "class Holder{public int $mode;}",
+      "consumer": "function run(Holder $holder,$flag){$input='wrong';if($flag){$input=42;}$holder->mode=$input;}",
+      "query": "property",
+      "contract": "Do not choose a single branch as the input value.",
+      "preservedPolicy": {
+        "strict": 0,
+        "weak": 0
+      }
+    },
+    {
+      "name": "annotation only declared property",
+      "definitions": "class Holder{/** @var int */public $mode;}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Preserve existing PHPDoc diagnostic policy; no invented native conversion.",
+      "preservedPolicy": {
+        "strict": 1,
+        "weak": 0
+      }
+    },
+    {
+      "name": "annotation only magic property",
+      "definitions": "/** @property int $mode */class Holder{}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Preserve existing PHPDoc diagnostic policy; no invented native conversion.",
+      "preservedPolicy": {
+        "strict": 1,
+        "weak": 0
+      }
+    },
+    {
+      "name": "inherited native property",
+      "definitions": "class Base{public int $mode;}class Holder extends Base{}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Native owner is Base even when accessed on Holder."
+    },
+    {
+      "name": "trait native property",
+      "definitions": "trait State{public int $mode;}class Holder{use State;}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Recover the native Trait declaration through existing ownership."
+    },
+    {
+      "name": "missing parent",
+      "definitions": "class Holder extends Missing{public int $mode;}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Incomplete hierarchy must remain conservative."
+    },
+    {
+      "name": "duplicate holder declaration",
+      "definitions": "class Holder{public int $mode;}",
+      "extraDefinitions": "class Holder{public string $mode;}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Conflicting native declarations must not be treated as a unique contract."
+    },
+    {
+      "name": "promoted native type with annotation",
+      "definitions": "class Holder{/** @param int $mode */function __construct(public int $mode){}}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Original native parameter type must survive promotion."
+    },
+    {
+      "name": "expanded set hook type",
+      "minimumVersion": "8.4",
+      "definitions": "class Holder{public int $mode{set(int|string $value){}}}",
+      "consumer": "function run(Holder $holder){$holder->mode='wrong';}",
+      "query": "property",
+      "contract": "Write contract is the set parameter, not the read/storage type."
+    },
+    {
+      "name": "untyped default",
+      "definitions": "class Row{}class Other{}/** @return ($mode is int ? Row : Other) */function make($mode=42){}",
+      "consumer": "function run(){$v=make();$v->;}",
+      "query": "members",
+      "contract": "Omitted untyped literal still selects the original conditional branch."
+    },
+    {
+      "name": "class-string default",
+      "definitions": "class Row{}class Other{}/** @return ($mode is class-string ? Row : Other) */function make(string $mode=Row::class){}",
+      "consumer": "function run(){$v=make();$v->;}",
+      "query": "members",
+      "contract": "Class-string evidence must not be replaced with a guessed numeric conversion."
+    }
+  ],
+  "scope": "Explicit native proof guards plus preserved annotation/unknown-value diagnostic policy."
+}

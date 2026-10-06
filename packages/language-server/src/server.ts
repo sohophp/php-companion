@@ -2257,6 +2257,22 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
           argument.callable, argument.parameter, argument.expectedType, argument.actualType),
       })));
   }
+  if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')) {
+    result.diagnostics.push(...workspace.incompatibleReturns(document.uri, !root || !completeRoots.has(root)).map((returned) => ({
+      range: { start: document.positionAt(returned.start), end: document.positionAt(returned.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.return.type-mismatch',
+      source: 'SoPHP',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'returnTypeMismatch', returned.callable, returned.expectedType, returned.actualType),
+    })));
+    result.diagnostics.push(...workspace.incompatibleAssignments(document.uri, !root || !completeRoots.has(root)).map((assignment) => ({
+      range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.assignment.type-mismatch',
+      source: 'SoPHP',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'assignmentTypeMismatch', assignment.variable, assignment.expectedType, assignment.actualType),
+    })));
+  }
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax') && root && completeRoots.has(root)) {
     const disabledExtensions = new Set(disabledExtensionsForRoot(root));
     const catalog = disabledExtensions.size ? await phpExtensionSymbolCatalog(targetPhpVersion) : undefined;
@@ -2412,20 +2428,6 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       code: 'php.argument.type-mismatch',
       source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
-    })));
-    result.diagnostics.push(...workspace.incompatibleReturns(document.uri).map((returned) => ({
-      range: { start: document.positionAt(returned.start), end: document.positionAt(returned.end) },
-      severity: DiagnosticSeverity.Error,
-      code: 'php.return.type-mismatch',
-      source: 'SoPHP',
-      message: diagnosticMessage(clientDiagnosticLanguage, 'returnTypeMismatch', returned.callable, returned.expectedType, returned.actualType),
-    })));
-    result.diagnostics.push(...workspace.incompatibleAssignments(document.uri).map((assignment) => ({
-      range: { start: document.positionAt(assignment.start), end: document.positionAt(assignment.end) },
-      severity: DiagnosticSeverity.Error,
-      code: 'php.assignment.type-mismatch',
-      source: 'SoPHP',
-      message: diagnosticMessage(clientDiagnosticLanguage, 'assignmentTypeMismatch', assignment.variable, assignment.expectedType, assignment.actualType),
     })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.dynamicPropertyCreations(document.uri).map((property) => ({
       range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },

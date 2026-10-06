@@ -1,0 +1,330 @@
+{
+  "milestone": "D145",
+  "status": "incomplete",
+  "auditedAtUtc": "2026-10-06T05:41:24.069009+00:00",
+  "commit": "7a03903ad4bcf261b685d17c3cc52402aa789607",
+  "bundleSha256": "4ce23359edd9384a42190fa70159ebb04a67da7f1c58dec5d4bbf2c71c9df852",
+  "engineVersion": "v72",
+  "frozenInputs": 3091,
+  "runtimes": {
+    "7.2": {
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34"
+    },
+    "7.4": {
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33"
+    },
+    "8.1": {
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34"
+    },
+    "8.2": {
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32"
+    },
+    "8.4": {
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23"
+    },
+    "8.5": {
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9"
+    }
+  },
+  "phases": {
+    "semantic": {
+      "qualified": true,
+      "run": {
+        "status": "exited",
+        "phase": "semantic",
+        "parentPid": 3575736,
+        "childPid": 3575790,
+        "startedAtUtc": "2026-10-06T05:06:46.954141+00:00",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d145-semantic-full.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/semantic",
+        "exitCode": 0,
+        "durationSeconds": 72.38265501899878,
+        "finishedAtUtc": "2026-10-06T05:07:59.334673+00:00"
+      },
+      "audit": {
+        "inputs": 3091,
+        "changedInputs": [],
+        "runtimeChanges": [],
+        "nodeChanged": false,
+        "headChanged": false,
+        "worktreeChanged": false,
+        "collectionChanged": false,
+        "expectedCases": 9192,
+        "actualCases": 9192,
+        "expectedFiles": 135,
+        "actualFiles": 135,
+        "missing": [],
+        "extra": [],
+        "preexistingDuplicateLabels": [
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+            "name": "collects member query dependencies beyond completion prefixes, retained=true",
+            "count": 2
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/function-query-dependencies.test.ts",
+            "name": "collects member query dependencies beyond completion prefixes, retained=false",
+            "count": 2
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+            "name": "ranks default callable references as Closure rather than call results with retained tree=true: function run(Closure $callback = demo§) {}",
+            "count": 2
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/declaration-default-completion.test.ts",
+            "name": "ranks default callable references as Closure rather than call results with retained tree=false: function run(Closure $callback = demo§) {}",
+            "count": 2
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/direct-function-query-dependencies.test.ts",
+            "name": "rejects non function positions, retained=true",
+            "count": 12
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/direct-function-query-dependencies.test.ts",
+            "name": "rejects non function positions, retained=false",
+            "count": 12
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+            "name": "keeps unsupported query sources conservative, retained=true",
+            "count": 5
+          },
+          {
+            "file": "/var/www/node/php-companion/packages/semantic/test/type-definition-dependencies.test.ts",
+            "name": "keeps unsupported query sources conservative, retained=false",
+            "count": 5
+          }
+        ],
+        "duplicateMultiplicityPreserved": true
+      },
+      "result": {
+        "numTotalTests": 9192,
+        "numPassedTests": 9192,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0,
+        "success": true
+      },
+      "failuresOrSkipped": [],
+      "artifacts": [
+        {
+          "path": ".vscode-test/d145-semantic-evidence/d145-semantic-input.json",
+          "sha256": "aef9dcacad0a8f3d49d66c25a66338e285e6412ed714efa46c2d6e957da52d35"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/d145-semantic-run.json",
+          "sha256": "55d10aeb1a20f881827820dff530471b8695df0cacc433d7d1dcc976c698e360"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/sophp-d145-semantic-full.json",
+          "sha256": "9473978962d563c1e91102bae4c6e759b6f9918f9e54fb2aa4821719a46fb43e"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/sophp-d145-semantic-collection.json",
+          "sha256": "2c996c2c5785c7c4b859f46fb5229bf45a2e3335d13670fcd45e7176ee6362c4"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/sophp-d145-semantic-full.log",
+          "sha256": "0e5f6e9f3f341e642eb3d5d598cfc2895374f7a162edbd10db2583724da36bd0"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/d145-full-run.py",
+          "sha256": "ac20cdfd83afed0da8cef028d8f14626838dce8db42579c2a16bc4b985ebf1f9"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/d145-audit.py",
+          "sha256": "6cdf190c840fa0fec79a5cda0d26c8d0b681b68cb9d1754c4c9f2db3faedca0f"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/d145-freeze.py",
+          "sha256": "cf821b63b08d0012932956ada5a10959e12902c9642802f67fb8038526b9261a"
+        },
+        {
+          "path": ".vscode-test/d145-semantic-evidence/d145-prepare.py",
+          "sha256": "ba0e02992ce14328edab279e6d820c5f982b4011714b24f82d52bd7cf7a76225"
+        }
+      ],
+      "archivePath": ".vscode-test/d145-semantic-evidence/"
+    },
+    "lsp": {
+      "qualified": false,
+      "run": {
+        "status": "exited",
+        "phase": "lsp",
+        "parentPid": 3578498,
+        "childPid": 3578566,
+        "startedAtUtc": "2026-10-06T05:09:48.214112+00:00",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--reporter=json",
+          "--outputFile=/tmp/sophp-d145-lsp-full.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "exitCode": 1,
+        "durationSeconds": 1846.4236613290268,
+        "finishedAtUtc": "2026-10-06T05:40:34.635610+00:00"
+      },
+      "audit": {
+        "inputs": 3091,
+        "changedInputs": [],
+        "runtimeChanges": [],
+        "nodeChanged": false,
+        "headChanged": false,
+        "worktreeChanged": false,
+        "collectionChanged": false,
+        "expectedCases": 1169,
+        "actualCases": 1169,
+        "expectedFiles": 90,
+        "actualFiles": 90,
+        "missing": [],
+        "extra": [],
+        "preexistingDuplicateLabels": [],
+        "duplicateMultiplicityPreserved": true
+      },
+      "result": {
+        "numTotalTests": 1169,
+        "numPassedTests": 1168,
+        "numFailedTests": 1,
+        "numPendingTests": 0,
+        "numTodoTests": 0,
+        "success": false
+      },
+      "failuresOrSkipped": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+          "name": "stops a pending multi-root version refresh in progressive mode with waiting completion=true",
+          "status": "failed",
+          "durationMs": 8447.291057999999,
+          "failureMessages": [
+            "AssertionError: expected 2644.4411180000025 to be less than 2000\n    at /var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts:98:23\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "path": ".vscode-test/d145-lsp-evidence/d145-lsp-input.json",
+          "sha256": "45e0401f77364b9ce433cb30d6dec8deb27a8076b877fbc7b591ce8d17616a82"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/d145-lsp-run.json",
+          "sha256": "bd3595bc5d9b42407cfc80edf9452b2687778748720b8c77806396be2ea8ae79"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/sophp-d145-lsp-full.json",
+          "sha256": "2eb660013e2ad71c6f5d4b8c1c5d60aeafc891090466c7e574d9fc489538267e"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/sophp-d145-lsp-collection.json",
+          "sha256": "64cd665c006d31cae025f8dbf16de7f54243ed5d9f877328fdf7d9baf9e50480"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/sophp-d145-lsp-full.log",
+          "sha256": "e46e4acaa74c17ebdbc6a0cba7d9ce33227bd78dd75a84470f0a139c01366388"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/d145-full-run.py",
+          "sha256": "ac20cdfd83afed0da8cef028d8f14626838dce8db42579c2a16bc4b985ebf1f9"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/d145-audit.py",
+          "sha256": "6cdf190c840fa0fec79a5cda0d26c8d0b681b68cb9d1754c4c9f2db3faedca0f"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/d145-freeze.py",
+          "sha256": "cf821b63b08d0012932956ada5a10959e12902c9642802f67fb8038526b9261a"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/d145-prepare.py",
+          "sha256": "ba0e02992ce14328edab279e6d820c5f982b4011714b24f82d52bd7cf7a76225"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/output-completion-progressive.json",
+          "sha256": "46d4df6c76bd838901b112cbe9745afc11be95d932986392a99cdb10f05f4c8c"
+        },
+        {
+          "path": ".vscode-test/d145-lsp-evidence/output-completion-onDemand.json",
+          "sha256": "cca76232f667026086bca487f6f77b0401e2e2c6fd1f59268b82e1fddd693a5e"
+        }
+      ],
+      "archivePath": ".vscode-test/d145-lsp-evidence/"
+    }
+  },
+  "timings": [
+    {
+      "path": ".vscode-test/d145-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "cca76232f667026086bca487f6f77b0401e2e2c6fd1f59268b82e1fddd693a5e",
+      "value": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "firstQueryMs": 184.97939300000144,
+        "warmSamples": 20,
+        "p95Ms": 14.384618000000046,
+        "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+      }
+    },
+    {
+      "path": ".vscode-test/d145-lsp-evidence/output-completion-progressive.json",
+      "sha256": "46d4df6c76bd838901b112cbe9745afc11be95d932986392a99cdb10f05f4c8c",
+      "value": {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "firstQueryMs": 248.19238699999914,
+        "warmSamples": 20,
+        "p95Ms": 41.351174999999785,
+        "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+      }
+    }
+  ],
+  "priorFailuresPreserved": {
+    "D144": "Final semantic 9191/9192 with one STACK_TRACE_ERROR; same file later passed but cause not proven. D145 is a separate run of the unchanged product.",
+    "D141": "Original full LSP 1149/1159 on the previous product; not rewritten as green."
+  },
+  "scope": "Only the fixed 7a03903a product. Original C1-C4/R4 remains; neither future prototype nor real WSL acceptance.",
+  "remaining": [
+    "Ordinary edit P95 155.06ms against 150ms budget",
+    "50k cache RSS 1659.99MiB against 1536MiB",
+    "Bare-dollar completion descriptions",
+    "Native default/return/property boundaries",
+    "PHP 7.3/8.0/8.3 native runtimes, other platforms, scale and sustained real WSL use",
+    "Progressive multi-root shutdown with waiting completion: full run 2644.44ms exceeds original 2000ms; focused original file 6/6 passes, cause unresolved."
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "shutdownFocusedReproduction": {
+    "result": {
+      "numTotalTests": 6,
+      "numPassedTests": 6,
+      "numFailedTests": 0,
+      "success": true
+    },
+    "artifact": ".vscode-test/d145-lsp-evidence/sophp-d145-shutdown-repro.json",
+    "sha256": "22331f10731e41fcace00543c62970f6bdd904ffad8d4d141aa4866e92c08e2d",
+    "scope": "One original-file focused reproduction, no budget/source change; does not replace full-run failure or prove cause."
+  }
+}

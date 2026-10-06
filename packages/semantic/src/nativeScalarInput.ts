@@ -29,7 +29,7 @@ function numericString(value: string, version: string | undefined): { number: nu
   return { number, integer: integer && fitsInt, fitsInt };
 }
 
-// This models conversion at a native parameter boundary, not a general subtype
+// This models conversion at a native scalar boundary, not a general subtype
 // relation. A projected type is guaranteed only for calls that return normally.
 export function nativeScalarInput(actual: PhpType, native: PhpType, strict: boolean, version: string | undefined, numericKind?: 'float'): NativeScalarInput | undefined {
   const targets = native.kind === 'union' ? native.types : [native];
@@ -48,7 +48,7 @@ export function nativeScalarInput(actual: PhpType, native: PhpType, strict: bool
   if (!source) return undefined;
   if (names.includes(source)) return { accepted: 'yes', type: numericKind === 'float' ? primitive('float') : actual };
   if (source === 'null') return { accepted: 'no' };
-  // Integer-to-float is permitted even for a strict caller.
+  // Integer-to-float is permitted even at a strict boundary.
   if (source === 'int' && names.includes('float') && (strict || !names.includes('int'))) {
     return { accepted: 'yes', type: primitive('float') };
   }

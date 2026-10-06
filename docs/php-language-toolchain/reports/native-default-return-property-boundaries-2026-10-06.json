@@ -1,0 +1,407 @@
+{
+  "milestone": "D146",
+  "createdAtUtc": "2026-10-06T06:20:51.513515+00:00",
+  "binding": {
+    "files": {
+      "packages/semantic/src/index.ts": "9a183e8fd8520d9355a6df155d58cd0b1b831311e0a07ca63747afe4bf835acb",
+      "packages/semantic/src/nativeScalarInput.ts": "be3ceb4f3068c88b9aafc45e60c01181ad4efc6915b7f82a772ffcbc273c3c11",
+      "packages/semantic/dist/index.js": "21e6284ca0cb22c12c57f509184b17c52fd051ae5edf1103fbf337e1cd8af4ec",
+      "packages/language-server/src/server.ts": "36e3475a65ce66d81a2305e52b1bfb86fd502fab4e7ca33d0ce4470900724c5e",
+      "packages/language-server/src/cacheVersion.ts": "06ca17844b83e5981a2e6dabc1c2d8457d0eec93e00cd59fee4b85ebe3605f13",
+      "packages/language-server/dist/server.js": "7cd7f335cedcc38c1018b0ca0886092105aaf848444c4678085a724b39e3fe39",
+      "dist/language-server.js": "4964fa19118752c0113a4c405129d5a4b9428ee382d6357084cb9b4251d3628b"
+    },
+    "scope": "D146 local automatic diagnostics production build; prior bundle evidence remains historical"
+  },
+  "engine": "v73",
+  "persistentSchemas": [
+    89,
+    7,
+    13
+  ],
+  "parentHead": "7a03903ad4bcf261b685d17c3cc52402aa789607",
+  "native": {
+    "total": 2208,
+    "matching": 2208,
+    "mismatching": 0,
+    "runtimes": {
+      "7.2": {
+        "executable": "/opt/remi/php72/root/usr/bin/php",
+        "args": [
+          "-n",
+          "-d",
+          "extension=json"
+        ],
+        "version": "7.2.34",
+        "intSize": 8,
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+      },
+      "7.4": {
+        "executable": "/opt/remi/php74/root/usr/bin/php",
+        "args": [
+          "-n",
+          "-d",
+          "extension=json"
+        ],
+        "version": "7.4.33",
+        "intSize": 8,
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+      },
+      "8.1": {
+        "executable": "/opt/remi/php81/root/usr/bin/php",
+        "args": [
+          "-n"
+        ],
+        "version": "8.1.34",
+        "intSize": 8,
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      "8.2": {
+        "executable": "/opt/remi/php82/root/usr/bin/php",
+        "args": [
+          "-n"
+        ],
+        "version": "8.2.32",
+        "intSize": 8,
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      "8.4": {
+        "executable": "/opt/remi/php84/root/usr/bin/php",
+        "args": [
+          "-n"
+        ],
+        "version": "8.4.23",
+        "intSize": 8,
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      "8.5": {
+        "executable": "/opt/remi/php85/root/usr/bin/php",
+        "args": [
+          "-n"
+        ],
+        "version": "8.5.9",
+        "intSize": 8,
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    },
+    "fixtureSha256": "f51f1ff20792405bfa20d389a834ab67bafa29ac6afaf1c00395402b4f08ce56"
+  },
+  "semantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 15224,
+      "numPassedTests": 15224,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 138,
+    "inputs": 3099,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 3648058,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d146-local-final-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T06:16:12.898455+00:00",
+      "exitCode": 0,
+      "durationSeconds": 72.37759953702334,
+      "finishedAtUtc": "2026-10-06T06:17:25.273839+00:00"
+    },
+    "bundleSha256": "4964fa19118752c0113a4c405129d5a4b9428ee382d6357084cb9b4251d3628b",
+    "sourceSha256": "9a183e8fd8520d9355a6df155d58cd0b1b831311e0a07ca63747afe4bf835acb",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "lsp": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 96,
+      "numPassedTests": 96,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 6,
+    "inputs": 3099,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 3651251,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "/var/www/node/php-companion/packages/language-server/test/native-boundary-diagnostics-stdio.test.ts",
+        "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-conditional-stdio.test.ts",
+        "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-default-stdio.test.ts",
+        "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-numeric-stdio.test.ts",
+        "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+        "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d146-local-final-lsp.json"
+      ],
+      "startedAtUtc": "2026-10-06T06:18:09.017417+00:00",
+      "collectionSha256": "5df03e6a01e3b5185a83e2c1ba53a05883911283d96660043d92f9709114a3d7",
+      "bundleSha256": "4964fa19118752c0113a4c405129d5a4b9428ee382d6357084cb9b4251d3628b",
+      "exitCode": 0,
+      "durationSeconds": 143.50266716000624,
+      "finishedAtUtc": "2026-10-06T06:20:32.518262+00:00"
+    },
+    "timings": {
+      "output-completion-progressive.json": {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "firstQueryMs": 116.58874999999898,
+        "warmSamples": 20,
+        "p95Ms": 6.623734000000695,
+        "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+      },
+      "output-completion-onDemand.json": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "firstQueryMs": 107.06512500000008,
+        "warmSamples": 20,
+        "p95Ms": 5.714943000000858,
+        "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+      }
+    },
+    "bundleSha256": "4964fa19118752c0113a4c405129d5a4b9428ee382d6357084cb9b4251d3628b",
+    "sourceSha256": "9a183e8fd8520d9355a6df155d58cd0b1b831311e0a07ca63747afe4bf835acb",
+    "scope": "Six related protocol files; does not replace full LSP or real WSL acceptance."
+  },
+  "hosts": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 534,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 228,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalNumericDefaultReturn",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 534,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 231,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalNumericDefaultOutput",
+      "rendererExceptions": 0
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-diagnostics-build.json",
+      "sha256": "2517cff2d33b2ad6abed66433f5bda7302e1192bb7e0eda00da9c013d40673b4"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-semantic-input.json",
+      "sha256": "550d6fe1775459042cde0ca3dc642cbd47d43f869e09424c603cd7b63521fd4b"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-semantic-audit.json",
+      "sha256": "3e524be0ac42af3945da3da41604aedf9a5ee4494a08a252688a3ce2944ec8cb"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-semantic-run.json",
+      "sha256": "c1766a74ad75da6298886ce49a8a980aa1185d36bbc364d1991b1f041fb9541c"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-lsp-audit.json",
+      "sha256": "6ebc06dc87458ad2da3c22e74f0f869def4424d0897ac2eea3b512924869cfed"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-lsp-run.json",
+      "sha256": "89215e5d9053773b1a26577b447da93aab57705053875e93a95207b69277e519"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-semantic.py",
+      "sha256": "a14f4ca234aecf1b556ed669d4bea104283d28ee1597e5ac50dc1badb2c65ed9"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-local-final-lsp.py",
+      "sha256": "7e0a22d4ab1dfbc283587ee7233f85f1a24cd67e219bfca3877639b1f0f40caa"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-formal-native-confirmation.json",
+      "sha256": "05d5fd94b79742a4f65ad2e0e724fbad92dae6bf03ca6ff542c6ca14f0fab5f0"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-native-boundary-audit.json",
+      "sha256": "141792288e944459f2dbe1663769b31547d4b42deafcec2c9d15d0bb30c157f2"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-baseline-boundaries.json",
+      "sha256": "a83c1c854a0ef45d13ed49cfbbcaeed0a15b72e5574cc75f31f3f36cee417077"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-prototype-safety-v1.json",
+      "sha256": "38b5538a4fd5c0dd8e6b4823701bbaafcb97dff02d44827f917df99802f1ae77"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-prototype-safety-v2.json",
+      "sha256": "9e260266b770ade5f4cfa44ec994214ac3b39d58854030839033f2fb224d8751"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-safety-policy-comparison.json",
+      "sha256": "8d9733a96753413eebb0f5648fdea60706a4ca1a2066eb67c4009a80aa0394b7"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-host-default-return-7.2-onDemand.json",
+      "sha256": "d3eb10c4b6a476baf51d7646f0eb456cd466c21475a6243762bd1d42a2d06173"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/d146-host-default-output-8.5-progressive.json",
+      "sha256": "04886f0ade47fb57cbf5eeaa611a8e7c4f8fadc66ef088b8f6d30c123059617f"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-diagnostics-lsp.json",
+      "sha256": "b58c87265e8def8c2f45b1124e12b6d7e14801ef709ef8b5c91418ba363d61cd"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-diagnostics-message-probe.json",
+      "sha256": "3be01ccb33519aad0b9587ca9529809037b72693e0095cfcaaba7134e9c206b2"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-diagnostics-message-all.json",
+      "sha256": "24c4a209e66ae0ac991ba1a9caa8f4159cca23d7917711f011a7a276e18e50a7"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-local-final-semantic-full.json",
+      "sha256": "ff5fbc7b55c8f3905de3b6e984b6e1a9e8b36ece3ed28ff594e258c720b872ec"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-local-final-semantic-collection.json",
+      "sha256": "83a461ca800e2f9d5e41c9a18e95404a4f6d035a9dcf221c0d541d7253a1711d"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-local-final-semantic-full.log",
+      "sha256": "e3fa518ad96b4df8c71eaec9eaf59595f927817999c004e8d67b7ad38840a027"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-local-final-lsp.json",
+      "sha256": "dfacf3163969bae4e296a2c83293269cdba07f577605bc106635edd76b5adede"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-local-final-lsp-collection.json",
+      "sha256": "5df03e6a01e3b5185a83e2c1ba53a05883911283d96660043d92f9709114a3d7"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-local-final-lsp.log",
+      "sha256": "765fe780399f31af83039d8762655b86d1ae65dc61beb97533375dc7168ff522"
+    },
+    {
+      "path": ".vscode-test/d146-final-evidence/sophp-d146-host-default-output-8.5-progressive.log",
+      "sha256": "44019a3ef4dace1e382c334665cadc5a9b9c3d230889571fe6990c3e221aeccc"
+    }
+  ],
+  "failureHistory": {
+    "baselineNativeComparisons": 1340,
+    "firstSafetyExplicitFailures": 8,
+    "firstAutomaticDiagnosticsFailed": 4,
+    "unmatchedProbeSkipped": 4,
+    "fullLspD145": "1168/1169; 2644.44 ms exceeds original 2000 ms shutdown budget; focused recovery does not erase full failure"
+  },
+  "openScope": [
+    "Full current LSP combination",
+    "ordinary edit P95 155.06 ms >150 ms",
+    "50k cache RSS 1659.99 MiB >1536 MiB",
+    "bare variable descriptions",
+    "other weak scalar consumers",
+    "PHP 7.3/8.0/8.3 native runtimes",
+    "32-bit and non-Linux platforms",
+    "real WSL and long-session acceptance"
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "scope": "Default argument conversion, native return and property diagnostic boundaries and local automatic diagnostics; full original C1-C4/R4 scope remains."
+}

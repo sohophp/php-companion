@@ -1527,6 +1527,7 @@ function namespaceMoveEdit(source: string, tree: ReturnType<PhpSyntaxParser['par
 export class SemanticWorkspace {
   private targetPhpVersion?: string;
   private readonly files = new Map<string, SemanticFile>();
+  private readonly nativePropertyDeclarationsByArray = new WeakMap<readonly ParsedPropertyDeclaration[], ParsedPropertyDeclaration[]>();
   private readonly functionDeclarationsByArray = new WeakMap<readonly ParsedCallableDeclaration[], Map<string, ParsedCallableDeclaration[]>>();
   private readonly typeCompletionFileEntries = new WeakMap<SemanticFile, {
     declarations: readonly ParsedDeclaration[];
@@ -8217,7 +8218,7 @@ export class SemanticWorkspace {
     } finally { temporaryTree?.delete(); }
   }
 
-  incompatibleReturns(uri: string): IncompatibleReturn[] {
+  incompatibleReturns(uri: string, localOnly = false): IncompatibleReturn[] {
     const file = this.files.get(uri); if (!file) return [];
     return file.returns.flatMap((statement): IncompatibleReturn[] => {
       const callable = file.callables.find((item) => item.fqcn === statement.scopeId); if (!callable?.nativeReturnType) return [];
@@ -8231,35 +8232,77 @@ export class SemanticWorkspace {
       }
       if (expectedName === 'void' || expectedName === 'never') return [{ uri, start: statement.expressionStart, end: statement.expressionEnd,
         callable: callable.fqcn, actualType: 'value', expectedType: displayType(expected) }];
-      const actual = this.provenArgumentType(file, statement.expressionStart, statement.expressionEnd); if (!actual) return [];
-      if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return [];
-      const result = compatibility(actual, expected, this.typeRelationContext());
+      const fact = this.scalarArgumentFact(file, statement.expressionStart, statement.expressionEnd);
+      const actual = this.provenArgumentType(file, statement.expressionStart, statement.expressionEnd) ?? fact?.type; if (!actual) return [];
+      const scalar = nativeScalarInput(fact?.type ?? actual, expected, this.hasStrictTypes(file), this.targetPhpVersion, fact?.numericKind);
+      // Before project facts are ready, only a local scalar conversion can
+      // prove a mismatch without guessing an external type hierarchy.
+      if (localOnly && (!fact || scalar?.accepted !== 'no')) return [];
+      if (!scalar && isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return [];
+      const result = scalar?.accepted ?? compatibility(actual, expected, this.typeRelationContext());
       return result === 'no' ? [{ uri, start: statement.expressionStart, end: statement.expressionEnd, callable: callable.fqcn,
-        actualType: displayType(actual), expectedType: displayType(expected) }] : [];
+        actualType: fact?.numericKind === 'float' ? 'float' : displayType(actual), expectedType: displayType(expected) }] : [];
     });
   }
 
-  incompatibleAssignments(uri: string): IncompatibleAssignment[] {
+  incompatibleAssignments(uri: string, localOnly = false): IncompatibleAssignment[] {
     const file = this.files.get(uri); if (!file) return [];
     const properties: IncompatibleAssignment[] = [];
-    const pattern = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*->\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*=(?!=|>)\s*(new\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*(?:\s*\([^;]*\))?|\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*|null|true|false|[+-]?(?:(?:[0-9][0-9_]*)?\.[0-9][0-9_]*(?:[eE][+-]?[0-9][0-9_]*)?|[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*|0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\[\s*\]|array\s*\(\s*\))\s*(?=;)/giu;
+    const uniqueHierarchies = new Map<string, boolean>();
+    const uniqueHierarchy = (fqcn: string, visiting = new Set<string>()): boolean => {
+      const key = fqcn.toLowerCase();
+      if (visiting.has(key) || visiting.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
+      const cached = uniqueHierarchies.get(key); if (cached !== undefined) return cached;
+      const owners = this.filesForReferenceKeys(`declaration:type:${key}`).flatMap(owner => owner.declarations
+        .filter(declaration => declaration.fqcn.toLowerCase() === key).map(declaration => ({ owner, declaration })));
+      if (owners.length !== 1) { uniqueHierarchies.set(key, false); return false; }
+      const { owner, declaration } = owners[0]!;
+      const namespace = declaration.fqcn.split('\\').slice(0, -1).join('\\');
+      const next = new Set(visiting); next.add(key);
+      const complete = [...declaration.extendsNames, ...declaration.implementsNames, ...declaration.traitNames].every(name => {
+        const inherited = this.resolveSourceType(owner, name, namespace, declaration.fqcn);
+        return Boolean(inherited && uniqueHierarchy(inherited, next));
+      });
+      uniqueHierarchies.set(key, complete); return complete;
+    };
+    // Recover native declaration syntax separately from PHPDoc-specialized members.
+    const nativeProperties = (owner: SemanticFile): ParsedPropertyDeclaration[] => {
+      let properties = this.nativePropertyDeclarationsByArray.get(owner.properties);
+      if (!properties) {
+        const parsed = this.parser.parseDeclarations(owner.source, owner.uri);
+        try { properties = parsed.properties; }
+        finally { parsed.tree.delete(); }
+        this.nativePropertyDeclarationsByArray.set(owner.properties, properties);
+      }
+      return properties;
+    };
+    const pattern = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*->\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*=(?!=|>)\s*(new\s+[\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*(?:\s*\([^;]*\))?|\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*|null|true|false|[+-]?(?:[0-9][0-9_]*\.(?:[0-9][0-9_]*)?(?:[eE][+-]?[0-9][0-9_]*)?|\.[0-9][0-9_]*(?:[eE][+-]?[0-9][0-9_]*)?|[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*|0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|\[\s*\]|array\s*\(\s*\))\s*(?=;)/giu;
     for (const match of file.source.matchAll(pattern)) {
       const matchStart = match.index; const matchEnd = matchStart + match[0].length;
       if ([...file.commentRanges, ...file.stringRanges].some((range) => matchStart >= range.start && matchEnd <= range.end)) continue;
       const propertyStart = matchStart + match[0].indexOf(match[2]!);
       const member = this.memberAt(uri, propertyStart + 1); const expectedText = member?.writeType ?? member?.returnType;
-      if (member?.kind !== 'property' || !expectedText || !this.hasCompleteHierarchy(member.calledOnFqcn)) continue;
+      if (member?.kind !== 'property' || !expectedText || !uniqueHierarchy(member.calledOnFqcn)) continue;
       const valueStart = matchStart + match[0].lastIndexOf(match[3]!); const valueEnd = valueStart + match[3]!.length;
-      const actual = this.provenArgumentType(file, valueStart, valueEnd); const declarationFile = this.files.get(member.uri);
+      const fact = this.scalarArgumentFact(file, valueStart, valueEnd);
+      const actual = this.provenArgumentType(file, valueStart, valueEnd) ?? fact?.type; const declarationFile = this.files.get(member.uri);
       if (!actual || !declarationFile) continue;
       const documented = member.synthetic === 'phpdoc-magic' ? parsePhpDocType(expectedText).type : undefined;
       const expected = documented ? this.phpDocDiagnosticType(declarationFile, documented, member.typeScopeFqcn)
         : this.nativeSourceType(declarationFile, expectedText, member.typeScopeFqcn);
       if (!expected) continue;
-      if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) continue;
-      const result = compatibility(actual, expected, this.typeRelationContext());
+      const original = member.synthetic ? undefined : nativeProperties(declarationFile)
+        .find(property => property.start === member.start && property.name === member.name);
+      const nativeText = original?.writeType ?? original?.type;
+      const native = nativeText && this.nativeSourceType(declarationFile, nativeText, original?.containerFqcn);
+      const scalar = native ? nativeScalarInput(fact?.type ?? actual, native,
+        this.hasStrictTypes(file), this.targetPhpVersion, fact?.numericKind) : undefined;
+      if (localOnly && (declarationFile.uri !== uri || !fact || scalar?.accepted !== 'no')) continue;
+      if (!scalar && isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) continue;
+      const result = scalar?.accepted === 'yes' ? compatibility(scalar.type ?? actual, expected, this.typeRelationContext())
+        : scalar?.accepted ?? compatibility(actual, expected, this.typeRelationContext());
       if (result === 'no') properties.push({ uri, start: valueStart, end: valueEnd, callable: this.containingScope(file, matchStart)?.id ?? file.namespace,
-        variable: `${match[1]!.slice(1)}->${match[2]!}`, actualType: displayType(actual), expectedType: displayType(expected) });
+        variable: `${match[1]!.slice(1)}->${match[2]!}`, actualType: fact?.numericKind === 'float' ? 'float' : displayType(actual), expectedType: displayType(expected) });
     }
     return properties.sort((left, right) => left.start - right.start);
   }
@@ -15293,6 +15336,7 @@ export class SemanticWorkspace {
     if (type.kind === 'name') {
       const template = templateType?.(type.name); if (template) return template;
       const projected = namedType?.(type.name); if (projected) return projected;
+      if (type.name.toLowerCase() === 'class-string') return classString();
       const upperBound = this.phpDocRuntimeUpperBound(type.name); if (upperBound) return upperBound;
     }
     const native = this.nativeType(file, displayPhpDocType(type), scopeFqcn);
@@ -15620,7 +15664,7 @@ export class SemanticWorkspace {
           }
         }
         const native = input.nativeType && this.nativeType(declaration.file, nativeParameterType(input, declaration.file.uri), scope);
-        return this.conditionalSubjectInputType(file, actual, native || undefined, relation, fact?.numericKind);
+        return this.conditionalSubjectInputType(file, actual, native || undefined, relation, fact?.numericKind, !value);
       }, name => {
         const value = mapped.find(item => item.parameter.name === name)?.target;
         return value?.type === 'variable_name' ? `argument:${value.text}` : undefined;
@@ -16835,14 +16879,20 @@ export class SemanticWorkspace {
       const result = this.evaluatePhpDocType(declarationFile, parsed, signature.typeScopeFqcn, relation, (name) => {
         const argument = argumentForParameter(name);
         if (!argument) {
-          const fallback = signature.parameters.find((parameter) => parameter.name === name)?.defaultValue?.trim();
-          if (!fallback) return undefined;
-          const scalar = this.directScalarLiteralType(fallback); if (scalar) return scalar;
-          const className = /^([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)::class$/iu.exec(fallback)?.[1];
-          const declaration = declarations[0]!.item;
-          const fqcn = className && this.resolveSourceType(declarationFile, className,
-            this.namespaceAt(declarationFile, declaration.start), declaration.containerFqcn);
-          return fqcn && this.fileAndDeclaration(fqcn) ? classString(named(fqcn)) : undefined;
+          const parameter = signature.parameters.find(item => item.name === name);
+          const fallback = parameter?.defaultValue?.trim(); if (!fallback) return undefined;
+          const fact = this.directNativeScalarFact(fallback);
+          let actual = fact?.type;
+          if (!actual) {
+            const className = /^([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)::class$/iu.exec(fallback)?.[1];
+            const declaration = declarations[0]!.item;
+            const fqcn = className && this.resolveSourceType(declarationFile, className,
+              this.namespaceAt(declarationFile, declaration.start), declaration.containerFqcn);
+            actual = fqcn && this.fileAndDeclaration(fqcn) ? classString(named(fqcn)) : undefined;
+          }
+          const native = parameter?.nativeType && this.nativeType(declarationFile,
+            nativeParameterType(parameter, declarationFile.uri), signature.typeScopeFqcn);
+          return this.conditionalSubjectInputType(file, actual, native || undefined, relation, fact?.numericKind, true);
         }
         const fact = this.scalarArgumentFact(file, argument.start, argument.end);
         const actual = fact?.type ?? argument.type;
@@ -16980,9 +17030,10 @@ export class SemanticWorkspace {
   }
 
   private conditionalSubjectInputType(file: SemanticFile, actual: PhpType | undefined, native: PhpType | undefined,
-    relation: TypeRelationContext, numericKind?: 'float'): PhpType | undefined {
+    relation: TypeRelationContext, numericKind?: 'float', defaultArgument = false): PhpType | undefined {
     if (!actual || !native) return numericKind === 'float' ? primitive('float') : actual;
-    const projected = nativeScalarInput(actual, native, this.hasStrictTypes(file), this.targetPhpVersion, numericKind);
+    // Default declarations permit integer-to-float, but no weak caller coercion.
+    const projected = nativeScalarInput(actual, native, defaultArgument || this.hasStrictTypes(file), this.targetPhpVersion, numericKind);
     if (projected) return projected.accepted === 'no' ? undefined : projected.type;
     const compatible = compatibility(actual, native, relation);
     return compatible === 'no' ? undefined : actual;
