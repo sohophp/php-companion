@@ -1288,13 +1288,15 @@ function symfonyEnvironmentForRoot(root: string): string | undefined {
     .sort((left, right) => right.path.length - left.path.length)[0]?.environment;
 }
 async function reconcileSemanticProviderChange(previous: readonly SemanticProviderDescriptor[]): Promise<void> {
-  if (JSON.stringify(previous) === JSON.stringify(semanticProviders)) return;
+  if (shuttingDown || JSON.stringify(previous) === JSON.stringify(semanticProviders)) return;
   invalidateSemanticProviderRequests();
   const currentIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
   const removed = previous.filter((provider) => !currentIds.has(provider.providerId.toLowerCase()));
   if (removed.some((provider) => provider.replacesEventRelations)) externalSymfonyEventsByRoot.clear();
   if (removed.length) for (const candidate of semanticWorkspaces.values()) {
-    const workspace = await candidate; for (const provider of removed) workspace.removeExternalFacts(provider.providerId);
+    const workspace = await candidate;
+    if (shuttingDown) return;
+    for (const provider of removed) workspace.removeExternalFacts(provider.providerId);
   }
   const capabilityChanged = (select: (provider: SemanticProviderDescriptor) => boolean): boolean =>
     JSON.stringify(previous.filter(select)) !== JSON.stringify(semanticProviders.filter(select));
@@ -1302,7 +1304,9 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
   const eventsChanged = capabilityChanged((provider) => provider.replacesEventRelations === true);
   const contextsChanged = capabilityChanged((provider) => provider.replacesControllerContexts === true);
   if (containerChanged || eventsChanged || contextsChanged) for (const root of workspaceRoots) {
+    if (shuttingDown) return;
     const workspace = await semanticForRoot(root);
+    if (shuttingDown) return;
     if (containerChanged) clearContainerFacts(root, workspace);
     if (eventsChanged) externalSymfonyEventsByRoot.delete(root);
     if (contextsChanged) {
@@ -1315,38 +1319,52 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
 }
 let semanticProviderReconciliation = Promise.resolve();
 function enqueueSemanticProviderChange(update: () => void): Promise<void> {
+  if (shuttingDown) return Promise.resolve();
   const work = semanticProviderReconciliation.then(async () => {
+    if (shuttingDown) return;
     const previous = [...semanticProviders]; update(); await reconcileSemanticProviderChange(previous);
   });
   semanticProviderReconciliation = work.catch((error: unknown) => connection.console.error(outputMessage(clientDiagnosticLanguage, 'semanticReconciliationFailed', String(error))));
   return work;
 }
 connection.onNotification('phpCompanion/symfonyRouteProviders', async (params: { providers?: unknown } | undefined) => {
+  if (shuttingDown) return;
   if (!setSymfonyRouteProviders(params?.providers)) return;
   invalidateSemanticProviderRequests();
   for (const root of workspaceRoots) {
-    const workspace = await semanticForRoot(root); clearContainerFacts(root, workspace); externalSymfonyEventsByRoot.delete(root);
+    if (shuttingDown) return;
+    const workspace = await semanticForRoot(root);
+    if (shuttingDown) return;
+    clearContainerFacts(root, workspace); externalSymfonyEventsByRoot.delete(root);
     if (!projectCompleteRoots.has(root)) continue;
-    await runContainerProvider(root, indexingGeneration, workspace, () => true);
-    await runEventProvider(root, indexingGeneration, workspace, () => true);
+    await runContainerProvider(root, indexingGeneration, workspace, () => !shuttingDown);
+    if (shuttingDown) return;
+    await runEventProvider(root, indexingGeneration, workspace, () => !shuttingDown);
   }
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
-connection.onNotification('phpCompanion/bundledRouteProviders', (params: { providers?: unknown } | undefined) => setBundledRouteProviders(params?.providers));
+connection.onNotification('phpCompanion/bundledRouteProviders', (params: { providers?: unknown } | undefined) => {
+  if (shuttingDown) return;
+  setBundledRouteProviders(params?.providers);
+});
 connection.onNotification('phpCompanion/bundledSemanticProviders', (params: { providers?: unknown } | undefined) => {
   void enqueueSemanticProviderChange(() => setBundledSemanticProviders(params?.providers));
 });
 connection.onNotification('phpCompanion/frameworkDocumentSnapshots', async (params: unknown) => {
+  if (shuttingDown) return;
   if (!setFrameworkDocumentSnapshots(params)) return;
   const running = activeIndexing; if (running) await running;
   for (const root of workspaceRoots) {
+    if (shuttingDown) return;
     if (!projectCompleteRoots.has(root)) continue;
     const workspace = await semanticForRoot(root);
-    await refreshSemanticProviders(root, indexingGeneration, workspace, () => true);
+    if (shuttingDown) return;
+    await refreshSemanticProviders(root, indexingGeneration, workspace, () => !shuttingDown);
   }
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
 connection.onNotification('phpCompanion/phpExtensionAvailability', async (params: { roots?: unknown } | undefined) => {
+  if (shuttingDown) return;
   const previous = new Map(workspaceRoots.map((root) => [root, phpEnvironmentSignatureForRoot(root)]));
   setConfiguredExtensionAvailability(params?.roots);
   const changedRoots = workspaceRoots.filter((root) => previous.get(root) !== phpEnvironmentSignatureForRoot(root));
@@ -1356,7 +1374,7 @@ connection.onNotification('phpCompanion/phpExtensionAvailability', async (params
     && changedRoots.includes(rootForUri(document.uri) ?? '')).map((document) => publishDocumentDiagnostics(document)));
 });
 connection.onNotification('phpCompanion/phpVersions', async (params: { versions?: unknown; fallback?: unknown; extensionAvailability?: unknown } | undefined) => {
-  if (!params || !Array.isArray(params.versions)) return;
+  if (shuttingDown || !params || !Array.isArray(params.versions)) return;
   const previousVersions = new Map(workspaceRoots.map((root) => [root, phpVersionForRoot(root)]));
   const previous = new Map(workspaceRoots.map((root) => [root, phpEnvironmentSignatureForRoot(root)]));
   const previousFallback = targetPhpVersion;
@@ -2026,7 +2044,14 @@ function mayDeclareCompactFunction(source: string): boolean {
 
 async function refreshInteropDocument(document: TextDocument): Promise<void> {
   const root = rootForUri(document.uri); if (!root) return;
-  const workspace = await semanticForRoot(root); const source = document.getText(); const snapshotVersion = String(document.version);
+  const version = document.version;
+  if (testPauseNextQueries.has('interopDocument')) await pauseTestQuery('interopDocument');
+  // Open/change notifications can reach this continuation after diagnostics
+  // stopped for shutdown. Reuse the query cancellation boundary before setup.
+  const workspace = await semanticForQueryRoot(root);
+  const current = (): boolean => !shuttingDown && documents.get(document.uri) === document && document.version === version;
+  if (!current()) return;
+  const source = document.getText(); const snapshotVersion = String(version);
   const previouslyRelevant = compactFunctionDocumentUris.has(document.uri);
   const currentlyRelevant = mayDeclareCompactFunction(source);
   if (currentlyRelevant) compactFunctionDocumentUris.add(document.uri); else compactFunctionDocumentUris.delete(document.uri);
@@ -2040,8 +2065,10 @@ async function refreshInteropDocument(document: TextDocument): Promise<void> {
       }
     }
   }
-  await runControllerContextProvider(root, indexingGeneration, workspace, () => true, scopes);
+  await runControllerContextProvider(root, indexingGeneration, workspace, current, scopes);
+  if (!current()) return;
   connection.sendNotification('phpCompanion/interop/invalidated', { protocolVersion: INTEROP_PROTOCOL_VERSION, projectId: indexedUriForPath(root, root), snapshotVersion: String(indexingGeneration), changedUris: scopes.map((scope) => scope.uri) });
+  if (testMode) connection.console.info(`[test-interop-document-refreshed] uri=${document.uri} version=${version}`);
 }
 
 async function refreshDoctrineDocument(root: string, uri: string, source: string, workspace: SemanticWorkspace): Promise<void> {
@@ -4347,7 +4374,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -4357,6 +4384,11 @@ connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown;
   return { paused: testPausedQueries.has(params.method), version: documents.get(params.uri)?.version ?? null,
     ...(['indexProjectSource', 'safeMoveDiskRefresh'].includes(params.method) ? { epoch: projectEpochs.get(rootForUri(params.uri) ?? '') ?? 0 } : {}) };
 });
+
+connection.onRequest('phpCompanion/testSemanticLifecycle', () => testMode ? ({
+  shuttingDown, parserCreated: parserPromise !== undefined, workspaceCount: semanticWorkspaces.size,
+  pendingBuiltinRoots: builtinRefreshesByRoot.size,
+}) : null);
 
 connection.onRequest('phpCompanion/testReleaseQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string') return false;

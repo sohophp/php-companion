@@ -1,0 +1,3263 @@
+{
+  "milestone": "D166",
+  "createdAtUtc": "2026-10-06T19:41:35.527922+00:00",
+  "basisCommit": "f7b4ffc95e02b02a2f733214efca908b28f171b0",
+  "candidateBundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d",
+  "candidateSourceHashes": {
+    "packages/language-server/src/server.ts": "39bcd43f7d77a19fed098cc19cfd1a0243d505ad264d26f7ed6a759af77544d1",
+    "packages/language-server/test/shutdown-version-refresh-stdio.test.ts": "7237a1fb0cc93b037295ee82c03e1eb9b98359aae0937c195578294673b1ecc9",
+    "src/extension/languageServer.ts": "d7ab04a17ad41116ddc9975bf523ea5a0f2b6c1a158d0ce6169d8c78d1810cff",
+    "src/extension/workspaceRestartQueue.ts": "077387d5fabec772893c8b5019930dd98642ff85a7f7c4970a8030ea752106f4",
+    "test/extension/suite/c1.ts": "0b551a9d2f8b51ae831151022ef4d9ab9c3a83e3534f83a9b6f3232c9bdd9ed7"
+  },
+  "rootCause": {
+    "openContinuation": {
+      "mapping": {
+        "sourceSha256": "1bfa3bb37b418992d431b0ce5702d11a6421e555e1c8ef3f74f30317324eee13",
+        "diagnosticBundleSha256": "426c9c2f40fd67ba8d43344e6f2b4e432126bebe54b592d10243bfc1f58258c2",
+        "exactBundleReproduced": true,
+        "rows": [
+          {
+            "generatedLine": 11401,
+            "generatedColumn": 28656,
+            "source": "../../packages/language-server/src/server.ts",
+            "line": 1561,
+            "column": 93
+          },
+          {
+            "generatedLine": 11401,
+            "generatedColumn": 28874,
+            "source": "../../packages/language-server/src/server.ts",
+            "line": 1575,
+            "column": 77,
+            "name": "semanticForKey"
+          },
+          {
+            "generatedLine": 11401,
+            "generatedColumn": 42195,
+            "source": "../../packages/language-server/src/server.ts",
+            "line": 2031,
+            "column": 27,
+            "name": "semanticForRoot"
+          },
+          {
+            "generatedLine": 11401,
+            "generatedColumn": 167550,
+            "source": "../../packages/language-server/src/server.ts",
+            "line": 5949,
+            "column": 94,
+            "name": "refreshInteropDocument"
+          }
+        ]
+      },
+      "path": ".vscode-test/d164-allocation-cause-probe.json",
+      "closedThenRecreated": true,
+      "caller": "refreshInteropDocument -> semanticForRoot -> semanticForKey -> parser",
+      "scope": "Instrumented diagnostic only; byte-identical shadow bundle reproduced for source mapping. This proves allocation after completed shutdown, not an ordinary host crash."
+    },
+    "lateNotifications": {
+      "path": ".vscode-test/d164-notification-only-baseline.json",
+      "validProtocolCases": 14,
+      "resourceRecreationCases": [
+        {
+          "mode": "onDemand",
+          "method": "phpCompanion/symfonyRouteProviders",
+          "closedState": {
+            "shuttingDown": true,
+            "parserCreated": false,
+            "workspaceCount": 0,
+            "pendingBuiltinRoots": 0
+          },
+          "afterFirstBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          },
+          "afterSecondBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          }
+        },
+        {
+          "mode": "onDemand",
+          "method": "phpCompanion/bundledSemanticProviders",
+          "closedState": {
+            "shuttingDown": true,
+            "parserCreated": false,
+            "workspaceCount": 0,
+            "pendingBuiltinRoots": 0
+          },
+          "afterFirstBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          },
+          "afterSecondBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          }
+        },
+        {
+          "mode": "progressive",
+          "method": "phpCompanion/symfonyRouteProviders",
+          "closedState": {
+            "shuttingDown": true,
+            "parserCreated": false,
+            "workspaceCount": 0,
+            "pendingBuiltinRoots": 0
+          },
+          "afterFirstBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          },
+          "afterSecondBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          }
+        },
+        {
+          "mode": "progressive",
+          "method": "phpCompanion/bundledSemanticProviders",
+          "closedState": {
+            "shuttingDown": true,
+            "parserCreated": false,
+            "workspaceCount": 0,
+            "pendingBuiltinRoots": 0
+          },
+          "afterFirstBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          },
+          "afterSecondBarrier": {
+            "shuttingDown": true,
+            "parserCreated": true,
+            "workspaceCount": 1,
+            "pendingBuiltinRoots": 0
+          }
+        }
+      ],
+      "controlsKeepingResourcesClosed": 10,
+      "scope": "Fresh servers without didOpen isolate notification allocation from open continuation."
+    }
+  },
+  "verification": {
+    "shutdownAndRelatedProtocols": {
+      "phase": "shutdown",
+      "qualified": true,
+      "run": {
+        "status": "exited",
+        "childPid": 245967,
+        "parentPid": 245789,
+        "startedAtUtc": "2026-10-06T19:31:10.000711+00:00",
+        "manifest": "/var/www/node/php-companion/.vscode-test/d166-shutdown-input.json",
+        "exitCode": 0,
+        "durationSeconds": 145.31348037696443,
+        "finishedAtUtc": "2026-10-06T19:33:35.311993+00:00"
+      },
+      "result": {
+        "numTotalTests": 36,
+        "numPassedTests": 36,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0,
+        "success": true
+      },
+      "checks": {
+        "changedInputs": [],
+        "runtimeChanges": [],
+        "nodeChanged": false,
+        "headChanged": false,
+        "worktreeChanged": false,
+        "collectionChanged": false,
+        "missingOrFailed": 0,
+        "extraExecuted": 0
+      },
+      "failures": [],
+      "expectedCases": 36,
+      "scope": "Targeted current product protocol verification; not full LSP, performance or actual WSL/Windows acceptance.",
+      "filterExcludedCases": 0,
+      "bundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d"
+    },
+    "normalProviderProtocols": {
+      "qualified": true,
+      "recordedAtUtc": "2026-10-06T19:35:46.295570+00:00",
+      "run": {
+        "status": "exited",
+        "childPid": 248311,
+        "parentPid": 248130,
+        "startedAtUtc": "2026-10-06T19:33:58.329572+00:00",
+        "manifest": "/var/www/node/php-companion/.vscode-test/d166-providers-input.json",
+        "exitCode": 0,
+        "durationSeconds": 33.700976925028954,
+        "finishedAtUtc": "2026-10-06T19:34:32.028954+00:00"
+      },
+      "result": {
+        "numTotalTests": 534,
+        "numPassedTests": 8,
+        "numFailedTests": 0,
+        "numPendingTests": 526,
+        "numTodoTests": 0,
+        "success": true
+      },
+      "checks": {
+        "changedInputs": [],
+        "runtimeChanges": [],
+        "nodeChanged": false,
+        "headChanged": false,
+        "worktreeChanged": false,
+        "collectionChanged": false
+      },
+      "selectedCases": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio loads fresh complete route-provider snapshots for Symfony route navigation",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio keeps the newest generic semantic-provider facts when an older request finishes last",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio registers and withdraws a bundled semantic provider without restarting",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio prewarms selected references with framework snapshots even when disk cache is false",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio prewarms selected references with framework snapshots even when disk cache is true",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio uses a bundled authoritative Symfony controller-context provider for Twig interop",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio clears removed controller contexts without spawning the provider for an ineligible PHP edit",
+          "status": "passed"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio keeps the newest controller context when an older provider request finishes last",
+          "status": "passed"
+        }
+      ],
+      "executedCases": 8,
+      "unexecutedFilterExcludedCases": 526,
+      "originalAuditPreserved": ".vscode-test/d166-providers-audit.json",
+      "originalAuditError": "Original auditor classified Vitest filtered status skipped as failure; selected eight passed with zero missing/extra names. Reclassify only entries outside the pre-run selected collection, without rerunning or changing source.",
+      "bundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d",
+      "scope": "Targeted current product protocol verification; not full LSP, performance or actual WSL/Windows acceptance."
+    },
+    "normalProviderFilterExcludedCases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks current disk type conflicts before extracting an interface in 'onDemand' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks current disk type conflicts before extracting an interface in 'onDemand' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks current disk type conflicts before extracting an interface in 'progressive' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks current disk type conflicts before extracting an interface in 'progressive' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates extracted late-static interfaces and refreshes unsaved contracts for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates extracted late-static interfaces and refreshes unsaved contracts for PHP 8.0",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates extracted late-static interfaces and refreshes unsaved contracts for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio exposes SplFileInfo and Generator debug members through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers PHP 7.2 legacy builtins through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio selects PHP 7.2 standard function overloads from argument shapes through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retains PHP 7.2 array_merge first-array types without leaking mixed input members",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio selects the PHP 8.5 null-callback array_map overload through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes proven multi-array array_map callback columns through PHP 7.2 stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes proven multi-array array_map callback columns through PHP 8.5 stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers standard array function and option completion through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses the built-in array pointer template for a local object list",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio protects extracted assignments from shared local bindings for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio protects extracted assignments from shared local bindings for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes complete branch output extraction across unsaved changes for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes complete branch output extraction across unsaved changes for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes straight-line local dependency extraction for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes straight-line local dependency extraction for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes assignment chains ending in return for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes assignment chains ending in return for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects inline writes through extracted local references for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects inline writes through extracted local references for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws result contracts from operand completion for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws result contracts from operand completion for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks callback values by their own return contract for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks callback values by their own return contract for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers trailing callback values without exposing outer locals for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers trailing callback values without exposing outer locals for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves callback variable details and rejects stale versions for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves callback variable details and rejects stale versions for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers trailing callable members without stale or private candidates for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers trailing callable members without stale or private candidates for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks coalescing and match value branches without borrowing selector contracts for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks coalescing and match value branches without borrowing selector contracts for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps conditional completion contracts at the value position for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps conditional completion contracts at the value position for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes declared object column value completion for PHP '7.2' with generic=false",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes declared object column value completion for PHP '7.2' with generic=true",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes declared object column value completion for PHP '8.5' with generic=false",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes declared object column value completion for PHP '8.5' with generic=true",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio infers the element returned by array_find with a one-parameter callback",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves filtered array values across callback modes and repeated calls",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers standard time function completion and signature through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers standard image utility completion, signature, and constants through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio filters platform-dependent standard completion with runtime facts through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers stream context completion, signature, and filter constants through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Date procedural completion, signature, and definition through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio exposes Filter exception definitions in PHP 8.5 and removes them when Filter is disabled",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio opens an existing static require path without waiting for vendor indexing",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes variable completion after unsaved unset and reassignment edits",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes by-reference output completion after an unsaved call change",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes outputs from resolved method calls without treating nullsafe calls as definite",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps function declarations ahead of callable names after func and function",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps the declaration family separate from callable and constant completions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes abbreviations and replaces a keyword when the caret is inside its word",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps PHP code completions out of comments, ordinary strings, and HTML",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers constructible classes after new without repeating the new keyword",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps a class member keyword and a matching property type in the same list",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers unfinished shape keys and values with no unrelated symbols for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers unfinished shape keys and values with no unrelated symbols for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves existing array arrows and word suffixes when completing incomplete literals for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves existing array arrows and word suffixes when completing incomplete literals for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio matches punctuation unicode and escaped quoted prefixes for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio matches punctuation unicode and escaped quoted prefixes for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes proven array access keys without inserting an arrow for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes proven array access keys without inserting an arrow for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes union shape keys and values without choosing a branch for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes union shape keys and values without choosing a branch for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes shape keys through value branches without borrowing selector contracts for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes shape keys through value branches without borrowing selector contracts for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes proven array-shape keys with a usable replacement edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes proven array-shape keys and values in return and assignment expressions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio inserts callable snippets and replaces complete member words",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers block templates behind ordinary PHP keywords",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks shape field values by the nearest contract through stdio on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks shape field values by the nearest contract through stdio on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers ordinary unclosed callable values through stdio on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers ordinary unclosed callable values through stdio on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers PHP islands without treating HTML as code through stdio on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio recovers PHP islands without treating HTML as code through stdio on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes named attribute values through grouping and trivia on PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes named attribute values through grouping and trivia on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio replaces the whole function identifier across digits and middle cursors on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio replaces the whole function identifier across digits and middle cursors on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves comments when accepting constant callable references on PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves comments when accepting constant callable references on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits initializer expression candidates by position and PHP version 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits initializer expression candidates by position and PHP version 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits initializer expression candidates by position and PHP version 8.3",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits initializer expression candidates by position and PHP version 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps blank initializer candidates legal before typing a value on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps blank initializer candidates legal before typing a value on PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps blank initializer candidates legal before typing a value on PHP 8.3",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps blank initializer candidates legal before typing a value on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prioritizes native values at blank initializer slots without borrowing sibling types on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prioritizes native values at blank initializer slots without borrowing sibling types on PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prioritizes native values at blank initializer slots without borrowing sibling types on PHP 8.3",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prioritizes native values at blank initializer slots without borrowing sibling types on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes constant initializer types without reusing enum identity on PHP 8.3",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes constant initializer types without reusing enum identity on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes declaration default completion from native types on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes declaration default completion from native types on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits declaration default candidates to supported expressions on PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits declaration default candidates to supported expressions on PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio limits declaration default candidates to supported expressions on PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers proven enum cases and scalar values in argument expressions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes PHPDoc string literal values from a proven argument signature",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio replaces quoted literal values in proven array-shape fields",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio puts compatible local variables ahead of unrelated symbols at blank typed expressions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks new class candidates by a proven interface argument",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks a compatible constant ahead of an incompatible function with the same prefix",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks compatible method results in a typed argument and keeps unknown results",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks property assignment values and refreshes unsaved write contracts for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks property assignment values and refreshes unsaved write contracts for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio does not offer enum value candidates to PHP 7.2 files",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes shorthand ternary completion and navigation for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes shorthand ternary completion and navigation for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-method completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-method completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-method completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts value-method completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts exact constructed-method completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts exact constructed-method completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts exact constructed-method completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts exact constructed-method completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts array-value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts array-value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts array-value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts array-value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts expression-value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts expression-value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts expression-value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts expression-value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts static-scope value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts static-scope value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts static-scope value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts static-scope value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts literal-prefix value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts literal-prefix value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts literal-prefix value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts literal-prefix value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts post-assignment-literal value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts post-assignment-literal value-call completion and diagnostics after a reference parameter edit for PHP 7.2 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts post-assignment-literal value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retracts post-assignment-literal value-call completion and diagnostics after a reference parameter edit for PHP 8.5 (Elvis true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes cached local prefix proofs after same-length unsaved syntax edits for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes cached local prefix proofs after same-length unsaved syntax edits for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws stale member types after a reference-return binding edit for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws stale member types after a reference-return binding edit for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes generic argument ranking from other arguments for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes generic argument ranking from other arguments for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks agreed overload arguments and retracts conflicting contracts for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ranks agreed overload arguments and retracts conflicting contracts for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates get_mangled_object_vars completion and signature for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates get_mangled_object_vars completion and signature for PHP 7.4",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates get_mangled_object_vars completion and signature for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports and withdraws a proven built-in argument mismatch in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers named arguments where PHP 7.2 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers named arguments where PHP 7.4 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers named arguments where PHP 8.0 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers named arguments where PHP 8.5 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio inserts constructor parentheses only in new expressions and retains named arguments",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers enum type completions where PHP 7.2 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers enum type completions where PHP 8.0 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers enum type completions where PHP 8.1 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers enum type completions where PHP 8.5 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers nullsafe member completions where PHP 7.2 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers nullsafe member completions where PHP 7.4 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers nullsafe member completions where PHP 8.0 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio only offers nullsafe member completions where PHP 8.5 supports them",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers context-appropriate PHP keywords before unrelated symbols",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps symbol definitions inside their repeated namespace import block",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes a partial class keyword and hides symbols in class declaration names",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps declaration suggestions relevant across a class and a following enum",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio hides keywords unavailable in the selected PHP version",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes unopened PSR-4 classes across namespaces in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps a project type beyond duplicate PSR-4 mappings in two-letter completion, portable=false",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps a project type beyond duplicate PSR-4 mappings in two-letter completion, portable=true",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes unopened Composer classmap and files declarations whose file names differ",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes classmap and files import namespaces from declarations, portable=false",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes classmap and files import namespaces from declarations, portable=true",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps classmap method feedback on one unsaved declaration snapshot",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses a new unsaved PHP declaration consistently until its buffer closes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes unopened PSR-0 classes only at Composer-loadable paths",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes PSR-0 namespace imports from loadable namespace directories",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes unopened PSR-4, classmap and PSR-0 types without ripgrep",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio includes newly watched unopened files in method-family edits and References",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes outer-call diagnostics and parameter hints for legacy array arguments",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio opens the interface method behind a parenthesized coalescing throw",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio excludes PHP strings and comments from method and function References",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns Implementation before a slow client acknowledges candidate progress",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-07 keeps same-short-name classes in separate Composer namespaces",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-08 resolves external trait precedence and alias in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-10 cancels an in-flight project References query after a newer edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-13 discards paused editing queries after a same-version reopen in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-13 discards paused editing queries after a same-version reopen in experimental mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-13 discards paused editing queries after a same-version reopen in progressive mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates PHP versions and builtins for an open project without restarting the language server",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates Randomizer float completion at the PHP 8.3 boundary",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio finds a service declaration in a new unsaved services.yaml snapshot",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio does not publish Symfony service facts when bundle registration input is unreadable",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans a Symfony route Rename from a new unsaved file and restores disk facts after close",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports invalid bundled Symfony Providers in the client language",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports a loaded Composer project snapshot in the client language",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves a method on an unloaded PSR-4 parameter subtype without a name hit in its file",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves first cold and reloaded references through unloaded vendor attributes without Definition warm-up",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves first cold and reloaded references through unloaded vendor getSession() without Definition warm-up",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio includes inherited vendor receiver assignments in first and reloaded References",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prepares cold class references in workers and honors unsaved consumers after reload",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio falls back when an exact reference candidate inherits from a non-PSR-4 declaration",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio falls back when a typed receiver is declared outside its PSR-4 path",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps array-element method references when the documented child lives outside its PSR-4 path",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses unsaved PHP buffer symbols in exact reference candidates",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves a typed parameter receiver across a name-free PSR-4 inheritance chain in exact candidate mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves a typed property receiver across a name-free PSR-4 inheritance chain in exact candidate mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads new-expression and PHPDoc receivers whose declarations have no exact method token",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads a deferred vendor return type after more than sixteen PSR-4 lookup paths",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio hydrates loaded dependency property receivers before resolving cold method references",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prewarms references through a deferred vendor property receiver",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves cold class references when external source prefiltering is requested",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps reload and closed promoted-property rename free of project indexing in on-demand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio consumes Symfony provider resource registrations for cold on-demand type references",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps method References available when unrelated project files exceed the candidate budget",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns references for a local variable without crossing function scopes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio does not repeat a completed project scan when only the dependency index is partial",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio shares initial indexing across concurrent completeness requests",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads an exact Composer PSR-4 definition omitted by the initial dependency budget",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads an omitted PSR-4 member owner before workspace indexing is complete",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads a nullable property owner for a coalescing-throw method definition on the first request",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio progressively loads omitted owners in a chained member definition",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio progressively loads exact dependency owners for generic member completion",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes Symfony XML service facts through the authoritative provider",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores validated transitive callable factory facts on a hot language-server start",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio combines resource settings with explicit Composer platform extension exclusions and refreshes resource settings",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates conditional PgSQL definitions and signatures by PHP version and runtime exports",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses the imported Ctype, BCMath, iconv, and PgSQL catalogs with independent extension filtering",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers XSLTProcessor members and runtime libxslt values only while XSL is available",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers ZipArchive members and removes Zip when the runtime lacks the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Zlib symbols and removes them when the runtime lacks the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Sockets symbols and removes platform constants with the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers OpenSSL symbols and removes runtime version constants with the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Sodium crypto symbols only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes runtime PCRE constants without keeping stale completion candidates",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses the detected Oniguruma version and withdraws it when mbstring is disabled",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Phar archive members only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers SQLite3 types and members only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers MySQLi symbols from runtime facts and removes them when the extension is unavailable",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio provides PDO driver navigation only while that driver is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Hash completion and filters optional mhash functions using runtime facts",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers Fileinfo completion and removes it when the runtime lacks the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes guarded members of a Fileinfo function result with a false branch",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves cURL handles and removes their APIs when the extension is disabled",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses PHP 7.4 Intl runtime facts for the conditional NumberFormatter accounting constant",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves Intl Locale completion and removes it when the runtime lacks Intl",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates IntlTimeZone IANA completion and navigation by runtime ICU support",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves IntlCalendar and Gregorian completion with runtime Intl availability",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves GD and Exif APIs and respects runtime extension availability",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves gettext declarations and withdraws them when the extension is disabled",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves Bzip2 declarations only while the project runtime has bz2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio switches Imagick candidates with the linked ImageMagick build and retracts the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio switches Redis members with the project phpredis build and retracts the extension",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves igbinary functions only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves Msgpack functions, classes and constants only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves Shmop handles and functions only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio propagates method callback result members through array_map at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio propagates method callback result members through array_map at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks multi-array method callback null padding and unsaved result changes at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks multi-array method callback null padding and unsaved result changes at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio propagates literal function callback types and withdraws invalid padded results at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio propagates literal function callback types and withdraws invalid padded results at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio follows local string callback aliases and unsaved callback replacement at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio follows local string callback aliases and unsaved callback replacement at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes string split element feedback from unsaved source at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes string split element feedback from unsaved source at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes SimpleXML factory subclass witnesses from unsaved source at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes SimpleXML factory subclass witnesses from unsaved source at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retains stat failure contracts and refreshes guarded keys at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retains stat failure contracts and refreshes guarded keys at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes pathinfo keys and flag contracts from unsaved source at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes pathinfo keys and flag contracts from unsaved source at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes parse_url component and shape facts from unsaved source at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes parse_url component and shape facts from unsaved source at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio marks deprecated completion candidates across symbols, members and imports without inheriting overrides",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers audited Mcrypt signatures and extension availability at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers audited Mcrypt signatures and extension availability at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves versioned POSIX functions and retracts them at PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves versioned POSIX functions and retracts them at PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps System V IPC declarations scoped to loaded extensions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers YAML functions and constants only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves Calendar functions and constants only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses project PCNTL symbols and signal values, then withdraws them when PCNTL unloads",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves FTP functions, constants and PHP 8.1 connection types only while FTP is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws Session functions, types and constants when the project runtime lacks Session",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses the project Readline library and removes unavailable functions when runtime facts change",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves Tokenizer functions and PhpToken only while the extension is loaded",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves APCu cache APIs and uses runtime function and constant availability",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ignores runtime extension absence when the detected PHP minor differs from the target",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes Composer platform extension exclusions after a watched manifest change",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps open buffers authoritative across watched create, delete, move, and Composer autoload changes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores PHPDoc disk references after closing an unsaved buffer in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores PHPDoc disk references after closing an unsaved buffer in experimental mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores PHPDoc disk references after closing an unsaved buffer in progressive mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio includes a newly written closed consumer in rename before its watcher notification",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps fresh Import facts when an older background dependency snapshot finishes (scan)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps fresh Import facts when an older background dependency snapshot finishes (result)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps prepared progressive project sources after verified imports without retaining stale reference candidates",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns the first import after a watcher supersedes initial project preparation in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns the first import after a watcher supersedes initial project preparation in progressive mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks loaded disk declarations and live buffers for copied imports in 'onDemand' mode (remote=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks loaded disk declarations and live buffers for copied imports in 'onDemand' mode (remote=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks loaded disk declarations and live buffers for copied imports in 'progressive' mode (remote=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks loaded disk declarations and live buffers for copied imports in 'progressive' mode (remote=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves copied and pasted imports in 'onDemand' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves copied and pasted imports in 'onDemand' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves copied and pasted imports in 'progressive' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves copied and pasted imports in 'progressive' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves copied and pasted imports in 'experimental' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves copied and pasted imports in 'experimental' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans method parameter changes with fresh source coverage in 'onDemand' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans method parameter changes with fresh source coverage in 'onDemand' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans method parameter changes with fresh source coverage in 'progressive' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans method parameter changes with fresh source coverage in 'progressive' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans method parameter changes with fresh source coverage in 'experimental' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans method parameter changes with fresh source coverage in 'experimental' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prepares and plans complete source Rename in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prepares and plans complete source Rename in progressive mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects Rename when dependency source exceeds the budget in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects Rename when dependency source exceeds the budget in progressive mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects unstatable and dangling symlink Rename destinations",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio renames a unique type and its matching PSR-4 file through documentChanges",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio revalidates a superseded Safe Move scan once in onDemand",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio revalidates a superseded Safe Move scan once in progressive",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps code actions usable after an unreadable watched PHP source in onDemand",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps code actions usable after an unreadable watched PHP source in progressive",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps code actions usable after an unreadable watched PHP source in experimental",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move with current project and dependency consumers in 'onDemand' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move with current project and dependency consumers in 'onDemand' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move with current project and dependency consumers in 'progressive' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move with current project and dependency consumers in 'progressive' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move with current project and dependency consumers in 'experimental' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move with current project and dependency consumers in 'experimental' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio plans Safe Move between global and named PSR-4 namespaces",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reconciles Safe Move imports without crossing namespace or alias boundaries",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes static YAML routes only for proven Symfony methods and observes unsaved route edits",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers numeric return extraction for proven native operands",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers strict identity return extraction only for proven scalar operands",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers scalar choice return extraction only for proven native operands",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps shared-source workspace symbol locations current after unsaved edits",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes latest unsaved workspace symbols across cold roots in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes latest unsaved workspace symbols across cold roots in experimental mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes latest unsaved workspace symbols across cold roots in progressive mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio negotiates capabilities and serves diagnostics and symbols",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws Doctrine repository facts while an entity edit is incomplete",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes indexed PHP files after a watched disk change",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio isolates semantic queries between workspace roots with identical FQCNs",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-18 finds an unopened installed Composer implementation",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-18b reuses complete Implementation coverage across open edits and rescans closed additions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-18c reuses References coverage after open edits and refreshes receiver evidence",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reuses separate method References proofs while an unsaved caller alternates methods",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-20 finds vendor Implementation with a portable prefilter and excludes namesakes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves vscode-remote URIs through indexing, navigation, and file invalidation",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio renames a private method and only its directly resolved references",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-15 routes nested Composer projects to the deepest project root in experimental mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-15 routes nested Composer projects to the deepest project root in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-15b scopes a Composer refresh across workspace roots, path dependency=false",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-15b scopes a Composer refresh across workspace roots, path dependency=true",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-15c moves an open unsaved buffer into a newly created nested Composer project",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio F04-NAV-17 follows an installed path repository symlink without splitting its Composer project",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses an unsaved real path repository source through its installed symlink in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses unresolved-symbol diagnostics when a project file exceeds the index budget",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports unbound $this and withdraws the error after an unsaved instance edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps independent top-level variable feedback while a standalone word is incomplete",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes unresolved new-expression diagnostics after a complete project index",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes exact proven PHPDoc/native conflicts and honors diagnostic configuration",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes Chinese member, PHPDoc, hooked property and constructor diagnostics through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes Chinese Attribute and deprecation diagnostics through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes Chinese Attribute version requirements through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns Chinese Code Action titles from the Language Server",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns Chinese References failure and warning when indexing is disabled",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio starts Chinese PHP indexing progress in a supported client",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio ends incomplete progressive reference progress without claiming readiness",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps a completed progressive References index through declaration edits and close",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven missing-member diagnostics after a complete project index",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks readonly family initialization for PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks readonly family initialization for PHP 8.3",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks readonly family initialization for PHP 8.4",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio checks readonly family initialization for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio enables implicit readonly-class property diagnostics only for PHP 8.2 and newer",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes PHP 8.4 hooked-property operation, setter-type, and asymmetric write diagnostics",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes readonly class inheritance and Trait contracts only for PHP 8.2 and newer",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes audited atomic type version diagnostics through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects AllowDynamicProperties on readonly and non-class declarations for PHP 8.2+",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio enforces the PHP 8.5 Override property target and matching-parent contract",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports PHP 8.5 NoDiscard calls, declaration constraints, native methods, and void-cast suppression",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports versioned Deprecated attribute and PHPDoc uses with the LSP deprecated tag",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio validates Deprecated attribute targets across PHP 7.4, 8.3, 8.4, and 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes protected child members in parent scope without exposing them to siblings in PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes protected child members in parent scope without exposing them to siblings in PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio revalidates local accessor generation outside workspace roots without requiring a Composer project",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates local and inherited members with current sources in 'onDemand' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates local and inherited members with current sources in 'onDemand' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates local and inherited members with current sources in 'progressive' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates local and inherited members with current sources in 'progressive' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates local and inherited members with current sources in 'experimental' mode (limited=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates local and inherited members with current sources in 'experimental' mode (limited=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio generates exact missing interface method stubs without duplicating inherited methods",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio diagnoses and removes an independently unused import",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers a typed cross-file declaration only for proven dynamic-property values",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio makes PHP 8.4 parameter nullability explicit with one preferred edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes unreachable diagnostics only after guaranteed native never calls",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio sends versioned diagnostics to the editor and clears them on close",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps reopened diagnostics when a onDemand close is still restoring disk source",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps reopened diagnostics when a experimental close is still restoring disk source",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps reopened diagnostics when a progressive close is still restoring disk source",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates a proven PSR-4 method literal mismatch across open files in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps direct scalar argument diagnostics across common literal forms in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports a non-final method mismatch only for a stable exact local receiver in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates a proven native scalar return argument from another file in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects a native return diagnostic when only the source class has ambiguous PSR-4 paths",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps onDemand cross-file type diagnostics silent when PSR-4 has two possible declaration paths",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates an open consumer diagnostic after an unsaved declaration changes in another file (versioned=false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates an open consumer diagnostic after an unsaved declaration changes in another file (versioned=true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes consumer type feedback after an unsaved cross-file PHPDoc return changes (experimental)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes consumer type feedback after an unsaved cross-file PHPDoc return changes (onDemand)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps onDemand union-shape completion, hover and definition aligned with an unsaved source edit",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio moves closed PHPDoc facts when a nested Composer project appears in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio bounds restored onDemand PHP files per Composer root and retains recently reopened files",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports proven same-file argument errors in onDemand PHP 7.2 without trusting another file",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports proven same-file argument errors in onDemand PHP 8.5 without trusting another file",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports only proven same-file unknown named arguments in onDemand PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates literal unpack argument order at PHP 8.0",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio gates literal unpack argument order at PHP 8.1",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers the outer named parameter after a nested named call",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio does not offer PHP call suggestions inside a PHP 7.2 hash comment beginning with #[",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio highlights the next unused parameter after out-of-order named arguments",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers PHP Attribute constructor parameter names before the attribute is closed",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio follows an unsaved Composer Attribute constructor and restores disk parameters after close",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio selects the documented overload across punctuation in an argument comment",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses call hints in declarations, strings and comments while keeping a real call",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports only local scalar PHPDoc/native conflicts in onDemand PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports only local scalar PHPDoc/native conflicts in onDemand PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes native never fallthrough only for proven normal completion",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves contextual closure parameter completion and definition from a unique PHPDoc callable",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates array_filter callback value and key completion when the mode changes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates array_walk callback completion from unsaved array type edits",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses only proven array_walk_recursive leaf types after unsaved edits",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses the PHP 7.2 array_walk_recursive callback name and nested value type",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates usort comparator completion from unsaved array type edits",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws array_reduce carry members when an unsaved callback return changes type",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves contextual closure returns across try catch and finally flow",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves contextual closure returns across complete switch flow",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves contextual closure returns across bounded loop flow",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves conservative local type unions after optional loop iterations",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves optional for and foreach unions while rejecting self-dependent loops",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves deterministic namespace-aware type completion ordering",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers an unopened Composer class in native and continued PHPDoc type positions",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio offers unloaded PSR-4 traits inside a class use declaration",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio preserves semantic function and constant completion ranking with stable sortText",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes class, function, and constant imports from unopened Composer autoload files for PHP 7.2",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes class, function, and constant imports from unopened Composer autoload files for PHP 8.5",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio navigates exact YAML controller segments to PHP without taking over YAML documents",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio navigates controller segments in YAML files proven by the Symfony route import graph",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio navigates PHP route controller aliases and method strings from the independent Symfony provider (encoded URI: false)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio navigates PHP route controller aliases and method strings from the independent Symfony provider (encoded URI: true)",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio overlaps independent container and route providers while keeping watched route references current",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio navigates runtime routes declared after a module-root file through the Winstar provider",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reuses an opted-in route snapshot until a watched source invalidates it",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio retries an incomplete opted-in route snapshot on the next query",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads an explicitly configured semantic provider through the isolated process host",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio shares an in-flight selected-symbol scan with a References click inside the same word",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rebuilds named-argument candidates after restoring a symbol-only source cache",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio does not treat an experimental index as reference-complete while providers are pending",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates progressive References after a watched file move",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prewarms an early selection before the experimental source-only index is ready",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio prewarms an early selection before the progressive source-only index is ready",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reuses a completed experimental source-only index and hydrates a vendor receiver before References",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reuses a completed progressive source-only index and hydrates a vendor receiver before References",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio loads authoritative Symfony service facts for the first on-demand YAML References request",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses a bundled authoritative container provider for Symfony service references",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes resource-expanded Symfony services after watched PHP declaration changes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio skips event facts for a method outside registered services but retains subscriber references",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses a bundled authoritative event provider for listener and dispatch references in experimental mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses a bundled authoritative event provider for listener and dispatch references in onDemand mode",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio finds a new unsaved Symfony dispatch through the standalone event Provider with 0 other open documents",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio finds a new unsaved Symfony dispatch through the standalone event Provider with 129 other open documents",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio finds a new unsaved Symfony dispatch through the standalone event Provider with 510 other open documents",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio keeps a newly discovered Symfony subscriber registered after its editor closes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio infers render variable types from local values and exports callable Twig methods",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio withdraws an open cross-file compact shadow when its document closes",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes a controller when a Composer autoload.files function changes on disk",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio merges unchanged files from a full controller refresh with a newer scoped result",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio refreshes changed Symfony controller contexts once per watched-file batch",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves first-class callable invocation signatures, diagnostics, and return completion through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves PHPDoc Callable parameter signatures and direct invocation diagnostics through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves standalone local PHPDoc Callable assertions and immutable aliases through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves native closure and arrow variable invocation contracts through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves unique invokable object contracts through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves precise callable-array contracts through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves PHP 8.5 pipe result completion and definition through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves proven PHP 8.5 clone-with result completion and definition through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio serves proven PHP 8.3 dynamic class constant definition and type diagnostics through stdio",
+        "status": "skipped"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio returns a self target for a method declaration and base plus current targets for an override",
+        "status": "skipped"
+      }
+    ],
+    "ordinaryCompleteC1": {
+      "qualified": true,
+      "recordedAtUtc": "2026-10-06T19:40:15.864414+00:00",
+      "run": {
+        "status": "exited",
+        "childPid": 249917,
+        "parentPid": 249843,
+        "startedAtUtc": "2026-10-06T19:35:48.841361+00:00",
+        "manifest": "/var/www/node/php-companion/.vscode-test/d166-ordinary-c1-input.json",
+        "exitCode": 0,
+        "durationSeconds": 106.28161568095675,
+        "finishedAtUtc": "2026-10-06T19:37:35.120862+00:00",
+        "changedInputs": [],
+        "headChanged": false,
+        "worktreeChanged": false,
+        "runtimeChanges": [],
+        "nodeChanged": false,
+        "logSha256": "b25e1de8614dc596a7ea169abc060b62bfff9fb2909e667c353bb9be95185374"
+      },
+      "bundleSha256": "7159d89fbacac6b48fe10884b8815a5bb6684b95a9701932a0b26b379687357d",
+      "inputCount": 4851,
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "archivedSoPHPLogs": [
+        {
+          "path": ".vscode-test/d166-ordinary-c1-log-archive/php-companion-extension-M79gvD/logs/20261007T033554/window1/exthost/sohophp.php-companion/SoPHP.log",
+          "sha256": "bf0dd2fbbf397eb67cc795308e56ac5ac86dd7d3ce3886bebee7cac43c997570",
+          "bytes": 240376
+        }
+      ],
+      "detectedLifecycleFailures": [],
+      "visibleObservations": [],
+      "scope": "D166 current lifecycle guards. Original complete C1 ordinary host, runtime PHP 7.2 and automatic project version detection. Adds a final lifecycle gate for unexpected closes, restart failures and outstanding folder/config refreshes; no tracing, profiler or fatal monitor. Not real WSL acceptance.",
+      "previousCompleteC1Retained": true,
+      "ordinaryHost": true,
+      "shadow": false,
+      "fatalMonitor": false,
+      "readOnlyLogArchiver": true
+    },
+    "visibleLists": {
+      "localMember": {
+        "samplesMs": [
+          251,
+          233,
+          231,
+          255,
+          223,
+          264
+        ],
+        "inputSamplesMs": [
+          87,
+          81,
+          29,
+          28,
+          25,
+          88
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791315414097,
+            "input": 1791315414184,
+            "visible": 1791315414348
+          },
+          {
+            "started": 1791315414553,
+            "input": 1791315414634,
+            "visible": 1791315414787
+          },
+          {
+            "started": 1791315414978,
+            "input": 1791315415007,
+            "visible": 1791315415210
+          },
+          {
+            "started": 1791315415408,
+            "input": 1791315415436,
+            "visible": 1791315415663
+          },
+          {
+            "started": 1791315415877,
+            "input": 1791315415902,
+            "visible": 1791315416100
+          },
+          {
+            "started": 1791315416328,
+            "input": 1791315416416,
+            "visible": 1791315416592
+          }
+        ],
+        "medianMs": 242,
+        "maxMs": 264,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          1.5853690000003553,
+          3.5922449999998207,
+          1.927094999999099,
+          10.566210999997566,
+          1.9321280000003753,
+          1.5794180000011693
+        ]
+      },
+      "crossNamespaceType": {
+        "samplesMs": [
+          322,
+          275,
+          267,
+          354,
+          320,
+          321
+        ],
+        "inputSamplesMs": [
+          44,
+          32,
+          33,
+          37,
+          88,
+          40
+        ],
+        "medianMs": 321,
+        "maxMs": 354,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      },
+      "vendor": {
+        "samplesMs": [
+          260,
+          279,
+          264,
+          252,
+          260,
+          216
+        ],
+        "inputSamplesMs": [
+          43,
+          43,
+          38,
+          42,
+          32,
+          30
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791315420263,
+            "input": 1791315420306,
+            "visible": 1791315420523
+          },
+          {
+            "started": 1791315420779,
+            "input": 1791315420822,
+            "visible": 1791315421058
+          },
+          {
+            "started": 1791315421302,
+            "input": 1791315421340,
+            "visible": 1791315421565
+          },
+          {
+            "started": 1791315421865,
+            "input": 1791315421907,
+            "visible": 1791315422117
+          },
+          {
+            "started": 1791315422411,
+            "input": 1791315422443,
+            "visible": 1791315422670
+          },
+          {
+            "started": 1791315423405,
+            "input": 1791315423435,
+            "visible": 1791315423621
+          }
+        ],
+        "medianMs": 260,
+        "maxMs": 279,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      },
+      "unsavedReceiverSwitch": {
+        "beforeMs": 238,
+        "afterMs": 203,
+        "restoredMs": 197,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    },
+    "visibleScope": "Input through rendering, six samples per family; not hot-query P95 or actual WSL user acceptance."
+  },
+  "preparationAndAuditErrorsPreserved": [
+    "Initial diagnostic omitted request id: fourteen initialization timeouts, no product lifecycle test executed.",
+    "Corrected driver was hardened with disjoint request ids, response classification and client-request replies; wire trace still reproduced the closed resource state.",
+    "Pre-run Python syntax error: no product test executed.",
+    "Initial lint found a missing helper return type; corrected before the frozen protocol runs.",
+    "Selected eight provider cases all passed. Original auditor incorrectly listed 526 filter-excluded skipped entries as failures; separate strict post-audit reclassified only entries outside the pre-run selected collection without a rerun. Original audit retained."
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d164-late-notification-probe.json",
+      "sha256": "7cced9f38f03ad99eda96b01880fcfbd5563a569d09d32ee5c499526d6f24866"
+    },
+    {
+      "path": ".vscode-test/d164-handshake-probe.json",
+      "sha256": "ccefec84a8700a80dffab63e6e9d4906bc9c99909ea53b204c3806a39ddb6918"
+    },
+    {
+      "path": ".vscode-test/d164-causal-control-probe.json",
+      "sha256": "58c0bf2aa7311d8e346d51baccf7c3e0aa2e6632fbe66e34b0604610dd1c9c8f"
+    },
+    {
+      "path": ".vscode-test/d164-allocation-cause-probe.json",
+      "sha256": "b7d2fa7676c1c281e13a393ba73feb9f587150aa0da039bfd125187504b9a071"
+    },
+    {
+      "path": ".vscode-test/d164-allocation-source-mapping.json",
+      "sha256": "f0cb2b0a6c6d9d20b1fed62427c97a7fd5537124960e7fc344c79ea045449174"
+    },
+    {
+      "path": ".vscode-test/d164-lifecycle-findings.json",
+      "sha256": "478b385e4f73c58a338faf3ca7a99a89d363c27e0b297592577f7ed36de7cd1f"
+    },
+    {
+      "path": ".vscode-test/d164-notification-only-baseline.json",
+      "sha256": "6b5fa021accaa3a39837183a49ee01b5504791269bf5498966d1a852db27eb0a"
+    },
+    {
+      "path": ".vscode-test/d166-protocol-driver-syntax-error.log",
+      "sha256": "93463ef4f0692f5f8618bea703f2d455707e262e162c0dbdda83858b3f6bb300"
+    },
+    {
+      "path": ".vscode-test/d166-protocol-gate.py",
+      "sha256": "6d72cd77debbf61ec3756735bd2b923c7a6855e9d58dbb97f2469260e3521378"
+    },
+    {
+      "path": ".vscode-test/d166-shutdown-input.json",
+      "sha256": "281c15407d541fe9e3b6c15d4581c13567c839e508a72c0c1fc1a408ac75e6a2"
+    },
+    {
+      "path": ".vscode-test/d166-shutdown-run.json",
+      "sha256": "56b912c20cfc3810093f4edcc6118df8e80aa0acc02acfae99668a8b38310490"
+    },
+    {
+      "path": ".vscode-test/d166-shutdown-audit.json",
+      "sha256": "c88f5b75278d018871cccecdf7d61c702a975102b9bfe4d5b0e5bf1907a5c922"
+    },
+    {
+      "path": ".vscode-test/d166-providers-input.json",
+      "sha256": "fee8de2cf0380a9152e9410fa5aed9fdfac52a46b78b215e5402fe3a9ea3be17"
+    },
+    {
+      "path": ".vscode-test/d166-providers-run.json",
+      "sha256": "6c398df375ed3a64d35172297d4490fd14d4695f5326a87012231c62d94216f5"
+    },
+    {
+      "path": ".vscode-test/d166-providers-audit.json",
+      "sha256": "722de479936f2db59362ef0fbfb326d9d806a551d62f07743e3720fb8ee6aeb6"
+    },
+    {
+      "path": ".vscode-test/d166-provider-post-audit.json",
+      "sha256": "cae01d8cd60dd38823678373f4db0c6ad410605ccfee78ae879e743f05a48e15"
+    },
+    {
+      "path": ".vscode-test/d166-provider-post-audit.py",
+      "sha256": "5c4be2cbdeead04dda5294b10ba51142366eb86f5a2ef9721ac84c1b84c35760"
+    },
+    {
+      "path": ".vscode-test/d166-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d166-bundle-build.log",
+      "sha256": "8f632fe8e39b66538f84f4daebd5caf42723ec5ea6ac84faa59a8c9b49ad53b1"
+    },
+    {
+      "path": ".vscode-test/d166-root-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d166-lint.log",
+      "sha256": "fb11cf2bd12c173c0b8f2f1e5a45f539cde0606bfe38c8bfe741a025f63a4c79"
+    },
+    {
+      "path": ".vscode-test/d166-lint-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d166-ordinary-c1-input.json",
+      "sha256": "54e528a82d3077770f85fc175dcbcca05f69bac154f61f7c86226d08f8da07a1"
+    },
+    {
+      "path": ".vscode-test/d166-ordinary-c1-run.json",
+      "sha256": "9cf4b7509015a4ff21a165c9bbf781377fa214e4192bca36e6577bbfeab5c9c2"
+    },
+    {
+      "path": ".vscode-test/d166-ordinary-c1-audit.json",
+      "sha256": "d1e90ffb23fe852c0a09275264385dfc786c345652f8cca8965f61ca0350a7df"
+    },
+    {
+      "path": ".vscode-test/d166-ordinary-c1.log",
+      "sha256": "b25e1de8614dc596a7ea169abc060b62bfff9fb2909e667c353bb9be95185374"
+    },
+    {
+      "path": ".vscode-test/d166-write-report.py",
+      "sha256": "4e12a2a2faa349fea53e37b4775fb65fa0e6024415a646d336ecd9a6ba29e913"
+    },
+    {
+      "path": ".vscode-test/d166-ordinary-c1-log-archive/php-companion-extension-M79gvD/logs/20261007T033554/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "bf0dd2fbbf397eb67cc795308e56ac5ac86dd7d3ce3886bebee7cac43c997570"
+    },
+    {
+      "path": "/tmp/sophp-d166-shutdown-collection.json",
+      "sha256": "3dd1f4a32655855c3af10dfe4347d500fecaaee1f1ee90c6b2b29b86716ccf7b"
+    },
+    {
+      "path": "/tmp/sophp-d166-shutdown-result.json",
+      "sha256": "22bcf5956759b85e3cac0976343aad6a845e1d498b65dc03d7f6ca4e609cd732"
+    },
+    {
+      "path": "/tmp/sophp-d166-providers-collection.json",
+      "sha256": "c891e655e3eb605bbf87d14841ed3d814eb5e6c7ea087831704103285cb3b76f"
+    },
+    {
+      "path": "/tmp/sophp-d166-providers-result.json",
+      "sha256": "22e6371628a8e1a77a6ca28c5bb74fc10b4ac4db39dda2f2ee07cc12085bb448"
+    }
+  ],
+  "unchangedSemanticInputReview": ".vscode-test/d163-unchanged-semantic-input-review.json",
+  "fullCurrentLspQualified": false,
+  "previousFullLsp": {
+    "commit": "f7b4ffc95e02b02a2f733214efca908b28f171b0",
+    "passed": 1270,
+    "scope": "Qualified only for d8881971; no transfer to new 7159d89f bundle."
+  },
+  "remainingScope": [
+    "Current complete LSP combination on this new bundle",
+    "C1-C4/R4 final qualification",
+    "Real project and long-session performance",
+    "50k warm cache memory budget",
+    "Bare dollar variable descriptions and renderer batch issue",
+    "Missing actual PHP CLIs and current native Windows/macOS/Remote matrix",
+    "Real WSL user acceptance and documented dynamic inference limits"
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}
