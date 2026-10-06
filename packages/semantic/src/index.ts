@@ -5247,6 +5247,30 @@ export class SemanticWorkspace {
         } else if (name?.type === 'name') {
           for (const owner of this.memberOwnerTypeNamesAt(file.uri, name.endIndex)) owners.add(owner);
         }
+        if (name?.type === 'name' && ['member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression'].includes(expression.type)) {
+          const call = file.calls.find(item => item.start === expression.startIndex && item.end === expression.endIndex);
+          for (const signature of call ? this.signaturesForParsedCall(file, call).slice(0, 32) : []) {
+            if (signature.synthetic !== 'phpdoc-magic') continue;
+            // Source dependencies include every documented branch. Loading a
+            // class does not establish that this call returns that class.
+            const declarationFile = this.files.get(signature.uri);
+            const returned = specializeTemplateType(signature.returnType, signature.templateArguments);
+            if (!declarationFile || !returned) continue;
+            const templates = new Set(declarationFile.templates.filter(template =>
+              [signature.typeScopeFqcn, signature.fqcn].some(owner => owner.toLowerCase() === template.ownerFqcn.toLowerCase())).map(template => template.name));
+            bindPhpDocTypeNames(returned, (candidate, role) => {
+              if (templates.has(candidate) || BUILTIN_PARAMETER_TYPES.has(candidate.toLowerCase())
+                || this.phpDocRuntimeUpperBound(candidate) || candidate.startsWith('$') || candidate === '*'
+                || role === 'integer-bound' || role === 'generic-base'
+                  && ['list', 'class-string', 'key-of', 'value-of'].includes(candidate.toLowerCase())) return candidate;
+              const resolved = candidate.toLowerCase() === 'static' ? signature.calledOnFqcn
+                : this.resolveSourceType(declarationFile, candidate.split('::')[0]!,
+                  this.namespaceAt(declarationFile, signature.start), signature.typeScopeFqcn, signature.start);
+              if (resolved) owners.add(resolved);
+              return candidate;
+            });
+          }
+        }
         const object = expression.childForFieldName('object'); if (object) collect(object, depth + 1);
         return;
       }
@@ -11732,15 +11756,22 @@ export class SemanticWorkspace {
   }
 
   private completedCallSignature(file: SemanticFile, call: ParsedCall): SignatureInfo | undefined {
-    if (call.kind === 'constructor' && this.constructorTargetMayVary(file, call)) return undefined;
+    const signatures = this.completedCallSignatures(file, call);
+    return signatures.length === 1 ? signatures[0] : undefined;
+  }
+
+  private completedCallSignatures(file: SemanticFile, call: ParsedCall): SignatureInfo[] {
+    if (call.kind === 'constructor' && this.constructorTargetMayVary(file, call)) return [];
     if (call.kind === 'function' && ['isset', 'empty'].includes(file.source.slice(call.nameStart, call.nameEnd).toLowerCase()))
-      return undefined;
+      return [];
     const candidates = this.signaturesForParsedCall(file, call);
     const argumentsText = file.source.slice(call.argumentsStart + 1, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
     const selected = this.methodCandidatesForArguments(candidates, argumentsText, true, file, call.argumentsStart + 1);
-    if (selected.length !== 1) return undefined;
-    return candidates.find((candidate) => candidate.uri === selected[0]!.uri && candidate.start === selected[0]!.start
-      && candidate.fqcn.toLowerCase() === selected[0]!.fqcn.toLowerCase());
+    return selected.flatMap(member => {
+      const signature = candidates.find(candidate => candidate.uri === member.uri && candidate.start === member.start
+        && candidate.fqcn.toLowerCase() === member.fqcn.toLowerCase());
+      return signature ? [signature] : [];
+    });
   }
 
   private constructorTargetMayVary(file: SemanticFile, call: ParsedCall): boolean {
@@ -12169,62 +12200,77 @@ export class SemanticWorkspace {
       const raw = named ? segment.text.slice(named[0].length) : segment.text;
       const leading = raw.length - raw.trimStart().length; const trailing = raw.trimEnd().length;
       if (!raw.trim() || (!complete && segment === segments.at(-1) && /[A-Za-z_\\$]$/.test(raw.trim()))) return undefined;
-      return this.directScalarLiteralType(raw.trim()) ?? this.provenArgumentType(callerFile, argumentsStart + segment.start + (named?.[0].length ?? 0) + leading,
+      const fact = this.directNativeScalarFact(raw.trim()) ?? this.scalarArgumentFact(callerFile,
+        argumentsStart + segment.start + (named?.[0].length ?? 0) + leading,
         argumentsStart + segment.start + (named?.[0].length ?? 0) + trailing);
+      return fact?.numericKind === 'float' ? primitive('float') : fact?.type;
     });
     if (!actuals.some((actual) => actual && displayType(actual).toLowerCase() !== 'mixed')) return shaped;
     const relation = this.typeRelationContext();
-    const ranked = shaped.flatMap((candidate): Array<{ candidate: MemberInfo; score: number }> => {
-      const declarationFile = this.files.get(candidate.uri); if (!declarationFile) return [{ candidate, score: 0 }];
-      const variadicIndex = candidate.parameters.findIndex((parameter) => parameter.variadic); let positional = 0; let score = 0;
-      for (const [index, actual] of actuals.entries()) {
-        const parameterIndex = names[index]
-          ? candidate.parameters.findIndex((parameter) => parameter.name === names[index])
-          : positional < candidate.parameters.length ? positional : variadicIndex;
-        if (!names[index] && parameterIndex >= 0 && !candidate.parameters[parameterIndex]?.variadic) positional += 1;
-        const parameter = parameterIndex >= 0 ? candidate.parameters[parameterIndex] : undefined;
-        if (!actual || displayType(actual).toLowerCase() === 'mixed' || !parameter) continue;
-        if (actual.kind === 'primitive' && actual.name === 'null' && parameter.nativeType) {
-          const native = this.nativeType(declarationFile, nativeParameterType(parameter, declarationFile.uri), candidate.typeScopeFqcn);
-          if (native.kind !== 'unknown' && compatibility(actual, native, relation) === 'no') return [];
-        }
-        if (!parameter.type) continue;
-        const documented = parsePhpDocType(parameter.type).type;
-        const expected = documented && this.phpDocDiagnosticType(declarationFile, documented, candidate.typeScopeFqcn);
-        if (!expected) {
-          const genericBase = documented?.kind === 'generic' && documented.base.kind === 'name'
-            ? documented.base.name.toLowerCase().replace(/^\\/, '') : undefined;
-          if ((actual.kind === 'array' || actual.kind === 'shape' || actual.kind === 'list') && genericBase === 'array') {
-            score += 2;
+    let choices: Array<Array<PhpType | undefined>> = [[]];
+    for (const actual of actuals) {
+      const alternatives = actual?.kind === 'union' ? actual.types : [actual];
+      if (choices.length * alternatives.length > 64) return shaped;
+      choices = choices.flatMap(choice => alternatives.map(type => [...choice, type]));
+    }
+    const selected = new Set<MemberInfo>();
+    for (const choice of choices) {
+      const ranked = shaped.flatMap((candidate): Array<{ candidate: MemberInfo; score: number }> => {
+        const declarationFile = this.files.get(candidate.uri); if (!declarationFile) return [{ candidate, score: 0 }];
+        const variadicIndex = candidate.parameters.findIndex((parameter) => parameter.variadic); let positional = 0; let score = 0;
+        for (const [index, actual] of choice.entries()) {
+          const parameterIndex = names[index]
+            ? candidate.parameters.findIndex((parameter) => parameter.name === names[index])
+            : positional < candidate.parameters.length ? positional : variadicIndex;
+          if (!names[index] && parameterIndex >= 0 && !candidate.parameters[parameterIndex]?.variadic) positional += 1;
+          const parameter = parameterIndex >= 0 ? candidate.parameters[parameterIndex] : undefined;
+          if (!actual || displayType(actual).toLowerCase() === 'mixed' || !parameter) continue;
+          if (actual.kind === 'primitive' && actual.name === 'null' && parameter.nativeType) {
+            const native = this.nativeType(declarationFile, nativeParameterType(parameter, declarationFile.uri), candidate.typeScopeFqcn);
+            if (native.kind !== 'unknown' && compatibility(actual, native, relation) === 'no') return [];
           }
-          continue;
+          if (!parameter.type) continue;
+          const documented = parsePhpDocType(parameter.type).type;
+          const expected = documented && this.phpDocDiagnosticType(declarationFile, documented, candidate.typeScopeFqcn);
+          if (!expected) {
+            const genericBase = documented?.kind === 'generic' && documented.base.kind === 'name'
+              ? documented.base.name.toLowerCase().replace(/^\\/, '') : undefined;
+            if ((actual.kind === 'array' || actual.kind === 'shape' || actual.kind === 'list') && genericBase === 'array') {
+              score += 2;
+            }
+            continue;
+          }
+          if (expected.kind === 'primitive' && expected.name === 'mixed') continue;
+          if (displayType(actual).toLowerCase() === displayType(expected).toLowerCase()) {
+            score += actual.kind === 'literal' ? 3 : 2; continue;
+          }
+          if (actual.kind === 'literal' && expected.kind === 'primitive'
+            && ((typeof actual.value === 'string' && expected.name === 'string')
+              || (typeof actual.value === 'boolean' && expected.name === 'bool')
+              || (typeof actual.value === 'number' && expected.name === (Number.isInteger(actual.value) ? 'int' : 'float')))) {
+            score += 2; continue;
+          }
+          if (actual.kind === 'literal' && expected.kind === 'union'
+            && expected.types.some((member) => member.kind === 'literal' && member.value === actual.value)) { score += 3; continue; }
+          if ((actual.kind === 'array' || actual.kind === 'shape' || actual.kind === 'list') && expected.kind === 'array') {
+            const relationResult = compatibility(actual, expected, relation);
+            if (relationResult === 'no') return [];
+            score += 2; continue;
+          }
+          if (compatibility(actual, expected, relation) === 'yes') { score += 1; continue; }
+          if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(callerFile)) continue;
+          return [];
         }
-        if (expected.kind === 'primitive' && expected.name === 'mixed') continue;
-        if (displayType(actual).toLowerCase() === displayType(expected).toLowerCase()) {
-          score += actual.kind === 'literal' ? 3 : 2; continue;
-        }
-        if (actual.kind === 'literal' && expected.kind === 'primitive'
-          && ((typeof actual.value === 'string' && expected.name === 'string')
-            || (typeof actual.value === 'boolean' && expected.name === 'bool')
-            || (typeof actual.value === 'number' && expected.name === (Number.isInteger(actual.value) ? 'int' : 'float')))) {
-          score += 2; continue;
-        }
-        if (actual.kind === 'literal' && expected.kind === 'union'
-          && expected.types.some((member) => member.kind === 'literal' && member.value === actual.value)) { score += 3; continue; }
-        if ((actual.kind === 'array' || actual.kind === 'shape' || actual.kind === 'list') && expected.kind === 'array') {
-          const relationResult = compatibility(actual, expected, relation);
-          if (relationResult === 'no') return [];
-          score += 2; continue;
-        }
-        if (compatibility(actual, expected, relation) === 'yes') { score += 1; continue; }
-        if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(callerFile)) continue;
-        return [];
+        return [{ candidate, score }];
+      });
+      if (!ranked.length) {
+        for (const candidate of shaped) selected.add(candidate);
+        continue;
       }
-      return [{ candidate, score }];
-    });
-    if (!ranked.length) return shaped;
-    const maximum = Math.max(...ranked.map((item) => item.score));
-    return ranked.filter((item) => item.score === maximum).map((item) => item.candidate);
+      const maximum = Math.max(...ranked.map(item => item.score));
+      for (const item of ranked) if (item.score === maximum) selected.add(item.candidate);
+    }
+    return shaped.filter(candidate => selected.has(candidate));
   }
 
   private memberForArgumentCount(member: MemberInfo, argumentCount: number): MemberInfo {
@@ -12801,6 +12847,8 @@ export class SemanticWorkspace {
     const dynamic = this.dynamicCallFor(file, call); if (!dynamic) return undefined;
     const argumentsText = file.source.slice(call.argumentsStart + 1, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
     const selected = this.methodCandidatesForArguments(this.dynamicAccessMembers(file, dynamic.access), argumentsText, true, file, call.argumentsStart + 1);
+    if (selected.length && selected.every(member => member.synthetic === 'phpdoc-magic'))
+      return this.documentedMethodCallResult(file, call, selected);
     if (selected.length !== 1) return undefined;
     const member = this.specializedMagicMethod(file, selected[0]!, call.argumentsStart + 1); if (!member) return undefined;
     const declarationFile = this.files.get(member.uri); if (!declarationFile) return undefined;
@@ -12901,7 +12949,7 @@ export class SemanticWorkspace {
         let node = receiverTree.rootNode.namedDescendantForIndex(end - 1, end);
         let receiver: SyntaxNode | undefined; let remaining = 256;
         while (node && node.endIndex === end && remaining-- > 0) {
-          if (['parenthesized_expression', 'function_call_expression', 'object_creation_expression', 'subscript_expression', 'member_call_expression'].includes(node.type)) receiver = node;
+          if (['parenthesized_expression', 'function_call_expression', 'scoped_call_expression', 'object_creation_expression', 'subscript_expression', 'member_call_expression', 'nullsafe_member_call_expression'].includes(node.type)) receiver = node;
           node = node.parent;
         }
         const target = remaining > 0 && receiver && this.expressionReceiverTarget(file, receiver, '', accessFrom, bareReceiver[1] === '?->');
@@ -12940,9 +12988,9 @@ export class SemanticWorkspace {
           if (owner) return { fqcn: owner.fqcn, member: nameNode.text, accessFrom, static: false, typeArguments: owner.typeArguments };
         }
         if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver && !receiver.hasError
-          && ['member_access_expression', 'member_call_expression'].includes(memberNode.type)
-          && ['parenthesized_expression', 'function_call_expression', 'object_creation_expression', 'subscript_expression'].includes(receiver.type)) {
-          const target = this.expressionReceiverTarget(file, receiver, nameNode.text, accessFrom);
+          && ['member_access_expression', 'member_call_expression', 'nullsafe_member_access_expression', 'nullsafe_member_call_expression'].includes(memberNode.type)
+          && ['parenthesized_expression', 'function_call_expression', 'scoped_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'object_creation_expression', 'subscript_expression'].includes(receiver.type)) {
+          const target = this.expressionReceiverTarget(file, receiver, nameNode.text, accessFrom, memberNode.type.startsWith('nullsafe_'));
           if (target) return target;
           // The declared property type may be absent from a cold partial index.
           // Surface only a proven coalescing-throw receiver for PSR-4 hydration.
@@ -13047,7 +13095,7 @@ export class SemanticWorkspace {
               const member: MemberInfo | undefined = this.members(result.fqcn, accessFrom, new Set(), false, result.typeArguments)
                 .find((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
               const selected: MemberInfo | undefined = member && step.kind === 'method' ? this.memberForArgumentCount(member, step.argumentCount) : member;
-              result = selected && this.memberReturnClass(selected, true);
+              result = selected && selected.synthetic !== 'phpdoc-magic' ? this.memberReturnClass(selected, true) : undefined;
             }
             if (!result || agreed && (agreed.fqcn.toLowerCase() !== result.fqcn.toLowerCase()
               || JSON.stringify(agreed.typeArguments ?? {}) !== JSON.stringify(result.typeArguments ?? {}))) {
@@ -13219,7 +13267,7 @@ export class SemanticWorkspace {
     if (assignment?.sourceCall?.kind === 'static') {
       const sourceCall = assignment.sourceCall; const namespace = this.namespaceAt(file, assignment.start);
       const owner = this.resolveSourceType(file, sourceCall.typeName, namespace, scope.containerFqcn);
-      const member = owner && this.members(owner, scope.containerFqcn).find((item) => item.kind === 'method' && item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+      const member = owner && this.members(owner, scope.containerFqcn).find((item) => item.kind === 'method' && item.synthetic !== 'phpdoc-magic' && item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
       return member ? this.memberReturnGroups(member) : undefined;
     }
     if (assignment?.sourceCall?.kind === 'member') {
@@ -13228,7 +13276,7 @@ export class SemanticWorkspace {
       const owner = this.variableClass(file, sourceCall.variable, assignment.start, new Set(visited));
       if (owner) {
         const declaredMember = this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
-          .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+          .find((item) => item.kind === 'method' && item.synthetic !== 'phpdoc-magic' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
         const member = declaredMember && this.memberForArgumentCount(declaredMember, sourceCall.argumentCount);
         const methodArguments = member && sourceCall.callback ? this.methodTemplateArguments(file, assignment.start, member, sourceCall.callback) : undefined;
         return member ? this.memberReturnGroups({ ...member, templateArguments: { ...member.templateArguments, ...methodArguments } }) : undefined;
@@ -13237,7 +13285,7 @@ export class SemanticWorkspace {
       const composite = this.variableObjectGroups(file, sourceCall.variable, assignment.start, new Set(visited)); const first = composite?.groups[0]?.[0];
       if (!composite || composite.nullable || !first) return undefined;
       const member = this.targetMembers({ fqcn: first.fqcn, member: sourceCall.method, accessFrom: scope.containerFqcn, static: false, groups: composite.groups })
-        .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+        .find((item) => item.kind === 'method' && item.synthetic !== 'phpdoc-magic' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
       return member ? this.commonMemberReturnGroups(composite.groups, member, scope.containerFqcn) : undefined;
     }
     if (assignment) {
@@ -14536,6 +14584,12 @@ export class SemanticWorkspace {
     }
     if (assignment?.sourceVariable) return this.variableClass(file, assignment.sourceVariable, assignment.start, visited, allowNullable);
     if (assignment?.sourceChain && !assignment.sourceCall) {
+      if (assignment.sourceChain.steps.some(step => step.kind === 'method')) {
+        const inferred = this.linearLocalValueType(file, variable, offset, true);
+        const composite = inferred && this.objectGroups(inferred); const first = composite?.groups[0]?.[0];
+        if (composite && first && composite.groups.flat().every(candidate => this.fileAndDeclaration(candidate.fqcn))
+          && (!composite.nullable || allowNullable)) return { ...first, nullable: composite.nullable, groups: composite.groups };
+      }
       const sourceChain = assignment.sourceChain; const initial = this.variableClass(file, sourceChain.variable, assignment.start, visited, true);
       if (!initial) return undefined; let target: ObjectClass = initial; let directPropertyPath: string[] | undefined = [];
       for (const step of sourceChain.steps) {
@@ -14544,7 +14598,7 @@ export class SemanticWorkspace {
           .find((item) => item.kind === step.kind && !item.static && memberNameEquals(item.kind, item.name, step.name));
         const effectiveMember = declaredMember && step.kind === 'method' ? this.memberForArgumentCount(declaredMember, step.argumentCount) : declaredMember;
         const member = effectiveMember && step.kind === 'method' ? this.withInferredGeneratorReturn(effectiveMember) : effectiveMember;
-        if (!member) return undefined;
+        if (!member || step.kind === 'method' && member.synthetic === 'phpdoc-magic') return undefined;
         if (directPropertyPath && step.kind === 'property') directPropertyPath.push(step.name);
         else directPropertyPath = undefined;
         const assertedProperty = directPropertyPath
@@ -14639,7 +14693,7 @@ export class SemanticWorkspace {
             && fact.argument === literalArgument));
         const owner = !hasLiteralFact ? undefined : this.variableClass(file, sourceCall.variable, assignment.start, visited);
         const member = owner && this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
-          .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+          .find((item) => item.kind === 'method' && item.synthetic !== 'phpdoc-magic' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
         const literalReturn = member && literalArgument !== undefined
           ? this.literalMethodReturnClass(owner!.fqcn, member.name, literalArgument) : undefined;
         if (literalReturn) return literalReturn;
@@ -14677,7 +14731,7 @@ export class SemanticWorkspace {
       const sourceCall = assignment.sourceCall;
       const namespace = this.namespaceAt(file, assignment.start); const accessFrom = scope.containerFqcn;
       const owner = this.resolveSourceType(file, sourceCall.typeName, namespace, accessFrom);
-      const member = owner && this.members(owner, accessFrom).find((item) => item.kind === 'method' && item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+      const member = owner && this.members(owner, accessFrom).find((item) => item.kind === 'method' && item.synthetic !== 'phpdoc-magic' && item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
       const returned = member && this.memberReturnClass(member, allowNullable);
       if (returned) return returned;
     }
@@ -14686,7 +14740,7 @@ export class SemanticWorkspace {
       if (sourceCall.dynamic) return undefined;
       const owner = this.variableClass(file, sourceCall.variable, assignment.start, visited);
       const declaredMember = owner && this.members(owner.fqcn, scope.containerFqcn, new Set(), false, owner.typeArguments)
-        .find((item) => item.kind === 'method' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
+        .find((item) => item.kind === 'method' && item.synthetic !== 'phpdoc-magic' && !item.static && item.name.toLowerCase() === sourceCall.method.toLowerCase());
       const member = declaredMember && this.memberForArgumentCount(declaredMember, sourceCall.argumentCount);
       const methodArguments: Record<string, string> | undefined = member && sourceCall.callback ? this.methodTemplateArguments(file, assignment.start, member, sourceCall.callback) : undefined;
       const literalArgument = this.resolvedLiteralMethodArgument(file, sourceCall.literalArgument, sourceCall.literalClassArgument,
@@ -16582,11 +16636,53 @@ export class SemanticWorkspace {
   }
 
   private callResultType(file: SemanticFile, start: number, end: number): PhpType | undefined {
-    const call = file.calls.find((candidate) => candidate.start === start && candidate.end === end); if (!call) return undefined;
+    const call = file.calls.find(candidate => candidate.start === start && candidate.end === end); if (!call) return undefined;
     if (call.firstClassCallable) return named('Closure');
     const dynamicResult = this.dynamicCallResultType(file, call); if (dynamicResult) return dynamicResult;
-    const signature = this.completedCallSignature(file, call); if (!signature || signature.synthetic) return undefined;
+    const signatures = this.completedCallSignatures(file, call);
+    if (signatures.length && signatures.every(signature => signature.synthetic === 'phpdoc-magic')) {
+      return this.documentedMethodCallResult(file, call, signatures);
+    }
+    const signature = signatures.length === 1 ? signatures[0] : undefined;
+    if (!signature || signature.synthetic) return undefined;
+    if (signature.kind === 'method') {
+      const argumentsText = file.source.slice(call.argumentsStart + 1, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
+      const argument = this.resolvedLiteralMethodArgument(file, this.literalStringArgument(argumentsText), this.literalClassArgument(argumentsText),
+        call.start, this.containingScope(file, call.start)?.containerFqcn);
+      const returned = argument !== undefined && this.literalMethodReturnClass(signature.calledOnFqcn, signature.name, argument);
+      const declarationFile = this.files.get(signature.uri);
+      if (returned && declarationFile && this.callArgumentsCompatible(file, call, signature, declarationFile, signature.templateArguments))
+        return named(returned.fqcn);
+    }
     return this.resolvedCallResultType(file, call, signature);
+  }
+
+  // A documented overload is a return contract, not a native coercion boundary.
+  // Preserve every possible return when the argument cannot select one branch.
+  private documentedMethodCallResult(file: SemanticFile, call: ParsedCall, candidates: MemberInfo[]): PhpType | undefined {
+    const argumentsText = file.source.slice(call.argumentsStart + 1, Math.max(call.argumentsStart + 1, call.argumentsEnd - 1));
+    const values = candidates.flatMap(candidate => {
+      const member = this.specializedMagicMethod(file, candidate, call.argumentsStart + 1);
+      const declarationFile = member && this.files.get(member.uri);
+      const signature: SignatureInfo | undefined = member && { ...member, activeParameter: 0, usedNamedArguments: [] };
+      if (!member || !signature || !declarationFile
+        || !this.callArgumentsCompatible(file, call, signature, declarationFile, member.templateArguments, true)) return [];
+      const literalArgument = candidates.length === 1 ? this.resolvedLiteralMethodArgument(file,
+        this.literalStringArgument(argumentsText), this.literalClassArgument(argumentsText), call.start,
+        this.containingScope(file, call.start)?.containerFqcn) : undefined;
+      const literalReturn = literalArgument === undefined ? undefined
+        : this.literalMethodReturnClass(member.calledOnFqcn, member.name, literalArgument);
+      const result = literalReturn ? named(literalReturn.fqcn) : this.memberDiagnosticType(member);
+      return result ? [result] : [];
+    });
+    if (!values.length) return undefined;
+    let result = union(...values);
+    if (call.receiver?.nullsafe) {
+      const receiver = this.variableClass(file, call.receiver.variable, call.start, new Set(), true);
+      if (!receiver) return undefined;
+      if (receiver.nullable) result = nullable(result);
+    }
+    return result;
   }
 
   private builtinArrayMapNullZipResultType(file: SemanticFile, call: ParsedCall, signature: SignatureInfo,
@@ -17576,7 +17672,7 @@ export class SemanticWorkspace {
   }
 
   private callArgumentsCompatible(callerFile: SemanticFile, call: ParsedCall, signature: SignatureInfo,
-    declarationFile: SemanticFile, templateArguments?: Record<string, string>): boolean {
+    declarationFile: SemanticFile, templateArguments?: Record<string, string>, allowPossibleArguments = false): boolean {
     const callArguments = this.expandedCallArguments(callerFile, call.start, call.end); if (!callArguments) return false;
     const relation = this.typeRelationContext();
     const callableTemplates = signature.callableTemplates ?? declarationFile.templates.filter((template) => template.ownerFqcn.toLowerCase() === signature.fqcn.toLowerCase());
@@ -17612,12 +17708,15 @@ export class SemanticWorkspace {
         || type.kind === 'union' && type.types.some(acceptsCallable);
       const fact = this.scalarArgumentFact(callerFile, argument.start, argument.end);
       const actual = (acceptsCallable(expected) ? this.resolvedCallbackExpressionType(callerFile, argument.start, argument.end) : undefined)
-        ?? ((fact?.numericKind || fact?.type.kind === 'literal') ? fact.type : argument.type ?? fact?.type); if (!actual) return false;
+        ?? (!parameter.nativeType && fact?.numericKind === 'float' ? primitive('float')
+          : (fact?.numericKind || fact?.type.kind === 'literal') ? fact.type : argument.type ?? fact?.type); if (!actual) { if (allowPossibleArguments) continue; return false; }
       const scalar = parameter.nativeType ? nativeScalarInput(actual, expected, this.hasStrictTypes(callerFile), this.targetPhpVersion, fact?.numericKind) : undefined;
       if (scalar) { if (scalar.accepted === 'no') return false; continue; }
-      if ((isDirectScalar(actual) || expected.kind === 'primitive' && expected.name === 'bool' && this.weakScalarSubject(actual))
+      if (parameter.nativeType && (isDirectScalar(actual) || expected.kind === 'primitive' && expected.name === 'bool' && this.weakScalarSubject(actual))
         && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(callerFile)) continue;
-      if (compatibility(actual, expected, relation) !== 'yes') return false;
+      const compatible = compatibility(actual, expected, relation);
+      if (compatible !== 'yes' && (!allowPossibleArguments || compatible === 'no'
+        && !(actual.kind === 'union' && actual.types.some(type => compatibility(type, expected, relation) !== 'no')))) return false;
     }
     return !signature.parameters.some((parameter, index) => parameter.defaultValue === undefined && !parameter.variadic && !assigned.has(index));
   }

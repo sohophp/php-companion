@@ -70,6 +70,8 @@ try {
     conditionalNativeTrueOutput: { declaration: '/** @param-out ($mode is true ? Row : int) $value */function fill(true|int $mode,&$value){}', call: 'fill(true,$value);' },
     nativeCloneWeak: { declaration: '', call: "$original=new Row();$value=clone($original,['mode'=>'42 ']);" },
     nativeCloneMember: { declaration: 'class Box {public Row $row;}', call: "$box=new Box();$box->row=new Row();$value=clone($box->row,['mode'=>42.]);" },
+    documentedMethodFloat: { declaration: 'class IntResult{function intOnly(){}}/** @method IntResult pick(int $value)\n * @method Row pick(float $value) */class Maker{function __call($name,$arguments){return is_float($arguments[0])?new Row():new IntResult();}}', call: '$maker=new Maker();$value=$maker->pick(42.);' },
+    documentedStaticFloat: { declaration: 'class IntResult{function intOnly(){}}/** @method static IntResult pick(int $value)\n * @method static Row pick(float $value) */class Maker{static function __callStatic($name,$arguments){return is_float($arguments[0])?new Row():new IntResult();}}', call: '$value=Maker::pick(42.);' },
     variadic: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill($first,$value);' },
     variadicNamed: { declaration: '/** @param-out Row $values */function fill(&...$values){}', call: 'fill(first:$first,result:$value);' },
     variadicGeneric: { declaration: '/** @template T of object\n * @param class-string<T> $class\n * @param-out T $values */function fill(string $class,&...$values){}', call: 'fill(Row::class,$first,$value);' },

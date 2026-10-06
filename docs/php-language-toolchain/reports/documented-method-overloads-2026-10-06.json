@@ -1,0 +1,414 @@
+{
+  "milestone": "D151",
+  "baseCommit": "a2b804a60d472645f2e81439291c8a840ff5d612",
+  "engine": "v77",
+  "bundleSha256": "37bd568a29028e8f51e17d83e58543dbc40138532ccce5ce015ce7f4c161a2e1",
+  "semanticSourceSha256": "d607921c0e29cc3d740bf399410051982db4f85062320c6563ec10e22aebee7d",
+  "scope": "Documented method overload results, source dependencies, and selected native literal facts; original C1-C4/R4 remain open.",
+  "native": {
+    "scope": "Six actual PHP runtimes and documented __call/__callStatic dispatch; not arbitrary magic method execution, nine native runtimes, or PHPDoc argument enforcement.",
+    "nativeObservations": 144,
+    "total": 288,
+    "mismatching": 0,
+    "runtimes": [
+      {
+        "model": "7.2",
+        "path": "/opt/remi/php72/root/usr/bin/php",
+        "version": "7.2.34",
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+      },
+      {
+        "model": "7.4",
+        "path": "/opt/remi/php74/root/usr/bin/php",
+        "version": "7.4.33",
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+      },
+      {
+        "model": "8.1",
+        "path": "/opt/remi/php81/root/usr/bin/php",
+        "version": "8.1.34",
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      {
+        "model": "8.2",
+        "path": "/opt/remi/php82/root/usr/bin/php",
+        "version": "8.2.32",
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      {
+        "model": "8.4",
+        "path": "/opt/remi/php84/root/usr/bin/php",
+        "version": "8.4.23",
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      {
+        "model": "8.5",
+        "path": "/opt/remi/php85/root/usr/bin/php",
+        "version": "8.5.9",
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    ]
+  },
+  "baseline": {
+    "nativeComparisons": 24,
+    "nativeMismatching": 16,
+    "consumerScenarios": 168,
+    "consumerMismatching": 116
+  },
+  "prototype": {
+    "firstConsumerMismatching": 44,
+    "finalConsumerMismatching": 0,
+    "consumerScenarios": 168
+  },
+  "semantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 22206,
+      "numPassedTests": 22206,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 142,
+    "inputs": 3114,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 3793830,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d151-qualified-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T09:05:53.574977+00:00",
+      "exitCode": 0,
+      "durationSeconds": 94.17682469403371,
+      "finishedAtUtc": "2026-10-06T09:07:27.750605+00:00"
+    },
+    "bundleSha256": "37bd568a29028e8f51e17d83e58543dbc40138532ccce5ce015ce7f4c161a2e1",
+    "sourceSha256": "d607921c0e29cc3d740bf399410051982db4f85062320c6563ec10e22aebee7d",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "relatedLsp": {
+    "numTotalTests": 66,
+    "numPassedTests": 66,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "relatedLspFiles": [
+    {
+      "file": "packages/language-server/test/analysis.test.ts",
+      "cases": 48
+    },
+    {
+      "file": "packages/language-server/test/documented-method-overloads-stdio.test.ts",
+      "cases": 4
+    },
+    {
+      "file": "packages/language-server/test/native-boundary-diagnostics-stdio.test.ts",
+      "cases": 6
+    },
+    {
+      "file": "packages/language-server/test/native-clone-stdio.test.ts",
+      "cases": 8
+    }
+  ],
+  "newFormalSemanticCases": 1386,
+  "hosts": [
+    {
+      "platform": "linux",
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 521,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 228,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedMethodFloat",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 443,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 223,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "documentedStaticFloat",
+      "rendererExceptions": 0
+    }
+  ],
+  "hot": {
+    "scope": "Fixed PHP 8.5 static documented overload project, four files; first completion without query prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "37bd568a29028e8f51e17d83e58543dbc40138532ccce5ce015ce7f4c161a2e1",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 146.4278989999998,
+        "p95Ms": 5.777059999999892,
+        "warmSamples": 20,
+        "samples": [
+          5.777059999999892,
+          3.264274000000114,
+          2.9894110000000182,
+          3.974995999999919,
+          4.202053999999862,
+          3.6612049999998817,
+          4.062511000000086,
+          3.8237520000002405,
+          7.717380999999932,
+          3.29271800000015,
+          2.6835070000001906,
+          2.496045999999751,
+          2.598438999999871,
+          2.492772999999943,
+          3.1229629999997996,
+          2.803194000000076,
+          2.5978470000000016,
+          2.184465000000273,
+          2.9413049999998293,
+          2.518271999999797
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 121.76475499999924,
+        "p95Ms": 4.973195999999916,
+        "warmSamples": 20,
+        "samples": [
+          4.973195999999916,
+          3.0334750000001804,
+          3.0028919999995196,
+          3.4818089999998847,
+          2.993554000000586,
+          2.837712000000465,
+          3.4895839999999225,
+          3.4719109999996363,
+          3.3480460000000676,
+          2.420063000000482,
+          2.369442000000163,
+          2.5877700000000914,
+          2.5820229999999356,
+          10.124421000000439,
+          2.6998460000004343,
+          2.3805410000004485,
+          3.489511999999195,
+          2.318282000000181,
+          2.465226000000257,
+          2.402546999999686
+        ]
+      }
+    ]
+  },
+  "references": {
+    "scope": "References of each proven exclusive documented return member; ambiguous union-family references are not qualified.",
+    "bundleSha256": "37bd568a29028e8f51e17d83e58543dbc40138532ccce5ce015ce7f4c161a2e1",
+    "sourceSha256": "d607921c0e29cc3d740bf399410051982db4f85062320c6563ec10e22aebee7d",
+    "results": [
+      {
+        "retained": true,
+        "input": "42",
+        "actual": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 239,
+            "end": 246
+          }
+        ],
+        "expected": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 239,
+            "end": 246
+          }
+        ],
+        "match": true
+      },
+      {
+        "retained": true,
+        "input": "42.",
+        "actual": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 240,
+            "end": 249
+          }
+        ],
+        "expected": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 240,
+            "end": 249
+          }
+        ],
+        "match": true
+      },
+      {
+        "retained": false,
+        "input": "42",
+        "actual": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 239,
+            "end": 246
+          }
+        ],
+        "expected": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 239,
+            "end": 246
+          }
+        ],
+        "match": true
+      },
+      {
+        "retained": false,
+        "input": "42.",
+        "actual": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 240,
+            "end": 249
+          }
+        ],
+        "expected": [
+          {
+            "uri": "file:///ReferenceOverloads.php",
+            "start": 240,
+            "end": 249
+          }
+        ],
+        "match": true
+      }
+    ]
+  },
+  "initialFullFailure": {
+    "passed": 22205,
+    "failed": 1,
+    "files": 142,
+    "inputsStable": true,
+    "case": "conservative semantic workspace uses exact class literals for literal method return facts",
+    "fixed": "Resolve proven external literal facts on the coherent completed call path."
+  },
+  "initialProtocolFailure": {
+    "passed": 62,
+    "failed": 4,
+    "causes": [
+      "Static cold dependency hydration omitted documented result classes.",
+      "The instance signature assertion incorrectly required a namespace-qualified label, while the existing formatter preserves documented short return names."
+    ]
+  },
+  "preparationNotes": {
+    "notes": [
+      "The first isolated candidate invocation used the old production module because its loader replacement did not match. That result is preserved as wrong-loader evidence and is not candidate proof.",
+      "PHP 7.2 with -n has no JSON extension here. The first formal native checker could not encode its output; encoding now uses primitive text separators and runs no additional extension.",
+      "The first attempt to rewrite formal location assertions used the wrong working directory and made no file changes. The existing literal class fact regression test itself passed after the product fix.",
+      "Formal test typecheck found the generated LSP fixture table needed readonly tuples; the test source was corrected before the qualified input freeze."
+    ],
+    "baseCommit": "a2b804a6"
+  },
+  "archive": {
+    "path": ".vscode-test/d151-evidence/",
+    "files": 52,
+    "manifestSha256": "0727b86de5525d3aab2aab1cd3eb27e4dc48a562455f82c19d7c166dd5fc5551"
+  },
+  "postGates": {
+    "inputs": 3114,
+    "changedInputs": [],
+    "headUnchanged": true
+  },
+  "open": [
+    "Entire current LSP qualification and D148 shutdown root cause",
+    "D100 ordinary editing P95 155.06 ms versus 150 ms",
+    "D117 bare variable descriptions",
+    "50k cache RSS budget",
+    "Ambiguous union-family references and arbitrary __call execution",
+    "Other weak consumers, template callables, and PHPDoc callable variables",
+    "Actual PHP 7.3, 8.0, 8.3 and non-Linux/32-bit qualification",
+    "Real WSL long use and full original C1-C4/R4"
+  ],
+  "delivery": {
+    "profileUpdated": false,
+    "vsixPackaged": false,
+    "pushed": false,
+    "goalStatus": "active"
+  }
+}
