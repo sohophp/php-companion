@@ -3,7 +3,7 @@ import { displayPhpDocType, parsePhpDoc, parsePhpDocType } from '../src/index.js
 
 describe('PHPDoc parser', () => {
   it.each(['', 'phpstan-', 'psalm-'])('ignores complete unsupported tag names with %s dialect', dialect => {
-    for (const tag of ['param-out', 'param-closure-this', 'param-immediately-invoked-callable',
+    for (const tag of ['param-out-extra', 'param-closure-this', 'param-immediately-invoked-callable',
       'return-extra', 'var-extra', 'throws-extra', 'property-extra', 'property-read-extra',
       'property-write-extra', 'method-extra', 'deprecated-extra', 'mixin-extra',
       'assert-extra', 'assert-if-true-extra', 'assert-if-false-extra', 'extends-extra',
@@ -14,7 +14,7 @@ describe('PHPDoc parser', () => {
   });
 
   it('preserves nearby supported tags and their UTF-16 ranges after ignored extensions', () => {
-    const source = '/** 😀\r\n * @param-out Other $value\r\n * @param User $value input\r\n'
+    const source = '/** 😀\r\n * @param-out-extra Other $value\r\n * @param User $value input\r\n'
       + ' * @phpstan-return-extra metadata\r\n * @return User result\r\n */';
     const doc = parsePhpDoc(source, 25);
     expect(doc.errors).toEqual([]);

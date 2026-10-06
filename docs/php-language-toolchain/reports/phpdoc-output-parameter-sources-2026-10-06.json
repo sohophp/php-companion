@@ -1,0 +1,601 @@
+{
+  "stage": "D129",
+  "date": "2026-10-06",
+  "recordedUtc": "2026-10-06T00:07:14.289642+00:00",
+  "status": "source implemented; isolated host and real WSL acceptance open",
+  "baseCommit": "55ccb3e6c4f46ce8b78022d66e8d4fd33ecf9694",
+  "sourceCommitted": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "schemas": {
+    "semantic": 89,
+    "sourceDeclaration": 7,
+    "projectWrapper": 13,
+    "engine": "v68"
+  },
+  "inputs": {
+    "packages/parser/src/index.ts": "1dd7f9bb53f5a41e0fcfd1dec7602ca638222a04052715a40930d9a6e1223cfd",
+    "packages/phpdoc/src/index.ts": "7a39c18ad03df2d698e34d1702274817e95eb71d45d3e0d59065562ae47dd599",
+    "packages/semantic/src/index.ts": "41b4bf468bc07d6bed74220c96d03bfbebe0094de9213ec830848e0183a26352",
+    "packages/language-server/src/cacheVersion.ts": "83ab56faf3321986689c81fb01ca3dc538d5a6c8c5f514e625fd2ef4ed6f943e",
+    "packages/language-server/src/projectFacts.ts": "5d3dd3757b003fbb8212dd283856ce3b6f001faf2c5bffe6e9404af34a351613",
+    "packages/language-server/test/phpdoc-output-queries-stdio.test.ts": "75da5a4595e93adac274f94cbe22b2997adaaeb593f0ed70bc247ee2df0dd3c0",
+    "packages/semantic/test/phpdoc-output-parameters.test.ts": "add2b619b19ee2e16ee3fe437e4e3dad0041dc659aa2b9048b1c78bdf7c98196",
+    "dist/language-server.js": "c32819677868690b503122a0c21cb695185dd57b89b5b61104c742655da936b9"
+  },
+  "runs": [
+    {
+      "name": "shared-before",
+      "rawSha256": "126b8bfaf7fecba177b5be4a61499d0d4375186dfc92e907e58f44bedff8374a",
+      "total": 142,
+      "passed": 120,
+      "failed": 22,
+      "success": false,
+      "failures": [
+        {
+          "name": "supports global output bindings, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "supports global output bindings, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global new binding, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global existing binding, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global two outputs, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global pure echo, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global both branches, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global try catch, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global do once, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "shared output reference parameter, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "shared output local alias fresh, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "shared output captured fresh, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global new binding, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global existing binding, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global two outputs, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global pure echo, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global both branches, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global try catch, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "global do once, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "shared output reference parameter, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "shared output local alias fresh, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "shared output captured fresh, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        }
+      ]
+    },
+    {
+      "name": "shared-after",
+      "rawSha256": "5aaace43f6504ee88d854af6f6da22229f3dfe544bc49d42875a15a3dc377cc6",
+      "total": 142,
+      "passed": 132,
+      "failed": 10,
+      "success": false,
+      "failures": [
+        {
+          "name": "output reference alias, retained=true",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "output reference alias, retained=false",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "global assigned result, retained=true",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "shared output aliased parameter write, retained=true",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "shared output local alias later, retained=true",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "shared output captured alias later, retained=true",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "global assigned result, retained=false",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "shared output aliased parameter write, retained=false",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "shared output local alias later, retained=false",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        },
+        {
+          "name": "shared output captured alias later, retained=false",
+          "error": "AssertionError: expected [ 'name' ] to deeply equal []"
+        }
+      ]
+    },
+    {
+      "name": "shared-scopes",
+      "rawSha256": "660a89c7fbc8fd79b3fbb07ba732a2e4430c6765ce8bca1b4540d31fcb184106",
+      "total": 142,
+      "passed": 142,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "generics-before",
+      "rawSha256": "b8c5c82d67ae43fd7110c1478832a0f68d492c4f30d910c319f654d529f96105",
+      "total": 166,
+      "passed": 152,
+      "failed": 14,
+      "success": false,
+      "failures": [
+        {
+          "name": "generic output generic class receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output inherited class receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output nested trait receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait alias receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output declaration namespace of trait binding, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output inherited static is called class, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output generic class receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output inherited class receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output nested trait receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait alias receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output declaration namespace of trait binding, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output inherited static is called class, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        }
+      ]
+    },
+    {
+      "name": "generics-after",
+      "rawSha256": "99756dca411157642ee9c21411af5c547be94421ed4009789075f930ba26ea09",
+      "total": 166,
+      "passed": 164,
+      "failed": 2,
+      "success": false,
+      "failures": [
+        {
+          "name": "generic output trait alias receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait alias receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        }
+      ]
+    },
+    {
+      "name": "generics-origin",
+      "rawSha256": "7bc948fca5e2a8a2d5ea5e2046e62aeb82eec853a92e0815bf1412a5b0d75647",
+      "total": 166,
+      "passed": 164,
+      "failed": 2,
+      "success": false,
+      "failures": [
+        {
+          "name": "generic output trait alias receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait alias receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        }
+      ]
+    },
+    {
+      "name": "generics-effects",
+      "rawSha256": "aae632d159fb9964a4962121eae46d87f296d054a18561338304ba50c9648f95",
+      "total": 166,
+      "passed": 164,
+      "failed": 2,
+      "success": false,
+      "failures": [
+        {
+          "name": "generic output trait alias receiver, retained=true",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        },
+        {
+          "name": "generic output trait alias receiver, retained=false",
+          "error": "AssertionError: expected [] to deeply equal [ 'name' ]"
+        }
+      ]
+    },
+    {
+      "name": "final-contract",
+      "rawSha256": "1df9e5f32e67aa8daa43d1bf3460f18f04b8b7067a3f3d5e404f88066566069f",
+      "total": 166,
+      "passed": 166,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "full-semantic",
+      "rawSha256": "0693817c086ad920e895a5edd9c397d179cefc837d58679991293e3f71b0f7ef",
+      "total": 3233,
+      "passed": 3233,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "source-contract",
+      "rawSha256": "a809a9e51602f85a2d903ee5495201734cf065fbff579111355a4439d962613d",
+      "total": 181,
+      "passed": 181,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "final-source-semantic",
+      "rawSha256": "91e3b82109953ce5102dd75d2d694a83403e09068a31e8b34aaddf7b536bb994",
+      "total": 3415,
+      "passed": 3414,
+      "failed": 1,
+      "success": false,
+      "failures": [
+        {
+          "name": "loads only same-scope output producer dependencies without treating them as value proofs",
+          "error": "AssertionError: expected [] to include 'Row'"
+        }
+      ]
+    },
+    {
+      "name": "final-output-semantic",
+      "rawSha256": "ed687c46fe99aa8b8bbd8014cbba5b2cefb4c8653777c45f3fe41572880c0d2a",
+      "total": 3416,
+      "passed": 3415,
+      "failed": 1,
+      "success": false,
+      "failures": [
+        {
+          "name": "conservative semantic workspace resolves a method PHPDoc union shape through a local array item",
+          "error": "AssertionError: expected [ 'App\\Factory', 'App\\Alpha', …(1) ] to deeply equal [ 'App\\Alpha', 'App\\Beta' ]"
+        }
+      ]
+    },
+    {
+      "name": "qualified-semantic",
+      "rawSha256": "f59ade7d738da03024b8efa6df331136e32614e84a65c6e1957b37159972d912",
+      "total": 3416,
+      "passed": 3416,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "output-lsp-before",
+      "rawSha256": "0a09fb3d41dac538eaf6cc549eeba10eee5ca9f8e10437922cbd0934d0ae4d52",
+      "total": 6,
+      "passed": 0,
+      "failed": 6,
+      "success": false,
+      "failures": [
+        {
+          "name": "resolves a first output variable query in onDemand/hover without index prewarm",
+          "error": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        },
+        {
+          "name": "resolves a first output variable query in onDemand/definition without index prewarm",
+          "error": "AssertionError: expected [] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in onDemand/completion without index prewarm",
+          "error": "AssertionError: expected [] to include 'name'"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/hover without index prewarm",
+          "error": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/definition without index prewarm",
+          "error": "AssertionError: expected [] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/completion without index prewarm",
+          "error": "AssertionError: expected [] to include 'name'"
+        }
+      ]
+    },
+    {
+      "name": "output-lsp-after",
+      "rawSha256": "a741c1c7dcefc43d31791ae32fb718037d34ba03f62cd7084678a7156af346f4",
+      "total": 6,
+      "passed": 0,
+      "failed": 6,
+      "success": false,
+      "failures": [
+        {
+          "name": "resolves a first output variable query in onDemand/hover without index prewarm",
+          "error": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        },
+        {
+          "name": "resolves a first output variable query in onDemand/definition without index prewarm",
+          "error": "AssertionError: expected [] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in onDemand/completion without index prewarm",
+          "error": "AssertionError: expected [] to include 'name'"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/hover without index prewarm",
+          "error": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/definition without index prewarm",
+          "error": "AssertionError: expected [] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/completion without index prewarm",
+          "error": "AssertionError: expected [] to include 'name'"
+        }
+      ]
+    },
+    {
+      "name": "output-lsp-owners",
+      "rawSha256": "2a41802375ede54398ecb32b7768768bbde0b26500f30ad57b10699bb16b0d1f",
+      "total": 6,
+      "passed": 0,
+      "failed": 6,
+      "success": false,
+      "failures": [
+        {
+          "name": "resolves a first output variable query in onDemand/hover without index prewarm",
+          "error": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        },
+        {
+          "name": "resolves a first output variable query in onDemand/definition without index prewarm",
+          "error": "AssertionError: expected [] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in onDemand/completion without index prewarm",
+          "error": "AssertionError: expected [] to include 'name'"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/hover without index prewarm",
+          "error": "AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/definition without index prewarm",
+          "error": "AssertionError: expected [] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/completion without index prewarm",
+          "error": "AssertionError: expected [] to include 'name'"
+        }
+      ]
+    },
+    {
+      "name": "final-output-lsp",
+      "rawSha256": "6b1332c686c685683c1935357fed0466dc931f2922112bd2cff69c565f209d02",
+      "total": 6,
+      "passed": 4,
+      "failed": 2,
+      "success": false,
+      "failures": [
+        {
+          "name": "resolves a first output variable query in onDemand/definition without index prewarm",
+          "error": "AssertionError: expected [ { …(2) } ] to deeply equal [ { …(2) } ]"
+        },
+        {
+          "name": "resolves a first output variable query in progressive/definition without index prewarm",
+          "error": "AssertionError: expected [ { …(2) } ] to deeply equal [ { …(2) } ]"
+        }
+      ]
+    },
+    {
+      "name": "output-final-protocol",
+      "rawSha256": "b5b4ba336f9e97085fb349d3add511d4198bc2ea80055c29100f64b030824b3b",
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "qualified-protocol",
+      "rawSha256": "44c60b49bf61e76c482f70c93515721f095ab0a6a87a615339957ceef4a3d1d1",
+      "total": 35,
+      "passed": 35,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "qualified-hot",
+      "rawSha256": "d8b477e6d92a13151c690e00d0c59e53b5d56132dff11d230857fd07a89b0c60",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "project-cache",
+      "rawSha256": "7fdfb4eb55c128abc9478c993925f1a5713395322cb42800135628ef75074a46",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "success": true,
+      "failures": []
+    },
+    {
+      "name": "source-full-semantic-text",
+      "rawSha256": "ff2f96b6616ae92274a26b0361f23772b43fe080e88ce73976a22418e4d918d8",
+      "total": 3414,
+      "passed": 3413,
+      "failed": 1,
+      "success": false,
+      "failure": "Old schema assertion expected 88 instead of the new 89; original terminal exit 1."
+    }
+  ],
+  "logs": {
+    "source-build": {
+      "sha256": "5c3755feb12f02c38788c462e2ff4210c5c75119a3b49e06780a0eb92299b146",
+      "bytes": 337
+    },
+    "server-build": {
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+      "bytes": 23
+    },
+    "workspace-build": {
+      "sha256": "498e6d24b93eee175fe295b1eef2a94139e9f718029aa179847ab5ec22185125",
+      "bytes": 1840
+    },
+    "root-typecheck": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "qualified-eslint": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "last-eslint": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "qualified-hot": {
+      "sha256": "b8eb82038ae103ff30f01611389f6230d3ffd01a46e956ec87338cdf1b31cd28",
+      "bytes": 58
+    }
+  },
+  "runtimeAliasProof": {
+    "php_version": "7.2.34",
+    "effects": {
+      "local_alias_later": false,
+      "caller_alias_later": false,
+      "global_result_assignment": false
+    }
+  },
+  "hotTiming": [
+    {
+      "phpVersion": "7.2",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 33.183102999999846,
+      "p95Ms": 10.632604999999785,
+      "scope": "isolated real stdio, 1500-comment document"
+    },
+    {
+      "phpVersion": "8.5",
+      "sourceBytes": 242729,
+      "comments": 1500,
+      "warmSamples": 20,
+      "firstQueryMs": 42.650408999999854,
+      "p95Ms": 16.789145999999164,
+      "scope": "isolated real stdio, 1500-comment document"
+    }
+  ],
+  "open": [
+    "Dedicated isolated VS Code host acceptance and visible popup waits",
+    "Output-contract-specific hot and cancellation qualification",
+    "Generic constructor and conditional or callback output contracts",
+    "Actual phpstorm-stubs output contract integration",
+    "Full current LSP and real WSL use",
+    "Original C1-C4, ordinary PHP 7.2 editing and scale cache RSS remain open"
+  ]
+}

@@ -38,6 +38,8 @@ export interface ParsedParameter extends SourceRange {
   type?: string;
   /** Parser-native type before any downstream PHPDoc refinement. */
   nativeType?: string;
+  /** PHPDoc postcondition after a by-reference call; distinct from the input type. */
+  outputType?: string;
   defaultValue?: string;
   promoted: boolean;
   variadic: boolean;

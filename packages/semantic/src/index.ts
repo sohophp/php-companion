@@ -63,7 +63,7 @@ export interface SemanticDeclarationSnapshot {
   magicMembers: SemanticMagicMember[];
 }
 export interface SemanticSourceDeclarationSnapshot {
-  schema: 6;
+  schema: 7;
   source: string;
   declaration: SemanticDeclarationSnapshot;
 }
@@ -105,7 +105,7 @@ export interface SemanticGenericParent { ownerFqcn: string; kind: 'extends' | 'i
 export interface SemanticMixin { ownerFqcn: string; targetName: string; arguments: string[]; start: number; end: number; }
 export interface SemanticMagicMember extends SourceRange { ownerFqcn: string; kind: 'property' | 'method'; name: string; parameters: ParsedParameter[]; returnType?: string; writeType?: string; static: boolean; readable?: boolean; writable?: boolean; templates?: SemanticTemplate[]; }
 export interface SemanticSnapshot {
-  schema: 88;
+  schema: 89;
   layers: {
     referenceCandidates: { indexed: boolean; keys: string[] };
     typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };
@@ -1082,6 +1082,7 @@ function semanticParameter(parameter: ParsedParameter): unknown {
     name: parameter.name, type: parameter.type, nativeType: parameter.nativeType,
     defaultValue: parameter.defaultValue, promoted: parameter.promoted,
     variadic: parameter.variadic, byReference: parameter.byReference,
+    outputType: parameter.outputType,
   };
 }
 
@@ -2047,7 +2048,10 @@ export class SemanticWorkspace {
               || (native === 'array' && (docType?.kind === 'array' || docType?.kind === 'shape' || ['array', 'list', 'non-empty-array', 'non-empty-list'].includes(genericBase ?? '')))
               || (native === 'iterable' && (docType?.kind === 'array' || ['array', 'iterable', 'list', 'non-empty-array', 'non-empty-list'].includes(genericBase ?? '')))
               || ((native === 'callable' || native.split('\\').at(-1) === 'closure') && docType?.kind === 'callable');
-            return { ...parameter, type: docType && refinesNative ? displayPhpDocType(docType) : nativeParameterType(parameter, uri) ?? parameter.type };
+            const output = parameter.byReference && !doc?.errors.length
+              ? preferredDocTags(doc, tag => tag.name === 'param-out' && tag.variable === `$${parameter.name}`, () => parameter.name).at(-1)?.type : undefined;
+            return { ...parameter, outputType: output ? displayPhpDocType(output) : undefined,
+              type: docType && refinesNative ? displayPhpDocType(docType) : nativeParameterType(parameter, uri) ?? parameter.type };
           }),
           returnType: ((): string | undefined => {
             const documented = docReturn ? displayPhpDocType(docReturn) : undefined;
@@ -2498,7 +2502,7 @@ export class SemanticWorkspace {
     if (!file) return undefined;
     const declaration = declarationSnapshot(file); const implementation = implementationSnapshot(file, this.controlFlowAssignments.get(uri));
     return {
-      schema: 88,
+      schema: 89,
       layers: {
         referenceCandidates: { indexed: referencesIndexed, keys: referencesIndexed ? this.referenceCandidates.documentKeys(uri) : [] },
         typeDependencies: { indexed: dependenciesIndexed, nodes: dependenciesIndexed ? this.typeDependencies.documentNodes(uri) : [] },
@@ -2510,12 +2514,12 @@ export class SemanticWorkspace {
   snapshot(uri: string): SemanticSnapshot | undefined { return this.createSnapshot(uri, true); }
   sourceDeclarationSnapshot(uri: string): SemanticSourceDeclarationSnapshot | undefined {
     const file = this.files.get(uri);
-    return file ? { schema: 6, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
+    return file ? { schema: 7, source: file.source, declaration: structuredClone(declarationSnapshot(file)) } : undefined;
   }
   restoreSourceDeclaration(snapshot: unknown, expectedUri?: string): boolean {
     const value = snapshot as Partial<SemanticSourceDeclarationSnapshot> | null;
     const declaration = value?.declaration;
-    if (value?.schema !== 6 || typeof value.source !== 'string' || !declaration
+    if (value?.schema !== 7 || typeof value.source !== 'string' || !declaration
       || typeof declaration.uri !== 'string' || typeof declaration.namespace !== 'string'
       || expectedUri !== undefined && declaration.uri !== expectedUri
       || ![declaration.declarations, declaration.callables, declaration.properties, declaration.constants,
@@ -2524,7 +2528,7 @@ export class SemanticWorkspace {
     try {
       const file = semanticFileSnapshot(declaration, { uri: declaration.uri, source: value.source, file: emptyImplementationFacts(), callables: [] });
       const prepared: SemanticSnapshot = {
-        schema: 88, declaration, implementation: implementationSnapshot(file),
+        schema: 89, declaration, implementation: implementationSnapshot(file),
         layers: { referenceCandidates: { indexed: false, keys: [] }, typeDependencies: { indexed: false, nodes: [] } },
       };
       if (!this.restore(prepared, expectedUri)) return false;
@@ -2616,7 +2620,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 88 || !declaration || !implementation
+    if (value?.schema !== 89 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -2676,7 +2680,7 @@ export class SemanticWorkspace {
     const declaration = value?.declaration as Partial<SemanticDeclarationSnapshot> | undefined;
     const implementation = value?.implementation as Partial<SemanticImplementationSnapshot> | undefined;
     const references = value?.layers?.referenceCandidates; const dependencies = value?.layers?.typeDependencies;
-    if (value?.schema !== 88 || !declaration || !implementation
+    if (value?.schema !== 89 || !declaration || !implementation
       || typeof declaration.uri !== 'string' || typeof implementation.uri !== 'string' || declaration.uri !== implementation.uri
       || typeof declaration.namespace !== 'string' || typeof implementation.source !== 'string'
       || !Array.isArray(implementation.callables) || implementation.callables.length > 10_000
@@ -5055,6 +5059,12 @@ export class SemanticWorkspace {
 
   /** Named function dependencies of a member receiver; they are not value proofs. */
   memberReceiverFunctionNamesAt(uri: string, offset: number): string[] {
+    const names = new Set<string>();
+    this.memberReceiverDependenciesAt(uri, offset, names);
+    return [...names];
+  }
+
+  private memberReceiverDependenciesAt(uri: string, offset: number, functionNames?: Set<string>): string[] {
     return this.withImplementationAt(uri, offset, () => {
       const file = this.files.get(uri);
       if (!file || !this.isPhpCodeContext(uri, offset)
@@ -5065,9 +5075,8 @@ export class SemanticWorkspace {
         let node: SyntaxNode | null = root.namedDescendantForIndex(Math.max(0, offset - 1));
         while (node && !['member_access_expression', 'nullsafe_member_access_expression',
           'member_call_expression', 'nullsafe_member_call_expression'].includes(node.type)) node = node.parent;
-        const receiver = node?.childForFieldName('object'); if (!receiver) return [];
-        const names = new Set<string>(); this.expressionValueOwnerTypes(file, root, receiver, names);
-        return [...names];
+        const receiver = node?.childForFieldName('object');
+        return receiver ? this.expressionValueOwnerTypes(file, root, receiver, functionNames) : [];
       } finally { temporary?.delete(); }
     });
   }
@@ -5098,6 +5107,57 @@ export class SemanticWorkspace {
       if (expression.type === 'variable_name') {
         let scope = this.containingScope(file, expression.startIndex); if (!scope) return;
         let before = expression.startIndex;
+        // Reference producers need their declarations even without an assignment.
+        // These are bounded source dependencies, not proofs of the current value.
+        const currentScope = scope;
+        const producers = file.calls.filter(call => call.end <= before && call.start >= currentScope.start
+          && !call.firstClassCallable && !call.arguments.some(argument => argument.unpacked)
+          && call.arguments.some(argument => file.source.slice(argument.start, argument.end).trim()
+            .replace(/^[A-Za-z_][A-Za-z0-9_]*\s*:(?!:)\s*/u, '') === expression.text)
+          && this.containingScope(file, call.start)?.id === currentScope.id).slice(-16);
+        for (const call of producers) {
+          if (remaining-- <= 0) break;
+          const syntax = deepestLocalSyntax(root, call.start, call.end, node => node.startIndex === call.start && node.endIndex === call.end
+            && ['function_call_expression', 'member_call_expression', 'scoped_call_expression', 'object_creation_expression'].includes(node.type));
+          if (!syntax) continue;
+          collect(syntax, depth + 1);
+          if (!functionNames) {
+            if (call.kind === 'function') {
+              const name = this.resolveFunction(file, file.source.slice(call.nameStart, call.nameEnd), this.namespaceAt(file, call.start), call.start);
+              if (!this.functionDeclarations(name).some(declaration => declaration.item.parameters.some(parameter => parameter.byReference && parameter.outputType))) continue;
+            }
+            for (const signature of this.signaturesForParsedCall(file, call).slice(0, 32)) {
+              const declarations = this.callableDeclarationsForSignature({ ...signature, fqcn: signature.declarationFqcn ?? signature.fqcn });
+              if (declarations.length !== 1) continue;
+              const declaration = declarations[0]!;
+              const methodNames = new Set(declaration.file.templates.filter(template => template.ownerFqcn.toLowerCase() === declaration.item.fqcn.toLowerCase()).map(template => template.name));
+              const ownerNames = new Set(declaration.file.templates.filter(template => template.ownerFqcn.toLowerCase() === declaration.item.containerFqcn?.toLowerCase()).map(template => template.name));
+              for (const parameter of signature.parameters) {
+                if (!parameter.byReference || !parameter.outputType) continue;
+                bindPhpDocTypeNames(parameter.outputType, (name, role) => {
+                  if (methodNames.has(name) || ownerNames.has(name) && !signature.templateArguments?.[name]
+                    || BUILTIN_PARAMETER_TYPES.has(name.toLowerCase()) || this.phpDocRuntimeUpperBound(name)
+                    || name.startsWith('$') || name === '*' || role === 'integer-bound'
+                    || role === 'generic-base' && ['list', 'class-string', 'key-of', 'value-of'].includes(name.toLowerCase())) return name;
+                  const binding = ownerNames.has(name) ? signature.templateArguments?.[name] : undefined;
+                  const collectName = (candidate: string): string => {
+                    const resolved = candidate.toLowerCase() === 'static' ? signature.calledOnFqcn
+                      : this.resolveSourceType(declaration.file, candidate.split('::')[0]!, this.namespaceAt(declaration.file, parameter.start), signature.typeScopeFqcn, parameter.start);
+                    if (resolved) owners.add(resolved);
+                    return candidate;
+                  };
+                  if (binding) bindPhpDocTypeNames(binding, (candidate, bindingRole) => {
+                    if (!BUILTIN_PARAMETER_TYPES.has(candidate.toLowerCase()) && !this.phpDocRuntimeUpperBound(candidate)
+                      && bindingRole !== 'integer-bound' && !(bindingRole === 'generic-base' && ['list', 'class-string', 'key-of', 'value-of'].includes(candidate.toLowerCase()))) collectName(candidate);
+                    return candidate;
+                  });
+                  else collectName(name);
+                  return name;
+                });
+              }
+            }
+          }
+        }
         let origins: ParsedAssignment[] = [];
         for (let captureDepth = 0; scope && captureDepth <= 16 && remaining-- > 0; captureDepth += 1) {
           const currentScope = scope;
@@ -5578,7 +5638,8 @@ export class SemanticWorkspace {
       if (file.assignments.some(assignment => assignment.scopeId === scope.id
         && assignment.variable === variable && assignment.end <= offset))
         return this.linearLocalValueType(file, variable, offset, true);
-      if (parameter.byReference || this.priorReferenceMutations(file, scope, variable, offset).length) return undefined;
+      if (this.priorReferenceMutations(file, scope, variable, offset).length) return this.linearLocalValueType(file, variable, offset, true);
+      if (parameter.byReference) return undefined;
       if (this.unknownCallMayMutateVariable(file, scope, variable, scope.start, offset)) return undefined;
       const documented = parameter.type ? parsePhpDocType(parameter.type).type : undefined;
       return documented ? this.phpDocDiagnosticType(file, documented, scope.containerFqcn ?? scope.id)
@@ -7009,6 +7070,9 @@ export class SemanticWorkspace {
       const memberStart = word?.start ?? offset;
       const unresolvedOwners = new Set<string>(); const target = this.memberTarget(uri, word?.end ?? offset, unresolvedOwners);
       if (target) return [...new Set(target.groups?.flat().map((candidate) => candidate.fqcn) ?? [target.fqcn])];
+      for (const owner of this.memberReceiverDependenciesAt(uri, offset)) {
+        if (!this.hasCompleteHierarchy(owner)) unresolvedOwners.add(owner);
+      }
       const receiver = /(\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*(?:\?->|->)\s*$/.exec(file.source.slice(Math.max(0, memberStart - 96), memberStart))?.[1];
       const scope = receiver && this.containingScope(file, offset);
       if (receiver && scope) {
@@ -10880,8 +10944,8 @@ export class SemanticWorkspace {
       .sort((left, right) => right.end - left.end)[0];
     if (!range || !/^[\s]*(?:#\[[\s\S]*?\][\s]*)*$/.test(file.source.slice(range.end, callable.declarationStart))) return [];
     const doc = parsePhpDoc(file.source.slice(range.start, range.end), range.start);
-    return doc.tags.filter((tag) => tag.name === 'param' && tag.variable === `$${parameterName}`).flatMap((tag): SemanticLocation[] => {
-      const start = file.source.indexOf(`$${parameterName}`, tag.start);
+    return doc.tags.filter((tag) => (tag.name === 'param' || tag.name === 'param-out') && tag.variable === `$${parameterName}`).flatMap((tag): SemanticLocation[] => {
+      const start = file.source.indexOf(`$${parameterName}`, tag.type?.end ?? tag.start);
       return start >= tag.start && start + parameterName.length + 1 <= tag.end
         ? [{ uri: file.uri, start: start + 1, end: start + parameterName.length + 1 }]
         : [];
@@ -12980,8 +13044,10 @@ export class SemanticWorkspace {
       return fqcn && this.fileAndDeclaration(fqcn)
         ? { groups: [[{ fqcn, nullable: false }]], nullable: false } : undefined;
     }
-    if (this.priorReferenceMutations(file, scope, variable, offset, assignment?.end ?? scope.start)
-      .some(mutation => !mutation.builtin)) return undefined;
+    if (this.priorReferenceMutations(file, scope, variable, offset, assignment?.end ?? scope.start).length) {
+      const inferred = this.linearLocalValueType(file, variable, offset, true), composite = inferred && this.objectGroups(inferred);
+      return composite?.groups.length && composite.groups.flat().every(candidate => this.hasCompleteHierarchy(candidate.fqcn)) ? composite : undefined;
+    }
     const assignmentInsideControlFlow = Boolean(assignment && this.assignmentInsideControlFlow(file, assignment, scope));
     const hasLaterAssignment = Boolean(assignment && file.assignments.some((candidate) => candidate.scopeId === scope.id
       && candidate.variable === variable && candidate.start > assignment.start && candidate.end <= offset
@@ -14296,8 +14362,11 @@ export class SemanticWorkspace {
     }
     // Reference calls can replace the binding, including native parameters.
     // A later completed assignment establishes a new binding value.
-    if (this.priorReferenceMutations(file, scope, variable, offset, assignment?.end ?? scope.start)
-      .some(mutation => !mutation.builtin)) return undefined;
+    if (this.priorReferenceMutations(file, scope, variable, offset, assignment?.end ?? scope.start).length) {
+      const inferred = this.linearLocalValueType(file, variable, offset, true), composite = inferred && this.objectGroups(inferred), first = composite?.groups[0]?.[0];
+      return composite && first && composite.groups.flat().every(candidate => this.hasCompleteHierarchy(candidate.fqcn))
+        && (!composite.nullable || allowNullable) ? { ...first, nullable: composite.nullable, groups: composite.groups } : undefined;
+    }
     const assignmentInsideControlFlow = Boolean(assignment && this.assignmentInsideControlFlow(file, assignment, scope));
     const hasLaterAssignment = Boolean(assignment && file.assignments.some((candidate) => candidate.scopeId === scope.id
       && candidate.variable === variable && candidate.start > assignment.start && candidate.end <= offset
@@ -15298,6 +15367,146 @@ export class SemanticWorkspace {
     }
   }
 
+  private documentedCallOutputType(file: SemanticFile, expression: SyntaxNode, variable: string): PhpType | undefined {
+    if (expression.hasError || !['function_call_expression', 'member_call_expression', 'scoped_call_expression', 'object_creation_expression'].includes(expression.type)) return undefined;
+    const call = file.calls.find(item => item.start === expression.startIndex && item.end === expression.endIndex);
+    if (!call || call.firstClassCallable || call.arguments.some(argument => argument.unpacked)) return undefined;
+    if (!call.arguments.some(argument => {
+      const node = deepestLocalSyntax(expression, argument.start, argument.end,
+        candidate => candidate.type === 'argument' && candidate.startIndex === argument.start && candidate.endIndex === argument.end);
+      const target = node?.namedChildren.at(-1);
+      return target?.type === 'variable_name' && target.text === variable;
+    })) return undefined;
+    if (call.kind === 'function') {
+      const name = this.resolveFunction(file, file.source.slice(call.nameStart, call.nameEnd), this.namespaceAt(file, call.start), call.start);
+      const declarations = this.functionDeclarations(name);
+      if (declarations.length !== 1 || !declarations[0]!.item.parameters.some(parameter =>
+        parameter.byReference && parameter.outputType)) return undefined;
+    }
+    const signatures = this.signaturesForParsedCall(file, call);
+    if (signatures.length !== 1) return undefined;
+    const signature = signatures[0]!, declarations = this.callableDeclarationsForSignature({
+      ...signature, fqcn: signature.declarationFqcn ?? signature.fqcn,
+    });
+    if (declarations.length !== 1) return undefined;
+    const declaration = declarations[0]!, doc = adjacentPhpDoc(declaration.file, declaration.item.declarationStart);
+    if (!doc || doc.errors.length) return undefined;
+    let positional = 0, named = false;
+    const used = new Set<string>(), outputs: PhpType[] = [];
+    for (const argument of call.arguments) {
+      if (named && !argument.name) return undefined;
+      const parameter = argument.name ? signature.parameters.find(item => item.name === argument.name)
+        : signature.parameters[positional++] ?? (signature.parameters.at(-1)?.variadic ? signature.parameters.at(-1) : undefined);
+      if (argument.name) named = true;
+      if (!parameter || used.has(parameter.name)) return undefined;
+      used.add(parameter.name);
+      const node = deepestLocalSyntax(expression, argument.start, argument.end,
+        candidate => candidate.type === 'argument' && candidate.startIndex === argument.start && candidate.endIndex === argument.end);
+      const target = node?.namedChildren.at(-1);
+      if (target?.type !== 'variable_name' || target.text !== variable) continue;
+      if (!parameter.byReference || parameter.variadic) return undefined;
+      const type = preferredDocTags(doc, tag => tag.name === 'param-out' && tag.variable === `$${parameter.name}`, () => parameter.name).at(-1)?.type;
+      if (!type) return undefined;
+      const templates = declaration.file.templates.filter(item => item.ownerFqcn.toLowerCase() === declaration.item.fqcn.toLowerCase());
+      const names = new Set(templates.map(item => item.name)), referenced = new Set<string>();
+      const classTemplates = declaration.file.templates.filter(item => item.ownerFqcn.toLowerCase() === declaration.item.containerFqcn?.toLowerCase());
+      const classNames = new Set(classTemplates.map(item => item.name));
+      const text = bindPhpDocTypeNames(displayPhpDocType(type), name => {
+        // A method template shadows an owner template with the same name.
+        if (names.has(name) || !classNames.has(name)) return name;
+        const argument = signature.templateArguments?.[name];
+        if (!argument) return undefined;
+        const parsed = parsePhpDocType(argument);
+        if (!parsed.type || parsed.errors.length || argument.slice(parsed.consumed).trim()) return undefined;
+        return ['union', 'intersection', 'conditional'].includes(parsed.type.kind) ? `(${argument})` : argument;
+      });
+      if (!text) return undefined;
+      bindPhpDocTypeNames(text, name => { if (names.has(name)) referenced.add(name); return name; });
+      let boundType = parsePhpDocType(text).type;
+      if (!boundType) return undefined;
+      if (referenced.size) {
+        const inferred = this.callTemplateArguments(file, call, signature, declaration.file, templates,
+          { start: target.startIndex, end: target.endIndex });
+        if (!inferred?.length || inferred.some(alternative => [...referenced].some(name => !alternative[name]))) return undefined;
+        const specialized = [...new Set(inferred.map(alternative => {
+          if (text.length > 8_192 || Object.values(alternative).some(argument => argument.length > 8_192)) return undefined;
+          const result = bindPhpDocTypeNames(text, name => {
+            if (!names.has(name)) return name;
+            const argument = alternative[name];
+            if (!argument) return undefined;
+            const parsed = parsePhpDocType(argument);
+            if (!parsed.type || parsed.errors.length || argument.slice(parsed.consumed).trim()) return undefined;
+            return ['union', 'intersection', 'conditional'].includes(parsed.type.kind) ? `(${argument})` : argument;
+          });
+          return result && result.length <= 8_192 ? result : undefined;
+        }))];
+        if (specialized.length !== 1 || !specialized[0]) return undefined;
+        const parsed = parsePhpDocType(specialized[0]).type;
+        if (!parsed) return undefined;
+        boundType = parsed;
+      }
+      const lateTypes: Record<string, string | undefined> = {
+        self: this.genericObjectReference(signature.typeScopeFqcn, signature.templateArguments),
+        static: this.genericObjectReference(signature.calledOnFqcn, signature.calledOnTemplateArguments ?? signature.templateArguments),
+        parent: this.resolveType(declaration.file, 'parent', signature.typeScopeFqcn.split('\\').slice(0, -1).join('\\'), signature.typeScopeFqcn),
+      };
+      const lateBound = bindPhpDocTypeNames(displayPhpDocType(boundType), name => {
+        if (!['self', 'static', 'parent'].includes(name.toLowerCase())) return name;
+        const resolved = lateTypes[name.toLowerCase()];
+        const object = resolved && this.objectType(resolved, false);
+        return object && this.fileAndDeclaration(object.name) ? `\\${resolved}` : undefined;
+      });
+      const completed = lateBound && parsePhpDocType(lateBound).type;
+      if (!completed) return undefined;
+      const resolved = this.phpDocDiagnosticType(declaration.file, completed, signature.typeScopeFqcn ?? declaration.item.containerFqcn ?? declaration.item.fqcn);
+      if (!resolved) return undefined;
+      outputs.push(resolved);
+    }
+    if (outputs.length !== 1 || signature.parameters.some(parameter => !used.has(parameter.name) && parameter.defaultValue === undefined && !parameter.variadic)) return undefined;
+    return outputs[0];
+  }
+
+  /** A fresh output refines even shared bindings, until a later effect may replace it. */
+  private sharedOutputStableAfter(file: SemanticFile, root: SyntaxNode, variable: string, after: number, offset: number): boolean {
+    const pending = [root]; let budget = 4096;
+    const current = this.completionStatementBlock(root, offset);
+    while (pending.length) {
+      const node = pending.pop()!;
+      const completesOutputAssignment = node.type === 'assignment_expression' && node.endIndex === after;
+      if (node.endIndex < after || node.endIndex === after && !completesOutputAssignment || node.startIndex >= offset) continue;
+      if (--budget < 0) return false;
+      if (['comment', 'string', 'string_content', 'escape_sequence', 'nowdoc'].includes(node.type)) continue;
+      if (['function_definition', 'method_declaration', 'arrow_function', 'anonymous_function'].includes(node.type)) {
+        if (node.startIndex < after && node.endIndex > offset) {
+          pending.push(...node.namedChildren);
+          continue;
+        }
+        if (node.type === 'arrow_function' || node.type === 'anonymous_function') {
+          const scope = file.scopes.find(item => item.start === node.startIndex && item.end === node.endIndex);
+          if (!scope || scope.captures.some(capture => capture.byReference)) return false;
+        }
+        continue;
+      }
+      if (['reference_assignment_expression', 'by_ref', 'dynamic_variable_name', 'global_declaration', 'function_static_declaration',
+        'include_expression', 'include_once_expression', 'require_expression', 'require_once_expression', 'yield_expression', 'yield_from_expression'].includes(node.type)) return false;
+      if (node.type === 'ERROR' && node.endIndex <= offset && (!current || node.endIndex < current.startIndex)) return false;
+      if (node.endIndex <= offset && ['assignment_expression', 'augmented_assignment_expression', 'update_expression'].includes(node.type)) {
+        const target = node.childForFieldName('left') ?? node.childForFieldName('argument');
+        const own = target?.type === 'variable_name' && target.text === variable
+          || target?.type === 'subscript_expression' && target.text.startsWith(variable)
+            && /^\s*\[/u.test(target.text.slice(variable.length));
+        if (!own) return false;
+      }
+      if (node.type === 'unset_statement' && node.endIndex <= offset) return false;
+      if (node.endIndex <= offset && ['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression',
+        'scoped_call_expression', 'object_creation_expression'].includes(node.type)) {
+        if (!this.documentedCallOutputType(file, node, variable)) return false;
+      }
+      pending.push(...node.namedChildren);
+    }
+    return true;
+  }
+
   private linearLocalValueType(file: SemanticFile, variable: string, offset: number, allowMixed = false): PhpType | undefined {
     const scope = this.containingScope(file, offset); if (!scope) return undefined;
     const retainedTree = this.trees.get(file.uri);
@@ -15519,6 +15728,19 @@ export class SemanticWorkspace {
         if ((literalConstructor(right) || constructorArray || conditionalConstruction) && unescapedLocalBefore(candidate)) return true;
         return scalarLiteral(right.text) || Boolean(this.flatArrayLiteral(right.text));
       };
+      const outputValue = (statement: SyntaxNode): PhpType | undefined => {
+        const expression = statement.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
+        const callExpression = expression?.type === 'assignment_expression' ? expression.childForFieldName('right') : expression;
+        if (!callExpression) return undefined;
+        const output = this.documentedCallOutputType(file, callExpression, variable);
+        if (!output) return undefined;
+        const shared = scope.kind === 'global'
+          || this.localReferenceBindingBefore(file, scope, variable, statement.startIndex)
+          || scope.parameters.some(parameter => `$${parameter.name}` === variable && parameter.byReference)
+          || scope.captures.some(capture => capture.variable === variable && capture.byReference)
+          || hasSharedLocalSyntaxBefore(statement.startIndex);
+        return !shared || this.sharedOutputStableAfter(file, tree.rootNode, variable, callExpression.endIndex, offset) ? output : undefined;
+      };
       const provenNodeType = (node: SyntaxNode): PhpType | undefined => this.provenArgumentType(file, node.startIndex, node.endIndex);
       function conditionalValue(candidate: SyntaxNode): PhpType | undefined {
         const thenBody = candidate.childForFieldName('body');
@@ -15682,6 +15904,8 @@ export class SemanticWorkspace {
             if (!value) return { valid: false, breaks: false };
             continue;
           }
+          const output = outputValue(statement);
+          if (output) { value = output; continue; }
           if (statement.type === 'if_statement') {
             value = conditionalValue(statement); if (!value) return { valid: false, breaks: false };
             continue;
@@ -15824,6 +16048,8 @@ export class SemanticWorkspace {
             continue;
           }
         }
+        const output = outputValue(candidate);
+        if (output) return withOptionalLoops(applyUpdates(output));
         if (candidate.type === 'if_statement') {
           if (scope.kind !== 'global' && !candidate.text.includes(variable)
             && !/\b(?:extract|eval|parse_str|global|include|include_once|require|require_once)\b|\$\$|\$\{/i.test(candidate.text)) continue;
@@ -18143,7 +18369,7 @@ export class SemanticWorkspace {
       const signature = sourceName.startsWith('$') ? effects.length === 1 ? effects[0] : undefined
         : this.signature(file.uri, call.argumentsStart + 1); if (!signature) continue;
       const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables)
-        .filter((candidate) => candidate.kind === signature.kind && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());
+        .filter((candidate) => candidate.kind === signature.kind && candidate.fqcn.toLowerCase() === (signature.declarationFqcn ?? signature.fqcn).toLowerCase());
       if (declarations.length !== 1 && signature.synthetic !== 'closure-literal') continue;
       let positional = 0;
       for (const [argumentIndex, argument] of call.arguments.entries()) {

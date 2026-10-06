@@ -15,14 +15,14 @@ export type PhpDocType =
 export interface PhpDocShapeField extends SourceRange { key?: string; optional: boolean; type: PhpDocType; }
 export interface PhpDocCallableParameter extends SourceRange { type: PhpDocType; name?: string; optional: boolean; variadic: boolean; }
 export interface PhpDocMethodTemplate extends SourceRange { name: string; bound?: PhpDocType; defaultType?: PhpDocType; }
-export type PhpDocTagName = 'param' | 'return' | 'var' | 'throws' | 'template' | 'extends' | 'implements' | 'use' | 'mixin' | 'assert' | 'assert-if-true' | 'assert-if-false' | 'property' | 'property-read' | 'property-write' | 'method' | 'deprecated';
+export type PhpDocTagName = 'param' | 'param-out' | 'return' | 'var' | 'throws' | 'template' | 'extends' | 'implements' | 'use' | 'mixin' | 'assert' | 'assert-if-true' | 'assert-if-false' | 'property' | 'property-read' | 'property-write' | 'method' | 'deprecated';
 export type PhpDocDialect = 'phpdoc' | 'phpstan' | 'psalm';
 export type PhpDocTemplateVariance = 'covariant' | 'contravariant' | 'invariant';
 export interface PhpDocTag extends SourceRange { name: PhpDocTagName; dialect: PhpDocDialect; type?: PhpDocType; variable?: string; propertyPath?: string[]; description: string; variance?: PhpDocTemplateVariance; parameters?: PhpDocCallableParameter[]; templates?: PhpDocMethodTemplate[]; static?: boolean; }
 export interface PhpDocError extends SourceRange { message: string; }
 export interface ParsedPhpDoc { tags: PhpDocTag[]; errors: PhpDocError[]; }
 
-const TAGS = new Set<PhpDocTagName>(['param', 'return', 'var', 'throws', 'template', 'extends', 'implements', 'use', 'mixin', 'assert', 'assert-if-true', 'assert-if-false', 'property', 'property-read', 'property-write', 'method', 'deprecated']);
+const TAGS = new Set<PhpDocTagName>(['param', 'param-out', 'return', 'var', 'throws', 'template', 'extends', 'implements', 'use', 'mixin', 'assert', 'assert-if-true', 'assert-if-false', 'property', 'property-read', 'property-write', 'method', 'deprecated']);
 
 class TypeParser {
   position = 0;
@@ -166,10 +166,16 @@ export function parsePhpDocType(text: string, baseOffset = 0): { type?: PhpDocTy
 
 export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
   const tags: PhpDocTag[] = []; const errors: PhpDocError[] = [];
-  // Unsupported extensions such as @param-out are distinct tags, not @param
+  // Longer unsupported extensions are distinct tags, not shorter supported tags
   // with a malformed type. Do not let a shorter alternative consume them.
-  const pattern = /@(?:(phpstan|psalm)-)?(param|return|var|throws|property(?:-(?:read|write))?|method|deprecated|mixin|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|use|template(?:-covariant|-contravariant)?)\b(?![-\w])([^\r\n]*)/g;
+  const pattern = /@(?:(phpstan|psalm)-)?(param(?:-out)?|return|var|throws|property(?:-(?:read|write))?|method|deprecated|mixin|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|use|template(?:-covariant|-contravariant)?)\b(?![-\w])/g;
   for (const match of source.matchAll(pattern)) {
+    const previous = tags.at(-1);
+    const protectedEnd = previous ? Math.max(previous.type?.end ?? 0,
+      ...previous.parameters?.map(parameter => parameter.end) ?? [],
+      ...previous.templates?.map(template => Math.max(template.bound?.end ?? 0, template.defaultType?.end ?? 0)) ?? []) : 0;
+    if (baseOffset + match.index < protectedEnd) continue;
+
     const dialect = (match[1]?.toLowerCase() ?? 'phpdoc') as PhpDocDialect;
     const rawName = match[2]!.toLowerCase();
     const name = rawName.replace(/^template-(?=extends|implements$)/, '').replace(/-(?:co|contra)variant$/, '') as PhpDocTagName;
@@ -177,8 +183,11 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
       ? rawName.endsWith('-covariant') ? 'covariant' : rawName.endsWith('-contravariant') ? 'contravariant' : 'invariant'
       : undefined;
     if (!TAGS.has(name)) continue;
-    const body = match[3] ?? ''; const leading = body.length - body.trimStart().length;
-    const bodyStart = baseOffset + match.index + match[0].indexOf(body) + leading;
+    const bodyOffset = match.index + match[0].length;
+    const endOfLine = source.slice(bodyOffset).search(/[\r\n]/);
+    const body = source.slice(bodyOffset, endOfLine < 0 ? source.length : bodyOffset + endOfLine);
+    const leading = body.length - body.trimStart().length;
+    const bodyStart = baseOffset + bodyOffset + leading;
     const clean = body.trimStart().replace(/\s*\*\/\s*$/, '');
     if (name === 'deprecated') {
       tags.push({ name, dialect, description: clean, start: baseOffset + match.index, end: bodyStart + clean.length });
@@ -259,12 +268,12 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
       continue;
     }
     const assertion = name === 'assert' || name === 'assert-if-true' || name === 'assert-if-false';
-    const typeSource = (name === 'param' || name === 'var' || assertion)
+    const typeSource = (name === 'param' || name === 'param-out' || name === 'var' || assertion)
       ? clean.replace(/&(?=\s*(?:\.\.\.\s*)?\$[A-Za-z_][A-Za-z0-9_]*)/g, ' ')
       : clean;
     const parsed = parsePhpDocType(typeSource, bodyStart); errors.push(...parsed.errors);
     let rest = clean.slice(parsed.consumed).trimStart(); let variable: string | undefined; let propertyPath: string[] | undefined;
-    const variableMatch = (name === 'param' || name === 'var' || assertion)
+    const variableMatch = (name === 'param' || name === 'param-out' || name === 'var' || assertion)
       ? (assertion
           ? /^(?:&\s*)?(?:\.\.\.\s*)?(\$[A-Za-z_][A-Za-z0-9_]*)((?:\s*->\s*[A-Za-z_][A-Za-z0-9_]*)*)/.exec(rest)
           : /^(?:&\s*)?(?:\.\.\.\s*)?(\$[A-Za-z_][A-Za-z0-9_]*)/.exec(rest))
@@ -277,6 +286,14 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
     if (!parsed.type) errors.push({ start: bodyStart, end: bodyStart + clean.length, message: `Expected a type for @${name}.` });
     tags.push({ name, dialect, type: parsed.type, variable, propertyPath: propertyPath?.length ? propertyPath : undefined,
       description: rest, start: baseOffset + match.index, end: bodyStart + clean.length });
+  }
+  for (let index = 0; index < tags.length - 1; index += 1) {
+    const tag = tags[index]!, next = tags[index + 1]!;
+    if (next.start >= tag.end) continue;
+    const prefix = source.slice(tag.start - baseOffset, next.start - baseOffset).trimEnd();
+    const newEnd = tag.start + prefix.length;
+    tag.description = tag.description.slice(0, Math.max(0, tag.description.length - (tag.end - newEnd))).trimEnd();
+    tag.end = newEnd;
   }
   return { tags, errors };
 }

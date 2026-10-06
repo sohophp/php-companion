@@ -1,0 +1,468 @@
+{
+  "milestone": "D130",
+  "date": "2026-10-06",
+  "branch": "work/sophp-next",
+  "baseCommit": "55ccb3e6",
+  "status": "local source milestone; original goal active; no Profile update",
+  "product": {
+    "bundleSha256": "7f4ca6e5f1b2ecce92eceeec8d4b4883e7f50de03f3a154c1bcc0dce81e02459",
+    "semanticSchema": 89,
+    "sourceDeclarationSchema": 7,
+    "projectWrapperSchema": 13,
+    "engine": "v69",
+    "sourceSha256": {
+      "packages/parser/src/index.ts": "1dd7f9bb53f5a41e0fcfd1dec7602ca638222a04052715a40930d9a6e1223cfd",
+      "packages/phpdoc/src/index.ts": "7a39c18ad03df2d698e34d1702274817e95eb71d45d3e0d59065562ae47dd599",
+      "packages/semantic/src/index.ts": "0b0bf41a5a98f3f3ba79b751cf47b6101fe12b9baf08b5a3c3f2510e8e77b71e",
+      "packages/language-server/src/cacheVersion.ts": "6e91ffd863b667a67a885d672c61f5a13e6cb24e591f9d9add63046d32aec4c5",
+      "packages/language-server/src/projectFacts.ts": "5d3dd3757b003fbb8212dd283856ce3b6f001faf2c5bffe6e9404af34a351613",
+      "packages/semantic/test/phpdoc-output-parameters.test.ts": "759b7c1ff4e81690c8837e3e452c0dd6989ad050ce72989b903a484dcf16265e",
+      "packages/semantic/test/builtin-output-parameters.test.ts": "26d693c0803f0c760700ee184753eb7369b13b18347ea604b7d079afa65ddff1",
+      "packages/language-server/test/phpdoc-output-queries-stdio.test.ts": "faf64024a896fd56ee7e4ccaf989a514c6b4ec72d76c59b0799e3f6369b01e12",
+      "scripts/check-output-parameter-acceptance.mjs": "baec24de892332f8a268df37f5e46a5ab1b524773d83f22fb0d55c630fbd7464",
+      "test/extension/suite/outputParameterAcceptance.ts": "de88de0d8c7725d908670044a63bc9f7c26665096484a71d26a58493202e1a04"
+    }
+  },
+  "phpstormStubs": {
+    "pin": "e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681",
+    "scope": "actual existing generated builtinPhpStub data; no new upstream sync or runtime extension installation",
+    "semanticTests": 4,
+    "semanticSubcases": 40,
+    "protocolTests": 4,
+    "protocolHoverChecks": 32,
+    "contracts": [
+      "intltz_get_canonical_id / IntlTimeZone::getCanonicalID bool",
+      "intltz_get_offset / IntlTimeZone::getOffset int",
+      "php_user_filter::filter inline consumed int"
+    ]
+  },
+  "qualifications": {
+    "fullSemantic": {
+      "path": "/tmp/sophp-d130-qualified-semantic.json",
+      "sha256": "95cbd51df1d784eb50903b0876be8b666d54a8d41200b88d898826fa37fb82c2",
+      "passed": 3428,
+      "failed": 0,
+      "pending": 0,
+      "files": 132
+    },
+    "targetedSemantic": {
+      "path": "/tmp/sophp-d130-template-qualified.json",
+      "sha256": "48c6df1252a8675d93529f87e2ac3e2481fd1a534454bb40475267a414ed3874",
+      "passed": 195,
+      "failed": 0,
+      "pending": 0,
+      "files": 2
+    },
+    "outputProtocolAndCallableCache": {
+      "path": "/tmp/sophp-d130-qualified-output-protocol.json",
+      "sha256": "aab6cbc8bf4bbd882de48f04680b37fba005bdd95841bbb3c64a9bc796c9aff7",
+      "passed": 15,
+      "failed": 0,
+      "pending": 0,
+      "files": 2
+    },
+    "existingDirectFunctionAndProjectCache": {
+      "path": "/tmp/sophp-d130-qualified-protocol.json",
+      "sha256": "2573489ce0b8843b88cad281da7e534a41075b56bfc71db6d6a98971b30551cf",
+      "passed": 28,
+      "files": [
+        "direct-function-queries-stdio.test.ts",
+        "project-facts.test.ts"
+      ]
+    },
+    "combinedProtocolCoverage": {
+      "distinctTests": 43,
+      "files": 4,
+      "singleAllGreenRun": false
+    },
+    "buildPackagesExit": 0,
+    "bundleBuildExit": 0,
+    "rootTypecheckExit": 0,
+    "hostTypecheckExit": 0,
+    "changedFileLintExit": 0
+  },
+  "visibleHosts": {
+    "baselineBundleSha256": "c32819677868690b503122a0c21cb695185dd57b89b5b61104c742655da936b9",
+    "baseline": [
+      {
+        "platform": "linux",
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 452,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 196,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      {
+        "platform": "linux",
+        "phpVersion": "7.2",
+        "indexingMode": "progressive",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 515,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 234,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      {
+        "platform": "linux",
+        "phpVersion": "8.1",
+        "indexingMode": "onDemand",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 533,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 225,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      {
+        "platform": "linux",
+        "phpVersion": "8.1",
+        "indexingMode": "progressive",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 1810,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 274,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 520,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 231,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 494,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 221,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      }
+    ],
+    "currentBundleSha256": "7f4ca6e5f1b2ecce92eceeec8d4b4883e7f50de03f3a154c1bcc0dce81e02459",
+    "current": [
+      {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 484,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 216,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      },
+      {
+        "platform": "linux",
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "otherQueriesBeforeTyping": [],
+        "completionProviderPrewarm": false,
+        "explicitTriggerSuggest": false,
+        "hoverMatched": true,
+        "definitionMatched": true,
+        "diskUnchanged": true,
+        "results": [
+          {
+            "key": "Enter",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 465,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          },
+          {
+            "key": "Tab",
+            "visible": {
+              "visible": true,
+              "labels": [
+                "nameApp\\OutputQuery\\Row::name(): string"
+              ]
+            },
+            "visibleWaitMs": 230,
+            "exactText": true,
+            "caretMatched": true,
+            "undoRedo": true
+          }
+        ],
+        "rendererExceptions": 0
+      }
+    ],
+    "scope": "Linux isolation; native na typing, Enter/Tab, exact text/caret, Undo/Redo, Hover/Definition; no explicit semantic prewarm, but uncontrolled background diagnostics/index work; visibleWaitMs starts after typed text settles"
+  },
+  "outputTimings": [
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "firstQueryMs": 110.61332700000003,
+      "warmSamples": 20,
+      "p95Ms": 4.5982829999993555,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "firstQueryMs": 104.26810500000101,
+      "warmSamples": 20,
+      "p95Ms": 8.968417000000045,
+      "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+    }
+  ],
+  "history": {
+    "templateBefore": {
+      "path": "/tmp/sophp-d130-template-before.json",
+      "sha256": "3665b5fc048cd051bb8b153f607ddee4eaf12388b084f1ef992a69b61df87b0b",
+      "passed": 183,
+      "failed": 8,
+      "pending": 0,
+      "files": 1
+    },
+    "templateAfterPatch": {
+      "path": "/tmp/sophp-d130-template-after.json",
+      "sha256": "c2b6bddc2f433b5e898606d418dd6c62cd8b4a91aef241cdb2e5490e27125ade",
+      "passed": 193,
+      "failed": 2,
+      "pending": 0,
+      "files": 2
+    },
+    "templateNotes": "initial 8 failures include six actual shape key/literal rewrites and two callable display expectations incorrectly retaining parameter names; patch leaves those two assertion issues, corrected to existing semantic display rule",
+    "protocolInitial": {
+      "path": "/tmp/sophp-d130-qualified-protocol.json",
+      "sha256": "2573489ce0b8843b88cad281da7e534a41075b56bfc71db6d6a98971b30551cf",
+      "passed": 40,
+      "failed": 2,
+      "pending": 0,
+      "files": 3
+    },
+    "protocolNotes": "two positives queried members after unknown useValue call, correctly invalidated; positives moved before unknown calls, explicit withdrawal negative retained; initial command omitted callable-facts-cache filename, correct file included in final 15"
+  },
+  "remaining": [
+    "generic constructor inference",
+    "conditional output evaluation",
+    "callback and variadic reference output contracts",
+    "current complete LSP suite",
+    "ordinary PHP 7.2 editing P95 155.06ms issue",
+    "large scale cache RSS",
+    "real WSL and full platform/version/long session qualification"
+  ]
+}

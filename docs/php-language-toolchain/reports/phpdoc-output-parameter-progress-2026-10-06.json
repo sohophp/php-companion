@@ -1,0 +1,863 @@
+{
+  "phase": "D128",
+  "status": "prototype-incomplete",
+  "createdAtUtc": "2026-10-05T23:37:56.212938+00:00",
+  "productCommit": "55ccb3e6",
+  "productBundleSha256": "b2957d131aa1e8b2007aac074c9ca7e6be85f3a0dd736d6a32c94962dd275732",
+  "productSourcesUnchanged": true,
+  "realProfileUpdated": false,
+  "sourceDocumentation": "https://phpstan.org/writing-php-code/phpdocs-basics#setting-parameter-type-passed-by-reference",
+  "prototypeBehavior": [
+    "Parse distinct input/output tags and inline stub tags with type-range protection.",
+    "Infer current bindings after declared reference outputs, using existing local branch/loop/try value proofs.",
+    "Treat output type changes as declaration changes; prototype adds outputType to parameter facts/fingerprint, without official schema rollout.",
+    "Reuse existing function template inference and parameter rename flow.",
+    "Reject unpacking, invalid mappings, duplicates, value params, ambiguous declarations, unsafe aliases, nullsafe calls and unknown writes.",
+    "Prefilter unrelated call syntax and functions without output metadata before signature inference."
+  ],
+  "runs": [
+    {
+      "phase": "baseline",
+      "raw": "/tmp/sophp-d128-baseline.json",
+      "sha256": "583e15d743370c5fc6264669c13d69516f7b9331d0f187a5053a51c5dfd5007d",
+      "files": 1,
+      "total": 72,
+      "passed": 40,
+      "failed": 32,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "output new binding, retained=true",
+          "status": "failed",
+          "durationMs": 71.62468099999978,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output overwrite, retained=true",
+          "status": "failed",
+          "durationMs": 11.796996000000036,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output two outputs, retained=true",
+          "status": "failed",
+          "durationMs": 8.09023100000013,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output named argument, retained=true",
+          "status": "failed",
+          "durationMs": 7.895410999999967,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output method, retained=true",
+          "status": "failed",
+          "durationMs": 9.534627,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output static, retained=true",
+          "status": "failed",
+          "durationMs": 5.38966900000014,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output inherited, retained=true",
+          "status": "failed",
+          "durationMs": 6.678562000000056,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output assigned result, retained=true",
+          "status": "failed",
+          "durationMs": 5.564919999999802,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output constructor, retained=true",
+          "status": "failed",
+          "durationMs": 6.672987000000376,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output both branches, retained=true",
+          "status": "failed",
+          "durationMs": 8.280393999999887,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output do once, retained=true",
+          "status": "failed",
+          "durationMs": 4.680093999999826,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output try catch, retained=true",
+          "status": "failed",
+          "durationMs": 5.6863860000003115,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output safe following literal, retained=true",
+          "status": "failed",
+          "durationMs": 4.068799000000126,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "caller parameter value changes, retained=true",
+          "status": "failed",
+          "durationMs": 5.219685999999911,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:72:284\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "output new binding, retained=false",
+          "status": "failed",
+          "durationMs": 3.8363749999998618,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output overwrite, retained=false",
+          "status": "failed",
+          "durationMs": 3.6641089999998258,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output two outputs, retained=false",
+          "status": "failed",
+          "durationMs": 4.345647000000099,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output named argument, retained=false",
+          "status": "failed",
+          "durationMs": 3.8077330000000984,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output method, retained=false",
+          "status": "failed",
+          "durationMs": 5.19773400000031,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output static, retained=false",
+          "status": "failed",
+          "durationMs": 3.98901399999977,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output inherited, retained=false",
+          "status": "failed",
+          "durationMs": 5.00071300000036,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output assigned result, retained=false",
+          "status": "failed",
+          "durationMs": 3.246911000000182,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output constructor, retained=false",
+          "status": "failed",
+          "durationMs": 3.7659450000001016,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output both branches, retained=false",
+          "status": "failed",
+          "durationMs": 5.7080080000000635,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output do once, retained=false",
+          "status": "failed",
+          "durationMs": 3.486836999999923,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output try catch, retained=false",
+          "status": "failed",
+          "durationMs": 3.4526310000001104,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output safe following literal, retained=false",
+          "status": "failed",
+          "durationMs": 2.844368999999915,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "caller parameter value changes, retained=false",
+          "status": "failed",
+          "durationMs": 3.6207079999999223,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:72:284\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "distinct input and output parser tags ",
+          "status": "failed",
+          "durationMs": 2.0101700000000164,
+          "message": "AssertionError: expected [ 'param' ] to deeply equal [ 'param', 'param-out' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:76:149\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/"
+        },
+        {
+          "name": "distinct input and output parser tags phpstan-",
+          "status": "failed",
+          "durationMs": 0.6885990000000675,
+          "message": "AssertionError: expected [ 'param' ] to deeply equal [ 'param', 'param-out' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:76:149\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/"
+        },
+        {
+          "name": "distinct input and output parser tags psalm-",
+          "status": "failed",
+          "durationMs": 1.0942959999997584,
+          "message": "AssertionError: expected [ 'param' ] to deeply equal [ 'param', 'param-out' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:76:149\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/"
+        },
+        {
+          "name": "inline tags from existing stubs remain distinct",
+          "status": "failed",
+          "durationMs": 0.894872999999734,
+          "message": "AssertionError: expected [ 'param' ] to deeply equal [ 'param', 'param', 'param-out', …(1) ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:78:226\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node"
+        }
+      ]
+    },
+    {
+      "phase": "first-prototype",
+      "raw": "/tmp/sophp-d128-first-prototype.json",
+      "sha256": "5802549bcfcbc02e397ce27a8765ddd2cb4e11aea1eeb3994d63999140773155",
+      "files": 1,
+      "total": 72,
+      "passed": 44,
+      "failed": 28,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "output new binding, retained=true",
+          "status": "failed",
+          "durationMs": 57.8752649999999,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output overwrite, retained=true",
+          "status": "failed",
+          "durationMs": 9.793144000000211,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output two outputs, retained=true",
+          "status": "failed",
+          "durationMs": 7.219496000000163,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output named argument, retained=true",
+          "status": "failed",
+          "durationMs": 7.498088999999709,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output method, retained=true",
+          "status": "failed",
+          "durationMs": 12.154981000000134,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output static, retained=true",
+          "status": "failed",
+          "durationMs": 12.626581999999871,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output inherited, retained=true",
+          "status": "failed",
+          "durationMs": 8.761408000000301,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output assigned result, retained=true",
+          "status": "failed",
+          "durationMs": 6.964719000000059,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output constructor, retained=true",
+          "status": "failed",
+          "durationMs": 8.120405000000119,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output both branches, retained=true",
+          "status": "failed",
+          "durationMs": 9.616092000000208,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output do once, retained=true",
+          "status": "failed",
+          "durationMs": 5.789674999999988,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output try catch, retained=true",
+          "status": "failed",
+          "durationMs": 6.457734999999957,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output safe following literal, retained=true",
+          "status": "failed",
+          "durationMs": 5.259452999999667,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "caller parameter value changes, retained=true",
+          "status": "failed",
+          "durationMs": 7.0264320000001135,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:72:284\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "output new binding, retained=false",
+          "status": "failed",
+          "durationMs": 4.844951000000037,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output overwrite, retained=false",
+          "status": "failed",
+          "durationMs": 4.772512000000006,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output two outputs, retained=false",
+          "status": "failed",
+          "durationMs": 5.3594740000003185,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output named argument, retained=false",
+          "status": "failed",
+          "durationMs": 4.739147999999659,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output method, retained=false",
+          "status": "failed",
+          "durationMs": 6.393481999999949,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output static, retained=false",
+          "status": "failed",
+          "durationMs": 5.236391999999796,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output inherited, retained=false",
+          "status": "failed",
+          "durationMs": 6.293710999999803,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output assigned result, retained=false",
+          "status": "failed",
+          "durationMs": 4.69974000000002,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output constructor, retained=false",
+          "status": "failed",
+          "durationMs": 10.658830999999736,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output both branches, retained=false",
+          "status": "failed",
+          "durationMs": 4.564436999999998,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output do once, retained=false",
+          "status": "failed",
+          "durationMs": 3.1621580000000904,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output try catch, retained=false",
+          "status": "failed",
+          "durationMs": 3.68175999999994,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output safe following literal, retained=false",
+          "status": "failed",
+          "durationMs": 3.1166870000001836,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "caller parameter value changes, retained=false",
+          "status": "failed",
+          "durationMs": 5.958768999999847,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:72:284\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        }
+      ]
+    },
+    {
+      "phase": "output-first-prototype",
+      "raw": "/tmp/sophp-d128-output-first-prototype.json",
+      "sha256": "f1e782d3b9bb03649f38471f54ce757a2288d9269eec84cc7ac6788fb2969114",
+      "files": 1,
+      "total": 72,
+      "passed": 64,
+      "failed": 8,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "output two outputs, retained=true",
+          "status": "failed",
+          "durationMs": 19.756732999999713,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output both branches, retained=true",
+          "status": "failed",
+          "durationMs": 9.904903000000104,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output try catch, retained=true",
+          "status": "failed",
+          "durationMs": 7.490193999999974,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output future call, retained=true",
+          "status": "failed",
+          "durationMs": 5.137547000000268,
+          "message": "AssertionError: expected [ 'name' ] to deeply equal []\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output two outputs, retained=false",
+          "status": "failed",
+          "durationMs": 5.067567000000054,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output both branches, retained=false",
+          "status": "failed",
+          "durationMs": 4.973076000000219,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output try catch, retained=false",
+          "status": "failed",
+          "durationMs": 4.112505000000056,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        },
+        {
+          "name": "output future call, retained=false",
+          "status": "failed",
+          "durationMs": 4.018167000000176,
+          "message": "AssertionError: expected [ 'name' ] to deeply equal []\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:68:18\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/no"
+        }
+      ]
+    },
+    {
+      "phase": "second-prototype",
+      "raw": "/tmp/sophp-d128-second-prototype.json",
+      "sha256": "c2cdae869b991046a1773c15cfd08ee970ea21cd73f0b30dacf9be38b3bea0d7",
+      "files": 1,
+      "total": 72,
+      "passed": 72,
+      "failed": 0,
+      "pending": 0,
+      "failures": []
+    },
+    {
+      "phase": "expanded-prototype",
+      "raw": "/tmp/sophp-d128-expanded-prototype.json",
+      "sha256": "9be77cf9f11308be2ed3d5b56a03d204713f20b3013199d74c19742fdc55abb1",
+      "files": 1,
+      "total": 92,
+      "passed": 78,
+      "failed": 14,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "shared output value int, retained=true",
+          "status": "failed",
+          "durationMs": 11.314186999999947,
+          "message": "AssertionError: expected undefined to be 'int' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+r"
+        },
+        {
+          "name": "shared output value string, retained=true",
+          "status": "failed",
+          "durationMs": 3.3843050000000403,
+          "message": "AssertionError: expected undefined to be 'string' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vites"
+        },
+        {
+          "name": "shared output value array{item: Row}, retained=true",
+          "status": "failed",
+          "durationMs": 3.9907690000000002,
+          "message": "AssertionError: expected undefined to be 'array{item: Row}' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.p"
+        },
+        {
+          "name": "shared output value Row|null, retained=true",
+          "status": "failed",
+          "durationMs": 3.4365680000000793,
+          "message": "AssertionError: expected undefined to be 'Row|null' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vit"
+        },
+        {
+          "name": "shared output value class-string<Row>, retained=true",
+          "status": "failed",
+          "durationMs": 3.335428999999749,
+          "message": "AssertionError: expected undefined to be 'class-string<Row>' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/."
+        },
+        {
+          "name": "binds output names at declaration scope, retained=true",
+          "status": "failed",
+          "durationMs": 4.09789499999988,
+          "message": "AssertionError: expected undefined to be 'Model\\Row' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:84:513\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vi"
+        },
+        {
+          "name": "updates output types as declaration changes, retained=true",
+          "status": "failed",
+          "durationMs": 15.963566999999784,
+          "message": "AssertionError: expected 'implementation' to be 'declaration' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:85:539\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/"
+        },
+        {
+          "name": "shared output value int, retained=false",
+          "status": "failed",
+          "durationMs": 3.8651730000001407,
+          "message": "AssertionError: expected undefined to be 'int' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+r"
+        },
+        {
+          "name": "shared output value string, retained=false",
+          "status": "failed",
+          "durationMs": 3.874764000000141,
+          "message": "AssertionError: expected undefined to be 'string' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vites"
+        },
+        {
+          "name": "shared output value array{item: Row}, retained=false",
+          "status": "failed",
+          "durationMs": 3.658650999999736,
+          "message": "AssertionError: expected undefined to be 'array{item: Row}' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.p"
+        },
+        {
+          "name": "shared output value Row|null, retained=false",
+          "status": "failed",
+          "durationMs": 3.7071939999996175,
+          "message": "AssertionError: expected undefined to be 'Row|null' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vit"
+        },
+        {
+          "name": "shared output value class-string<Row>, retained=false",
+          "status": "failed",
+          "durationMs": 3.5205840000003263,
+          "message": "AssertionError: expected undefined to be 'class-string<Row>' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:81:444\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/."
+        },
+        {
+          "name": "binds output names at declaration scope, retained=false",
+          "status": "failed",
+          "durationMs": 2.2398269999998774,
+          "message": "AssertionError: expected undefined to be 'Model\\Row' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:84:513\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vi"
+        },
+        {
+          "name": "updates output types as declaration changes, retained=false",
+          "status": "failed",
+          "durationMs": 8.011747000000014,
+          "message": "AssertionError: expected 'implementation' to be 'declaration' // Object.is equality\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:85:539\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/"
+        }
+      ]
+    },
+    {
+      "phase": "contract-prototype",
+      "raw": "/tmp/sophp-d128-contract-prototype.json",
+      "sha256": "1d50dc5c005056404296bce81f472828b126062f971d10d703c5c947ea8657a9",
+      "files": 1,
+      "total": 98,
+      "passed": 92,
+      "failed": 6,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "supports global output bindings, retained=true",
+          "status": "failed",
+          "durationMs": 20.95664600000009,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:90:315\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "keeps output annotations in parameter rename, retained=true",
+          "status": "failed",
+          "durationMs": 5.79685900000004,
+          "message": "AssertionError: expected [ …(2) ] to deep equally contain { uri: 'file:///Defs.php', …(2) }\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:91:449\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_"
+        },
+        {
+          "name": "binds generic output to input arguments, retained=true",
+          "status": "failed",
+          "durationMs": 5.292140000000018,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:92:513\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "supports global output bindings, retained=false",
+          "status": "failed",
+          "durationMs": 6.249653999999737,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:90:315\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "keeps output annotations in parameter rename, retained=false",
+          "status": "failed",
+          "durationMs": 2.4676650000001246,
+          "message": "AssertionError: expected [ …(2) ] to deep equally contain { uri: 'file:///Defs.php', …(2) }\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:91:449\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_"
+        },
+        {
+          "name": "binds generic output to input arguments, retained=false",
+          "status": "failed",
+          "durationMs": 3.9108540000001994,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:92:513\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        }
+      ]
+    },
+    {
+      "phase": "bindings-prototype",
+      "raw": "/tmp/sophp-d128-bindings-prototype.json",
+      "sha256": "c993ba86efc81461fe842532c55e5e6713946e4346969e3ae4fe8f7568bc2fda",
+      "files": 1,
+      "total": 98,
+      "passed": 96,
+      "failed": 2,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "supports global output bindings, retained=true",
+          "status": "failed",
+          "durationMs": 15.04652699999997,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:90:315\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "supports global output bindings, retained=false",
+          "status": "failed",
+          "durationMs": 8.290002000000186,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:90:315\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        }
+      ]
+    },
+    {
+      "phase": "full-semantic-prototype",
+      "raw": "/tmp/sophp-d128-full-semantic-prototype.json",
+      "sha256": "f7dc86870fecc96686bdde0b94bf612d64686ec93561c82b4b25da67c81b3ac4",
+      "files": 130,
+      "total": 3233,
+      "passed": 3222,
+      "failed": 11,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "reads 'union property' keys, closed=false",
+          "status": "failed",
+          "durationMs": 22.132614999999987,
+          "message": "AssertionError: expected [] to deeply equal [ 'mode' ]\n    at /var/www/node/php-companion/packages/semantic/test/member-case-value-completion.test.ts:38:153\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm"
+        },
+        {
+          "name": "reads 'union property' keys, closed=true",
+          "status": "failed",
+          "durationMs": 5.73169299999995,
+          "message": "AssertionError: expected [] to deeply equal [ 'mode' ]\n    at /var/www/node/php-companion/packages/semantic/test/member-case-value-completion.test.ts:38:153\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:60\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm"
+        },
+        {
+          "name": "reorder method family parameters reuses one temporary parse for repeated local calls in a closed file",
+          "status": "failed",
+          "durationMs": 8852.251105000001,
+          "message": "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n"
+        },
+        {
+          "name": "conservative semantic workspace exposes only signature-identical members across Union and DNF alternatives",
+          "status": "failed",
+          "durationMs": 79.55183999999917,
+          "message": "AssertionError: expected [] to deeply equal [ 'common', 'branch' ]\n    at /var/www/node/php-companion/packages/semantic/test/semantic.test.ts:1366:141\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vite"
+        },
+        {
+          "name": "conservative semantic workspace narrows object-only is_a checks and preserves allow-string uncertainty",
+          "status": "failed",
+          "durationMs": 215.12782799999695,
+          "message": "AssertionError: expected [] to deeply equal [ 'sharedChild' ]\n    at /var/www/node/php-companion/packages/semantic/test/semantic.test.ts:4890:84\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+run"
+        },
+        {
+          "name": "conservative semantic workspace uses strict subclass relations for object-only is_subclass_of checks",
+          "status": "failed",
+          "durationMs": 219.97814699999435,
+          "message": "AssertionError: expected [] to deeply equal [ 'sharedSubclass' ]\n    at /var/www/node/php-companion/packages/semantic/test/semantic.test.ts:4950:87\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+"
+        },
+        {
+          "name": "conservative semantic workspace narrows is_callable only when syntax-only mode is disabled",
+          "status": "failed",
+          "durationMs": 73.03158200000325,
+          "message": "AssertionError: missing concrete callable member for $invokable->onlyInvoke: expected [] to include 'onlyInvoke'\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm"
+        },
+        {
+          "name": "conservative semantic workspace preserves the concrete object alternative after is_object checks",
+          "status": "failed",
+          "durationMs": 47.81367699999828,
+          "message": "AssertionError: expected [] to deeply equal [ 'shared' ]\n    at /var/www/node/php-companion/packages/semantic/test/semantic.test.ts:5035:77\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4"
+        },
+        {
+          "name": "conservative semantic workspace preserves concrete Countable and Traversable implementations after composite predicates",
+          "status": "failed",
+          "durationMs": 7.828510999999708,
+          "message": "AssertionError: expected [] to include 'countedOnly'\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1319:15)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/"
+        },
+        {
+          "name": "conservative semantic workspace checks multi-step member chains only when every composite receiver branch agrees",
+          "status": "failed",
+          "durationMs": 10.810560999998415,
+          "message": "AssertionError: expected [] to deeply equal [ [ …(2) ], [ …(2) ] ]\n    at /var/www/node/php-companion/packages/semantic/test/semantic.test.ts:10737:130\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vit"
+        },
+        {
+          "name": "conservative semantic workspace correlates repeated subjects across nested PHPDoc conditional branches",
+          "status": "failed",
+          "durationMs": 7114.351629000004,
+          "message": "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n"
+        }
+      ]
+    },
+    {
+      "phase": "full-semantic-final-prototype",
+      "raw": "/tmp/sophp-d128-full-semantic-final-prototype.json",
+      "sha256": "94e30fb639524738bcb9bb6d5f3aabf35e523d78464dae4188896cd313b05bf3",
+      "files": 130,
+      "total": 3233,
+      "passed": 3232,
+      "failed": 1,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "conservative semantic workspace correlates repeated subjects across nested PHPDoc conditional branches",
+          "status": "failed",
+          "durationMs": 7056.491561000003,
+          "message": "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n"
+        }
+      ]
+    },
+    {
+      "phase": "conditional-focused",
+      "raw": "/tmp/sophp-d128-conditional-focused.json",
+      "sha256": "97de19c7dad402998c1f0d6ea479d22f487bdb8edd7748ebbd96b1f083641252",
+      "files": 130,
+      "total": 3233,
+      "passed": 0,
+      "failed": 1,
+      "pending": 3232,
+      "failures": [
+        {
+          "name": "conservative semantic workspace correlates repeated subjects across nested PHPDoc conditional branches",
+          "status": "failed",
+          "durationMs": 8485.422709999999,
+          "message": "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n"
+        }
+      ]
+    },
+    {
+      "phase": "conditional-prefilter",
+      "raw": "/tmp/sophp-d128-conditional-prefilter.json",
+      "sha256": "cd61f674edbe7df9fb92300c47e90492c803aec6328a52f228105f515cacd897",
+      "files": 1,
+      "total": 497,
+      "passed": 1,
+      "failed": 0,
+      "pending": 496,
+      "failures": []
+    },
+    {
+      "phase": "prefilter-contract",
+      "raw": "/tmp/sophp-d128-prefilter-contract.json",
+      "sha256": "07f8b8e5892c9ba50d9faf91c939497a00fa8dcb68ceb1841f4641f5919ef79e",
+      "files": 1,
+      "total": 98,
+      "passed": 96,
+      "failed": 2,
+      "pending": 0,
+      "failures": [
+        {
+          "name": "supports global output bindings, retained=true",
+          "status": "failed",
+          "durationMs": 13.163794000000053,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:90:315\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        },
+        {
+          "name": "supports global output bindings, retained=false",
+          "status": "failed",
+          "durationMs": 5.564972000000125,
+          "message": "AssertionError: expected [] to deeply equal [ 'name' ]\n    at /var/www/node/php-companion/.vscode-test/d128-param-out.test.ts:90:315\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/n"
+        }
+      ]
+    }
+  ],
+  "testContractCorrections": [
+    "Future-call sample originally queried after the later output; corrected to explicit cursor before call.",
+    "Expanded two-character $v samples used offset+2 at the exclusive token end; corrected to offset+1.",
+    "Neither correction was a relaxed expected product behavior."
+  ],
+  "toolFailures": [
+    "Initial semantic patch script expected one mutation guard but found two distinct object query paths; only parser changes applied in that partial setup run.",
+    "Initial isolated TypeScript config extended a path with one extra parent; corrected config compiles."
+  ],
+  "remaining": [
+    "Two frozen global/top-level output-binding cases still fail. Need post-call proof with global alias/write invalidation.",
+    "Class/Trait generic outputs and additional inherited source binding need explicit coverage.",
+    "Official parser parameter model, semantic/source/wrapper/engine cache compatibility and old snapshot rejection not integrated.",
+    "First real LSP source loading, unsaved producer changes, cancellation and editor acceptance not verified.",
+    "Original PHPDoc parser tests must retain unknown long-tag boundaries while updating now-supported param-out expectations.",
+    "Current final prototype full semantic suite not rerun after prefilter/binding changes. Earlier full run remained 3232/3233, with one long-duration STACK_TRACE_ERROR; later selected success is not whole-suite green."
+  ],
+  "noQualificationTransfer": [
+    "No prototype results qualify product 55ccb3e6 as implementing param-out.",
+    "No current full LSP, ordinary-edit, scale RSS, platform/CLI/long-session or real WSL qualification is added.",
+    "No goal pause/completion, VSIX, Profile update, commit, push or release in this exploration."
+  ],
+  "scratchInputs": {
+    ".vscode-test/d128-build-first-prototype.py": "59c4f35b63ab52f2bb80a8b279dc111b7180131780b6ea1f85dd42a2bd7c55ff",
+    ".vscode-test/d128-full-semantic.config.mts": "e2739acb7f53b860f9f5739213111bf6d771240394b8ebd61260ed60141f36bb",
+    ".vscode-test/d128-param-out.test.ts": "8e2bd4eead2e01f88ce148ee362dd8bf5b7d5797815f63bc172c2b98f47f79fc",
+    ".vscode-test/d128-param-out/phpdoc/index.ts": "7a39c18ad03df2d698e34d1702274817e95eb71d45d3e0d59065562ae47dd599",
+    ".vscode-test/d128-param-out/semantic/completionIdentifier.ts": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d",
+    ".vscode-test/d128-param-out/semantic/completionMatching.ts": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5",
+    ".vscode-test/d128-param-out/semantic/completionTrivia.ts": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196",
+    ".vscode-test/d128-param-out/semantic/completionTypeTail.ts": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec",
+    ".vscode-test/d128-param-out/semantic/index.before-output-prefilter.ts": "c391c6ddb686728555fb167de7b6cdfbaed79cb2385074c42ed532e823603ece",
+    ".vscode-test/d128-param-out/semantic/index.contract-before-bindings.ts": "5660aebb7174cf075fbc917c0951a9193dbfe71fa4413f1451940e7322139176",
+    ".vscode-test/d128-param-out/semantic/index.first-prototype.ts": "66bc1ffbf76f6e1b9232621263eb89a8d541e58d459310231e1150df7efebf69",
+    ".vscode-test/d128-param-out/semantic/index.second-before-regression.ts": "868706859636b68317503b91d7941d7b798a18b1bb6dc1924e5b9a81a6fd4eeb",
+    ".vscode-test/d128-param-out/semantic/index.ts": "fb86ac4d117493c59290fb9e613e4ea1b2cc2043ba0875db615737d0d833fd67",
+    ".vscode-test/d128-param-out/semantic/phpDocNameBinding.ts": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0",
+    ".vscode-test/d128-param-out/semantic/quotedCompletion.ts": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c",
+    ".vscode-test/d128-param-out/tsconfig.json": "334cb2cf8a78b2c5a452ac97278465d631d75e3e9837ea8ad514280ab974aa44",
+    ".vscode-test/d128-vitest.config.mts": "aa7282376dd6cda76346ddab3bd94c3db493b423ed7da2b27eb137a4cb00aa7e"
+  },
+  "rawArtifacts": {
+    "/tmp/sophp-d128-baseline.json": "583e15d743370c5fc6264669c13d69516f7b9331d0f187a5053a51c5dfd5007d",
+    "/tmp/sophp-d128-baseline.log": "c91ef978c9dc0f11b6446cd5cdf1ee22f3c2e7ba716ea2867742fcf82de9e85a",
+    "/tmp/sophp-d128-bindings-prototype.json": "c993ba86efc81461fe842532c55e5e6713946e4346969e3ae4fe8f7568bc2fda",
+    "/tmp/sophp-d128-bindings-prototype.log": "07c914d7026df55da8ea2b780d0668c04e648c7aaf82844e2138969a25e6624f",
+    "/tmp/sophp-d128-conditional-focused.json": "97de19c7dad402998c1f0d6ea479d22f487bdb8edd7748ebbd96b1f083641252",
+    "/tmp/sophp-d128-conditional-focused.log": "302566a8bf7e68ec2ca55deb795ebbbe54efb8c5ab2120f39b2a5f3700025c09",
+    "/tmp/sophp-d128-conditional-prefilter.json": "cd61f674edbe7df9fb92300c47e90492c803aec6328a52f228105f515cacd897",
+    "/tmp/sophp-d128-conditional-prefilter.log": "c512dec43a8078a865015eee734f58931afad7a888157dbd9cbad8a1d557d1b5",
+    "/tmp/sophp-d128-contract-prototype.json": "1d50dc5c005056404296bce81f472828b126062f971d10d703c5c947ea8657a9",
+    "/tmp/sophp-d128-contract-prototype.log": "62b789f83acbcb485e863d6198d3a27aa2b2f200cd757a4db42fe6448a165747",
+    "/tmp/sophp-d128-expanded-prototype.json": "9be77cf9f11308be2ed3d5b56a03d204713f20b3013199d74c19742fdc55abb1",
+    "/tmp/sophp-d128-expanded-prototype.log": "cfa8b343cbc5194dd20d787638644ebba509e51585df6cb0b907c24e16471fd7",
+    "/tmp/sophp-d128-first-prototype.json": "5802549bcfcbc02e397ce27a8765ddd2cb4e11aea1eeb3994d63999140773155",
+    "/tmp/sophp-d128-first-prototype.log": "58f5447dd726c1dfb1ea4c00bbb3685da1ea6acfa4fd8cf7aec05336dde8705a",
+    "/tmp/sophp-d128-full-semantic-final-prototype.json": "94e30fb639524738bcb9bb6d5f3aabf35e523d78464dae4188896cd313b05bf3",
+    "/tmp/sophp-d128-full-semantic-final-prototype.log": "3a33d92a32d46e21e7c37544a119724ea6711d6808f310106de75508cc814dde",
+    "/tmp/sophp-d128-full-semantic-prototype.json": "f7dc86870fecc96686bdde0b94bf612d64686ec93561c82b4b25da67c81b3ac4",
+    "/tmp/sophp-d128-full-semantic-prototype.log": "c6d316530cad71eb60aac1b6353ab0e5dc6c9159a1e08194833829c296b09211",
+    "/tmp/sophp-d128-output-first-prototype.json": "f1e782d3b9bb03649f38471f54ce757a2288d9269eec84cc7ac6788fb2969114",
+    "/tmp/sophp-d128-output-first-prototype.log": "41948b7df0bb5418c66424898e895c00e638586b5a36e2cbea2e75b4297e7fc5",
+    "/tmp/sophp-d128-prefilter-contract.json": "07f8b8e5892c9ba50d9faf91c939497a00fa8dcb68ceb1841f4641f5919ef79e",
+    "/tmp/sophp-d128-prefilter-contract.log": "66a021abc3bdbad05031efa5980d115035727e9dbd517b19fea0ee7b7964815b",
+    "/tmp/sophp-d128-prefilter-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d128-prototype-final-typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d128-prototype-typecheck-correct-config.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/tmp/sophp-d128-prototype-typecheck.log": "0e63d8660b2ce2fa9fc2c38f3c7a7a6107f9cdad9befc02d4ec8dae4c3532dc1",
+    "/tmp/sophp-d128-second-prototype.json": "c2cdae869b991046a1773c15cfd08ee970ea21cd73f0b30dacf9be38b3bea0d7",
+    "/tmp/sophp-d128-second-prototype.log": "c76c6012d1e3247f0f661eede1c88715d105debfa8138779bc9a89792732014d"
+  }
+}
