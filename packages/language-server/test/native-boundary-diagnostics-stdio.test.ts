@@ -59,7 +59,7 @@ function client(server: ChildProcessWithoutNullStreams): {
 
 
 const scenarios = (['onDemand', 'progressive'] as const).flatMap(indexingMode =>
-  (['7.4', '8.5'] as const).map(phpVersion => ({indexingMode, phpVersion})));
+  (['7.4', '8.1', '8.5'] as const).map(phpVersion => ({indexingMode, phpVersion})));
 it.each(scenarios)('refreshes native return/property diagnostics $indexingMode PHP $phpVersion', async ({indexingMode, phpVersion}) => {
   const root = await mkdtemp(join(tmpdir(), 'sophp-native-boundary-diagnostics-'));
   let server: ChildProcessWithoutNullStreams | undefined;
@@ -80,6 +80,16 @@ it.each(scenarios)('refreshes native return/property diagnostics $indexingMode P
       {text:original,count:2,float:false},
       {text:source('string', "'wrong'"),count:0,float:false},
       {text:source('int','42.',true),count:2,float:true},
+      {text:original,count:2,float:false},
+      ...(phpVersion !== '7.4' ? [
+        {text:source('false|int','false',true),count:0,float:false},
+        {text:source('false|int','true',true),count:2,float:false},
+        {text:source('false|string','false',true),count:0,float:false},
+      ] : []),
+      ...(phpVersion === '8.5' ? [
+        {text:source('true|int','true',true),count:0,float:false},
+        {text:source('true|int','false',true),count:2,float:false},
+      ] : []),
       {text:original,count:2,float:false},
     ];
     for(const [index,stage] of stages.entries()) {

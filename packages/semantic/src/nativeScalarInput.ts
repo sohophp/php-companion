@@ -1,4 +1,4 @@
-import { primitive, union, type PhpType, type PrimitiveName, type Compatibility } from '@php-companion/type-system';
+import { literal, primitive, union, type PhpType, type PrimitiveName, type Compatibility } from '@php-companion/type-system';
 
 export interface ScalarInputFact { type: PhpType; numericKind?: 'float'; }
 
@@ -33,6 +33,16 @@ function numericString(value: string, version: string | undefined): { number: nu
 // relation. A projected type is guaranteed only for calls that return normally.
 export function nativeScalarInput(actual: PhpType, native: PhpType, strict: boolean, version: string | undefined, numericKind?: 'float'): NativeScalarInput | undefined {
   const targets = native.kind === 'union' ? native.types : [native];
+  // An explicitly permitted boolean value stays boolean, even when another
+  // union branch could coerce it to a number or string.
+  if (actual.kind === 'literal' && typeof actual.value === 'boolean'
+    && targets.some(type => type.kind === 'literal' && type.value === actual.value)) {
+    return { accepted: 'yes', type: actual };
+  }
+  if (actual.kind === 'primitive' && actual.name === 'bool'
+    && targets.some(type => type.kind === 'literal' && typeof type.value === 'boolean')) {
+    return nativeScalarInput(union(literal(false), literal(true)), native, strict, version);
+  }
   const names = targets.flatMap(type => type.kind === 'primitive'
     && ['int', 'float', 'bool', 'string', 'null'].includes(type.name) ? [type.name] : []);
   if (!names.length) return undefined;

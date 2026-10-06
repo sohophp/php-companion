@@ -1,0 +1,392 @@
+{
+  "milestone": "D149",
+  "auditedAtUtc": "2026-10-06T07:46:00.708838+00:00",
+  "baseCommit": "5489075454ee3064e108139c686f07cabd0e2564",
+  "product": {
+    "bundleSha256": "26ebb538ec8eed44b41d615cb18d218ca6e1fb66149ce6d76b1e24f848ee9211",
+    "nativeScalarInputSha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "cacheVersionSourceSha256": "b8a7c8cff9d8c0aef90c80019beae4fa46744004e7eca74fdd12ed607e6affe5",
+    "cases": 1176,
+    "mismatching": 0,
+    "semanticCases": 2362,
+    "semanticPassed": 2362,
+    "engineVersion": "v75",
+    "schemas": [
+      89,
+      7,
+      13
+    ]
+  },
+  "native": {
+    "observations": 1176,
+    "mismatching": 0,
+    "runtimes": [
+      {
+        "target": "8.1",
+        "executable": "/opt/remi/php81/root/usr/bin/php",
+        "version": "8.1.34",
+        "intSize": 8,
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+      },
+      {
+        "target": "8.2",
+        "executable": "/opt/remi/php82/root/usr/bin/php",
+        "version": "8.2.32",
+        "intSize": 8,
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+      },
+      {
+        "target": "8.4",
+        "executable": "/opt/remi/php84/root/usr/bin/php",
+        "version": "8.4.23",
+        "intSize": 8,
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+      },
+      {
+        "target": "8.5",
+        "executable": "/opt/remi/php85/root/usr/bin/php",
+        "version": "8.5.9",
+        "intSize": 8,
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+      }
+    ],
+    "fixtureSha256": "8e2a5c3a52bb1a0178b14da21cc204275f71c46eacba5cee3d01f9326ed8d928",
+    "baselineMismatching": 168
+  },
+  "semantic": {
+    "qualified": true,
+    "result": {
+      "numTotalTests": 20172,
+      "numPassedTests": 20172,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "files": 140,
+    "inputs": 3105,
+    "changedInputs": [],
+    "headChanged": false,
+    "worktreeChanged": false,
+    "runtimeChanges": [],
+    "caseMultiplicitiesMatch": true,
+    "missingCases": 0,
+    "extraCases": 0,
+    "preexistingDuplicateGroups": 8,
+    "failures": [],
+    "run": {
+      "status": "exited",
+      "pid": 3722612,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d149-final-semantic-full.json"
+      ],
+      "startedAtUtc": "2026-10-06T07:38:19.071398+00:00",
+      "exitCode": 0,
+      "durationSeconds": 70.18013727205107,
+      "finishedAtUtc": "2026-10-06T07:39:29.249955+00:00"
+    },
+    "bundleSha256": "26ebb538ec8eed44b41d615cb18d218ca6e1fb66149ce6d76b1e24f848ee9211",
+    "sourceSha256": "e82b33a1a321b4472dc7d33dae4302a25b9d05fed6b6e5475a6407dc4ca3d189",
+    "nativeScalarSourceSha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4",
+    "scope": "Full current semantic suite on production source; not full LSP, real WSL, or roadmap qualification."
+  },
+  "relatedLsp": {
+    "files": 6,
+    "uniqueCases": 221,
+    "priorRetained": 219,
+    "added": 2,
+    "missing": 0,
+    "passed": true,
+    "scope": "Six related files in two batches; final diagnostics file replaces the first preparation version. Not a whole LSP qualification.",
+    "preparationErrors": [
+      "First CLI selected two non-existent test file names; actual first batch contains four files, 155 cases. Correctly named default and conditional files ran in the second batch.",
+      "Initial additional false-union stages also ran at target PHP 7.4. Their passage does not prove valid PHP 7.4; corrected stages exclude boolean-union additions there and add PHP 8.1. Raw original first-batch report retained."
+    ],
+    "reports": [
+      "/tmp/sophp-d149-boolean-lsp.json",
+      "/tmp/sophp-d149-boolean-lsp-final.json"
+    ]
+  },
+  "hostProofs": [
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 571,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 212,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalNativeFalseReturn",
+      "rendererExceptions": 0
+    },
+    {
+      "platform": "linux",
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "otherQueriesBeforeTyping": [],
+      "completionProviderPrewarm": false,
+      "explicitTriggerSuggest": false,
+      "hoverMatched": true,
+      "definitionMatched": true,
+      "diskUnchanged": true,
+      "results": [
+        {
+          "key": "Enter",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 469,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        },
+        {
+          "key": "Tab",
+          "visible": {
+            "visible": true,
+            "labels": [
+              "nameApp\\OutputQuery\\Row::name(): string"
+            ]
+          },
+          "visibleWaitMs": 237,
+          "exactText": true,
+          "caretMatched": true,
+          "undoRedo": true
+        }
+      ],
+      "fixtureFamily": "conditionalNativeTrueOutput",
+      "rendererExceptions": 0
+    }
+  ],
+  "hotQuery": {
+    "scope": "Fixed PHP 8.5 native boolean conditional-return document, two files; first completion without query prewarm. Not continuous editing or visible UI.",
+    "bundleSha256": "26ebb538ec8eed44b41d615cb18d218ca6e1fb66149ce6d76b1e24f848ee9211",
+    "results": [
+      {
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "firstQueryMs": 151.3878010000003,
+        "p95Ms": 4.2876719999999295,
+        "warmSamples": 20,
+        "samples": [
+          4.599899000000278,
+          3.834429,
+          3.359868000000006,
+          4.08954999999969,
+          3.5165529999999308,
+          4.005013999999846,
+          4.2876719999999295,
+          3.704682000000048,
+          2.8678249999998116,
+          2.6641089999998258,
+          2.4934039999998276,
+          2.6995210000000043,
+          2.9755459999996674,
+          2.6640300000003663,
+          2.8398700000002464,
+          2.5772759999999835,
+          2.4091719999996712,
+          2.360357000000022,
+          2.726036000000022,
+          2.749688999999762
+        ]
+      },
+      {
+        "indexingMode": "progressive",
+        "phpVersion": "8.5",
+        "firstQueryMs": 163.72296600000027,
+        "p95Ms": 14.528483000000051,
+        "warmSamples": 20,
+        "samples": [
+          5.871754000000692,
+          4.529075000000375,
+          3.8345589999998992,
+          3.6505639999995765,
+          3.7777229999992414,
+          4.873588000000382,
+          5.267735000000357,
+          4.890102999999726,
+          3.2041100000005827,
+          4.112710999999763,
+          3.471969000000172,
+          3.778326000000561,
+          3.401919999999336,
+          14.528483000000051,
+          15.898291000000427,
+          3.250554999999622,
+          3.515386000000035,
+          3.587333000000399,
+          3.0960039999999935,
+          2.7322940000003655
+        ]
+      }
+    ]
+  },
+  "sourceChanges": [
+    "Retain an explicitly permitted native boolean literal before weak conversion to another union branch.",
+    "Project a general bool input through both literal possibilities so valid native boolean union branches remain represented.",
+    "Invalidate derived semantic facts with engine v75; schemas remain 89/7/13."
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d149-evidence/d149-native-boolean-observations.mjs",
+      "sha256": "155ad42ad6ec228011efca3954bb22ac74fb37973d45706400a55c53965653c4"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-native-boolean-observations.json",
+      "sha256": "06f1a4fbe04d64ccd030819b96df07b7a3d48487f2c2344716ca4e99a8c34c6a"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-boolean-model-probe.mjs",
+      "sha256": "f7a871417c548ce78451f44ead5303a7aec2f1f31955d9915b864d7979c1dd3a"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-boolean-model-baseline.json",
+      "sha256": "e66926d4a9a4f71e6cbff6a76602107584caa140545c37fa3a723b94bd80db66"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-boolean-model-fixed.json",
+      "sha256": "2699c14ef70c91b936c6aea11b868b484085ab3669bdfbc412162a1d59fe9d44"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-model-summary.json",
+      "sha256": "17bc551cf027c96f36a6517e1c1b36e9cad0fde168957985c67ac065a729898a"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-related-lsp-audit.json",
+      "sha256": "0acc93eab103580adbda9e6df6f0a3dcd6e86f0c93efd35376202218fa297eae"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-final-semantic.py",
+      "sha256": "7682ebb1cab3ec468b7d4908719373bb11dfa3a369c96f3694589d27e0efa643"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-final-semantic-input.json",
+      "sha256": "69e3d69de00d3d4f0a41353e01e1fa8d2269d2e467663d0f4ffc7f0132067095"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-final-semantic-run.json",
+      "sha256": "706f583de09f22cb3f5b89d97cd5f9548dfe1f19f88563c374a2e09d9e0a9ad2"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-final-semantic-audit.json",
+      "sha256": "79026f21468c8a1a73e1124e04a797f109ec10ff7139d82e408c6bced6e61f88"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-formal-native-booleans.json",
+      "sha256": "a7f35fff892b9b5695f6138c015312a64b1e5f0754cd893ee40a1dc6bc09c0b8"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-host-false-return-8.5-onDemand.json",
+      "sha256": "346ab88e1c7d2311972c047f722d4f884033c8f94f8536ceba9faaf08db51a7d"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-host-true-output-8.5-progressive.json",
+      "sha256": "1f0aee7015d9e5cf944347a646c79269522ed9f80018949b98dd87931e415497"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-boolean-hot.mjs",
+      "sha256": "a402af9fea33622e64c8c5f5a376a495a8bdbac74335d49ab84382bba4833270"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/d149-boolean-hot.json",
+      "sha256": "845a8eec299c565c57f2cc9b3dcd4a8f2e98452d48ffa1ca9d72016c363e459c"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-boolean-semantic.json",
+      "sha256": "4ae2bc5f62ac74641322279072c6ce5976332ddb2bfc2c54f756fafe463dcbbc"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-boolean-semantic.log",
+      "sha256": "4521bfdecf051399ca4c6e50d2453c4ea24cc4ec84750cd577766ee956dced04"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-boolean-lsp.json",
+      "sha256": "d732af5ad8ccb9d359cfb1ad3b7abe51e54154bc76b0f0d653aa86c558c39042"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-boolean-lsp.log",
+      "sha256": "2ab6e00ee45452e0cfd5e2ce64dd9e6b53322f280d425e52f8db277c7a2370e2"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-boolean-lsp-final.json",
+      "sha256": "2c48f3b2288ddb2f301c8a703cee86f38101b3a910fb68ccbb3e83dad59695ef"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-boolean-lsp-final.log",
+      "sha256": "1d247b9e0a6d7b915513fca436086895981ca1206f7c67c2ca65640b9aefe42c"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-final-semantic-collection.json",
+      "sha256": "4f66de9e5ee8e141d9732e2832c4a3027155983b8553459b60501dae9708bed1"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-final-semantic-full.json",
+      "sha256": "402d5a55d92bcfd4251a312ecb87bc6706ca5b183d1c000d32f324b64b3b8094"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-final-semantic-full.log",
+      "sha256": "000e9993c326a62406854f44c18d700dfcdc47c2d4e2ac11939b005b69d543bd"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-host-false-return.log",
+      "sha256": "7f1dfbbe658fba2cb66de012524da2cd91f5adec7cc2d9bdeaec0d57816faed7"
+    },
+    {
+      "path": ".vscode-test/d149-evidence/sophp-d149-host-true-output.log",
+      "sha256": "b2bf0b47d2d5e65a787761e6961c61cc648bad440d83248b4e65391e06a7f119"
+    }
+  ],
+  "scope": "Native boolean-literal unions only; full semantic, six related LSP files, two Linux host groups. Does not replace D148 failed whole LSP or real WSL acceptance.",
+  "remaining": [
+    "Current whole LSP qualification",
+    "D148 progressive shutdown 2612.36ms >2000ms root cause unproven, focused six cases passed",
+    "D100 ordinary editing 155.06ms",
+    "D117 bare-dollar descriptions",
+    "50k cache RSS 1659.99MiB",
+    "Other conversion consumers including clone-with, missing runtime versions/platforms/long real use"
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}
