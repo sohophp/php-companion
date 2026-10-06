@@ -1534,7 +1534,15 @@ export async function run(): Promise<void> {
   }
   const targetPhpVersion = process.env.PHP_COMPANION_TEST_C1_PHP_VERSION;
   const runtimeVersion = process.env.PHP_COMPANION_TEST_C1_RUNTIME_VERSION;
-  const syntaxVersion = targetPhpVersion ?? runtimeVersion ?? '8.5';
+  // The primary fixture requires PHP >=8.5. The separately configured runtime
+  // belongs to the runtime workspace and must not change primary expectations.
+  const syntaxVersion = targetPhpVersion ?? '8.5';
+  const primaryVersion = await waitForResult(
+    () => vscode.commands.executeCommand<string>('phpCompanion._testEffectivePhpVersion', workspace.uri),
+    (version) => version === syntaxVersion,
+    `The primary Composer workspace did not resolve PHP ${syntaxVersion}.`,
+  );
+  console.log(`C1 primary Composer PHP ${primaryVersion}; separate runtime ${runtimeVersion ?? 'none'}`);
   const supportsAttributes = Number.parseFloat(syntaxVersion) >= 8;
   const supportsEnums = Number.parseFloat(syntaxVersion) >= 8.1;
   const supportsDnf = Number.parseFloat(syntaxVersion) >= 8.2;
@@ -2963,7 +2971,7 @@ class C1ConstructionPositions {
   assert.strictEqual(transitionDocument.getText(), transitionSource);
   await vscode.window.showTextDocument(transitionDocument);
   await transitionCandidates('External');
-  if (/^8\./.test(targetPhpVersion ?? runtimeVersion ?? '')) {
+  if (/^8\./.test(syntaxVersion)) {
     const compositeSource = '<?php namespace App\\C1; '
       + 'function acceptComposite(int|C1ExternalTypePro $value): void {} '
       + 'function returnComposite(): int|C1ExternalTypePro {} '

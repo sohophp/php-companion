@@ -53,7 +53,13 @@ function messagesFrom(process: ChildProcessWithoutNullStreams): {
 
 it.each([
   ['onDemand', false], ['progressive', false], ['onDemand', true], ['progressive', true],
-] as const)('stops a pending multi-root version refresh in %s mode with waiting completion=%s', async (indexingMode, waitingCompletion) => {
+] as const)('stops a pending multi-root version refresh in %s mode with waiting completion=%s',
+  (indexingMode, waitingCompletion) => assertMultiRootShutdown(indexingMode, waitingCompletion), 60_000);
+
+it.each(['onDemand', 'progressive'] as const)('stops fragmented version/completion/shutdown transport in %s mode',
+  indexingMode => assertMultiRootShutdown(indexingMode, true, 5), 60_000);
+
+async function assertMultiRootShutdown(indexingMode: 'onDemand' | 'progressive', waitingCompletion: boolean, gapMs = 0): Promise<void> {
   const base = await mkdtemp(join(tmpdir(), 'sophp-shutdown-refresh-'));
   let server: ChildProcessWithoutNullStreams | undefined;
   try {
@@ -82,24 +88,30 @@ it.each([
       expect((await output.waitFor(message => message.id === 10)).result.version).toBe(1);
     }
     const started = performance.now();
-    server.stdin.write(encode({ jsonrpc: '2.0', method: 'phpCompanion/phpVersions', params: {
+    const changed = encode({ jsonrpc: '2.0', method: 'phpCompanion/phpVersions', params: {
       fallback: '8.5', versions: roots.map(root => ({ uri: pathToFileURL(root).toString(), version: '8.5' })),
     } }) + (waitingCompletion ? encode({ jsonrpc: '2.0', id: 3, method: 'textDocument/completion', params: {
       textDocument: { uri }, position: { line: 0, character: 13 },
-    } }) : '') + encode({ jsonrpc: '2.0', id: 2, method: 'shutdown', params: {} }));
+    } }) : '');
+    const stopped = encode({ jsonrpc: '2.0', id: 2, method: 'shutdown', params: {} });
+    if (gapMs) {
+      server.stdin.write(changed);
+      await new Promise<void>(done => setTimeout(done, gapMs));
+      server.stdin.write(stopped);
+    } else server.stdin.write(changed + stopped);
     expect((await output.waitFor(message => message.id === 2, 30_000)).error).toBeUndefined();
     const elapsedMs = performance.now() - started;
-    console.log('Multi-root shutdown response: ' + JSON.stringify({ indexingMode, waitingCompletion, roots: roots.length, elapsedMs }));
+    console.log('Multi-root shutdown response: ' + JSON.stringify({ indexingMode, waitingCompletion, gapMs, roots: roots.length, elapsedMs }));
     const timingDirectory = process.env.PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR;
     if (timingDirectory) {
       await mkdir(timingDirectory, { recursive: true });
-      await writeFile(join(timingDirectory, `${indexingMode}-${waitingCompletion}.json`), JSON.stringify({ indexingMode, waitingCompletion, roots: roots.length, elapsedMs }));
+      await writeFile(join(timingDirectory, `${indexingMode}-${waitingCompletion}${gapMs ? `-gap${gapMs}` : ''}.json`), JSON.stringify({ indexingMode, waitingCompletion, gapMs, roots: roots.length, elapsedMs }));
     }
     expect(elapsedMs).toBeLessThan(2_000);
     if (waitingCompletion) expect((await output.waitFor(message => message.id === 3)).error.code).toBe(-32800);
     server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: {} }));
   } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }
-}, 60_000);
+}
 
 it.each(['onDemand', 'progressive'] as const)('exits cleanly with pending opened-document diagnostics in %s mode', async indexingMode => {
   const base = await mkdtemp(join(tmpdir(), 'sophp-shutdown-diagnostics-'));

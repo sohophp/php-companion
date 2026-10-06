@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { hasFollowingCallParenthesis, nextPhpTokenOffset } from './completionCallTrivia.js';
-import { PhpSyntaxParser, type PhpParserPaths } from '@php-companion/parser';
+import { PhpSyntaxParser, type PhpParserPaths, type PreparedPhpDocument } from '@php-companion/parser';
 import { SemanticWorkspace, completionIdentifierPrefix, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type PhpInitializerCompletionKind, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { lstat, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
+import { BuiltinSnapshotService, type BuiltinDocument } from './builtinSnapshotService.js';
 import { createHash } from 'node:crypto';
 import type { Dirent } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -27,6 +28,7 @@ import {
   TextDocuments,
   TextDocumentSyncKind,
   type CodeAction,
+  type CancellationToken,
   type CompletionItem,
   type Diagnostic,
   type InitializeResult,
@@ -602,6 +604,22 @@ function phpExtensionSymbolCatalog(version: SupportedPhpVersion): Promise<PhpExt
   return catalog;
 }
 
+let builtinWorkTail: Promise<void> = Promise.resolve();
+function runBuiltinWork(work: () => void | Promise<void>): Promise<void> {
+  // Serialize builtin preparation and let queued protocol messages run before
+  // and after each root's snapshot installation.
+  const pending = builtinWorkTail.then(async () => {
+    if (shuttingDown) return;
+    await yieldToEventLoop();
+    if (shuttingDown) return;
+    await work();
+    await yieldToEventLoop();
+  });
+  // The caller still receives an error; other roots must remain schedulable.
+  builtinWorkTail = pending.catch(() => {});
+  return pending;
+}
+
 async function refreshBuiltinForRoot(root: string): Promise<void> {
   const pending = builtinRefreshesByRoot.get(root);
   if (pending) return pending;
@@ -612,7 +630,7 @@ async function refreshBuiltinForRoot(root: string): Promise<void> {
     if (shuttingDown) return;
     const workspace = await semanticForRoot(root);
     if (shuttingDown) return;
-    updateBuiltinForRoot(workspace, root);
+    await runBuiltinWork(() => updateBuiltinForRoot(workspace, root));
   })().finally(() => {
     if (builtinRefreshesByRoot.get(root) === refresh) builtinRefreshesByRoot.delete(root);
   });
@@ -620,7 +638,8 @@ async function refreshBuiltinForRoot(root: string): Promise<void> {
   return refresh;
 }
 
-function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void {
+function builtinOptionsForRoot(root: string): NonNullable<Parameters<typeof builtinDocumentUri>[1]>
+  & { disabledExtensions: ReturnType<typeof disabledExtensionsForRoot> } {
   const disabledExtensions = disabledExtensionsForRoot(root);
   const unavailableFunctions = unavailableFunctionsForRoot(root);
   const readlineLib = configuredExtensionEntryForRoot(root)?.runtime?.readlineLib;
@@ -648,11 +667,40 @@ function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void 
   const posixConstants = configuredExtensionEntryForRoot(root)?.runtime?.posixConstants;
   const mbOnigurumaVersion = configuredExtensionEntryForRoot(root)?.runtime?.mbOnigurumaVersion;
   const getrusageRuntime = configuredExtensionEntryForRoot(root)?.runtime?.getrusageRuntime;
+  return { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime };
+}
+function builtinPlanForRoot(root: string): { version: SupportedPhpVersion; uri: string; documents: BuiltinDocument[] } {
+  const { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime } = builtinOptionsForRoot(root);
   const version = phpVersionForRoot(root);
-  workspace.setTargetPhpVersion(version);
   const uri = builtinDocumentUri(version, { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime });
+  const documents: BuiltinDocument[] = [{ uri, source: builtinPhpStub(version, { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime }) }];
+  const bcmathNumber = bcmathNumberPhpStub(version, { disabledExtensions });
+  if (bcmathNumber) documents.push({ uri: bcmathNumberDocumentUri(version, { disabledExtensions }), source: bcmathNumber });
+  const pdoDrivers = disabledExtensions.includes('pdo') ? '' : pdoDriverPhpStub(version, pdoRuntime);
+  if (pdoDrivers) documents.push({ uri: pdoDriverDocumentUri(version, { disabledExtensions, pdoRuntime }), source: pdoDrivers });
+  const randomClasses = randomClassesPhpStub(version);
+  if (randomClasses) documents.push({ uri: randomClassesDocumentUri(version), source: randomClasses });
+  const filterClasses = filterClassesPhpStub(version, { disabledExtensions });
+  if (filterClasses) documents.push({ uri: filterClassesDocumentUri(version, { disabledExtensions }), source: filterClasses });
+  return { version, uri, documents };
+}
+function installBuiltinDocuments(workspace: SemanticWorkspace, documents: BuiltinDocument[], prepared: PreparedPhpDocument[] | undefined): void {
+  for (const [index, document] of documents.entries()) {
+    const facts = prepared?.[index];
+    if (facts) workspace.updatePrepared(document.uri, document.source, facts);
+    else workspace.update(document.uri, document.source);
+  }
+}
+async function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): Promise<void> {
+  if (shuttingDown) return;
+  const plan = builtinPlanForRoot(root);
+  if (builtinUriByRoot.get(root) === plan.uri) { workspace.setTargetPhpVersion(plan.version); return; }
+  const snapshots = await builtinSnapshotService.prepare(plan.version, plan.documents);
+  if (shuttingDown) return;
+  if (builtinDocumentUri(phpVersionForRoot(root), builtinOptionsForRoot(root)) !== plan.uri)
+    return updateBuiltinForRoot(workspace, root);
+  workspace.setTargetPhpVersion(plan.version);
   const previous = builtinUriByRoot.get(root);
-  if (previous === uri) return;
   if (previous) {
     workspace.remove(previous);
     const snapshot = parseBuiltinDocumentUri(previous);
@@ -663,16 +711,23 @@ function updateBuiltinForRoot(workspace: SemanticWorkspace, root: string): void 
       workspace.remove(filterClassesDocumentUri(snapshot.version, { disabledExtensions: snapshot.disabledExtensions }));
     }
   }
-  workspace.update(uri, builtinPhpStub(version, { disabledExtensions, unavailableFunctions, readlineLib, intlCharConstants, intlCalendarFieldCount, intlCurrencyAccountingAvailable, zipRuntime, zlibRuntime, socketsRuntime, pcntlRuntime, pgsqlRuntime, xslRuntime, redisRuntime, imagickRuntime, curlRuntime, gdRuntime, tokenizerRuntime, apcuRuntime, openSslRuntime, mysqliRuntime, pdoRuntime, sodiumRuntime, pcreRuntime, sysvMsgConstants, posixConstants, mbOnigurumaVersion, getrusageRuntime }));
-  const bcmathNumber = bcmathNumberPhpStub(version, { disabledExtensions });
-  if (bcmathNumber) workspace.update(bcmathNumberDocumentUri(version, { disabledExtensions }), bcmathNumber);
-  const pdoDrivers = disabledExtensions.includes('pdo') ? '' : pdoDriverPhpStub(version, pdoRuntime);
-  if (pdoDrivers) workspace.update(pdoDriverDocumentUri(version, { disabledExtensions, pdoRuntime }), pdoDrivers);
+  installBuiltinDocuments(workspace, plan.documents, snapshots);
+  builtinUriByRoot.set(root, plan.uri);
+}
+async function initializeLooseBuiltin(workspace: SemanticWorkspace): Promise<void> {
+  const version = targetPhpVersion;
+  const documents: BuiltinDocument[] = [{ uri: builtinDocumentUri(version), source: builtinPhpStub(version) }];
+  const bcmathNumber = bcmathNumberPhpStub(version);
+  if (bcmathNumber) documents.push({ uri: bcmathNumberDocumentUri(version), source: bcmathNumber });
   const randomClasses = randomClassesPhpStub(version);
-  if (randomClasses) workspace.update(randomClassesDocumentUri(version), randomClasses);
-  const filterClasses = filterClassesPhpStub(version, { disabledExtensions });
-  if (filterClasses) workspace.update(filterClassesDocumentUri(version, { disabledExtensions }), filterClasses);
-  builtinUriByRoot.set(root, uri);
+  if (randomClasses) documents.push({ uri: randomClassesDocumentUri(version), source: randomClasses });
+  const filterClasses = filterClassesPhpStub(version);
+  if (filterClasses) documents.push({ uri: filterClassesDocumentUri(version), source: filterClasses });
+  const snapshots = await builtinSnapshotService.prepare(version, documents);
+  if (shuttingDown) return;
+  if (version !== targetPhpVersion) return initializeLooseBuiltin(workspace);
+  workspace.setTargetPhpVersion(version);
+  installBuiltinDocuments(workspace, documents, snapshots);
 }
 
 function setDisabledDiagnosticCodes(value: unknown): void {
@@ -1194,11 +1249,13 @@ function parserPaths(): PhpParserPaths | undefined {
   const phpWasmPath = option('--php-wasm');
   return coreWasmPath && phpWasmPath ? { coreWasmPath, phpWasmPath } : undefined;
 }
+const builtinSnapshotService = new BuiltinSnapshotService(parserPaths());
 const candidateWorkers = new CandidateWorkers(parserPaths());
 const engineParserPaths = parserPaths();
 const referenceEngineInputs: ReferenceEngineInputs | undefined = typeof __PHP_COMPANION_ENGINE_BUILD__ === 'string' && engineParserPaths && process.argv[1]
   ? { buildId: __PHP_COMPANION_ENGINE_BUILD__, serverPath: resolve(process.argv[1]),
-    workerPath: resolve(dirname(process.argv[1]), 'candidateWorker.js'), ...engineParserPaths,
+    workerPath: resolve(dirname(process.argv[1]), 'candidateWorker.js'),
+    builtinWorkerPath: resolve(dirname(process.argv[1]), 'builtinSnapshotWorker.js'), ...engineParserPaths,
     runtime: JSON.stringify({ versions: process.versions, platform: process.platform, arch: process.arch,
       collation: new Intl.Collator().resolvedOptions() }) } : undefined;
 const initialReferenceEngineIdentity = referenceEngineInputs ? captureReferenceEngineIdentity(referenceEngineInputs) : Promise.resolve(undefined);
@@ -1502,20 +1559,11 @@ function workspaceUriAlias(uri: string): string {
 function semanticForKey(key: string): Promise<SemanticWorkspace> {
   let workspace = semanticWorkspaces.get(key);
   if (workspace) return workspace;
-  workspace = parser().then((value) => {
+  workspace = parser().then(async (value) => {
     const workspace = new SemanticWorkspace(value);
     const root = key.startsWith('root:') ? key.slice('root:'.length) : undefined;
-    if (root) updateBuiltinForRoot(workspace, root);
-    else {
-      workspace.setTargetPhpVersion(targetPhpVersion);
-      workspace.update(builtinDocumentUri(targetPhpVersion), builtinPhpStub(targetPhpVersion));
-      const bcmathNumber = bcmathNumberPhpStub(targetPhpVersion);
-      if (bcmathNumber) workspace.update(bcmathNumberDocumentUri(targetPhpVersion), bcmathNumber);
-      const randomClasses = randomClassesPhpStub(targetPhpVersion);
-      if (randomClasses) workspace.update(randomClassesDocumentUri(targetPhpVersion), randomClasses);
-      const filterClasses = filterClassesPhpStub(targetPhpVersion);
-      if (filterClasses) workspace.update(filterClassesDocumentUri(targetPhpVersion), filterClasses);
-    }
+    if (root) await runBuiltinWork(() => updateBuiltinForRoot(workspace, root));
+    else await runBuiltinWork(() => initializeLooseBuiltin(workspace));
     return workspace;
   });
   semanticWorkspaces.set(key, workspace);
@@ -1583,11 +1631,13 @@ async function ensureComposerRootForUri(uri: string): Promise<void> {
   await pending;
 }
 
-function semanticForQueryRoot(root: string | undefined): Promise<SemanticWorkspace> {
+async function semanticForQueryRoot(root: string | undefined): Promise<SemanticWorkspace> {
   if (shuttingDown) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'SoPHP is shutting down.');
   const pending = root ? builtinRefreshesByRoot.get(root) : undefined;
   if (pending) return pending.then(() => semanticForQueryRoot(root));
-  return root ? semanticForRoot(root) : semanticForKey('loose');
+  const workspace = await (root ? semanticForRoot(root) : semanticForKey('loose'));
+  if (shuttingDown) throw new ResponseError(LSPErrorCodes.RequestCancelled, 'SoPHP is shutting down.');
+  return workspace;
 }
 
 async function semanticForUri(uri: string): Promise<SemanticWorkspace> {
@@ -1744,7 +1794,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
   const project = await composerProjectForRoot(root);
   projectMappingsByRoot.set(root, project ? allPsr4Mappings(project) : []);
   composerDisabledExtensionsByRoot.set(root, knownDisabledExtensions(project?.disabledExtensions));
-  updateBuiltinForRoot(workspace, root);
+  await runBuiltinWork(() => updateBuiltinForRoot(workspace, root));
+  if (!continueIndexing()) return;
   const lightEntries = indexingMode === 'progressive'
     ? new Map<string, { hash: string; summary: ReturnType<typeof createSourceCandidateSummary> }>() : undefined;
   const restoreTiming = { validateMs: 0, summaryMs: 0, semanticMs: 0, factsMs: 0, count: 0 };
@@ -5690,6 +5741,32 @@ connection.onDidChangeWatchedFiles(({ changes }) => {
 const openingContentVersions = new Map<string, number>();
 const documentSourcesByUri = new Map<string, string>();
 const openContentSequences = new Map<string, number>();
+const pendingOpenSourcePublications = new Map<string, { ready: Promise<void>; finish: () => void }>();
+
+function trackOpenSourcePublication(document: TextDocument, update: (published: () => void) => Promise<void>): Promise<void> {
+  if (document.languageId !== 'php') return update(() => {});
+  let resolveReady!: () => void;
+  const publication = { ready: new Promise<void>((resolve) => { resolveReady = resolve; }), finish: (): void => {
+    resolveReady();
+    if (pendingOpenSourcePublications.get(document.uri) === publication) pendingOpenSourcePublications.delete(document.uri);
+  } };
+  pendingOpenSourcePublications.set(document.uri, publication);
+  // Finish abandoned versions and errors too; a newer edit retains its own barrier.
+  return update(publication.finish).finally(publication.finish);
+}
+
+async function waitForOpenSourcePublications(token: CancellationToken): Promise<boolean> {
+  let subscription: { dispose(): void } | undefined;
+  const cancelled = new Promise<void>((resolve) => { subscription = token.onCancellationRequested(resolve); });
+  try {
+    while (!token.isCancellationRequested && !shuttingDown) {
+      const pending = [...pendingOpenSourcePublications.values()];
+      if (!pending.length) return true;
+      await Promise.race([Promise.all(pending.map((publication) => publication.ready)), cancelled]);
+    }
+    return false;
+  } finally { subscription?.dispose(); }
+}
 const warnedOpenAliasPairs = new Set<string>();
 const localAliasQueryWorkspaces = new Map<string, {
   documentVersion: number; projectRevision: number; projectWorkspace: SemanticWorkspace;
@@ -5784,7 +5861,7 @@ async function supersedeOpenPhysicalAliases(document: TextDocument, root: string
   return true;
 }
 
-documents.onDidOpen(async ({ document }) => {
+documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async (published) => {
   openDocumentPathRevision += 1;
   if (document.languageId !== 'php') return;
   openPhysicalTopologyRevision += 1;
@@ -5807,6 +5884,7 @@ documents.onDidOpen(async ({ document }) => {
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
   const update = workspace.update(document.uri, document.getText(), true);
+  published();
   // A disk-identical first open can add a class that the current on-demand
   // container snapshot has never seen. Refresh before its first References query.
   if (root && previousSource === undefined && update.kind === 'declaration') invalidateContainerFacts();
@@ -5834,9 +5912,9 @@ documents.onDidOpen(async ({ document }) => {
   if (root && (referencePrewarmRevisions.get(document.uri) === prewarmRevision || pending?.version === document.version)) {
     scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
   }
-});
+}));
 
-documents.onDidChangeContent(async ({ document }) => {
+documents.onDidChangeContent(({ document }) => trackOpenSourcePublication(document, async (published) => {
   if (document.languageId !== 'php') return;
   const opening = openingContentVersions.get(document.uri) === document.version;
   const sequence = opening && openContentSequences.has(document.uri)
@@ -5863,6 +5941,7 @@ documents.onDidChangeContent(async ({ document }) => {
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
   if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
   const update = workspace.update(document.uri, document.getText(), true);
+  published();
   if (opening) {
     const diskPath = pathForUri(document.uri);
     const diskSource = root && diskPath ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
@@ -5894,7 +5973,7 @@ documents.onDidChangeContent(async ({ document }) => {
   if (root && (referencePrewarmRevisions.get(document.uri) === prewarmRevision || pending?.version === document.version)) {
     scheduleReferencePrewarm(document, root, workspace, pending?.version === document.version ? pending.position : undefined);
   }
-});
+}));
 
 function retainClosedUnindexedDocument(root: string, uri: string, workspace: SemanticWorkspace): void {
   if (indexedUrisByRoot.get(root)?.has(uri)) return;
@@ -6050,7 +6129,14 @@ connection.onWorkspaceSymbol(async ({ query }, token) => {
   await yieldToEventLoop();
   if (token.isCancellationRequested) return [];
   const kinds = { class: 5, interface: 11, trait: 5, enum: 10, function: 12, method: 6, property: 7, constant: 14 } as const;
-  const workspaces = await Promise.all([...semanticWorkspaces.values()]);
+  // Content notifications can still be discovering a root or initializing its
+  // builtins. Wait only for source publication, not diagnostics or providers.
+  let workspaces: SemanticWorkspace[];
+  do {
+    if (!await waitForOpenSourcePublications(token)) return [];
+    workspaces = await Promise.all([...semanticWorkspaces.values()]);
+    if (token.isCancellationRequested || shuttingDown) return [];
+  } while (pendingOpenSourcePublications.size);
   if (token.isCancellationRequested) return [];
   const entries = workspaces.flatMap((workspace) => workspace.workspaceSymbols(query).map((symbol) => ({ workspace, symbol })));
   const unique = [...new Map(entries.map((entry) => [`${entry.symbol.uri}:${entry.symbol.start}:${entry.symbol.kind}`, entry])).values()];
@@ -8776,6 +8862,8 @@ connection.onCodeAction(async (params, token) => {
 
 connection.onShutdown(async () => {
   shuttingDown = true;
+  builtinSnapshotService.dispose();
+  for (const publication of pendingOpenSourcePublications.values()) publication.finish();
   await Promise.allSettled(builtinRefreshesByRoot.values());
   builtinRefreshesByRoot.clear();
   disposeSourceStatWorkers();

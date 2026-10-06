@@ -7244,7 +7244,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const bundleDirectory = join(root, 'bundle');
       if (bundle) {
         await mkdir(bundleDirectory);
-        await Promise.all(['language-server.js', 'candidateWorker.js', 'web-tree-sitter.wasm', 'tree-sitter-php.wasm']
+        await Promise.all(['language-server.js', 'candidateWorker.js', 'builtinSnapshotWorker.js', 'web-tree-sitter.wasm', 'tree-sitter-php.wasm']
           .map((name) => copyFile(join(dirname(resolve(bundle)), name), join(bundleDirectory, name))));
       }
       const sourceDirectory = join(root, 'src'); const dependencyDirectory = join(root, 'vendor', 'acme', 'lib', 'src');
@@ -7326,7 +7326,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         expect((await audit(293)).fingerprint).toBe(evidence.fingerprint);
         if (bundle) {
           let id = 294;
-          for (const name of ['candidateWorker.js', 'tree-sitter-php.wasm']) {
+          for (const name of ['candidateWorker.js', 'builtinSnapshotWorker.js', 'tree-sitter-php.wasm']) {
             const path = join(bundleDirectory, name); const original = await readFile(path);
             await writeFile(path, Buffer.concat([original, Buffer.from('changed-engine')]));
             expect(await audit(id++)).toEqual({ captured: false, reason: 'engine-inputs-changed-or-unreadable' });
@@ -13465,6 +13465,42 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
         } });
       }
     }
+  });
+
+  it.each(['onDemand', 'experimental', 'progressive'] as const)('publishes latest unsaved workspace symbols across cold roots in %s mode', async indexingMode => {
+    const base = await mkdtemp(join(osTmpdir(), 'sophp-symbol-publication-'));
+    try {
+      const roots = [join(base, 'first'), join(base, 'second')];
+      for (const root of roots) {
+        await mkdir(root);
+        await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: '>=8.5' } }));
+      }
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
+        processId: null, capabilities: {}, workspaceFolders: roots.map(root => ({ uri: pathToFileURL(root).toString(), name: root })),
+        initializationOptions: { phpVersion: '8.5', indexingMode },
+      } }));
+      expect((await output.waitFor(message => message.id === 1)).error).toBeUndefined();
+      const snapshots = roots.map((root, index) => ({ uri: pathToFileURL(join(root, 'Unsaved.php')).toString(),
+        name: `PublicationCurrent${index}`, text: `<?php\n\nclass PublicationCurrent${index} {}` }));
+      server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }) + snapshots.map(({ uri, text }, index) =>
+        encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
+          textDocument: { uri, languageId: 'php', version: 1, text: `<?php class PublicationOld${index} {}` },
+        } }) + encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+          textDocument: { uri, version: 2 }, contentChanges: [{ text: `<?php class PublicationMiddle${index} {}` }],
+        } }) + encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+          textDocument: { uri, version: 3 }, contentChanges: [{ text }],
+        } })).join('') + encode({ jsonrpc: '2.0', id: 2, method: 'workspace/symbol', params: { query: 'publication' } }));
+      const response = await output.waitFor(message => message.id === 2);
+      expect(response.error).toBeUndefined();
+      expect(response.result).toHaveLength(2);
+      for (const { uri, name, text } of snapshots) {
+        expect(response.result).toContainEqual(expect.objectContaining({ name, location: { uri, range: {
+          start: lspPosition(text, text.indexOf(name)), end: lspPosition(text, text.indexOf(name) + name.length),
+        } } }));
+      }
+    } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }
   });
 
   it('negotiates capabilities and serves diagnostics and symbols', async () => {

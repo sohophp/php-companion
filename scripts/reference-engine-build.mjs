@@ -7,7 +7,7 @@ export const ENGINE_BUILD_PLACEHOLDER = 'PHP_COMPANION_ENGINE_BUILD_PLACEHOLDER'
 
 /** Identify the actual bundled engine, not a manually maintained cache version. */
 export function finalizeReferenceEngineBuild(outputFiles, assets) {
-  const engineFiles = ['language-server.js', 'candidateWorker.js'];
+  const engineFiles = ['language-server.js', 'candidateWorker.js', 'builtinSnapshotWorker.js'];
   const inputs = engineFiles.map((name) => {
     const matches = outputFiles.filter((file) => basename(file.path) === name);
     if (matches.length !== 1) throw new Error(`Expected one engine output: ${name}`);

@@ -10,6 +10,7 @@ describe('bundled reference engine build identity', () => {
       { path: '/out/candidateWorker.js', contents: Buffer.from('worker-original') },
       { path: '/out/extension.js', contents: Buffer.from('editor-original') },
       { path: '/out/language-server.js.map', contents: Buffer.from('{"mappings":"AAAA"}') },
+      { path: '/out/builtinSnapshotWorker.js', contents: Buffer.from('builtin-worker-original') },
     ];
     const assets = new Map([['web-tree-sitter.wasm', Buffer.from('core')], ['tree-sitter-php.wasm', Buffer.from('php')]]);
     const first = finalizeReferenceEngineBuild(outputs, assets);
@@ -18,7 +19,7 @@ describe('bundled reference engine build identity', () => {
     expect(first.files[0].contents.toString()).toContain(first.buildId);
     expect(first.files[0].contents.length).toBe(outputs[0]!.contents.length);
     expect(first.files[3].contents).toEqual(outputs[3]!.contents);
-    for (const path of ['/out/language-server.js', '/out/candidateWorker.js']) {
+    for (const path of ['/out/language-server.js', '/out/candidateWorker.js', '/out/builtinSnapshotWorker.js']) {
       const changed = outputs.map((file) => file.path === path ? { ...file, contents: Buffer.concat([file.contents, Buffer.from('changed')]) } : file);
       expect(finalizeReferenceEngineBuild(changed, assets).buildId, path).not.toBe(first.buildId);
     }

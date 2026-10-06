@@ -1,0 +1,676 @@
+{
+  "milestone": "D152",
+  "updatedAtUtc": "2026-10-06T13:21:58.956347+00:00",
+  "goalStatus": "active",
+  "wholeQualified": false,
+  "historicWholeLsp": {
+    "input": ".vscode-test/d152-lsp-input.json",
+    "audit": ".vscode-test/d152-lsp-audit.json",
+    "passed": 1204,
+    "failed": 3,
+    "cases": 1207,
+    "files": 95,
+    "durationSeconds": 1884.7635090460535,
+    "bundleSha256": "60771bfcea64ec4a20bdcbb64d896a9be1265406e33b622629955f2ca116e4c8",
+    "qualified": false
+  },
+  "currentProduct": {
+    "serverSourceSha256": "448a463f38dc4f1f671414492b5adc3d313240aaa34a65f832e6ce7a1fd85b10",
+    "bundleSha256": "d527d7ae8d9b774bf0fb234c73792bcc966ac017534b2b85ffcf085f8b09390d",
+    "workerBundleSha256": "80ebe5ecaeb056a833b779c91f5fba3691aace3ec4e8706edf4409a4032c566c",
+    "workerBundleBytes": 130138,
+    "semanticEngineVersion": 77,
+    "handoff": "Complete existing parser.prepare facts, normal SemanticWorkspace.updatePrepared enrichment on each root; no semantic snapshot revalidation on main thread.",
+    "persistenceModelProfiles": 11,
+    "persistenceModelDocuments": 23,
+    "selectedProtocol": {
+      "passed": 28,
+      "selectedCases": 28,
+      "unselected": 518,
+      "firstQueries": 12,
+      "wholeFileOrSuiteQualified": false,
+      "inputChanges": 0,
+      "durationSeconds": 182.21217784000328
+    },
+    "originalColdCacheCases": {
+      "acrossProcessesDurationMs": 98802.91846700001,
+      "acrossProcessesBudgetMs": 120000,
+      "broadReloadDurationMs": 16328.946860999975,
+      "broadReloadBudgetMs": 20000,
+      "qualifiedInSelectedRun": true,
+      "qualifiedInFullRun": true,
+      "acrossProcessesFullDurationMs": 96956.47953000001,
+      "broadReloadFullDurationMs": 15495.47243799991
+    },
+    "shutdownResponseMs": [
+      12.188076000000365,
+      13.844312000001082,
+      10.764271000000008,
+      33.10042600000088,
+      56.12830099999701,
+      6.326469999999972
+    ],
+    "shutdownBudgetMs": 2000,
+    "buildIdentityPassed": 1,
+    "typecheckPassed": true,
+    "productionBuildPassed": true,
+    "scopedLintPassed": true,
+    "wholeLsp": {
+      "status": "exited",
+      "qualified": true,
+      "audit": ".vscode-test/d152-prepared-worker-lsp-audit.json",
+      "result": {
+        "numTotalTests": 1210,
+        "numPassedTests": 1210,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0,
+        "success": true
+      },
+      "files": 95,
+      "inputs": 3213,
+      "changedInputs": 0,
+      "runtimeChanges": 0,
+      "removedCases": 0,
+      "skippedOrTodo": 0,
+      "durationSeconds": 2082.756376532023,
+      "scope": "Prepared syntax worker and current source-publication fix: final complete LSP with original default workers, exact original cases and original latency budgets. Previous whole failures retained. Not real WSL or whole roadmap."
+    },
+    "wholeC1": {
+      "status": "ordinary run failed, complete diagnostic run passed",
+      "ordinaryQualified": false,
+      "diagnosticQualified": true,
+      "popupCauseProven": false,
+      "audit": ".vscode-test/d152-prepared-worker-host-audit.json",
+      "normalDurationSeconds": 81.19397516100435,
+      "diagnosticDurationSeconds": 139.05180809198646,
+      "realWslQualified": false
+    },
+    "wholeLspShutdownResponseMs": [
+      13.833023999999568,
+      13.901096000001417,
+      42.867677999998705,
+      30.495858999998745,
+      49.69346999999834,
+      27.328126999999768
+    ]
+  },
+  "prototypeMemory": {
+    "scope": "One Linux tiny-five-root version-switch workload per variant/mode, process VmHWM includes all worker threads. Not P95, scale or cache qualification.",
+    "baseline": [
+      {
+        "mode": "onDemand",
+        "peakRssKiB": 595248,
+        "peakHwmKiB": 595248
+      },
+      {
+        "mode": "progressive",
+        "peakRssKiB": 542404,
+        "peakHwmKiB": 542404
+      }
+    ],
+    "residentWorker": [
+      {
+        "mode": "onDemand",
+        "peakRssKiB": 773352,
+        "peakHwmKiB": 774672
+      },
+      {
+        "mode": "progressive",
+        "peakRssKiB": 882756,
+        "peakHwmKiB": 882756
+      }
+    ],
+    "transientWorker": [
+      {
+        "mode": "onDemand",
+        "peakRssKiB": 545460,
+        "peakHwmKiB": 546516
+      },
+      {
+        "mode": "progressive",
+        "peakRssKiB": 481176,
+        "peakHwmKiB": 481176
+      }
+    ]
+  },
+  "host": {
+    "wholeQualified": false,
+    "failuresRetained": [
+      "Primary PHP expectation conflated independent runtime PHP7.2 with Composer >=8.5; fixture corrected.",
+      "Corrected C1: root re-add document did not reopen within original 30s; Client is not running.",
+      "Diagnostic C1: third cross-namespace type popup did not become visible within original 10s.",
+      "Cross-namespace type suggestion 0 did not become visible within the original 10000 ms gate."
+    ],
+    "rootOnlyProbePassed": true,
+    "realWslQualified": false,
+    "currentPreparedWorkerHostAudit": ".vscode-test/d152-prepared-worker-host-audit.json",
+    "ordinaryPopupStabilityQualified": false
+  },
+  "originalOpenScope": [
+    "C1-C4/R4 unchanged",
+    "D100 ordinary PHP7.2 editing P95 155.06>150ms",
+    "50k cache RSS 1659.99>1536MiB",
+    "D117 bare-dollar 17 missing descriptions",
+    "getItemsByProvider batch-edit exception",
+    "Missing actual PHP7.3/8.0/8.3 and other platforms",
+    "Current full C1 and actual WSL long session",
+    "Other weak consumers, complex clone side effects and ambiguous PHPDoc references"
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-worker-product-targeted.json",
+      "sha256": "931dc53936da2ab67a7851f2ac84ccbffdf08188d9d7903a108c4c983535b49b"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-worker-product-targeted.log",
+      "sha256": "5e7347ab844de4bb3fdd462b913c6bea573a9f36e4ef5c20afe48e0da7937b42"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-worker-product-projectless.json",
+      "sha256": "f53b9a61dc1f5f0c3fd5c55ce40aeb781427f310c6e93b68a24efdd5e1d579f2"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-worker-product-projectless.log",
+      "sha256": "f20995b3150d77fa5c55538cfcb31a6937b9dcea5f97e5074858e643a67a9ee5"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-worker-build-identity.json",
+      "sha256": "b71eb9fdc5468ba3de47aab2645446518cb24e690ad5ace7da0757b62ad98c8a"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-worker-build-identity.log",
+      "sha256": "b0c642367a4b835a3fc83827b71b9da7e4197e27ceff53cd3809b76a20bb7334"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-symbols-before.json",
+      "sha256": "6b3c59ffc4361ec0dadeb439da7ee0204f45f4b7683de67ee248da9061147adf"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/sophp-d152-symbols-regression.json",
+      "sha256": "c8d466fee2d618c519a2e44637553e3572d7ef1fe4ee857185e9628e71de5120"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-worker-product-targeted-input.json",
+      "sha256": "9d0f1a8dbc10c78ae3418e99ff25c28bdaba9da0b52c2053fd052d5249c81ffe"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-first-query-worker-product.json",
+      "sha256": "00fd5141ca65790b7fe8fa0747b78e62908347bc6a10de0284a5a889928ef2bb"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-worker-memory-baseline.json",
+      "sha256": "de04140f1fafbe38b8f52eb1d00b7a89c2af5590c3768b142945dae3a3dfa021"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-worker-memory-prototype.json",
+      "sha256": "78b68061b46d8ef1b7c0eafca190853983c15a0c048c633ffa1f7e64172b831d"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-worker-memory-prototype-v2.json",
+      "sha256": "9946bf2690f007fad57c945642774f88803fa4dc758ea41e832ffd6f58bcec49"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-worker-active-shutdown-prototype-v2.json",
+      "sha256": "df2a5de0272a3bb09b4640a731325f0352400f9b6d187d84837a467d1d864c00"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/d152-worker-prototype-build-v2.json",
+      "sha256": "d2c88fc76b7c9a841c31f1202598e105e8d105b3aa272ed47c97416bd10cd611"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/onDemand-true.json",
+      "sha256": "5af354f933e0ca1f2544c13fefed1df9bfc8b556e301a77a2201fc6afe895dcf"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/onDemand-true-gap5.json",
+      "sha256": "77a8a6956e748f130896bca1bb3fa31048681180063f5d07bc5eb25b1576a5ac"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/progressive-false.json",
+      "sha256": "6cb9638ebb809da6be9e88be6e2e55247daf62bb16582fe786d8849d8159a4b2"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/progressive-true.json",
+      "sha256": "e33f61f23a4eb59a7c76f4b8f845e9a3328c5c9fb459271a68d830dde550ede4"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/progressive-true-gap5.json",
+      "sha256": "5ef2048b2e1754182dbfc376bf9c5fd3354f66e252f87641c40e4fb8a9a86220"
+    },
+    {
+      "path": ".vscode-test/d152-worker-product-evidence/onDemand-false.json",
+      "sha256": "1b4b0e609ecfe9d0ca51a2e68d3163d3f03a0496c92e49d996f66e9625e52f85"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-worker-lsp-audit.json",
+      "sha256": "40e33519d100bcea903d89db8975e4aba88d553e192ccd9d1d1444563d59e42e"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-worker-failed-cache-baseline-input.json",
+      "sha256": "03d1e50aa33f17c285b1dbf5294a1796f6093ccbdf36e7b59cf3c0c2c23beaf8"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-worker-failed-cache-baseline.json",
+      "sha256": "339a6a664cc907313939b4b4bf174078e5d80418c46622fd3e3e91de09dc86d1"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-worker-failed-cache-baseline.log",
+      "sha256": "58186e829e223da1c56e1573abe14deaf39db35a4e620dc6427790971cc073bb"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-worker-runtime-assets-applied.json",
+      "sha256": "298c7fb1ef76918a9842098df444ca94ea847e4a0bbb6db0e02199f16945bbce"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-worker-runtime-assets-prepared.json",
+      "sha256": "e9d0d65154d0b70263cd910b5aeb0d9f99ca9a46cbf8c694fa4ec4734821fc5c"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-worker-runtime-assets-prepared.patch",
+      "sha256": "09706e982e0bbe195eda75de1897330db5dbf4c6c0a376adcb662100897c1fb5"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-runtime-assets-validation-prepared.json",
+      "sha256": "6d9671b6a7feb5e5f6942f231f735d851c167c5bbfe7ace18b881c008a1eec00"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-bundle.log",
+      "sha256": "6bc42da7fcbd80441eef20ad736406335395ae0f8913882dddf040686872a2df"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-identity.json",
+      "sha256": "e86121b43c12ba7640f50bf4a6e69536c344e82e92b4275bca7f3d2ef953cb28"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-identity.log",
+      "sha256": "40447b7a81255ad49ffc4c528ba243f625e1f192b685fc724463e3ee91ab38bf"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-references.json",
+      "sha256": "e9e7f7b494021713b88d67e72ae39bb5feabd26e763e821c820a388b3b0a5a29"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-runtime-assets-references.log",
+      "sha256": "a570e04df83db538509725dbc7c6b786736ef2b5856fb4b01aeb030c1482ce4c"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-builtin-cold-cost-bundle.json",
+      "sha256": "4ae6984d6e30fb542495844b370ac0f06504cd7c240b2d65c7482a0dc14fe5a8"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-builtin-cold-cost-bundle.log",
+      "sha256": "b1d179852a539a90f76dbe0d26b1f56b970d0166175a7ecbfb305dd9776cd01f"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-builtin-prepared-cost-bundle.json",
+      "sha256": "d92f14d812b6a29a811f3db9c455031688c0a20403fe9730f9a3ae84768081e0"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-builtin-prepared-differences-bundle.json",
+      "sha256": "bf5451a6fb1e810e7373441e312d9e0c1b1d8b21449994e89cccece834adba6b"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-builtin-prepared-equivalence-bundle.json",
+      "sha256": "71c0163d107f7bb3fbe0291fdaff716bb840034138f3c73cba51abbf04e1be7b"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/sophp-d152-builtin-prepared-persistence-equivalence-bundle.json",
+      "sha256": "bf449ac251130918158850ed998d14e75d056d39d77df160576944d785aefd6b"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-builtin-cold-cost.mjs",
+      "sha256": "affc7f2fedcc2db03a499616a2a1248e5214fa0d56820a3956ed674a9dace05c"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-builtin-prepared-cost.mjs",
+      "sha256": "5e3acabbdba9d61417a08c29c905477959d3ad171c6ca1049e4f617f3165a5bf"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-builtin-prepared-differences.mjs",
+      "sha256": "46fd3cc346372aa1db92cbc9f21469630d02dc16fc73703ec1027a5310da0b6b"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-builtin-prepared-equivalence.mjs",
+      "sha256": "ac6a491516d2d6eebd7faeae6833b97250d7894d65a0f335c5190512038647c1"
+    },
+    {
+      "path": ".vscode-test/d152-runtime-assets-evidence/d152-builtin-prepared-persistence-equivalence.mjs",
+      "sha256": "e0685ab3ce3b2e7b9cbfca3d221318c9c4c1e6d94fea6ce9702567beefc28511"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-model-matrix.mjs",
+      "sha256": "d274b6de475e809f647386619bcaa7e658008de5c19a83eabccf2ab956c05ab5"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-model-matrix.json",
+      "sha256": "7fe4a9bf2a19ec32be5fbe36ad626b684fbbea3479f1ac0e2a1202bf90e75ef8"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-model-matrix.log",
+      "sha256": "41b0223d2c593daf70573e753a7846a7617649af1d2adcb03a24a8a208f68eac"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-model-matrix-fixed.log",
+      "sha256": "922580a4a99e343fa771cb9625bb932827bacdc99f0567737ee385147538b77b"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-candidate.patch",
+      "sha256": "da7580c8c0dd5c5df0235df9cc280003d9c88b65b449a20686703c33c2280a44"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-candidate.json",
+      "sha256": "304d67003939558a969b10370c22c3b1c633a92ae0fa765efa7d973ad043f025"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-applied.json",
+      "sha256": "6c840153f5da669f4450272668fa61c3b7578af672b1fd9b24daf0b030d75153"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-targeted-input.json",
+      "sha256": "18582f8465f9ffd0be8802ea4c33c81a49574a07f87ac9397c84d88e709a069b"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-targeted-run.json",
+      "sha256": "5a02b3807959a5565e3b1903b95ca723fbafae7a6c1723ebd10c14f229c97ede"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-targeted.json",
+      "sha256": "be2c25f0b5b5293b0a64ef850196272056b0d1699a7a4e5f889030bed1bfd5be"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-targeted.log",
+      "sha256": "16745889c9c9d8d343160971d12e2ea97c988d2fdf65c54398a6c107d71c16aa"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-bundle.log",
+      "sha256": "158b53fc07ada9db64b2939e5078f0b33b57d5d2dda55214f45f4605b0a03b34"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-build-identity.json",
+      "sha256": "f3799da66c9fc746879c755d8c0c40da8d25d9d484f8b689d0e1d620c88c981e"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-build-identity.log",
+      "sha256": "fbb041b23ca77106574192430d5f494b202469b3be38ad3d77bf80f289d7b38d"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-first-queries.mjs",
+      "sha256": "a2365e80e9bbc1bf1f4844689b55f41e84c477ff7093276cec035ac8ceb44ec6"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/d152-prepared-worker-first-queries.json",
+      "sha256": "2e7b77ada1433163d3debc1349056e13c5aafdbc6f80072d04d13d83474b486b"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/sophp-d152-prepared-worker-first-queries.log",
+      "sha256": "fda9d24177eb669997d1429973fad08029f4d0eb61230570310d89be4550dcdb"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/onDemand-true.json",
+      "sha256": "5aff8632ff67e421246f7881807733fe016deec0c8447e3be6879b32c4b624a2"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/onDemand-true-gap5.json",
+      "sha256": "1db9d467d1387318e4b54f14ed7d6ba2b166dbd67147106f371a7bef5a5da472"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/progressive-false.json",
+      "sha256": "d0fa70d69a29d69a8db06a431a347596baeefe4e3ea0d66b74044b996f24649b"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/progressive-true.json",
+      "sha256": "5ab1c015800fb0ed1652b2475fe229f261b31f0177316539f91d4e7e66a13c16"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/progressive-true-gap5.json",
+      "sha256": "49da4985fbabdf4d3593eb93c7453faba5820ca67149f5274a507e3037b61a0f"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-evidence/onDemand-false.json",
+      "sha256": "9c206427ab6dff5056e12c7f9cfeda66f935278d1626857e2bb6b54ecf9d9b2a"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-host-audit.json",
+      "sha256": "a5e5ce564fd798460fa0b540d120a5e61089461fb05d735c454dcbe53ab78ea9"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-c1-input.json",
+      "sha256": "65051d01c1ba110a0171ddcbeed33f4c5100de4a8273fb018f8e14e623301ae8"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-c1-run.json",
+      "sha256": "4d68d2823477918aabf03d208c7cf4329c62d4c09b9c8d14577b0891f547ff7f"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-c1.py",
+      "sha256": "5ece12f84d0ab0ec781affbec36e76b66f92c0808e0572a3cf31651323fe3ef6"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/sophp-d152-prepared-worker-c1-full.log",
+      "sha256": "865e51057bdc53e333b550548ba9adec59d5be4a21c96fe41347c7c328acb4d1"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-c1-diagnostic-input.json",
+      "sha256": "bfa9a49139eb553348ddcd93a8456a1b1c0c164306cc5d79b44a1d4553acf493"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-c1-diagnostic-run.json",
+      "sha256": "7349d3bec1aea73f1428b468be952989629f729d7c16825d859dfee5c75579b1"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/d152-prepared-worker-c1-diagnostic.py",
+      "sha256": "f2325b59a79cbaa56f83a2fe7cdce67749b15e1f727869c95f6f78341ee213f7"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/sophp-d152-prepared-worker-c1-diagnostic-full.log",
+      "sha256": "6309ff3e7fbba6f216ec9b04b164c5a44cc4ce3ce49b05d41f5e797eef995159"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-host-evidence/sophp-d152-prepared-c1-observation-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/d152-prepared-worker-lsp-input.json",
+      "sha256": "de2a21cea71897431bdacdd819b3e191854866b37ba288376fa67bf25917009b"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/d152-prepared-worker-lsp-run.json",
+      "sha256": "53a261572234544457a1a947e9fc8e8f084ecd33ab6261773a0071b6157a88ec"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/sophp-d152-prepared-worker-lsp-full.json",
+      "sha256": "976746085787f7f69ef3ea3fe56b3689c5b0cf8f4a8de751d39528a5b88ea047"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/sophp-d152-prepared-worker-lsp-collection.json",
+      "sha256": "074323bfba600db52309297912925255ef859e83e7e2ee16efe1ad0207fc8087"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/sophp-d152-prepared-worker-lsp-full.log",
+      "sha256": "4cb1437979bc7f1cc20ce9469767ffa8db97c2049c3c9778e31bd59c6e368bad"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/d152-prepared-worker-full-run.py",
+      "sha256": "a80fba47d197471929cc5790ac22a3e09f8e17eb1b4d2f7c2fed6b559bfa97ea"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/d152-prepared-worker-audit.py",
+      "sha256": "8f34494e1ddca609a71f9b45dcc9907f9779f3d4613c0903f3be33e4ec6b93a5"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/d152-prepared-worker-freeze.py",
+      "sha256": "72202c796c603b7ab66cf6fa748d08a6987141eb6463e02e87ab73798fb561fa"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/output-completion-progressive.json",
+      "sha256": "6f1fb0faf9d55d372486d5ad4cf7acd355a5b6c352fa8b4f3a22734d2909d0cd"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "b6b557206102a4670654f6680f0112e35d8fa26f24d13e216d74d512c05f5fe9"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/onDemand-true.json",
+      "sha256": "96794f8c11edbb95e40ed57c34b5efa808709d880bb11dc87e21c7d847b22238"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "9b36a0c79aa7a34d6e2c64888632e2c137ca28360b090982276aeee0afa03c3e"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/progressive-false.json",
+      "sha256": "567d6fa8b1831abac3973f7b8354193b96812591ef78f20b50844fd5688752b0"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/progressive-true.json",
+      "sha256": "499c5662cb5513aba563558388106ad581f8991f4f835854d43119e935c81298"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "461f1bcd05c5001e1e053fa3e96a8ceef77e0bad06b60970aba955d97cb41721"
+    },
+    {
+      "path": ".vscode-test/d152-prepared-worker-lsp-evidence/onDemand-false.json",
+      "sha256": "250e62f77c714abd90a7b89e7579a9e87c422c3412829f168e93a4a6736af54a"
+    }
+  ],
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "snapshotWorkerStage": {
+    "serverSourceSha256": "8c85900dd942cd63af42166cddd1dcbd6977a80319e41736b9defc4f479cbea1",
+    "bundleSha256": "6ae5b2eab237e66f0a9c35cbbf1ce8761f94de616502320f46fa23edb9744b67",
+    "workerBundleSha256": "638ef71ab9c26037c655e18702ead8583db016a6ecd2c24d9a83d7d2ed66cbe9",
+    "semanticEngineVersion": 77,
+    "selectedProtocol": {
+      "passed": 22,
+      "selectedCases": 22,
+      "unselected": 524,
+      "firstQueries": 12,
+      "wholeFileOrSuiteQualified": false
+    },
+    "buildIdentityPassed": 1,
+    "wholeLsp": {
+      "status": "terminal, failed",
+      "input": ".vscode-test/d152-worker-lsp-input.json",
+      "run": ".vscode-test/d152-worker-lsp-run.json",
+      "audit": ".vscode-test/d152-worker-lsp-audit.json",
+      "passed": 1208,
+      "failed": 2,
+      "cases": 1210,
+      "files": 95,
+      "durationSeconds": 2766.5292748250067,
+      "changedInputs": 0,
+      "qualified": false,
+      "failures": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+          "status": "failed",
+          "durationMs": 120164.086289,
+          "failureMessages": [
+            "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at /var/www/node/php-companion/packages/language-server/test/stdio.test.ts:7030:62\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+          ]
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+          "status": "failed",
+          "durationMs": 20006.679616000038,
+          "failureMessages": [
+            "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at /var/www/node/php-companion/packages/language-server/test/stdio.test.ts:7439:3\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+          ]
+        }
+      ]
+    }
+  },
+  "coldStartupRegression": {
+    "originalFailingCasesReproducedWithoutInputChanges": true,
+    "baselineInput": ".vscode-test/d152-worker-failed-cache-baseline-input.json",
+    "baselineResult": "/tmp/sophp-d152-worker-failed-cache-baseline.json",
+    "selectedCases": 2,
+    "passed": 0,
+    "failed": 2,
+    "unselected": 532,
+    "originalTimeoutsMs": [
+      120000,
+      20000
+    ],
+    "observedFirstTwoProcessRunsMs": [
+      4625,
+      3920
+    ],
+    "isolatedStageProbe": {
+      "preparedSnapshotsAccepted": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "workerPrepareMs": 2435.556044,
+      "mainCoreRestoreMs": 652.960736,
+      "fallbackUsed": false,
+      "ordinaryCoreUpdateMs": 1648.499125,
+      "scope": "One isolated production-worker stage-cost observation; not hot query or full qualification."
+    },
+    "nextDirection": {
+      "existingParserPrepareAndSemanticUpdatePreparedPath": true,
+      "productChangedForThisDirection": true,
+      "preparedParseMs": 1332.7165909999999,
+      "preparedCoreUpdateMs": 641.6835329999999,
+      "serializedFactsBytes": 8190440,
+      "fullPersistenceModelsEquivalent": 23,
+      "rawObjectKeyPresenceAndSerializationOrderDiffer": true,
+      "runtimeProtocolsQualified": false,
+      "scope": "23 full JSON persistence models and 28 selected actual product protocol checks with unchanged input; full LSP and C1 pending.",
+      "persistenceModelProfiles": 11,
+      "runtimeProtocolsQualifiedInSelectedRun": true,
+      "fullRuntimeProtocolsQualified": false
+    }
+  },
+  "resourceCorrectionStage": {
+    "serverSourceSha256": "1b7716c551bea826c57e051eaae3f1aa7386e11030e66b0f9a10568d87d7bcd0",
+    "bundleSha256": "d2ba38c64dbb1d25544c7beb28b8612a9543630785f94f34893ebc930a872436",
+    "workerBundleSha256": "638ef71ab9c26037c655e18702ead8583db016a6ecd2c24d9a83d7d2ed66cbe9",
+    "semanticEngineVersion": 77,
+    "resourceCorrection": {
+      "changedRuntimeAssetsInvalidateReferenceProof": true,
+      "missingBuiltinWorkerRejectsEngineIdentity": true,
+      "copiedReferenceFixtureIncludesWorker": true,
+      "futureVsixBundledDependencyCheckIncludesWorker": true,
+      "identityTestsPassed": 2,
+      "copiedReferenceTestsPassed": 2,
+      "copiedReferenceUnselected": 532,
+      "typecheckPassed": true,
+      "productionBuildPassed": true,
+      "scopedLintPassed": true,
+      "maxFileBytes": 16777216,
+      "maxTotalBytes": 33554432
+    },
+    "wholeLsp": {
+      "status": "not run after runtime resource identity correction",
+      "previousFrozenAudit": ".vscode-test/d152-worker-lsp-audit.json",
+      "qualified": false
+    }
+  },
+  "wholeQualificationBoundary": "Current full LSP passed. Ordinary complete C1 popup stability and real WSL remain unqualified; retain all original C1-C4/R4 and performance/platform open scope.",
+  "evidenceCaptureBeforeLocalMilestoneCommit": true,
+  "committedAtEvidenceCapture": false
+}

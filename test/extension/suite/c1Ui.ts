@@ -301,6 +301,27 @@ export async function measureVisibleTypeSuggestion(port: number, folder: vscode.
         if (visible) break;
         await new Promise<void>((resolve) => setTimeout(resolve, 20));
       }
+      if (!visible) {
+        const state = await evaluate(socket, `(() => ({
+          inputElapsedMs: globalThis.__sophpSuggestionProbe?.inputElapsedMs,
+          focusedText: document.querySelector('.monaco-editor.focused .view-lines')?.textContent,
+          activeElement: { tag: document.activeElement?.tagName, classes: document.activeElement?.className },
+          widgets: [...document.querySelectorAll('.suggest-widget')].map(widget => ({
+            classes: widget.className, width: widget.getBoundingClientRect().width,
+            labels: [...widget.querySelectorAll('.monaco-list-row')].map(row => row.textContent?.trim())
+          }))
+        }))()`, id++);
+        const completion = await vscode.commands.executeCommand<vscode.CompletionList>(
+          'vscode.executeCompletionItemProvider', uri, editor.selection.active);
+        console.log(`C1 failed type popup evidence: ${JSON.stringify({ sample, expected: name,
+          source: document.getText(), version: document.version, dirty: document.isDirty,
+          cursor: editor.selection.active, state, items: completion?.items.slice(0, 40).map(item => ({
+            label: typeof item.label === 'string' ? item.label : item.label.label,
+            kind: item.kind, filterText: item.filterText,
+            insertText: typeof item.insertText === 'string' ? item.insertText : item.insertText?.value,
+            range: item.range, additionalTextEdits: item.additionalTextEdits
+          })) })}`);
+      }
       assert.ok(visible, `Cross-namespace type suggestion ${sample} did not become visible within 10 seconds.`);
       assert.ok(document.isDirty && document.getText().includes(`new ${name};`));
       samplesMs.push(Math.round(visible.elapsedMs));
