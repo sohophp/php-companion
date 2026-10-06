@@ -106,9 +106,11 @@ function startLanguageServer() {
 
 async function initialize(server, rootUri, cacheDirectory, id) {
   server.send({ jsonrpc: '2.0', id, method: 'initialize', params: {
-    processId: null, rootUri, capabilities: {}, initializationOptions: { phpVersion: '8.5', cacheDirectory },
+    processId: null, rootUri, capabilities: { textDocument: { publishDiagnostics: { versionSupport: true } } },
+    initializationOptions: { phpVersion: '8.5', indexingMode: 'experimental', cacheDirectory },
   } });
-  await server.waitFor((message) => message.id === id);
+  const response = await server.waitFor((message) => message.id === id);
+  if (response.error) throw new Error(`Language server initialization failed: ${JSON.stringify(response.error)}.`);
   const after = server.messages.length;
   server.send({ jsonrpc: '2.0', method: 'initialized', params: {} });
   await server.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'), { after, timeoutMs: 30_000 });
@@ -133,7 +135,8 @@ try {
   let source = sourceFor('Alpha', 0); await writeFile(editPath, source);
   server = startLanguageServer(); await initialize(server, rootUri, cacheDirectory, 1);
   let version = 1; server.send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version, text: source } } });
-  await server.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+  await server.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+    && message.params?.uri === uri && message.params.version === version);
   const baselineRssMb = await rssMb(server.child.pid); const rssSamples = [baselineRssMb]; const updates = []; const completions = []; const typedArgumentCompletions = []; const bareArgumentCompletions = []; const typedMemberCompletions = []; const hovers = []; const definitions = [];
   let requestId = 10;
   for (let index = 0; index < warmupIterations + iterations; index += 1) {
@@ -141,7 +144,8 @@ try {
     source = sourceFor(type, index + 1); version += 1;
     const diagnosticsAfter = server.messages.length; const updateStarted = performance.now();
     server.send({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri, version }, contentChanges: [{ text: source }] } });
-    await server.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri, { after: diagnosticsAfter });
+    await server.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+      && message.params?.uri === uri && message.params.version === version, { after: diagnosticsAfter });
     const updateDuration = performance.now() - updateStarted;
     const id = requestId++; const completionStarted = performance.now();
     server.send({ jsonrpc: '2.0', id, method: 'textDocument/completion', params: { textDocument: { uri }, position: positionAt(source, source.indexOf('$item->') + '$item->'.length) } });
@@ -206,46 +210,106 @@ try {
     if (measured) { updates.push(updateDuration); completions.push(completionDuration); typedArgumentCompletions.push(argumentDuration); bareArgumentCompletions.push(bareDuration); typedMemberCompletions.push(typedMemberDuration); hovers.push(hoverDuration); definitions.push(definitionDuration); }
     if (index % 10 === 0) rssSamples.push(await rssMb(server.child.pid));
   }
-  const cancellationId = requestId++; const cancellationStarted = performance.now();
-  server.send({ jsonrpc: '2.0', id: cancellationId, method: 'workspace/symbol', params: { query: '' } });
-  server.send({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: cancellationId } });
-  const cancellation = await server.waitFor((message) => message.id === cancellationId);
-  const cancellationMs = performance.now() - cancellationStarted;
-  if (!Array.isArray(cancellation.result)) throw new Error(`Cancelled workspace symbol request returned an invalid response: ${JSON.stringify(cancellation)}.`);
-  const cancellationOutcome = cancellation.result.length === 0 ? 'cancelled' : 'completed-before-cancellation';
+  const cancellationProbes = [];
+  // Preserve the original global query and also prove a known fixture query.
+  // An empty-query result is capped, so it need not contain a specific class.
+  for (const query of ['', 'Alpha']) {
+    const controlId = requestId++;
+    server.send({ jsonrpc: '2.0', id: controlId, method: 'workspace/symbol', params: { query } });
+    const control = await server.waitFor((message) => message.id === controlId);
+    if (!Array.isArray(control.result) || !control.result.length
+      || query === 'Alpha' && !control.result.some((symbol) => symbol.name === 'Alpha')) {
+      throw new Error(`Uncancelled workspace symbol control failed for ${JSON.stringify(query)}: ${JSON.stringify(control.error ?? control.result?.map((symbol) => symbol.name))}.`);
+    }
+    const cancellationId = requestId++; const cancellationStarted = performance.now();
+    server.send({ jsonrpc: '2.0', id: cancellationId, method: 'workspace/symbol', params: { query } });
+    server.send({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: cancellationId } });
+    const cancellation = await server.waitFor((message) => message.id === cancellationId);
+    const durationMs = performance.now() - cancellationStarted;
+    if (cancellation.error?.code !== -32800 && !Array.isArray(cancellation.result)) {
+      throw new Error(`Cancelled workspace symbol request returned an invalid response: ${JSON.stringify(cancellation)}.`);
+    }
+    cancellationProbes.push({ query, controlSymbols: control.result.length, durationMs,
+      outcome: cancellation.error?.code === -32800 || cancellation.result.length === 0
+        ? 'cancelled' : 'completed-before-cancellation' });
+  }
+  const cancellationMs = Math.max(...cancellationProbes.map((probe) => probe.durationMs));
+  const cancellationOutcome = cancellationProbes.every((probe) => probe.outcome === 'cancelled')
+    ? 'cancelled' : 'completed-before-cancellation';
   const finalRssMb = await rssMb(server.child.pid); rssSamples.push(finalRssMb); await server.stop(requestId++); server = undefined;
 
   const cacheFiles = (await readdir(cacheDirectory)).filter((name) => name.endsWith('.json')
     && !name.endsWith('.callable.json') && !name.endsWith('.symfony.json'));
-  if (cacheFiles.length === 0) throw new Error('Language server did not create a persistent semantic cache.');
-  await writeFile(join(cacheDirectory, cacheFiles[0]), '{broken');
+  const samePath = (left, right) => process.platform === 'win32'
+    ? resolve(left).toLowerCase() === resolve(right).toLowerCase() : resolve(left) === resolve(right);
+  let corruptedCacheFile;
+  for (const name of cacheFiles) {
+    const value = JSON.parse(await readFile(join(cacheDirectory, name), 'utf8'));
+    if (typeof value.root === 'string' && samePath(value.root, root)
+      && value.entries && typeof value.entries === 'object' && Object.keys(value.entries).length) {
+      corruptedCacheFile = name; break;
+    }
+  }
+  if (!corruptedCacheFile) throw new Error('Language server did not create a populated persistent semantic cache for this project.');
+  await writeFile(join(cacheDirectory, corruptedCacheFile), '{broken');
   const restarted = startLanguageServer(); server = restarted; await initialize(restarted, rootUri, cacheDirectory, requestId++);
   await restarted.waitFor((message) => message.method === 'window/logMessage'
     && message.params?.message?.includes('Persistent index cache was unreadable and will be rebuilt.'));
+  // Replay text that differs from the disk fixture, including when an even
+  // number of alternating edits ended on its original Alpha parameter.
+  source = sourceFor('Beta', warmupIterations + iterations + 1);
+  const unsavedReplayDiffersFromDisk = source !== await readFile(editPath, 'utf8');
+  if (!unsavedReplayDiffersFromDisk) throw new Error('The restart must replay unsaved content that differs from disk.');
   version += 1; const reopenedAfter = restarted.messages.length;
   restarted.send({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version, text: source } } });
-  await restarted.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri, { after: reopenedAfter });
+  await restarted.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+    && message.params?.uri === uri && message.params.version === version, { after: reopenedAfter });
   const restartId = requestId++; restarted.send({ jsonrpc: '2.0', id: restartId, method: 'textDocument/completion', params: { textDocument: { uri }, position: positionAt(source, source.indexOf('$item->') + '$item->'.length) } });
   const restartLabels = labels((await restarted.waitFor((message) => message.id === restartId)).result);
   const expectedAfterRestart = source.includes('Beta $item') ? 'betaOnly' : 'alphaOnly';
-  if (!restartLabels.includes(expectedAfterRestart)) throw new Error('Completion did not recover after cache rebuild and process restart.');
+  const rejectedAfterRestart = expectedAfterRestart === 'alphaOnly' ? 'betaOnly' : 'alphaOnly';
+  if (!restartLabels.includes(expectedAfterRestart) || restartLabels.includes(rejectedAfterRestart)) {
+    throw new Error('Completion did not recover after cache rebuild and process restart.');
+  }
+  const recoveredPosition = positionAt(source, source.indexOf(`$item->${expectedAfterRestart}`) + '$item->'.length + 1);
+  const recoveredHoverId = requestId++;
+  restarted.send({ jsonrpc: '2.0', id: recoveredHoverId, method: 'textDocument/hover', params: { textDocument: { uri }, position: recoveredPosition } });
+  const recoveredHover = await restarted.waitFor((message) => message.id === recoveredHoverId);
+  if (!recoveredHover.result || !JSON.stringify(recoveredHover.result.contents).includes(expectedAfterRestart)) {
+    throw new Error('Hover did not recover after cache rebuild and process restart.');
+  }
+  const recoveredDefinitionId = requestId++;
+  restarted.send({ jsonrpc: '2.0', id: recoveredDefinitionId, method: 'textDocument/definition', params: { textDocument: { uri }, position: recoveredPosition } });
+  const recoveredDefinition = await restarted.waitFor((message) => message.id === recoveredDefinitionId);
+  const expectedRecoveredStart = positionAt(typesSource, typesSource.indexOf(expectedAfterRestart));
+  if (!Array.isArray(recoveredDefinition.result) || recoveredDefinition.result.length !== 1
+    || recoveredDefinition.result[0].uri !== typesUri
+    || recoveredDefinition.result[0].range?.start?.line !== expectedRecoveredStart.line
+    || recoveredDefinition.result[0].range?.start?.character !== expectedRecoveredStart.character) {
+    throw new Error('Definition did not recover after cache rebuild and process restart.');
+  }
   await restarted.stop(requestId++); server = undefined;
 
-  const peakRssMb = Math.max(...rssSamples); const retainedRssGrowthMb = finalRssMb - baselineRssMb;
+  const sampledPeakRssMb = Math.max(...rssSamples); const rssEndMinusBaselineMb = finalRssMb - baselineRssMb;
   const report = {
-    schema: 1, iterations, warmupIterations, completionNoiseFunctions, runtime: process.version,
+    schema: 2, iterations, warmupIterations, completionNoiseFunctions, runtime: process.version,
+    phpVersion: '8.5', indexingMode: 'experimental', diagnosticsVersionMatched: true,
     platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
     updateToDiagnosticsMs: summarizeDurations(updates), hotCompletionMs: summarizeDurations(completions),
     hotTypedArgumentCompletionMs: summarizeDurations(typedArgumentCompletions),
     hotBareArgumentCompletionMs: summarizeDurations(bareArgumentCompletions),
     hotTypedMemberCompletionMs: summarizeDurations(typedMemberCompletions),
     hotHoverMs: summarizeDurations(hovers), hotDefinitionMs: summarizeDurations(definitions), cancellationMs, cancellationOutcome,
-    languageServerRssMb: { baseline: baselineRssMb, peak: peakRssMb, final: finalRssMb, retainedGrowth: retainedRssGrowthMb },
-    persistentCache: { files: cacheFiles.length, corruptCacheRecovered: true, completionRecoveredAfterRestart: true },
+    cancellationProbes, cancellationControlSymbols: cancellationProbes.reduce((sum, probe) => sum + probe.controlSymbols, 0),
+    languageServerRssMb: { baseline: baselineRssMb, sampledPeak: sampledPeakRssMb, final: finalRssMb, endMinusBaseline: rssEndMinusBaselineMb,
+      samples: rssSamples.length, sampledEveryIterations: 10, metric: 'external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap' },
+    persistentCache: { files: cacheFiles.length, corruptedFile: corruptedCacheFile, corruptCacheRecovered: true,
+      completionRecoveredAfterRestart: true, hoverRecoveredAfterRestart: true, definitionRecoveredAfterRestart: true,
+      unsavedReplayDiffersFromDisk },
     staleCompletionFailures: 0, staleHoverFailures: 0, staleDefinitionFailures: 0,
     budgets: { hotCompletionP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs, hotHoverP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs,
       hotDefinitionP95Ms: R1_PERFORMANCE_BUDGETS.hotQueryMs, updateToDiagnosticsP95Ms: R1_PERFORMANCE_BUDGETS.localDiagnosticsMs,
-      cancellationMs: R1_PERFORMANCE_BUDGETS.cancellationMs, retainedRssGrowthMb: 128 },
+      cancellationMs: R1_PERFORMANCE_BUDGETS.cancellationMs, rssEndMinusBaselineMb: 128 },
   };
   if (report.hotCompletionMs.p95 > report.budgets.hotCompletionP95Ms
     || report.hotTypedArgumentCompletionMs.p95 > report.budgets.hotCompletionP95Ms
@@ -253,8 +317,9 @@ try {
     || report.hotTypedMemberCompletionMs.p95 > report.budgets.hotCompletionP95Ms
     || report.hotHoverMs.p95 > report.budgets.hotHoverP95Ms || report.hotDefinitionMs.p95 > report.budgets.hotDefinitionP95Ms
     || report.updateToDiagnosticsMs.p95 > report.budgets.updateToDiagnosticsP95Ms
+    || report.cancellationOutcome !== 'cancelled'
     || report.cancellationMs > report.budgets.cancellationMs
-    || report.languageServerRssMb.retainedGrowth > report.budgets.retainedRssGrowthMb) process.exitCode = 1;
+    || report.languageServerRssMb.endMinusBaseline > report.budgets.rssEndMinusBaselineMb) process.exitCode = 1;
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } finally {
   server?.child.kill(); await rm(root, { recursive: true, force: true });

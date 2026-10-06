@@ -94,6 +94,8 @@ F08 的支持范围必须在实现前确定。例如提取方法遇到跨边界 
 
 连续编辑与恢复基准命令为 `pnpm benchmark:editing -- <测量次数> <预热次数>`。它通过真实 stdio Language Server 交替更新可区分的对象类型，逐次验证最新补全，测量更新到诊断、热补全、取消和 RSS，并破坏实际持久缓存后重启验证恢复。RSS 采样分别使用 Linux `/proc`、macOS `ps` 和 Windows PowerShell 的进程工作集。schema 82 的历史 [Linux x64 1,000 次复测](reports/p9-schema82-linux-benchmarks-2026-09-23.md)通过；[前次原始报告](reports/editing-resilience-linux-x64-2026-09-23.json)和历史 [Linux x64 报告](reports/editing-resilience-linux-x64-2026-09-13.md)与 Linux x64、Windows x64、macOS arm64 各 500 次的 [跨平台候选验收报告](reports/cross-platform-candidate-2026-09-14.md)继续保留。
 
+[D194–D198 当前复测](reports/current-editing-recovery-2026-10-07.md)将基准报告升级为 schema 2：固定原有 PHP 8.5 / experimental 两文件范围，标准诊断必须匹配当前文档版本；原空查询及新增具名查询各有非空正对照，只有实际取消才通过，提前自然完成判为失败。选择有条目且属于项目的语义缓存破坏后，真实重启并重放与磁盘不同的未保存内容，核对补全、Hover 和精确 Definition。100 次预热加 1,000 次正式编辑通过；拦截两条取消通知的反向验证按预期退出 1。RSS 仅报告周期采样最大值与结束减基线，原 128 MiB 差值门槛不变，不称作真实峰值或 retained heap。该结果不覆盖真实项目、其它模式／平台、规模内存或长会话；历史 schema 1 证据保持其原始范围。
+
 ## 测试层次
 
 1. parser/phpdoc/type-system 纯函数与标记 fixture 测试。

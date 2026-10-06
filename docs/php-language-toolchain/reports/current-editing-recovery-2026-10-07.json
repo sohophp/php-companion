@@ -1,0 +1,392 @@
+{
+  "milestone": "D194-D198",
+  "createdAtUtc": "2026-10-06T22:51:42.022658+00:00",
+  "baseCommit": "a5ec1db769d339218ba6883bc1df5011b4878ba7",
+  "bundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+  "benchmarkSourceSha256": "68aba1a5e5c36bc8a16d553e4e5c2d6e847e84e970fec2c423e5f0c102cb8a5b",
+  "productChanged": false,
+  "ordinaryRun": {
+    "status": "exited",
+    "parentPid": 483309,
+    "startedAtUtc": "2026-10-06T22:47:56.201249+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "scripts/benchmark-editing.mjs",
+      "1000",
+      "100",
+      "/var/www/node/php-companion/dist/language-server.js",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+    ],
+    "environmentOverride": {
+      "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+    },
+    "node": {
+      "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "version": "v22.14.0"
+    },
+    "head": "a5ec1db769d339218ba6883bc1df5011b4878ba7",
+    "worktreeStatus": " M scripts/benchmark-editing.mjs\n?? docs/php-language-toolchain/reports/current-editing-recovery-2026-10-07.json\n",
+    "inputCount": 4877,
+    "inputsDigest": "1f55a942c54f3e82c1e3780744b1d4f5dcd947a9bbaaa5e34e3c6a73cc33cc77",
+    "coreBundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+    "scope": "Single ordinary production Core run: PHP 8.5 / experimental, 100 warmup + 1000 measured alternating edits in the existing two-file fixture, four completion forms + Hover/Definition each round, version-correlated diagnostics, controlled cancellation, populated cache corruption and restart queries. No profiler/testMode/forced GC. Not onDemand, visible UI, full project, scale, other platforms or hours-long session qualification.",
+    "childPid": 483382,
+    "exitCode": 0,
+    "durationSeconds": 52.92035129701253,
+    "finishedAtUtc": "2026-10-06T22:48:49.173039+00:00",
+    "changedInputs": [],
+    "headUnchanged": true,
+    "worktreeUnchanged": true,
+    "nodeUnchanged": true,
+    "stdoutSha256": "10918ceb1b1d65eefeea805a22fab365d508f72edb42e8f00b725f67657e14be",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result": {
+      "schema": 2,
+      "iterations": 1000,
+      "warmupIterations": 100,
+      "completionNoiseFunctions": 500,
+      "runtime": "v22.14.0",
+      "phpVersion": "8.5",
+      "indexingMode": "experimental",
+      "diagnosticsVersionMatched": true,
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "updateToDiagnosticsMs": {
+        "samples": 1000,
+        "p50": 28.841198999998596,
+        "p95": 31.057434000002104,
+        "maximum": 32.80491600000096
+      },
+      "hotCompletionMs": {
+        "samples": 1000,
+        "p50": 1.5040220000009867,
+        "p95": 2.787116999999853,
+        "maximum": 3.9334819999967294
+      },
+      "hotTypedArgumentCompletionMs": {
+        "samples": 1000,
+        "p50": 2.2705260000002454,
+        "p95": 4.147890000000189,
+        "maximum": 6.965898000000379
+      },
+      "hotBareArgumentCompletionMs": {
+        "samples": 1000,
+        "p50": 1.8633200000003853,
+        "p95": 3.356869999999617,
+        "maximum": 5.833230000000185
+      },
+      "hotTypedMemberCompletionMs": {
+        "samples": 1000,
+        "p50": 3.1669679999977234,
+        "p95": 5.809402999999293,
+        "maximum": 9.969232999999804
+      },
+      "hotHoverMs": {
+        "samples": 1000,
+        "p50": 1.2093339999992168,
+        "p95": 2.1911029999992024,
+        "maximum": 6.432532999999239
+      },
+      "hotDefinitionMs": {
+        "samples": 1000,
+        "p50": 1.3501669999968726,
+        "p95": 2.437074000001303,
+        "maximum": 4.033369999997376
+      },
+      "cancellationMs": 0.9120270000057644,
+      "cancellationOutcome": "cancelled",
+      "cancellationProbes": [
+        {
+          "query": "",
+          "controlSymbols": 100,
+          "durationMs": 0.9120270000057644,
+          "outcome": "cancelled"
+        },
+        {
+          "query": "Alpha",
+          "controlSymbols": 59,
+          "durationMs": 0.8157910000008997,
+          "outcome": "cancelled"
+        }
+      ],
+      "cancellationControlSymbols": 159,
+      "languageServerRssMb": {
+        "baseline": 262.1796875,
+        "sampledPeak": 300.2734375,
+        "final": 300.2734375,
+        "endMinusBaseline": 38.09375,
+        "samples": 112,
+        "sampledEveryIterations": 10,
+        "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+      },
+      "persistentCache": {
+        "files": 1,
+        "corruptedFile": "238c534c018f95802d8288f1e3116482876e812fa7515f747727798933af6c0a.json",
+        "corruptCacheRecovered": true,
+        "completionRecoveredAfterRestart": true,
+        "hoverRecoveredAfterRestart": true,
+        "definitionRecoveredAfterRestart": true,
+        "unsavedReplayDiffersFromDisk": true
+      },
+      "staleCompletionFailures": 0,
+      "staleHoverFailures": 0,
+      "staleDefinitionFailures": 0,
+      "budgets": {
+        "hotCompletionP95Ms": 150,
+        "hotHoverP95Ms": 150,
+        "hotDefinitionP95Ms": 150,
+        "updateToDiagnosticsP95Ms": 500,
+        "cancellationMs": 100,
+        "rssEndMinusBaselineMb": 128
+      }
+    },
+    "qualified": true
+  },
+  "negativeControl": {
+    "status": "exited",
+    "parentPid": 485295,
+    "startedAtUtc": "2026-10-06T22:50:32.416000+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "scripts/benchmark-editing.mjs",
+      "100",
+      "0",
+      "/var/www/node/php-companion/.vscode-test/d198-withhold-cancellation-proxy.mjs",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+    ],
+    "environmentOverride": {
+      "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+    },
+    "node": {
+      "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "version": "v22.14.0"
+    },
+    "head": "a5ec1db769d339218ba6883bc1df5011b4878ba7",
+    "worktreeStatus": " M scripts/benchmark-editing.mjs\n?? docs/php-language-toolchain/reports/current-editing-recovery-2026-10-07.json\n",
+    "inputCount": 4877,
+    "inputsDigest": "a5b203c7736de013c7b36852d2fef731cb14ced2462c836898bce1239981cc16",
+    "coreBundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+    "proxySha256": "736c0e107c04bcdd00811f606f6f47e2da0c746059375c3cc58f73ece7ac7d74",
+    "scope": "Diagnostic negative control only: withhold cancelRequest before real unchanged production Core, PHP 8.5 / experimental, 100 measured edits / 0 warmup / 500 noise functions. Not performance or memory qualification; RSS sampler observes the proxy. Positive noncancelled symbols and completion/hover/definition after corrupt-cache rebuild must still work.",
+    "childPid": 485409,
+    "exitCode": 1,
+    "durationSeconds": 11.772487764013931,
+    "finishedAtUtc": "2026-10-06T22:50:44.229103+00:00",
+    "changedInputs": [],
+    "headUnchanged": true,
+    "worktreeUnchanged": true,
+    "nodeUnchanged": true,
+    "stdoutSha256": "0ef74a29e858c5848ed84fca27ae752ce1b4fed44738ecc4cdd15e8c5f604b35",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result": {
+      "schema": 2,
+      "iterations": 100,
+      "warmupIterations": 0,
+      "completionNoiseFunctions": 500,
+      "runtime": "v22.14.0",
+      "phpVersion": "8.5",
+      "indexingMode": "experimental",
+      "diagnosticsVersionMatched": true,
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "updateToDiagnosticsMs": {
+        "samples": 100,
+        "p50": 30.30146599999989,
+        "p95": 32.9447380000006,
+        "maximum": 34.937205000000176
+      },
+      "hotCompletionMs": {
+        "samples": 100,
+        "p50": 2.4866310000006706,
+        "p95": 4.145166999999674,
+        "maximum": 20.36143899999979
+      },
+      "hotTypedArgumentCompletionMs": {
+        "samples": 100,
+        "p50": 3.597475999999915,
+        "p95": 5.765974999999344,
+        "maximum": 13.473342999999659
+      },
+      "hotBareArgumentCompletionMs": {
+        "samples": 100,
+        "p50": 3.139396999999917,
+        "p95": 5.019853000000239,
+        "maximum": 5.918862999999874
+      },
+      "hotTypedMemberCompletionMs": {
+        "samples": 100,
+        "p50": 4.743395999999848,
+        "p95": 8.45411200000035,
+        "maximum": 10.701216000000386
+      },
+      "hotHoverMs": {
+        "samples": 100,
+        "p50": 2.1477359999998953,
+        "p95": 3.025481000000582,
+        "maximum": 9.044981000000007
+      },
+      "hotDefinitionMs": {
+        "samples": 100,
+        "p50": 2.3841700000002675,
+        "p95": 3.7518359999994573,
+        "maximum": 6.322009999999864
+      },
+      "cancellationMs": 22.00402099999883,
+      "cancellationOutcome": "completed-before-cancellation",
+      "cancellationProbes": [
+        {
+          "query": "",
+          "controlSymbols": 100,
+          "durationMs": 22.00402099999883,
+          "outcome": "completed-before-cancellation"
+        },
+        {
+          "query": "Alpha",
+          "controlSymbols": 59,
+          "durationMs": 5.912743999999293,
+          "outcome": "completed-before-cancellation"
+        }
+      ],
+      "cancellationControlSymbols": 159,
+      "languageServerRssMb": {
+        "baseline": 48.9609375,
+        "sampledPeak": 56.5078125,
+        "final": 56.5078125,
+        "endMinusBaseline": 7.546875,
+        "samples": 12,
+        "sampledEveryIterations": 10,
+        "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+      },
+      "persistentCache": {
+        "files": 1,
+        "corruptedFile": "1731288082a4fcd553e23af14e91838cb5c04273eabdd56fb25deaea8e1ecdd0.json",
+        "corruptCacheRecovered": true,
+        "completionRecoveredAfterRestart": true,
+        "hoverRecoveredAfterRestart": true,
+        "definitionRecoveredAfterRestart": true,
+        "unsavedReplayDiffersFromDisk": true
+      },
+      "staleCompletionFailures": 0,
+      "staleHoverFailures": 0,
+      "staleDefinitionFailures": 0,
+      "budgets": {
+        "hotCompletionP95Ms": 150,
+        "hotHoverP95Ms": 150,
+        "hotDefinitionP95Ms": 150,
+        "updateToDiagnosticsP95Ms": 500,
+        "cancellationMs": 100,
+        "rssEndMinusBaselineMb": 128
+      }
+    },
+    "negativeControlCaught": true,
+    "qualified": true
+  },
+  "negativeControlTranscript": [
+    {
+      "kind": "started",
+      "proxyPid": 485420,
+      "serverPid": 485431
+    },
+    {
+      "kind": "withheld",
+      "proxyPid": 485420,
+      "serverPid": 485431,
+      "withheldId": 612
+    },
+    {
+      "kind": "withheld",
+      "proxyPid": 485420,
+      "serverPid": 485431,
+      "withheldId": 614
+    },
+    {
+      "kind": "started",
+      "proxyPid": 485584,
+      "serverPid": 485595
+    }
+  ],
+  "negativeControlOtherBudgetViolations": [],
+  "firstHarnessFailure": {
+    "status": "exited",
+    "parentPid": 479285,
+    "startedAtUtc": "2026-10-06T22:42:33.967068+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "scripts/benchmark-editing.mjs",
+      "1000",
+      "100",
+      "/var/www/node/php-companion/dist/language-server.js",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+    ],
+    "environmentOverride": {
+      "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+    },
+    "node": {
+      "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "version": "v22.14.0"
+    },
+    "head": "a5ec1db769d339218ba6883bc1df5011b4878ba7",
+    "worktreeStatus": " M scripts/benchmark-editing.mjs\n",
+    "inputCount": 4875,
+    "inputsDigest": "11b72962bf423e4d9f7325aedf01130c3d05775fcb93ba408b33047daf367c21",
+    "coreBundleSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+    "scope": "Single ordinary production Core run: PHP 8.5 / experimental, 100 warmup + 1000 measured alternating edits in the existing two-file fixture, four completion forms + Hover/Definition each round, version-correlated diagnostics, controlled cancellation, populated cache corruption and restart queries. No profiler/testMode/forced GC. Not onDemand, visible UI, full project, scale, other platforms or hours-long session qualification.",
+    "childPid": 479362,
+    "exitCode": 1,
+    "durationSeconds": 48.12349460402038,
+    "finishedAtUtc": "2026-10-06T22:43:22.126289+00:00",
+    "changedInputs": [],
+    "headUnchanged": true,
+    "worktreeUnchanged": true,
+    "nodeUnchanged": true,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "9ece31c06b80fd18583badb14a0d6d423413ba38e110bbf7a5d0411fad526696",
+    "result": null,
+    "qualified": false
+  },
+  "firstHarnessFailureExplanation": "D194 mistakenly required Alpha in the capped 100-symbol global result. D196/D195 added a named Alpha control and cancellation check. D197/D198 preserve the original empty/global query as well as Alpha, each with a positive same-query control; global results need not contain Alpha. All attempts and preliminary report retained, not timing retries.",
+  "earlierScopedEvidence": {
+    "d196OrdinarySingleAlphaProbe": {
+      "path": ".vscode-test/d196-current-editing-run.json",
+      "sha256": "0666858af25bdaf87f3271566f72d93aa4a99d680c4b270064bff087a1a50b69"
+    },
+    "d195NegativeSingleAlphaProbe": {
+      "path": ".vscode-test/d195-cancellation-control-run.json",
+      "sha256": "e8f9d2dc243bba0c677e624245bacac81f47b5402654a678cbd255209e1dbc2a"
+    },
+    "preliminaryReport": {
+      "path": ".vscode-test/d196-preliminary-report.json",
+      "sha256": "ae1297189991a01759aa4486501f33f453ebf5c6ed621630117c0c70286f69da"
+    }
+  },
+  "negativeControlScope": "100 edits, zero warmup, proxy withholds only two cancelRequest messages before unchanged production Core. Expected benchmark exit 1; all numeric gates still pass. RSS observes the proxy, not Core. No negative-control timing or memory qualification. Both proxy/Core process pairs absent after terminal.",
+  "qualification": {
+    "php85ExperimentalTwoFileContinuousEditing": true,
+    "latestVersionDiagnostics": true,
+    "controlledCancellationBothQueries": true,
+    "populatedCorruptCacheRebuildAndUnsavedReplay": true,
+    "wholeF13": false,
+    "ordinaryRealProjectUnder150Ms": false,
+    "manualWsl": false,
+    "scaleOrRetainedHeap": false
+  },
+  "evidenceManifest": {
+    "path": ".vscode-test/d198-editing-evidence/manifest.json",
+    "sha256": "3ac38b80a14fde4041da51a912a3079ae53ed8d73b024a977119d511fbefa818",
+    "artifacts": 45
+  },
+  "delivery": {
+    "profileUpdated": false,
+    "packaged": false,
+    "pushed": false,
+    "goal": "active"
+  }
+}
