@@ -57,6 +57,8 @@ async function main(): Promise<void> {
   if (formatterCandidate && !sourceProfile) throw new Error('Formatter candidate requires an isolated source Profile.');
   const formatterOnly = process.env.PHP_COMPANION_TEST_FORMATTER_ONLY === '1';
   if (formatterOnly && !formatterCandidate) throw new Error('Formatter-only gate requires the reviewed candidate.');
+  const formatterNavigation = process.env.PHP_COMPANION_TEST_FORMATTER_NAVIGATION === '1';
+  if (formatterNavigation && !formatterOnly) throw new Error('Navigation diagnostic requires the isolated formatter-only gate.');
   const c1Only = process.env.PHP_COMPANION_TEST_C1_ONLY === '1';
   const c1DebugPort = c1Only && process.env.PHP_COMPANION_TEST_C1_COMPLETION_ONLY === '1'
     ? String(await availableDebugPort()) : undefined;
@@ -97,6 +99,7 @@ async function main(): Promise<void> {
   const twigExtracted = join(temporary, 'twig-vsix');
   const profile = join(temporary, 'profile');
   const formatterCandidatePath = formatterCandidate ? join(temporary, 'formatter-candidate') : undefined;
+  const formatterProbePath = formatterNavigation ? join(temporary, 'formatter-navigation-probe') : undefined;
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
   if (sourceProfile && !externalExtensions) throw new Error('Source Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   if (c3OpenSourceProfile && !externalExtensions) throw new Error('Packaged C3 Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
@@ -133,6 +136,8 @@ exit($status);
       if (candidates.length !== 1) throw new Error(`Expected one locked formatter extension, found ${candidates.length}.`);
       execFileSync(process.execPath, [join(repository, 'scripts', 'prepare-formatter-no-change-candidate.mjs'),
         join(extensionsDirectory, candidates[0]!), formatterCandidatePath], { stdio: 'inherit' });
+      if (formatterProbePath) execFileSync(process.execPath, [join(repository, 'scripts', 'prepare-formatter-navigation-probe.mjs'),
+        formatterCandidatePath, formatterProbePath], { stdio: 'inherit' });
     }
     const userSettingsDirectory = join(profile, 'user-data', 'User');
     await mkdir(userSettingsDirectory, { recursive: true });
@@ -274,8 +279,8 @@ abstract class AbstractController { public function generateUrl(string $route, a
         ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),
         ...(twigPlusDevelopmentPath ? [resolve(twigPlusDevelopmentPath)] : []),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : []),
-        ...(formatterCandidatePath ? [formatterCandidatePath] : [])],
-      extensionTestsPath: resolve(__dirname, 'suite', formatterOnly ? 'formatterCandidateAcceptance' : c1Only ? 'c1' : c3OpenSourceProfile ? 'c3' : 'index'),
+        ...(formatterCandidatePath ? [formatterProbePath ?? formatterCandidatePath] : [])],
+      extensionTestsPath: resolve(__dirname, 'suite', formatterNavigation ? 'formatterNavigationRace' : formatterOnly ? 'formatterCandidateAcceptance' : c1Only ? 'c1' : c3OpenSourceProfile ? 'c3' : 'index'),
       launchArgs: [
         ...(process.env.PHP_COMPANION_TEST_LOCALE ? ['--locale', process.env.PHP_COMPANION_TEST_LOCALE] : []),
         launchWorkspace,
@@ -313,6 +318,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_PHP_EXECUTABLE: process.env.PHP_COMPANION_PHP_EXECUTABLE,
         PHP_COMPANION_TEST_FORMATTER_SECOND_PHP: formatterOnly ? process.env.PHP_COMPANION_TEST_FORMATTER_SECOND_PHP : undefined,
         PHP_COMPANION_TEST_FORMATTER_CLI: formatterOnly ? process.env.PHP_COMPANION_PHP_CS_FIXER : undefined,
+        SOPHP_FORMATTER_NAVIGATION_CONTROL: formatterNavigation ? join(fixture, 'navigation-control.json') : undefined,
         PHP_COMPANION_PHPUNIT_EXECUTABLE: phpunitExecutable,
         PHP_COMPANION_TWIG_ROUTE_RENAME: twigVsix ? '1' : undefined,
       },
@@ -321,7 +327,8 @@ abstract class AbstractController { public function generateUrl(string $route, a
       ? `Verified legacy Profile Rename and Paste settings in packaged SoPHP VSIX: ${vsix}`
       : process.env.PHP_COMPANION_TEST_LOCALE === 'zh-cn'
         ? `Verified Simplified Chinese manifest text in packaged SoPHP VSIX: ${vsix}`
-        : hoverIsolation ? 'Verified isolated SoPHP real vendor Hover probe'
+        : formatterNavigation ? 'Verified controlled formatter navigation diagnostic; ordinary candidate qualification is separate'
+          : hoverIsolation ? 'Verified isolated SoPHP real vendor Hover probe'
           : sourceProfile ? 'Verified source SoPHP extensions in the isolated Open Source Profile'
           : `Verified packaged SoPHP VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {

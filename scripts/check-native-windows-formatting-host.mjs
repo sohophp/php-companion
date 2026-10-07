@@ -8,8 +8,9 @@ import { clearTimeout, setTimeout } from 'node:timers';
 
 assert.equal(process.platform, 'win32');
 const [code, core, formatter, suite, portable, suiteKind, secondPhp] = process.argv.slice(2); assert.ok(code && core && formatter && suite && portable);
-assert.ok(suiteKind === undefined || suiteKind === 'testTask' || suiteKind === 'debugLaunch' || suiteKind === 'debugBreakpoints' || suiteKind === 'formattingFailure' || suiteKind === 'formatterCandidate');
+assert.ok(suiteKind === undefined || suiteKind === 'testTask' || suiteKind === 'debugLaunch' || suiteKind === 'debugBreakpoints' || suiteKind === 'formattingFailure' || suiteKind === 'formatterCandidate' || suiteKind === 'formatterNavigation');
 const formatterCandidate = suiteKind === 'formatterCandidate';
+const formatterNavigation = suiteKind === 'formatterNavigation';
 assert.ok(!secondPhp || formatterCandidate, 'A second PHP runtime is only supported by formatter candidate acceptance');
 // Each actual PHP executable must load its own matching ini/extension DLLs.
 // A process-wide PHPRC selecting the first runtime would contaminate the second.
@@ -52,6 +53,12 @@ try {
   }));
   const env = { ...runtimeEnv, SOPHP_WINDOWS_PORTABLE_ROOT: portable }; delete env.ELECTRON_RUN_AS_NODE; delete env.VSCODE_ESM_ENTRYPOINT;
   let workspace = root;
+  if (formatterNavigation) {
+    env.PHPRC = join(portable, 'isolated ini', 'php.ini');
+    env.PHP_COMPANION_PHP_EXECUTABLE = firstPhp;
+    env.PHP_COMPANION_TEST_FORMATTER_CLI = join(portable, 'tools', 'vendor', 'friendsofphp', 'php-cs-fixer', 'php-cs-fixer');
+    env.SOPHP_FORMATTER_NAVIGATION_CONTROL = join(root, 'navigation-control.json');
+  }
   if (formatterCandidate) {
     const second = join(container, 'second project');
     await mkdir(join(second, 'src'), { recursive: true });
@@ -113,6 +120,16 @@ try {
       ['new-version', 'focus-changed', 'selection-changed', 'current']);
     for (const result of proof.autoFixState.deferredBracketCliResults) assert.equal(result.actualCliExit, 0);
     process.stdout.write(`Windows formatter candidate host proof: ${JSON.stringify(proof)}\n`);
+  } else if (formatterNavigation) {
+    const match = output.match(/Formatter navigation race proof: (\{[^\r\n]*\})/u); assert.ok(match);
+    const proof = JSON.parse(match[1]); assert.equal(proof.platform, 'win32'); assert.equal(proof.controlledDiagnostic, true);
+    assert.deepEqual(proof.cases.map(item => [item.command, item.state]),
+      ['editor.action.jumpToBracket', 'cursorUndo'].flatMap(command => ['new-version', 'focus-changed', 'current'].map(state => [command, state])));
+    for (const item of proof.cases) {
+      assert.equal(item.actualBuiltinCompleted, true); assert.equal(item.flowCompleted, true);
+      assert.equal(item.cliInvoked, item.state === 'current');
+    }
+    process.stdout.write(`Windows formatter navigation diagnostic proof: ${JSON.stringify(proof)}\n`);
   } else if (suiteKind === 'formattingFailure') {
     const match = output.match(/Windows formatting failure proof: (\{[^\r\n]*\})/u); assert.ok(match);
     const proof = JSON.parse(match[1]);

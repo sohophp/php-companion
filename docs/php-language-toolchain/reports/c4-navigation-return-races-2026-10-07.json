@@ -1,0 +1,569 @@
+{
+  "date": "2026-10-07",
+  "milestone": "D239-D242",
+  "sourceBaseCommit": "1d347f467b233916edc6b5e3aaa79aae2de8dec5",
+  "coreSha256": "3bc9b366536b61c64d9a8676f4429b153beae36e3b3d9d96918c7a9f5fc3a978",
+  "baseCandidateSha256": "1948676a0542f7a323410f7814b7653e96e5df81f980dc5314b4e045608bf04d",
+  "probeSha256": "9affd2c540f31b1bd6933a776070587c0fa996411464e21551a0d4c38b264ed1",
+  "ordinaryProductionCandidateQualification": false,
+  "controlledDiagnostic": true,
+  "productRebuilt": false,
+  "packaged": false,
+  "userProfileUpdated": false,
+  "pushed": false,
+  "owner": "junstyle.php-cs-fixer",
+  "version": "0.3.21",
+  "license": "ISC",
+  "instrumentation": [
+    "forward actual built-in commands",
+    "delay selected fulfilled command promise",
+    "join existing continuation promises",
+    "write observations and a terminal flow marker"
+  ],
+  "guardConditionsChangedInPositiveProbe": false,
+  "Windows": {
+    "diagnosticQualified": true,
+    "exitCode": 0,
+    "durationSeconds": 16.65786569204647,
+    "deadlineSeconds": 120,
+    "runtime": "1.140.0",
+    "hostNode": "v24.21.0",
+    "actualPhp": "8.5.11",
+    "frozenSourceInputs": 7,
+    "copiedAssets": 30,
+    "phpRuntimeFiles": 104,
+    "toolsFiles": 3071,
+    "changedInputs": [],
+    "changedAssets": [],
+    "changedArtifacts": [],
+    "changedRuntimes": [],
+    "changedPhpFiles": [],
+    "commitUnchanged": true,
+    "worktreeUnchanged": true,
+    "evidenceFiles": 70,
+    "evidenceManifestSha256": "d8469a01e610b230196a38d589cb4656f7a2687006cd3d49288364b9d62470b5",
+    "cases": [
+      {
+        "command": "editor.action.jumpToBracket",
+        "state": "new-version",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "released:editor.action.jumpToBracket",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ]
+        ]
+      },
+      {
+        "command": "editor.action.jumpToBracket",
+        "state": "focus-changed",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 2,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "released:editor.action.jumpToBracket",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ]
+        ]
+      },
+      {
+        "command": "editor.action.jumpToBracket",
+        "state": "current",
+        "cliInvoked": true,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "released:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "command": "cursorUndo",
+        "state": "new-version",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "released:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "command": "cursorUndo",
+        "state": "focus-changed",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 2,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "released:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "command": "cursorUndo",
+        "state": "current",
+        "cliInvoked": true,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "released:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      }
+    ]
+  },
+  "Linux": {
+    "diagnosticQualified": true,
+    "exitCode": 0,
+    "durationSeconds": 23.960661677992903,
+    "runtime": "1.140.0",
+    "hostNode": "v24.21.0",
+    "actualPhp": "8.5.9",
+    "frozenInputs": 2476,
+    "changedInputs": [],
+    "headUnchanged": true,
+    "worktreeUnchanged": true,
+    "evidenceFiles": 32,
+    "evidenceManifestSha256": "0957235889d20b7c0dc8e156b2300d15b8f02f861e1d581760de22c676fe5f86",
+    "cases": [
+      {
+        "command": "editor.action.jumpToBracket",
+        "state": "new-version",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "released:editor.action.jumpToBracket",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ]
+        ]
+      },
+      {
+        "command": "editor.action.jumpToBracket",
+        "state": "focus-changed",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 2,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "released:editor.action.jumpToBracket",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ]
+        ]
+      },
+      {
+        "command": "editor.action.jumpToBracket",
+        "state": "current",
+        "cliInvoked": true,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "released:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "command": "cursorUndo",
+        "state": "new-version",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "released:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "command": "cursorUndo",
+        "state": "focus-changed",
+        "cliInvoked": false,
+        "requestedVersion": 2,
+        "finalVersion": 2,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "released:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      },
+      {
+        "command": "cursorUndo",
+        "state": "current",
+        "cliInvoked": true,
+        "requestedVersion": 2,
+        "finalVersion": 3,
+        "actualBuiltinCompleted": true,
+        "flowCompleted": true,
+        "phases": [
+          "before-builtin:editor.action.jumpToBracket",
+          "after-builtin:editor.action.jumpToBracket",
+          "before-builtin:cursorUndo",
+          "after-builtin:cursorUndo",
+          "released:cursorUndo",
+          "flow-completed"
+        ],
+        "builtinCaretPositions": [
+          [
+            1,
+            20
+          ],
+          [
+            3,
+            1
+          ]
+        ]
+      }
+    ]
+  },
+  "negativeControl": {
+    "sensitivityProven": true,
+    "expectedFailure": true,
+    "diagnosticQualified": false,
+    "exitCode": 1,
+    "durationSeconds": 11.74749288399471,
+    "assertion": "jump-new-version: guarded navigation must not invoke the CLI",
+    "exactDelta": "Remove the version predicate from bracket current(); retain all other candidate bytes.",
+    "sameTestSuiteSha256": "df30e9e5b6f401d3377a51e3fbba67926c5147f779538561212f3465f3f08fc2",
+    "sameRunnerSha256": "5de73b03df94876b8cf1044dfb64a6e55afe330f2bfd42f3352d46505911f4ef",
+    "originalDeadlineSeconds": 120,
+    "changedInputs": [],
+    "changedAssets": [],
+    "changedArtifacts": [],
+    "changedRuntimes": [],
+    "changedPhpFiles": [],
+    "evidenceFiles": 39,
+    "evidenceManifestSha256": "23c8113628ee3a8a249f580b95bfaf6cdd350cd51568e5eb0ca7d34d2abd8e25",
+    "metadataPathLimitation": "Copied source/destination labels in the mutant probe metadata still identify the original probe preparation. Actual mutant location is established by the input snapshot, copied asset paths, native command and this record."
+  },
+  "preparation": {
+    "syntaxFailure": {
+      "exitCode": 1,
+      "hostStarted": false,
+      "phase": "Probe preparation syntax check",
+      "reason": "A joined cursorUndo continuation followed a comma expression; corrected to a statement boundary.",
+      "probeSha256": "2ad364868e3dddd6edd0fa7a165f2f3f7dd1b4eda3dd10863d58ce25fb2571bf"
+    },
+    "otherPreHostStaticCorrections": [
+      "PromiseLike return type in marker helper corrected to async Promise",
+      "Probe helper fs/timer dependencies passed explicitly to avoid forbidden require/global references in the preparation source"
+    ],
+    "staticChecks": [
+      {
+        "name": "build",
+        "command": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "-p",
+          "test/extension/tsconfig.json"
+        ],
+        "exitCode": 0
+      },
+      {
+        "name": "lint",
+        "command": [
+          "node",
+          "node_modules/eslint/bin/eslint.js",
+          "scripts/prepare-formatter-navigation-probe.mjs",
+          "scripts/check-native-windows-formatting-host.mjs",
+          "test/extension/suite/formatterNavigationRace.ts",
+          "test/extension/runPackagedTest.ts"
+        ],
+        "exitCode": 0
+      }
+    ],
+    "prelaunchSnapshotRefresh": {
+      "reason": "Additional independent Linux launcher source prepared before starting the original native negative-control job; existing test inputs and copied assets unchanged.",
+      "previousInputSha256": "db9b188df3440729f41fcc0a9263f83402aebe9a20294177ee08f025edd77a29",
+      "previousWorktreeStatus": " M scripts/check-native-windows-formatting-host.mjs\n?? scripts/prepare-formatter-navigation-probe.mjs\n?? test/extension/suite/formatterNavigationRace.ts\n",
+      "refreshedAtUtc": "2026-10-07T02:19:17.299845+00:00"
+    }
+  },
+  "next": "Inspect original complete current LSP request/process evidence for the 14 timeouts. Do not relabel selected green cases as full qualification or repeat the whole suite merely to obtain green.",
+  "remaining": [
+    "These probes delay fulfilled actual command promises, after verifying real caret movement. They do not reproduce workbench execution delay before the built-in command completes or natural production UI timing.",
+    "Only class-block fixtures and PHP 8.5.11/Windows or PHP 8.5.9/Linux are covered by this diagnostic; no all-version/block-shape/platform qualification.",
+    "Ordinary candidate 1948676a and Core 3bc9b366 remain unchanged. Their earlier ordinary formatter qualification is separate from this instrumented probe.",
+    "Original complete LSP: 1313 cases, 1299 passed, 14 timeouts, qualification false. Original 150 ms Controller budget and scale/cache memory remain open.",
+    "macOS/Remote/minimum VS Code, long sessions, whole Pack/Twig/debug/test composition and real WSL human acceptance remain open.",
+    "Full C1-C4/R4, P0-P9 and F01-F14 scope and active goal are preserved."
+  ],
+  "rawArtifacts": [
+    {
+      "path": ".vscode-test/d239-navigation-syntax-failure.json",
+      "sha256": "f44e410010d17814f246df0ae7d306bbc4f79ed29a4a6f2897f15fa410d3ed5d"
+    },
+    {
+      "path": ".vscode-test/d239-navigation-syntax-failure.log",
+      "sha256": "e2151ec7277fd4b77dedbed9a4df5d6c86c05aea9e98947a63276489610ec45e"
+    },
+    {
+      "path": ".vscode-test/d240-navigation-ready-preparation.log",
+      "sha256": "b835669394768293ce0370b8fa2fe99ef4391a53d56c9a4a86b959011f3c98dc"
+    },
+    {
+      "path": ".vscode-test/d240-navigation-static.json",
+      "sha256": "4930f4379c3bdb3a9de90abb52095fadd010385e54415844fdfc50eca922b6bc"
+    },
+    {
+      "path": ".vscode-test/d242-navigation-static.json",
+      "sha256": "6dc26d0a40ea6af63fcfa8e67932bac0f4ace8389230a3ecd14329077066747e"
+    },
+    {
+      "path": ".vscode-test/d242-navigation-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d242-navigation-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d241-negative-control-audit.py",
+      "sha256": "54838661a49b486f216010e1b879410bab3fd8e05dcc1a31b6c79f61b24eba72"
+    },
+    {
+      "path": ".vscode-test/d241-negative-control-audit.json",
+      "sha256": "9687cc96816333c88290c0dd5baf84ad9bc9f8241c8ccb0f1099684b1efc70d3"
+    },
+    {
+      "path": ".vscode-test/d241-pre-multi-platform-input.json",
+      "sha256": "db9b188df3440729f41fcc0a9263f83402aebe9a20294177ee08f025edd77a29"
+    },
+    {
+      "path": ".vscode-test/d225-current-lsp-audit.json",
+      "sha256": "e2738a49cb5c201fd4b1438fa6a69a563eb90169dd709a1d0d800a61efa4adee"
+    },
+    {
+      "path": ".vscode-test/d240-prepare-windows-formatter.mjs",
+      "sha256": "3a6ef46ebfde70824a8e2af61b0d90cd38dfe98edb9f839cea2c8609b95f121c"
+    },
+    {
+      "path": ".vscode-test/d240-run-windows-formatter.py",
+      "sha256": "63c5b3c7faa385ffb7dbe92605df1c2c190a6ed294700d921b99780ad13c5d98"
+    },
+    {
+      "path": ".vscode-test/d240-audit-windows-formatter.py",
+      "sha256": "bc257c0374c612a9712ff7ebc8aaae3f9cffb1208d88ae9545a23b4cfc0e827f"
+    },
+    {
+      "path": ".vscode-test/d240-windows-formatter-input.json",
+      "sha256": "a19ef0d2cc5cf69eba2c2f1e0698dc978bf655b1414c48f98b0418542487052d"
+    },
+    {
+      "path": ".vscode-test/d240-windows-formatter-run.json",
+      "sha256": "525522bd29776e5969cefa997d2533c0fbe889afdba27f2f6be2ffc3995ee5c1"
+    },
+    {
+      "path": ".vscode-test/d240-windows-formatter-audit.json",
+      "sha256": "012b2fec3b7ad8c7ccbf487d6ab2c8c8cdce623057b5c591c0b2ce78a84c5972"
+    },
+    {
+      "path": ".vscode-test/d240-windows-formatter.log",
+      "sha256": "12966947ec93f43c52f7efd358051c540788bcedd5da35a3917f1b493b94255c"
+    },
+    {
+      "path": ".vscode-test/d241-prepare-windows-formatter.mjs",
+      "sha256": "d48eb77cf9510892059b7d7ff970f135bdc1ea1a10b5f7b492273828bb549b64"
+    },
+    {
+      "path": ".vscode-test/d241-run-windows-formatter.py",
+      "sha256": "f88e033fdae384737b4498976cb2984f7e41570e70b620e91aa3803207d9a27d"
+    },
+    {
+      "path": ".vscode-test/d241-audit-windows-formatter.py",
+      "sha256": "6f8fc896eb2b1d8b411f15f3b8d0a405b3c132c72eb19ee2348b22e18022a3d7"
+    },
+    {
+      "path": ".vscode-test/d241-windows-formatter-input.json",
+      "sha256": "80e671ce224505d13e7536b3cfbf21d1f6816ae2150929f702aefd2db9990141"
+    },
+    {
+      "path": ".vscode-test/d241-windows-formatter-run.json",
+      "sha256": "c4f778f9a6b510d4083758b70663847682bf47158e84c64e2483a0e80b1e266e"
+    },
+    {
+      "path": ".vscode-test/d241-windows-formatter-audit.json",
+      "sha256": "6bc0de9bbfff28308697f0b4ed8fa5a2bbd297148f2deb8172742b272c23394b"
+    },
+    {
+      "path": ".vscode-test/d241-windows-formatter.log",
+      "sha256": "6ff28aba520ae006c2d1203c9b4f6dc6a54f34b219c2181f8886eacfe6471bac"
+    },
+    {
+      "path": ".vscode-test/d242-linux-navigation.py",
+      "sha256": "44f9613d2bba5ad1698405de8b1424d9e2ef2c625dc74ba7bb93d2bfac70f352"
+    },
+    {
+      "path": ".vscode-test/d242-audit-linux-navigation.py",
+      "sha256": "72616adce8e881591e3609c2c30d04fb004eb7735cb487a8a3993e76666f83fc"
+    },
+    {
+      "path": ".vscode-test/d242-linux-formatter-input.json",
+      "sha256": "82f3a4b22e9520e8f20f06e5fe2ceec2fa6b91cea03c440b56bda6f2f01bfe84"
+    },
+    {
+      "path": ".vscode-test/d242-linux-formatter-run.json",
+      "sha256": "59e37c4d592456e552ce307d211358019cc55e69bb0f2965a49ba085e70dcb47"
+    },
+    {
+      "path": ".vscode-test/d242-linux-formatter-audit.json",
+      "sha256": "341fa8cd49c92b0bf23b009eb1f084e0b51d966367461583f71bc41d2087a728"
+    },
+    {
+      "path": ".vscode-test/d242-linux-formatter.log",
+      "sha256": "0b89281c5a223749d2240735fb94b2d22bbe4e41a287e10f207fae669a343635"
+    }
+  ],
+  "sourceInputs": {
+    "scripts/prepare-formatter-navigation-probe.mjs": "31faf05664a441c350656491f52dd77907f40512c4fbf9903cab8ac129496a63",
+    "scripts/check-native-windows-formatting-host.mjs": "5de73b03df94876b8cf1044dfb64a6e55afe330f2bfd42f3352d46505911f4ef",
+    "test/extension/runPackagedTest.ts": "dee49e62593f99dbc6f1d800a7c37793143a7ce5b9881b7c30159b8073c1fe59",
+    "test/extension/suite/formatterNavigationRace.ts": "de5940632752f8b6dcecb3d83d87c268c93750f14eeb6db2af8491a55046a5aa",
+    "test/extension/suite/formatterCliFixture.ts": "172334472967958c29857f5b90135af7a424fafe80019305bf1a9972a3f32b49"
+  }
+}
