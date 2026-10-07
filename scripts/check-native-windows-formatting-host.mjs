@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
@@ -7,9 +7,26 @@ import process from 'node:process';
 import { clearTimeout, setTimeout } from 'node:timers';
 
 assert.equal(process.platform, 'win32');
-const [code, core, formatter, suite, portable, suiteKind] = process.argv.slice(2); assert.ok(code && core && formatter && suite && portable);
+const [code, core, formatter, suite, portable, suiteKind, secondPhp] = process.argv.slice(2); assert.ok(code && core && formatter && suite && portable);
 assert.ok(suiteKind === undefined || suiteKind === 'testTask' || suiteKind === 'debugLaunch' || suiteKind === 'debugBreakpoints' || suiteKind === 'formattingFailure' || suiteKind === 'formatterCandidate');
 const formatterCandidate = suiteKind === 'formatterCandidate';
+assert.ok(!secondPhp || formatterCandidate, 'A second PHP runtime is only supported by formatter candidate acceptance');
+// Each actual PHP executable must load its own matching ini/extension DLLs.
+// A process-wide PHPRC selecting the first runtime would contaminate the second.
+const runtimeEnv = { ...process.env };
+if (secondPhp) for (const key of Object.keys(runtimeEnv)) {
+  if (['phprc', 'php_ini_scan_dir'].includes(key.toLowerCase())) delete runtimeEnv[key];
+}
+const probe = executable => JSON.parse(execFileSync(executable, ['-r',
+  'echo json_encode(["version"=>PHP_VERSION,"minor"=>PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION,"ini"=>php_ini_loaded_file(),"binary"=>PHP_BINARY]);'],
+{ env: runtimeEnv, encoding: 'utf8', timeout: 30_000 }));
+const firstPhp = join(portable, 'php with spaces', 'php.exe');
+const runtimes = secondPhp ? [probe(firstPhp), probe(secondPhp)] : undefined;
+if (runtimes) {
+  assert.notEqual(runtimes[0].minor, runtimes[1].minor, 'Use two distinct actual PHP minor versions');
+  assert.ok(runtimes.every(runtime => runtime.ini), 'Both portable runtimes need a local ini');
+  assert.notEqual(runtimes[0].ini.toLowerCase(), runtimes[1].ini.toLowerCase());
+}
 const testTask = suiteKind === 'testTask';
 const debugLaunch = suiteKind === 'debugLaunch';
 const debugBreakpoints = suiteKind === 'debugBreakpoints';
@@ -23,7 +40,7 @@ try {
   await writeFile(batch, `@echo off\r\ncd /d "%~dp0"\r\n"${join(portable, 'php with spaces', 'php.exe')}" -c "${join(portable, 'isolated ini', 'php.ini')}" "${join(portable, 'tools', 'vendor', 'friendsofphp', 'php-cs-fixer', 'php-cs-fixer')}" %*\r\n`);
   const config = join(root, '.php-cs-fixer.dist.php');
   await writeFile(config, "<?php\nreturn (new PhpCsFixer\\Config())->setRules(['@PSR12' => true]);\n");
-  await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: '>=8.5' }, autoload: { 'psr-4': { '': 'src/' } } }));
+  await writeFile(join(root, 'composer.json'), JSON.stringify({ require: { php: `>=${runtimes?.[0].minor ?? '8.5'}` }, autoload: { 'psr-4': { '': 'src/' } } }));
   await writeFile(join(root, '.vscode', 'settings.json'), JSON.stringify({
     'phpCompanion.phpVersion': 'auto', 'phpCompanion.phpExecutablePath': join(portable, 'php with spaces', 'php.exe'),
     'phpCompanion.indexing.mode': 'onDemand', 'php.suggest.basic': false, 'php.validate.enable': false,
@@ -33,23 +50,24 @@ try {
     'php-cs-fixer.onsave': false, 'php-cs-fixer.lastDownload': 0, 'files.eol': '\n', 'editor.insertSpaces': true,
     'editor.tabSize': 4, 'extensions.autoUpdate': false,
   }));
-  const env = { ...process.env, SOPHP_WINDOWS_PORTABLE_ROOT: portable }; delete env.ELECTRON_RUN_AS_NODE; delete env.VSCODE_ESM_ENTRYPOINT;
+  const env = { ...runtimeEnv, SOPHP_WINDOWS_PORTABLE_ROOT: portable }; delete env.ELECTRON_RUN_AS_NODE; delete env.VSCODE_ESM_ENTRYPOINT;
   let workspace = root;
   if (formatterCandidate) {
     const second = join(container, 'second project');
     await mkdir(join(second, 'src'), { recursive: true });
     await mkdir(join(second, '.vscode'));
-    await writeFile(join(second, 'composer.json'), JSON.stringify({ require: { php: '>=8.5' } }));
+    await writeFile(join(second, 'composer.json'), JSON.stringify({ require: { php: `>=${runtimes?.[1].minor ?? '8.5'}` } }));
     await writeFile(join(second, '.vscode', 'settings.json'), JSON.stringify({
-      'phpCompanion.phpVersion': 'auto', 'phpCompanion.phpExecutablePath': join(portable, 'php with spaces', 'php.exe'),
+      'phpCompanion.phpVersion': 'auto', 'phpCompanion.phpExecutablePath': secondPhp ?? firstPhp,
       'phpCompanion.indexing.mode': 'onDemand', 'php.suggest.basic': false, 'php.validate.enable': false,
       'files.eol': '\n', 'editor.insertSpaces': true, 'editor.tabSize': 4,
       'php-cs-fixer.onsave': false, 'php-cs-fixer.lastDownload': 0,
     }));
     workspace = join(container, 'formatter.code-workspace');
     await writeFile(workspace, JSON.stringify({ folders: [{ path: root }, { path: second }] }));
-    env.PHPRC = join(portable, 'isolated ini', 'php.ini');
-    env.PHP_COMPANION_PHP_EXECUTABLE = join(portable, 'php with spaces', 'php.exe');
+    if (secondPhp) env.PHP_COMPANION_TEST_FORMATTER_SECOND_PHP = secondPhp;
+    else env.PHPRC = join(portable, 'isolated ini', 'php.ini');
+    env.PHP_COMPANION_PHP_EXECUTABLE = firstPhp;
     env.PHP_COMPANION_TEST_FORMATTER_CLI = join(portable, 'tools', 'vendor', 'friendsofphp', 'php-cs-fixer', 'php-cs-fixer');
     env.PHP_COMPANION_FORMATTER_EXECUTABLE = batch;
   }
@@ -80,6 +98,11 @@ try {
     const match = output.match(/Formatter candidate acceptance proof: (\{[^\r\n]*\})/u); assert.ok(match);
     const proof = JSON.parse(match[1]);
     assert.equal(proof.platform, 'win32');
+    if (runtimes) {
+      assert.equal(proof.distinctPhpRuntimes, true);
+      assert.deepEqual(proof.actualRuntimes, runtimes.map(runtime => runtime.version));
+      process.stdout.write(`Windows formatter actual PHP runtimes: ${JSON.stringify(runtimes)}\n`);
+    }
     for (const key of ['formatDocument', 'undo', 'redo', 'formatOnSave', 'diskMatches', 'idempotent',
       'multiRootDistinctConfig', 'concurrentFormatting', 'distinctExecutableWithSpaces']) assert.equal(proof[key], true);
     assert.equal(proof.autoFixState.tested, true, 'Native Windows auto-fix acceptance must execute');

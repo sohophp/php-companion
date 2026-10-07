@@ -1,0 +1,426 @@
+{
+  "date": "2026-10-07",
+  "milestone": "D231-D232",
+  "sourceBaseCommit": "9d1a80fd28918e61b89b3e1d0f783781b40cb6c7",
+  "coreSha256": "3bc9b366536b61c64d9a8676f4429b153beae36e3b3d9d96918c7a9f5fc3a978",
+  "owner": "junstyle.php-cs-fixer",
+  "version": "0.3.21",
+  "license": "ISC",
+  "candidateSha256": "e0e5407e2307cac7589160065ba1d92e9d516259ffbbfdf02671365fc7582577",
+  "productRebuilt": false,
+  "packaged": false,
+  "profileUpdated": false,
+  "pushed": false,
+  "runnerChange": "Optional second native PHP executable for formatterCandidate only. Probe actual distinct minor versions and ini files; remove inherited PHPRC/PHP_INI_SCAN_DIR for the dual-runtime process so each binary loads its own local ini; use each actual minor for its Composer root and assert final CLI version traces.",
+  "provisioning": {
+    "officialArchiveUrl": "https://downloads.php.net/~windows/releases/archives/php-8.4.23-nts-Win32-vs17-x64.zip",
+    "archiveSha256": "826efa189b21f46314ad497ff31467de9f0953292f42b235542be4feea182b48",
+    "archiveBytes": 34680647,
+    "archiveDigestScope": "Observed downloaded bytes from the official HTTPS archive; not a separately published signature verification.",
+    "portable": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-windows-php-dual-b6_2mkkd",
+    "firstRuntimeCopiedFiles": 25,
+    "firstRuntimeCopyHashesVerified": true,
+    "runtimeFiles": 104,
+    "runtimeIniAndExtensions": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "execPath": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimes": [
+        {
+          "version": "8.5.11",
+          "minor": "8.5",
+          "ini": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\php with spaces\\php.ini",
+          "binary": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\php with spaces\\php.exe",
+          "extensions": [
+            "Core",
+            "bcmath",
+            "calendar",
+            "ctype",
+            "date",
+            "hash",
+            "iconv",
+            "json",
+            "lexbor",
+            "uri",
+            "pcre",
+            "random",
+            "readline",
+            "Reflection",
+            "SPL",
+            "session",
+            "tokenizer",
+            "zlib",
+            "standard",
+            "filter",
+            "mysqlnd",
+            "Zend OPcache",
+            "PDO",
+            "Phar",
+            "libxml",
+            "SimpleXML",
+            "dom",
+            "xml",
+            "xmlreader",
+            "xmlwriter",
+            "curl",
+            "mbstring",
+            "intl"
+          ],
+          "os": "WINNT",
+          "sapi": "cli",
+          "cliVersion": "PHP CS Fixer 3.95.27 Adalbertus by Fabien Potencier, Dariusz Ruminski and contributors.\nPHP runtime: 8.5.11"
+        },
+        {
+          "version": "8.4.23",
+          "minor": "8.4",
+          "ini": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\PHP 8.4 with spaces\\php.ini",
+          "binary": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\PHP 8.4 with spaces\\php.exe",
+          "extensions": [
+            "Core",
+            "bcmath",
+            "calendar",
+            "ctype",
+            "date",
+            "hash",
+            "iconv",
+            "json",
+            "pcre",
+            "random",
+            "readline",
+            "Reflection",
+            "SPL",
+            "session",
+            "tokenizer",
+            "zlib",
+            "libxml",
+            "dom",
+            "filter",
+            "standard",
+            "PDO",
+            "Phar",
+            "mysqlnd",
+            "SimpleXML",
+            "xml",
+            "xmlreader",
+            "xmlwriter",
+            "curl",
+            "mbstring",
+            "intl"
+          ],
+          "os": "WINNT",
+          "sapi": "cli",
+          "cliVersion": "PHP CS Fixer 3.95.27 Adalbertus by Fabien Potencier, Dariusz Ruminski and contributors.\nPHP runtime: 8.4.23"
+        }
+      ],
+      "toolsJunctionTarget": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-_bvaznna\\tools"
+    },
+    "oldRuntimeAndToolsUnchanged": true
+  },
+  "remaining": [
+    "Original full current LSP: 1313 cases, 1299 passed, 14 waiting timeouts; qualification remains false. The prior selected 15 passes are diagnostic evidence only.",
+    "Actual delayed bracket navigation/cursorUndo guard scenarios beyond the existing current-bracket positive (20 mock boundaries are separate evidence).",
+    "Current ordinary large Controller P95 173.01 ms exceeds the original 150 ms budget; full scale/cache RSS remains open.",
+    "macOS, Remote, minimum VS Code, long sessions, whole Pack/Twig/debug/test composition and real WSL human acceptance remain open.",
+    "Preserve the full C1-C4/R4, P0-P9 and F01-F14 roadmap scope."
+  ],
+  "dualRuntime": {
+    "qualified": true,
+    "durationSeconds": 29.90186432201881,
+    "exitCode": 0,
+    "deadlineSeconds": 120,
+    "editorRuntime": {
+      "platform": "win32",
+      "node": "v24.21.0",
+      "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "vscode": "1.140.0"
+    },
+    "wrapperRuntime": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "execPath": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "frozenSourceInputs": 7,
+    "copiedAssets": 29,
+    "phpRuntimeFiles": 104,
+    "toolsFiles": 3071,
+    "toolsVerificationExit": 0,
+    "changedInputs": [],
+    "changedAssets": [],
+    "changedArtifacts": [],
+    "changedRuntimes": [],
+    "changedPhpFiles": [],
+    "commitUnchanged": true,
+    "worktreeUnchanged": true,
+    "proof": {
+      "platform": "win32",
+      "node": "v24.21.0",
+      "formatterVersion": "0.3.21",
+      "candidateHash": "e0e5407e2307cac7589160065ba1d92e9d516259ffbbfdf02671365fc7582577",
+      "formatDocument": true,
+      "undo": true,
+      "redo": true,
+      "formatOnSave": true,
+      "diskMatches": true,
+      "idempotent": true,
+      "multiRootDistinctConfig": true,
+      "concurrentFormatting": true,
+      "distinctExecutableWithSpaces": true,
+      "distinctPhpRuntimes": true,
+      "actualRuntimes": [
+        "8.5.11",
+        "8.4.23"
+      ],
+      "original": "<?php\nclass  ProfileFormat{public function value( ):int{return 1234;}}\n",
+      "formatted": "<?php\n\nclass ProfileFormat\n{\n    public function value(): int\n    {\n        return 1234;\n    }\n}\n",
+      "autoFixState": {
+        "tested": true,
+        "backgroundIgnored": true,
+        "disabledFolderIgnored": true,
+        "deferredCliResults": [
+          {
+            "state": "new-version",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 17,
+            "source": "<?php\n$value=1; // later input"
+          },
+          {
+            "state": "focus-changed",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 2,
+            "source": "<?php\n$value=1;"
+          },
+          {
+            "state": "current",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 3,
+            "source": "<?php\n$value = 1;"
+          }
+        ],
+        "bracketCurrentFormatted": true,
+        "scope": "Actual isolated VS Code and pinned CLI; not real WSL human acceptance"
+      }
+    },
+    "actualRuntimes": [
+      {
+        "version": "8.5.11",
+        "minor": "8.5",
+        "ini": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\php with spaces\\php.ini",
+        "binary": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\php with spaces\\php.exe"
+      },
+      {
+        "version": "8.4.23",
+        "minor": "8.4",
+        "ini": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\PHP 8.4 with spaces\\php.ini",
+        "binary": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\PHP 8.4 with spaces\\php.exe"
+      }
+    ],
+    "evidenceFiles": 64,
+    "evidenceManifestSha256": "c52bd632dd4c30b2725768d8b0875ab42258e7dfd2dc747d8ce334f24f8a1a01",
+    "toolsManifestSha256": "89a6ecf8c98aa51fd768f2b4b3f4840de2061c424614a1064852621e79a46f55",
+    "command": [
+      "/mnt/c/Program Files/nodejs/node.exe",
+      "--require",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-kwKm0N\\preserve-fixtures.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-kwKm0N\\bootstrap.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-kwKm0N\\core",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-kwKm0N\\formatter",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-kwKm0N\\observed-formatter.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd",
+      "formatterCandidate",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\PHP 8.4 with spaces\\php.exe"
+    ]
+  },
+  "invalidPhp": {
+    "qualified": true,
+    "durationSeconds": 11.558411687030457,
+    "exitCode": 0,
+    "deadlineSeconds": 120,
+    "editorRuntime": {
+      "platform": "win32",
+      "node": "v24.21.0",
+      "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "vscode": "1.140.0"
+    },
+    "wrapperRuntime": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "execPath": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "frozenSourceInputs": 5,
+    "copiedAssets": 29,
+    "phpRuntimeFiles": 104,
+    "toolsFiles": 3071,
+    "toolsVerificationExit": 0,
+    "changedInputs": [],
+    "changedAssets": [],
+    "changedArtifacts": [],
+    "changedRuntimes": [],
+    "changedPhpFiles": [],
+    "commitUnchanged": true,
+    "worktreeUnchanged": true,
+    "proof": {
+      "platform": "win32",
+      "noEdits": true,
+      "bufferUnchanged": true,
+      "diskUnchanged": true,
+      "dirty": false,
+      "cliExitCode": 4
+    },
+    "actualRuntimes": null,
+    "evidenceFiles": 30,
+    "evidenceManifestSha256": "7f78b4398322ca644badb9e2995006d41e4b4128a9bd44081c232e8652541b7a",
+    "toolsManifestSha256": "89a6ecf8c98aa51fd768f2b4b3f4840de2061c424614a1064852621e79a46f55",
+    "command": [
+      "/mnt/c/Program Files/nodejs/node.exe",
+      "--require",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-hU4eTN\\preserve-fixtures.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-hU4eTN\\bootstrap.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-hU4eTN\\core",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-hU4eTN\\formatter",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-formatter-native-hU4eTN\\observed-formatter.cjs",
+      "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd",
+      "formattingFailure"
+    ],
+    "scope": "Original actual Windows editor provider execution, real CLI dry-run exit 4, no edits, clean buffer and disk unchanged. It does not assert visibility/text of the notification popup; previous native CLI + VM error-branch checks remain separate."
+  },
+  "projectRuntimeSettings": {
+    "first project": {
+      "actualPhp": "8.5.11",
+      "composerPhp": ">=8.5",
+      "configuredPhp": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\php with spaces\\php.exe",
+      "hashes": {
+        "editor with spaces-vKX7z1/first project/runtime.txt": "72feb75bc493fd6f26a30b7dc92d280db6867a3d5f21d7096fa387e9ea68d72a",
+        "editor with spaces-vKX7z1/first project/.vscode/settings.json": "613149ca8213784f5fef67226bde5256b1f79d22bb31ab39553468ae675b7b09",
+        "editor with spaces-vKX7z1/first project/composer.json": "d787122901f9ccd183f77942c34a1ee8da877bbf3075e24e8c093dd0a7ca1f56"
+      }
+    },
+    "second project": {
+      "actualPhp": "8.4.23",
+      "composerPhp": ">=8.4",
+      "configuredPhp": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-windows-php-dual-b6_2mkkd\\PHP 8.4 with spaces\\php.exe",
+      "hashes": {
+        "editor with spaces-vKX7z1/second project/runtime.txt": "52cd24d7d325c4206f9b78dd8e16165b2fcf47996c057c28bd98fd3506ba7a3c",
+        "editor with spaces-vKX7z1/second project/.vscode/settings.json": "ec58a66e72088937b006464c93a819be7bc9782d2eadb40a774b5ecbe46d42c3",
+        "editor with spaces-vKX7z1/second project/composer.json": "ac322bf8d9c7c6cc5a658bb6ce3eff9e1462cb3fe802c68867d8eb1ae2f61f70"
+      }
+    }
+  },
+  "preparationFailure": {
+    "status": "exited",
+    "exitCode": 1,
+    "phase": "fixture preparation before editor execution",
+    "error": "ENOENT /tmp/sophp-d231-formatter-candidate/index.js",
+    "reason": "scratch label substitution incorrectly changed the existing candidate directory",
+    "initialPreparationSha256": "92642f5bd61b5420822c15c2cabcda1a31847af9f0f2e9511cf6cedb7462fb71",
+    "hostStarted": false
+  },
+  "originalFullLspQualified": false,
+  "rawArtifacts": [
+    {
+      "path": ".vscode-test/d231-portable-runtime-preparation.json",
+      "sha256": "adddf23d71fbf0007fee54c197f0921a5f3ad11593be41546d1f59bbc0cf8596"
+    },
+    {
+      "path": ".vscode-test/d231-portable-runtime-preflight.log",
+      "sha256": "9870e92c26e87d469ce753b75bcd29598e6298013dcb9baa522b3e06131157a2"
+    },
+    {
+      "path": ".vscode-test/d231-preparation-failure.json",
+      "sha256": "02fbec0b519f4de62c8e0bc974bd67263c0378eaffaf368359d55b7d95350949"
+    },
+    {
+      "path": ".vscode-test/d231-initial-preparation.mjs",
+      "sha256": "92642f5bd61b5420822c15c2cabcda1a31847af9f0f2e9511cf6cedb7462fb71"
+    },
+    {
+      "path": ".vscode-test/d231-runtime-config-evidence.json",
+      "sha256": "eee5428d7f1ebc4b421773d25499c7cc5c939d64f5da0342cb89aa1a57b69cf3"
+    },
+    {
+      "path": ".vscode-test/d231-formatter-preparation.log",
+      "sha256": "fe84c00fa0819d5f7e391a49be67a0484bfb29433b546e1da3d223185929d09b"
+    },
+    {
+      "path": ".vscode-test/d232-formatter-preparation.log",
+      "sha256": "13b30a37e82ce2e9d42f550562d02b1ec212e91fba3f5e65c7bbbae3de7ab9be"
+    },
+    {
+      "path": ".vscode-test/d231-tools-freeze.cjs",
+      "sha256": "1477363ea3e1dd5a861b63a59619828c7f9d77b8e9b64f2a2dae4be2261c5ae7"
+    },
+    {
+      "path": ".vscode-test/d225-current-lsp-audit.json",
+      "sha256": "e2738a49cb5c201fd4b1438fa6a69a563eb90169dd709a1d0d800a61efa4adee"
+    },
+    {
+      "path": ".vscode-test/d231-prepare-windows-formatter.mjs",
+      "sha256": "11e367777d82dd0508c081c816e56ebf104a8ddedc77c9b8057126f7ef4ca98d"
+    },
+    {
+      "path": ".vscode-test/d231-run-windows-formatter.py",
+      "sha256": "4407b600291516c627857a406ffe6468e189aaf24b47d1329592920fdf2335fd"
+    },
+    {
+      "path": ".vscode-test/d231-audit-windows-formatter.py",
+      "sha256": "74f463c0d9345ad838d885b435db6e29350db7f150319a5cb7f12d65effa3e6f"
+    },
+    {
+      "path": ".vscode-test/d231-windows-formatter-input.json",
+      "sha256": "80a7bbd0739f8a017931b5c8745c787c2cd20e2107712bc673e9351e91154fc6"
+    },
+    {
+      "path": ".vscode-test/d231-windows-formatter-run.json",
+      "sha256": "c51884e69d269ab912257604fdc9bb6d3697b0298d46d15ed66201f38c5de8a4"
+    },
+    {
+      "path": ".vscode-test/d231-windows-formatter-audit.json",
+      "sha256": "ad532b12a1693fc0c92fab1c2ae4d3e444088f935fc0e39e17e5461a84ee9108"
+    },
+    {
+      "path": ".vscode-test/d231-windows-formatter.log",
+      "sha256": "fa10b2b72a85c27683d8ca9442411c738beddea6b7991bc73dff4e432122f0e2"
+    },
+    {
+      "path": ".vscode-test/d232-prepare-windows-formatter.mjs",
+      "sha256": "b382c8e68fedfb0f38ae483106a76936142f0839221386f75fd21d2b57606eac"
+    },
+    {
+      "path": ".vscode-test/d232-run-windows-formatter.py",
+      "sha256": "41c18af759ca2015543b84b03879dce9ce2648b6a74cfb20a618b92f9a932bb9"
+    },
+    {
+      "path": ".vscode-test/d232-audit-windows-formatter.py",
+      "sha256": "ae6d02d21ab725b46635488a0fd9a6835c3e23de79f49d20ccbdbf92e0e653ea"
+    },
+    {
+      "path": ".vscode-test/d232-windows-formatter-input.json",
+      "sha256": "0c4b3d80c3cc8c969df4c9534a843c72928d33b3c9469b41ee17f0bb3a298851"
+    },
+    {
+      "path": ".vscode-test/d232-windows-formatter-run.json",
+      "sha256": "db1d4b76e4983546d0ce904a66600b1e680a3b1ed079b6659b10d16cf33089b3"
+    },
+    {
+      "path": ".vscode-test/d232-windows-formatter-audit.json",
+      "sha256": "f270e59d10178d775855472e17356d152f2dc93ce2d83f23907132e049dcf8ca"
+    },
+    {
+      "path": ".vscode-test/d232-windows-formatter.log",
+      "sha256": "264c538214bff55e2137771a8ff560432c3eedcbaff30bec16cba3bc754a8a39"
+    }
+  ],
+  "sourceInputs": {
+    ".vscode-test/d231-prepare-windows-formatter.mjs": "11e367777d82dd0508c081c816e56ebf104a8ddedc77c9b8057126f7ef4ca98d",
+    "scripts/check-native-windows-formatting-host.mjs": "2fa828e491dd95e19da8f66ca1db4613f6ad5f5134dc642845d33fdf17378cad",
+    "scripts/prepare-formatter-no-change-candidate.mjs": "ba78b656eabfa21f256e4af638e75eaa6b565b855bfa9de7ed2a6aed5232f4a3",
+    "test/extension/tsconfig.json": "a741c1935c54171fbfa4945d926e72a7a13994df36e0ebdd5b5bc047b268fc39",
+    "test/extension/suite/formatterCliFixture.ts": "172334472967958c29857f5b90135af7a424fafe80019305bf1a9972a3f32b49",
+    "test/extension/suite/formatterAutoFixAcceptance.ts": "f6949ac5a915446893248b5ed087908716fd3b10acfa9d9dd451d7584c09f0a8",
+    "test/extension/suite/formatterCandidateAcceptance.ts": "07cc14b2360cf667a9a1a82dc5bafb58ad51f8a033c9284897a19840cd6555ad"
+  }
+}

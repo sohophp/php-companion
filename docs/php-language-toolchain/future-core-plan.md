@@ -555,3 +555,9 @@ D123 失败记录与本批源码、回归语料、宿主工具一并整理必要
 ## D214–D220：默认模式完整 C3 与本地诊断
 
 [本批报告](reports/on-demand-diagnostics-windows-c3-2026-10-07.md)记录旧 Core 的 Windows C2／C3 experimental 通过，以及默认模式完整 C3 的原始诊断失败。新 Core `3fc50093` 修复可由当前文件证明的非法属性与动态属性诊断；完整语义 22823、两模式四项协议和原 Windows 完整 C3 通过。普通真实项目大 Controller 为 173.01 ms，继续未通过原预算，其余四组通过。当前完整 LSP 在后续组合冻结复验，旧 D199 不转移；原 C1–C4／R4 及全部开放范围保持，Goal active。
+
+## D231–D232：原生 Windows 格式化运行时隔离
+
+[本批记录](reports/c4-native-windows-dual-runtime-2026-10-07.md)补齐实际 Windows PHP 8.5.11／8.4.23 的独立 ini 和并发项目验证，原完整格式化入口 29.90 秒通过；当前非法 PHP 的原宿主套件 11.56 秒通过，缓冲区和磁盘不变。当前 Core／隔离候选保持 `3bc9b366`／`e0e5407e`，原输入、工具及历史失败保留。
+
+下一项为实际延迟括号导航／cursorUndo 保护。当前完整 LSP 的原 14 超时继续未通过；大 Controller 原 150 ms、规模／缓存内存、其他平台／模式／完整组合／长会话与真实 WSL 均保持，完整 C1–C4／R4、P0–P9／F01–F14 目标不缩减。Goal active；必要本地里程碑提交，不打包、更新 Profile 或推送。

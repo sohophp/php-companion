@@ -6,7 +6,9 @@
 
 可运行输入的编号与覆盖进度见[验收 fixtures](acceptance-fixtures.md)；首组 F08 Extract Interface 已包含正例、合法反例和未完成输入，其余映射仍开放。
 
-2026-10-07 [D228–D230 跨平台格式化](reports/c4-portable-formatter-windows-linux-2026-10-07.md)：隔离候选 `e0e5407e` 修复实际 Windows 带空格 PHAR 路径，Core 仍为 `3bc9b366`。原完整格式化套件在原生 Windows／PHP 8.5.11、Linux／实际 PHP 8.5.9 与 8.4.23 通过；双项目并发、保存／Undo／Redo、自动修复及错误保护保持，原失败保留。Windows 第二实际运行时、真实延迟括号、其它平台／完整组合／长会话及真实 WSL 仍开放。
+2026-10-07 [D231–D232 原生 Windows 双运行时](reports/c4-native-windows-dual-runtime-2026-10-07.md)：同一 `3bc9b366`／`e0e5407e`，实际 PHP 8.5.11 与 8.4.23 各用自己的 ini，原完整格式化套件通过；原有非法 PHP 宿主套件通过，错误不修改缓冲区或磁盘。两轮原终态、输入和工具哈希保持。真实延迟括号保护、其它平台／完整组合／长会话、完整 LSP 原 14 超时及真实 WSL 继续开放。
+
+2026-10-07 [D228–D230 跨平台格式化](reports/c4-portable-formatter-windows-linux-2026-10-07.md)：隔离候选 `e0e5407e` 修复实际 Windows 带空格 PHAR 路径，Core 仍为 `3bc9b366`。原完整格式化套件在原生 Windows／PHP 8.5.11、Linux／实际 PHP 8.5.9 与 8.4.23 通过；双项目并发、保存／Undo／Redo、自动修复及错误保护保持，原失败保留。当时的 Windows 第二实际运行时缺口已由 D231 补齐，其他范围分别判定。
 
 2026-10-07 [D222–D227 循环保护与完整回归](reports/cyclic-hierarchy-diagnostics-full-regression-2026-10-07.md)：Core `3bc9b366` 的循环警告／Quick Fix 保护与合法菱形通过，完整语义 22824 项通过。原完整 LSP 1313 项中 1299 通过、14 等待超时，**整轮资格未通过**；输入和用例身份保持。原 14 个失败项的一次同源码定向定位通过，另有一个同前缀案例通过、657 未选择；未证实整轮超时根因，不替代全量结果。
 
