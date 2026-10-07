@@ -396,6 +396,94 @@ describe('bounded project source index', () => {
       onSource: () => { throw new Error('Finalized cache entries should restore.'); } });
     expect(warm.cached).toBe(2); expect(restored).toEqual(['A.php', 'B.php']);
   });
+  it.each([1, 3])('bounds pending payload finalization to the read window (%s)', async (readConcurrency) => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-bounded-finalize-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    const names = Array.from({ length: 12 }, (_, index) => `File${String(index).padStart(2, '0')}.php`);
+    await Promise.all(names.map((name) => writeFile(join(root!, 'src', name), '<?php class Item {}')));
+    let active = 0; let peak = 0; let released = false;
+    const held: Array<() => void> = []; const restored: string[] = [];
+    let releaseTimer: ReturnType<typeof setTimeout> | undefined;
+    const release = (): void => { released = true; for (const done of held.splice(0)) done(); };
+    const cache = { directory: join(root, 'cache'), version: 'bounded-finalize-v1',
+      finalizePayload: async (payload: unknown): Promise<{ ready: string }> => {
+        active += 1; peak = Math.max(peak, active);
+        try {
+          if (!released) await new Promise<void>((done) => {
+            held.push(done);
+            // Hold the first window while the producer attempts more files.
+            if (held.length === readConcurrency) releaseTimer = setTimeout(release, 100);
+          });
+          return { ready: (payload as { name: string }).name };
+        } finally { active -= 1; }
+      },
+      restore: (payload: unknown): boolean => { restored.push((payload as { ready: string }).ready); return true; } };
+    let cold;
+    try {
+      cold = await indexComposerSources(root, { readConcurrency, cache,
+        onSource: ({ path }) => ({ name: path.split(sep).at(-1)! }) });
+    } finally { if (releaseTimer) clearTimeout(releaseTimer); release(); }
+    expect(cold).toMatchObject({ files: 12, cached: 0, complete: true, warnings: [] });
+    expect(active).toBe(0); expect(peak).toBe(readConcurrency);
+    const warm = await indexComposerSources(root, { readConcurrency, cache,
+      onSource: () => { throw new Error('Every finalized payload must restore.'); } });
+    expect(warm).toMatchObject({ files: 12, cached: 12, complete: true, warnings: [] });
+    expect(restored).toEqual(names);
+  });
+  it.each([1, 3])('cancels a blocked payload window without replacing the cache (%s files)', async (files) => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-cancel-finalize-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    const names = ['A', 'B', 'C'].slice(0, files);
+    await Promise.all(names.map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const directory = join(root, 'cache');
+    await indexComposerSources(root, { onSource: ({ path }) => ({ path }),
+      cache: { directory, version: 'cancel-finalize-v1', restore: () => false } });
+    const cacheFile = join(directory, (await readdir(directory))[0]!);
+    const original = await readFile(cacheFile, 'utf8');
+    await Promise.all(names.map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} { public $changed; }`)));
+    let cancelled = false; let release: (() => void) | undefined;
+    let queued: (() => void) | undefined; const started = new Promise<void>((done) => { queued = done; });
+    const held = new Promise<void>((done) => { release = done; });
+    const analyzed: string[] = [];
+    const running = indexComposerSources(root, { readConcurrency: 1, shouldContinue: () => !cancelled,
+      onSource: ({ path }) => { analyzed.push(path.split(sep).at(-1)!); return { path }; },
+      cache: { directory, version: 'cancel-finalize-v1', restore: () => false,
+        finalizePayload: async (payload): Promise<unknown> => { queued!(); await held; return payload; } } });
+    try {
+      await started;
+      // Cancel after the producer reaches its blocked window, before any finalizer can finish.
+      await new Promise<void>((done) => setTimeout(done, 30));
+      cancelled = true;
+      const result = await running;
+      expect(result).toMatchObject({ files: 1, complete: false, projectComplete: files === 1,
+        warnings: expect.arrayContaining(['Project indexing was cancelled.']) });
+      expect(analyzed).toEqual(['A.php']);
+      expect(await readFile(cacheFile, 'utf8')).toBe(original);
+      expect(await readdir(directory)).toEqual([cacheFile.split(sep).at(-1)]);
+    } finally { cancelled = true; release!(); await running; }
+  });
+  it('continues after a payload finalizer rejects and persists only completed entries', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-reject-finalize-')); await mkdir(join(root, 'src'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+    await Promise.all(['A', 'B', 'C'].map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} {}`)));
+    const restored: string[] = []; const directory = join(root, 'cache');
+    const cold = await indexComposerSources(root, { readConcurrency: 1,
+      onSource: ({ path }) => ({ name: path.split(sep).at(-1)! }),
+      cache: { directory, version: 'reject-finalize-v1', restore: () => false,
+        finalizePayload: async (payload): Promise<unknown> => {
+          if ((payload as { name: string }).name === 'B.php') throw new Error('Worker failed.');
+          return payload;
+        } } });
+    expect(cold).toMatchObject({ files: 3, cached: 0, complete: true });
+    expect(cold.warnings).toEqual([`Persistent index entry for ${join(root, 'src', 'B.php')} could not be finalized.`]);
+    const rebuilt: string[] = [];
+    const warm = await indexComposerSources(root, { readConcurrency: 1,
+      onSource: ({ path }) => { rebuilt.push(path.split(sep).at(-1)!); return { name: 'B.php' }; },
+      cache: { directory, version: 'reject-finalize-v1',
+        restore: (payload): boolean => { restored.push((payload as { name: string }).name); return true; } } });
+    expect(warm).toMatchObject({ files: 3, cached: 2, complete: true, warnings: [] });
+    expect(restored).toEqual(['A.php', 'C.php']); expect(rebuilt).toEqual(['B.php']);
+  });
   it('restores unchanged payloads and rebuilds a corrupt persistent cache', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-')); await mkdir(join(root, 'src')); const cache = join(root, 'cache');
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));

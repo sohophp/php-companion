@@ -1,0 +1,1291 @@
+{
+  "milestones": [
+    "D243",
+    "D244"
+  ],
+  "sourceCommit": "e106c159f5bff8ed16d89d7d61bb9135917f8eb8",
+  "coreBundleSha256": "3bc9b366536b61c64d9a8676f4429b153beae36e3b3d9d96918c7a9f5fc3a978",
+  "formatterCandidateSha256": "1948676a0542f7a323410f7814b7653e96e5df81f980dc5314b4e045608bf04d",
+  "productChanged": false,
+  "fullSuiteQualified": false,
+  "rootCauseProven": false,
+  "remediationProven": false,
+  "originalFullResult": {
+    "total": 1313,
+    "passed": 1299,
+    "failed": 14,
+    "pending": 0
+  },
+  "originalFailureClassification": {
+    "milestone": "D244",
+    "scope": "Read-only reclassification of original complete D225 failure evidence; no new test execution.",
+    "originalAuditSha256": "e2738a49cb5c201fd4b1438fa6a69a563eb90169dd709a1d0d800a61efa4adee",
+    "originalFullResultSha256": "dad5d1fc4e7be79af34be2c4b67519ffbff1dd197e4d046d3094340bacf2980f",
+    "originalFullSuiteQualified": false,
+    "rootCauseProven": false,
+    "remediationProven": false,
+    "counts": {
+      "opaque-case-deadline": 11,
+      "post-initialize-waiter-unidentified": 2,
+      "identified-persistence-wait": 1
+    },
+    "referenceCacheFailure": {
+      "process": 6,
+      "failedWait": "phpCompanion/testWaitReferencePersistence",
+      "waitBudgetMs": 10000,
+      "completedReferenceQueryMs": 311,
+      "correctLocationsReturned": 3
+    },
+    "fileIntervalPeakOverlap": 17,
+    "overlapLimitation": "Vitest file start/end intervals, not observed simultaneous server processes, CPU saturation or a causal explanation."
+  },
+  "failures": [
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+      "name": "retains repeated callback returns for first 'hover' PHP '8.5' 'progressive'",
+      "durationMs": 40033.440998999984,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+      "name": "retains repeated callback returns for first 'definition' PHP '8.5' 'progressive'",
+      "durationMs": 40041.467189999996,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '7.2'",
+      "durationMs": 40044.334371999954,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '8.5'",
+      "durationMs": 40040.17872299999,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "keeps semantic resources closed after late progressive / phpCompanion/bundledSemanticProviders notifications",
+      "durationMs": 60031.84198299999,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio completes unopened PSR-0 classes only at Composer-loadable paths",
+      "durationMs": 20017.49078600004,
+      "classification": "post-initialize-waiter-unidentified",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio updates PHP versions and builtins for an open project without restarting the language server",
+      "durationMs": 18070.978959000087,
+      "classification": "post-initialize-waiter-unidentified",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio reports a loaded Composer project snapshot in the client language",
+      "durationMs": 20007.293488999945,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+      "durationMs": 31501.406871999963,
+      "classification": "identified-persistence-wait",
+      "identifiedStage": "phpCompanion/testWaitReferencePersistence, reference cache process 6"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio resolves first cold and reloaded references through unloaded vendor attributes without Definition warm-up",
+      "durationMs": 20006.153286000015,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio resolves first cold and reloaded references through unloaded vendor getSession() without Definition warm-up",
+      "durationMs": 20002.73748999997,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+      "durationMs": 20002.673294999986,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8.5",
+      "durationMs": 20011.24642900005,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer",
+      "durationMs": 20006.375104000093,
+      "classification": "opaque-case-deadline",
+      "identifiedStage": null
+    }
+  ],
+  "bundledObservation": {
+    "milestone": "D243",
+    "diagnosticPassed": true,
+    "fullSuiteQualified": false,
+    "rootCauseProven": false,
+    "remediationProven": false,
+    "run": {
+      "status": "exited",
+      "parentPid": 713142,
+      "childPid": 713241,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/stdio.test.ts",
+        "-t",
+        "^language server stdio restores proven references across processes and rejects changed query inputs$",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d243-bundled.json"
+      ],
+      "startedAtUtc": "2026-10-07T02:28:39.481484+00:00",
+      "scope": "Complete only the previously missing bundled-protocol observation, one original case with original deadlines/assertions. Not a complete suite or performance qualification.",
+      "exitCode": 0,
+      "durationSeconds": 102.73632028099382,
+      "finishedAtUtc": "2026-10-07T02:30:22.216339+00:00",
+      "changedInputs": [],
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "nodeUnchanged": true
+    },
+    "result": {
+      "numTotalTests": 544,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 543,
+      "success": true
+    },
+    "inputCount": 4888,
+    "coreBundleSha256": "3bc9b366536b61c64d9a8676f4429b153beae36e3b3d9d96918c7a9f5fc3a978",
+    "processCount": 32,
+    "traceFiles": 96,
+    "processes": [
+      {
+        "pid": 713348,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713348.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340126266,
+            "ageMs": 453
+          }
+        ],
+        "durationMs": 3027
+      },
+      {
+        "pid": 713420,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713420.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340129349,
+            "ageMs": 188
+          }
+        ],
+        "durationMs": 2808
+      },
+      {
+        "pid": 713490,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713490.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340132042,
+            "ageMs": 348
+          }
+        ],
+        "durationMs": 2849
+      },
+      {
+        "pid": 713534,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713534.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340135106,
+            "ageMs": 404
+          }
+        ],
+        "durationMs": 3116
+      },
+      {
+        "pid": 713622,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713622.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340137944,
+            "ageMs": 199
+          }
+        ],
+        "durationMs": 2629
+      },
+      {
+        "pid": 713662,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713662.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340140640,
+            "ageMs": 378
+          }
+        ],
+        "durationMs": 2870
+      },
+      {
+        "pid": 713872,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713872.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340143526,
+            "ageMs": 398
+          }
+        ],
+        "durationMs": 2902
+      },
+      {
+        "pid": 713912,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713912.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340146429,
+            "ageMs": 388
+          }
+        ],
+        "durationMs": 2886
+      },
+      {
+        "pid": 713950,
+        "trace": ".vscode-test/d243-protocol-trace/713337-713950.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340149278,
+            "ageMs": 373
+          }
+        ],
+        "durationMs": 2830
+      },
+      {
+        "pid": 714040,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714040.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340152391,
+            "ageMs": 482
+          }
+        ],
+        "durationMs": 3218
+      },
+      {
+        "pid": 714105,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714105.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340155490,
+            "ageMs": 328
+          }
+        ],
+        "durationMs": 2941
+      },
+      {
+        "pid": 714127,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714127.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340158341,
+            "ageMs": 456
+          }
+        ],
+        "durationMs": 2976
+      },
+      {
+        "pid": 714217,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714217.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340161367,
+            "ageMs": 195
+          }
+        ],
+        "durationMs": 2762
+      },
+      {
+        "pid": 714259,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714259.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340164067,
+            "ageMs": 608
+          }
+        ],
+        "durationMs": 3110
+      },
+      {
+        "pid": 714378,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714378.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340167195,
+            "ageMs": 572
+          }
+        ],
+        "durationMs": 3075
+      },
+      {
+        "pid": 714436,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714436.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340170283,
+            "ageMs": 2104
+          }
+        ],
+        "durationMs": 4617
+      },
+      {
+        "pid": 714517,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714517.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340175022,
+            "ageMs": 718
+          }
+        ],
+        "durationMs": 3349
+      },
+      {
+        "pid": 714592,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714592.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340178342,
+            "ageMs": 719
+          }
+        ],
+        "durationMs": 3312
+      },
+      {
+        "pid": 714710,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714710.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340181531,
+            "ageMs": 662
+          }
+        ],
+        "durationMs": 3129
+      },
+      {
+        "pid": 714754,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714754.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340184759,
+            "ageMs": 380
+          }
+        ],
+        "durationMs": 2942
+      },
+      {
+        "pid": 714778,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714778.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340187715,
+            "ageMs": 181
+          }
+        ],
+        "durationMs": 2754
+      },
+      {
+        "pid": 714807,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714807.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340190375,
+            "ageMs": 356
+          }
+        ],
+        "durationMs": 2829
+      },
+      {
+        "pid": 714827,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714827.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340193274,
+            "ageMs": 377
+          }
+        ],
+        "durationMs": 2916
+      },
+      {
+        "pid": 714874,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714874.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340196208,
+            "ageMs": 702
+          }
+        ],
+        "durationMs": 3257
+      },
+      {
+        "pid": 714940,
+        "trace": ".vscode-test/d243-protocol-trace/713337-714940.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340199654,
+            "ageMs": 512
+          }
+        ],
+        "durationMs": 3243
+      },
+      {
+        "pid": 715056,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715056.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340202767,
+            "ageMs": 335
+          }
+        ],
+        "durationMs": 2928
+      },
+      {
+        "pid": 715114,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715114.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340205749,
+            "ageMs": 842
+          }
+        ],
+        "durationMs": 3483
+      },
+      {
+        "pid": 715246,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715246.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340209120,
+            "ageMs": 203
+          }
+        ],
+        "durationMs": 2728
+      },
+      {
+        "pid": 715299,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715299.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340212163,
+            "ageMs": 654
+          }
+        ],
+        "durationMs": 3490
+      },
+      {
+        "pid": 715430,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715430.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340215426,
+            "ageMs": 220
+          }
+        ],
+        "durationMs": 2826
+      },
+      {
+        "pid": 715522,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715522.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340218272,
+            "ageMs": 681
+          }
+        ],
+        "durationMs": 3302
+      },
+      {
+        "pid": 715613,
+        "trace": ".vscode-test/d243-protocol-trace/713337-715613.jsonl",
+        "exitCode": 0,
+        "closeCode": 0,
+        "pendingServerRequests": [],
+        "unansweredClientRequests": [
+          {
+            "id": "0",
+            "method": "client/registerCapability",
+            "at": 1791340221414,
+            "ageMs": 704
+          }
+        ],
+        "durationMs": 3161
+      }
+    ],
+    "requestTimings": {
+      "initialize": {
+        "count": 32,
+        "maximumMs": 2832,
+        "samplesMs": [
+          2566,
+          2614,
+          2493,
+          2703,
+          2425,
+          2488,
+          2498,
+          2492,
+          2453,
+          2731,
+          2607,
+          2512,
+          2560,
+          2497,
+          2495,
+          2506,
+          2626,
+          2585,
+          2463,
+          2558,
+          2569,
+          2469,
+          2534,
+          2550,
+          2727,
+          2585,
+          2636,
+          2517,
+          2832,
+          2598,
+          2613,
+          2452
+        ]
+      },
+      "textDocument/references": {
+        "count": 33,
+        "maximumMs": 687,
+        "samplesMs": [
+          49,
+          152,
+          5,
+          247,
+          50,
+          165,
+          287,
+          283,
+          292,
+          274,
+          357,
+          208,
+          322,
+          176,
+          491,
+          538,
+          338,
+          592,
+          687,
+          522,
+          268,
+          160,
+          246,
+          264,
+          564,
+          381,
+          98,
+          360,
+          185,
+          513,
+          193,
+          532,
+          545
+        ]
+      },
+      "phpCompanion/testWaitReferencePersistence": {
+        "count": 32,
+        "maximumMs": 111,
+        "samplesMs": [
+          56,
+          2,
+          68,
+          77,
+          2,
+          66,
+          81,
+          66,
+          68,
+          84,
+          81,
+          102,
+          1,
+          85,
+          1,
+          1,
+          96,
+          1,
+          99,
+          79,
+          1,
+          80,
+          77,
+          104,
+          98,
+          1,
+          110,
+          1,
+          97,
+          2,
+          110,
+          111
+        ]
+      },
+      "shutdown": {
+        "count": 32,
+        "maximumMs": 3,
+        "samplesMs": [
+          2,
+          2,
+          2,
+          1,
+          2,
+          2,
+          2,
+          2,
+          2,
+          3,
+          2,
+          2,
+          2,
+          3,
+          2,
+          2,
+          2,
+          3,
+          3,
+          2,
+          2,
+          2,
+          3,
+          3,
+          3,
+          2,
+          2,
+          1,
+          3,
+          2,
+          2,
+          3
+        ]
+      }
+    },
+    "limitations": [
+      "One exact selected case; 543 unselected cases. Original full D225 remains failed.",
+      "Timing under passive observer is diagnostic only; initialize and reference requests include cold cases, not hot P95 qualification.",
+      "The original test client leaves client/registerCapability unanswered in each process. Direction-aware recording keeps these separate from replied language server requests; no causal connection to original failures is proved.",
+      "Earlier D227 missed bundled language-server.js; this execution fills only that observation gap, not original failing execution evidence."
+    ]
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d243-observe-lsp.cjs",
+      "sha256": "88e23b947e3ed95fd3c2ab362709d1126e450b41a31c86f8d9cbb9091c4c8870"
+    },
+    {
+      "path": ".vscode-test/d243-bundled-observation.py",
+      "sha256": "140862375cda2e0d59962847f8e272afe68da3ed40c7793152cfb359e08dc608"
+    },
+    {
+      "path": ".vscode-test/d243-bundled-input.json",
+      "sha256": "6f318d9408fac83ad1feb3021f74409a131af58ca0e3f5ac340474a2b297b34a"
+    },
+    {
+      "path": ".vscode-test/d243-bundled-run.json",
+      "sha256": "69cbe3e96f76dcd79a02f7edd5d19cd391dd733cab7e06c4b5636cf5259a6979"
+    },
+    {
+      "path": ".vscode-test/d243-bundled.log",
+      "sha256": "fe8ed268e4a26cbe9811d73d2dc163ea0c978b774e59b827e012a12be802f420"
+    },
+    {
+      "path": "/tmp/sophp-d243-bundled.json",
+      "sha256": "9cda96b37830325aebecf7ed0bd8fe4b3f798e12270f42d94aa2d1cf3aafff30"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713348.jsonl",
+      "sha256": "457882ea89a52d946b56d60bcd168d15326bcc3274864c0b4a16083dfe992ed6"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713348.stdin",
+      "sha256": "8fff739899129221c88da1dd5c2c8c2a7ff48c3e76cb39492e7cb3c8a10db44d"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713348.stdout",
+      "sha256": "f03f3c468b526072d8d88f420c97dc504b01593232da2a76ca35c603657f0b08"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713420.jsonl",
+      "sha256": "bb60589ae85c9df677c83387dcfbd22d7afc4838cf36b05ac0d343fbc63bedfb"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713420.stdin",
+      "sha256": "686fde2359bb682df6c3daea82a757dc4f772294bc128598de7bac1e4e238881"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713420.stdout",
+      "sha256": "c7e446fea7ad8f32c9f6cea0f306569b20445810102bff5090ca33fe88cea2e9"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713490.jsonl",
+      "sha256": "b275340df5df4fbeedc8712d738a0b1c84e3c30c1b1bf13a32966cae5acf1b57"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713490.stdin",
+      "sha256": "f972c22abecb7ba63ded8da0cc954b2996e20f5946553b251f92798324b9c0ff"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713490.stdout",
+      "sha256": "b9c0237af74adc311756d223a00aa1dea5469fc1b340e05d8fe1577e5f045bd2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713534.jsonl",
+      "sha256": "72d994181914ccdcebbc2290cabfd4e0b148973ba2d11b9513cc7392bc852788"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713534.stdin",
+      "sha256": "68ea49ebe8695bd90c0cd673e90e66b5ba368185232e28ab2fb92727e2b0557d"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713534.stdout",
+      "sha256": "0e1c3043324b09149015962fce31e543940771113f807ac545863c7b22d8aa20"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713622.jsonl",
+      "sha256": "0c0174667613922ad1ccf8d6d7054ac3433219f56291cc2d4f83c63c86611ed1"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713622.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713622.stdout",
+      "sha256": "eabb9f59f1b95f6f3e6553e9152a5a67270fafd1f647a287a3624b9ff518b543"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713662.jsonl",
+      "sha256": "33fd2bc561a32d4b375c444f1d5c9704b578d6c48540775d392dd14ac4fd143f"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713662.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713662.stdout",
+      "sha256": "f8dd52e4d4e9ee2c786d8c0f8ab274946a42f79af88f75998e29988ecdf5c3a0"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713872.jsonl",
+      "sha256": "bab2071b47e147e274af4e69398e0bc7b5a669871b177fade511657d6d19f183"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713872.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713872.stdout",
+      "sha256": "a4439a064db5cd86827b89925fa5644407d59583f4806ee837250affeaa473fa"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713912.jsonl",
+      "sha256": "2088caf2d3124a213f42494a337beb0a719c360c35b5510042a78cc12281c362"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713912.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713912.stdout",
+      "sha256": "d67e82bc29fe7a9a04a3de5ef1b01eaa5c2e4fd236e6c41dfb3a62f18b93f137"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713950.jsonl",
+      "sha256": "5c8904f35d728eff7d60be20c69bc8f7621a41d0846234617076df5a114cb5dc"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713950.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-713950.stdout",
+      "sha256": "8a37f8a67a65ff7962c619627d0bfeb57b2e201f282e67ac15c914b4c1b24351"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714040.jsonl",
+      "sha256": "4ec1afab447ff48d3fcbbb69fff9aee014d21c4426ba1e1d7d1e58bd80036ea9"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714040.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714040.stdout",
+      "sha256": "2b307c1843117f620cde90960f6c0744d315acf031046f92b356980f36777b42"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714105.jsonl",
+      "sha256": "53e13c7425b15b1052883fc6f39aa362686c004d6b45102962941e093e22b412"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714105.stdin",
+      "sha256": "e869574ed7f02a96a39ec4a919c1ec4fd8ad73e4aee7e1c8d030010c51748873"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714105.stdout",
+      "sha256": "e33eb70b586aaf6b4169de78ac3cd4e90c64ba260fb601e8628becd51d6da681"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714127.jsonl",
+      "sha256": "530dcea575b675846f7a86ae4515c26c932d285edf71ab196388e015f0241f3f"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714127.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714127.stdout",
+      "sha256": "62a2da944e7c63eefcb2dff3d2ea801865d370fc190372054912d646da25ded7"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714217.jsonl",
+      "sha256": "936ad667cbcf657fcb2367044a53e69a3fefab3213d212ab1f7f59f6ca062aba"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714217.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714217.stdout",
+      "sha256": "59258a1a556a0cb59c44d68c38ef90c12834fa5fb6d0644bb4240f3b346b96d4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714259.jsonl",
+      "sha256": "7b66bb2b4c3284526343e01998d08cc8215aa73d416cb8a1cee46e4323527d4d"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714259.stdin",
+      "sha256": "508aff0a73504149b45f2bf53a33548e8b5695e19082a23b478644f6ddbfb91e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714259.stdout",
+      "sha256": "df1aa098803736949a5b37ee84470d17ac2c6fdab021c4ff61eee8334cb77edb"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714378.jsonl",
+      "sha256": "dc8858ed7067c8250dd61d058e3924bc04414f460cd67aff2942815da5a48874"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714378.stdin",
+      "sha256": "508aff0a73504149b45f2bf53a33548e8b5695e19082a23b478644f6ddbfb91e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714378.stdout",
+      "sha256": "f6c6e8e152d3e92a1f8fb6305e7d66914a0dc23b60defef0178852489a26f206"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714436.jsonl",
+      "sha256": "58ba8a35892fab9c4a848684c7be432fb04c8c818bc24b9c222db0b6fa496ba2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714436.stdin",
+      "sha256": "508aff0a73504149b45f2bf53a33548e8b5695e19082a23b478644f6ddbfb91e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714436.stdout",
+      "sha256": "d479e35cc42a0f3ea0eb8c772a2cafd5b5825fd72b9711ad29f702239c4789b2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714517.jsonl",
+      "sha256": "edb44212a77e366f6b0e5e8bdfdfa558b2bdd808ee9b042eb4281d2a903b6f4e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714517.stdin",
+      "sha256": "508aff0a73504149b45f2bf53a33548e8b5695e19082a23b478644f6ddbfb91e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714517.stdout",
+      "sha256": "8650586707ae43f6ba2abd8cf3c65c79a5bccee94dc06de352207c9fa3a497e6"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714592.jsonl",
+      "sha256": "8608e855b3bdf9cd3b9f489d970aa36886bfa72c5fc12e238bf9417fa4caec33"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714592.stdin",
+      "sha256": "508aff0a73504149b45f2bf53a33548e8b5695e19082a23b478644f6ddbfb91e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714592.stdout",
+      "sha256": "60484e413c03b739b108c19a4e9b0dfa645addb98c0c5df4cbc27fcd839ee4ab"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714710.jsonl",
+      "sha256": "9eb7e2db9b52053a2fbb4843298aea2597d9d68beda026e6b1e06e3aeeae3a10"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714710.stdin",
+      "sha256": "508aff0a73504149b45f2bf53a33548e8b5695e19082a23b478644f6ddbfb91e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714710.stdout",
+      "sha256": "6b4242076e6a09a02fc83533cf7e331d185f6a319f29a5941022087ea9e2215f"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714754.jsonl",
+      "sha256": "2c8715f1247b4127de4b590ffbd6cafe95b4d0f4a85f1435f0cb6a43378ead42"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714754.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714754.stdout",
+      "sha256": "a8ecfc0b43c42f983b8f2728594c9b43cf46c57d7043d49ecc7fcdd2ca6e85d8"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714778.jsonl",
+      "sha256": "f873667d73424a93499bb29b42d385a8ffc5b7ab039131f503a60baac0f02521"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714778.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714778.stdout",
+      "sha256": "e3f0ff42fa585bc85dea141b0e809689ab8f012d260ed9c749878d60fea58e43"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714807.jsonl",
+      "sha256": "fc4394c1c4d1fbf6e155dfd1b282892d893848d0999b11546516d38b22de3975"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714807.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714807.stdout",
+      "sha256": "46b4e3cc17842097a9b6f5ae563103dc5569b9481ea23e542cdd91d7a2b4ee04"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714827.jsonl",
+      "sha256": "750038b2f8f05ad4070c3de5379a8032e0cc933984f0832ea80493f50070151f"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714827.stdin",
+      "sha256": "786434b6bd455b50dec85c99b47bf5044f4710882c7104fdd357dbc8d361a4c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714827.stdout",
+      "sha256": "b6c2d5df9e8d0ac07e6bf578771f5dde982d6bca17ba8eca508acab88bca6017"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714874.jsonl",
+      "sha256": "0b12470c936905950325819dddc2ddc3cf6d1914d5f27ab1db3722cdceeff9a7"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714874.stdin",
+      "sha256": "189b6e3ef84ea9e9a12ea3e5213d8fbf6f1ac1434c35f619c48fa1a0c3d727c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714874.stdout",
+      "sha256": "555fc555e0aeaf30711917df38fcbe794c295b4291b3b99829fd7b67385801cd"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714940.jsonl",
+      "sha256": "c7eda0e7393956fa0de770d79a0633e3136e9508d73387fbd61c6324e98db68e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714940.stdin",
+      "sha256": "a6a5eb61c0973a503883d1556604ebdc53b956b6f39c95e11cd989eeac53e8c4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-714940.stdout",
+      "sha256": "d514530b8dc777bc9cedecc724578c219a111653af22437290a83502b4e3c1df"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715056.jsonl",
+      "sha256": "835dcf8378d53b6e1ef0e99f08da6b4a9f6fdaa09c000ae0620bab167d3ad7c9"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715056.stdin",
+      "sha256": "f5cac745f28378980f1a61430138166da7d76c08ad0eeb7186eafd8b112936b7"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715056.stdout",
+      "sha256": "bbe84736ec3c64db0de93aa19b72f5723b42d1ed6862ab2a6323ba94fa77c0d9"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715114.jsonl",
+      "sha256": "99bd8146aa36fe833b0b43729b6c32d31362f243923c7e1bfdb1006c27dfef4e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715114.stdin",
+      "sha256": "f5cac745f28378980f1a61430138166da7d76c08ad0eeb7186eafd8b112936b7"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715114.stdout",
+      "sha256": "14a2c86f36064b02c1792cf36aede61b5ff383748617f5b83b6790bc011b3fa1"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715246.jsonl",
+      "sha256": "d1e817127de119e206a9385e69fbb69044cfc944c4184f395621031508c8fe5e"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715246.stdin",
+      "sha256": "a6a5eb61c0973a503883d1556604ebdc53b956b6f39c95e11cd989eeac53e8c4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715246.stdout",
+      "sha256": "54aab48d446a4c66adcd65b5fc81fb59dc26d89d4e372c7be8d785c9d59dde84"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715299.jsonl",
+      "sha256": "193c3f31c1554fb85613e067864a27dd616935145c861509774611317445b877"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715299.stdin",
+      "sha256": "a6a5eb61c0973a503883d1556604ebdc53b956b6f39c95e11cd989eeac53e8c4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715299.stdout",
+      "sha256": "00996cb73575ea286711d6ecac638fb99a4edc878f63af5ba49aac09cd675eff"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715430.jsonl",
+      "sha256": "467fca591a9822276652d21898bba60465a0da7167ce5d97dc23e92627c55a27"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715430.stdin",
+      "sha256": "a6a5eb61c0973a503883d1556604ebdc53b956b6f39c95e11cd989eeac53e8c4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715430.stdout",
+      "sha256": "f0574b57d30d0899e93daa38511b223144584d57083ebdcd002bbf3a7cce3db8"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715522.jsonl",
+      "sha256": "645fca62a068bf3af6c708406e18ca52df8414055a1d5b998c95d060ee75ead8"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715522.stdin",
+      "sha256": "a6a5eb61c0973a503883d1556604ebdc53b956b6f39c95e11cd989eeac53e8c4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715522.stdout",
+      "sha256": "67e66b11e3e34b892a26c377905928e2938b9fa2a3c9b588f14ede752477753f"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715613.jsonl",
+      "sha256": "2ddc5f33ae2b7dee77285493ea96d784988b40aa88c3c032c8bc1a9665a660c2"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715613.stdin",
+      "sha256": "a6a5eb61c0973a503883d1556604ebdc53b956b6f39c95e11cd989eeac53e8c4"
+    },
+    {
+      "path": ".vscode-test/d243-protocol-trace/713337-715613.stdout",
+      "sha256": "11134466fcb9a6f7b72f3762a97649e69712f3f3cd871944b75f333b3a1a67bb"
+    },
+    {
+      "path": ".vscode-test/d243-bundled-audit.json",
+      "sha256": "cbce56a5a676455042667702e8c3f454ece782cc4869247084cc3c631e8a486b"
+    },
+    {
+      "path": ".vscode-test/d243-audit-bundled-observation.py",
+      "sha256": "c6b7f88fb9f9ccc6610c25d9f9984c6f9e1fa73100d666c9ac792d8d0c222d75"
+    },
+    {
+      "path": ".vscode-test/d244-original-waits-audit.json",
+      "sha256": "cb1a50235c9ea157fbf66778cce5f6b96c4a4b1f855f09450d8f05d0e11f0622"
+    },
+    {
+      "path": ".vscode-test/d244-audit-original-waits.py",
+      "sha256": "4602420be797fb2fad0ff4b390b8a112f12f1607b53f58865fa175918ab41287"
+    }
+  ],
+  "next": "Bounded timeout investigation completed without causal reproduction. Preserve original failure. Existing D118 and D123 memory evidence inspected: the private compressed 50k trial remains 1659.99/1536 MiB and is not a product fix. Next inspect object ownership/lifetime evidence; do not repeat failed streaming/compression approaches or equivalent scale measurements. Preserve full C1-C4/R4, P0-P9/F01-F14 and all open gates.",
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}

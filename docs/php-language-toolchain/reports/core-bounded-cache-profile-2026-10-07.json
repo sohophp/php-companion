@@ -1,0 +1,369 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "batches": "D245-D255",
+  "baseCommit": "e106c159f5bff8ed16d89d7d61bb9135917f8eb8",
+  "includesUncommittedSource": true,
+  "sourceHashes": {
+    "packages/index/src/index.ts": "caff9d34193523598200e1c8df1ff62f14ee8d188483b016b344065f8c98e7be",
+    "packages/index/test/index.test.ts": "ff5e746d32959c6b1f1cc94d77a2874ae8a307d2cb270105fb9c794b1de204be"
+  },
+  "bundleSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+  "scope": "Bound asynchronous cache finalization and support cancellation; install the requested local WSL Alpha candidate. Not full roadmap or real WSL qualification.",
+  "indexTests": {
+    "passed": 52,
+    "failed": 0
+  },
+  "selectedProtocolTests": {
+    "collected": 550,
+    "passed": 6,
+    "unselected": 544,
+    "failed": 0
+  },
+  "ordinaryC1": {
+    "qualified": true,
+    "recordedAtUtc": "2026-10-07T04:19:01.204993+00:00",
+    "run": {
+      "status": "exited",
+      "childPid": 767958,
+      "parentPid": 767885,
+      "startedAtUtc": "2026-10-07T04:16:45.125110+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d254-ordinary-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 116.63962881296175,
+      "finishedAtUtc": "2026-10-07T04:18:41.763641+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "logSha256": "2cb71a4ca2336f7aa0d5c1e7498263acf904e05fc74c79aa9e620ff79f92059b"
+    },
+    "bundleSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+    "inputCount": 4897,
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "archivedSoPHPLogs": [
+      {
+        "path": ".vscode-test/d254-ordinary-c1-log-archive/php-companion-extension-18lYHp/logs/20261007T121650/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "sha256": "9690084e7563c489d969d930de2a90b6816d1f001aa3a1302c0b38f4642c437d",
+        "bytes": 272702
+      }
+    ],
+    "detectedLifecycleFailures": [],
+    "visibleObservations": {
+      "local": {
+        "samplesMs": [
+          246,
+          245,
+          268,
+          281,
+          276,
+          280
+        ],
+        "inputSamplesMs": [
+          33,
+          35,
+          30,
+          39,
+          40,
+          39
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791346678275,
+            "input": 1791346678308,
+            "visible": 1791346678521
+          },
+          {
+            "started": 1791346678790,
+            "input": 1791346678825,
+            "visible": 1791346679036
+          },
+          {
+            "started": 1791346679327,
+            "input": 1791346679357,
+            "visible": 1791346679595
+          },
+          {
+            "started": 1791346679882,
+            "input": 1791346679921,
+            "visible": 1791346680163
+          },
+          {
+            "started": 1791346680480,
+            "input": 1791346680520,
+            "visible": 1791346680756
+          },
+          {
+            "started": 1791346681029,
+            "input": 1791346681068,
+            "visible": 1791346681309
+          }
+        ],
+        "medianMs": 272,
+        "maxMs": 281,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          2.847675999997591,
+          2.481618999998318,
+          2.515186000004178,
+          2.6756939999977476,
+          2.8011740000001737,
+          3.054249000000709
+        ]
+      },
+      "crossNamespace": {
+        "samplesMs": [
+          342,
+          259,
+          269,
+          274,
+          326,
+          337
+        ],
+        "inputSamplesMs": [
+          40,
+          37,
+          66,
+          36,
+          38,
+          82
+        ],
+        "medianMs": 300,
+        "maxMs": 342,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      },
+      "vendor": {
+        "samplesMs": [
+          262,
+          260,
+          266,
+          276,
+          280,
+          272
+        ],
+        "inputSamplesMs": [
+          35,
+          98,
+          83,
+          41,
+          41,
+          53
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791346686302,
+            "input": 1791346686336,
+            "visible": 1791346686563
+          },
+          {
+            "started": 1791346686834,
+            "input": 1791346686932,
+            "visible": 1791346687093
+          },
+          {
+            "started": 1791346687396,
+            "input": 1791346687479,
+            "visible": 1791346687662
+          },
+          {
+            "started": 1791346688065,
+            "input": 1791346688106,
+            "visible": 1791346688342
+          },
+          {
+            "started": 1791346688615,
+            "input": 1791346688656,
+            "visible": 1791346688895
+          },
+          {
+            "started": 1791346689202,
+            "input": 1791346689255,
+            "visible": 1791346689474
+          }
+        ],
+        "medianMs": 269,
+        "maxMs": 280,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      },
+      "unsavedReceiverSwitch": {
+        "beforeMs": 225,
+        "afterMs": 206,
+        "restoredMs": 208,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    },
+    "scope": "D254 bounded cache-finalization pipeline and cancellation. Original complete C1 ordinary host, runtime PHP 7.2 and automatic project version detection. Adds a final lifecycle gate for unexpected closes, restart failures and outstanding folder/config refreshes; no tracing, profiler or fatal monitor. Not real WSL acceptance.",
+    "ordinaryHost": true,
+    "shadow": false,
+    "fatalMonitor": false,
+    "readOnlyLogArchiver": true
+  },
+  "profile": {
+    "checkedAtUtc": "2026-10-07T04:21:52.915329+00:00",
+    "products": [
+      {
+        "id": "sohophp.php-companion",
+        "version": "0.4.13",
+        "directory": "/home/jason/.vscode-server/extensions/sohophp.php-companion-0.4.13",
+        "verifiedFiles": 24,
+        "missing": [],
+        "mismatches": [],
+        "extraFiles": []
+      },
+      {
+        "id": "sohophp.php-companion-symfony",
+        "version": "0.4.13",
+        "directory": "/home/jason/.vscode-server/extensions/sohophp.php-companion-symfony-0.4.13",
+        "verifiedFiles": 15,
+        "missing": [],
+        "mismatches": [],
+        "extraFiles": []
+      }
+    ],
+    "changedProfileFiles": [
+      "/home/jason/.vscode-server/data/User/profiles/5db630d7/extensions.json"
+    ],
+    "unexpectedProfileChanges": [],
+    "bundleSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+    "expectedBundleSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+    "profileInstalled": true,
+    "windowReloadPending": true,
+    "realWslAcceptance": false
+  },
+  "candidate": {
+    "createdAtUtc": "2026-10-07T04:21:00.992246+00:00",
+    "profile": "PHP Companion Alpha",
+    "profileId": "5db630d7",
+    "head": "e106c159f5bff8ed16d89d7d61bb9135917f8eb8",
+    "includesUncommittedChanges": true,
+    "bundleSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+    "hostAudit": "/var/www/node/php-companion/.vscode-test/d254-ordinary-c1-audit.json",
+    "products": [
+      {
+        "name": "core",
+        "id": "sohophp.php-companion",
+        "version": "0.4.13",
+        "vsix": "/var/www/node/php-companion/artifacts/sophp-profile-20261007-d255/php-companion-0.4.13.vsix",
+        "sha256": "2e1f2f70afd4a8bf8057e8d47774871104f6b3d9d941a86b7ecafedb2431b93a",
+        "sourceDirectory": "/var/www/node/php-companion",
+        "files": {
+          "package.nls.zh-cn.json": "bd49214298181204d5c9ca30e27d76d71e2bf15dbf0cbbe3af7a19cd09ddefbe",
+          "package.nls.json": "0b5940ea30a9e349222f24668e8edc26c277305d6e34ff37a3ec231ecb1d2ad4",
+          "package.json": "419171cd1037fdef41f128b2f2e0e52a2bee314fde853d44ffce4740a5165556",
+          "THIRD_PARTY_NOTICES.md": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9",
+          "SECURITY.md": "b5e80b9a909c4c9c87504ef4b96c9754ad6ac954f78d22a72eeab5468ab45cc5",
+          "readme.md": "aff6be1003b9bb2bcbc130de2c9f74d3ab587efa56b7fe5701a440f26c9a361c",
+          "LICENSE-phpstorm-stubs.txt": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408",
+          "LICENSE.txt": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+          "changelog.md": "e0678f2e983db9275e6b7638c204b790f9cf1682cc7969a6ca8eb32699a40b1b",
+          "resources/icon.png": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+          "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+          "dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+          "dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+          "dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+          "dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+          "dist/language-server.js": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+          "dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+          "dist/extension.js": "8832fdf8b216168aeb6b90878146d1308521836103469392c349b43df7c46582",
+          "dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+          "dist/candidateWorker.js": "26d6a61bec1305be199f1c0af7dc0d3c4f4edb30b1c2ec28fe9fcd257eb32f4f",
+          "dist/builtinSnapshotWorker.js": "e0506f6e74def3888b6febe0ec0b1e2dc4402a36ac390bbfcc9b84d00b3b66dd",
+          "dist/node_modules/web-tree-sitter/index.js": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+        },
+        "packageCommand": [
+          "pnpm",
+          "exec",
+          "vsce",
+          "package",
+          "--no-dependencies",
+          "--out",
+          "/var/www/node/php-companion/artifacts/sophp-profile-20261007-d255/php-companion-0.4.13.vsix"
+        ],
+        "packageExitCode": 0
+      },
+      {
+        "name": "symfony",
+        "id": "sohophp.php-companion-symfony",
+        "version": "0.4.13",
+        "vsix": "/var/www/node/php-companion/artifacts/sophp-profile-20261007-d255/php-companion-symfony-0.4.13.vsix",
+        "sha256": "fd2fea05c2c703765711c937d537b6f3b6069e3bceafac2403a7f30c23494488",
+        "sourceDirectory": "/var/www/node/php-companion/packages/php-companion-symfony",
+        "files": {
+          "package.nls.zh-cn.json": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee",
+          "package.nls.json": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318",
+          "package.json": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd",
+          "readme.md": "a0c7e01db895caee773f5567ebceec6e910e34da4651520ffca5bcdb259132d1",
+          "LICENSE.txt": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+          "changelog.md": "462f54a6fdead5c7bfad1504b02a307bd25eb1bcc5057a30b4c6d6c3d871df02",
+          "resources/icon.png": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+          "dist/winstar-route-provider.js": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+          "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "dist/static-route-provider.js": "9948902618994dd665c8e074944c47f441c2faac2c6a3821789043dcb3fac114",
+          "dist/service-provider.js": "6a623be4275e4643521fbe9fbcd5fb54d3390a01b09d2464932bf0fc535b8ad3",
+          "dist/extension.js": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+          "dist/event-provider.js": "97acc074fd1ae6f06f5cabea9911c59a8fd946cb9fce6fad5073cd361f74f37e",
+          "dist/controller-context-provider.js": "24a6e6f1c1e659d0d31d4afd9f9c602bdb4d2be2b875c3344e9ee9ead4bf2a0d"
+        },
+        "packageCommand": [
+          "pnpm",
+          "exec",
+          "vsce",
+          "package",
+          "--no-dependencies",
+          "--out",
+          "/var/www/node/php-companion/artifacts/sophp-profile-20261007-d255/php-companion-symfony-0.4.13.vsix"
+        ],
+        "packageExitCode": 0
+      }
+    ],
+    "packChanged": false,
+    "formatterChanged": false,
+    "published": false,
+    "realWslAcceptance": false
+  },
+  "evidence": {
+    ".vscode-test/d253-protocol-input.json": "4f2fb028634c27934a721f73891dc5663dfd1d19beca9a90197f9c5b3ca6c728",
+    ".vscode-test/d253-protocol-run.json": "e08ede36891a022dee801c15a88631d1e3f4bcd062c8d09291633e9b228e28f2",
+    "/tmp/sophp-d252-index.json": "ddded6a11b9d3ed0695b7382f0e368527abc1a88894c3d47e1261c958054b0a7",
+    "/tmp/sophp-d253-protocol.json": "effa0d596b71c96b38d41f39ef9f1f2e545c8b6f44cc3290cf07bd6abd1378a9",
+    ".vscode-test/d254-ordinary-c1-input.json": "86cbb4411fc69931d86ca20d0bb1ae3480d9e3bef19624c36649ea8868813dac",
+    ".vscode-test/d254-ordinary-c1-run.json": "b3b44ed20fc806a9c967802c373f6850ccd5f9a952647ae1c6eae1f319010d73",
+    ".vscode-test/d254-ordinary-c1-audit.json": "54b6939b453097fb5ddf94bb06c818075cce81fdfedca2b4bf4921eaaaf809f6",
+    ".vscode-test/d255-profile-update/install-run.json": "1a8b0c1075f6ea35f9f95cd7a378d779df253a72e911e927d1e95e0eec6fa734",
+    ".vscode-test/d255-profile-update/installed-audit.json": "43926249eae4c7c7e086874c1a2d6f922ee5c03a84899c2cd5f41f6c5be10bb6",
+    "artifacts/sophp-profile-20261007-d255/candidate.json": "c7bfab703ac7075a97db99f0e804af5d5478a1726c6a71978a68d7cca560319a",
+    ".vscode-test/d255-package-validation-preparation-failure.json": "0ed1776831238e6f9c9d57995116f389a54301312376ae4baec9a120b512b624",
+    ".vscode-test/d255-package-validation-preparation-failure-2.json": "c01ba1e857ec4be1b7c4e3485362f5079decb4ba5c1f5fb6225b01f8eb55dee7"
+  },
+  "originalFullLspFailuresRemainOpen": 14,
+  "generic50kRssRemediationProven": false,
+  "fullNewCandidateLspRun": false,
+  "goalComplete": false,
+  "goalPaused": false,
+  "pushed": false,
+  "published": false
+}

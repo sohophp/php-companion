@@ -89,7 +89,28 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const projectFiles = [...projectCandidates];
   if (projectFiles.length > inventoryLimit) return { files: 0, bytes: 0, cached: 0, complete: false, projectComplete: false, warnings: [...warnings, `Project source index exceeded ${inventoryLimit} files.`] };
   let bytes = 0; let indexed = 0; let chargedFiles = 0; let cached = 0; let cacheChanged = false; const next = new Map<string, CacheEntry>();
-  const pendingPayloads: Promise<void>[] = [];
+  const pendingPayloads = new Set<Promise<void>>();
+  // The sequential producer needs one notification, without adding handlers to slow tasks.
+  let payloadReady: (() => void) | undefined;
+  const waitForPayloads = async (limit: number): Promise<boolean> => {
+    while (pendingPayloads.size >= limit) {
+      if (options.shouldContinue?.() === false) return false;
+      await new Promise<void>((done) => {
+        let timer: ReturnType<typeof setInterval> | undefined;
+        const finish = (): void => {
+          if (timer) clearInterval(timer);
+          if (payloadReady === finish) payloadReady = undefined;
+          done();
+        };
+        payloadReady = finish;
+        // A stalled optional worker must not prevent cancellation of the scan.
+        if (options.shouldContinue) timer = setInterval(() => {
+          if (options.shouldContinue?.() === false) finish();
+        }, 10);
+      });
+    }
+    return options.shouldContinue?.() !== false;
+  };
   let projectIncomplete = false; let dependencyIncomplete = false;
   const skipped = (candidate: { path: string; project: boolean }, reason: string): void => {
     if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
@@ -216,6 +237,9 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       if (indexed % (options.yieldEvery ?? 10) === 0) await new Promise<void>((resolve) => setImmediate(resolve));
         return 'indexed';
       }
+      // Bound retained source facts as well as speculative reads. Finalizers may
+      // run on a slower worker while the producer keeps discovering new files.
+      if (pendingPayloads.size >= readConcurrency && !await waitForPayloads(readConcurrency)) return 'cancelled';
       const payload = await options.onSource({ uri, path, source, bytes: size, hash, prepared: prefetched?.prepared });
       if (payload !== undefined) {
         const entry: CacheEntry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload };
@@ -223,8 +247,9 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
         if (options.cache?.finalizePayload) {
           const finish = Promise.resolve().then(() => options.cache!.finalizePayload!(payload))
             .then((finalized) => { if (finalized === undefined) next.delete(path); else entry.payload = finalized; })
-            .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); });
-          pendingPayloads.push(finish);
+            .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })
+            .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });
+          pendingPayloads.add(finish);
         }
       }
       bytes += size; indexed += 1;
@@ -240,10 +265,10 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   }
   if (!projectIncomplete && options.shouldContinue?.() !== false) await options.onProjectComplete?.();
   if (options.shouldContinue?.() === false) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };
-  const commitCache = async (): Promise<void> => {
-    if (!cachePath || !options.cache) return;
-    await Promise.all(pendingPayloads);
-    if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry)) return;
+  const commitCache = async (): Promise<boolean> => {
+    if (!cachePath || !options.cache) return true;
+    if (!await waitForPayloads(1)) return false;
+    if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry)) return true;
     const temporary = `${cachePath}.${process.pid}.tmp`;
     try {
       await mkdir(options.cache.directory, { recursive: true });
@@ -259,13 +284,16 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
         }
         await file.writeFile(`${batch}}}`);
       } finally { await file.close(); }
+      if (options.shouldContinue?.() === false) return false;
       await rename(temporary, cachePath);
     }
     catch { warnings.push('Persistent index cache could not be written.'); }
     finally { await rm(temporary, { force: true }).catch(() => undefined); }
+    return true;
   };
   if (options.includeDependencies === false) {
-    await commitCache();
+    if (!await commitCache()) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete,
+      warnings: [...warnings, 'Project indexing was cancelled.'] };
     return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings };
   }
   const dependencyCandidates = new Set<string>(); const remaining = options.skipSourceOutsideBudget
@@ -289,7 +317,8 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (status === 'cancelled') return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };
     if (status === 'budget') break;
   }
-  await commitCache();
+  if (!await commitCache()) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete,
+    warnings: [...warnings, 'Project indexing was cancelled.'] };
   return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };
 }
 
