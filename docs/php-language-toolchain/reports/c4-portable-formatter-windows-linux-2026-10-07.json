@@ -1,0 +1,281 @@
+{
+  "date": "2026-10-07",
+  "milestone": "D228-D230",
+  "sourceBaseCommit": "69033d761c793a77aecc9340454caaac3c56168b",
+  "coreSha256": "3bc9b366536b61c64d9a8676f4429b153beae36e3b3d9d96918c7a9f5fc3a978",
+  "owner": "junstyle.php-cs-fixer",
+  "version": "0.3.21",
+  "license": "ISC",
+  "originalFormatterSha256": "0d94dba0ab92cfcee26a4fdbc49ef9da81289ee4124395940b1a3c76deeaa243",
+  "previousCandidateSha256": "aa440f0e83294968d27a6f9f723a68173bd13bc7871ce1d70417e9f9bfe38068",
+  "candidateSha256": "e0e5407e2307cac7589160065ba1d92e9d516259ffbbfdf02671365fc7582577",
+  "fix": "Quote the resolved PHAR argument using the existing Windows shell convention; retain document-scoped snapshots, no-change informational handling, errors and auto-fix state guards.",
+  "portableFixtures": "Use PHP launchers with argument-array proc_open, inherited actual PHP binary/ini, forwarded streams and actual exit markers. Update both executablePath and executablePathWindows. Keep original scenarios and deadlines.",
+  "windowsOriginal": {
+    "qualified": false,
+    "durationSeconds": 19.904385020025074,
+    "finding": "Actual formatter output: the .phar path containing spaces was truncated at the first space before the PHP fixture executed. Native first-project basic formatting reached concurrent-provider assertion, where second result was undefined.",
+    "auditPath": ".vscode-test/d228-windows-formatter-audit.json"
+  },
+  "windows": {
+    "qualified": true,
+    "durationSeconds": 28.174653424008284,
+    "runtime": {
+      "platform": "win32",
+      "node": "v24.21.0",
+      "execPath": "C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+      "vscode": "1.140.0"
+    },
+    "wrapperRuntime": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "execPath": "C:\\Program Files\\nodejs\\node.exe"
+    },
+    "actualPhp": "8.5.11",
+    "csFixer": "3.95.27",
+    "frozenInputs": 7,
+    "copiedAssets": 29,
+    "changedInputs": [],
+    "changedAssets": [],
+    "changedRuntimes": [],
+    "proof": {
+      "platform": "win32",
+      "node": "v24.21.0",
+      "formatterVersion": "0.3.21",
+      "candidateHash": "e0e5407e2307cac7589160065ba1d92e9d516259ffbbfdf02671365fc7582577",
+      "formatDocument": true,
+      "undo": true,
+      "redo": true,
+      "formatOnSave": true,
+      "diskMatches": true,
+      "idempotent": true,
+      "multiRootDistinctConfig": true,
+      "concurrentFormatting": true,
+      "distinctExecutableWithSpaces": true,
+      "distinctPhpRuntimes": false,
+      "actualRuntimes": [],
+      "original": "<?php\nclass  ProfileFormat{public function value( ):int{return 1234;}}\n",
+      "formatted": "<?php\n\nclass ProfileFormat\n{\n    public function value(): int\n    {\n        return 1234;\n    }\n}\n",
+      "autoFixState": {
+        "tested": true,
+        "backgroundIgnored": true,
+        "disabledFolderIgnored": true,
+        "deferredCliResults": [
+          {
+            "state": "new-version",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 17,
+            "source": "<?php\n$value=1; // later input"
+          },
+          {
+            "state": "focus-changed",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 2,
+            "source": "<?php\n$value=1;"
+          },
+          {
+            "state": "current",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 3,
+            "source": "<?php\n$value = 1;"
+          }
+        ],
+        "bracketCurrentFormatted": true,
+        "scope": "Actual isolated VS Code and pinned CLI; not real WSL human acceptance"
+      }
+    },
+    "auditPath": ".vscode-test/d229-windows-formatter-audit.json"
+  },
+  "linux": {
+    "qualified": true,
+    "durationSeconds": 48.4552663640352,
+    "vscodePackageVersion": "1.140.0",
+    "runtimes": {
+      "PHP_COMPANION_PHP_EXECUTABLE": {
+        "path": "/opt/remi/php85/root/usr/bin/php",
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "version": "8.5.9"
+      },
+      "PHP_COMPANION_TEST_FORMATTER_SECOND_PHP": {
+        "path": "/opt/remi/php84/root/usr/bin/php",
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+        "version": "8.4.23"
+      }
+    },
+    "hostNode": "v24.21.0",
+    "wrapperNodeObservation": {
+      "recordedAtUtc": "2026-10-07T01:40:49.963099+00:00",
+      "pid": 677693,
+      "exe": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "scope": "Actual original live Linux formatter wrapper Node executable observed during the run; initial file inventory additionally includes the Python preparation executable."
+    },
+    "frozenInputs": 2473,
+    "changedInputs": [],
+    "headUnchanged": true,
+    "worktreeUnchanged": true,
+    "proof": {
+      "platform": "linux",
+      "node": "v24.21.0",
+      "formatterVersion": "0.3.21",
+      "candidateHash": "e0e5407e2307cac7589160065ba1d92e9d516259ffbbfdf02671365fc7582577",
+      "formatDocument": true,
+      "undo": true,
+      "redo": true,
+      "formatOnSave": true,
+      "diskMatches": true,
+      "idempotent": true,
+      "multiRootDistinctConfig": true,
+      "concurrentFormatting": true,
+      "distinctExecutableWithSpaces": true,
+      "distinctPhpRuntimes": true,
+      "actualRuntimes": [
+        "8.5.9",
+        "8.4.23"
+      ],
+      "original": "<?php\nclass  ProfileFormat{public function value( ):int{return 1234;}}\n",
+      "formatted": "<?php\n\nclass ProfileFormat\n{\n    public function value(): int\n    {\n        return 1234;\n    }\n}\n",
+      "autoFixState": {
+        "tested": true,
+        "backgroundIgnored": true,
+        "disabledFolderIgnored": true,
+        "deferredCliResults": [
+          {
+            "state": "new-version",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 17,
+            "source": "<?php\n$value=1; // later input"
+          },
+          {
+            "state": "focus-changed",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 2,
+            "source": "<?php\n$value=1;"
+          },
+          {
+            "state": "current",
+            "actualCliExit": 0,
+            "requestedVersion": 2,
+            "finalVersion": 3,
+            "source": "<?php\n$value = 1;"
+          }
+        ],
+        "bracketCurrentFormatted": true,
+        "scope": "Actual isolated VS Code and pinned CLI; not real WSL human acceptance"
+      }
+    },
+    "auditPath": ".vscode-test/d230-linux-formatter-audit.json"
+  },
+  "negativeCliBoundary": {
+    "exitCode": 0,
+    "durationSeconds": 4.0429814050439745,
+    "proof": {
+      "platform": "win32",
+      "validExit": 0,
+      "invalidFixExit": 0,
+      "invalidDryRunExit": 4,
+      "informationalOutputPreserved": true,
+      "syntaxErrorRejected": true,
+      "errorNotificationPreserved": true,
+      "invalidJsonRejected": true,
+      "scope": "Execute the exact patched formatter branch with actual pinned CS Fixer stdout/stderr; not a full editor UI error-notification claim"
+    },
+    "driverCorrection": "An initial Linux invocation was rejected by the unchanged Windows-only guard; retained separately. Correct native invocation used actual Windows Node and portable PHP."
+  },
+  "staticChecks": {
+    "extensionTypeScript": "passed, noEmit before hosts and normal test-only emit before Linux",
+    "scopedEslint": "passed",
+    "resourceSettingsMock": "passed",
+    "autoFixStateMockCases": 20,
+    "candidateSyntax": "passed"
+  },
+  "archiveManifests": [
+    {
+      "auditPath": ".vscode-test/d228-windows-formatter-audit.json",
+      "files": 43,
+      "manifestSha256": "5e4a3721441f5469ba0732f690c7fb98e641329585cf8a476669dd10d57a7043"
+    },
+    {
+      "auditPath": ".vscode-test/d229-windows-formatter-audit.json",
+      "files": 67,
+      "manifestSha256": "a468462834f99f641acd87dd80dae109f6cd939b7949a246af24f0af5a4ae241"
+    },
+    {
+      "auditPath": ".vscode-test/d230-linux-formatter-audit.json",
+      "files": 33,
+      "manifestSha256": "9795706698f01ae24572e5fec7289660228a67584924100bb738f3a9bdfd8adc"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d228-windows-formatter-audit.json",
+      "sha256": "79ce0da22e6a51be724cd9f50539a3067df7fa10c4e87e1f160a5d5d3951eefa"
+    },
+    {
+      "path": ".vscode-test/d229-windows-formatter-audit.json",
+      "sha256": "075f0074647ae32eb0b3f8c8564d7e4242ed8f46a7a2ad2e944f59c4882fd633"
+    },
+    {
+      "path": ".vscode-test/d230-linux-formatter-audit.json",
+      "sha256": "546d1c469abc8997191418a96a57f0a87c623fb44c2e583d1b69080303e16994"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-errors-native-run.json",
+      "sha256": "3032be57b279c3c46bbd00a270b87ead80c4559bf2c9df0ce6d290d1d02c04d0"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-errors-native.log",
+      "sha256": "2afa3c83977a55a4aca6fe4acde18ae85323c9e6f1e91d0e72a3ab794441293b"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-errors.log",
+      "sha256": "7059a336e9d1814c1f817b4053b45326b4cbe0531c464a70ae121551f024d4cd"
+    },
+    {
+      "path": ".vscode-test/d228-windows-formatter-runtime-preflight.json",
+      "sha256": "232371450a60a45d3ce720403bd17a76b30526a610806a182a807b88a3809b65"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-candidate-preparation.log",
+      "sha256": "10b2c19eab08550e1506fd97783a96b767ef47a624470e5f46306bf970cecc57"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-resource-settings.log",
+      "sha256": "5dd67f172e6e25524102688aa70b00727c6c0070a074ba076a0bb94677e68769"
+    },
+    {
+      "path": ".vscode-test/d229-formatter-auto-fix-state.log",
+      "sha256": "b01c16383a67b1cb0309c5373c9d39dd7c797306777a706dec7fd90033cb76c3"
+    },
+    {
+      "path": ".vscode-test/d230-formatter-test-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "scope": "Existing formatter-only full suite and actual pinned CLI on native Windows and Linux. Windows one actual PHP version; Linux two actual versions. Original failed host retained. No full C1-C4/Pack/Twig/debug/test or real WSL human claim.",
+  "open": [
+    "Native Windows second actual PHP runtime",
+    "Actual delayed bracket jump/cursor-undo failure cases; current bracket actual positive and 20 mocked boundaries retained",
+    "macOS, Remote, minimum supported VS Code and long sessions",
+    "Original complete LSP 1299/1313 with 14 timeouts remains unqualified; no claim of remediation",
+    "Large Controller P95 <=150ms, scale/cache memory and all other original C1-C4/R4/P0-P9/F01-F14 requirements"
+  ],
+  "next": "Provision a second actual owned native Windows PHP runtime and exercise existing distinct-runtime matrix, keeping original sources/versions/CLIs pinned.",
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}

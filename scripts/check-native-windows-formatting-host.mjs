@@ -8,15 +8,17 @@ import { clearTimeout, setTimeout } from 'node:timers';
 
 assert.equal(process.platform, 'win32');
 const [code, core, formatter, suite, portable, suiteKind] = process.argv.slice(2); assert.ok(code && core && formatter && suite && portable);
-assert.ok(suiteKind === undefined || suiteKind === 'testTask' || suiteKind === 'debugLaunch' || suiteKind === 'debugBreakpoints' || suiteKind === 'formattingFailure');
+assert.ok(suiteKind === undefined || suiteKind === 'testTask' || suiteKind === 'debugLaunch' || suiteKind === 'debugBreakpoints' || suiteKind === 'formattingFailure' || suiteKind === 'formatterCandidate');
+const formatterCandidate = suiteKind === 'formatterCandidate';
 const testTask = suiteKind === 'testTask';
 const debugLaunch = suiteKind === 'debugLaunch';
 const debugBreakpoints = suiteKind === 'debugBreakpoints';
 assert.ok(basename(resolve(portable)).startsWith('sophp-windows-php-'));
-const root = await mkdtemp(join(portable, 'editor with spaces-'));
+const container = await mkdtemp(join(portable, 'editor with spaces-'));
+const root = formatterCandidate ? join(container, 'first project') : container;
 let child; let output = '';
 try {
-  await mkdir(join(root, 'src')); await mkdir(join(root, '.vscode'));
+  await mkdir(join(root, 'src'), { recursive: true }); await mkdir(join(root, '.vscode'));
   const batch = join(root, 'php-cs-fixer.bat');
   await writeFile(batch, `@echo off\r\ncd /d "%~dp0"\r\n"${join(portable, 'php with spaces', 'php.exe')}" -c "${join(portable, 'isolated ini', 'php.ini')}" "${join(portable, 'tools', 'vendor', 'friendsofphp', 'php-cs-fixer', 'php-cs-fixer')}" %*\r\n`);
   const config = join(root, '.php-cs-fixer.dist.php');
@@ -32,6 +34,25 @@ try {
     'editor.tabSize': 4, 'extensions.autoUpdate': false,
   }));
   const env = { ...process.env, SOPHP_WINDOWS_PORTABLE_ROOT: portable }; delete env.ELECTRON_RUN_AS_NODE; delete env.VSCODE_ESM_ENTRYPOINT;
+  let workspace = root;
+  if (formatterCandidate) {
+    const second = join(container, 'second project');
+    await mkdir(join(second, 'src'), { recursive: true });
+    await mkdir(join(second, '.vscode'));
+    await writeFile(join(second, 'composer.json'), JSON.stringify({ require: { php: '>=8.5' } }));
+    await writeFile(join(second, '.vscode', 'settings.json'), JSON.stringify({
+      'phpCompanion.phpVersion': 'auto', 'phpCompanion.phpExecutablePath': join(portable, 'php with spaces', 'php.exe'),
+      'phpCompanion.indexing.mode': 'onDemand', 'php.suggest.basic': false, 'php.validate.enable': false,
+      'files.eol': '\n', 'editor.insertSpaces': true, 'editor.tabSize': 4,
+      'php-cs-fixer.onsave': false, 'php-cs-fixer.lastDownload': 0,
+    }));
+    workspace = join(container, 'formatter.code-workspace');
+    await writeFile(workspace, JSON.stringify({ folders: [{ path: root }, { path: second }] }));
+    env.PHPRC = join(portable, 'isolated ini', 'php.ini');
+    env.PHP_COMPANION_PHP_EXECUTABLE = join(portable, 'php with spaces', 'php.exe');
+    env.PHP_COMPANION_TEST_FORMATTER_CLI = join(portable, 'tools', 'vendor', 'friendsofphp', 'php-cs-fixer', 'php-cs-fixer');
+    env.PHP_COMPANION_FORMATTER_EXECUTABLE = batch;
+  }
   if (debugLaunch || debugBreakpoints) {
     const server = createServer(); await new Promise(done => server.listen(0, '127.0.0.1', done));
     env.SOPHP_WINDOWS_DEBUG_PORT = String(server.address().port);
@@ -43,8 +64,8 @@ try {
     }
     await new Promise(done => server.close(done));
   }
-  child = spawn(code, [root, '--disable-extensions', '--skip-welcome', '--skip-release-notes', '--disable-workspace-trust',
-    `--user-data-dir=${join(root, 'user-data')}`, `--extensions-dir=${join(root, 'extensions')}`,
+  child = spawn(code, [workspace, '--disable-extensions', '--skip-welcome', '--skip-release-notes', '--disable-workspace-trust',
+    `--user-data-dir=${join(container, 'user-data')}`, `--extensions-dir=${join(container, 'extensions')}`,
     `--extensionDevelopmentPath=${core}`, ...(testTask ? [] : [`--extensionDevelopmentPath=${formatter}`]), `--extensionTestsPath=${suite}`],
   { env, stdio: ['ignore', 'pipe', 'pipe'] });
   for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => {
@@ -55,7 +76,18 @@ try {
     child.once('error', error => { clearTimeout(timer); reject(error); });
     child.once('exit', (code, signal) => { clearTimeout(timer); if (code === 0 && !signal) done(); else reject(new Error(`Editor exited ${code}/${signal}`)); });
   });
-  if (suiteKind === 'formattingFailure') {
+  if (formatterCandidate) {
+    const match = output.match(/Formatter candidate acceptance proof: (\{[^\r\n]*\})/u); assert.ok(match);
+    const proof = JSON.parse(match[1]);
+    assert.equal(proof.platform, 'win32');
+    for (const key of ['formatDocument', 'undo', 'redo', 'formatOnSave', 'diskMatches', 'idempotent',
+      'multiRootDistinctConfig', 'concurrentFormatting', 'distinctExecutableWithSpaces']) assert.equal(proof[key], true);
+    assert.equal(proof.autoFixState.tested, true, 'Native Windows auto-fix acceptance must execute');
+    for (const key of ['backgroundIgnored', 'disabledFolderIgnored', 'bracketCurrentFormatted']) assert.equal(proof.autoFixState[key], true);
+    assert.deepEqual(proof.autoFixState.deferredCliResults.map(result => result.state), ['new-version', 'focus-changed', 'current']);
+    for (const result of proof.autoFixState.deferredCliResults) assert.equal(result.actualCliExit, 0);
+    process.stdout.write(`Windows formatter candidate host proof: ${JSON.stringify(proof)}\n`);
+  } else if (suiteKind === 'formattingFailure') {
     const match = output.match(/Windows formatting failure proof: (\{[^\r\n]*\})/u); assert.ok(match);
     const proof = JSON.parse(match[1]);
     for (const key of ['noEdits', 'bufferUnchanged', 'diskUnchanged']) assert.equal(proof[key], true);
@@ -88,5 +120,5 @@ try {
   }
 } finally {
   if (child && child.exitCode === null) child.kill();
-  await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+  await rm(container, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }

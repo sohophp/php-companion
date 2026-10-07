@@ -1,12 +1,8 @@
 import assert from 'node:assert/strict';
 import * as vscode from 'vscode';
-import { chmod } from 'node:fs/promises';
+import { installFormatterCliFixture } from './formatterCliFixture';
 
 export async function checkFormatterAutoFixState(first: vscode.WorkspaceFolder, second: vscode.WorkspaceFolder): Promise<object> {
-  if (process.platform === 'win32') return { tested: false, reason: 'Deferred CLI fixtures currently require POSIX launchers' };
-  const php = process.env.PHP_COMPANION_PHP_EXECUTABLE; assert.ok(php);
-  const cli = process.env.PHP_COMPANION_TEST_FORMATTER_CLI; assert.ok(cli);
-  const quote = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
   const settings = (folder: vscode.WorkspaceFolder): vscode.WorkspaceConfiguration => vscode.workspace.getConfiguration('php-cs-fixer', folder.uri);
   for (const folder of [first, second]) {
     await settings(folder).update('onsave', false, vscode.ConfigurationTarget.WorkspaceFolder);
@@ -24,10 +20,7 @@ export async function checkFormatterAutoFixState(first: vscode.WorkspaceFolder, 
   const settle = async (): Promise<void> => { await new Promise(done => setTimeout(done, 750)); };
   const plainLauncher = async (folder: vscode.WorkspaceFolder, name: string): Promise<vscode.Uri> => {
     const marker = vscode.Uri.joinPath(folder.uri, `${name}.called`);
-    const executable = vscode.Uri.joinPath(folder.uri, `${name} fixer`);
-    await vscode.workspace.fs.writeFile(executable, Buffer.from(`#!/usr/bin/env bash\nprintf 'called\n' >> ${quote(marker.fsPath)}\nexec ${quote(php)} ${quote(cli)} "$@"\n`));
-    await chmod(executable.fsPath, 0o755);
-    await settings(folder).update('executablePath', executable.fsPath, vscode.ConfigurationTarget.WorkspaceFolder);
+    await installFormatterCliFixture(folder, name, { called: marker });
     return marker;
   };
   const open = async (folder: vscode.WorkspaceFolder, name: string, source: string): Promise<vscode.TextDocument> => {
@@ -66,13 +59,7 @@ export async function checkFormatterAutoFixState(first: vscode.WorkspaceFolder, 
     const pending = vscode.Uri.joinPath(first.uri, `${state}.pending`);
     const release = vscode.Uri.joinPath(first.uri, `${state}.release`);
     const completed = vscode.Uri.joinPath(first.uri, `${state}.completed`);
-    const executable = vscode.Uri.joinPath(first.uri, `${state} slow fixer`);
-    const script = `#!/usr/bin/env bash\nprintf 'pending\n' > ${quote(pending.fsPath)}\n`
-      + `for ((sophpWaitCount=0; sophpWaitCount<1500; sophpWaitCount++)); do test -f ${quote(release.fsPath)} && break; sleep 0.02; done\n`
-      + `test -f ${quote(release.fsPath)} || exit 76\n${quote(php)} ${quote(cli)} "$@"\nsophpFixerStatus=$?\n`
-      + `printf '%s\n' "$sophpFixerStatus" > ${quote(completed.fsPath)}\nexit "$sophpFixerStatus"\n`;
-    await vscode.workspace.fs.writeFile(executable, Buffer.from(script)); await chmod(executable.fsPath, 0o755);
-    await settings(first).update('executablePath', executable.fsPath, vscode.ConfigurationTarget.WorkspaceFolder);
+    await installFormatterCliFixture(first, `${state} slow`, { pending, release, completed });
     const document = await open(first, `Auto-${state}`, '<?php\n$value=1');
     const editor = await focusEnd(document);
     try {

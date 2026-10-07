@@ -39,6 +39,10 @@ replaceOnce('this.editorFormatOnSave=v.workspace.getConfiguration("editor").get(
   'this.editorFormatOnSave=v.workspace.getConfiguration("editor",resource).get("formatOnSave")');
 replaceOnce('v.workspace.getConfiguration("html").get("format")',
   'v.workspace.getConfiguration("html",e.uri).get("format")');
+// Upstream invokes a Windows shell and already quotes config/rules arguments.
+// Apply the same convention to the resolved PHAR path, which otherwise splits at spaces.
+replaceOnce('this.pharPath!=null&&s.unshift(this.resolveVscodeExpressions(this.pharPath,{uri:e}));',
+  String.raw`if(this.pharPath!=null){let phar=this.resolveVscodeExpressions(this.pharPath,{uri:e});s.unshift(process.platform==="win32"?'"'+phar.replace(/"/g,'\\"')+'"':phar)};`);
 // Each request owns a configuration snapshot. Never mutate the activation singleton while
 // another folder's asynchronous CLI request is still running.
 replaceOnce('exports.activate=t=>{let e=new Dn;',
@@ -80,6 +84,7 @@ const proof = { owner: 'junstyle.php-cs-fixer', version: manifest.version, licen
   resourceSettings: 'Read formatter, PHP, editor and HTML settings for the document URI; isolate each request settings snapshot across workspace folders.',
   resourceKeys,
   autoFixState: 'Require the active editor to own the event document; skip closed documents, changed versions, changed focus and failed edits before subsequent caret commands.',
+  windowsPharArgument: 'Quote the resolved PHAR argument using the existing Windows shell path convention, including paths with spaces.',
   scope: 'Isolated development candidate only; no marketplace identity, Profile or default Pack change' };
 await writeFile(`${destination}/sophp-no-change-candidate.json`, JSON.stringify(proof, null, 2));
 process.stdout.write(`${JSON.stringify(proof, null, 2)}\n`);
