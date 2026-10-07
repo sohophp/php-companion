@@ -55,7 +55,7 @@ export async function checkFormatterAutoFixState(first: vscode.WorkspaceFolder, 
   assert.ok(!await exists(markerB), 'Disabled folder must not invoke auto-fix');
 
   const results: object[] = [];
-  for (const state of ['new-version', 'focus-changed', 'current'] as const) {
+  for (const state of ['new-version', 'focus-changed', 'selection-changed', 'current'] as const) {
     const pending = vscode.Uri.joinPath(first.uri, `${state}.pending`);
     const release = vscode.Uri.joinPath(first.uri, `${state}.release`);
     const completed = vscode.Uri.joinPath(first.uri, `${state}.completed`);
@@ -66,16 +66,20 @@ export async function checkFormatterAutoFixState(first: vscode.WorkspaceFolder, 
       await vscode.commands.executeCommand('type', { text: ';' }); await waitFile(pending);
       const requestedVersion = document.version;
       if (state === 'new-version') await vscode.commands.executeCommand('type', { text: ' // later input' });
+      if (state === 'selection-changed') editor.selection = new vscode.Selection(1, 0, 1, 6);
       const sourceAtRelease = document.getText();
       if (state === 'focus-changed') await focusEnd(other);
       const focused = vscode.window.activeTextEditor; assert.ok(focused);
       const caretAtRelease = focused.selection.active;
+      const anchorAtRelease = focused.selection.anchor;
       await vscode.workspace.fs.writeFile(release, Buffer.from('release'));
       await waitFile(completed); await settle();
       assert.equal(Buffer.from(await vscode.workspace.fs.readFile(completed)).toString('utf8').trim(), '0', 'Actual pinned CLI must finish successfully');
       assert.equal(document.getText(), state === 'current' ? '<?php\n$value = 1;' : sourceAtRelease);
       if (state === 'new-version') assert.ok(document.version > requestedVersion, 'Need a real edit while the CLI is pending');
       if (state !== 'current') assert.ok(focused.selection.active.isEqual(caretAtRelease), 'Late result must preserve the current caret');
+      if (state !== 'current') assert.ok(focused.selection.anchor.isEqual(anchorAtRelease), 'Late result must preserve the selection anchor');
+      if (state === 'selection-changed') assert.equal(document.version, requestedVersion, 'Only the selection changed while the CLI was pending');
       assert.equal(other.getText(), '<?php\n$other=1;');
       assert.equal(Buffer.from(await vscode.workspace.fs.readFile(document.uri)).toString('utf8'), '<?php\n$value=1', 'Auto-fix must not save the source');
       results.push({ state, actualCliExit: 0, requestedVersion, finalVersion: document.version, source: document.getText() });
@@ -94,6 +98,44 @@ export async function checkFormatterAutoFixState(first: vscode.WorkspaceFolder, 
   while (bracket.getText().replaceAll('\r\n', '\n') !== bracketExpected && Date.now() < deadline) await new Promise(done => setTimeout(done, 25));
   assert.equal(bracket.getText().replaceAll('\r\n', '\n'), bracketExpected, 'Valid current bracket auto-fix must continue to work');
   assert.ok(await exists(bracketMarker), 'Bracket positive must invoke the actual CLI');
+  const bracketResults: object[] = [];
+  const bracketOriginal = '<?php\nclass AutoBracket{\npublic function value(){return 1234;}\n';
+  for (const state of ['new-version', 'focus-changed', 'selection-changed', 'current'] as const) {
+    const pending = vscode.Uri.joinPath(first.uri, `bracket-${state}.pending`);
+    const release = vscode.Uri.joinPath(first.uri, `bracket-${state}.release`);
+    const completed = vscode.Uri.joinPath(first.uri, `bracket-${state}.completed`);
+    await installFormatterCliFixture(first, `bracket ${state} slow`, { pending, release, completed });
+    const document = await open(first, `AutoBracket-${state}`, bracketOriginal);
+    const editor = await focusEnd(document);
+    try {
+      await vscode.commands.executeCommand('type', { text: '}' }); await waitFile(pending);
+      const requestedVersion = document.version;
+      if (state === 'new-version') await vscode.commands.executeCommand('type', { text: ' // later input' });
+      if (state === 'focus-changed') await focusEnd(other);
+      if (state === 'selection-changed') editor.selection = new vscode.Selection(2, 0, 2, 6);
+      const sourceAtRelease = document.getText();
+      const focused = vscode.window.activeTextEditor; assert.ok(focused);
+      const selectionsAtRelease = focused.selections.map(selection => [selection.anchor.line, selection.anchor.character,
+        selection.active.line, selection.active.character]);
+      await vscode.workspace.fs.writeFile(release, Buffer.from('release'));
+      await waitFile(completed); await settle();
+      assert.equal(Buffer.from(await vscode.workspace.fs.readFile(completed)).toString('utf8').trim(), '0', 'Actual bracket CLI must finish successfully');
+      assert.equal(document.getText().replaceAll('\r\n', '\n'), state === 'current' ? bracketExpected : sourceAtRelease,
+        `Late bracket result must respect ${state}`);
+      if (state !== 'current') assert.deepEqual(focused.selections.map(selection => [selection.anchor.line, selection.anchor.character,
+        selection.active.line, selection.active.character]), selectionsAtRelease, 'Late bracket result must preserve user selections');
+      if (state === 'new-version') assert.ok(document.version > requestedVersion);
+      if (state === 'selection-changed') assert.equal(document.version, requestedVersion, 'Only the selection changed while the CLI was pending');
+      assert.equal(other.getText(), '<?php\n$other=1;');
+      assert.equal(Buffer.from(await vscode.workspace.fs.readFile(document.uri)).toString('utf8'), bracketOriginal, 'Bracket auto-fix must not save');
+      const proof = { state, actualCliExit: 0, requestedVersion, finalVersion: document.version, source: document.getText(), selectionsAtRelease };
+      bracketResults.push(proof);
+      console.log(`Formatter deferred bracket case proof: ${JSON.stringify(proof)}`);
+    } finally {
+      await vscode.workspace.fs.writeFile(release, Buffer.from('release'));
+    }
+  }
   return { tested: true, backgroundIgnored: true, disabledFolderIgnored: true, deferredCliResults: results,
-    bracketCurrentFormatted: true, scope: 'Actual isolated VS Code and pinned CLI; not real WSL human acceptance' };
+    bracketCurrentFormatted: true, deferredBracketCliResults: bracketResults,
+    scope: 'Actual isolated VS Code and pinned CLI; not real WSL human acceptance' };
 }

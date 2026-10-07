@@ -107,8 +107,11 @@ try {
       'multiRootDistinctConfig', 'concurrentFormatting', 'distinctExecutableWithSpaces']) assert.equal(proof[key], true);
     assert.equal(proof.autoFixState.tested, true, 'Native Windows auto-fix acceptance must execute');
     for (const key of ['backgroundIgnored', 'disabledFolderIgnored', 'bracketCurrentFormatted']) assert.equal(proof.autoFixState[key], true);
-    assert.deepEqual(proof.autoFixState.deferredCliResults.map(result => result.state), ['new-version', 'focus-changed', 'current']);
+    assert.deepEqual(proof.autoFixState.deferredCliResults.map(result => result.state), ['new-version', 'focus-changed', 'selection-changed', 'current']);
     for (const result of proof.autoFixState.deferredCliResults) assert.equal(result.actualCliExit, 0);
+    assert.deepEqual(proof.autoFixState.deferredBracketCliResults.map(result => result.state),
+      ['new-version', 'focus-changed', 'selection-changed', 'current']);
+    for (const result of proof.autoFixState.deferredBracketCliResults) assert.equal(result.actualCliExit, 0);
     process.stdout.write(`Windows formatter candidate host proof: ${JSON.stringify(proof)}\n`);
   } else if (suiteKind === 'formattingFailure') {
     const match = output.match(/Windows formatting failure proof: (\{[^\r\n]*\})/u); assert.ok(match);

@@ -31,6 +31,34 @@ const replaceOnce = (before, after) => {
   assert.equal(output.split(before).length, 2, `Expected exactly one reviewed resource settings branch: ${before}`);
   output = output.replace(before, after);
 };
+// Document changes arrive before the typing command moves its cursors. Model
+// that initiating edit, including simultaneous cursors and UTF-16 positions,
+// so a normal semicolon does not look like a later user selection change.
+function selectionAfterChanges(event, selections) {
+  const changes = [...event.contentChanges].sort((a, b) => b.range.start.line - a.range.start.line
+    || b.range.start.character - a.range.start.character);
+  const after = original => {
+    let point = { line: original.line, character: original.character };
+    for (const change of changes) {
+      const { start, end } = change.range;
+      if (point.line < start.line || point.line === start.line && point.character < start.character) continue;
+      const lines = change.text.split(/\r\n|\r|\n/u);
+      const insertedEnd = { line: start.line + lines.length - 1,
+        character: (lines.length === 1 ? start.character : 0) + lines.at(-1).length };
+      if (point.line < end.line || point.line === end.line && point.character <= end.character) point = insertedEnd;
+      else if (point.line === end.line) point = { line: insertedEnd.line,
+        character: insertedEnd.character + point.character - end.character };
+      else point = { line: point.line + lines.length - 1 - (end.line - start.line), character: point.character };
+    }
+    return point;
+  };
+  return JSON.stringify(selections.map(selection => {
+    const anchor = after(selection.anchor), active = after(selection.active);
+    return [anchor.line, anchor.character, active.line, active.character];
+  }));
+}
+replaceOnce('var Dn=class extends as{constructor(){',
+  `var Dn=class extends as{${selectionAfterChanges.toString().replaceAll('\r\n', '\n').replace(/^function /u, '')}constructor(){`);
 replaceOnce('loadSettings(){let e=v.workspace.getConfiguration("php-cs-fixer");',
   'forResource(e){let i=Object.create(this);return i.loadSettings(e),i}loadSettings(resource){let e=v.workspace.getConfiguration("php-cs-fixer",resource);');
 replaceOnce('v.workspace.getConfiguration("php").get("validate.executablePath","php")',
@@ -63,6 +91,13 @@ replaceOnce('let s=v.window.activeTextEditor,n=s.document.lineAt(s.selection.sta
   'let s=v.window.activeTextEditor;if(!s||s.document!==e.document||e.document.isClosed)return;let version=s.document.version,n=s.document.lineAt(s.selection.start);const current=()=>v.window.activeTextEditor===s&&!s.document.isClosed&&s.document.version===version;');
 replaceOnce('this.format(a,s.document.uri,!1,!0).then(u=>{u=o(u)',
   'this.format(a,s.document.uri,!1,!0).then(u=>{if(!current())return;u=o(u)');
+// A pending CLI must not apply to a user selection made after the request.
+// Capture all cursors and their direction after bracket navigation is restored.
+const selectionKey = 'JSON.stringify(s.selections.map(p=>[p.anchor.line,p.anchor.character,p.active.line,p.active.character]))';
+replaceOnce('this.format(et,n.uri,!1,!0).then(W=>{if(!current())return;W=x(W)',
+  `let selection=${selectionKey};this.format(et,n.uri,!1,!0).then(W=>{if(!current()||${selectionKey}!==selection)return;W=x(W)`);
+replaceOnce('this.format(a,s.document.uri,!1,!0).then(u=>{if(!current())return;u=o(u)',
+  `let selection=this.selectionAfterChanges(e,s.selections);this.format(a,s.document.uri,!1,!0).then(u=>{if(!current()||${selectionKey}!==selection)return;u=o(u)`);
 const afterEdit = '.then(()=>{s.selections.length>0&&v.commands.executeCommand("cancelSelection")})';
 assert.equal(output.split(afterEdit).length, 3, 'Expected the two reviewed auto-fix edit completions');
 output = output.replaceAll(afterEdit,
@@ -83,7 +118,7 @@ const proof = { owner: 'junstyle.php-cs-fixer', version: manifest.version, licen
   change: 'On successful CLI exit with valid JSON and no changed files, preserve informational stderr in output and return original text. Explicit CS Fixer lint/fix error reports, nonzero exit and invalid JSON still reject.',
   resourceSettings: 'Read formatter, PHP, editor and HTML settings for the document URI; isolate each request settings snapshot across workspace folders.',
   resourceKeys,
-  autoFixState: 'Require the active editor to own the event document; skip closed documents, changed versions, changed focus and failed edits before subsequent caret commands.',
+  autoFixState: 'Require the active editor to own the event document; skip closed documents, changed versions, changed focus, changed selections during the CLI request and failed edits before subsequent caret commands.',
   windowsPharArgument: 'Quote the resolved PHAR argument using the existing Windows shell path convention, including paths with spaces.',
   scope: 'Isolated development candidate only; no marketplace identity, Profile or default Pack change' };
 await writeFile(`${destination}/sophp-no-change-candidate.json`, JSON.stringify(proof, null, 2));

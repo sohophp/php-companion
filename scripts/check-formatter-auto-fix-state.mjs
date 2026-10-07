@@ -31,7 +31,12 @@ function harness(method) {
   const doc = document('/project A', bracket ? '<?php\nclass C{\npublic function value(){return 1;}\n}' : undefined);
   const position = new Position(bracket ? 3 : 1, bracket ? 1 : doc.lineAt(1).text.length - 1);
   const calls = [], edits = [], commands = [], pending = [];
-  const editor = { document: doc, selection: { start: position, end: position }, selections: [{}],
+  let selections = [{ start: position, end: position, anchor: position, active: position }];
+  const editor = { document: doc,
+    get selection() { return selections[0]; },
+    set selection(value) { selections = [{ ...value, anchor: value.anchor ?? value.start, active: value.active ?? value.end }]; },
+    get selections() { return selections; },
+    set selections(value) { selections = value; },
     async edit(callback) { callback({ replace: (range, text) => edits.push({ uri: doc.uri.fsPath, range, text }) }); return true; } };
   let beforeCommandReturn;
   const v = { window: { activeTextEditor: editor }, workspace: {
@@ -50,9 +55,12 @@ function harness(method) {
     In: '/tmp/fixer', yE: '/tmp/fixer2', console, setTimeout });
   const formatter = new Formatter();
   formatter.format = (source, uri) => { calls.push({ source, uri: uri.fsPath }); return new Promise(resolve => pending.push(resolve)); };
-  const event = { document: doc, contentChanges: [{ text: bracket ? '}' : ';' }] };
+  const event = { document: doc, contentChanges: [{ text: bracket ? '}' : ';', range: new Range(position, position) }] };
   return { formatter, method, doc, editor, v, calls, edits, commands, pending, event,
     beforeCommandReturn(fn) { beforeCommandReturn = fn; },
+    completeTyping() {
+      if (!bracket) editor.selection = { start: position.translate(0, 1), end: position.translate(0, 1) };
+    },
     start() { formatter[method](event); },
   };
 }
@@ -67,12 +75,15 @@ for (const method of ['doAutoFixBySemicolon', 'doAutoFixByBracket']) {
     assert.equal(h.commands.length, 0, `${method}/${state} must not move another editor's caret`);
     assert.equal(h.edits.length, 0); results.push({ method, state, passed: true });
   }
-  for (const state of ['new-version', 'closed-document', 'focus-changed', 'current']) {
-    const h = harness(method);h.start();await flush();
+  for (const state of ['new-version', 'closed-document', 'focus-changed', 'selection-changed', 'multiple-selections', 'current']) {
+    const h = harness(method);h.start();await flush();h.completeTyping();
     assert.equal(h.calls.length, 1, `${method}/${state} needs an actual deferred formatting request`);
     if (state === 'new-version') h.doc.version++;
     if (state === 'closed-document') h.doc.isClosed = true;
     if (state === 'focus-changed') h.v.window.activeTextEditor = { ...h.editor, document: document('/project B') };
+    if (state === 'selection-changed') h.editor.selection = { start: new Position(1, 0), end: new Position(1, 4) };
+    if (state === 'multiple-selections') h.editor.selections = [...h.editor.selections,
+      { start: new Position(1, 0), end: new Position(1, 0), anchor: new Position(1, 0), active: new Position(1, 0) }];
     const source = h.calls[0].source;
     h.pending[0](source.replace('$value=1;', '$value = 1;').replace('class C{', 'class C\n{'));
     await flush();
@@ -92,7 +103,7 @@ for (const method of ['doAutoFixBySemicolon', 'doAutoFixByBracket']) {
         return applied;
       };
     }
-    h.start(); await flush(); assert.equal(h.calls.length, 1);
+    h.start(); await flush(); h.completeTyping(); assert.equal(h.calls.length, 1);
     h.pending[0](h.calls[0].source.replace('$value=1;', '$value = 1;').replace('class C{', 'class C\n{'));
     await flush();
     assert.equal(h.edits.length, state === 'failed-edit' ? 0 : 1);
@@ -112,6 +123,22 @@ for (const command of ['editor.action.jumpToBracket', 'cursorUndo']) {
     if (command === 'editor.action.jumpToBracket') assert.ok(!h.commands.includes('cursorUndo'));
     results.push({ method: 'doAutoFixByBracket', command, state, passed: true });
   }
+}
+const selectionFixture = harness('doAutoFixBySemicolon');
+for (const fixture of [
+  { name: 'simultaneous-insertions', changes: [[1, 2, 1, 2, ';'], [1, 7, 1, 7, ';']],
+    selections: [[1, 2, 1, 2], [1, 7, 1, 7]], expected: [[1, 3, 1, 3], [1, 9, 1, 9]] },
+  { name: 'utf16-insertion', changes: [[0, 1, 0, 1, '😀']],
+    selections: [[0, 3, 0, 3]], expected: [[0, 5, 0, 5]] },
+  { name: 'multiline-selected-replacement', changes: [[1, 2, 2, 3, 'X\r\nYZ']],
+    selections: [[1, 2, 2, 3]], expected: [[2, 2, 2, 2]] },
+]) {
+  const event = { contentChanges: fixture.changes.map(([line, character, endLine, endCharacter, text]) =>
+    ({ range: new Range(new Position(line, character), new Position(endLine, endCharacter)), text })) };
+  const selections = fixture.selections.map(([line, character, endLine, endCharacter]) =>
+    ({ anchor: new Position(line, character), active: new Position(endLine, endCharacter) }));
+  assert.deepEqual(JSON.parse(selectionFixture.formatter.selectionAfterChanges(event, selections)), fixture.expected);
+  results.push({ method: 'selectionAfterChanges', state: fixture.name, passed: true });
 }
 console.log(JSON.stringify({ cases: results.length, results,
   scope: 'Exact reviewed formatter methods in a mocked VS Code/deferred-format boundary; not real CLI or editor UI acceptance' }));

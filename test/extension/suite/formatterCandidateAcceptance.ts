@@ -26,7 +26,7 @@ export async function run(): Promise<void> {
     vscode.Uri.joinPath(formatter.extensionUri, 'sophp-no-change-candidate.json'))).toString('utf8'));
   assert.equal(candidate.owner, 'junstyle.php-cs-fixer');
   assert.equal(candidate.license, 'ISC');
-  assert.equal(candidate.patchedHash, 'e0e5407e2307cac7589160065ba1d92e9d516259ffbbfdf02671365fc7582577');
+  assert.equal(candidate.patchedHash, '1948676a0542f7a323410f7814b7653e96e5df81f980dc5314b4e045608bf04d');
   for (const key of candidate.resourceKeys) assert.equal(
     formatter.packageJSON.contributes.configuration.properties[`php-cs-fixer.${key}`].scope, 'resource');
   const uri = vscode.Uri.joinPath(folder.uri, 'src', 'ProfileFormat.php');
