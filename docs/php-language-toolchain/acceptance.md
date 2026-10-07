@@ -6,7 +6,9 @@
 
 可运行输入的编号与覆盖进度见[验收 fixtures](acceptance-fixtures.md)；首组 F08 Extract Interface 已包含正例、合法反例和未完成输入，其余映射仍开放。
 
-2026-10-07 [D214–D220 按需诊断与 Windows 完整 C3](reports/on-demand-diagnostics-windows-c3-2026-10-07.md)：新 Core `3fc50093` 的原完整 C3／onDemand、22823 项完整语义及四项定向 stdio 通过，原零诊断失败保留。真实大 Controller P95 173.01 ms 仍超 150 ms；当前完整 LSP 及其它组件／平台／长期和真实 WSL 验收仍开放，旧 D199 结果不转移。
+2026-10-07 [D222–D227 循环保护与完整回归](reports/cyclic-hierarchy-diagnostics-full-regression-2026-10-07.md)：Core `3bc9b366` 的循环警告／Quick Fix 保护与合法菱形通过，完整语义 22824 项通过。原完整 LSP 1313 项中 1299 通过、14 等待超时，**整轮资格未通过**；输入和用例身份保持。原 14 个失败项的一次同源码定向定位通过，另有一个同前缀案例通过、657 未选择；未证实整轮超时根因，不替代全量结果。下一独立项为 Windows 格式化双项目／自动修复。
+
+2026-10-07 [D214–D220 按需诊断与 Windows 完整 C3](reports/on-demand-diagnostics-windows-c3-2026-10-07.md)：旧 Core `3fc50093` 的原完整 C3／onDemand、22823 项完整语义及四项定向 stdio 通过，原零诊断失败保留。真实大 Controller P95 173.01 ms 仍超 150 ms；当前完整 LSP 及其它组件／平台／长期和真实 WSL 验收仍开放，旧 D199 结果不转移。
 
 ## 首发验收 S01–S08
 

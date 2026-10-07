@@ -1,0 +1,913 @@
+{
+  "milestone": "D222-D227",
+  "recordedAtUtc": "2026-10-07T01:27:57.193843+00:00",
+  "sourceBaseCommit": "1376088b74463234cd59eb0804480e1ac7a8053b",
+  "coreSha256": "3bc9b366536b61c64d9a8676f4429b153beae36e3b3d9d96918c7a9f5fc3a978",
+  "correction": "Separate active recursion from completed shared inheritance nodes; suppress dynamic-property warnings and declaration fixes for cycles while retaining legal diamonds and unsaved repair/revert.",
+  "sourceChanges": [
+    "packages/semantic/src/index.ts",
+    "packages/semantic/test/semantic.test.ts",
+    "packages/language-server/test/stdio.test.ts"
+  ],
+  "focusedSemantic": {
+    "passed": 4,
+    "notSelected": 495
+  },
+  "focusedLsp": {
+    "passed": 12,
+    "notSelected": 532
+  },
+  "retainedFailure": "First combined fixture exceeded the unchanged experimental 20-second test timeout; original helpers restored and eight standalone cycle cases added. Original assertions, cases and budgets retained.",
+  "semantic": {
+    "qualified": true,
+    "files": 145,
+    "result": {
+      "numTotalTests": 22824,
+      "numPassedTests": 22824,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "run": {
+      "status": "exited",
+      "parentPid": 607034,
+      "childPid": 607108,
+      "startedAtUtc": "2026-10-07T00:37:41.454776+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--maxWorkers=4",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d224-semantic-full.json"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 183.72245697904145,
+      "finishedAtUtc": "2026-10-07T00:40:45.175945+00:00"
+    },
+    "missingPriorCases": 0,
+    "addedCases": [
+      {
+        "file": "/var/www/node/php-companion/packages/semantic/test/semantic.test.ts",
+        "name": "conservative semantic workspace suppresses dynamic property warnings and fixes for cyclic hierarchies while retaining valid diamonds",
+        "count": 1
+      }
+    ],
+    "archivedHashes": {
+      "sophp-d224-semantic-full.json": "f27780153fc88f5d7c89afc249e70cba57631db974802ba46e819361bf2f9fef",
+      "d224-semantic-full.log": "da3e935df3a8c12525ac22db72b96955b0e820756813978242678adfb241bcff",
+      "d224-semantic-full.py": "d9c9d07b17782b668254c3c9ae802db41b4981f827f7a88518c2543753feefbe",
+      "d224-semantic-input.json": "74f193b86c4ea978f0a95576914df0b7bed3bbc7971bf3081dd56966ed0e3b75",
+      "d224-semantic-run.json": "d2901901a11301675a960dc64a97d22b963672832a372a32c38cd6b04a51dbaf"
+    }
+  },
+  "fullLsp": {
+    "qualified": false,
+    "result": {
+      "numTotalTests": 1313,
+      "numPassedTests": 1299,
+      "numFailedTests": 14,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": false
+    },
+    "run": {
+      "status": "exited",
+      "phase": "lsp",
+      "parentPid": 611309,
+      "childPid": 611363,
+      "startedAtUtc": "2026-10-07T00:41:10.879431+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d225-current-lsp-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/language-server",
+      "exitCode": 1,
+      "durationSeconds": 2363.0727169839665,
+      "finishedAtUtc": "2026-10-07T01:20:33.950486+00:00"
+    },
+    "audit": {
+      "inputs": 4887,
+      "changedInputs": [],
+      "runtimeChanges": [],
+      "nodeChanged": false,
+      "headChanged": false,
+      "worktreeChanged": false,
+      "collectionChanged": false,
+      "expectedCases": 1313,
+      "actualCases": 1313,
+      "expectedFiles": 98,
+      "actualFiles": 98,
+      "missing": [],
+      "extra": [],
+      "preexistingDuplicateLabels": [],
+      "duplicateMultiplicityPreserved": true
+    },
+    "priorCases": 1303,
+    "addedCases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer in onDemand mode",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in experimental at PHP 7.2",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in experimental at PHP 8.1",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in experimental at PHP 8.2",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in experimental at PHP 8.5",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in onDemand at PHP 7.2",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in onDemand at PHP 8.1",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in onDemand at PHP 8.2",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in onDemand at PHP 8.5",
+        "count": 1
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio rejects AllowDynamicProperties on readonly and non-class declarations for PHP 8.2+ in onDemand mode",
+        "count": 1
+      }
+    ],
+    "runtimes": {
+      "7.2": {
+        "path": "/opt/remi/php72/root/usr/bin/php",
+        "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+        "version": "7.2.34"
+      },
+      "7.3": {
+        "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73",
+        "sha256": "5564207ec9f30fa67f822b031ce74ab701805e9506d5db953faed50d12149be6",
+        "version": "7.3.33"
+      },
+      "7.4": {
+        "path": "/opt/remi/php74/root/usr/bin/php",
+        "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+        "version": "7.4.33"
+      },
+      "8.0": {
+        "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+        "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958",
+        "version": "8.0.30"
+      },
+      "8.1": {
+        "path": "/opt/remi/php81/root/usr/bin/php",
+        "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+        "version": "8.1.34"
+      },
+      "8.2": {
+        "path": "/opt/remi/php82/root/usr/bin/php",
+        "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+        "version": "8.2.32"
+      },
+      "8.3": {
+        "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+        "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae",
+        "version": "8.3.35"
+      },
+      "8.4": {
+        "path": "/opt/remi/php84/root/usr/bin/php",
+        "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+        "version": "8.4.23"
+      },
+      "8.5": {
+        "path": "/opt/remi/php85/root/usr/bin/php",
+        "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+        "version": "8.5.9"
+      }
+    },
+    "failures": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'hover' PHP '8.5' 'progressive'",
+        "durationMs": 40033.440998999984,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'definition' PHP '8.5' 'progressive'",
+        "durationMs": 40041.467189999996,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+        "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '7.2'",
+        "durationMs": 40044.334371999954,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+        "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '8.5'",
+        "durationMs": 40040.17872299999,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "keeps semantic resources closed after late progressive / phpCompanion/bundledSemanticProviders notifications",
+        "durationMs": 60031.84198299999,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes unopened PSR-0 classes only at Composer-loadable paths",
+        "durationMs": 20017.49078600004,
+        "messagePrefix": "Error: Timed out waiting for language server response; logs: []; recent messages: [{\"jsonrpc\":\"2.0\",\"id\":123,\"result\":{\"capabilities\":{\"positionEncoding\":\"utf-16\",\"textDocumentSync\":2,\"documentSymbolProvider\":true,\"workspaceSymbolProvider\":true,\"comp"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates PHP versions and builtins for an open project without restarting the language server",
+        "durationMs": 18070.978959000087,
+        "messagePrefix": "Error: Timed out waiting for language server response; logs: []; recent messages: [{\"jsonrpc\":\"2.0\",\"id\":9971,\"result\":{\"capabilities\":{\"positionEncoding\":\"utf-16\",\"textDocumentSync\":2,\"documentSymbolProvider\":true,\"workspaceSymbolProvider\":true,\"com"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports a loaded Composer project snapshot in the client language",
+        "durationMs": 20007.293488999945,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+        "durationMs": 31501.406871999963,
+        "messagePrefix": "Error: Reference cache run 6, phpCompanion/testWaitReferencePersistence: Error: Timed out waiting for language server response; logs: [{\"jsonrpc\":\"2.0\",\"method\":\"window/logMessage\",\"params\":{\"type\":3,\"message\":\"[test-declaration-facts-refreshed] uri="
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves first cold and reloaded references through unloaded vendor attributes without Definition warm-up",
+        "durationMs": 20006.153286000015,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves first cold and reloaded references through unloaded vendor getSession() without Definition warm-up",
+        "durationMs": 20002.73748999997,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+        "durationMs": 20002.673294999986,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8.5",
+        "durationMs": 20011.24642900005,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer",
+        "durationMs": 20006.375104000093,
+        "messagePrefix": "Error: STACK_TRACE_ERROR"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/d225-current-lsp-input.json",
+        "sha256": "25a95ec36b81755a279cd7c0ff70196e6486de34267b8f7b10ad54d6df18b28f"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/d225-current-lsp-run.json",
+        "sha256": "ea3854a3eff716b593fb2da897a5ba402211e35981323855d13257705188bb3f"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/sophp-d225-current-lsp-full.json",
+        "sha256": "dad5d1fc4e7be79af34be2c4b67519ffbff1dd197e4d046d3094340bacf2980f"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/sophp-d225-current-lsp-collection.json",
+        "sha256": "9c6161669df70e743e3cc93a11d1c94fec3ec3d59985aa599b9890c15ffe171d"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/sophp-d225-current-lsp-full.log",
+        "sha256": "7d57782aeeda88c4587384fb00dcf3ecece961ea970320d5cf33c108cb327388"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/d225-current-full-run.py",
+        "sha256": "95bf44689c47e97b33f150e7d1e89e4d989986fc7f97e8f9b7aa673ca76edc83"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/d225-current-audit.py",
+        "sha256": "455f039e85f2ade0d15a2c247d3def607d030011200dadf44dd322301c8590b5"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/d225-current-freeze.py",
+        "sha256": "ef79f1beccdb37e3f40863a9d96448c6f1bc780299333d351ebdff7bd9c344e0"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/output-completion-progressive.json",
+        "sha256": "a7d59af86b8ba5369751cbc69414a74e5b72b9391b5da168e423b44ad004705d"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/output-completion-onDemand.json",
+        "sha256": "663508591b824e44893b918a3f406daa68683aaa33358ff2626e96d4296d77ef"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/onDemand-true.json",
+        "sha256": "a0c0c2c0258cc66bd0cd18e6a88be281f899b80b9ad825f3cb7595713c6cc5eb"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/onDemand-true-gap5.json",
+        "sha256": "da0ca992e14b353df9a2d41800d87ebe58540fad8f91a7d36225a8eb9554771e"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/progressive-false.json",
+        "sha256": "812e783b8952fa043a880766f864957686e959424811c91d598ceea47a2cacc6"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/progressive-true.json",
+        "sha256": "cd14f9f4f458fee5349e41bf6e8a5dbd87033630dfc97dd9b803bfb74983bbc9"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/progressive-true-gap5.json",
+        "sha256": "63a49e293f22c09020d5a5ad17c25dd573310e4c35e2374e12f2d144aa1a2c08"
+      },
+      {
+        "path": ".vscode-test/d225-current-lsp-evidence/onDemand-false.json",
+        "sha256": "5ee8d76bf9f66fcbbd45b68f03f84bace6ff3129f17925ae5e82861b0601c3cc"
+      }
+    ],
+    "scope": "One complete current LSP suite retaining all 1303 D199 cases, including nine actual PHP CLI syntax cases, plus two onDemand diagnostic cases and eight cyclic-hierarchy mode/version cases. Current local-diagnostic and cyclic-hierarchy suppression fixes plus normally refreshed Symfony Provider artifacts; normal budgets, no filtered tests. Six CLIs use normal ini; three extracted wrappers use -n. Not nine complete language suites, visible UI, whole roadmap, real-project hot-query or real WSL qualification."
+  },
+  "diagnosticIsolation": {
+    "passed": true,
+    "originalFailuresCovered": 14,
+    "result": {
+      "numTotalTests": 672,
+      "numPassedTests": 15,
+      "numFailedTests": 0,
+      "numPendingTests": 657,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "run": {
+      "status": "exited",
+      "parentPid": 664654,
+      "childPid": 664780,
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/documented-callable-cold-queries-stdio.test.ts",
+        "test/phpdoc-output-families-stdio.test.ts",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "test/stdio.test.ts",
+        "-t",
+        "retains\\ repeated\\ callback\\ returns\\ for\\ first\\ 'hover'\\ PHP\\ '8\\.5'\\ 'progressive'|retains\\ repeated\\ callback\\ returns\\ for\\ first\\ 'definition'\\ PHP\\ '8\\.5'\\ 'progressive'|first\\ 'variadic\\ generic'\\ output\\ query\\ 'definition'\\ /\\ 'progressive'\\ /\\ PHP\\ '7\\.2'|first\\ 'variadic\\ generic'\\ output\\ query\\ 'definition'\\ /\\ 'progressive'\\ /\\ PHP\\ '8\\.5'|keeps\\ semantic\\ resources\\ closed\\ after\\ late\\ progressive\\ /\\ phpCompanion/bundledSemanticProviders\\ notifications|language\\ server\\ stdio\\ completes\\ unopened\\ PSR\\-0\\ classes\\ only\\ at\\ Composer\\-loadable\\ paths|language\\ server\\ stdio\\ updates\\ PHP\\ versions\\ and\\ builtins\\ for\\ an\\ open\\ project\\ without\\ restarting\\ the\\ language\\ server|language\\ server\\ stdio\\ reports\\ a\\ loaded\\ Composer\\ project\\ snapshot\\ in\\ the\\ client\\ language|language\\ server\\ stdio\\ restores\\ proven\\ references\\ across\\ processes\\ and\\ rejects\\ changed\\ query\\ inputs|language\\ server\\ stdio\\ resolves\\ first\\ cold\\ and\\ reloaded\\ references\\ through\\ unloaded\\ vendor\\ attributes\\ without\\ Definition\\ warm\\-up|language\\ server\\ stdio\\ resolves\\ first\\ cold\\ and\\ reloaded\\ references\\ through\\ unloaded\\ vendor\\ getSession\\(\\)\\ without\\ Definition\\ warm\\-up|language\\ server\\ stdio\\ restores\\ broad\\ on\\-demand\\ method\\ candidates\\ consistently\\ across\\ reload|language\\ server\\ stdio\\ uses\\ versioned\\ internal\\ Fileinfo\\ constructors\\ for\\ signature\\ help\\ at\\ PHP\\ 8\\.5|language\\ server\\ stdio\\ publishes\\ proven\\ dynamic\\ property\\ creation\\ warnings\\ only\\ for\\ PHP\\ 8\\.2\\ and\\ newer",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d227-isolate-full-failures.json"
+      ],
+      "startedAtUtc": "2026-10-07T01:22:56.156108+00:00",
+      "originalInputSha256": "25a95ec36b81755a279cd7c0ff70196e6486de34267b8f7b10ad54d6df18b28f",
+      "observerSha256": "b46583898bdff069f752b018d70ca017dec57d881aa69a9e76f4b8f46244eb36",
+      "originalCases": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+          "name": "retains repeated callback returns for first 'hover' PHP '8.5' 'progressive'"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+          "name": "retains repeated callback returns for first 'definition' PHP '8.5' 'progressive'"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+          "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '7.2'"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+          "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '8.5'"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+          "name": "keeps semantic resources closed after late progressive / phpCompanion/bundledSemanticProviders notifications"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio completes unopened PSR-0 classes only at Composer-loadable paths"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio updates PHP versions and builtins for an open project without restarting the language server"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio reports a loaded Composer project snapshot in the client language"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio restores proven references across processes and rejects changed query inputs"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio resolves first cold and reloaded references through unloaded vendor attributes without Definition warm-up"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio resolves first cold and reloaded references through unloaded vendor getSession() without Definition warm-up"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio restores broad on-demand method candidates consistently across reload"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8.5"
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+          "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer"
+        }
+      ],
+      "scope": "One diagnostic isolation of all 14 original full-suite failures with the same source, assertions and timeouts. Raw protocol observation adds overhead; not full-suite or performance qualification.",
+      "exitCode": 0,
+      "durationSeconds": 175.33497661497677,
+      "finishedAtUtc": "2026-10-07T01:25:51.489789+00:00",
+      "changedInputs": []
+    },
+    "additionalSelected": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer in onDemand mode",
+        "count": 1
+      }
+    ],
+    "selectionLimitation": "The original unanchored name regex also matched one onDemand dynamic-property case; retained, not filtered out. 15 passed and 657 not selected.",
+    "observerLimitation": "Raw protocol observer matched unbundled server.js processes; bundled language-server.js persistence processes were exercised by original tests but not captured by this observer. Observation overhead is not performance qualification.",
+    "passedCases": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'hover' PHP '8.5' 'progressive'",
+        "durationMs": 6040.520317
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+        "name": "retains repeated callback returns for first 'definition' PHP '8.5' 'progressive'",
+        "durationMs": 6741.281743999999
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+        "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '7.2'",
+        "durationMs": 2702.144082
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+        "name": "first 'variadic generic' output query 'definition' / 'progressive' / PHP '8.5'",
+        "durationMs": 2892.771398
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "keeps semantic resources closed after late progressive / phpCompanion/bundledSemanticProviders notifications",
+        "durationMs": 4508.854525
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio completes unopened PSR-0 classes only at Composer-loadable paths",
+        "durationMs": 2914.401897
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio updates PHP versions and builtins for an open project without restarting the language server",
+        "durationMs": 5439.453734
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio reports a loaded Composer project snapshot in the client language",
+        "durationMs": 3132.065128
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores proven references across processes and rejects changed query inputs",
+        "durationMs": 99820.012359
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves first cold and reloaded references through unloaded vendor attributes without Definition warm-up",
+        "durationMs": 7997.950209000002
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio resolves first cold and reloaded references through unloaded vendor getSession() without Definition warm-up",
+        "durationMs": 8120.874692999991
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio restores broad on-demand method candidates consistently across reload",
+        "durationMs": 15975.287117999993
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8.5",
+        "durationMs": 3001.637183999992
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer",
+        "durationMs": 12118.060075999994
+      },
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+        "name": "language server stdio publishes proven dynamic property creation warnings only for PHP 8.2 and newer in onDemand mode",
+        "durationMs": 11078.872619000002
+      }
+    ],
+    "artifacts": [
+      {
+        "path": ".vscode-test/d227-isolate-failures-evidence/d227-isolate-full-failures-run.json",
+        "sha256": "239ce4a3aa4c95f5bf138a85a1cf5705d37de9f01834779231811346f5853987"
+      },
+      {
+        "path": ".vscode-test/d227-isolate-failures-evidence/sophp-d227-isolate-full-failures.json",
+        "sha256": "a4520afe39269f16b92a35d67104811fcb9772e0bede29ad8ed104dca31a5b97"
+      },
+      {
+        "path": ".vscode-test/d227-isolate-failures-evidence/d227-isolate-full-failures.log",
+        "sha256": "7553787b2dd8c13b1d3895d5659757a6fc54ded622c92135c6708edfb0c9f4b7"
+      },
+      {
+        "path": ".vscode-test/d227-isolate-failures-evidence/d227-isolate-full-failures.py",
+        "sha256": "618f0ec0d37e970c20a31c197de00ffcff7fb7c8499f114de8ee2cf866614ba7"
+      },
+      {
+        "path": ".vscode-test/d227-isolate-failures-evidence/d227-observe-lsp.cjs",
+        "sha256": "b46583898bdff069f752b018d70ca017dec57d881aa69a9e76f4b8f46244eb36"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665119-665596.stdout",
+        "sha256": "2c8d1909cf36006e81b5199760514c66cb62153defe9dfd6be75b29fc9b4d66e"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670023.jsonl",
+        "sha256": "8ebb5f61f05c94d0c08946a938f24e563101fdc7917efb20abaa406500e204f1"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665119-665272.stdout",
+        "sha256": "ea576481ca26dc760a9ae5c9d7ddaab87539a59eab44eade22fa28fbf40b86d4"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669777.stdin",
+        "sha256": "686cd26ef776db06abe242c760ceadf2ef916245c0e3ccf41db9e9b0e5fdd106"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670176.stdout",
+        "sha256": "62fe217ab7fdf2832d18f6828dfb9bb060b46422ff202abb3beb14f7a60dfa9b"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665673.stdin",
+        "sha256": "8024971cdfb967d8ae853b7639bdc462ab0c0a04a2acc2ed0587cece54158ec0"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665673.stdout",
+        "sha256": "594aca99d1c9f435f620881cd1d0f8dd6d02cc40fad4bba3a9df9b8ba7db4a7c"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669936.stdout",
+        "sha256": "c63d0616ed63bea18a236689e4a11939dced00c89a3a4c5897b1cf7f75fd12ec"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670054.stdin",
+        "sha256": "1dd9da22ac93c3c46a1b8c0b3659946dd67b22a24c6d6cd644f06ee47464c0a2"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-665739.stdin",
+        "sha256": "a0bed48b6983ccb8ef60bf81757f2043c8d077888ffb4ccb4725267293af269b"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669740.stdin",
+        "sha256": "686cd26ef776db06abe242c760ceadf2ef916245c0e3ccf41db9e9b0e5fdd106"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670130.stdout",
+        "sha256": "573fa78bbd262f503315ed99f91341b8bada52ea67ed22d46c7bbca6c1a1efbd"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-665318.stdin",
+        "sha256": "d9474a38beb44fe064f2b52c94fdb235573dac44f458207b1b812a02c1b5a99a"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669814.stdin",
+        "sha256": "67a21c349d234db83037938e61888d8bd31c757613606b0d188c30ede6c73507"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669814.jsonl",
+        "sha256": "3a88a492116e68870306b31b34b1faa309d154716591cfbf4535f414180348c4"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669958.stdout",
+        "sha256": "adb80704ca6677e8a93e45efc5f9789bca7fe0e85766202a0656e61529190f8e"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670266.stdout",
+        "sha256": "d783d71e1e490437eb953004ab02cd4586b54297a3e4ddafa48cba20299979aa"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669845.jsonl",
+        "sha256": "67afb3da7261f9ae17824c667fe614a7a2ae0be03623096b8dee54757f4663cf"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665119-665272.jsonl",
+        "sha256": "379b02e8d0a700ac2e727a1bd2ffa6fd498427978b98dd7b5d10c912c426af38"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-666223.stdout",
+        "sha256": "230d76fc016401282f90fb2e4833bf2ada23360123a7dae863c3e298ce38af51"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669981.stdout",
+        "sha256": "395d7748b64c97edcf08667cd4595223595b3f821f6e0209c7ba4bae32b41696"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669777.stdout",
+        "sha256": "9f2515a606aab701e9cadc76f544a44df7004128cd1ceaf3b09fbc096644d5cf"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665951.jsonl",
+        "sha256": "1adc15bf90c32a3459dd8fa17fe5d42954363b65f3ad3002d62f6cdfd0fca3ae"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669777.jsonl",
+        "sha256": "f23b226a3dfa12e0a596a364939a036fe8863e8871e07f11365baf700cff77c8"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669958.stdin",
+        "sha256": "c9224b7b56f6a0250e88899afcc4cd7309111dcddb1505dec1de4d245555c620"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669936.stdin",
+        "sha256": "67a21c349d234db83037938e61888d8bd31c757613606b0d188c30ede6c73507"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669740.stdout",
+        "sha256": "7b592dda0b03b5a2de62026098b2c1462b2929d38959ed5af090fe4ce82d26f6"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669740.jsonl",
+        "sha256": "548979fe868f4af3c9a34022d931faaa39c9a850e0f53ac61c9f2847394e47de"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665266.jsonl",
+        "sha256": "5b322c2ec2e9a744b7d3b42656c27d2ebbd8ede6910810090dd556b047b13512"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-666223.jsonl",
+        "sha256": "b3b4ea190ec811253fb72e953981b9d44284556ea8250a17643821e1fffa8259"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669814.stdout",
+        "sha256": "d84d2ebd585c05064312ad0e6a9d3db999433b9686398f9dc2fde19cd32a9d7d"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669981.stdin",
+        "sha256": "e0d9aa2247c4931b65b1d2f8a1b5b4791571f24cd81efd4202ef4d59d9b5a2b2"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670130.jsonl",
+        "sha256": "7ddcf67b6e45fc12048f220bc88c13af4c261523f61d54aba621bf618b223ce1"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670054.stdout",
+        "sha256": "66e04c0d509155da90767be252132bb16976d8536b5a64dc247f7ec04fd2d5d7"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-666275.stdout",
+        "sha256": "b419e8eb4c63f9ed8fb5cd77bc842f0397e668bd6344e366f65ce87552423d20"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665119-665272.stdin",
+        "sha256": "fb55d3229725aac52c9db11921a96590a806c750b66eb8de6f9a3b33ea07eeee"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-666275.stdin",
+        "sha256": "eef7e0b98f87218fb887438ab777bafaff44621c91a61c7d0152b0c8109b4dce"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665119-665596.stdin",
+        "sha256": "11574d1607c2e5d93c6f4b6b03a240ae7eb19b1683c5a8cfba622406761b1633"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670023.stdin",
+        "sha256": "a0a0fa4ba09ff36667d1c1a8a6933835bc4233673b0c0e054b65d319c2bd75d8"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670176.jsonl",
+        "sha256": "70016145b9af131ed8916339771b19bd3091f11bf1aaabaa42acf0d74d071e83"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665673.jsonl",
+        "sha256": "b43ad4ab5b9555aef4f30adc27a91a4b1a74cfaf2a48ff4f624eae155587a0f1"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670023.stdout",
+        "sha256": "d12dc2f12e08481ba40d0192a5c9b6f2dc6f132b929f9692e1531d0bcc675b02"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-665318.jsonl",
+        "sha256": "65ca9b6001f816b09aa054fd952f9e53d323b756f3bea720b29a348d9a0d5d72"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-665318.stdout",
+        "sha256": "5277abe3a12291176bcf561945584f56b5712103a16bbc3aa9c68a60b7cc61e3"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670152.stdout",
+        "sha256": "2c0531f26c9bf5dd42e8cf3eb2dde2f720f0750e8fe574676f0bae734602c921"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670266.jsonl",
+        "sha256": "09dbec6bd78cf833de21a230790d9095a15a5831834249b631ec35ad97168d55"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669981.jsonl",
+        "sha256": "4bbe47703c0fa89f00640659d82488a0f5a30b7dcee4ca2f0c7155f63f7c8d83"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670152.jsonl",
+        "sha256": "88fea5f402c9b9db4846c23371d123c8ec49c35136712cc38ce28c874fe676d2"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-666223.stdin",
+        "sha256": "6c2443373154026e3e0f0886f7378fb9a99636d820d45fb1b87ddb667ff15f5f"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-665739.jsonl",
+        "sha256": "ac90e5e3ca32086ebdfe1771dd947ef64cec97c45cd2c754daa901ff148fca58"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670176.stdin",
+        "sha256": "da346a639c565590f4f4185f80bc15b2b79a7c50be421288439ea5415817649f"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-666275.jsonl",
+        "sha256": "fd185504cd978d38cffbc2c9a6fcbe4ee8282c07bdeb4540ecd0dd8c2780ad2b"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665119-665596.jsonl",
+        "sha256": "e16da9d127f504d3233398bee02ed612347e15e1d87ff70b60b8e45d7db7578c"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670152.stdin",
+        "sha256": "4c7253cbaa86b7b34cdb676dbc4c6c9a049598a3e2a35f83a5f2ca9b061ef5b2"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669936.jsonl",
+        "sha256": "ad07f1000228719d2c52a4a1ac34ad86ab768a4dce1925e6f7fcfee14dd6be7d"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665951.stdin",
+        "sha256": "de1c2ad17add2f7c17466a585e056b3a8260f559052108a0c6f8533164a72d12"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665951.stdout",
+        "sha256": "bab34a62c8bf2116cb6da72519cb8b5ebb88d6879bc7271eeae511de88fb1299"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670010.stdin",
+        "sha256": "8f71e4e0ebec103cc3768a58a44f39d7c9b1e1be090e4f09555477b32a6c2521"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665266.stdin",
+        "sha256": "13f928bb693eb3c84a3665dc9db3b0145ec7547d674dfb6284a9c6bc11fc0171"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670054.jsonl",
+        "sha256": "f7287c99bc36c227bd9a1a2c7e18065fb5435df934d672257aa35cbdcfcf64ec"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670266.stdin",
+        "sha256": "a45a22e45093954d427bb02f5a91baffd6faaebf79609d970d6f389c54ca2c94"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669845.stdin",
+        "sha256": "67a21c349d234db83037938e61888d8bd31c757613606b0d188c30ede6c73507"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670010.stdout",
+        "sha256": "b488d6fb66e21f39832a7000ca75080d7cb10557919ca54cf095763b18dd6f9d"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-665739.stdout",
+        "sha256": "05a916ba5c1a94388cd8089be17c64b2252cc69f57f6d9a87935b1dc521ca745"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669958.jsonl",
+        "sha256": "767216b9673ed0056e33e4b31c8bebd9dbe6e8942dbb1f500d06230c7485b7fe"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670010.jsonl",
+        "sha256": "b606da6e434f751b9693e40e917e342e34375ff58f969e5e763e78dae8ecc7c9"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-670130.stdin",
+        "sha256": "f2f71f51fe534c986534c09ec24aefe183950406293c610dc8435d42afe1a2d8"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665118-665266.stdout",
+        "sha256": "627006decc2c1b59a813bdac606650993d3f0235d281229158a64b533b568c9b"
+      },
+      {
+        "path": ".vscode-test/d227-protocol-trace/665111-669845.stdout",
+        "sha256": "dc26f56ad72155a15062e3bffda932724448e35fa56afe67a5d629d4c54b152b"
+      }
+    ],
+    "remediationProven": false
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d222-dynamic-hierarchy-probe.jsonl",
+      "sha256": "e7a640267b24ea52d7fa68f0bc89b6d792fe1237048b3a8afdf54571c98c7d7f"
+    },
+    {
+      "path": ".vscode-test/d222-cycle-semantic-baseline.log",
+      "sha256": "d2b6aac998362fd91ac49bf38851e46352ca1a0e3851b36944be67b64370f0fb"
+    },
+    {
+      "path": ".vscode-test/d222-cycle-protocol-baseline.log",
+      "sha256": "a4aff3a57e1cf4e817554d2a70039396c5401133cbbc26772314d24bd2c00ed0"
+    },
+    {
+      "path": ".vscode-test/d223-cycle-semantic.log",
+      "sha256": "d2aa2603d2c9f6dbe184ab8a567e88a0c88d93d4403de06783d8044efc3c6e72"
+    },
+    {
+      "path": ".vscode-test/d223-cycle-protocol.log",
+      "sha256": "57d0dd2e10e3902924375fdc577010099697c36464d9414bb2631d85b937258a"
+    },
+    {
+      "path": ".vscode-test/d223-cycle-protocol-split.log",
+      "sha256": "aa344b1b6c2f78f3633cb4ec1b87fb9d3b36e92c68e97eea39b4fdc3b8954f86"
+    },
+    {
+      "path": ".vscode-test/d223-semantic-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d223-server-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d223-cycle-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d223-core-build.json",
+      "sha256": "b9b75af86a8a1cc9678bd6d3442057ec4073bd66874e8352e6afe8ad18049989"
+    },
+    {
+      "path": ".vscode-test/d224-semantic-audit.json",
+      "sha256": "994c9756828347d68c224391c8e99074f4f3f224245601aee94b9ee2c7dc4feb"
+    },
+    {
+      "path": ".vscode-test/d225-current-lsp-audit.json",
+      "sha256": "e2738a49cb5c201fd4b1438fa6a69a563eb90169dd709a1d0d800a61efa4adee"
+    },
+    {
+      "path": ".vscode-test/d227-isolate-full-failures-audit.json",
+      "sha256": "01f7ab0290b9822801b45e6d68251027a1ea02d265aa7bf628aca258e8c2792d"
+    }
+  ],
+  "openScope": [
+    "Current complete LSP concurrency/startup/close timeout cause remains unproven; original 1299/1313 run unqualified",
+    "Current native UI and Pack/Twig/formatter/debug/test composition, other platforms/Remote and long sessions",
+    "Large Controller P95 <=150ms, scale/cache memory and real WSL human acceptance",
+    "Original C1-C4/R4 and P0-P9/F01-F14 scope"
+  ],
+  "next": "Apply and verify portable existing formatter fixtures and native Windows two-root acceptance. Keep distinct native PHP versions open until actually provisioned and executed.",
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}

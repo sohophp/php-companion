@@ -2772,6 +2772,33 @@ class Context {
       ['calls', 'write', true],
     ]);
   });
+  it('suppresses dynamic property warnings and fixes for cyclic hierarchies while retaining valid diamonds', () => {
+    const uri = 'file:///DynamicHierarchy.php';
+    const suffix = ' function mutate(A $a): void { $a->created = 1; }';
+    const cases = [
+      '<?php class A extends A {}',
+      '<?php class A extends B {} class B extends A {}',
+      '<?php interface I extends J {} interface J extends I {} class A implements I {}',
+      '<?php trait T { use U; } trait U { use T; } class A { use T; }',
+    ];
+    const valid = '<?php interface I {} interface J extends I {} interface K extends I {} class A implements J, K {}';
+    for (const declaration of cases) {
+      const project = new SemanticWorkspace(parser);
+      const source = declaration + suffix;
+      project.update(uri, source);
+      expect(project.inheritanceCycles(uri).length, declaration).toBeGreaterThan(0);
+      for (const localOnly of [false, true]) expect(project.dynamicPropertyCreations(uri, localOnly), declaration).toEqual([]);
+      expect(project.dynamicPropertyDeclaration(uri, source.indexOf('created')), declaration).toBeUndefined();
+      project.update(uri, valid + suffix);
+      for (const localOnly of [false, true]) expect(project.dynamicPropertyCreations(uri, localOnly)).toMatchObject([
+        { name: 'created', ownerFqcn: 'A' },
+      ]);
+      expect(project.dynamicPropertyDeclaration(uri, (valid + suffix).indexOf('created'))).toMatchObject({ name: 'created', type: 'int' });
+      project.update(uri, source);
+      for (const localOnly of [false, true]) expect(project.dynamicPropertyCreations(uri, localOnly), declaration).toEqual([]);
+      expect(project.dynamicPropertyDeclaration(uri, source.indexOf('created')), declaration).toBeUndefined();
+    }
+  });
   it('limits partial-project dynamic property warnings to proven current-file hierarchies', () => {
     const uri = 'file:///LocalDynamicProperties.php';
     const source = `<?php namespace LocalDynamicProperties;

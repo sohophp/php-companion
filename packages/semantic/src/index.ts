@@ -8340,8 +8340,10 @@ export class SemanticWorkspace {
       const matches = declarations.filter((candidate) => candidate.declaration.fqcn.toLowerCase() === fqcn.toLowerCase());
       return matches.length === 1 ? matches[0] : undefined;
     };
-    const hasUniqueCompleteHierarchy = (fqcn: string, visited = new Set<string>()): boolean => {
-      const key = fqcn.toLowerCase(); if (visited.has(key)) return true;
+    const hasUniqueCompleteHierarchy = (fqcn: string, visited = new Set<string>(), active = new Set<string>()): boolean => {
+      const key = fqcn.toLowerCase();
+      if (active.has(key)) return false;
+      if (visited.has(key)) return true;
       if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
       visited.add(key);
       const owner = uniqueDeclaration(fqcn); if (!owner) return false;
@@ -8349,10 +8351,13 @@ export class SemanticWorkspace {
       // Keep the whole hierarchy local (or built in) until project indexing completes.
       if (localOnly && owner.file.uri !== uri && !owner.file.uri.startsWith('php-companion-builtin:')) return false;
       const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
-      return [...owner.declaration.extendsNames, ...owner.declaration.implementsNames, ...owner.declaration.traitNames].every((name) => {
+      active.add(key);
+      const complete = [...owner.declaration.extendsNames, ...owner.declaration.implementsNames, ...owner.declaration.traitNames].every((name) => {
         const inherited = this.resolveSourceType(owner.file, name, namespace, owner.declaration.fqcn);
-        return Boolean(inherited && hasUniqueCompleteHierarchy(inherited, visited));
+        return Boolean(inherited && hasUniqueCompleteHierarchy(inherited, visited, active));
       });
+      active.delete(key);
+      return complete;
     };
     const allowsDynamicProperties = (fqcn: string, visited = new Set<string>()): boolean => {
       const key = fqcn.toLowerCase(); if (visited.has(key) || visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;

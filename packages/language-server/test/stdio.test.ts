@@ -16603,6 +16603,87 @@ class Example {}`;
     await verifyDynamicPropertyDiagnostics('onDemand');
   });
 
+  it.each([
+    ['experimental', '7.2'], ['experimental', '8.1'], ['experimental', '8.2'], ['experimental', '8.5'],
+    ['onDemand', '7.2'], ['onDemand', '8.1'], ['onDemand', '8.2'], ['onDemand', '8.5'],
+  ] as const)('suppresses dynamic-property cascades and stale fixes for cyclic hierarchies in %s at PHP %s', async (indexingMode, phpVersion) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-dynamic-cycles-'));
+    try {
+      await writeFile(join(root, 'composer.json'), JSON.stringify({}));
+      const uri = pathToFileURL(join(root, 'Cycles.php')).toString();
+      const source = `<?php namespace App;
+        class SelfCycle extends SelfCycle {}
+        class CycleA extends CycleB {} class CycleB extends CycleA {}
+        interface CycleI extends CycleJ {} interface CycleJ extends CycleI {}
+        class ImplementsCycle implements CycleI {}
+        trait CycleTrait { use CycleOtherTrait; } trait CycleOtherTrait { use CycleTrait; }
+        class UsesCycle { use CycleTrait; }
+        interface Shared {} interface Left extends Shared {} interface Right extends Shared {}
+        class Valid implements Left, Right {}
+        function mutate(SelfCycle $self, CycleA $pair, ImplementsCycle $contract, UsesCycle $trait, Valid $valid): void {
+          $self->created = 1; $pair->created = 1; $contract->created = 1; $trait->created = 1;
+          $valid->diamond = 1;
+        }
+      `;
+      await writeFile(join(root, 'Cycles.php'), source);
+      const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
+      const output = messagesFrom(running); let id = 0;
+      const request = async (method: string, params: unknown): Promise<any> => {
+        const requestId = ++id; running.stdin.write(encode({ jsonrpc: '2.0', id: requestId, method, params }));
+        const response = await output.waitFor((message) => message.id === requestId);
+        expect(response.error).toBeUndefined(); return response.result;
+      };
+      await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { phpVersion, indexingMode } });
+      running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
+      if (indexingMode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage'
+        && message.params?.message?.includes('complete=true'));
+      const publish = async (text: string, version: number): Promise<any[]> => {
+        running.stdin.write(encode({ jsonrpc: '2.0', method: version === 1 ? 'textDocument/didOpen' : 'textDocument/didChange',
+          params: version === 1 ? { textDocument: { uri, languageId: 'php', version, text } }
+            : { textDocument: { uri, version }, contentChanges: [{ text }] } }));
+        return (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+          && message.params.uri === uri && message.params.version === version)).params.diagnostics;
+      };
+      const propertyWarnings = (diagnostics: any[]): any[] => diagnostics.filter((item) => item.code === 'php.property.dynamic-deprecated');
+      const cycleErrors = (diagnostics: any[]): any[] => diagnostics.filter((item) => item.code === 'php.inheritance.cycle');
+      const assertNoStaleFix = async (): Promise<void> => {
+        const start = source.indexOf('created');
+        const range = { start: lspPosition(source, start), end: lspPosition(source, start + 'created'.length) };
+        const stale = { range, severity: 2, code: 'php.property.dynamic-deprecated', source: 'SoPHP', message: 'Legacy dynamic-property warning' };
+        const actions = await request('textDocument/codeAction', { textDocument: { uri }, range,
+          context: { diagnostics: [stale], only: ['quickfix'] } });
+        expect(actions.filter((action: { title: string }) => action.title.includes('Declare property $created'))).toEqual([]);
+      };
+      const enabled = phpVersion === '8.2' || phpVersion === '8.5';
+      const original = await publish(source, 1);
+      const warnings = propertyWarnings(original);
+      expect(warnings).toHaveLength(enabled ? 1 : 0);
+      if (indexingMode === 'experimental') expect(cycleErrors(original)).toHaveLength(7);
+      await assertNoStaleFix();
+      if (enabled) {
+        expect(warnings[0].message).toBe('Creation of dynamic property App\\Valid::$diamond is deprecated in PHP 8.2 and newer.');
+        const actions = await request('textDocument/codeAction', { textDocument: { uri }, range: warnings[0].range,
+          context: { diagnostics: warnings, only: ['quickfix'] } });
+        const action = actions.find((item: { title: string }) => item.title.includes('Declare property $diamond'));
+        expect(action?.edit?.changes?.[uri]).toEqual(expect.arrayContaining([
+          expect.objectContaining({ newText: expect.stringContaining('public int $diamond;') }),
+        ]));
+      }
+      const repaired = source.replace('SelfCycle extends SelfCycle', 'SelfCycle').replace('CycleB extends CycleA', 'CycleB')
+        .replace('CycleJ extends CycleI', 'CycleJ').replace('CycleOtherTrait { use CycleTrait; }', 'CycleOtherTrait {}');
+      const changed = await publish(repaired, 2);
+      expect(propertyWarnings(changed)).toHaveLength(enabled ? 5 : 0);
+      expect(cycleErrors(changed)).toHaveLength(0);
+      const restored = await publish(source, 3);
+      expect(propertyWarnings(restored)).toHaveLength(enabled ? 1 : 0);
+      if (indexingMode === 'experimental') expect(cycleErrors(restored)).toHaveLength(7);
+      await assertNoStaleFix();
+      expect(await readFile(join(root, 'Cycles.php'), 'utf8')).toBe(source);
+      await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
   const verifyAllowDynamicPropertyDiagnostics = async (indexingMode: 'experimental' | 'onDemand'): Promise<void> => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-allow-dynamic-properties-'));
     try {
