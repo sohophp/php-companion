@@ -4,12 +4,13 @@
 
 ### 最新源码与验收边界
 
-最新源码与验收见 D187–D193／D194–D198／D199／D202–D213；D175／D177／D184 等整轮结果绑定旧 Core。其余历史条目的“当前”仅指各自绑定的源码和构建，不转移到后续修改。
+最新源码与验收见 D214–D220（Core `3fc50093`），以及 D187–D193／D194–D198／D199／D202–D213；D175／D177／D184 等整轮结果绑定旧 Core。其余历史条目的“当前”仅指各自绑定的源码和构建，不转移到后续修改。
 
 | 项目 | 当前事实 |
 | --- | --- |
+| D214–D220 默认模式完整 C3 | [诊断修复与证据](reports/on-demand-diagnostics-windows-c3-2026-10-07.md)：`3fc50093` 让当前文件可证明的两项动态属性诊断脱离全项目索引门槛；完整语义 22823、两模式四项 stdio 及原 Windows 完整 C3／onDemand 通过，原失败保留。五组普通编辑正确性通过、四组 P95 合格；大 Controller 173.01 ms 仍超 150 ms，当前完整 LSP、规模／平台／长期与真人继续开放 |
 | D202–D213 默认模式恢复与缓存原型 | [本批报告](reports/parser-cache-trial-and-on-demand-recovery-2026-10-07.md)：序列化缓存原型因大 Controller 仍超限、PHP 7.2 对照新超限而撤回；八份正式资产恢复 `6cf4d4c8`。onDemand／PHP 8.5／合规四文件夹具，100 预热＋1000 正式编辑、实际取消、同损坏缓存重写及四类未保存恢复通过；取消反向检查、原默认布局兼容与完整解析 158 项通过。三次准备失败保留，真实大 Controller 当前基线 167.30 ms、规模／平台／长期与真人继续开放 |
-| D199 当前完整 LSP 组合 | [当前报告](reports/core-e8f853e8-full-regression-2026-10-07.md)：`e8f853e8`／`6cf4d4c8`，98 文件／1303 项，1303 通过／0 失败／0 pending；资格 **通过**。原 1294 项及九实际 CLI 参数化案例执行，输入与身份以原终态审计为准；不扩大为九次完整 LSP 或真人范围 |
+| D199 前一 Core 的完整 LSP 组合 | [当前报告](reports/core-e8f853e8-full-regression-2026-10-07.md)：`e8f853e8`／`6cf4d4c8`，98 文件／1303 项，1303 通过／0 失败／0 pending；资格 **通过**。原 1294 项及九实际 CLI 参数化案例执行，输入与身份以原终态审计为准；不扩大为九次完整 LSP 或真人范围 |
 | D194–D198 连续编辑与恢复 | [两文件基准](reports/current-editing-recovery-2026-10-07.md)：同 `6cf4d4c8`，PHP 8.5／experimental，100 预热＋1000 正式编辑通过；两查询实际取消、反向拦截失败及磁盘／未保存内容区分的损坏缓存恢复通过。产品未改动，不关闭真实项目／长期或规模资格 |
 | D187–D193 当前产品与普通 C1 | [源码及首次对照](reports/real-project-never-editing-2026-10-07.md)：`a5ec1db7`／`6cf4d4c8`，修复 local never 无效解析及恢复旧树；完整语义 22822／正常 C1 通过。首次默认并发语义失败保留，大 Controller P95 166.28 ms 仍超 150 ms，原 Windows C2/C3 不转移 |
 | D184 当前 Windows 完整 C3 | [组合报告](reports/core-21396cde-combined-acceptance-2026-10-07.md)：旧测试错误要求原始 edit，修正为已有安全预览命令，新增五组取消／应用断言并保留签名及 Undo/Redo。正常原生完整 C3 199.868 秒通过，PHP 8.5／experimental，零意外关闭／重启失败；生产源码／Core bundle 未变，D179 原失败保留 |
@@ -548,3 +549,7 @@ D123 失败记录与本批源码、回归语料、宿主工具一并整理必要
 ## D200–D201：当前 Controller 的 CPU 成本
 
 [当前诊断](reports/core-e8f853e8-full-regression-2026-10-07.md)保留 Composer 变化导致的准备失败，之后对同一 Core／Controller 源码、当前 Composer 完成一次 100 轮 CPU 诊断。首位与共享候选、只读及输入保持通过，主线程／worker 分开保留，source map 正文与生产 bundle 精确匹配。主线程 structuredClone 自身累计 3149.85 ms，证明事实复制仍有明确成本；这不是单次延迟，不能与旧 Composer 的 166.28 ms 比较。下一步评估私有缓存一次编码与独立读取，先保护事实／树所有权，再进行当前同输入普通对照；原型未实现。原 C1–C4／R4、全部开放门槛与 Goal active 保持，不打包、更新 Profile 或推送。
+
+## D214–D220：默认模式完整 C3 与本地诊断
+
+[本批报告](reports/on-demand-diagnostics-windows-c3-2026-10-07.md)记录旧 Core 的 Windows C2／C3 experimental 通过，以及默认模式完整 C3 的原始诊断失败。新 Core `3fc50093` 修复可由当前文件证明的非法属性与动态属性诊断；完整语义 22823、两模式四项协议和原 Windows 完整 C3 通过。普通真实项目大 Controller 为 173.01 ms，继续未通过原预算，其余四组通过。当前完整 LSP 在后续组合冻结复验，旧 D199 不转移；原 C1–C4／R4 及全部开放范围保持，Goal active。

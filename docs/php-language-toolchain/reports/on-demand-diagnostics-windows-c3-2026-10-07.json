@@ -1,0 +1,189 @@
+{
+  "recordedAtUtc": "2026-10-07T00:27:53.083417+00:00",
+  "baseCommit": "cd1863301dc785f496d07c7251c2682c6ef5714d",
+  "coreSha256": "3fc5009345154729269f59b6234b716d9a83b691047f090da66527be561143a8",
+  "productScope": "Same-file proven AllowDynamicProperties and dynamic-property diagnostics in partial projects; external and incomplete hierarchies remain conservative. No new configuration or protocol.",
+  "nativeWindows": [
+    {
+      "phase": "D214",
+      "coreSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+      "suite": "C2",
+      "indexingMode": "onDemand",
+      "exitCode": 0,
+      "durationSeconds": 97.75847157399403,
+      "qualified": true,
+      "archivedArtifacts": 41
+    },
+    {
+      "phase": "D215",
+      "coreSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+      "suite": "C3",
+      "indexingMode": "experimental",
+      "exitCode": 0,
+      "durationSeconds": 201.49914682901,
+      "qualified": true,
+      "archivedArtifacts": 61
+    },
+    {
+      "phase": "D216",
+      "coreSha256": "6cf4d4c8892342f04cd3ee1d7bea8351b38b2754564ea8edb183c03137c6a26a",
+      "suite": "C3",
+      "indexingMode": "onDemand",
+      "exitCode": 1,
+      "durationSeconds": 120.75340517400764,
+      "qualified": false,
+      "archivedArtifacts": 60
+    },
+    {
+      "phase": "D219",
+      "coreSha256": "3fc5009345154729269f59b6234b716d9a83b691047f090da66527be561143a8",
+      "suite": "C3",
+      "indexingMode": "onDemand",
+      "exitCode": 0,
+      "durationSeconds": 200.39146588998847,
+      "qualified": true,
+      "archivedArtifacts": 62
+    }
+  ],
+  "regressions": {
+    "semantic": {
+      "files": 145,
+      "total": 22823,
+      "passed": 22823,
+      "failed": 0,
+      "missingPriorCases": 0,
+      "addedCases": [
+        {
+          "file": "semantic.test.ts",
+          "title": "limits partial-project dynamic property warnings to proven current-file hierarchies",
+          "count": 1
+        }
+      ]
+    },
+    "protocolCasesPassed": 4,
+    "protocolCasesSkipped": 532,
+    "configuredPhpVersions": [
+      "7.2",
+      "8.1",
+      "8.2",
+      "8.5"
+    ],
+    "modes": [
+      "experimental",
+      "onDemand"
+    ],
+    "nativePhpCliQualification": false,
+    "baselineExplicitMode": {
+      "passed": 2,
+      "failed": 2,
+      "log": "d217-diagnostics-explicit-mode-baseline.log"
+    },
+    "sourceHashes": {
+      "packages/semantic/src/index.ts": "466f6f50861c0b0a222fb465d14e950d947c88bc73bcacaac08b4ebca9162a44",
+      "packages/language-server/src/server.ts": "ed35320fe1734e2fdd0a4902a69bd821f89ac8ad87550ea7da008997525183a3"
+    }
+  },
+  "ordinaryEditing": {
+    "roundsPerCase": 100,
+    "hotQueryBudgetMs": 150,
+    "correctnessCaptured": true,
+    "qualified": false,
+    "externalInputsMatchD202": true,
+    "nodeMatchesD202": true,
+    "diskAndInputsUnchanged": true,
+    "cases": [
+      {
+        "label": "fixed-7.2",
+        "beforeP95Ms": 144.43,
+        "afterP50Ms": 105.36,
+        "afterP95Ms": 139.5,
+        "afterMaxMs": 386.37,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "beforeP95Ms": 141.96,
+        "afterP50Ms": 105.06,
+        "afterP95Ms": 144.45,
+        "afterMaxMs": 194.05,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "beforeP95Ms": 106.05,
+        "afterP50Ms": 68.04,
+        "afterP95Ms": 100.68,
+        "afterMaxMs": 205.01,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "beforeP95Ms": 167.3,
+        "afterP50Ms": 132.3,
+        "afterP95Ms": 173.01,
+        "afterMaxMs": 267.9,
+        "budgetPassed": false
+      },
+      {
+        "label": "real-blog-controller",
+        "beforeP95Ms": 69.6,
+        "afterP50Ms": 47.07,
+        "afterP95Ms": 70.01,
+        "afterMaxMs": 145.62,
+        "budgetPassed": true
+      }
+    ]
+  },
+  "preservedFailedAttempts": [
+    "D216 original full C3: zero of four invalid attributes",
+    "D217 initial test initialization field was incorrect; excluded from mode proof",
+    "D217 explicit-mode baseline: two onDemand failures",
+    "D218 initial build: kindLabels scope error; corrected before qualification",
+    "D220 current large Controller still exceeds 150 ms"
+  ],
+  "evidence": [
+    {
+      "path": ".vscode-test/d218-diagnostics-audit.json",
+      "sha256": "188574fc38e4cf7707218ab0f2450da2f61b32b0134f70e8fe234bd9d72ec544"
+    },
+    {
+      "path": ".vscode-test/d218-core-build.json",
+      "sha256": "10fea3a105af3e1d5e3dc79f4e4481a61358d32f8455296b8cfbc4a0b1dc2b9e"
+    },
+    {
+      "path": ".vscode-test/d214-native-editor-audit.json",
+      "sha256": "a9472d4b3f8948e6a455fcd9e887e0f54fbbedbf4d4768af9ddf1a3958e355cd"
+    },
+    {
+      "path": ".vscode-test/d215-native-editor-audit.json",
+      "sha256": "80c769ff9b0f8b555a5c55639701b99c4ffb4ede81c0ce832bf268cb02780a19"
+    },
+    {
+      "path": ".vscode-test/d216-native-editor-audit.json",
+      "sha256": "8f7d456081f35338075918bff966e679b9d963229993443aa30b0ea03193d60d"
+    },
+    {
+      "path": ".vscode-test/d219-native-editor-audit.json",
+      "sha256": "96461e8704e0dd534ce196c6e731817839938497b9fe9ac9ee0804b41d837207"
+    },
+    {
+      "path": ".vscode-test/d220-current-project-editing-run.json",
+      "sha256": "73f8a95efcf8c0973d1df650407208b4f8d621760288cdc80d9057e719878de5"
+    },
+    {
+      "path": ".vscode-test/d221-diagnostics-eslint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "openScope": [
+    "Current complete LSP combination for 3fc50093; D199 belongs to 6cf4d4c8",
+    "Ordinary large Controller performance",
+    "50k cache memory and bare-variable descriptions",
+    "Other platform/mode/version/component combinations and long sessions",
+    "Real WSL UI acceptance"
+  ],
+  "goalStatus": "active",
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false
+}

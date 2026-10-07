@@ -2339,7 +2339,23 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
           argument.callable, argument.parameter, argument.expectedType, argument.actualType),
       })));
   }
+  const kindLabels = { class: 'kindClass', interface: 'kindInterface', trait: 'kindTrait', enum: 'kindEnum' } as const;
   if (result.diagnostics.every((diagnostic) => diagnostic.code !== 'php.syntax')) {
+    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.dynamicPropertyCreations(document.uri, !root || !completeRoots.has(root)).map((property) => ({
+      range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },
+      severity: DiagnosticSeverity.Warning,
+      code: 'php.property.dynamic-deprecated',
+      source: 'SoPHP',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'dynamicProperty', property.ownerFqcn, property.name),
+    })));
+    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.invalidAllowDynamicProperties(document.uri).map((item) => ({
+      range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
+      severity: DiagnosticSeverity.Error,
+      code: 'php.attribute.invalid-allow-dynamic-properties',
+      source: 'SoPHP',
+      message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAllowDynamicProperties',
+        diagnosticMessage(clientDiagnosticLanguage, item.readonlyClass ? 'readonlyClassKind' : kindLabels[item.kind]), item.typeFqcn),
+    })));
     result.diagnostics.push(...workspace.incompatibleReturns(document.uri, !root || !completeRoots.has(root)).map((returned) => ({
       range: { start: document.positionAt(returned.start), end: document.positionAt(returned.end) },
       severity: DiagnosticSeverity.Error,
@@ -2511,13 +2527,6 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'argumentTypeMismatch', argument.callable, argument.parameter, argument.expectedType, argument.actualType),
     })));
-    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.dynamicPropertyCreations(document.uri).map((property) => ({
-      range: { start: document.positionAt(property.start), end: document.positionAt(property.end) },
-      severity: DiagnosticSeverity.Warning,
-      code: 'php.property.dynamic-deprecated',
-      source: 'SoPHP',
-      message: diagnosticMessage(clientDiagnosticLanguage, 'dynamicProperty', property.ownerFqcn, property.name),
-    })));
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')) result.diagnostics.push(...workspace.unknownNamedArguments(document.uri).map((call) => ({
       range: { start: document.positionAt(call.start), end: document.positionAt(call.end) },
       severity: DiagnosticSeverity.Error,
@@ -2581,7 +2590,6 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
           diagnosticMessage(clientDiagnosticLanguage, item.parentReadonly ? 'readonlyParentLabel' : 'nonReadonlyParentLabel'), item.parent),
       })));
     const relationLabels = { extend: 'relationExtend', implement: 'relationImplement', use: 'relationUse' } as const;
-    const kindLabels = { class: 'kindClass', interface: 'kindInterface', trait: 'kindTrait', enum: 'kindEnum' } as const;
     result.diagnostics.push(...workspace.invalidTypeRelations(document.uri).map((item) => ({
       range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
       severity: DiagnosticSeverity.Error,
@@ -2613,14 +2621,6 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
       code: 'php.readonly-class.invalid-trait',
       source: 'SoPHP',
       message: diagnosticMessage(clientDiagnosticLanguage, 'readonlyTraitProperty', item.classFqcn, item.traitFqcn, item.propertyOwner, item.propertyName),
-    })));
-    if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.2')) result.diagnostics.push(...workspace.invalidAllowDynamicProperties(document.uri).map((item) => ({
-      range: { start: document.positionAt(item.start), end: document.positionAt(item.end) },
-      severity: DiagnosticSeverity.Error,
-      code: 'php.attribute.invalid-allow-dynamic-properties',
-      source: 'SoPHP',
-      message: diagnosticMessage(clientDiagnosticLanguage, 'invalidAllowDynamicProperties',
-        diagnosticMessage(clientDiagnosticLanguage, item.readonlyClass ? 'readonlyClassKind' : kindLabels[item.kind]), item.typeFqcn),
     })));
     const overrideProperties = workspace.overridePropertyAttributes(document.uri);
     if (SUPPORTED_PHP_VERSIONS.indexOf(targetPhpVersion) >= SUPPORTED_PHP_VERSIONS.indexOf('8.0')

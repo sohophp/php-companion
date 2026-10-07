@@ -16533,7 +16533,7 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('publishes proven dynamic property creation warnings only for PHP 8.2 and newer', async () => {
+  const verifyDynamicPropertyDiagnostics = async (indexingMode: 'experimental' | 'onDemand'): Promise<void> => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-dynamic-properties-'));
     try {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
@@ -16551,35 +16551,59 @@ class Example {}`;
         }
       `;
       await writeFile(join(root, 'DynamicProperties.php'), source);
-      for (const phpVersion of ['8.1', '8.2'] as const) {
+      for (const phpVersion of ['7.2', '8.1', '8.2', '8.5'] as const) {
         const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
         const output = messagesFrom(running);
         running.stdin.write(encode({ jsonrpc: '2.0', id: 40, method: 'initialize', params: {
-          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion, indexingMode },
         } }));
         await output.waitFor((message) => message.id === 40);
         running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+        if (indexingMode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
         running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
-        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1)).params.diagnostics
           .filter((item: { code?: string }) => item.code === 'php.property.dynamic-deprecated');
-        expect(diagnostics).toHaveLength(phpVersion === '8.2' ? 4 : 0);
-        if (phpVersion === '8.2') expect(diagnostics[0]).toMatchObject({
+        expect(diagnostics).toHaveLength((phpVersion === '8.2' || phpVersion === '8.5') ? 4 : 0);
+        if (phpVersion === '8.2' || phpVersion === '8.5') expect(diagnostics[0]).toMatchObject({
           severity: 2,
           message: 'Creation of dynamic property App\\Plain::$created is deprecated in PHP 8.2 and newer.',
           range: { start: lspPosition(source, source.indexOf('created')), end: lspPosition(source, source.indexOf('created') + 'created'.length) },
         });
-        if (phpVersion === '8.2') expect(diagnostics.map((item: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) => {
+        if (phpVersion === '8.2' || phpVersion === '8.5') expect(diagnostics.map((item: { range: { start: { line: number; character: number }; end: { line: number; character: number } } }) => {
           const start = source.split('\n').slice(0, item.range.start.line).reduce((sum, line) => sum + line.length + 1, 0) + item.range.start.character;
           const end = source.split('\n').slice(0, item.range.end.line).reduce((sum, line) => sum + line.length + 1, 0) + item.range.end.character;
           return source.slice(start, end);
         })).toEqual(['created', 'repeated', 'reset', 'reset']);
+        if (phpVersion === '8.5') {
+          const changedDiagnostics = async (text: string, version: number): Promise<Array<{ code?: string }>> => {
+            running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+              textDocument: { uri, version }, contentChanges: [{ text }],
+            } }));
+            return (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+              && message.params.uri === uri && message.params.version === version)).params.diagnostics
+              .filter((item: { code?: string }) => item.code === 'php.property.dynamic-deprecated');
+          };
+          const repaired = source.replace('class Plain {}', 'class Plain { public int $created; public int $repeated; public int $reset; }');
+          expect(await changedDiagnostics(repaired, 2)).toHaveLength(0);
+          expect(await changedDiagnostics(source, 3)).toHaveLength(4);
+          expect(await changedDiagnostics(`${source} function unfinished(`, 4)).toHaveLength(0);
+          expect(await changedDiagnostics(source, 5)).toHaveLength(4);
+          expect(await readFile(join(root, 'DynamicProperties.php'), 'utf8')).toBe(source);
+        }
         await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
       }
     } finally { await rm(root, { recursive: true, force: true }); }
+  };
+
+  it('publishes proven dynamic property creation warnings only for PHP 8.2 and newer', async () => {
+    await verifyDynamicPropertyDiagnostics('experimental');
   });
 
-  it('rejects AllowDynamicProperties on readonly and non-class declarations for PHP 8.2+', async () => {
+  it('publishes proven dynamic property creation warnings only for PHP 8.2 and newer in onDemand mode', async () => {
+    await verifyDynamicPropertyDiagnostics('onDemand');
+  });
+
+  const verifyAllowDynamicPropertyDiagnostics = async (indexingMode: 'experimental' | 'onDemand'): Promise<void> => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-allow-dynamic-properties-'));
     try {
       await writeFile(join(root, 'composer.json'), JSON.stringify({}));
@@ -16591,31 +16615,61 @@ class Example {}`;
         #[\\AllowDynamicProperties] interface InvalidInterface {}
         #[\\AllowDynamicProperties] trait InvalidTrait {}
         #[\\AllowDynamicProperties] enum InvalidEnum {}
+        class AllowDynamicProperties {}
         #[AllowDynamicProperties] readonly class CustomAttribute {}
+        #[UnknownAttribute] readonly class Unknown {}
       `;
       await writeFile(join(root, 'Attributes.php'), source);
-      for (const phpVersion of ['8.1', '8.2'] as const) {
+      for (const phpVersion of ['7.2', '8.1', '8.2', '8.5'] as const) {
         const running = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' }); server = running;
         const output = messagesFrom(running);
         running.stdin.write(encode({ jsonrpc: '2.0', id: 41, method: 'initialize', params: {
-          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion },
+          processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: { phpVersion, indexingMode },
         } }));
         await output.waitFor((message) => message.id === 41);
         running.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
-        await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
+        if (indexingMode === 'experimental') await output.waitFor((message) => message.method === 'window/logMessage' && message.params?.message?.includes('complete=true'));
         running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } }));
-        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri)).params.diagnostics
+        const diagnostics = (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1)).params.diagnostics
           .filter((item: { code?: string }) => item.code === 'php.attribute.invalid-allow-dynamic-properties');
-        expect(diagnostics).toHaveLength(phpVersion === '8.2' ? 4 : 0);
-        if (phpVersion === '8.2') expect(diagnostics.map((item: { message: string }) => item.message)).toEqual([
+        expect(diagnostics).toHaveLength((phpVersion === '8.2' || phpVersion === '8.5') ? 4 : 0);
+        if (phpVersion === '8.2' || phpVersion === '8.5') expect(diagnostics.map((item: { message: string }) => item.message)).toEqual([
           'Cannot apply #[AllowDynamicProperties] to readonly class App\\ReadonlyTarget.',
           'Cannot apply #[AllowDynamicProperties] to interface App\\InvalidInterface.',
           'Cannot apply #[AllowDynamicProperties] to trait App\\InvalidTrait.',
           'Cannot apply #[AllowDynamicProperties] to enum App\\InvalidEnum.',
         ]);
+        if (phpVersion === '8.5') {
+          const changedDiagnostics = async (text: string, version: number): Promise<Array<{ code?: string }>> => {
+            running.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: {
+              textDocument: { uri, version }, contentChanges: [{ text }],
+            } }));
+            return (await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+              && message.params.uri === uri && message.params.version === version)).params.diagnostics
+              .filter((item: { code?: string }) => item.code === 'php.attribute.invalid-allow-dynamic-properties');
+          };
+          const repaired = source.replace(/#\[[^\]]+\]/g, '');
+          expect(await changedDiagnostics(repaired, 2)).toHaveLength(0);
+          expect(await changedDiagnostics(source, 3)).toHaveLength(4);
+          expect(await changedDiagnostics(`${source} function unfinished(`, 4)).toHaveLength(0);
+          expect(await changedDiagnostics(source, 5)).toHaveLength(4);
+          const rebound = source.replace('use \\AllowDynamicProperties as Dynamic;', 'use App\\AllowDynamicProperties as Dynamic;');
+          expect(rebound).not.toBe(source);
+          expect(await changedDiagnostics(rebound, 6)).toHaveLength(3);
+          expect(await changedDiagnostics(source, 7)).toHaveLength(4);
+          expect(await readFile(join(root, 'Attributes.php'), 'utf8')).toBe(source);
+        }
         await new Promise<void>((resolveExit) => { running.once('exit', () => resolveExit()); running.kill(); }); server = undefined;
       }
     } finally { await rm(root, { recursive: true, force: true }); }
+  };
+
+  it('rejects AllowDynamicProperties on readonly and non-class declarations for PHP 8.2+', async () => {
+    await verifyAllowDynamicPropertyDiagnostics('experimental');
+  });
+
+  it('rejects AllowDynamicProperties on readonly and non-class declarations for PHP 8.2+ in onDemand mode', async () => {
+    await verifyAllowDynamicPropertyDiagnostics('onDemand');
   });
 
   it('enforces the PHP 8.5 Override property target and matching-parent contract', async () => {

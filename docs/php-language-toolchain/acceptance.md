@@ -6,6 +6,8 @@
 
 可运行输入的编号与覆盖进度见[验收 fixtures](acceptance-fixtures.md)；首组 F08 Extract Interface 已包含正例、合法反例和未完成输入，其余映射仍开放。
 
+2026-10-07 [D214–D220 按需诊断与 Windows 完整 C3](reports/on-demand-diagnostics-windows-c3-2026-10-07.md)：新 Core `3fc50093` 的原完整 C3／onDemand、22823 项完整语义及四项定向 stdio 通过，原零诊断失败保留。真实大 Controller P95 173.01 ms 仍超 150 ms；当前完整 LSP 及其它组件／平台／长期和真实 WSL 验收仍开放，旧 D199 结果不转移。
+
 ## 首发验收 S01–S08
 
 R1 只以以下门槛交付；F01–F14 是 R4 长期门槛，不阻塞符合范围的早期版本。

@@ -3869,6 +3869,7 @@ export class SemanticWorkspace {
 
   invalidAllowDynamicProperties(uri: string): InvalidAllowDynamicProperties[] {
     const file = this.files.get(uri); if (!file) return [];
+    if (!file.typeReferences.some((reference) => reference.context === 'attribute')) return [];
     let incomplete = false;
     const retainedTree = this.trees.get(uri); const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     const root = (retainedTree ?? temporaryTree!).rootNode;
@@ -8329,8 +8330,9 @@ export class SemanticWorkspace {
     return properties.sort((left, right) => left.start - right.start);
   }
 
-  dynamicPropertyCreations(uri: string): DynamicPropertyCreation[] {
+  dynamicPropertyCreations(uri: string, localOnly = false): DynamicPropertyCreation[] {
     const file = this.files.get(uri); if (!file) return [];
+    if (!file.memberAccesses.some((access) => access.kind === 'property' && !access.static && access.dynamic === undefined)) return [];
     const results: DynamicPropertyCreation[] = []; const reported = new Set<string>(); const createdStatements = new Map<number, string>(); let incomplete = false;
     const declarations = [...this.files.values()].flatMap((candidate) => candidate.declarations
       .filter((item) => !item.anonymous).map((declaration) => ({ file: candidate, declaration })));
@@ -8343,6 +8345,9 @@ export class SemanticWorkspace {
       if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH) return false;
       visited.add(key);
       const owner = uniqueDeclaration(fqcn); if (!owner) return false;
+      // A partial project cannot prove that a separately loaded declaration is current.
+      // Keep the whole hierarchy local (or built in) until project indexing completes.
+      if (localOnly && owner.file.uri !== uri && !owner.file.uri.startsWith('php-companion-builtin:')) return false;
       const namespace = owner.declaration.fqcn.split('\\').slice(0, -1).join('\\');
       return [...owner.declaration.extendsNames, ...owner.declaration.implementsNames, ...owner.declaration.traitNames].every((name) => {
         const inherited = this.resolveSourceType(owner.file, name, namespace, owner.declaration.fqcn);

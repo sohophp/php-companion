@@ -2772,6 +2772,40 @@ class Context {
       ['calls', 'write', true],
     ]);
   });
+  it('limits partial-project dynamic property warnings to proven current-file hierarchies', () => {
+    const uri = 'file:///LocalDynamicProperties.php';
+    const source = `<?php namespace LocalDynamicProperties;
+      class Plain {}
+      class Base { public int $known; }
+      class Child extends Base {}
+      class UnknownParent extends Missing {}
+      class ExternalChild extends External {}
+      class Magic { public function __set(string $name, mixed $value): void {} }
+      #[\\AllowDynamicProperties] class Allowed {}
+      class AllowedChild extends Allowed {}
+      class Duplicate {}
+      function mutate(Plain $plain, Child $child, UnknownParent $unknown, ExternalChild $externalChild,
+        External $external, Magic $magic, AllowedChild $allowed, Duplicate $duplicate): void {
+        $plain->created = 1; $child->created = 1; $child->known = 1;
+        $unknown->created = 1; $externalChild->created = 1; $external->created = 1;
+        $magic->created = 1; $allowed->created = 1; $duplicate->created = 1;
+      }`;
+    workspace.update('file:///ExternalDynamicProperties.php', '<?php namespace LocalDynamicProperties; class External {} class Duplicate {}');
+    workspace.update(uri, source);
+    expect(workspace.dynamicPropertyCreations(uri, true).map((item) => item.ownerFqcn)).toEqual([
+      'LocalDynamicProperties\\Plain', 'LocalDynamicProperties\\Child',
+    ]);
+    expect(workspace.dynamicPropertyCreations(uri).map((item) => item.ownerFqcn)).toEqual([
+      'LocalDynamicProperties\\Plain', 'LocalDynamicProperties\\Child',
+      'LocalDynamicProperties\\ExternalChild', 'LocalDynamicProperties\\External',
+    ]);
+    workspace.update(uri, source.replace('class Plain {}', 'class Plain { public int $created; }'));
+    expect(workspace.dynamicPropertyCreations(uri, true).map((item) => item.ownerFqcn)).toEqual(['LocalDynamicProperties\\Child']);
+    workspace.update(uri, `${source} function unfinished(`);
+    expect(workspace.dynamicPropertyCreations(uri, true)).toEqual([]);
+    workspace.remove(uri);
+    workspace.remove('file:///ExternalDynamicProperties.php');
+  });
   it('reports only proven direct dynamic property creation candidates', () => {
     workspace.update('file:///DynamicPropertyTypes.php', `<?php namespace DynamicProperties;
       class Plain {}
