@@ -28,7 +28,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm verify:packages
-      - run: pnpm test
       - name: Editing resilience benchmark
         run: node scripts/benchmark-editing.mjs 500 50 > editing-resilience-${{ runner.os }}-${{ runner.arch }}.json
       - uses: actions/upload-artifact@v7
@@ -43,6 +42,7 @@ jobs:
           name: persistent-index-${{ runner.os }}-${{ runner.arch }}
           if-no-files-found: error
           path: persistent-index-${{ runner.os }}-${{ runner.arch }}.json
+      - run: pnpm test
       - run: pnpm package:all
       - run: pnpm verify:vsix
       - if: runner.os == 'Linux'

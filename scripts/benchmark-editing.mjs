@@ -1,4 +1,5 @@
 import { execFile, spawn } from 'node:child_process';
+import { Buffer } from 'node:buffer';
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { cpus, platform, arch, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -90,7 +91,7 @@ function startLanguageServer() {
   });
   return {
     child, messages,
-    send(message) { child.stdin.write(encodeLspMessage(message)); },
+    send(...messages) { child.stdin.write(Buffer.concat(messages.map(encodeLspMessage))); },
     waitFor(predicate, { after = 0, timeoutMs = 10_000 } = {}) {
       const existing = messages.slice(after).find(predicate); if (existing) return Promise.resolve(existing);
       return new Promise((resolvePromise, reject) => {
@@ -268,8 +269,10 @@ try {
       throw new Error(`Uncancelled workspace symbol control failed for ${JSON.stringify(query)}: ${JSON.stringify(control.error ?? control.result?.map((symbol) => symbol.name))}.`);
     }
     const cancellationId = requestId++; const cancellationStarted = performance.now();
-    server.send({ jsonrpc: '2.0', id: cancellationId, method: 'workspace/symbol', params: { query } });
-    server.send({ jsonrpc: '2.0', method: '$/cancelRequest', params: { id: cancellationId } });
+    // Deliver both frames together so the probe measures an available cancel
+    // notification, rather than a request completed before the next pipe read.
+    server.send({ jsonrpc: '2.0', id: cancellationId, method: 'workspace/symbol', params: { query } },
+      { jsonrpc: '2.0', method: '$/cancelRequest', params: { id: cancellationId } });
     const cancellation = await server.waitFor((message) => message.id === cancellationId);
     const durationMs = performance.now() - cancellationStarted;
     if (cancellation.error?.code !== -32800 && !Array.isArray(cancellation.result)) {
@@ -403,7 +406,11 @@ try {
     || report.updateToDiagnosticsMs.p95 > report.budgets.updateToDiagnosticsP95Ms
     || report.cancellationOutcome !== 'cancelled'
     || report.cancellationMs > report.budgets.cancellationMs
-    || report.languageServerRssMb.endMinusBaseline > report.budgets.rssEndMinusBaselineMb) process.exitCode = 1;
+    || report.languageServerRssMb.endMinusBaseline > report.budgets.rssEndMinusBaselineMb) {
+    process.exitCode = 1;
+    // CI redirects stdout into the artifact; retain failed metrics in its log.
+    process.stderr.write(`Editing resilience budget failed: ${JSON.stringify(report)}\n`);
+  }
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } finally {
   server?.child.kill(); await rm(root, { recursive: true, force: true });

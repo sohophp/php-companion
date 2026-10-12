@@ -39,8 +39,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm verify:packages
-      - run: pnpm test
       - run: node scripts/benchmark-editing.mjs 1000 100 > editing-resilience-Linux-X64.json
+      - run: pnpm test
       - run: pnpm package:all
       - run: pnpm verify:vsix
       - run: pnpm exec tsc -p test/extension/tsconfig.json
