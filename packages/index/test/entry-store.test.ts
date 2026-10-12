@@ -145,11 +145,12 @@ it('release cannot remove a new owner published after the old unique owner file 
   finally { resume.resolve(); await winner.release(); }
 });
 
-it('retains a real live process owner and recovers its lock only after the process exits', async () => {
+it.each([false, true])('retains a real live process owner until it exits (legacy=%s)', async legacy => {
   const root = await temporary(); const path = join(root, 'commit.lock'); const token = randomUUID();
   const program = `const fs=require('node:fs'); const os=require('node:os'); const path=require('node:path');
-const [file,token]=process.argv.slice(1);fs.mkdirSync(file);fs.writeFileSync(path.join(file,'owner-'+token+'.json'),JSON.stringify({pid:process.pid,hostname:os.hostname(),token}));process.send('ready');setInterval(()=>{},1000);`;
-  const child = spawn(process.execPath, ['-e', program, path, token], { stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
+const [file,token,legacy]=process.argv.slice(1);const text=JSON.stringify({pid:process.pid,hostname:os.hostname(),token});
+if(legacy==='true')fs.writeFileSync(file,text);else{fs.mkdirSync(file);fs.writeFileSync(path.join(file,'owner-'+token+'.json'),text)}process.send('ready');setInterval(()=>{},1000);`;
+  const child = spawn(process.execPath, ['-e', program, path, token, String(legacy)], { stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
   try {
     expect((await once(child, 'message'))[0]).toBe('ready');
     await expect(acquireCacheCommitLock(path)).rejects.toMatchObject({ code: 'EEXIST' });

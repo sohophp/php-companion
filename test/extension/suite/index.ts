@@ -2770,12 +2770,16 @@ export async function run(): Promise<void> {
   const autowiredConsumerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'AutowiredConsumer.php');
   const autowiredConsumer = await vscode.workspace.openTextDocument(autowiredConsumerUri);
   const autowiredTypeOffset = autowiredConsumer.getText().indexOf('Mailer $mailer') + 2;
+  let lastAutowireHover: vscode.Hover[] = [];
   await waitForAsync(async () => {
     const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
       'vscode.executeHoverProvider', autowiredConsumerUri, autowiredConsumer.positionAt(autowiredTypeOffset),
     ) ?? [];
+    lastAutowireHover = hovers;
     return hovers.flatMap((hover) => hover.contents).some((content) => (typeof content === 'string' ? content : content.value).includes('Symfony autowiring'));
-  }, 'Self-hosted language server did not expose the proven Symfony autowiring target');
+  }, 'Self-hosted language server did not expose the proven Symfony autowiring target').catch((error: unknown) => {
+    throw new Error(`${String(error)}; last hover: ${JSON.stringify(lastAutowireHover)}`);
+  });
   const mailerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'Mailer.php');
   await waitForAsync(async () => {
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>(

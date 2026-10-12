@@ -331,7 +331,8 @@ function pgsqlRuntimeFacts(value: unknown): PgsqlRuntimeFacts | undefined {
   if (entries.length > 100 || entries.some(([name, item]) => !/^PGSQL_[A-Z0-9_]{1,80}$/.test(name)
     || !(typeof item === 'number' && Number.isSafeInteger(item)
       || typeof item === 'boolean'
-      || typeof item === 'string' && item.length <= 128 && /^[\x20-\x7e]*$/.test(item)))) return undefined;
+      || typeof item === 'string' && item.length <= (name === 'PGSQL_LIBPQ_VERSION_STR' ? 1_024 : 128)
+        && /^[\x20-\x7e]*$/.test(item)))) return undefined;
   return { functions: functions.sort(),
     constants: Object.fromEntries(entries.sort(([a], [b]) => a.localeCompare(b))) as Record<string, number | boolean | string> };
 }

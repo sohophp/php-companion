@@ -39,7 +39,7 @@ throw new RuntimeException('${failureMessage}');
       message: string; config: string; phpVersion: string; phpBinary: string;
     };
     assert.strictEqual(witness.message, failureMessage);
-    assert.strictEqual(witness.config, configUri.fsPath);
+    assert.strictEqual(vscode.Uri.file(witness.config).fsPath, configUri.fsPath);
     assert.match(witness.phpVersion, /^\d+\.\d+\.\d+/u);
     assert.ok(witness.phpBinary, 'The failed config did not record a real PHP runtime');
     assert.strictEqual(failedEdits.length, 0, 'The failed formatter returned edits');

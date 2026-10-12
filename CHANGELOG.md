@@ -4,6 +4,7 @@
 
 - Improve Generator send, delegated yield and return inference, multiline PHPDoc types, callable parameters and bounded control-flow assertions.
 - Diagnose floating-point numeric separators, explicit octal literals, parameter/capture trailing commas and non-capturing catch at their supported PHP versions; report malformed octal prefixes and reject unsafe signature edits until syntax is repaired.
+- Accept longer legacy PostgreSQL compiler version strings when detecting PHP 7.2–7.4, and preserve live legacy cache lock owners on Windows.
 - Keep Definitions, References and Symfony facts current across unsaved edits, reopening and concurrent provider refresh; cancel superseded provider work and avoid publishing results during shutdown.
 - Strengthen parameter-order and static-member move previews, side-effect checks, input validation, failure cleanup and generated-body boundaries.
 - Reduce parser, semantic and index work with bounded caches, lazy facts, deferred validation and on-demand candidate workers; invalidate older semantic caches when error facts change.

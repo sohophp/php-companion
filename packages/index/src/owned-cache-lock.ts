@@ -73,6 +73,17 @@ export async function acquireCacheCommitLock(path: string, hooks: CacheLockHooks
     await writeFile(join(staging, filename), JSON.stringify({ schema: 1, hostname: hostname(), pid: process.pid, token }),
       { flag: 'wx', mode: 0o600 });
     for (let attempt = 0; attempt < 3; attempt++) {
+      // Windows can rename a directory over a flat file. Inspect legacy files
+      // before publishing so live owners survive and dead-owner recovery hooks
+      // run on every platform. New writers only publish directory owners.
+      const existing = await lstat(path).catch((error: unknown) => {
+        if (absent(error)) return undefined;
+        throw error;
+      });
+      if (existing && !existing.isDirectory()) {
+        if (!await recover(path, hooks)) throw contention();
+        continue;
+      }
       try { await rename(staging, path); published = true; break; }
       catch (error) {
         if (!occupied(error)) throw error;

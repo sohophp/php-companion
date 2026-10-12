@@ -33,6 +33,28 @@ describe('PHP runtime probe', () => {
     expect(await probePhpRuntime('php', {}, async () => payload({ loadedExtensions: ['Core', 'pgsql'],
       pgsqlRuntime: { functions: ['pg_connect'], constants: { PGSQL_LIBPQ_VERSION: { value: '13.23' } } } }), async () => '/usr/bin/php')).toBeUndefined();
   });
+  it.each(['7.2', '7.3', '7.4'])('accepts the long libpq compiler version on PHP %s', async (minor) => {
+    const version = `${minor}.34`;
+    const pgsqlRuntime = { functions: ['pg_connect'], constants: {
+      PGSQL_LIBPQ_VERSION: '16.14',
+      PGSQL_LIBPQ_VERSION_STR: 'PostgreSQL 16.14 (Ubuntu 16.14-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit',
+    } };
+    const runtime = await probePhpRuntime('php', {}, async () => payload({
+      version, versionId: Number(minor[0]) * 10_000 + Number(minor.slice(2)) * 100 + 34,
+      loadedExtensions: ['Core', 'pgsql'], pgsqlRuntime,
+    }), async () => '/usr/bin/php');
+    expect(runtime?.minor).toBe(minor);
+    expect(runtime?.pgsqlRuntime).toEqual(pgsqlRuntime);
+  });
+  it('retains bounds and printable text checks for PostgreSQL runtime constants', async () => {
+    const probe = (name: string, value: string): ReturnType<typeof probePhpRuntime> => probePhpRuntime('php', {}, async () => payload({
+      loadedExtensions: ['Core', 'pgsql'], pgsqlRuntime: { functions: ['pg_connect'], constants: { [name]: value } },
+    }), async () => '/usr/bin/php');
+    expect((await probe('PGSQL_LIBPQ_VERSION_STR', 'x'.repeat(1_024)))?.pgsqlRuntime).toBeDefined();
+    expect(await probe('PGSQL_LIBPQ_VERSION_STR', 'x'.repeat(1_025))).toBeUndefined();
+    expect(await probe('PGSQL_LIBPQ_VERSION_STR', 'version\ncompiler')).toBeUndefined();
+    expect(await probe('PGSQL_LIBPQ_VERSION', 'x'.repeat(129))).toBeUndefined();
+  });
   it('carries libxslt versions only with the XSL extension', async () => {
     const xslRuntime = { constants: { LIBXSLT_VERSION: 10132, LIBXSLT_DOTTED_VERSION: '1.1.32' } };
     const available = await probePhpRuntime('php', {}, async () => payload({ loadedExtensions: ['Core', 'xsl'], xslRuntime }), async () => '/usr/bin/php');

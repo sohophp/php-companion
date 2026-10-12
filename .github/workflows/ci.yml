@@ -85,6 +85,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      PHP_COMPANION_TEST_LOG_DIR: ${{ runner.temp }}/php-companion-extension-logs
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -98,6 +100,12 @@ jobs:
         run: pnpm test:extension
       - if: runner.os == 'Linux'
         run: pnpm test:extension:intelephense
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: extension-host-logs-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: ignore
+          path: ${{ runner.temp }}/php-companion-extension-logs
 
   open-source-profile:
     name: Open Source Profile (${{ matrix.os }})
