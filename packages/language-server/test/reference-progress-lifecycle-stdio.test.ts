@@ -1,4 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
+import { readCacheFixture, writeCacheFixture } from './cacheFixtureEnvelope.js';
 import { mkdtemp, writeFile, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -75,7 +76,7 @@ it.each(['7.2', '8.5'] as const)('finishes cold, cached and cancelled reference 
         for (const name of await readdir(cacheDirectory)) {
           if (!name.endsWith('.json')) continue;
           const cachePath = join(cacheDirectory, name);
-          const cache = JSON.parse(await readFile(cachePath, 'utf8'));
+          const cache = await readCacheFixture(cachePath);
           if (!cache.entries?.[path]) continue;
           if (phase === 'legacy') {
             for (const entry of Object.values(cache.entries) as Array<{ payload: unknown }>) {
@@ -86,7 +87,7 @@ it.each(['7.2', '8.5'] as const)('finishes cold, cached and cancelled reference 
             const entry = cache.entries[path];
             entry.payload = { ...compressCachedProjectPhpFile(entry.payload as CachedProjectPhpFile), data: 'AAAA' };
           }
-          await writeFile(cachePath, JSON.stringify(cache)); changed = true;
+          await writeCacheFixture(cachePath, cache); changed = true;
         }
         expect(changed, phase).toBe(true);
       }

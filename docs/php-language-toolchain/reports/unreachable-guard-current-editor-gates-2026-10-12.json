@@ -1,0 +1,198 @@
+{
+  "recordedAtUtc": "2026-10-12T00:38:34.115688+00:00",
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "c390c035998872f2ef9066a241cb780eba96f790ac2665517ba1c3170a7a0ede",
+  "qualityGates": 7,
+  "componentTypechecks": 24,
+  "rootTests": 113,
+  "editorWorkflows": [
+    {
+      "suite": "c1",
+      "mode": "onDemand",
+      "settings": {
+        "phpVersion": "auto",
+        "indexingMode": "onDemand"
+      },
+      "qualified": true,
+      "generationBoundaryRows": 0,
+      "foreachLoopQueries": 0
+    },
+    {
+      "suite": "c2",
+      "mode": "onDemand",
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      },
+      "qualified": true,
+      "generationBoundaryRows": 0,
+      "foreachLoopQueries": 20
+    },
+    {
+      "suite": "c3",
+      "mode": "onDemand",
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      },
+      "qualified": true,
+      "generationBoundaryRows": 40,
+      "foreachLoopQueries": 0
+    },
+    {
+      "suite": "c3",
+      "mode": "progressive",
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive"
+      },
+      "qualified": true,
+      "generationBoundaryRows": 40,
+      "foreachLoopQueries": 0
+    }
+  ],
+  "compiledTests": 98,
+  "compiledSourceInputsVerified": 138,
+  "inputsRechecked": 30225,
+  "symlinksRechecked": 184,
+  "repositoriesRechecked": 2,
+  "archive": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/00-d2365-current-quality-result.json",
+      "sha256": "b7fa8034e91a8b2df64ba97c5a4c40c7dbaea45965943ff7a794208f6e1c11fd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-root-tests.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/01-d2365-current-root-tests.json",
+      "sha256": "2858323f9a810f45a94e208b4301823a083f07bcbb82a4cd0e03243854283d6c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-editor-qualification.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/02-d2372-loop-current-editor-qualification.json",
+      "sha256": "7864baaa351696e9a76d3f3f6204aef647061623001c5db4a9851da929deacdf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-current-editor-compile-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/03-d2372-current-editor-compile-proof.json",
+      "sha256": "b4659910d93c9e48c8870ba6916e207170dd5d00a16a40c00c369b15cb3ae56f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-observer-host-preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/04-d2372-observer-host-preparation.json",
+      "sha256": "3cab838c690ec9bd900a6eadb85c07f9012970d16f30b198333ce6e528d9ba9a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2366-current-full-lsp-terminal-audit.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/05-d2366-current-full-lsp-terminal-audit.json",
+      "sha256": "2689478edd27ec83f7d2d996ea2d461c6f34cd9d479a96d619025ae1a897c8db"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2373-audit-current-quality-editors.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/06-d2373-audit-current-quality-editors.py",
+      "sha256": "a55ca300fc764d7162bef37d203d903d3556ffa29008a0d36fa5f0972faf33a7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-lint.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/07-d2365-current-quality-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-root-typecheck.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/08-d2365-current-quality-root-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-symfony-typecheck.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/09-d2365-current-quality-symfony-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-component-boundaries.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/10-d2365-current-quality-component-boundaries.log",
+      "sha256": "282a0cb5ce617fcb6020ca2af25d737b9609a38794171d17d3b82e0ad14a7664"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-public-contracts.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/11-d2365-current-quality-public-contracts.log",
+      "sha256": "84d805bbb54ac97a76d962cbe3067830a565fa6999f480383ee07a657a45eaac"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-component-typechecks.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/12-d2365-current-quality-component-typechecks.log",
+      "sha256": "2872a5fbbcad13f0c6485664ce175c3246b639ff56904e32fe95768d5a4e4673"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2365-current-quality-root-tests.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/13-d2365-current-quality-root-tests.log",
+      "sha256": "eda872a32b347f6bc2ffc236d86e31cb8fb16bff06e4a9220b89381a12bbacc7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c1-onDemand.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/14-d2372-loop-current-full-c1-onDemand.log",
+      "sha256": "eb933c78546f9568ef38f47e97cf74a3616c3b1429667f4d9ff0d4ee17609650"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c1-onDemand-evidence/acceptance-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/15-acceptance-proof.json",
+      "sha256": "d201eac8e8538f672737aa1e55eaf0e4cd1fa6cfe3697cfc23d9aa1cbd770a6b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c1-onDemand-owned-display/display-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/16-display-run.json",
+      "sha256": "4512933800b7cbd3741e6f8388861e59d44a6b5db7071bfd638857ea1a7bbe5d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c2-onDemand.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/17-d2372-loop-current-full-c2-onDemand.log",
+      "sha256": "3cd77fa80e6d9239520a8c0376b9348a59027d3036d3188eb0e222b1e49c5151"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c2-onDemand-evidence/acceptance-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/18-acceptance-proof.json",
+      "sha256": "61e21511bd78703d8f86df30e065af1f78e400ccf35c3a811e2425897502fe32"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c2-onDemand-owned-display/display-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/19-display-run.json",
+      "sha256": "6d19b255e56b32758f6a80fc2d44046f2f10f4022332897eb46c09d7a73a923f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c3-onDemand.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/20-d2372-loop-current-full-c3-onDemand.log",
+      "sha256": "089533efc7af3d20db72c434d2086443ec80fae393328c5a62cdaf27de5b2c69"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c3-onDemand-evidence/acceptance-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/21-acceptance-proof.json",
+      "sha256": "9ed0aed5f74f09cad6bb49c0c3c3e0d731a08f6c0aa76fb73086ef8cc7d9cfb6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c3-onDemand-owned-display/display-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/22-display-run.json",
+      "sha256": "a27f1ecb193f4fbffae5c1f4971c6f301a657103e32667da9adda87bd0942656"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c3-progressive.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/23-d2372-loop-current-full-c3-progressive.log",
+      "sha256": "46a739b7697b25f3993f7cd117dcdc0989568926d30edd872fb0690b2968b300"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c3-progressive-evidence/acceptance-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/24-acceptance-proof.json",
+      "sha256": "abf74ebf3ba6c3c027cccba3c04c9c5b4c95bad13fd0fcd872b77141a520f901"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2372-loop-current-full-c3-progressive-owned-display/display-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2373-current-quality-editors-archive/25-display-run.json",
+      "sha256": "e0be7e7706b6cb141e4692c34bae3cb2fd343c3c53b69be6e1dd9f25d6be5182"
+    }
+  ],
+  "sameBuildFullLsp": {
+    "files": 133,
+    "passedCases": 1562
+  },
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "openMajorItems": 26
+}

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestone": "D349",
+  "qualified": true,
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "normalSymfonyAssets": {
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/extension.js": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/service-provider.js": "b71d9306c16e0a10e9f67453685c5891c0b5e49e578ac9453ea117124931e990",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/event-provider.js": "a90096b69e406d9127548b2c2e71d21e2e9000f2baef417577d1551f67a8b870",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/controller-context-provider.js": "f7aedf542016d111ca0f6e933e9c313702846be27dfb73a9d73b7a4863f6dce4",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/static-route-provider.js": "39d363f142f5bcce5d54f9216954b85c33150d714b64822125cf856878f81868",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/winstar-route-provider.js": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/packages/php-companion-symfony/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "run": {
+    "status": "exited",
+    "phase": "lsp",
+    "parentPid": 804255,
+    "childPid": 804269,
+    "startedAtUtc": "2026-10-07T14:29:16.362548+00:00",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d349-current-lsp-full.json"
+    ],
+    "cwd": "/var/www/node/php-companion/packages/language-server",
+    "exitCode": 0,
+    "durationSeconds": 2145.603759177997,
+    "finishedAtUtc": "2026-10-07T15:05:01.964042+00:00"
+  },
+  "audit": {
+    "twigChanged": false,
+    "inputs": 5473,
+    "changedInputs": [],
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "headChanged": false,
+    "worktreeChanged": false,
+    "collectionChanged": false,
+    "expectedCases": 1321,
+    "actualCases": 1321,
+    "expectedFiles": 99,
+    "actualFiles": 99,
+    "missing": [],
+    "extra": [],
+    "preexistingDuplicateLabels": [],
+    "duplicateMultiplicityPreserved": true
+  },
+  "result": {
+    "numTotalTests": 1321,
+    "numPassedTests": 1321,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "failuresOrSkipped": [],
+  "archive": ".vscode-test/d349-current-lsp-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-current-lsp-input.json",
+      "sha256": "7d2faf6da157db1a6e74309ded63d1575cdc9d8589a7e6b91902459b95acf2ab"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-current-lsp-run.json",
+      "sha256": "58af2321b57629e2b7bf895a01e0187c6d3383328ccf1768447d4a6cb78e7d48"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/sophp-d349-current-lsp-full.json",
+      "sha256": "c1f2b92eceed7e7c5b54470c740110781085816a9f2e60b9536a97a9259f5b92"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/sophp-d349-current-lsp-collection.json",
+      "sha256": "56baa5b7544f032a83eee923709004d3418f11a827d848a4e07d2f0f51fb0d31"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/sophp-d349-current-lsp-full.log",
+      "sha256": "3d445dc802ed12e96faf732d5237d158435756b51e648bc4bad2791deb484e24"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-current-full-run.py",
+      "sha256": "c4297e52f24c0df2a6c7e5e6832461e51695eb07946c92182cba3fa94e8a5e3b"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-current-audit.py",
+      "sha256": "e2ecfeecb6ab79d4132fc46bba257634fb2d5857d9de8676850212bdb6ed64a0"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-current-freeze.py",
+      "sha256": "d37b72ccf4425392d93cd6190a1b8f2ab942bff4dc7b88792c9c5c6f8c89f311"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/output-completion-progressive.json",
+      "sha256": "b59c2c1961ea46358818b7f67fd4df6ae24c18ebb7d71ab4a3827323f55753bb"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "d7a7aca64d787433f836ca3341aa11720f1b78609854ee3262e6b4ac3f7b3940"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/onDemand-true.json",
+      "sha256": "4f3714ba0ba62fb71379429e4379ddce766b21a202ca3dac2f37b8a6c99773e6"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "7bb25d859df4c6e02eb466f8384f8f091aa3acddd5960cb9701520f09135a5e4"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/progressive-false.json",
+      "sha256": "ac5ba723bff92a1d673846f0c3ad4a545efbc42012cdb200d9460d8b29effd1e"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/progressive-true.json",
+      "sha256": "21c8fa90682308597d59c6e95108c4e2581cc4f174d92fc521d59f6040a511a0"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "db257dc962e156bf66e9e330a46232c3c25be732cf897407c6c9e08e8a45b60a"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/onDemand-false.json",
+      "sha256": "feb8333d63b09a51746876e15834eb8fe299ae33453ed58046c6215d171ffcff"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-current-lsp-audit.json",
+      "sha256": "86ab7fc43f356c696f390420d29c81ab64b2702774de6d4143dd5230991d50a1"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d349-start-and-audit.py",
+      "sha256": "125d336d25f07d467501d4f3c26e11e8423c474d73366c93555798d0a3cd65b2"
+    },
+    {
+      "path": ".vscode-test/d349-current-lsp-evidence/d350-record-refreshed-full.py",
+      "sha256": "69298dfe6a2834d9ec6998155c8e98f0995778dd6e452756053e7031c0df69b3"
+    }
+  ],
+  "boundaries": [
+    "Original complete LSP entry, all prior D321 99 files and 1321 cases retained without test filters or relaxed budgets; actual case identities and multiplicity independently checked.",
+    "Independent validation after D344 refreshed four normal Symfony Provider bundles to current source. Previous D321 result remains bound to its original artifacts.",
+    "One full Linux LSP suite with nine actual PHP 7.2-8.5 CLI syntax parameters, not nine full semantic suites or a full platform/version matrix.",
+    "Both repositories, built assets, compiled editor tests, original case inputs and Node/PHP identities frozen. No concurrent tests, builds, hosts or performance measurements.",
+    "D347 original full Linux Core+Symfony C3 PHP 8.5/onDemand passed separately with zero lifecycle counters and prehashed editor identity; this does not close all C3 modes/platforms/advanced operations.",
+    "Historical D284 warning body remains missing and cause unknown; D225 timeout causes remain unproven. A later green suite cannot prove those historical causes fixed.",
+    "Ordinary Controller P95 157.74/150 ms and uninstrumented full 10k RSS 920.54/768 MiB remain failed. No new ordinary editing or scale qualification.",
+    "All original C1-C4/R4/P0-P9/F01-F14, advanced semantics/refactors, 50k, other versions/platforms/full external combinations, long sessions and real WSL remain open.",
+    "No commit, push, packaging, Profile update, installation or publication."
+  ]
+}

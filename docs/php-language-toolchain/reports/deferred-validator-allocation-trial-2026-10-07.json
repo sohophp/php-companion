@@ -1,0 +1,565 @@
+{
+  "schemaVersion": 1,
+  "milestone": "D305-D307",
+  "date": "2026-10-07",
+  "productChanged": false,
+  "qualification": false,
+  "coreBundleSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+  "inputCount": 4300,
+  "changedInputs": [],
+  "failedPreparationRun": {
+    "status": "exited",
+    "parentPid": 663368,
+    "childPid": 663531,
+    "startedAtUtc": "2026-10-07T12:34:14.923078+00:00",
+    "command": [
+      "env",
+      "SOPHP_VALIDATOR_TRIAL_REPORT=/var/www/node/php-companion/.vscode-test/d305-validator-trial-result.json",
+      "node",
+      ".vscode-test/d305-validator-trial.mjs"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d305-validator-trial-input.json",
+    "exitCode": 1,
+    "durationSeconds": 0.19294207200073288,
+    "finishedAtUtc": "2026-10-07T12:34:15.114575+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "logSha256": "52d13d9ac4d948567153915699f4969f99239b0c56946bbd70bd1ad35ab194d7"
+  },
+  "run": {
+    "status": "exited",
+    "parentPid": 663735,
+    "childPid": 663877,
+    "startedAtUtc": "2026-10-07T12:34:50.387051+00:00",
+    "command": [
+      "env",
+      "SOPHP_VALIDATOR_TRIAL_REPORT=/var/www/node/php-companion/.vscode-test/d306-validator-trial-result.json",
+      "node",
+      ".vscode-test/d305-validator-trial.mjs"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d306-validator-trial-input.json",
+    "exitCode": 0,
+    "durationSeconds": 3.318377280000277,
+    "finishedAtUtc": "2026-10-07T12:34:53.703698+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "logSha256": "7031e537203051f44161ed5a6fd5da6a49821911e10e3e23df7447c3418ac675"
+  },
+  "result": {
+    "status": "passed",
+    "scope": "Private validator parity and sampled cumulative allocation only. Not normal parser/semantic/LSP qualification, editor timing or RSS evidence.",
+    "productChanged": false,
+    "qualification": false,
+    "inputs": 95,
+    "inputAccepted": 95,
+    "inputRejected": 0,
+    "comparisons": 2053,
+    "forcedNegativeChecks": 1958,
+    "snapshotUnchanged": true,
+    "inputHashes": [
+      {
+        "name": "test/extension/baseline/config/services.php",
+        "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+      },
+      {
+        "name": "test/extension/baseline/src/Broken.php",
+        "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/ExportContract.php",
+        "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Mailer.php",
+        "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/MessageHandler.php",
+        "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Traceable.php",
+        "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+        "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+        "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+        "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+        "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+        "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+        "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+        "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+        "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+        "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+        "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+        "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+        "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeImports.php",
+        "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+        "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RouteConsumer.php",
+        "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+        "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+        "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/UserController.php",
+        "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+      },
+      {
+        "name": "test/extension/baseline/src/Legacy/Duplicate.php",
+        "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ActivityService.php",
+        "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AliasConsumer.php",
+        "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AlternateFeature.php",
+        "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AssertionConsumer.php",
+        "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AttributeConsumer.php",
+        "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+        "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/BaseService.php",
+        "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/CompletionService.php",
+        "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantBase.php",
+        "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantChild.php",
+        "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+        "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructorTarget.php",
+        "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ContainerConsumer.php",
+        "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+        "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DeliveryState.php",
+        "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+        "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+        "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DynamicProperties.php",
+        "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ExportService.php",
+        "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ImplicitNullable.php",
+        "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/Mailer.php",
+        "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MessageHandler.php",
+        "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MissingRunner.php",
+        "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/OverrideTarget.php",
+        "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+        "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+        "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+        "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+        "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+        "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/RunnerImplementation.php",
+        "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/SharedFeature.php",
+        "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+        "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+        "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+        "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnusedImport.php",
+        "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UserService.php",
+        "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/Constants.php",
+        "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/baseline/src/WrongNamespace.php",
+        "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+      },
+      {
+        "name": "test/extension/fixture/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+        "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/UserController.php",
+        "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/AliasConsumer.php",
+        "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/UserService.php",
+        "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+      },
+      {
+        "name": "test/extension/fixture/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+        "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+      },
+      {
+        "name": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+        "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+      },
+      {
+        "name": "test/extension/real-psr0/src/Consumer.php",
+        "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+      },
+      {
+        "name": "scale-typical",
+        "sha256": "ddaab7987829e2e081cc42c49359de7085a5e6593edc3b40f424b0585b0af5d3"
+      },
+      {
+        "name": "nested-callables",
+        "sha256": "c836ab824f2f0ff41c0f27aed5de3f7c0ca3daf594912261ab866c9f18014741"
+      },
+      {
+        "name": "property-hooks",
+        "sha256": "e9e297e971e2dbf7d5ca62e275105c30a75f9aeb6725e6284bb6e23b00773ee5"
+      },
+      {
+        "name": "trait-alias",
+        "sha256": "a878f64b8940d4a1a402d10f0e91c517cf251af810fa3b1beb32ecff82f50e5e"
+      },
+      {
+        "name": "mixed-unfinished",
+        "sha256": "cd4a68a568bafe2ba9e94a4f4707c698a8ef654df2fba188670fd2a0133fc247"
+      }
+    ],
+    "trials": [
+      {
+        "label": "baseline",
+        "count": 20000,
+        "durationMs": 258.48163999999997,
+        "sampledSelfSize": 196736600,
+        "nodes": 55,
+        "samples": 23773,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d305-validator-0-baseline.heapprofile"
+      },
+      {
+        "label": "candidate",
+        "count": 20000,
+        "durationMs": 206.8164230000002,
+        "sampledSelfSize": 131379744,
+        "nodes": 32,
+        "samples": 15896,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d305-validator-1-candidate.heapprofile"
+      },
+      {
+        "label": "candidate",
+        "count": 20000,
+        "durationMs": 205.81305599999996,
+        "sampledSelfSize": 135468120,
+        "nodes": 10,
+        "samples": 16397,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d305-validator-2-candidate.heapprofile"
+      },
+      {
+        "label": "baseline",
+        "count": 20000,
+        "durationMs": 200.47176600000012,
+        "sampledSelfSize": 188858200,
+        "nodes": 11,
+        "samples": 22887,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d305-validator-3-baseline.heapprofile"
+      }
+    ],
+    "ordering": "ABBA",
+    "samplingInterval": 8192,
+    "explicitForcedGc": false
+  },
+  "allocationSummary": {
+    "baselineSampledSelfSize": 385594800,
+    "candidateSampledSelfSize": 266847864,
+    "relativeReduction": 0.30795782515739323,
+    "interpretation": "Two 20k-call trials each, ABBA, one typical generated file. Sampled cumulative allocation only, not exact savings or RSS qualification. Later baseline timing is faster than both candidate timing observations; no latency improvement claimed."
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-trial-run.json",
+      "sha256": "2896675ec7d7fdceb93a330cee5dd7b2783ddf4b033eaa8c497c97e84c9c6cd5"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-trial-input.json",
+      "sha256": "f77964f5d251d23c20e3c35944a7f841edd7854e38e3faa269af1d7f87c89674"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-trial.log",
+      "sha256": "52d13d9ac4d948567153915699f4969f99239b0c56946bbd70bd1ad35ab194d7"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d306-validator-trial-run.json",
+      "sha256": "4aa739ad013719ebd39599512cec00d7f80c671840e0bd65af688d6546ca499f"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d306-validator-trial-input.json",
+      "sha256": "0b17fff01636f35646a062e96cc66f39ced7e807e14ceb01713cc9d21794f944"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d306-validator-trial.log",
+      "sha256": "7031e537203051f44161ed5a6fd5da6a49821911e10e3e23df7447c3418ac675"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d306-validator-trial-result.json",
+      "sha256": "7f5fd446533332823a10c16c80a316bc20d7f874a46cd3964a8065e3b25d85f5"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-generation.json",
+      "sha256": "fe486f9ef1a57015b5189749b4bbc338fd35461d0665abeb41da4063dc465222"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-prepare-validator.py",
+      "sha256": "ab2f539fccec314c3bbf362f2c11d8868b45c4f23267ddbf69d70daa6cab2748"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-trial.mjs",
+      "sha256": "da59ca506131bd21ec6a5e2b8ad5ae3653759f036465015b1204d50dde4136f5"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-run.py",
+      "sha256": "e6763dc0125d417a6768695ea01971e856bbb96efda28e2759e70b41f25ba25f"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-0-baseline.heapprofile",
+      "sha256": "fd6960101f9219ae1c1332d97db63f46555309d60be5d8ecfc5c71ed70a799db"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-1-candidate.heapprofile",
+      "sha256": "a278c6e50b239503ee0daecb93f477969c5975e9c4a885ae2fab24ee32adf9d0"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-2-candidate.heapprofile",
+      "sha256": "9492e6da3b82380bdf29212764a93701624c255e05f8171f6612ca35baa97c17"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/d305-validator-3-baseline.heapprofile",
+      "sha256": "2c18e59c31ee20e6e36d3274acf7a06432ece58a387bf5909b714acf352e462a"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/baseline-index.js",
+      "sha256": "767b2f7d1860fb7dfd520c9350fe617791ea6a018ab0c5fcfbe693754cc7fbef"
+    },
+    {
+      "path": ".vscode-test/d307-validator-trial-evidence/candidate-index.js",
+      "sha256": "68f0f8fa12cc9efb390a78cea662e6353a34ceb96f01ce8b1e1822031e413a6d"
+    }
+  ],
+  "decision": "Proceed with the same minimal indexed-loop change in source, first strengthen ownership/order/corruption controls against the unmodified implementation, then normal compile and full semantic regression, original uninstrumented 10k four-load trial and relevant protocol/editor checks. Current product is still unchanged.",
+  "openGates": [
+    "Original uninstrumented full 10k RSS 1003.52/768 MiB failed.",
+    "Current ordinary editing large Controller P95 150.30/150 ms failed.",
+    "All original C1-C4/R4/P0-P9/F01-F14 remains open."
+  ]
+}

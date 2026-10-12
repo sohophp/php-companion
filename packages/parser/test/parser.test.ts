@@ -63,6 +63,8 @@ describe('@php-companion/parser', () => {
     facts.commentRanges[0]!.start = -1;
     facts.stringRanges[0]!.end = -1;
     facts.typeReferences[0]!.start = -1;
+    facts.variableReferences[0]!.variable = '$changedByCaller';
+    facts.returns[0]!.expressionStart = -1;
     facts.errors.push({ start: -1, end: -1 });
     facts.declarations[0]!.attributeMarkers![0]!.name = 'CallerTag';
     facts.callables[0]!.parameters[0]!.type = 'CallerType';
@@ -73,6 +75,7 @@ describe('@php-companion/parser', () => {
       expect(again).toStrictEqual(expected);
       expect(secondTree.rootNode.text).toBe(source);
       again.constants.length = 0; again.rawNames.length = 0;
+      again.variableReferences.length = 0; again.returns.length = 0;
       again.declarations[0]!.attributeMarkers![0]!.arguments = 'changed on cache hit';
       again.callables[0]!.parameters[0]!.type = 'ChangedOnCacheHit';
       again.scopes.find(scope => scope.kind === 'method')!.parameters.length = 0;

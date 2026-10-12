@@ -1,0 +1,547 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "decision": "private-safety-controls-passed-not-adopted",
+  "normalProductSourceChanged": false,
+  "normalProductBundleChanged": false,
+  "adopted": false,
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "candidateSourceHashes": {
+    "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9",
+    "d353-entry-store.mjs": "23d20b1e5d1527b51345856c920c1b39938649bdd932112bd7c92515ff5c7847",
+    "d353-index.mjs": "38731a21e6b95733237d4a45e724828b3ab6e7f2046fa29c630bf3686fbc2017",
+    "d353-entry-store-controls.mjs": "74745c94ef92041bc3cb66e65a782febd8d22799c563552f9146677fbc32b67d",
+    "d353-entry-store-edge-controls.mjs": "f017b3cd5ac881aadd700fced26ad25736a13c1e479d4e598c21bbd6f02ee05d"
+  },
+  "candidateFunctionalControlsQualified": true,
+  "positiveChecks": 25,
+  "runs": {
+    "d355-entry-original-controls": {
+      "status": "exited",
+      "parentPid": 871269,
+      "childPid": 871365,
+      "startedAtUtc": "2026-10-07T15:05:50.626847+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_CONTROL_REPORT=/var/www/node/php-companion/.vscode-test/d355-entry-original-controls-result.json",
+        "node",
+        ".vscode-test/d353-entry-store-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d355-entry-original-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.4793656390029355,
+      "finishedAtUtc": "2026-10-07T15:05:51.104935+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    "d355-entry-edge-controls": {
+      "status": "exited",
+      "parentPid": 871543,
+      "childPid": 871625,
+      "startedAtUtc": "2026-10-07T15:06:11.867671+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_EDGE_REPORT=/var/www/node/php-companion/.vscode-test/d355-entry-edge-controls-result.json",
+        "node",
+        ".vscode-test/d353-entry-store-edge-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d355-entry-edge-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.25488360300369095,
+      "finishedAtUtc": "2026-10-07T15:06:12.121289+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    "d355-lock-controls": {
+      "status": "exited",
+      "parentPid": 871803,
+      "childPid": 871894,
+      "startedAtUtc": "2026-10-07T15:06:34.507896+00:00",
+      "command": [
+        "env",
+        "SOPHP_D354_LOCK_REPORT=/var/www/node/php-companion/.vscode-test/d355-lock-controls-result.json",
+        "node",
+        ".vscode-test/d354-lock-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d355-lock-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.35535317200265126,
+      "finishedAtUtc": "2026-10-07T15:06:34.861247+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "c6b8e04844bdb1afda18d7df9fcafdfaeb3f349ed6cfc68e5f17bfdbb26afa27"
+    },
+    "d356-entry-transaction-controls": {
+      "status": "exited",
+      "parentPid": 872520,
+      "childPid": 872602,
+      "startedAtUtc": "2026-10-07T15:07:11.964722+00:00",
+      "command": [
+        "env",
+        "SOPHP_D356_TRANSACTION_REPORT=/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls-result.json",
+        "node",
+        ".vscode-test/d356-entry-transaction-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 1.1483893219992751,
+      "finishedAtUtc": "2026-10-07T15:07:13.111538+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    }
+  },
+  "results": {
+    "d355-entry-original-controls": {
+      "status": "passed",
+      "checks": [
+        "cold Unicode entries are stored outside metadata and warm restore preserves path order",
+        "fully warm metadata and generation remain unchanged",
+        "payload checksum corruption rebuilds exactly one file and prunes replaced generation",
+        "adapter-level payload rejection rebuilds one file with outer hash kept valid",
+        "cancelled source production preserves manifest and leaves no staging directories",
+        "commit contention preserves published cache and cleans private staging",
+        "legacy schema 1 payloads migrate without reparsing source",
+        "unsafe payload identity is rejected before reads and rebuilds one entry",
+        "malformed manifest tail cannot partially restore",
+        "deleted source drops its payload from the committed generation",
+        "cancellation during cache commit preserves old manifest",
+        "concurrent commit contender cannot publish an incomplete generation"
+      ]
+    },
+    "d355-entry-edge-controls": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "serialization failure preserves the complete prior manifest (existing index contract)",
+          "passed": true
+        },
+        {
+          "name": "schema 2 metadata cannot bypass the payload checksum with an inline payload field",
+          "passed": true
+        },
+        {
+          "name": "a commit lock with a dead local owner is recoverable",
+          "passed": true
+        }
+      ]
+    },
+    "d355-lock-controls": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "a live directory owner is retained and contender staging is removed",
+          "passed": true
+        },
+        {
+          "name": "an earlier directory recovery cannot unlink the new recovery winner",
+          "passed": true
+        },
+        {
+          "name": "an earlier legacy-file recovery cannot unlink a new directory owner",
+          "passed": true
+        },
+        {
+          "name": "release cannot remove a new owner published after its old owner file was unlinked",
+          "passed": true
+        },
+        {
+          "name": "live foreign and unknown owners are retained without claiming the lock",
+          "passed": true
+        },
+        {
+          "name": "symlink lock paths are refused without changing the target",
+          "passed": true
+        },
+        {
+          "name": "an actual child process owns the lock until normal release",
+          "passed": true
+        },
+        {
+          "name": "a killed actual child leaves a recoverable directory owner",
+          "passed": true
+        }
+      ]
+    },
+    "d356-entry-transaction-controls": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "late asynchronous finalizer rejection preserves all prior entries and successful source analysis",
+          "passed": true
+        },
+        {
+          "name": "a stale loaded writer cannot overwrite a later committed manifest even after its lock is released",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "originalFailureRetained": {
+    "status": "failed",
+    "checks": [
+      {
+        "name": "serialization failure preserves the complete prior manifest (existing index contract)",
+        "passed": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '{\"schema\":2,\"version\":\"edge-v1\",\"root\":\"/tmp/sophp-entry-edges-9Eltwu\",\"generation\":\"557d2e10-fea4-41c7-ab50-13b82347d375\",\"entries\":{\"/tmp/sophp-entry-edges-9Eltwu/src/A.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"11cebbffbca4a86b4ae789c4efb13a0e5a6c55eb77392cd73e9d7fe62b1c66b5\",\"payloadHash\":\"8daf09a6fc31937457dd77e9c25ce4b21349d605b561a8c5d557841bf964c9a0\",\"payloadBytes\":14},\"/tmp/sophp-entry-edges-9Eltwu/src/B.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"b5ba36f5652e537fc42cb0daa636d4a6bd553769fbb40c676f74abe836072f96\",\"payloadHash\":\"8daf09a6fc31937457dd77e9c25ce4b21349d605b561a8c5d557841bf964c9a0\",\"payloadBytes\":14}}}'\n- '{\"schema\":2,\"version\":\"edge-v1\",\"root\":\"/tmp/sophp-entry-edges-9Eltwu\",\"generation\":\"e2c0b22c-757b-4c08-a9a3-5fa31f95c9e1\",\"entries\":{\"/tmp/sophp-entry-edges-9Eltwu/src/A.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"11cebbffbca4a86b4ae789c4efb13a0e5a6c55eb77392cd73e9d7fe62b1c66b5\",\"payloadHash\":\"238bd3fcbe27a62f65a6e47020b9bbc0b15796c0c3d835206d177ca65eb40b60\",\"payloadBytes\":33},\"/tmp/sophp-entry-edges-9Eltwu/src/B.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"b5ba36f5652e537fc42cb0daa636d4a6bd553769fbb40c676f74abe836072f96\",\"payloadHash\":\"0050021b47fe9b1d136f2381b7dbe6024fca4567cfd3752a896be1b1d0c74e3a\",\"payloadBytes\":33},\"/tmp/sophp-entry-edges-9Eltwu/src/C.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"d50896968f49e6ba298da3c6b1735e24dce8c2a018f8208be3d9a5c8aafb03f0\",\"payloadHash\":\"96ef39c5f625756d627998e752d8622e03b1242a958d94fac2aeb846c007d1c9\",\"payloadBytes\":33}}}'\n\n    at file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:30:10\n    at async fixture (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:20:5)\n    at async check (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:24:9)\n    at async file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:27:1"
+      },
+      {
+        "name": "schema 2 metadata cannot bypass the payload checksum with an inline payload field",
+        "passed": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n    at file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:37:10\n    at async fixture (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:20:5)\n    at async check (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:24:9)\n    at async file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:32:1"
+      },
+      {
+        "name": "a commit lock with a dead local owner is recoverable",
+        "passed": false,
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n    at file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:44:10\n    at async fixture (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:20:5)\n    at async check (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:24:9)\n    at async file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:39:1"
+      }
+    ]
+  },
+  "sourceCorrespondence": {
+    "observedAtUtc": "2026-10-07T14:46:54.937068+00:00",
+    "kind": "read-only-original-failure-source-correspondence",
+    "sourceHashes": {
+      "d274-entry-store.mjs": "d8ff0321d22eb89272b97cf56e9ef676fd5eafad18c0811709b9297612f5323c",
+      "d274-index.mjs": "b8967dcf0929cd50b4c67415d5890120ca24923b0602df885db942a127f0a0bc",
+      "d276-entry-store-edge-controls.mjs": "72fd6274de0cabe313b1342b58d694496070ebbed6d308c74fb563e0c4241e7b"
+    },
+    "originalFailureReportSha256": "3a6445b5ce5330aa3b45e068b0adec30f653ae5f449aabd747328e8d2aa6bac0",
+    "findings": [
+      {
+        "name": "serialization failure",
+        "source": "d274-index.mjs",
+        "evidence": "finalizePayload rejection deletes next entry, but commitCache still publishes the remaining next map",
+        "nextRequirement": "Cache transaction failure must preserve the entire old manifest; do not confuse a serialization error with successfully analyzed source being absent."
+      },
+      {
+        "name": "schema 2 inline bypass",
+        "source": "d274-entry-store.mjs",
+        "evidence": "load accepts an own payload field on schema 2 metadata; payload() returns it before blob size/hash validation",
+        "nextRequirement": "Schema-specific metadata validation must reject inline schema 2 payloads and preserve mandatory blob integrity checks."
+      },
+      {
+        "name": "dead commit lock",
+        "source": "d274-entry-store.mjs",
+        "evidence": "Exclusive lock file is created without owner metadata or stale-owner recovery",
+        "nextRequirement": "A recovery protocol must prove ownership and concurrency safety; passing a single dead-PID fixture by unconditionally deleting the lock is insufficient."
+      }
+    ],
+    "productChanged": false,
+    "functionalFixVerified": false,
+    "memoryQualificationChanged": false,
+    "newTestsOrBenchmarksExecuted": false,
+    "scope": "Only correspondence with preserved original private-candidate failures. No product adoption, new candidate or repeated scale measurement. D349 original full LSP remains live and untouched."
+  },
+  "controlledNegative": {
+    "expectedFailureObserved": true,
+    "run": {
+      "status": "exited",
+      "parentPid": 873482,
+      "childPid": 873563,
+      "startedAtUtc": "2026-10-07T15:08:04.376791+00:00",
+      "command": [
+        "env",
+        "SOPHP_D356_TRANSACTION_REPORT=/var/www/node/php-companion/.vscode-test/d358-stale-writer-negative-result.json",
+        "node",
+        ".vscode-test/d358-mutant-transaction-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d358-stale-writer-negative-input.json",
+      "exitCode": 1,
+      "durationSeconds": 0.8745902079972439,
+      "finishedAtUtc": "2026-10-07T15:08:05.250154+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "a2531bb6fe65ccadf62b367ff371d87992455b1b51d0a6cc45a7f42025709b14"
+    },
+    "result": {
+      "status": "failed",
+      "checks": [
+        {
+          "name": "late asynchronous finalizer rejection preserves all prior entries and successful source analysis",
+          "passed": true
+        },
+        {
+          "name": "a stale loaded writer cannot overwrite a later committed manifest even after its lock is released",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: Missing expected rejection.\n    at async file:///var/www/node/php-companion/.vscode-test/d358-mutant-transaction-controls.mjs:43:5\n    at async check (file:///var/www/node/php-companion/.vscode-test/d358-mutant-transaction-controls.mjs:19:5)\n    at async file:///var/www/node/php-companion/.vscode-test/d358-mutant-transaction-controls.mjs:37:1"
+        }
+      ]
+    },
+    "candidateUnchanged": true,
+    "scope": "Only the private loaded/current manifest digest rejection removed. Original two transaction test bodies unchanged; async-finalizer control passes and stale-writer rejection fails."
+  },
+  "scope": [
+    "Private corrections to preserved serialization atomicity, schema-2 inline-payload integrity and dead-local-owner lock failures.",
+    "New owners atomically publish nonempty directories with unique owner filenames; recovery and release remove only the observed owner file and then an empty directory.",
+    "Live, foreign, malformed and symlink owners retained. Controlled recovery/release interleavings and actual child normal release/kill recovery passed on Linux.",
+    "Acquired writer validates the complete current manifest digest against its loaded snapshot before publication. Stale writer is refused after another writer releases ownership.",
+    "Original 12+3 test bodies preserved except private module imports. Eight ownership checks and two transaction checks added; the controlled negative is not counted as extra candidate passes.",
+    "Original D274-D277 50k RSS 1753.45/1536 MiB, historical three safety failures and all original scale evidence remain retained. No new benchmark in this batch.",
+    "Normal full LSP D349 qualified independently before private checks. Every private run froze both repositories, runtime inputs and candidate source, with no concurrent tests/builds/hosts.",
+    "This does not establish memory/latency, Windows/macOS, file-store full API compatibility, real WSL or product integration qualification.",
+    "Normal Controller 157.74/150 ms and full 10k RSS 920.54/768 MiB remain failed. All original C1-C4/R4/P0-P9/F01-F14, advanced work, 50k, versions/platforms/full combinations/long sessions/human acceptance remain open."
+  ],
+  "next": "Only after source/build parity and unchanged original benchmark/corruption semantics are audited, run distinct corrected private storage candidate through 1k then 10k gates; 50k only if these pass. Do not adopt or repeat an equivalent failed scale measurement.",
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-original-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-original-controls-input.json",
+      "bytes": 712121,
+      "sha256": "6197e047727eb1f7e4a8ce1efefe0a0af171217c4b3bc7a0e2440876fed09618"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-original-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-original-controls-run.json",
+      "bytes": 676,
+      "sha256": "10fa01cb1d06f688e74a9e2f0054348826990c9a2dfe07ab52de05f1b8f60b72"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-original-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-original-controls-result.json",
+      "bytes": 945,
+      "sha256": "feb75faf3187721ec07d3fa264872571e9fa3b900b57a6e4964d22f2b97bd4b6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-original-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-original-controls.log",
+      "bytes": 879,
+      "sha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-edge-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-edge-controls-input.json",
+      "bytes": 712119,
+      "sha256": "71f1d0fb2bf5bb41e11725630fbe2a611af200bc15e4e6c87bd241e0cd2f83c1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-edge-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-edge-controls-run.json",
+      "bytes": 671,
+      "sha256": "9e4726ff8f647037ed6250b0f20976ec0d406a30fee4ac27fe1d9a153a39df14"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-edge-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-edge-controls-result.json",
+      "bytes": 416,
+      "sha256": "84c351d42c3275dc770d50f26e481b60bc56001ba288a6c29fd65db2df4e2b7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-entry-edge-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-entry-edge-controls.log",
+      "bytes": 417,
+      "sha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-lock-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-lock-controls-input.json",
+      "bytes": 712100,
+      "sha256": "1961aefce82fab66344443323ca717d5c2d6d892144e59be37fa74505b9602fd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-lock-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-lock-controls-run.json",
+      "bytes": 646,
+      "sha256": "6f7f66da74aefb9f2df5ad86b024fe367672bf7ac4ef24d85fe6152ebd04c9ec"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-lock-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-lock-controls-result.json",
+      "bytes": 984,
+      "sha256": "150756c03b9eb6e3e99b8a3f1cb55d0eb7acad79f4c128c928fd6fb07d4ef0ca"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-lock-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-lock-controls.log",
+      "bytes": 985,
+      "sha256": "c6b8e04844bdb1afda18d7df9fcafdfaeb3f349ed6cfc68e5f17bfdbb26afa27"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d356-entry-transaction-controls-input.json",
+      "bytes": 712133,
+      "sha256": "43767893c853405932149e6c128e41a884126a96f6a9817c791252926bc32a3d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d356-entry-transaction-controls-run.json",
+      "bytes": 691,
+      "sha256": "881db6a89ef0f8f142c9e9b7dca5bc8489d8643475b764e0e8ff4afebf12d189"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d356-entry-transaction-controls-result.json",
+      "bytes": 339,
+      "sha256": "def47d6d1e77eedaf6662db8e3ab77d1d92b3690f9a24f7ff049419248c5f967"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d356-entry-transaction-controls.log",
+      "bytes": 340,
+      "sha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-stale-writer-negative-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-stale-writer-negative-input.json",
+      "bytes": 713328,
+      "sha256": "14cbf92686255241a8226753679f63793d13aa628c70b96ad21105b82848b110"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-stale-writer-negative-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-stale-writer-negative-run.json",
+      "bytes": 682,
+      "sha256": "403b768c16d3dd630ca3f00108f934579c37f095ef1722f0623c4cc420f0fef7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-stale-writer-negative-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-stale-writer-negative-result.json",
+      "bytes": 738,
+      "sha256": "68b63e790963a39fe2692258490be7739a2e0bf5463337f7777a2bb9ccc1e572"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-stale-writer-negative.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-stale-writer-negative.log",
+      "bytes": 739,
+      "sha256": "a2531bb6fe65ccadf62b367ff371d87992455b1b51d0a6cc45a7f42025709b14"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d352-entry-safety-source-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d352-entry-safety-source-audit.json",
+      "bytes": 2026,
+      "sha256": "b0c7516f9b6a4eb6f3ce09749defd66085317dd06075fba1e186c7ea1f2a69c8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-preparation.json",
+      "bytes": 1508,
+      "sha256": "7608e5c5843b41c627e3da3e31c61a45d1817f3eff642f9027a0e37738b18e62"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-preparation-initial.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-preparation-initial.json",
+      "bytes": 1255,
+      "sha256": "71abe8f3546185d10dc9d25b58ca11fc66a0f81860980a425ea06b28afe151b6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-owned-cache-lock.mjs",
+      "bytes": 4321,
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-entry-store.mjs",
+      "bytes": 7767,
+      "sha256": "23d20b1e5d1527b51345856c920c1b39938649bdd932112bd7c92515ff5c7847"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-index.mjs",
+      "bytes": 22104,
+      "sha256": "38731a21e6b95733237d4a45e724828b3ab6e7f2046fa29c630bf3686fbc2017"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-entry-store-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-entry-store-controls.mjs",
+      "bytes": 8834,
+      "sha256": "74745c94ef92041bc3cb66e65a782febd8d22799c563552f9146677fbc32b67d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-entry-store-edge-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d353-entry-store-edge-controls.mjs",
+      "bytes": 3324,
+      "sha256": "f017b3cd5ac881aadd700fced26ad25736a13c1e479d4e598c21bbd6f02ee05d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d354-lock-worker.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d354-lock-worker.mjs",
+      "bytes": 375,
+      "sha256": "ab6d3c2a0cdd235172fba3d1b00291fae39a6c1041d3171a576ed3d57e3e6110"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d354-lock-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d354-lock-controls.mjs",
+      "bytes": 7816,
+      "sha256": "17c2a3df8f2dba0ef84c88983c9f15d02899409b321455ff78ed3f003d1c67b5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d355-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d355-run.py",
+      "bytes": 5028,
+      "sha256": "d69ddbee62b6379f84201d287afa1294ea57ccc92733d2cfb171e50c13947ddf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d356-entry-transaction-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d356-entry-transaction-controls.mjs",
+      "bytes": 3851,
+      "sha256": "7dbff4b8b5d0419705d475c82f3990762b4289f8976ff7caf239e6ae01c665fc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-negative-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-negative-preparation.json",
+      "bytes": 999,
+      "sha256": "d025ace78aad954b876f5ed700c637bab37eccb7b45dc1f89743efed02bc5bff"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-mutant-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-mutant-entry-store.mjs",
+      "bytes": 7595,
+      "sha256": "bf3ca62701b8c592f73dd7f6ceb3c1e9f540239de590cf4fc4541f57cc48f03a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-mutant-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-mutant-index.mjs",
+      "bytes": 22111,
+      "sha256": "c8cef0351ba9daa83898b063c73824ce477f36e7122d2d5262d0df42518a8524"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d358-mutant-transaction-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d358-mutant-transaction-controls.mjs",
+      "bytes": 3865,
+      "sha256": "00f4d4d8b42a9884c1d9ed29cc47a5f6755b81e8f4e6c584481568f2159c3230"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d359-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d359-run.py",
+      "bytes": 5519,
+      "sha256": "943dc8db8bf63b06db1df02852e5b207319250c342a04ad88361df3f835ba481"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d274-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d274-entry-store.mjs",
+      "bytes": 7273,
+      "sha256": "d8ff0321d22eb89272b97cf56e9ef676fd5eafad18c0811709b9297612f5323c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d274-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d274-index.mjs",
+      "bytes": 21935,
+      "sha256": "b8967dcf0929cd50b4c67415d5890120ca24923b0602df885db942a127f0a0bc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d274-entry-store-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d274-entry-store-controls.mjs",
+      "bytes": 8834,
+      "sha256": "58e74a676e1c624c75e70fc767d1b26007b06ebc5ac0cc14ad767e78a810823b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d276-entry-store-edge-controls.mjs",
+      "bytes": 3324,
+      "sha256": "72fd6274de0cabe313b1342b58d694496070ebbed6d308c74fb563e0c4241e7b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d276-entry-edge-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d276-entry-edge-controls-result.json",
+      "bytes": 3840,
+      "sha256": "3a6445b5ce5330aa3b45e068b0adec30f653ae5f449aabd747328e8d2aa6bac0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d357-record-entry-safety.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d357-entry-safety-evidence/d357-record-entry-safety.py",
+      "bytes": 10570,
+      "sha256": "bd050bfecd085b4bb8734a94a73838ca3880a9d8e271c30856f7baeb59304022"
+    }
+  ]
+}

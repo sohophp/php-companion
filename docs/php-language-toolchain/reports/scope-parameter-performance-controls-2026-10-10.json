@@ -1,0 +1,468 @@
+{
+  "engineBuildId": "3f89e5fd0533bb5455f6967503e666592b6202e7b4f478679962bf7eb02798e3",
+  "originalRecords": [
+    {
+      "path": ".vscode-test/d1460-normal-editing-recovery-run.json",
+      "sha256": "153409ca032588dc7e9a6fff97e1521a008349cf8da5faf0d82fda17891a6915"
+    },
+    {
+      "path": ".vscode-test/d1461-normal-ordinary-editing-five-rounds-run.json",
+      "sha256": "c6e24d558e3ac60b04c39f7e36bafb40564e10def00b42fe689dbb4fa191936d"
+    },
+    {
+      "path": ".vscode-test/d1464-normal-production-scale-run.json",
+      "sha256": "427ec34d94c56ae081f2af3664ce7d87d35e438b165dc99d879a3b717357d431"
+    },
+    {
+      "path": ".vscode-test/d1466-normal-package-persistence-run.json",
+      "sha256": "68bfac56cac4fde4a6c28ecf3fb96545ac16a7b1c1e97a0dce52bd6e4114c024"
+    }
+  ],
+  "recoveryQualified": true,
+  "modes": [
+    "onDemand",
+    "experimental"
+  ],
+  "editingIterationsPerMode": 1000,
+  "warmupPerMode": 100,
+  "ordinaryQualified": true,
+  "ordinaryRuns": 25,
+  "maxOrdinaryAggregateP95Ms": 144.02,
+  "productionScaleQualified": true,
+  "productionScaleSummaries": [
+    {
+      "files": 1000,
+      "rounds": 5,
+      "actualServers": 10,
+      "statistics": {
+        "cold": {
+          "indexMs": {
+            "samples": 5,
+            "p50": 2068,
+            "p95": 2257,
+            "maximum": 2257
+          },
+          "startupToIndexEndMs": {
+            "samples": 5,
+            "p50": 4661.812871,
+            "p95": 4841.638768,
+            "maximum": 4841.638768
+          },
+          "peakRssMiB": {
+            "samples": 5,
+            "p50": 344.7265625,
+            "p95": 345.28125,
+            "maximum": 345.28125
+          },
+          "firstExactCompletionMs": {
+            "samples": 5,
+            "p50": 2700.356474,
+            "p95": 2812.297455,
+            "maximum": 2812.297455
+          },
+          "cacheMiB": {
+            "samples": 5,
+            "p50": 2.5926504135131836,
+            "p95": 2.595057487487793,
+            "maximum": 2.595057487487793
+          },
+          "hotQueryP95Ms": {
+            "textDocument/completion": {
+              "samples": 5,
+              "p50": 2.7114040000005843,
+              "p95": 3.538390000000618,
+              "maximum": 3.538390000000618
+            },
+            "textDocument/hover": {
+              "samples": 5,
+              "p50": 1.939499000000069,
+              "p95": 2.2984150000002046,
+              "maximum": 2.2984150000002046
+            },
+            "textDocument/definition": {
+              "samples": 5,
+              "p50": 1.7070420000000013,
+              "p95": 2.470151000000442,
+              "maximum": 2.470151000000442
+            }
+          }
+        },
+        "warm": {
+          "indexMs": {
+            "samples": 5,
+            "p50": 1633,
+            "p95": 1688,
+            "maximum": 1688
+          },
+          "startupToIndexEndMs": {
+            "samples": 5,
+            "p50": 4145.673516999999,
+            "p95": 4278.899524,
+            "maximum": 4278.899524
+          },
+          "peakRssMiB": {
+            "samples": 5,
+            "p50": 325.73046875,
+            "p95": 348.2890625,
+            "maximum": 348.2890625
+          },
+          "firstExactCompletionMs": {
+            "samples": 5,
+            "p50": 2619.0415919999996,
+            "p95": 2701.1938410000002,
+            "maximum": 2701.1938410000002
+          },
+          "cacheMiB": {
+            "samples": 5,
+            "p50": 2.5926504135131836,
+            "p95": 2.595057487487793,
+            "maximum": 2.595057487487793
+          },
+          "hotQueryP95Ms": {
+            "textDocument/completion": {
+              "samples": 5,
+              "p50": 2.769175000001269,
+              "p95": 3.055207999999766,
+              "maximum": 3.055207999999766
+            },
+            "textDocument/hover": {
+              "samples": 5,
+              "p50": 2.1710169999987556,
+              "p95": 2.9289850000004662,
+              "maximum": 2.9289850000004662
+            },
+            "textDocument/definition": {
+              "samples": 5,
+              "p50": 1.878921999999875,
+              "p95": 2.3135959999999614,
+              "maximum": 2.3135959999999614
+            }
+          }
+        }
+      },
+      "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+    },
+    {
+      "files": 10000,
+      "rounds": 5,
+      "actualServers": 10,
+      "statistics": {
+        "cold": {
+          "indexMs": {
+            "samples": 5,
+            "p50": 15656,
+            "p95": 15916,
+            "maximum": 15916
+          },
+          "startupToIndexEndMs": {
+            "samples": 5,
+            "p50": 18182.692393,
+            "p95": 18435.266231999998,
+            "maximum": 18435.266231999998
+          },
+          "peakRssMiB": {
+            "samples": 5,
+            "p50": 579.109375,
+            "p95": 586.31640625,
+            "maximum": 586.31640625
+          },
+          "firstExactCompletionMs": {
+            "samples": 5,
+            "p50": 2625.4933730000002,
+            "p95": 2665.5150000000003,
+            "maximum": 2665.5150000000003
+          },
+          "cacheMiB": {
+            "samples": 5,
+            "p50": 26.00174045562744,
+            "p95": 26.018820762634277,
+            "maximum": 26.018820762634277
+          },
+          "hotQueryP95Ms": {
+            "textDocument/completion": {
+              "samples": 5,
+              "p50": 3.170068999999785,
+              "p95": 3.8280610000001616,
+              "maximum": 3.8280610000001616
+            },
+            "textDocument/hover": {
+              "samples": 5,
+              "p50": 1.9886680000017805,
+              "p95": 2.837743000000046,
+              "maximum": 2.837743000000046
+            },
+            "textDocument/definition": {
+              "samples": 5,
+              "p50": 1.8249419999992824,
+              "p95": 2.4893900000024587,
+              "maximum": 2.4893900000024587
+            }
+          }
+        },
+        "warm": {
+          "indexMs": {
+            "samples": 5,
+            "p50": 11190,
+            "p95": 11716,
+            "maximum": 11716
+          },
+          "startupToIndexEndMs": {
+            "samples": 5,
+            "p50": 13833.823356,
+            "p95": 14470.309438999997,
+            "maximum": 14470.309438999997
+          },
+          "peakRssMiB": {
+            "samples": 5,
+            "p50": 497.41015625,
+            "p95": 506.86328125,
+            "maximum": 506.86328125
+          },
+          "firstExactCompletionMs": {
+            "samples": 5,
+            "p50": 2737.256326999999,
+            "p95": 2867.2688449999987,
+            "maximum": 2867.2688449999987
+          },
+          "cacheMiB": {
+            "samples": 5,
+            "p50": 26.00174045562744,
+            "p95": 26.018820762634277,
+            "maximum": 26.018820762634277
+          },
+          "hotQueryP95Ms": {
+            "textDocument/completion": {
+              "samples": 5,
+              "p50": 2.6730339999994612,
+              "p95": 2.833479000000807,
+              "maximum": 2.833479000000807
+            },
+            "textDocument/hover": {
+              "samples": 5,
+              "p50": 1.9517669999986538,
+              "p95": 2.523949000002176,
+              "maximum": 2.523949000002176
+            },
+            "textDocument/definition": {
+              "samples": 5,
+              "p50": 1.8152790000021923,
+              "p95": 1.9202730000033625,
+              "maximum": 1.9202730000033625
+            }
+          }
+        }
+      },
+      "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+    },
+    {
+      "files": 50000,
+      "rounds": 5,
+      "actualServers": 10,
+      "statistics": {
+        "cold": {
+          "indexMs": {
+            "samples": 5,
+            "p50": 72878,
+            "p95": 75240,
+            "maximum": 75240
+          },
+          "startupToIndexEndMs": {
+            "samples": 5,
+            "p50": 75245.253386,
+            "p95": 77824.27512199999,
+            "maximum": 77824.27512199999
+          },
+          "peakRssMiB": {
+            "samples": 5,
+            "p50": 1083.85546875,
+            "p95": 1100.51171875,
+            "maximum": 1100.51171875
+          },
+          "firstExactCompletionMs": {
+            "samples": 5,
+            "p50": 2556.270628,
+            "p95": 2712.2880350000005,
+            "maximum": 2712.2880350000005
+          },
+          "cacheMiB": {
+            "samples": 5,
+            "p50": 130.0589246749878,
+            "p95": 130.08355045318604,
+            "maximum": 130.08355045318604
+          },
+          "hotQueryP95Ms": {
+            "textDocument/completion": {
+              "samples": 5,
+              "p50": 2.913839000000735,
+              "p95": 2.961678000006941,
+              "maximum": 2.961678000006941
+            },
+            "textDocument/hover": {
+              "samples": 5,
+              "p50": 2.322375000003376,
+              "p95": 2.668600000004517,
+              "maximum": 2.668600000004517
+            },
+            "textDocument/definition": {
+              "samples": 5,
+              "p50": 1.9494510000076843,
+              "p95": 2.4132190000091214,
+              "maximum": 2.4132190000091214
+            }
+          }
+        },
+        "warm": {
+          "indexMs": {
+            "samples": 5,
+            "p50": 54205,
+            "p95": 55835,
+            "maximum": 55835
+          },
+          "startupToIndexEndMs": {
+            "samples": 5,
+            "p50": 56654.156187,
+            "p95": 58316.72422700001,
+            "maximum": 58316.72422700001
+          },
+          "peakRssMiB": {
+            "samples": 5,
+            "p50": 1103.703125,
+            "p95": 1117.3828125,
+            "maximum": 1117.3828125
+          },
+          "firstExactCompletionMs": {
+            "samples": 5,
+            "p50": 2582.4121689999884,
+            "p95": 2684.351091999997,
+            "maximum": 2684.351091999997
+          },
+          "cacheMiB": {
+            "samples": 5,
+            "p50": 130.0589246749878,
+            "p95": 130.08355045318604,
+            "maximum": 130.08355045318604
+          },
+          "hotQueryP95Ms": {
+            "textDocument/completion": {
+              "samples": 5,
+              "p50": 2.9304039999842644,
+              "p95": 3.786935000010999,
+              "maximum": 3.786935000010999
+            },
+            "textDocument/hover": {
+              "samples": 5,
+              "p50": 2.3539999999920838,
+              "p95": 2.7258140000049025,
+              "maximum": 2.7258140000049025
+            },
+            "textDocument/definition": {
+              "samples": 5,
+              "p50": 2.359282000019448,
+              "p95": 2.6186630000011064,
+              "maximum": 2.6186630000011064
+            }
+          }
+        }
+      },
+      "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+    }
+  ],
+  "directPackagePersistenceQualified": false,
+  "persistenceCompletedRounds": 11,
+  "persistencePassingRounds": 10,
+  "persistenceUnexecutedRounds": 4,
+  "persistenceFailure": {
+    "schema": 1,
+    "files": 50000,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 110075.1,
+      "parsed": 50000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 81058.88,
+      "parsed": 0,
+      "restored": 50000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.7364,
+    "cache": {
+      "cold": {
+        "files": 50002,
+        "bytes": 290866902,
+        "mebibytes": 277.39
+      },
+      "warm": {
+        "files": 50002,
+        "bytes": 290866902,
+        "mebibytes": 277.39
+      },
+      "frozenBudgetMb": 2560
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 903.38,
+      "warmPeakRssMb": 919.65,
+      "layerRecoveryPeakRssMb": 1564.54,
+      "callableRecoveryPeakRssMb": 1208.07,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 1536,
+      "processPeakRssMb": 1579.87,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": false
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 50000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 99999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "archives": [
+    {
+      "path": ".vscode-test/d1465-scope-lookup-recovery-evidence/manifest.json",
+      "sha256": "5e5a35c755deaa28af62db7ba7a89d3ce5afa0b1b6a4d6ff8fbe1c3b2ac8ca21",
+      "verifiedFiles": 7
+    },
+    {
+      "path": ".vscode-test/d1468-scope-lookup-ordinary-evidence/manifest.json",
+      "sha256": "8bc3c06fd632f0dace613f28478fb83d9949c0d337eb639fa9da9db0bae94f45",
+      "verifiedFiles": 53
+    },
+    {
+      "path": ".vscode-test/d1467-scope-lookup-scale-evidence/manifest.json",
+      "sha256": "26b6535ed64df8923101174c7f739f234251e44b1414d8b8be2a176055c4323c",
+      "verifiedFiles": 192
+    },
+    {
+      "path": ".vscode-test/d1470-scope-lookup-persistence-failure-evidence/manifest.json",
+      "sha256": "7c6e23394ff05add1d0a5aaaeccba57524423a9c402c7db511398c3405fd86d9",
+      "verifiedFiles": 845
+    }
+  ],
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "remaining": [
+    "direct-package 50k RSS and original full matrix",
+    "activation to first usable feedback",
+    "other platforms versions modes real projects long sessions human Windows WSL Remote",
+    "original C1-C4 R4 P0-P9 F01-F14 scope"
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "recordedAtUtc": "2026-10-09T12:01:03.287036+00:00",
+  "engineBuildId": "6b3e0a5d7d925647829440536d9491781179816553e9074853e2b3530ca91320",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "133f6e23a114c76796eba0de080bc292d32ed90e9e334ea36afc7388d67b8b23",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "37f9cfe038aae4c30d95eeeae355694ac81e22ad25bd8d39e8f9f1d1be03f0dc",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "localPerformanceControlsQualified": true,
+  "normalSourceChangedByQualification": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "recovery": [
+    {
+      "mode": "onDemand",
+      "iterations": 1000,
+      "warmupIterations": 100,
+      "qualified": true,
+      "functionalPassed": true,
+      "endMinusBaselineRssMiB": 83.9609375,
+      "staleFailures": 0
+    },
+    {
+      "mode": "experimental",
+      "iterations": 1000,
+      "warmupIterations": 100,
+      "qualified": true,
+      "functionalPassed": true,
+      "endMinusBaselineRssMiB": 32.57421875,
+      "staleFailures": 0
+    }
+  ],
+  "ordinary": {
+    "rounds": 25,
+    "correctnessPassed": 25,
+    "budgetPassed": 25,
+    "originalBudgetMs": 150,
+    "maxAggregateP95Ms": 144.76
+  },
+  "scale": [
+    {
+      "files": 1000,
+      "rounds": 5,
+      "actualServers": 10,
+      "coldIndexP95Ms": 2329,
+      "warmIndexP95Ms": 1824,
+      "maxObservedRssMiB": 363.1796875,
+      "source": ".vscode-test/d1334-production-server-1000-five-rounds.json",
+      "sha256": "fb4045a83ea5e0d587afb85721363c8f3371f438f8ac05d770b350f610cb3566"
+    },
+    {
+      "files": 10000,
+      "rounds": 5,
+      "actualServers": 10,
+      "coldIndexP95Ms": 16447,
+      "warmIndexP95Ms": 12439,
+      "maxObservedRssMiB": 589.328125,
+      "source": ".vscode-test/d1334-production-server-10000-five-rounds.json",
+      "sha256": "0fa30ff3eb8d3c852c807a52b99aca2dd942c383a198a9dda7908e745edfe3b9"
+    },
+    {
+      "files": 50000,
+      "rounds": 5,
+      "actualServers": 10,
+      "coldIndexP95Ms": 75179,
+      "warmIndexP95Ms": 54356,
+      "maxObservedRssMiB": 1208.22265625,
+      "source": ".vscode-test/d1334-production-server-50000-five-rounds.json",
+      "sha256": "b65fa085154818f503d98d9e84b70d0e1826d6e97f8ae48ca1a63dcf4181f9d5"
+    }
+  ],
+  "nativeWindows": {
+    "qualified": false,
+    "exitCode": 1,
+    "durationSeconds": 128.5376714669983,
+    "failedOperation": "Generator return-flow signature provider returned empty result; expected one active signature",
+    "causeProven": false,
+    "originalDeadlineMs": 300000,
+    "inputCount": 19032,
+    "ownedProcessesAfterExit": [],
+    "equivalentFullRerunsStopped": true
+  },
+  "rawEvidence": [
+    {
+      "path": ".vscode-test/d1314-two-document-cache-validation.json",
+      "sha256": "dde52ecbd21790da57a31108840ac3dfd65c98294c9028e26e9a6365232141d3"
+    },
+    {
+      "path": ".vscode-test/d1315-two-document-cache-full-lsp-run.json",
+      "sha256": "5c7a9f86701f856664f31925838d283bbbc4559c1ce56f4cdf4dd0ee5e6dcc5e"
+    },
+    {
+      "path": ".vscode-test/d1316-two-document-cache-editor-qualification.json",
+      "sha256": "8e7c8a79ca0207eb128fef47fbcf2ffcbaba79b9aa29be55b483aef32a3ba1b5"
+    },
+    {
+      "path": ".vscode-test/d1318-two-document-cache-profile-run.json",
+      "sha256": "eccb0f6da24e5bc1efc20e3496d42340c78064eb657e9f241da9c25bf84d9c63"
+    },
+    {
+      "path": ".vscode-test/d1319-two-document-normal-publication.json",
+      "sha256": "73449ec26a38ffdc8c447d77f010ea57076deda5c6d1cb48a3df3f439b799f0b"
+    },
+    {
+      "path": ".vscode-test/d1323-normal-editing-recovery-run.json",
+      "sha256": "60af5b65bc9f65d722f11a75c59c36c23b078c0eebf47c664d05007f14d5c9f2"
+    },
+    {
+      "path": ".vscode-test/d1327-two-document-performance-pipeline.json",
+      "sha256": "4d6dec8b528ceae9b1ed4de7a09ad16c55dc4c20112a9398a4e439ca72ca079e"
+    },
+    {
+      "path": ".vscode-test/d1333-normal-ordinary-editing-five-rounds-run.json",
+      "sha256": "90c9fb02951df16a298edc0eb07eb31fd8b38aeb3be4a7a6e28e0bcc9f07d95f"
+    },
+    {
+      "path": ".vscode-test/d1334-normal-production-scale-run.json",
+      "sha256": "589158a7e95a442c8501d41479ed141619017b22dfb4efc2feb8fdc8b185c6b1"
+    },
+    {
+      "path": ".vscode-test/d1335-two-document-performance-continuation.json",
+      "sha256": "c2432211db5ff8e6245cc3ad1a6ec972d962a4527401f0f1056a874c9f1fb5f8"
+    },
+    {
+      "path": ".vscode-test/d1330-native-c2-audit.json",
+      "sha256": "56f57a08f124284d3ee6fa146f114a926bc78c6b3333d3eceec82035f926fabe"
+    },
+    {
+      "path": ".vscode-test/d1336-two-document-native-windows-pipeline.json",
+      "sha256": "6d53a294a15a69d25b74d201d3821dfef0faed175e83268d77bfe8b5a2af38b6"
+    }
+  ],
+  "archive": {
+    "path": ".vscode-test/d1337-two-document-performance-evidence",
+    "count": 349,
+    "manifestSha256": "b15b509a0687777136c7c7612645c8485dfaeb77363153fc05054e514f002f12"
+  },
+  "earlierFailuresPreserved": true,
+  "remaining": [
+    "cold first-feedback latency",
+    "latest-build complete native Windows and macOS workflows",
+    "Windows client with WSL Remote real use",
+    "multi-hour real-project sessions",
+    "all original P0-P9/F01-F14/C1-C4 requirements and final artifacts"
+  ]
+}

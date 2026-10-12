@@ -1,0 +1,31 @@
+{
+  "normalBundleSha256": "ac1147152e71b18967f9db0d05524262d0e25d79f937f0e4b57c87ea400af062",
+  "normalSourceAdopted": true,
+  "normalFullSemanticCases": 23862,
+  "normalQualityGates": 7,
+  "exactSurfaceControls": 13,
+  "oldFullLspPassed": 1521,
+  "oldFullLspFailed": 9,
+  "oldFailedCasesFocusedPassed": 9,
+  "privateFullSemanticPassed": 23860,
+  "privateFullSemanticFailed": 2,
+  "originalFailuresRetained": true,
+  "originalFailureCauseProven": false,
+  "publicDeclarationsUnchanged": true,
+  "cacheSchemaChanged": false,
+  "fullLspQualifiedForNewRuntime": false,
+  "fullPerformanceQualifiedForNewRuntime": false,
+  "editorQualifiedForNewRuntime": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "numberedFixtures": 176,
+  "acceptanceFamilies": 14,
+  "uncheckedRoadmapItems": 26,
+  "evidence": {
+    "normalAudit": "/var/www/node/php-companion/.vscode-test/d2016-surface-normal-terminal-audit.json",
+    "negativeLspAudit": "/var/www/node/php-companion/.vscode-test/d1983-current-full-lsp-terminal-audit.json",
+    "focusedDiagnostic": "/var/www/node/php-companion/.vscode-test/d2005-failed-lsp-diagnostic-terminal-audit.json",
+    "phaseDiagnostic": "/var/www/node/php-companion/.vscode-test/d2009-builtin-profile-terminal-audit.json",
+    "privateCandidateAudit": "/var/www/node/php-companion/.vscode-test/d2012-surface-candidate-terminal-audit.json"
+  }
+}

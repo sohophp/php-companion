@@ -1,0 +1,849 @@
+{
+  "composite": {
+    "historicalObserverEnvironmentFailurePreserved": true,
+    "status": "exited",
+    "qualified": true,
+    "functionalQualified": true,
+    "engineSha256": "f140fbdbf7b69e6aed58e1143170f06371365ca38976f2a7e25f58300fcdab86",
+    "full12ExtensionProfileRetained": true,
+    "existingPersistentF11FailureRecoveryPassed": true,
+    "existingPersistentPhpAndTwigSaveUndoRedoPassed": true,
+    "formatterSaveProofs": [
+      {
+        "language": "php",
+        "formatterId": "junstyle.php-cs-fixer",
+        "originalText": "<?php\nclass  ProfileFormat{public function run( ):void{}}\n",
+        "formattedText": "<?php\n\nclass ProfileFormat\n{\n    public function run(): void\n    {\n    }\n}\n",
+        "actualFormatDocumentCommand": true,
+        "savePersistedExactBuffer": true,
+        "undoRestoredExactSource": true,
+        "redoRestoredExactFormat": true,
+        "undoAndRedoKeptSavedDisk": true,
+        "dirtyStates": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ]
+      },
+      {
+        "language": "twig",
+        "formatterId": "sohophp.twig-plus",
+        "originalText": "{%if true%}{{ value }}{%endif%}\n",
+        "formattedText": "{% if true %}\n  {{ value }}{% endif %}\n",
+        "actualFormatDocumentCommand": true,
+        "savePersistedExactBuffer": true,
+        "undoRestoredExactSource": true,
+        "redoRestoredExactFormat": true,
+        "undoAndRedoKeptSavedDisk": true,
+        "dirtyStates": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ]
+      }
+    ],
+    "addedPersistentFormatOnSavePassed": true,
+    "formatOnSaveProofs": [
+      {
+        "language": "php",
+        "uri": "file:///tmp/php-companion-packaged-P1Ja9c/workspace/src/ProfileAutoSave.php",
+        "formatter": "junstyle.php-cs-fixer",
+        "raw": "<?php\nclass  ProfileAutoSave{public function run( ):void{}}\n\n",
+        "formatted": "<?php\n\nclass ProfileAutoSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+        "saveAutomaticallyFormatted": true,
+        "undoRestoredPreSaveBuffer": true,
+        "redoRestoredSavedBuffer": true,
+        "undoAndRedoKeptDisk": true
+      },
+      {
+        "language": "twig",
+        "uri": "file:///tmp/php-companion-packaged-P1Ja9c/workspace/ProfileAutoSave.html.twig",
+        "formatter": "sohophp.twig-plus",
+        "raw": "{%if true%}{{ value }}{%endif%}\n\n",
+        "formatted": "{% if true %}\n  {{ value }}{% endif %}\n\n",
+        "saveAutomaticallyFormatted": true,
+        "undoRestoredPreSaveBuffer": true,
+        "redoRestoredSavedBuffer": true,
+        "undoAndRedoKeptDisk": true
+      }
+    ],
+    "failedFormatOnSaveRecoveryProofs": [
+      {
+        "language": "php",
+        "uri": "file:///tmp/php-companion-packaged-P1Ja9c/workspace/src/ProfileFailedSave.php",
+        "raw": "<?php\nclass  ProfileFailedSave{public function run( ):void{}}\n// user edit before failed save\n",
+        "recovered": "<?php\n\nclass ProfileRecoveredSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+        "witness": {
+          "message": "SoPHP intentional format-on-save failure",
+          "config": "/tmp/php-companion-packaged-P1Ja9c/workspace/.php-cs-fixer.dist.php",
+          "phpVersion": "8.5.9",
+          "phpBinary": "/opt/remi/php85/root/usr/bin/php"
+        },
+        "failedFormatterSaveKeptBufferAndVersion": true,
+        "userInputSavedExactly": true,
+        "recoveredSaveAutomaticallyFormatted": true
+      },
+      {
+        "language": "twig",
+        "uri": "file:///tmp/php-companion-packaged-P1Ja9c/workspace/ProfileFailedSave.html.twig",
+        "raw": "<script>for (let i, i < 3; i++) {}</script>\n{# user edit before failed save #}\n",
+        "recovered": "{% if true %}\n  {{ recovered }}{% endif %}\n",
+        "failedFormatterSaveKeptBufferAndVersion": true,
+        "userInputSavedExactly": true,
+        "recoveredSaveAutomaticallyFormatted": true
+      }
+    ],
+    "twigServerRejectedAndRecovered": {
+      "uri": "file:///tmp/php-companion-packaged-P1Ja9c/workspace/ProfileFailedSave.html.twig",
+      "outputLog": "/var/www/node/php-companion/.vscode-test/d2416-current-full-profile-evidence/host-logs/20261012T103711/window1/exthost/output_logging_20261012T103716/4-TwigPlus.log",
+      "logSha256": "0e3fd6b4e75c65f00d850cbbd28a87633b09586b31d1c66a7d7660915c23784b",
+      "failed": "[format 46236-4] complete failed 32.0ms: TwigPlus did not modify this document: embedded JavaScript syntax error at 1:23. ',' expected. (file:///tmp/php-companion-packaged-P1Ja9c/workspace/ProfileFailedSave.html.twig)",
+      "recoveryNotifications": [
+        "[format 46236-5] complete completed 1.4ms (file:///tmp/php-companion-packaged-P1Ja9c/workspace/ProfileFailedSave.html.twig)",
+        "[format 46236-5] complete completed 2.3ms (file:///tmp/php-companion-packaged-P1Ja9c/workspace/ProfileFailedSave.html.twig)"
+      ],
+      "failedRequestIds": [
+        "46236-4"
+      ],
+      "recoveredRequestIds": [
+        "46236-5"
+      ]
+    },
+    "languageOverridesRestored": true,
+    "addedExistingRealXdebugSuitePassed": true,
+    "addedPhpunitEditorTasksPassed": true,
+    "phpunitEditorTasksProof": {
+      "results": [
+        {
+          "scenario": "pass",
+          "exitCode": 0,
+          "processId": 46841
+        },
+        {
+          "scenario": "assertion-failure",
+          "exitCode": 1,
+          "processId": 46885
+        },
+        {
+          "scenario": "recovery",
+          "exitCode": 0,
+          "processId": 46888
+        }
+      ],
+      "witnesses": [
+        {
+          "value": 42,
+          "cwd": "/tmp/php-companion-packaged-P1Ja9c/workspace",
+          "version": "8.5.9",
+          "binary": "/opt/remi/php85/root/usr/bin/php",
+          "sapi": "cli",
+          "pid": 46869
+        },
+        {
+          "value": 41,
+          "cwd": "/tmp/php-companion-packaged-P1Ja9c/workspace",
+          "version": "8.5.9",
+          "binary": "/opt/remi/php85/root/usr/bin/php",
+          "sapi": "cli",
+          "pid": 46887
+        },
+        {
+          "value": 42,
+          "cwd": "/tmp/php-companion-packaged-P1Ja9c/workspace",
+          "version": "8.5.9",
+          "binary": "/opt/remi/php85/root/usr/bin/php",
+          "sapi": "cli",
+          "pid": 46890
+        }
+      ],
+      "argumentPathWithSpaces": true,
+      "realProcessExecution": true,
+      "expectedAssertionFailureExitCode": 1,
+      "recoveryPassed": true,
+      "workingDirectoryAndRuntimeMatched": true,
+      "taskAndProcessEndObserved": true,
+      "noActiveOwnedTasks": true
+    },
+    "taskAndRuntimeChildProcessesGone": true,
+    "testExplorerQualified": false,
+    "realXdebugProof": {
+      "platform": "linux",
+      "debuggerVersion": "1.40.1",
+      "breakpointLine": 3,
+      "stepLine": 4,
+      "before": "40",
+      "after": "42",
+      "scopeVariable": true,
+      "programResult": 42,
+      "workingDirectoryMatches": true,
+      "sessionTerminated": true,
+      "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+    },
+    "realDebugRuntime": {
+      "version": "8.5.9",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "xdebugVersion": "3.5.3",
+      "mode": [
+        "debug"
+      ],
+      "extensionDir": "/opt/remi/php85/root/usr/lib64/php/modules",
+      "ini": "/etc/opt/remi/php85/php.ini",
+      "scannedIni": "/etc/opt/remi/php85/php.d/10-opcache.ini,\n/etc/opt/remi/php85/php.d/15-xdebug.ini,\n/etc/opt/remi/php85/php.d/20-bz2.ini,\n/etc/opt/remi/php85/php.d/20-calendar.ini,\n/etc/opt/remi/php85/php.d/20-ctype.ini,\n/etc/opt/remi/php85/php.d/20-curl.ini,\n/etc/opt/remi/php85/php.d/20-dom.ini,\n/etc/opt/remi/php85/php.d/20-exif.ini,\n/etc/opt/remi/php85/php.d/20-fileinfo.ini,\n/etc/opt/remi/php85/php.d/20-ftp.ini,\n/etc/opt/remi/php85/php.d/20-gd.ini,\n/etc/opt/remi/php85/php.d/20-gettext.ini,\n/etc/opt/remi/php85/php.d/20-iconv.ini,\n/etc/opt/remi/php85/php.d/20-intl.ini,\n/etc/opt/remi/php85/php.d/20-mbstring.ini,\n/etc/opt/remi/php85/php.d/20-mysqlnd.ini,\n/etc/opt/remi/php85/php.d/20-pdo.ini,\n/etc/opt/remi/php85/php.d/20-pgsql.ini,\n/etc/opt/remi/php85/php.d/20-phar.ini,\n/etc/opt/remi/php85/php.d/20-posix.ini,\n/etc/opt/remi/php85/php.d/20-shmop.ini,\n/etc/opt/remi/php85/php.d/20-simplexml.ini,\n/etc/opt/remi/php85/php.d/20-sodium.ini,\n/etc/opt/remi/php85/php.d/20-sqlite3.ini,\n/etc/opt/remi/php85/php.d/20-sysvmsg.ini,\n/etc/opt/remi/php85/php.d/20-sysvsem.ini,\n/etc/opt/remi/php85/php.d/20-sysvshm.ini,\n/etc/opt/remi/php85/php.d/20-tokenizer.ini,\n/etc/opt/remi/php85/php.d/20-xml.ini,\n/etc/opt/remi/php85/php.d/20-xmlwriter.ini,\n/etc/opt/remi/php85/php.d/20-xsl.ini,\n/etc/opt/remi/php85/php.d/30-mcrypt.ini,\n/etc/opt/remi/php85/php.d/30-mysqli.ini,\n/etc/opt/remi/php85/php.d/30-pdo_mysql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_pgsql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_sqlite.ini,\n/etc/opt/remi/php85/php.d/30-xmlreader.ini,\n/etc/opt/remi/php85/php.d/30-zip.ini,\n/etc/opt/remi/php85/php.d/40-apcu.ini,\n/etc/opt/remi/php85/php.d/40-igbinary.ini,\n/etc/opt/remi/php85/php.d/40-imagick.ini,\n/etc/opt/remi/php85/php.d/40-msgpack.ini,\n/etc/opt/remi/php85/php.d/40-yaml.ini,\n/etc/opt/remi/php85/php.d/50-redis.ini,\n/etc/opt/remi/php85/php.d/99-xdebug-switch.ini\n",
+      "extensionSha256": "88990f04bc0dc35950121e43c74953a7fd3eb73c1e083a4f657a5b8e83d6f78b"
+    },
+    "realDebugProgramResult": {
+      "value": 42,
+      "cwd": "/tmp/php-companion-packaged-P1Ja9c/workspace"
+    },
+    "debugBranchActuallyEnabled": true,
+    "allOwnedDebugFixtureProcessesGone": true,
+    "originalAuditToolFailurePreserved": true,
+    "twigCompletionNotificationsCountedByRequestId": true,
+    "failureWitness": {
+      "message": "SoPHP Profile intentional formatter configuration failure",
+      "config": "/tmp/php-companion-packaged-P1Ja9c/workspace/.php-cs-fixer.dist.php",
+      "phpVersion": "8.5.9",
+      "phpBinary": "/opt/remi/php85/root/usr/bin/php",
+      "failureResult": "empty",
+      "edits": 0,
+      "bufferUnchanged": true,
+      "versionUnchanged": true,
+      "diskUnchanged": true,
+      "dirtyStateUnchanged": true
+    },
+    "intentionalFormatterExitCode": 1,
+    "intentionalFormatterExitCodes": [
+      1,
+      1
+    ],
+    "testSourceChangedForThisRun": false,
+    "productRuntimeDiffersFromHistoricalProfile": true,
+    "normalRuntimeAssetsUnchanged": 8,
+    "original165MsFailurePreserved": true,
+    "precompileFrozenInputsChecked": 31697,
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 63,
+        "p95Ms": 83,
+        "maxMs": 151,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          16,
+          7,
+          6,
+          5,
+          6,
+          7
+        ],
+        "slowRounds": [],
+        "firstCompositeHoverCallMs": 57,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 2,
+            "maxMs": 83,
+            "firstMs": [
+              83,
+              34
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 34,
+            "firstMs": [
+              34
+            ]
+          },
+          "diagnostics": {
+            "count": 2,
+            "maxMs": 30,
+            "firstMs": [
+              4,
+              30
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 33,
+            "firstMs": [
+              33
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 2,
+            "firstMs": [
+              2
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 75,
+        "p95Ms": 114,
+        "maxMs": 467,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          222,
+          222,
+          223,
+          223,
+          224,
+          224,
+          224
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "compositeP95BudgetMs": 150,
+    "frozenInputsChecked": 31697,
+    "frozenLinksChecked": 185,
+    "inputsAndRepositoriesUnchanged": true,
+    "actualOwnedProcessesGone": true,
+    "checkedProcessIds": [
+      44770,
+      44797,
+      44799,
+      44804,
+      45708,
+      46236,
+      45343,
+      45343,
+      46841,
+      46885,
+      46888,
+      46869,
+      46887,
+      46890
+    ],
+    "qualifiedCompiledTests": 98,
+    "previousQualifiedCompiledTestsRetained": 95,
+    "preservedStrictCompilationVerifiedByExactIdentity": true,
+    "newCompilationForThisRun": false,
+    "historicalCompiledQualificationReused": false,
+    "previousQualifiedCompiledTestsUnchanged": 93,
+    "copiedInputsChecked": 2482,
+    "originalHostLogDirectory": "/var/www/node/php-companion/.vscode-test/d2416-current-full-profile-evidence/host-logs/20261012T103711",
+    "currentHostLogsVerifiedByExactFixture": "/tmp/php-companion-packaged-P1Ja9c/workspace",
+    "fullLspPassed": 1568,
+    "fullLspManifestSha256": "05a503d278fd677d92fba145fd704b82c949bee846a12d89a91dbaf71d9e4865",
+    "fullLspArchiveFilesVerified": 348,
+    "fullC3EditorOriginalFailurePreserved": true,
+    "fullFourEditorWorkflowQualification": true,
+    "realWslAcceptance": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "recordedAtUtc": "2026-10-12T02:39:00.396164+00:00"
+  },
+  "ordinary": {
+    "recordedAtUtc": "2026-10-12T01:42:55.935837+00:00",
+    "engineBuildId": "f140fbdbf7b69e6aed58e1143170f06371365ca38976f2a7e25f58300fcdab86",
+    "qualified": true,
+    "boundFull12ExtensionProfileQualified": false,
+    "boundProfileArchiveFilesVerified": 0,
+    "boundFullLspCases": null,
+    "boundCurrentSemanticCases": 24114,
+    "boundCurrentFocusedProtocolCases": 22,
+    "allOriginal25RunsExecuted": true,
+    "actualServers": 25,
+    "allOriginalProcessesGone": true,
+    "checkedProcessIds": [
+      81035,
+      81179,
+      81190,
+      81226,
+      81237,
+      81280,
+      81291,
+      81329,
+      81340,
+      81384,
+      81395,
+      81428,
+      81442,
+      81489,
+      81500,
+      81542,
+      81553,
+      81589,
+      81600,
+      81653,
+      81664,
+      81688,
+      81702,
+      81750,
+      81761,
+      81807,
+      81818,
+      81854,
+      81865,
+      81915,
+      81926,
+      81953,
+      81964,
+      82010,
+      82024,
+      82069,
+      82080,
+      82116,
+      82127,
+      82177,
+      82188,
+      82212,
+      82223,
+      82277,
+      82288,
+      82331,
+      82342,
+      82379,
+      82390,
+      82438,
+      82449
+    ],
+    "frozenInputsChecked": 96324,
+    "frozenInputsUnchanged": true,
+    "maximumHotP95Ms": 142.35,
+    "originalBudgetMs": 150,
+    "performanceFailuresPreserved": true,
+    "originalThreeBusinessSourceBytesPreserved": true,
+    "privateBusinessRootUrisChanged": true,
+    "originalInputDriftPreflightFailurePreserved": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "realWslAcceptance": false,
+    "profileUpdated": false,
+    "manifest": "/var/www/node/php-companion/.vscode-test/d2403-current-fixed-ordinary-evidence/manifest.json",
+    "manifestSha256": "ed086f1175d86da270d869cb3ffbc3bbb13a9f754758dd38cfe964d7e35d92bf",
+    "archivedFiles": 67,
+    "frozenLinksChecked": 184,
+    "queriesPerRun": 100,
+    "roundsPerCase": 5,
+    "caseResults": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 129.64,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 1,
+        "p95Ms": 132.73,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 1,
+        "p95Ms": 95.89,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 1,
+        "p95Ms": 134.72,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 1,
+        "p95Ms": 61.76,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 2,
+        "p95Ms": 140.93,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 2,
+        "p95Ms": 132.82,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 2,
+        "p95Ms": 101.85,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 2,
+        "p95Ms": 137.16,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 2,
+        "p95Ms": 69.21,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 3,
+        "p95Ms": 125.32,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 3,
+        "p95Ms": 142.35,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 3,
+        "p95Ms": 96.51,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 3,
+        "p95Ms": 140.71,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 3,
+        "p95Ms": 62.35,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 132.9,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 4,
+        "p95Ms": 130.76,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 4,
+        "p95Ms": 83.91,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 4,
+        "p95Ms": 134.2,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 4,
+        "p95Ms": 65.66,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 5,
+        "p95Ms": 137.03,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 5,
+        "p95Ms": 133.57,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 5,
+        "p95Ms": 93.3,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 5,
+        "p95Ms": 131.53,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 5,
+        "p95Ms": 61.7,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      }
+    ]
+  },
+  "editors": {
+    "recordedAtUtc": "2026-10-12T02:36:53.002271+00:00",
+    "terminalAuditQualified": true,
+    "normalBundleSha256": "f140fbdbf7b69e6aed58e1143170f06371365ca38976f2a7e25f58300fcdab86",
+    "qualityGates": 7,
+    "componentTypechecks": 24,
+    "rootTests": 113,
+    "editorWorkflows": [
+      {
+        "suite": "c1",
+        "mode": "onDemand",
+        "settings": {
+          "phpVersion": "auto",
+          "indexingMode": "onDemand"
+        },
+        "qualified": true,
+        "generationBoundaryRows": 0,
+        "foreachLoopQueries": 0
+      },
+      {
+        "suite": "c2",
+        "mode": "onDemand",
+        "settings": {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand"
+        },
+        "qualified": true,
+        "generationBoundaryRows": 0,
+        "foreachLoopQueries": 20
+      },
+      {
+        "suite": "c3",
+        "mode": "onDemand",
+        "settings": {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand"
+        },
+        "qualified": true,
+        "generationBoundaryRows": 40,
+        "foreachLoopQueries": 0
+      },
+      {
+        "suite": "c3",
+        "mode": "progressive",
+        "settings": {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive"
+        },
+        "qualified": true,
+        "generationBoundaryRows": 40,
+        "foreachLoopQueries": 0
+      }
+    ],
+    "compiledTests": 98,
+    "compiledSourceInputsVerified": 138,
+    "inputsRechecked": 30244,
+    "symlinksRechecked": 184,
+    "repositoriesRechecked": 2,
+    "archive": [
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-result.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/00-d2405-current-quality-result.json",
+        "sha256": "2d9103355dbe04e91277549c4a982c0f3c60367719b1445262228e493cd48d9a"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-root-tests.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/01-d2405-current-root-tests.json",
+        "sha256": "ad3fee5978f88844eeca6cf9e3b748f16643a51b1ac073cfdacec8874d0daf44"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-editor-qualification.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/02-d2410-loop-current-editor-qualification.json",
+        "sha256": "3a44d67918dbdd5df6c653c123892832300829cabb5a41e47e4af19bea805b24"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-current-editor-compile-proof.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/03-d2410-current-editor-compile-proof.json",
+        "sha256": "d2479b7fa5dde7a885d8750714054971fed78ce7b61534a07298ec7f55e54d14"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-observer-host-preparation.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/04-d2410-observer-host-preparation.json",
+        "sha256": "ce957ca458c8b8c1fd3809b5c50b8d68b9937bbb1aadb40599c84659e94deed3"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2408-current-full-lsp-terminal-audit.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/05-d2408-current-full-lsp-terminal-audit.json",
+        "sha256": "05a503d278fd677d92fba145fd704b82c949bee846a12d89a91dbaf71d9e4865"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2411-audit-current-quality-editors.py",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/06-d2411-audit-current-quality-editors.py",
+        "sha256": "5120a77c7901ab943e977fda3249ce709720eb00b9ecce6d918000b8a1ab5b18"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-lint.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/07-d2405-current-quality-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-root-typecheck.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/08-d2405-current-quality-root-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-symfony-typecheck.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/09-d2405-current-quality-symfony-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-component-boundaries.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/10-d2405-current-quality-component-boundaries.log",
+        "sha256": "282a0cb5ce617fcb6020ca2af25d737b9609a38794171d17d3b82e0ad14a7664"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-public-contracts.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/11-d2405-current-quality-public-contracts.log",
+        "sha256": "84d805bbb54ac97a76d962cbe3067830a565fa6999f480383ee07a657a45eaac"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-component-typechecks.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/12-d2405-current-quality-component-typechecks.log",
+        "sha256": "2872a5fbbcad13f0c6485664ce175c3246b639ff56904e32fe95768d5a4e4673"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2405-current-quality-root-tests.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/13-d2405-current-quality-root-tests.log",
+        "sha256": "d3ce8de3075b8ed30e2babff042318f6ba62c5e2c7660a781823907ad8605c87"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c1-onDemand.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/14-d2410-loop-current-full-c1-onDemand.log",
+        "sha256": "72763f7f6e6f17b6628022c38eafaf48a7d5f93d8579f72f7ed09a7257ecb161"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c1-onDemand-evidence/acceptance-proof.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/15-acceptance-proof.json",
+        "sha256": "5eb1d0d0e6a73a2fb754056c3926ddbca3226a199281fe6081793754da901e55"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c1-onDemand-owned-display/display-run.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/16-display-run.json",
+        "sha256": "e915b206278f471d11a17613010f5ed3030200fc498d2e1fa8bf6d841cd50303"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c2-onDemand.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/17-d2410-loop-current-full-c2-onDemand.log",
+        "sha256": "e2f47e760033965b24f718e7183c6f62e98b215ca98687e4d98fd1204341c86d"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c2-onDemand-evidence/acceptance-proof.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/18-acceptance-proof.json",
+        "sha256": "c723045552cd505316bc984a5a35235b0773762c72e8e6f6a977cc5614ad351a"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c2-onDemand-owned-display/display-run.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/19-display-run.json",
+        "sha256": "dba38948d5223f584278937cd55344411191925fe09d585f85c86a94e3cf23a7"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c3-onDemand.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/20-d2410-loop-current-full-c3-onDemand.log",
+        "sha256": "359502ff10a62ded11e153dfcf1449a0d12e743c88b42fb97cd0d00986ab560f"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c3-onDemand-evidence/acceptance-proof.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/21-acceptance-proof.json",
+        "sha256": "4afddcb4193dbd4f1e16eb94b48ceb641cd5b2de32ce0fc39cc23ae28a421a71"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c3-onDemand-owned-display/display-run.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/22-display-run.json",
+        "sha256": "750cc36ef6980e83a565850bb5bbc15194f3b7b5ca2b518b9583c65efd0815fe"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c3-progressive.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/23-d2410-loop-current-full-c3-progressive.log",
+        "sha256": "5c3bd4b9377c80ddce074effae82eeea5e69eabd0062f6aeacf24c7790cf6342"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c3-progressive-evidence/acceptance-proof.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/24-acceptance-proof.json",
+        "sha256": "862810c1d6f0844d804fc09e3206f043863853f6223bdc67d995aeba3b3a5b7e"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/d2410-loop-current-full-c3-progressive-owned-display/display-run.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/d2411-current-quality-editors-archive/25-display-run.json",
+        "sha256": "5eff9290561897a7456b45e16c01d59021a2d10c67db8c33f1a39709c3baa28d"
+      }
+    ],
+    "sameBuildFullLsp": {
+      "files": 135,
+      "passedCases": 1568
+    },
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "openMajorItems": 26
+  },
+  "fullObjectiveComplete": false,
+  "profileUpdated": false
+}

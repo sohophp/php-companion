@@ -1,0 +1,611 @@
+{
+  "date": "2026-10-09",
+  "sourceAdopted": true,
+  "runtime": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "normalRuntimeAssets": [
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "engineBuildId": "d93a920cb023363469383bfb925461ac06df203788628958c5385f9d089582f0",
+  "sourceScope": {
+    "normalSource": "packages/semantic/src/index.ts",
+    "beforeSha256": "05607495fb144b14fc6d59fffc5574f61b0a580fffa04556c073d57b013e3f16",
+    "afterSha256": "8d9a5402d3216ab5104b7a9f112efd2edfff48f08cc29343a031dd6f22d77ec9",
+    "exactFourScanReplacements": false,
+    "reverseToOriginalExact": true,
+    "usesExistingCandidateKeys": true,
+    "newPersistenceOrCacheVersions": false,
+    "sourceChanged": true,
+    "runtimeRebuilt": false,
+    "originalSaved": ".vscode-test/d1166-semantic-before-callable-candidates.ts",
+    "patches": [
+      [
+        "missingRequiredArguments",
+        "if (localOnly && signature.kind === 'method' && [...this.files.values()].flatMap((candidate) => candidate.callables)\n        .filter((candidate) => candidate.kind === 'method' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase()).length !== 1) return [];",
+        "if (localOnly && signature.kind === 'method' && !this.hasUniqueCallableDeclaration(signature)) return [];"
+      ],
+      [
+        "missingRequiredArguments",
+        "        const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)\n          .filter((candidate) => candidate.kind === 'function' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());\n        if (matches.length !== 1) return [];",
+        "        if (!this.hasUniqueCallableDeclaration(signature)) return [];"
+      ],
+      [
+        "incompatibleArguments",
+        "        const matches = [...this.files.values()].flatMap((candidate) => candidate.callables)\n          .filter((candidate) => candidate.kind === 'method' && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());\n        if (matches.length !== 1 && signature.synthetic !== 'enum-native') return [];",
+        "        if (!this.hasUniqueCallableDeclaration(signature) && signature.synthetic !== 'enum-native') return [];"
+      ],
+      [
+        "readonlyPropertyAssignments",
+        "      const declarations = [...this.files.values()].flatMap((candidate) => candidate.callables)\n        .filter((candidate) => candidate.kind === signature.kind && candidate.fqcn.toLowerCase() === signature.fqcn.toLowerCase());\n      if (declarations.length !== 1) continue;",
+        "      if (!this.hasUniqueCallableDeclaration(signature)) continue;"
+      ]
+    ],
+    "helper": "  private filesDeclaringCallable(signature: Pick<SignatureInfo, 'kind' | 'fqcn'>): SemanticFile[] {\n    const name = signature.fqcn.toLowerCase();\n    const separator = name.lastIndexOf('::');\n    return signature.kind === 'function'\n      ? this.filesForReferenceKeys(`declaration:function:${name}`)\n      : separator > 0 ? this.filesForReferenceKeys(`declaration:type:${name.slice(0, separator)}`)\n        : [...this.files.values()];\n  }\n\n  private hasUniqueCallableDeclaration(signature: Pick<SignatureInfo, 'kind' | 'fqcn'>): boolean {\n    const name = signature.fqcn.toLowerCase();\n    // Candidate keys include duplicate owners and unindexed files. Only the\n    // final exact declaration count proves uniqueness, including on restore.\n    let matches = 0;\n    for (const file of this.filesDeclaringCallable(signature)) for (const callable of file.callables) {\n      if (callable.kind === signature.kind && callable.fqcn.toLowerCase() === name && ++matches > 1) return false;\n    }\n    return matches === 1;\n  }\n\n",
+    "exactFiveScanReplacements": true,
+    "additionalAssertionScan": {
+      "before": "      const declarations = [...this.files.values()].flatMap((declarationFile) => declarationFile.callables\n        .filter((item) => item.kind === signature.kind && item.fqcn.toLowerCase() === signature.fqcn.toLowerCase())\n        .map((item) => ({ file: declarationFile, callable: item })));",
+      "after": "      const declarations = this.filesDeclaringCallable(signature).flatMap((declarationFile) => declarationFile.callables\n        .filter((item) => item.kind === signature.kind && item.fqcn.toLowerCase() === signature.fqcn.toLowerCase())\n        .map((item) => ({ file: declarationFile, callable: item })));"
+    },
+    "remainingReadEvidence": ".vscode-test/d1167-debug-candidate-reads.log"
+  },
+  "targetTests": {
+    "total": 28,
+    "oldPassed": 18,
+    "oldFailed": 10,
+    "newPassed": 28,
+    "newFailed": 0,
+    "originalCasesRetained": true,
+    "oldUnrelatedCallableArrayReadsPerQuery": [
+      4,
+      6,
+      2,
+      2,
+      6
+    ],
+    "newUnrelatedCallableArrayReadsPerQuery": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "modes": [
+      "live",
+      "restored"
+    ]
+  },
+  "semantic": {
+    "files": 169,
+    "passed": 23673,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "54e2d3c797bc0f4e1e31f72faec504b077589fb7924133c623c98a08b4e10dc8"
+  },
+  "rootUnit": {
+    "files": 21,
+    "passed": 113,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "8d902376f77c1672395a1a7ff5e8209048fe33101ce7a224c56d257f5fd66485"
+  },
+  "generatorProtocol": {
+    "files": 3,
+    "passed": 12,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "0ce87c5b0aa7e6fe1b1760f6b503d3878de03dfd02b354e0be6c1bcf725c0676"
+  },
+  "crossFileProtocol": {
+    "passed": 5,
+    "failed": 0,
+    "otherCasesNotSelected": 539,
+    "sha256": "0adbb1c6b2061b72217796bf22776051aeb30b98bc551c82fabdd037b902d794"
+  },
+  "validation": {
+    "status": "exited",
+    "parentPid": 3167260,
+    "qualified": true,
+    "sourceAdopted": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "fullLspQualified": false,
+    "fullPerformanceQualified": false,
+    "steps": [
+      {
+        "label": "new-test-typecheck",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--strict",
+          "--noUncheckedIndexedAccess",
+          "--skipLibCheck",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--target",
+          "ES2022",
+          "--types",
+          "node,vitest/globals",
+          "packages/semantic/test/diagnostic-declaration-candidates.test.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3167415,
+        "exitCode": 0,
+        "durationSeconds": 8.307544761017198,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "range-eslint",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/eslint/bin/eslint.js",
+          "packages/semantic/src/index.ts",
+          "packages/semantic/test/diagnostic-declaration-candidates.test.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3167461,
+        "exitCode": 0,
+        "durationSeconds": 7.584330919984495,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "root-unit",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1170-callable-candidates-root-unit.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3167504,
+        "exitCode": 0,
+        "durationSeconds": 6.5136332039837725,
+        "logSha256": "634664315f44a617b9e810b2d3e6a5e7d5774b7beb8df0aef92a61d6f42f6393"
+      },
+      {
+        "label": "full-semantic",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1170-callable-candidates-full-semantic.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/semantic",
+        "status": "exited",
+        "pid": 3167804,
+        "exitCode": 0,
+        "durationSeconds": 102.34544462198392,
+        "logSha256": "0efcfe82d6d29e8819dc1380e2ed06854e67146565bcff6980ac9f5933be040c"
+      },
+      {
+        "label": "generator-protocol",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/generator-delegation-stdio.test.ts",
+          "test/generator-return-control-flow-stdio.test.ts",
+          "test/generator-send-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1170-callable-candidates-generator-protocol.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "status": "exited",
+        "pid": 3170284,
+        "exitCode": 0,
+        "durationSeconds": 20.30784513699473,
+        "logSha256": "d85e7c64b2b8bee992e3cd62b9a0754a404105eab2a38cab68c981373da4c24c"
+      },
+      {
+        "label": "cross-file-protocol",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/stdio.test.ts",
+          "--testNamePattern",
+          "language\\ server\\ stdio\\ updates\\ an\\ open\\ consumer\\ diagnostic\\ after\\ an\\ unsaved\\ declaration\\ changes\\ in\\ another\\ file\\ \\(versioned=false\\)|language\\ server\\ stdio\\ updates\\ an\\ open\\ consumer\\ diagnostic\\ after\\ an\\ unsaved\\ declaration\\ changes\\ in\\ another\\ file\\ \\(versioned=true\\)|language\\ server\\ stdio\\ refreshes\\ consumer\\ type\\ feedback\\ after\\ an\\ unsaved\\ cross\\-file\\ PHPDoc\\ return\\ changes\\ \\(experimental\\)|language\\ server\\ stdio\\ refreshes\\ consumer\\ type\\ feedback\\ after\\ an\\ unsaved\\ cross\\-file\\ PHPDoc\\ return\\ changes\\ \\(onDemand\\)|language\\ server\\ stdio\\ keeps\\ onDemand\\ union\\-shape\\ completion,\\ hover\\ and\\ definition\\ aligned\\ with\\ an\\ unsaved\\ source\\ edit",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1170-callable-candidates-cross-file-protocol.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "status": "exited",
+        "pid": 3170599,
+        "exitCode": 0,
+        "durationSeconds": 19.604206231975695,
+        "logSha256": "faf0e3e9ab7431443de3dcf863be1ef8aa1a677f756227cd5e06dca0207aae31"
+      }
+    ],
+    "previousNormalAssets": {
+      "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/language-server.js": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    "testOnlyEslintCorrection": "Five explicit ReturnType annotations; assertions and normal source/runtime unchanged.",
+    "preparationCorrection": "Standalone test typecheck now uses the same noUncheckedIndexedAccess option as the successfully built semantic package; prior mismatched CLI diagnostics preserved.",
+    "reusedBuildAndChecks": [
+      {
+        "label": "semantic-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "-p",
+          "packages/semantic/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3166197,
+        "exitCode": 0,
+        "durationSeconds": 12.818544918001862,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "production-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "esbuild.mjs",
+          "--production"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3166266,
+        "exitCode": 0,
+        "durationSeconds": 0.846617350995075,
+        "logSha256": "866c17ffca5aef5c4fc0a09275d28a57893dd4377595af0cac1cda6ca6aa0c72"
+      },
+      {
+        "label": "component-boundaries",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/check-component-boundaries.mjs"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3166349,
+        "exitCode": 0,
+        "durationSeconds": 3.0890267940121703,
+        "logSha256": "282a0cb5ce617fcb6020ca2af25d737b9609a38794171d17d3b82e0ad14a7664"
+      },
+      {
+        "label": "root-typecheck",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3166370,
+        "exitCode": 0,
+        "durationSeconds": 5.633698029007064,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "normalAssets": {
+      "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/language-server.js": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    "changedRuntimeAssets": [
+      "/var/www/node/php-companion/dist/language-server.js"
+    ],
+    "engineBuildId": "d93a920cb023363469383bfb925461ac06df203788628958c5385f9d089582f0",
+    "inputCount": 29817,
+    "root-unit": {
+      "files": 21,
+      "passed": 113,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "8d902376f77c1672395a1a7ff5e8209048fe33101ce7a224c56d257f5fd66485"
+    },
+    "full-semantic": {
+      "files": 169,
+      "passed": 23673,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "54e2d3c797bc0f4e1e31f72faec504b077589fb7924133c623c98a08b4e10dc8"
+    },
+    "allOriginalSemanticCaseIdentitiesPreserved": true,
+    "generator-protocol": {
+      "files": 3,
+      "passed": 12,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "0ce87c5b0aa7e6fe1b1760f6b503d3878de03dfd02b354e0be6c1bcf725c0676"
+    },
+    "cross-file-protocol": {
+      "passed": 5,
+      "failed": 0,
+      "otherCasesNotSelected": 539,
+      "sha256": "0adbb1c6b2061b72217796bf22776051aeb30b98bc551c82fabdd037b902d794"
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryScopeUnchanged": true,
+    "exitCode": 0
+  },
+  "normalFullProfile": {
+    "status": "exited",
+    "parentPid": 3171015,
+    "qualified": true,
+    "diagnosticOnly": false,
+    "privateRuntimeCandidate": false,
+    "normalSourceChanged": false,
+    "normalRuntimeChanged": false,
+    "equivalentRetryForGreen": false,
+    "originalWorkflowAndBudgetsPreserved": true,
+    "inputCount": 31210,
+    "command": [
+      "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+      "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+      "--evidence",
+      "/var/www/node/php-companion/.vscode-test/d1171-callable-candidates-profile-owned-display",
+      "--",
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/.vscode-test/d1171-callable-candidates-profile-workspace/dist-test/runPackagedTest.js"
+    ],
+    "environment": {
+      "PHP_COMPANION_TEST_PROFILE_SOURCE": "1",
+      "PHP_COMPANION_TEST_EXTENSIONS_DIR": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions",
+      "PHP_COMPANION_TEST_TWIG_PLUS_PATH": "/var/www/node/twig-plus/packages/vscode",
+      "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+      "PHP_COMPANION_PHP_EXECUTABLE": "/opt/remi/php85/root/usr/bin/php",
+      "PHP_COMPANION_PHP_CS_FIXER": "/tmp/sophp-gate-tools-99420b4/vendor/bin/php-cs-fixer",
+      "PHP_COMPANION_PHPUNIT_EXECUTABLE": "/tmp/sophp-gate-tools-99420b4/vendor/bin/phpunit",
+      "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE": "9100",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS": "50",
+      "PHP_COMPANION_TEST_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1171-callable-candidates-profile-evidence/host-logs",
+      "D1171_PROFILE_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1171-callable-candidates-profile-evidence",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1171-full-profile-preload.cjs"
+    },
+    "childPid": 3171150,
+    "exitCode": 0,
+    "durationSeconds": 90.93439951000619,
+    "logSha256": "a21974fecbc1065c1a830afb7123040f65d37a90f65cd64e301edb25a52bd1c7",
+    "proofSha256": "81bd20baad4eba80cb962f1dbca773cc458814007470db19e594fa78675d3de4",
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 65,
+        "p95Ms": 83,
+        "maxMs": 1377,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          63,
+          10,
+          9,
+          11,
+          10,
+          10
+        ],
+        "slowRounds": [
+          {
+            "round": 1,
+            "elapsedMs": 1377,
+            "applyEditMs": 3,
+            "diagnosticReadyMs": 105,
+            "hoverReadyMs": 1377
+          }
+        ],
+        "firstCompositeHoverCallMs": 1272,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 2,
+            "maxMs": 92,
+            "firstMs": [
+              85,
+              92
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 85,
+            "firstMs": [
+              85
+            ]
+          },
+          "diagnostics": {
+            "count": 4,
+            "maxMs": 75,
+            "firstMs": [
+              11,
+              75,
+              30,
+              30
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 77,
+            "firstMs": [
+              77
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 1220,
+            "firstMs": [
+              1220
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 1238,
+            "firstMs": [
+              1238
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 78,
+        "p95Ms": 96,
+        "maxMs": 399,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          212,
+          212,
+          212,
+          212,
+          212,
+          211,
+          212
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "actualServerPids": [
+      3172038,
+      3172535
+    ],
+    "actualServersGone": true,
+    "ownedDisplayGone": true,
+    "compositeP95BudgetMs": 150,
+    "compositeP95BudgetsPassed": true,
+    "functionalQualified": true,
+    "compositeFeedbackQualified": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "compositeFeedbackQualified": true,
+  "compositeBudgetMs": 150,
+  "fullLspQualified": false,
+  "fourLinuxWorkflowsQualified": false,
+  "nativeWindowsQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "previousCpuEvidence": {
+    "manifest": "/var/www/node/php-companion/.vscode-test/d1165-union-cpu-diagnostic-archive/manifest.json",
+    "sha256": "94f94da1af2d8ec13bc643e669a88d9e054d7d42159fbaa0a0ffa0f207967a95"
+  },
+  "preparationCorrections": [
+    "First test command used the wrong creation path and selected no cases; not a product failure.",
+    "Initial fixture mixed missing-argument calls with completed-call type assertions; strict complete calls and baseline-specific duplicate expectations corrected before the accepted 18/10 baseline. Initial raw reports retained.",
+    "First source patch anchor matched another method too; rejected before writing. Exact method-scoped patch adopted.",
+    "Four-scan candidate left one unrelated read; exact stack located assertedTargetClass. Fifth scan shares the same candidate lookup; assertions unchanged.",
+    "Standalone test typecheck now matches semantic package noUncheckedIndexedAccess; prior incompatible CLI diagnostics retained.",
+    "Five explicit test callback return types fixed range lint; no source/runtime or assertion change."
+  ],
+  "remaining": [
+    "Current engine complete 114-file/1438-case LSP qualification",
+    "Current engine four original Linux editor workflows",
+    "Remaining native Windows / WSL Remote / scale / long-session / human acceptance",
+    "Remaining advanced types, refactors, contracts and all original C1-C4/R4, P0-P9/F01-F14 requirements"
+  ],
+  "archive": "/var/www/node/php-companion/.vscode-test/d1172-indexed-callable-diagnostics-evidence/manifest.json"
+}

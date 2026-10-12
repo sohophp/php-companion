@@ -1,0 +1,1086 @@
+{
+  "recordedAtUtc": "2026-10-09T11:25:20.027405+00:00",
+  "engineBuildId": "6b3e0a5d7d925647829440536d9491781179816553e9074853e2b3530ca91320",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "133f6e23a114c76796eba0de080bc292d32ed90e9e334ea36afc7388d67b8b23",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "37f9cfe038aae4c30d95eeeae355694ac81e22ad25bd8d39e8f9f1d1be03f0dc",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "rawEvidence": {
+    "normalValidation": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1314-two-document-cache-validation.json",
+      "sha256": "dde52ecbd21790da57a31108840ac3dfd65c98294c9028e26e9a6365232141d3"
+    },
+    "fullLsp": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1315-two-document-cache-full-lsp-run.json",
+      "sha256": "5c7a9f86701f856664f31925838d283bbbc4559c1ce56f4cdf4dd0ee5e6dcc5e"
+    },
+    "fourLinuxHosts": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-editor-qualification.json",
+      "sha256": "8e7c8a79ca0207eb128fef47fbcf2ffcbaba79b9aa29be55b483aef32a3ba1b5"
+    },
+    "fullProfile": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1318-two-document-cache-profile-run.json",
+      "sha256": "eccb0f6da24e5bc1efc20e3496d42340c78064eb657e9f241da9c25bf84d9c63"
+    },
+    "originalSemanticFailure": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1311-semantic-failure-terminal-audit.json",
+      "sha256": "c3cadcd3317fb5198af3f3a7aaa611a4adbe7b05e1538ea0186cbab456ee1298"
+    },
+    "parserAdoption": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1313-parser-source-adoption.json",
+      "sha256": "4727e93f3296b6f1cf87eb2d59d4eebf72d22a6aa8022818ee3080cda06d2636"
+    },
+    "versionCandidateAdoption": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1298-syntax-source-adoption.json",
+      "sha256": "5767bbc5379c59c6b0b03d4df0c52cdbc5f3a75984410b22adde551ac9b5c6d5"
+    },
+    "candidateSemantic": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1310-candidate-full-semantic.json",
+      "sha256": "15cf48916a4da962d73ff9c83f6c95eefd2c0845a57d90dd385ef13d81c9631c"
+    }
+  },
+  "fullLspQualified": true,
+  "fullLsp": {
+    "status": "exited",
+    "parentPid": 3679255,
+    "qualified": true,
+    "createdAtUtc": "2026-10-09T10:32:31.455645+00:00",
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "previousGoalTurnClassification": "progress: original semantic 23663/23686 failure preserved and terminal inputs audited; identical builtin reparsing independently observed; bounded two-identity cache old 5/8 to candidate8/8, full parser186 and semantic23686 all pass; normal source adopted and byte-exact production qualification is the actual owned prerequisite",
+    "upstreamStatus": "exited",
+    "verifiedLiveUpstreamPid": null,
+    "engineBuildId": "6b3e0a5d7d925647829440536d9491781179816553e9074853e2b3530ca91320",
+    "priorSourceValidation": "/var/www/node/php-companion/.vscode-test/d1314-two-document-cache-validation.json",
+    "childPid": 3680146,
+    "ownedProcessGroup": 3680146,
+    "inputCount": 29867,
+    "expectedFiles": 115,
+    "expectedCases": 1446,
+    "freezeSha256": "97127b8a75d95a3acccf403f235d1d284eb516a3330a494732c178ab70f85fee",
+    "childExitCode": 0,
+    "durationSeconds": 2164.4105055200052,
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "remainingOwnedProcessGroupPids": [],
+    "originalCaseMultiplicityPreserved": true,
+    "files": 115,
+    "totalCases": 1446,
+    "passedCases": 1446,
+    "failedCases": 0,
+    "pendingCases": 0,
+    "todoCases": 0,
+    "resultSha256": "34da3e0a898292232eb669ca8ab46b50fb16c948ab02cc9ebc15d3f7ceaf8423",
+    "logSha256": "ee1268b0123273749f2fa792a03334c4bb91bcb0fa683ec8388baa605ff31a00",
+    "constructorPhaseTraces": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1315-two-document-cache-full-lsp-constructor-traces/constructor-8.5.jsonl",
+        "sha256": "b3dbf93bf9f58dcd894d9916c1d238588b6d846f6c18756ed6c8ecb6ed4aae94"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1315-two-document-cache-full-lsp-constructor-traces/constructor-7.2.jsonl",
+        "sha256": "7d0f164d04d8490efe65b57c634a2ffdfcbf661fd0ffad59c2222ef1fc86bc17"
+      }
+    ],
+    "evidenceValid": true,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-09T11:09:54.760437+00:00"
+  },
+  "fourLinuxWorkflowsQualified": true,
+  "linuxHosts": {
+    "status": "exited",
+    "parentPid": 3692755,
+    "upstreamPid": 3679255,
+    "qualified": true,
+    "steps": [
+      {
+        "name": "d1316-two-document-cache-full-c3-progressive",
+        "suite": "c3",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c3-progressive-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C3_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c3-progressive-evidence/failures",
+          "D1316_PRIVATE_HOST_SUITE": "c3",
+          "D1316_PRIVATE_HOST_MODE": "progressive",
+          "D1316_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c3-progressive-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1316-private-host-observer.cjs",
+          "PHP_COMPANION_TEST_C3_INDEXING_MODE": "progressive"
+        },
+        "childPid": 3730885,
+        "exitCode": 0,
+        "durationSeconds": 252.51578538600006,
+        "logSha256": "ce454ee67b2da7656efd65cea1b88ee17ddd3f6c70ca2450f2ac28a04c15dd97",
+        "proofSha256": "f1c01d07c1f1b156a2e64ce55ea613bde915288cad6ba1df4bac6b67031dc2a9",
+        "actualLanguageServerPids": [
+          3731833
+        ],
+        "actualLanguageServersGone": true,
+        "ownedDisplayGone": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [
+          [
+            {
+              "operation": "constructor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 2,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 7,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 12,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 17,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 22,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 23,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 24,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 25,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 26,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 31,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 36,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 41,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 46,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 47,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 48,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 49,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "complete class",
+              "offered": true,
+              "version": 50,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 55,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 60,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 65,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 70,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 71,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 72,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 73,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "complete class",
+              "offered": true,
+              "version": 74,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 79,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 84,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 89,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 94,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 95,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 96,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 97,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "complete class",
+              "offered": true,
+              "version": 98,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 103,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 108,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 113,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 118,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 119,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 120,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 121,
+              "undoRedo": false
+            }
+          ]
+        ],
+        "qualified": true
+      },
+      {
+        "name": "d1316-two-document-cache-full-c1-onDemand",
+        "suite": "c1",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c1-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C1_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c1-onDemand-evidence/failures",
+          "D1316_PRIVATE_HOST_SUITE": "c1",
+          "D1316_PRIVATE_HOST_MODE": "onDemand",
+          "D1316_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c1-onDemand-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1316-private-host-observer.cjs",
+          "PHP_COMPANION_TEST_C1_UI": "1",
+          "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php"
+        },
+        "childPid": 3739289,
+        "exitCode": 0,
+        "durationSeconds": 109.78044180499273,
+        "logSha256": "8eecf83adf7ef4e4aed871abd933acd6d5a3b8ff5c69ac8ac88e5c5ebd42a960",
+        "proofSha256": "fa82e73a1880e35f252ca24b20855b74dc48193c7adb71336a8f30cc2fbbe03d",
+        "actualLanguageServerPids": [
+          3742591
+        ],
+        "actualLanguageServersGone": true,
+        "ownedDisplayGone": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [],
+        "qualified": true
+      },
+      {
+        "name": "d1316-two-document-cache-full-c2-onDemand",
+        "suite": "c2",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c2-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C2_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c2-onDemand-evidence/failures",
+          "D1316_PRIVATE_HOST_SUITE": "c2",
+          "D1316_PRIVATE_HOST_MODE": "onDemand",
+          "D1316_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c2-onDemand-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1316-private-host-observer.cjs"
+        },
+        "childPid": 3742843,
+        "exitCode": 0,
+        "durationSeconds": 148.80128444402362,
+        "logSha256": "c1598f689c0773ba5eb59034ee6051c23327bad8ee00e783fbbf0725ba1f0438",
+        "proofSha256": "2b233c5da3e3e5469bdc99acab31a288efbc7586a1a78f65ae0f51f658823484",
+        "actualLanguageServerPids": [
+          3743910
+        ],
+        "actualLanguageServersGone": true,
+        "ownedDisplayGone": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [],
+        "qualified": true
+      },
+      {
+        "name": "d1316-two-document-cache-full-c3-onDemand",
+        "suite": "c3",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c3-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C3_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c3-onDemand-evidence/failures",
+          "D1316_PRIVATE_HOST_SUITE": "c3",
+          "D1316_PRIVATE_HOST_MODE": "onDemand",
+          "D1316_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1316-two-document-cache-full-c3-onDemand-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1316-private-host-observer.cjs",
+          "PHP_COMPANION_TEST_C3_INDEXING_MODE": "onDemand"
+        },
+        "childPid": 3745545,
+        "exitCode": 0,
+        "durationSeconds": 278.10147365997545,
+        "logSha256": "138623015d0e047ff5d8d4f97b3ddcb54d62e77aa3ff3eedea7f3b612fbd21e1",
+        "proofSha256": "1144e4ba7f6bf9f73868bf180e92809a19a567e69249ebb6bc1e7afeb864e517",
+        "actualLanguageServerPids": [
+          3746482
+        ],
+        "actualLanguageServersGone": true,
+        "ownedDisplayGone": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [
+          [
+            {
+              "operation": "constructor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 2,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 7,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 12,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 17,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 22,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 23,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 24,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 25,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 26,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 31,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 36,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 41,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 46,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 47,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 48,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 49,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "complete class",
+              "offered": true,
+              "version": 50,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 55,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 60,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 65,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 70,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 71,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 72,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 73,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "complete class",
+              "offered": true,
+              "version": 74,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 79,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 84,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 89,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 94,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 95,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 96,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 97,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "complete class",
+              "offered": true,
+              "version": 98,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 103,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 108,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 113,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 118,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 119,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 120,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 121,
+              "undoRedo": false
+            }
+          ]
+        ],
+        "qualified": true
+      }
+    ],
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "upstreamStatus": "exited",
+    "verifiedLiveUpstreamPid": null,
+    "verifiedLiveUpstreamChildPid": null,
+    "inputCount": 29872,
+    "newGenerationEditorRows": 80,
+    "exitCode": 0
+  },
+  "completeProfileFunctionalQualified": true,
+  "completeProfileFeedbackQualified": true,
+  "profile": {
+    "status": "exited",
+    "parentPid": 3700525,
+    "qualified": true,
+    "diagnosticOnly": false,
+    "privateRuntimeCandidate": false,
+    "normalSourceChanged": false,
+    "normalRuntimeChanged": false,
+    "equivalentRetryForGreen": false,
+    "originalWorkflowAndBudgetsPreserved": true,
+    "inputCount": 31265,
+    "command": [
+      "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+      "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+      "--evidence",
+      "/var/www/node/php-companion/.vscode-test/d1318-two-document-cache-profile-owned-display",
+      "--",
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/.vscode-test/d1318-two-document-cache-profile-workspace/dist-test/runPackagedTest.js"
+    ],
+    "environment": {
+      "PHP_COMPANION_TEST_PROFILE_SOURCE": "1",
+      "PHP_COMPANION_TEST_EXTENSIONS_DIR": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions",
+      "PHP_COMPANION_TEST_TWIG_PLUS_PATH": "/var/www/node/twig-plus/packages/vscode",
+      "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+      "PHP_COMPANION_PHP_EXECUTABLE": "/opt/remi/php85/root/usr/bin/php",
+      "PHP_COMPANION_PHP_CS_FIXER": "/tmp/sophp-gate-tools-99420b4/vendor/bin/php-cs-fixer",
+      "PHP_COMPANION_PHPUNIT_EXECUTABLE": "/tmp/sophp-gate-tools-99420b4/vendor/bin/phpunit",
+      "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE": "9100",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS": "50",
+      "PHP_COMPANION_TEST_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1318-two-document-cache-profile-evidence/host-logs",
+      "D1318_PROFILE_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1318-two-document-cache-profile-evidence",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1318-full-profile-preload.cjs"
+    },
+    "childPid": 3755062,
+    "exitCode": 0,
+    "fullLspQualified": true,
+    "fourLinuxWorkflowsQualified": true,
+    "engineBuildId": "6b3e0a5d7d925647829440536d9491781179816553e9074853e2b3530ca91320",
+    "durationSeconds": 98.0036578339932,
+    "logSha256": "7ce7cd8c1aaf8b64e6c82324f1f485b5b3ddea764efb0b8df984db8ca7df5de4",
+    "proofSha256": "da1d3f54e6d5bd8efe30cffc00e39c8a99dd094e12f77869bfcd2b27b92505b6",
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 76,
+        "p95Ms": 92,
+        "maxMs": 1474,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          75,
+          13,
+          15,
+          11,
+          12,
+          11
+        ],
+        "slowRounds": [
+          {
+            "round": 1,
+            "elapsedMs": 1474,
+            "applyEditMs": 16,
+            "diagnosticReadyMs": 117,
+            "hoverReadyMs": 1474
+          }
+        ],
+        "firstCompositeHoverCallMs": 1357,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 2,
+            "maxMs": 100,
+            "firstMs": [
+              100,
+              86
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 100,
+            "firstMs": [
+              100
+            ]
+          },
+          "diagnostics": {
+            "count": 4,
+            "maxMs": 69,
+            "firstMs": [
+              7,
+              69,
+              14,
+              14
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 71,
+            "firstMs": [
+              71
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 1321,
+            "firstMs": [
+              1321
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 1333,
+            "firstMs": [
+              1333
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 74,
+        "p95Ms": 95,
+        "maxMs": 443,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          212,
+          212,
+          212,
+          212,
+          212,
+          212,
+          212
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "actualServerPids": [
+      3755985,
+      3756744
+    ],
+    "actualServersGone": true,
+    "ownedDisplayGone": true,
+    "compositeP95BudgetMs": 150,
+    "compositeP95BudgetsPassed": true,
+    "functionalQualified": true,
+    "compositeFeedbackQualified": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "parser": {
+    "files": 11,
+    "passed": 186,
+    "sha256": "5d5c7cfeb7ce907c696ad9fbeea15135e941d44503cd2235b3319cf5e58d7b2d"
+  },
+  "languageSpec": {
+    "files": 17,
+    "passed": 320,
+    "sha256": "4f99ae78cbd8ff57d613cddb266a087cc3655d96b607b433a5f6d061ed9fa8e5"
+  },
+  "semantic": {
+    "passed": 23686,
+    "failed": 0,
+    "source": "/var/www/node/php-companion/.vscode-test/d1310-candidate-full-semantic.json",
+    "sha256": "15cf48916a4da962d73ff9c83f6c95eefd2c0845a57d90dd385ef13d81c9631c",
+    "normalRerun": false,
+    "reusedByExactSourceTestRuntimeModuleAndDependencyIdentity": true,
+    "overrideModuleIdWasNormalProductionModule": true,
+    "normalParserBodyExactToMeasuredCandidate": {
+      "/var/www/node/php-companion/.vscode-test/d1307-isolated-parser/dist/index.js": "1ebf8140f60cbb09e55dc04d99321dbab040b2de60c52aa03d62e7f1487d07b2"
+    }
+  },
+  "root": {
+    "files": 21,
+    "passed": 113,
+    "sha256": "7a1efc0f5aeb693ac4af0fccd8e0fe53cb9cd72f0b1d79b4cd9df92fad956b6d"
+  },
+  "versionProtocol": {
+    "files": 5,
+    "passed": 83,
+    "sha256": "36f550461e2d88682441f69d7f957234c649565eeb6406acc30bb452f457fc34"
+  },
+  "permanentParserControls": {
+    "beforePassed": 5,
+    "beforeFailed": 3,
+    "afterPassed": 8,
+    "originalPrivateCaseIdentitiesPreserved": true
+  },
+  "capacity": 2,
+  "normalProductionByteExactToCandidate": true,
+  "oldFailuresPreserved": true,
+  "sourcePhaseObservationsAreNotLatencyQualification": true,
+  "fullPerformanceQualified": false,
+  "ordinaryEditingQualified": false,
+  "normalRecoveryPairQualified": false,
+  "nativeWindowsQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1319-two-document-qualified-evidence/manifest.json",
+  "remaining": [
+    "Current-engine original two-mode recovery, five-case/five-round ordinary editing and 1k/10k/50k original production scale matrix",
+    "Cold first usable result, sustained editing, remaining platforms/modes/versions and real WSL/manual use",
+    "Original C1-C4/R4 and P0-P9/F01-F14 contracts, fixtures, advanced types, refactors, package consumption, final artifacts and rollback"
+  ]
+}

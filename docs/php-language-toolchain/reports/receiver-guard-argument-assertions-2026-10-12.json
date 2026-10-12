@@ -1,0 +1,690 @@
+{
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "a154b2136dab13bdff2e3add279e80913d72faf9825e411605371630815339f2",
+  "productSourceFixed": true,
+  "originalSemanticPassed": 14,
+  "originalSemanticFailed": 10,
+  "originalProductionFailed": 4,
+  "focusedSemanticPassed": 204,
+  "fullSemanticPassed": 24070,
+  "original24046IdentitiesPreserved": true,
+  "normalProtocolPassed": 18,
+  "receiverProtocolCases": 4,
+  "receiverVersionUpdates": 48,
+  "receiverObservations": [
+    {
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "observations": [
+        {
+          "state": "early return",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "false assertion",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "outer exit",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "exited loop",
+          "version": 6,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "non-exiting guard",
+          "version": 7,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reassignment",
+          "version": 8,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "unknown mutation",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reference binding",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "early return",
+          "version": 11,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "early return",
+          "version": 12,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    },
+    {
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "observations": [
+        {
+          "state": "early return",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "false assertion",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "outer exit",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "exited loop",
+          "version": 6,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "non-exiting guard",
+          "version": 7,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reassignment",
+          "version": 8,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "unknown mutation",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reference binding",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "early return",
+          "version": 11,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "early return",
+          "version": 12,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "observations": [
+        {
+          "state": "early return",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "false assertion",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "outer exit",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "exited loop",
+          "version": 6,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "non-exiting guard",
+          "version": 7,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reassignment",
+          "version": 8,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "unknown mutation",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reference binding",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "early return",
+          "version": 11,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "early return",
+          "version": 12,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "observations": [
+        {
+          "state": "early return",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "false assertion",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "outer exit",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "exited loop",
+          "version": 6,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "non-exiting guard",
+          "version": 7,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reassignment",
+          "version": 8,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "unknown mutation",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "reference binding",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "early return",
+          "version": 11,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "early return",
+          "version": 12,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    }
+  ],
+  "publicDeclarationsUnchanged": 263,
+  "cacheVersionUnchanged": true,
+  "ordinaryEditingQualified": true,
+  "ordinaryMaximumHotP95Ms": 142.05,
+  "ordinaryActualServers": 25,
+  "ordinaryFrozenInputs": 97735,
+  "ordinaryArchiveFiles": 68,
+  "ordinaryCaseResults": [
+    {
+      "label": "fixed-7.2",
+      "round": 1,
+      "p95Ms": 133.68,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 1,
+      "p95Ms": 138.49,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 1,
+      "p95Ms": 94.48,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 1,
+      "p95Ms": 135.72,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 1,
+      "p95Ms": 63.56,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 2,
+      "p95Ms": 132.03,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 2,
+      "p95Ms": 139.8,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 2,
+      "p95Ms": 94.33,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 2,
+      "p95Ms": 137.9,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 2,
+      "p95Ms": 62.04,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 3,
+      "p95Ms": 123.74,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 3,
+      "p95Ms": 135.67,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 3,
+      "p95Ms": 89.12,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 3,
+      "p95Ms": 136.76,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 3,
+      "p95Ms": 60.97,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 4,
+      "p95Ms": 129.95,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 4,
+      "p95Ms": 132.33,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 4,
+      "p95Ms": 88.17,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 4,
+      "p95Ms": 134.33,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 4,
+      "p95Ms": 58.39,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 5,
+      "p95Ms": 132.64,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 5,
+      "p95Ms": 142.05,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 5,
+      "p95Ms": 90.56,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 5,
+      "p95Ms": 136.33,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 5,
+      "p95Ms": 63.48,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    }
+  ],
+  "jsonOnlyConsoleEvidenceAbsent": true,
+  "dualReporterEvidenceCollected": true,
+  "fullCurrentLspQualified": false,
+  "currentEditorQualificationComplete": false,
+  "fullPerformanceQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "archive": [
+    {
+      "source": "/var/www/node/php-companion/.changeset/receiver-guard-argument-assertions.md",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/0-receiver-guard-argument-assertions.md",
+      "sha256": "32886fa5504f674492f3305358d6afb4205f574e1961f294dff6331be6471c80"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2320-receiver-guard-original-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/1-d2320-receiver-guard-original-result.json",
+      "sha256": "e399a361811b112a99b26cb27a1e179ea474ca61bec8b6f0bd4b4237ffd51abe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2320-receiver-guard-original.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/2-d2320-receiver-guard-original.log",
+      "sha256": "f620d20595cfb8a16ad36c28cd289bd478e1e70563a696584a2bc1ba6c6b6700"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2321-receiver-guard-before/dist__language-server.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/3-dist__language-server.js",
+      "sha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2321-receiver-guard-before/dist__language-server.js.map",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/4-dist__language-server.js.map",
+      "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2321-receiver-guard-before/packages__language-server__src__cacheVersion.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/5-packages__language-server__src__cacheVersion.ts",
+      "sha256": "2dd78f54d61d3d3b350d12ec974091deb86d0ee88cb932ea797c66feedc4913a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2321-receiver-guard-before/packages__semantic__dist__index.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/6-packages__semantic__dist__index.js",
+      "sha256": "a2468adea0d7ec573ece8cabbfb892437bce6e43bff70e23fe1727a0fb30942c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2321-receiver-guard-before/packages__semantic__src__index.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/7-packages__semantic__src__index.ts",
+      "sha256": "bad39cd2390604a3841c79bfa3ce4d2f3a1c147b7d35336d803a9dde50ceaedc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2321-receiver-guard-before.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/8-d2321-receiver-guard-before.json",
+      "sha256": "2ee144be7dec5d8939a6c2302602ea7c69806515569aecd69c7866e3b5a001b2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2322-receiver-guard-focused-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/9-d2322-receiver-guard-focused-result.json",
+      "sha256": "cf48fa9341e0b9b00d7842dbaae3340eb678f1187dca0ccd130c487ddd0f2a40"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2322-receiver-guard-focused.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/10-d2322-receiver-guard-focused.log",
+      "sha256": "ac4e9dcbf3e3c4a757b0026d3bf69016e67b52de1f4bb6247c4fb3613e0143ac"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2323-receiver-guard-old-protocol-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/11-d2323-receiver-guard-old-protocol-result.json",
+      "sha256": "883523fc1d14b9e94c5001f487097480bbe684f9cd7c03b712fc14c72177d4a5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2323-receiver-guard-old-protocol.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/12-d2323-receiver-guard-old-protocol.log",
+      "sha256": "942820184b340d973ef6829d1bdaf63cdc54721f9eb75d46b351e9d98e9304b2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2324-receiver-guard-full-semantic-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/13-d2324-receiver-guard-full-semantic-result.json",
+      "sha256": "f92d888668081666276673177efb28f2eb93e3f244e89b5d624af4b58d34ad9c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2324-receiver-guard-full-semantic.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/14-d2324-receiver-guard-full-semantic.log",
+      "sha256": "25ba11b238650b91d7397387cf0595fa7ae04c50111d73e7c30ddac008079608"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2324-receiver-guard-semantic-identity-audit.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/15-d2324-receiver-guard-semantic-identity-audit.json",
+      "sha256": "b92c2092c7261d0529d7b144c0c85143652331ddf0721efa0f02b2829f030b57"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2325-receiver-guard-lint.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/16-d2325-receiver-guard-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2326-receiver-guard-build-audit.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/17-d2326-receiver-guard-build-audit.json",
+      "sha256": "37bfe8484504cd17dc160afbe16658bde8d3d2958d7bc416cb50cec9eecf35f5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2326-receiver-guard-normal-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/18-d2326-receiver-guard-normal-build.log",
+      "sha256": "4034b54fff4d7963eb78dc12d3f789e53aa40028d326c6970542fee604f5fca3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2327-receiver-guard-normal-protocol-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/19-d2327-receiver-guard-normal-protocol-result.json",
+      "sha256": "38a55553c3953e41ce3ebaf491ec4d6a9fcf967d8848d429a33f5bba8db4a306"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2327-receiver-guard-normal-protocol.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/20-d2327-receiver-guard-normal-protocol.log",
+      "sha256": "0db64ee6f4c2d193158422016246a08f86c64a5071ac7c842a962638a17ffab5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2329-archive-path-failure.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/21-d2329-archive-path-failure.json",
+      "sha256": "2caa4af8cd607776cdef7c5e0fa80ae81f778c89bae2a3e8c77375e319dc947f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2329-audit-receiver-guard-ordinary-editing.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/22-d2329-audit-receiver-guard-ordinary-editing.py",
+      "sha256": "12f633cfe5ffd26b61edbcafa80598f66424e17c53c2fcac16a01e751a3e1bc3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2330-receiver-guard-protocol-evidence-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/23-d2330-receiver-guard-protocol-evidence-result.json",
+      "sha256": "fa5a52105a751edd502c65a939e8f6534a30821669d45b9f01bcc61e13e62eaf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2330-receiver-guard-protocol-evidence.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/24-d2330-receiver-guard-protocol-evidence.log",
+      "sha256": "8f5d1636aefa73a3f52fe12f85b0d6bc1351af81f983172f4ed43df7a6ac40dd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2331-audit-receiver-guard-fix.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/25-d2331-audit-receiver-guard-fix.py",
+      "sha256": "5ead1ec70b7aadaa49523e12f8bb492391653d90d2cc809a2bf1e525c4515812"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2333-audit-receiver-guard-ordinary-editing.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/26-d2333-audit-receiver-guard-ordinary-editing.py",
+      "sha256": "c9d43780a21a7f79cf4438be3a84efb385b0faab2671e3e5c739cca8a48f62b9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2333-current-fixed-ordinary-evidence/manifest.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/27-manifest.json",
+      "sha256": "b9e9218984f6f36f4b60cb7b97a9ad65f37fc0ac622404416ef7175957b782d0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2333-current-fixed-ordinary-terminal-audit.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/28-d2333-current-fixed-ordinary-terminal-audit.json",
+      "sha256": "2b5c6790db9c394525aa16843fdea721f98937abc0baa609de45fb09d908eb7d"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/language-server/src/cacheVersion.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/29-cacheVersion.ts",
+      "sha256": "2dd78f54d61d3d3b350d12ec974091deb86d0ee88cb932ea797c66feedc4913a"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/language-server/test/receiver-guard-argument-assertions-stdio.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/30-receiver-guard-argument-assertions-stdio.test.ts",
+      "sha256": "3571400c69fa2fa8930b12ad61a4bd076bb2745b4f9d2ce764a571d02af5b8c8"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic/src/index.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/31-index.ts",
+      "sha256": "49a7c025052ed9a82731a6fbadb9c2b76c616776e241f35425c532aa13e4bed7"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic/test/receiver-guard-argument-assertions.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2331-receiver-guard-fix-archive/32-receiver-guard-argument-assertions.test.ts",
+      "sha256": "0f4fc55c8bee4c029f85935ed7d133408b2d68c33a3174ca8ba36a41e4afd71c"
+    }
+  ]
+}

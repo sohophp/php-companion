@@ -1,6 +1,11 @@
 import * as assert from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import * as vscode from 'vscode';
+import { verifyFormatterFailureRecovery } from './formatterFailure';
+import { verifyFormatterSaveUndoRedo } from './formatterSave';
+import { verifyFormatterOnSave } from './formatterOnSave';
+import { run as verifyXdebugBreakpoints } from './debugBreakpoints';
+import { verifyPhpunitTasks } from './phpunitTasks';
 
 interface PhpCompanionPluginRegistration { update?: (contribution: unknown) => void; dispose(): void; }
 interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => PhpCompanionPluginRegistration; requestLanguageServer?: (method: string, params: unknown) => Promise<unknown>; }
@@ -833,6 +838,9 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
   await vscode.commands.executeCommand('undo');
   assert.ok(formatDocument.getText().includes('class  ProfileFormat'), 'PHP formatting was not one Undo transaction');
 
+  await verifyFormatterFailureRecovery(workspace, fixerConfig, formatDocument);
+  await verifyFormatterSaveUndoRedo(formatDocument, 'junstyle.php-cs-fixer', ['class ProfileFormat\n{']);
+
   const twigUri = vscode.Uri.joinPath(workspace.uri, 'Profile.html.twig');
   await vscode.workspace.fs.writeFile(twigUri, Buffer.from('{%if true%}{{ value }}{%endif%}\n'));
   const twigDocument = await vscode.workspace.openTextDocument(twigUri);
@@ -841,6 +849,8 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
     const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>('vscode.executeFormatDocumentProvider', twigUri, { tabSize: 2, insertSpaces: true }) ?? [];
     return edits.length > 0;
   }, 'TwigPlus did not remain the Twig formatter in the Open Source Profile');
+  await verifyFormatterSaveUndoRedo(twigDocument, 'sohophp.twig-plus', ['{% if true %}', '{{ value }}', '{% endif %}']);
+  await verifyFormatterOnSave(workspace, fixerConfig);
 
   const yamlUri = vscode.Uri.joinPath(workspace.uri, 'profile.yaml');
   await vscode.extensions.getExtension('redhat.vscode-yaml')!.activate();
@@ -908,6 +918,11 @@ function inspectProfileScalar(ProfileScalar $service): void { $value = $service-
     await waitFor(() => vscode.debug.activeDebugSession === undefined, 'PHP Debug probe did not leave the active session');
   } finally { started.dispose(); await vscode.debug.stopDebugging(); }
 
+  if (process.env.PHP_COMPANION_TEST_PROFILE_REAL_DEBUG === '1') {
+    assert.strictEqual(process.env.SOPHP_DEBUG_PHP, phpExecutable, 'Real debugging must use the Profile PHP runtime');
+    await verifyXdebugBreakpoints();
+  }
+
   const testUri = vscode.Uri.joinPath(workspace.uri, 'tests', 'ProfileTest.php');
   const testResultUri = vscode.Uri.joinPath(workspace.uri, 'phpunit-ran.txt');
   await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(workspace.uri, 'tests'));
@@ -924,6 +939,7 @@ final class ProfileTest extends TestCase {
     { cwd: workspace.uri.fsPath, timeout: 15_000, encoding: 'utf8' });
   assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(testResultUri)).toString('utf8'), 'passed',
     'Project PHPUnit CLI did not execute the test in the default Pack Profile');
+  await verifyPhpunitTasks(workspace, phpExecutable, phpunitExecutable);
   await verifyOpenSourceUnionShapeFeedback(workspace);
   if (process.env.PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS === '1') await verifySymfonyControllerContextBridge(workspace);
   if (process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR === '1') await verifyOpenSourceRealVendorFeedback(workspace);

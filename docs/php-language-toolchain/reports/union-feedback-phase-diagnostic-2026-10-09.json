@@ -1,0 +1,689 @@
+{
+  "date": "2026-10-09",
+  "diagnosticOnly": true,
+  "acceptanceQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "sourceChanged": false,
+  "runtimeChanged": false,
+  "scope": {
+    "originalFullProfileRetained": true,
+    "extensions": 12,
+    "noiseFiles": 9100,
+    "scalarRounds": 50,
+    "unionRounds": 30,
+    "originalPollIntervalMs": 20,
+    "originalP95BudgetMs": 150,
+    "strictCompiledTests": 91,
+    "privateObservedSuites": 1,
+    "reverseToOriginalExact": true,
+    "normalEngineBuildId": "8c1cb4b0c59dcd164a7c0d276c19f96a8e409cd00043077a286e61a45a34eb42"
+  },
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "run": {
+    "status": "exited",
+    "parentPid": 3148285,
+    "diagnosticOnly": true,
+    "qualified": false,
+    "acceptanceQualified": false,
+    "fullPerformanceQualified": false,
+    "diagnosticCompleted": true,
+    "normalRuntimeChanged": false,
+    "normalSourceChanged": false,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "equivalentRetryForGreen": false,
+    "originalWorkflowAndBudgetsPreserved": true,
+    "inputCount": 31204,
+    "command": [
+      "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+      "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+      "--evidence",
+      "/var/www/node/php-companion/.vscode-test/d1161-union-phase-profile-owned-display",
+      "--",
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/.vscode-test/d1161-union-phase-profile-workspace/dist-test/runPackagedTest.js"
+    ],
+    "environment": {
+      "PHP_COMPANION_TEST_PROFILE_SOURCE": "1",
+      "PHP_COMPANION_TEST_EXTENSIONS_DIR": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions",
+      "PHP_COMPANION_TEST_TWIG_PLUS_PATH": "/var/www/node/twig-plus/packages/vscode",
+      "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+      "PHP_COMPANION_PHP_EXECUTABLE": "/opt/remi/php85/root/usr/bin/php",
+      "PHP_COMPANION_PHP_CS_FIXER": "/tmp/sophp-gate-tools-99420b4/vendor/bin/php-cs-fixer",
+      "PHP_COMPANION_PHPUNIT_EXECUTABLE": "/tmp/sophp-gate-tools-99420b4/vendor/bin/phpunit",
+      "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE": "9100",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS": "50",
+      "PHP_COMPANION_TEST_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1161-union-phase-profile-evidence/host-logs",
+      "D1161_PROFILE_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1161-union-phase-profile-evidence",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1161-full-profile-preload.cjs"
+    },
+    "freezeSha256": "5faa278443160eecde9c3aa23d08b8fe13e749f4675dfdd7a0c8c2755f89b3ea",
+    "childPid": 3148854,
+    "exitCode": 0,
+    "durationSeconds": 114.20782763801981,
+    "logSha256": "21d948452aba09423b093d5962b3730a85880bbe79d73231d23557fb059432d8",
+    "proofSha256": "fde96eb91181062759f57f536253e166ddebc602936af47f04331d3d3776a768",
+    "phaseSha256": "2c16e9659faae2727a3ce8e8138b2cc1654cdf1d4b3f1726cfea880d237f3429",
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 82,
+        "p95Ms": 124,
+        "maxMs": 1566,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          34,
+          10,
+          10,
+          12,
+          16,
+          10
+        ],
+        "slowRounds": [
+          {
+            "round": 4,
+            "elapsedMs": 1566,
+            "applyEditMs": 5,
+            "diagnosticReadyMs": 1508,
+            "hoverReadyMs": 1566
+          }
+        ],
+        "firstCompositeHoverCallMs": 17,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 1,
+            "maxMs": 29,
+            "firstMs": [
+              29
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 29,
+            "firstMs": [
+              29
+            ]
+          },
+          "diagnostics": {
+            "count": 2,
+            "maxMs": 102,
+            "firstMs": [
+              76,
+              102
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 104,
+            "firstMs": [
+              104
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 7,
+            "firstMs": [
+              7
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 101,
+        "p95Ms": 143,
+        "maxMs": 517,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          213,
+          213,
+          213,
+          212,
+          213,
+          213,
+          213
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "actualServerPids": [
+      3149850,
+      3150347
+    ],
+    "actualServersGone": true,
+    "ownedDisplayGone": true,
+    "compositeP95BudgetMs": 150,
+    "observedCompositeP95BudgetsPassed": true,
+    "originalWorkflowPassed": true,
+    "finishedAtUtc": "2026-10-09T02:12:57.754045+00:00"
+  },
+  "analysis": {
+    "diagnosticOnly": true,
+    "acceptanceQualified": false,
+    "rounds": 30,
+    "observedElapsedMs": {
+      "count": 30,
+      "p50Ms": 101.24825600000622,
+      "p95Ms": 143.24903500000073,
+      "maxMs": 517.3818549999996
+    },
+    "firstQuerySemanticCorrect": 30,
+    "firstQueryDiagnosticsStaleAfterCorrectSemantic": 20,
+    "staleDiagnosticAdditionalWaitMs": {
+      "count": 20,
+      "p50Ms": 73.30474800000957,
+      "p95Ms": 90.11334100000386,
+      "maxMs": 115.86807500000577
+    },
+    "firstQuerySemanticFinishedMsInStaleDiagnosticRounds": {
+      "count": 20,
+      "p50Ms": 27.561127000008128,
+      "p95Ms": 35.61981200000446,
+      "maxMs": 36.33369299999322
+    },
+    "serverGlobalTimingSamples": {
+      "candidateInvalidatedOpen": {
+        "count": 30,
+        "p50Ms": 0.0006560000038007274,
+        "p95Ms": 0.001129999989643693,
+        "maxMs": 0.001392999998643063
+      },
+      "diagnostics": {
+        "count": 60,
+        "p50Ms": 59.38319199999387,
+        "p95Ms": 83.22373399999924,
+        "maxMs": 132.80252199999813
+      },
+      "documentChangeDiagnostics": {
+        "count": 30,
+        "p50Ms": 65.92043899999408,
+        "p95Ms": 91.98778199999651,
+        "maxMs": 134.2414490000083
+      },
+      "generationDiskRefresh": {
+        "count": 5,
+        "p50Ms": 186.68307600000117,
+        "p95Ms": 215.2985570000019,
+        "maxMs": 217.52692000000388
+      },
+      "generationDiskRefreshEpochRetry": {
+        "count": 2,
+        "p50Ms": 118.52571000000171,
+        "p95Ms": 118.52571000000171,
+        "maxMs": 217.6750810000085
+      },
+      "hover": {
+        "count": 50,
+        "p50Ms": 7.802765000000363,
+        "p95Ms": 11.47795899999619,
+        "maxMs": 28.016536999988602
+      },
+      "hoverFrameworkContext": {
+        "count": 50,
+        "p50Ms": 0.032545000009122305,
+        "p95Ms": 0.0679870000021765,
+        "maxMs": 0.12085199999273755
+      },
+      "hoverMemberLookup": {
+        "count": 50,
+        "p50Ms": 0.11817899999732617,
+        "p95Ms": 0.24108500000147615,
+        "maxMs": 0.45143000000098255
+      },
+      "hoverWorkspace": {
+        "count": 50,
+        "p50Ms": 0.205549999998766,
+        "p95Ms": 0.4162979999964591,
+        "maxMs": 0.6217759999999544
+      }
+    },
+    "rows": [
+      {
+        "round": 1,
+        "elapsedMs": 517.3818549999996,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 517.2320729999919,
+        "waitAfterFirstQueryMs": 0.14978200000768993,
+        "applyEditMs": 3.1217780000006314,
+        "sumDefinitionMs": 498.437843000007,
+        "sumHoverMs": 15.616046999988612
+      },
+      {
+        "round": 2,
+        "elapsedMs": 178.26417900000524,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 178.11754700000165,
+        "waitAfterFirstQueryMs": 0.1466320000035921,
+        "applyEditMs": 4.07121900000493,
+        "sumDefinitionMs": 19.928364999999758,
+        "sumHoverMs": 154.10458499999368
+      },
+      {
+        "round": 3,
+        "elapsedMs": 143.24903500000073,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 27.380959999994957,
+        "waitAfterFirstQueryMs": 115.86807500000577,
+        "applyEditMs": 3.8355500000034226,
+        "sumDefinitionMs": 95.11858300000313,
+        "sumHoverMs": 24.475115999986883
+      },
+      {
+        "round": 4,
+        "elapsedMs": 80.1466250000085,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 80.03724200000579,
+        "waitAfterFirstQueryMs": 0.10938300000270829,
+        "applyEditMs": 2.619699999995646,
+        "sumDefinitionMs": 14.482065000003786,
+        "sumHoverMs": 62.92750000000524
+      },
+      {
+        "round": 5,
+        "elapsedMs": 71.79973899999459,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 71.7410050000035,
+        "waitAfterFirstQueryMs": 0.05873399999109097,
+        "applyEditMs": 2.609712000004947,
+        "sumDefinitionMs": 19.3168139999907,
+        "sumHoverMs": 49.80580500001088
+      },
+      {
+        "round": 6,
+        "elapsedMs": 102.18788099999074,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 102.11248799999885,
+        "waitAfterFirstQueryMs": 0.07539299999189097,
+        "applyEditMs": 3.816045999992639,
+        "sumDefinitionMs": 17.212673999994877,
+        "sumHoverMs": 81.07040000001143
+      },
+      {
+        "round": 7,
+        "elapsedMs": 89.86341900000116,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 89.82053799999994,
+        "waitAfterFirstQueryMs": 0.04288100000121631,
+        "applyEditMs": 3.440508999992744,
+        "sumDefinitionMs": 18.749599999995553,
+        "sumHoverMs": 67.62078900000779
+      },
+      {
+        "round": 8,
+        "elapsedMs": 104.6815029999998,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 104.57600000000093,
+        "waitAfterFirstQueryMs": 0.10550299999886192,
+        "applyEditMs": 20.580967999994755,
+        "sumDefinitionMs": 18.81182400000398,
+        "sumHoverMs": 65.17003500000283
+      },
+      {
+        "round": 9,
+        "elapsedMs": 102.84685399998853,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 32.49138099999982,
+        "waitAfterFirstQueryMs": 70.3554729999887,
+        "applyEditMs": 8.977125999997952,
+        "sumDefinitionMs": 51.16210799998953,
+        "sumHoverMs": 22.511482000016258
+      },
+      {
+        "round": 10,
+        "elapsedMs": 98.06188699998893,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 29.48472700000275,
+        "waitAfterFirstQueryMs": 68.57715999998618,
+        "applyEditMs": 2.584796999988612,
+        "sumDefinitionMs": 43.59611000001314,
+        "sumHoverMs": 32.255727000010666
+      },
+      {
+        "round": 11,
+        "elapsedMs": 117.89656799999648,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 28.602011999988463,
+        "waitAfterFirstQueryMs": 89.29455600000801,
+        "applyEditMs": 4.094161000000895,
+        "sumDefinitionMs": 73.83370899999863,
+        "sumHoverMs": 19.36254299999564
+      },
+      {
+        "round": 12,
+        "elapsedMs": 107.67467399999441,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 33.57728800000041,
+        "waitAfterFirstQueryMs": 74.097385999994,
+        "applyEditMs": 6.335968999992474,
+        "sumDefinitionMs": 50.389517999996315,
+        "sumHoverMs": 30.061514000000898
+      },
+      {
+        "round": 13,
+        "elapsedMs": 89.51324300000852,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 24.02216100000078,
+        "waitAfterFirstQueryMs": 65.49108200000774,
+        "applyEditMs": 3.399749000003794,
+        "sumDefinitionMs": 47.80992599998717,
+        "sumHoverMs": 17.53723699999682
+      },
+      {
+        "round": 14,
+        "elapsedMs": 70.31008999999904,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 70.24313899999834,
+        "waitAfterFirstQueryMs": 0.06695100000069942,
+        "applyEditMs": 2.872193999995943,
+        "sumDefinitionMs": 18.61657300000661,
+        "sumHoverMs": 48.74515699999756
+      },
+      {
+        "round": 15,
+        "elapsedMs": 126.44703399999707,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 36.33369299999322,
+        "waitAfterFirstQueryMs": 90.11334100000386,
+        "applyEditMs": 11.29704999999376,
+        "sumDefinitionMs": 74.86221199999272,
+        "sumHoverMs": 20.049476999993203
+      },
+      {
+        "round": 16,
+        "elapsedMs": 97.78660999999556,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 97.6958799999993,
+        "waitAfterFirstQueryMs": 0.09072999999625608,
+        "applyEditMs": 2.9803260000044247,
+        "sumDefinitionMs": 16.907251000011456,
+        "sumHoverMs": 77.7998329999973
+      },
+      {
+        "round": 17,
+        "elapsedMs": 107.01594599999953,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 32.312120000002324,
+        "waitAfterFirstQueryMs": 74.7038259999972,
+        "applyEditMs": 6.344987000004039,
+        "sumDefinitionMs": 59.81263100000797,
+        "sumHoverMs": 19.939955999987433
+      },
+      {
+        "round": 18,
+        "elapsedMs": 101.24825600000622,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 27.943507999996655,
+        "waitAfterFirstQueryMs": 73.30474800000957,
+        "applyEditMs": 2.715055000007851,
+        "sumDefinitionMs": 51.55077999999048,
+        "sumHoverMs": 26.155813999997918
+      },
+      {
+        "round": 19,
+        "elapsedMs": 104.76378100000147,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 25.038518000001204,
+        "waitAfterFirstQueryMs": 79.72526300000027,
+        "applyEditMs": 3.4739950000075623,
+        "sumDefinitionMs": 60.42992100000265,
+        "sumHoverMs": 20.17310400000133
+      },
+      {
+        "round": 20,
+        "elapsedMs": 73.71085899999889,
+        "queries": 1,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": true,
+        "firstQueryFinishedMs": 73.52135399999679,
+        "waitAfterFirstQueryMs": 0.18950500000210013,
+        "applyEditMs": 3.550747000001138,
+        "sumDefinitionMs": 16.652635999998893,
+        "sumHoverMs": 53.302805999992415
+      },
+      {
+        "round": 21,
+        "elapsedMs": 103.34352900000522,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 35.61981200000446,
+        "waitAfterFirstQueryMs": 67.72371700000076,
+        "applyEditMs": 13.745602000009967,
+        "sumDefinitionMs": 52.93193099999917,
+        "sumHoverMs": 16.448829000000842
+      },
+      {
+        "round": 22,
+        "elapsedMs": 102.59498399999575,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 28.750482000003103,
+        "waitAfterFirstQueryMs": 73.84450199999264,
+        "applyEditMs": 3.1143379999994067,
+        "sumDefinitionMs": 50.34420000000682,
+        "sumHoverMs": 28.33950499999628
+      },
+      {
+        "round": 23,
+        "elapsedMs": 99.32295500001055,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 23.991669000010006,
+        "waitAfterFirstQueryMs": 75.33128600000055,
+        "applyEditMs": 2.925461999999243,
+        "sumDefinitionMs": 57.50091399998928,
+        "sumHoverMs": 18.10429300001124
+      },
+      {
+        "round": 24,
+        "elapsedMs": 113.07703600000241,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 27.00455699999293,
+        "waitAfterFirstQueryMs": 86.07247900000948,
+        "applyEditMs": 2.7341619999933755,
+        "sumDefinitionMs": 63.209135000011884,
+        "sumHoverMs": 26.513530999989598
+      },
+      {
+        "round": 25,
+        "elapsedMs": 95.12126199998602,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 23.395235999996657,
+        "waitAfterFirstQueryMs": 71.72602599998936,
+        "applyEditMs": 3.1537249999964843,
+        "sumDefinitionMs": 52.188225999998394,
+        "sumHoverMs": 20.170987999998033
+      },
+      {
+        "round": 26,
+        "elapsedMs": 98.75685900000099,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 30.51297599999816,
+        "waitAfterFirstQueryMs": 68.24388300000282,
+        "applyEditMs": 3.3182919999962905,
+        "sumDefinitionMs": 48.14655200000561,
+        "sumHoverMs": 27.560872000001837
+      },
+      {
+        "round": 27,
+        "elapsedMs": 85.47928200000024,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 22.15467700001318,
+        "waitAfterFirstQueryMs": 63.32460499998706,
+        "applyEditMs": 2.69094000000041,
+        "sumDefinitionMs": 46.27519299999403,
+        "sumHoverMs": 15.698171000010916
+      },
+      {
+        "round": 28,
+        "elapsedMs": 99.4351650000026,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 26.95246000000043,
+        "waitAfterFirstQueryMs": 72.48270500000217,
+        "applyEditMs": 2.758218000002671,
+        "sumDefinitionMs": 46.1875999999902,
+        "sumHoverMs": 29.153550999995787
+      },
+      {
+        "round": 29,
+        "elapsedMs": 95.60484400000132,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 26.29796300000453,
+        "waitAfterFirstQueryMs": 69.30688099999679,
+        "applyEditMs": 3.1276769999967655,
+        "sumDefinitionMs": 53.23115900000266,
+        "sumHoverMs": 18.328917000006186
+      },
+      {
+        "round": 30,
+        "elapsedMs": 103.65729499999725,
+        "queries": 2,
+        "firstQuerySemanticCorrect": true,
+        "firstQueryDiagnosticsCorrect": false,
+        "firstQueryFinishedMs": 27.561127000008128,
+        "waitAfterFirstQueryMs": 76.09616799998912,
+        "applyEditMs": 2.753324999997858,
+        "sumDefinitionMs": 54.674500000008265,
+        "sumHoverMs": 26.470777000009548
+      }
+    ],
+    "limits": [
+      "Instrumentation can change scheduling and does not qualify performance.",
+      "Global server samples can overlap background work and are not exclusively attributable to one round.",
+      "onDidChangeDiagnostics event delivery can lag; original getDiagnostics predicate is the canonical pass condition.",
+      "A correct Definition/Hover pair followed by stale diagnostics isolates the lag to diagnostic readiness, but does not identify its internal causal cost."
+    ]
+  },
+  "previousUninstrumentedPerformanceFailure": {
+    "run": "/var/www/node/php-companion/.vscode-test/d1122-current-generator-profile-run.json",
+    "sha256": "33183e168c9b521bd41edd3f8439264cdc04de032466e42e7b69fcd7385c3c16",
+    "unionP95Ms": 153,
+    "budgetMs": 150,
+    "retained": true,
+    "differentNormalBundle": true
+  },
+  "conclusion": "All 30 first Definition/Hover pairs were semantically correct. In 20 rounds the following original diagnostic predicate still read the previous state. Additional predicate-loop wait had median 73.30 ms and P95 90.11 ms. This localizes observed feedback lag to diagnostic readiness plus subsequent polling/query transport, not a proven internal root cause.",
+  "nextBoundedAction": "Measure diagnostic computation/publication costs before changing normal source; no equivalent full Profile retry merely for a passing number.",
+  "normalQualificationReference": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/commented-return-normal-qualification-2026-10-09.json",
+    "sha256": "7fe7a6c929ad62d7bfdb44a59abce2a46a65e4e0768f540c95f4a29c649aa6de"
+  },
+  "archive": "/var/www/node/php-companion/.vscode-test/d1161-union-phase-diagnostic-archive/manifest.json"
+}

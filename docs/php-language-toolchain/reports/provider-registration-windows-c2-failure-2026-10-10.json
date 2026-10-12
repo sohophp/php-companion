@@ -1,0 +1,74 @@
+{
+  "recordedAtUtc": "2026-10-10T09:34:46.047210+00:00",
+  "normalEngine": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+  "currentOriginalNativeC2Qualified": false,
+  "actualControllersAndChildrenGone": true,
+  "checkedProcessIds": [
+    1273143,
+    1273369
+  ],
+  "ownedWindowsProcessesAfterExit": [],
+  "nativeOriginalDeadlineMs": 300000,
+  "nativeExitCode": 1,
+  "nativeDurationSeconds": 24.168186537979636,
+  "nativeEditor": {
+    "version": "1.141.0",
+    "commit": "2a59476c9bfcb90b3ddc372c36762471b7dfad1c",
+    "activeFolder": "2a59476c9b",
+    "launcher": "/mnt/c/Users/sohop/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd"
+  },
+  "failureStage": "PHP7.2 inherited Fileinfo constructor signature after Undo; buffer still has explicit label constructor",
+  "failurePreserved": true,
+  "originalFullC2Preserved": true,
+  "failureCauseProven": false,
+  "archiveFilesVerified": 53,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1573-current-native-windows-c2-evidence",
+  "frozenInputsChecked": 30069,
+  "sourceAndFrozenInputsUnchanged": true,
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "37f9cfe038aae4c30d95eeeae355694ac81e22ad25bd8d39e8f9f1d1be03f0dc",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "terminalFiles": [
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/d1574-audit-native-failure.py",
+      "archived": "/var/www/node/php-companion/.vscode-test/d1574-native-c2-terminal-evidence/d1574-audit-native-failure.py",
+      "sha256": "e7cb6b0ca50c38bc48446581011336e92b289b59f4edd7186691a60bd81606dd"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/d1572-native-editor-input.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/d1574-native-c2-terminal-evidence/d1572-native-editor-input.json",
+      "sha256": "40594bd1a8321cec64fc0fb8e3d17f4d5c697521ac3020cf0c3e0b358cb8b682"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/d1573-native-c2-audit.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/d1574-native-c2-terminal-evidence/d1573-native-c2-audit.json",
+      "sha256": "69705f14fbab7b17a0e4e8370aa03a167aa91765d137600aafe48c0f90dd94b0"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/d1568-provider-readiness-editor-qualification.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/d1574-native-c2-terminal-evidence/d1568-provider-readiness-editor-qualification.json",
+      "sha256": "82878c7141f13d2c858a4f0aa3aff616c1bccbb0562bdac0eafaa9d4edc8b002"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/d1574-terminal-native-processes.stdout",
+      "archived": "/var/www/node/php-companion/.vscode-test/d1574-native-c2-terminal-evidence/d1574-terminal-native-processes.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/d1574-terminal-native-processes.stderr",
+      "archived": "/var/www/node/php-companion/.vscode-test/d1574-native-c2-terminal-evidence/d1574-terminal-native-processes.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

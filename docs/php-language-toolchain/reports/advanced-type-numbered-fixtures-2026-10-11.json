@@ -1,0 +1,201 @@
+{
+  "recordedAtUtc": "2026-10-11T02:34:03.424191+00:00",
+  "qualified": true,
+  "normalBundleSha256": "762362525977cfa6d81d99ca1766ddc256bb7638d95655b0bb01cd7886aa401e",
+  "fullSemanticFiles": 179,
+  "fullSemanticPassed": 23776,
+  "mappedExistingCases": 12,
+  "newTestsAdded": 0,
+  "duplicateCasesCounted": 0,
+  "numberedFixtures": 173,
+  "workflowFamilies": 14,
+  "originalBrokenReport": "reports/advanced-type-numbered-fixtures-2026-10-08.json",
+  "mappingRecoveredFromCurrentPassedCases": true,
+  "historical23475QualificationReconstructed": false,
+  "sourceInputs": {
+    "docs/php-language-toolchain/acceptance-fixtures.md": "e09a8d13fabd024cf479cd2c0655ad6707d1e821a27f91a8c166a757281411d9",
+    "packages/semantic/test/semantic.test.ts": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+  },
+  "resultEvidence": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1884-current-full-semantic-result.json",
+    "sha256": "284e8ea5e8f4ca4f15916f013ccdd563b590b4ed94108dfa27669b1a5ac7982b",
+    "terminalAudit": "/var/www/node/php-companion/.vscode-test/d1889-quality-semantic-terminal-audit.json",
+    "terminalAuditSha256": "ce3ed206918ac3317cb60c102f94ef1ee7a6836869f4d32a2b3e790b8741177a"
+  },
+  "fullF05Complete": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "cases": [
+    {
+      "fixture": "F05-TEMPLATE-01",
+      "input": "Producer 协变／Consumer 逆变与 Box 不变",
+      "expected": "协变及逆变合法转发不误报；Box<Child> 到 Box<Parent> 只产生对应的不兼容诊断；快照保留模板方差",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 10995,
+      "title": "uses declared PHPDoc template variance for generic parameter forwarding",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace uses declared PHPDoc template variance for generic parameter forwarding",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-TEMPLATE-02",
+      "input": "直接／递归／参数重排与不匹配 PHPDoc 父类",
+      "expected": "Pair／Reversed／Mirrored 和接口参数沿真实父链替换；明确不兼容的实参报错，不凭伪造 @extends 推断关系",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 11025,
+      "title": "substitutes reordered generic arguments through direct and recursive PHPDoc inheritance",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace substitutes reordered generic arguments through direct and recursive PHPDoc inheritance",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-SHAPE-01",
+      "input": "联合数组形状的固定、动态与引用写入",
+      "expected": "固定 meta.flag 写入保留无关 item 联合成员；确定覆盖 object 可缩窄；动态键与引用别名撤回无法证明的事实",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 864,
+      "title": "keeps an unrelated union-shape field after a known nested array write",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace keeps an unrelated union-shape field after a known nested array write",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-SHAPE-02",
+      "input": "可选或缺失中间形状的固定键写入",
+      "expected": "写入 meta.flag 后保留 item 公共成员；可选 meta 的 object 不被伪造为确定存在",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 900,
+      "title": "preserves common fields when writing through an optional nested shape",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace preserves common fields when writing through an optional nested shape",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-SHAPE-03",
+      "input": "两层引用别名及未证明调用副作用",
+      "expected": "四种引用／调用变体撤回旧对象类型和成员候选；不以写入文本假定最终类型",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 929,
+      "title": "withdraws array-shape facts across chained references and unproven calls",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace withdraws array-shape facts across chained references and unproven calls",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-CALLABLE-01",
+      "input": "显式闭包／箭头函数参数与返回方差",
+      "expected": "合法参数逆变和返回协变不误报；确定不兼容参数／返回分别报错；未注明或动态 callable 不伪造确定错误",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 10976,
+      "title": "checks explicit closure signatures against PHPDoc callable variance",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace checks explicit closure signatures against PHPDoc callable variance",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-CONDITIONAL-01",
+      "input": "布尔／模板条件、默认／具名参数、静态／实例调用",
+      "expected": "已证明条件选择对应成员；未知布尔仅保留两个结果的公共成员，不猜测任一分支专有成员",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 11769,
+      "title": "evaluates proven PHPDoc conditional return types and unions unknown branches",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace evaluates proven PHPDoc conditional return types and unions unknown branches",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-FLOW-01",
+      "input": "断言与 &&／||／取反／嵌套及中途 mutation",
+      "expected": "仅逻辑蕴含的后续操作数获得目标成员；不成立分支与 mutation 后撤回",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 5668,
+      "title": "applies conditional assertions while evaluating logically implied short-circuit operands",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace applies conditional assertions while evaluating logically implied short-circuit operands",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-FLOW-02",
+      "input": "while／for／do 与循环内 mutation",
+      "expected": "while／for 已证明循环体及短路操作数获得成员；循环退出、写入后及 do 首次循环体不泄漏事实",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 5695,
+      "title": "applies conditional assertions inside while and for bodies without leaking through mutation or loop exit",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace applies conditional assertions inside while and for bodies without leaking through mutation or loop exit",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-FLOW-03",
+      "input": "return／throw／exit／switch／try-finally 与嵌套、循环守卫",
+      "expected": "仅完整终止路径允许守卫后缩窄；非终止分支、break／goto、缺失 default、动态循环及 mutation 不误保留事实",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 5727,
+      "title": "applies conditional assertions after proven terminating guards within the same block",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace applies conditional assertions after proven terminating guards within the same block",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-BOUND-01",
+      "input": "层级变更往返与 300 层 list 展开",
+      "expected": "父子关系变更使冲突出现／撤销；超过类型预算时保持保守，不伪报类型冲突；不据此宣称性能达标",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 9278,
+      "title": "invalidates PHPDoc conflict relations after hierarchy edits and suppresses over-budget types",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace invalidates PHPDoc conflict relations after hierarchy edits and suppresses over-budget types",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    },
+    {
+      "fixture": "F05-MIXIN-01",
+      "input": "泛型 mixin 的有效／错数／越界／缺失类型及缓存恢复",
+      "expected": "合法模板成员特化并可导航；错误参数／bound／缺失目标无候选；有效快照恢复，损坏参数拒绝",
+      "testFile": "packages/semantic/test/semantic.test.ts",
+      "sourceLine": 2647,
+      "title": "specializes generic mixin members only with complete valid type arguments",
+      "ancestorTitles": [
+        "conservative semantic workspace"
+      ],
+      "fullName": "conservative semantic workspace specializes generic mixin members only with complete valid type arguments",
+      "status": "passed",
+      "sourceSha256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f"
+    }
+  ],
+  "sourceColumnParsingUsesSpacedDelimiters": true,
+  "priorStagingDraftSuperseded": "d1897-numbered-fixture-recovery.json",
+  "escapedMarkdownPipeOperatorsInDraft": true
+}

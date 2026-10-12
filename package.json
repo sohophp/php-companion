@@ -57,7 +57,7 @@
     "build:packages": "pnpm --filter @php-companion/runtime-probe build && pnpm --filter @php-companion/language-spec build && pnpm --filter @php-companion/phpdoc build && pnpm --filter @php-companion/parser build && pnpm --filter @php-companion/project build && pnpm --filter @php-companion/index build && pnpm --filter @php-companion/type-system build && pnpm --filter @php-companion/interop build && pnpm --filter @php-companion/semantic-provider build && pnpm --filter @php-companion/semantic build && pnpm --filter @php-companion/semantic-provider-host build && pnpm --filter @php-companion/route-provider build && pnpm --filter @php-companion/route-provider-host build && pnpm --filter @php-companion/plugin-api build && pnpm --filter @php-companion/provider-winstar-routes build && pnpm --filter @php-companion/framework-symfony build && pnpm --filter @php-companion/provider-symfony-routes build && pnpm --filter @php-companion/provider-symfony-services build && pnpm --filter @php-companion/provider-symfony-events build && pnpm --filter @php-companion/provider-symfony-controller-contexts build && pnpm --filter @php-companion/framework-doctrine build && pnpm --filter @php-companion/refactor build && pnpm --filter @php-companion/language-server build && pnpm --filter @php-companion/testkit build",
     "build": "pnpm build:packages && node esbuild.mjs --production",
     "watch": "node esbuild.mjs --watch",
-    "typecheck": "pnpm build:packages && tsc --noEmit && pnpm --dir packages/php-companion-symfony typecheck",
+    "typecheck": "pnpm check:component-boundaries && pnpm check:public-contracts && pnpm build:packages && tsc --noEmit && pnpm --dir packages/php-companion-symfony typecheck",
     "lint": "eslint src test packages scripts esbuild.mjs vitest.config.ts vitest.integration.config.ts",
     "test:packages": "pnpm build && pnpm --filter @php-companion/runtime-probe test && pnpm --filter @php-companion/language-spec test && pnpm --filter @php-companion/phpdoc test && pnpm --filter @php-companion/parser test && pnpm --filter @php-companion/project test && pnpm --filter @php-companion/index test && pnpm --filter @php-companion/type-system test && pnpm --filter @php-companion/interop test && pnpm --filter @php-companion/semantic-provider test && pnpm --filter @php-companion/semantic-provider-host test && pnpm --filter @php-companion/route-provider test && pnpm --filter @php-companion/route-provider-host test && pnpm --filter @php-companion/plugin-api test && pnpm --filter @php-companion/provider-winstar-routes test && pnpm --filter @php-companion/framework-symfony test && pnpm --filter @php-companion/provider-symfony-routes test && pnpm --filter @php-companion/provider-symfony-services test && pnpm --filter @php-companion/provider-symfony-events test && pnpm --filter @php-companion/provider-symfony-controller-contexts test && pnpm --filter @php-companion/framework-doctrine test && pnpm --filter @php-companion/semantic test && pnpm --filter @php-companion/refactor test && pnpm --filter @php-companion/language-server test && pnpm --filter @php-companion/testkit test",
     "test": "pnpm test:packages && pnpm --dir packages/php-companion-symfony test && vitest run",
@@ -103,12 +103,19 @@
     "benchmark:persistence": "pnpm build:packages && node scripts/benchmark-persistent-index.mjs",
     "audit:workspace": "pnpm build:packages && node scripts/audit-real-workspace.mjs",
     "audit:real-cache": "pnpm build:packages && node scripts/audit-real-cache.mjs",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix"
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix",
+    "check:component-boundaries": "node scripts/check-component-boundaries.mjs",
+    "test:component-boundaries": "node --test scripts/test/check-component-boundaries.test.mjs",
+    "check:public-contracts": "node scripts/check-public-contracts.mjs",
+    "test:public-contracts": "node --test scripts/test/check-public-contracts.test.mjs"
   },
   "contributes": {
     "configurationDefaults": {
       "php.suggest.basic": false,
-      "emmet.excludeLanguages": ["markdown", "php"],
+      "emmet.excludeLanguages": [
+        "markdown",
+        "php"
+      ],
       "[php]": {
         "editor.wordBasedSuggestions": "off",
         "editor.suggest.showWords": false,
@@ -116,86 +123,600 @@
       }
     },
     "commands": [
-      { "command": "phpCompanion.selectPhpVersion", "title": "%command.selectPhpVersion%", "category": "SoPHP" },
-      { "command": "phpCompanion.detectPhpVersions", "title": "%command.detectPhpVersions%", "category": "SoPHP" },
-      { "command": "phpCompanion.showCompatibilityReport", "title": "%command.showCompatibilityReport%", "category": "SoPHP" },
-      { "command": "phpCompanion.showPerformanceLog", "title": "%command.showPerformanceLog%", "category": "SoPHP" },
-      { "command": "phpCompanion.safeMove", "title": "%command.safeMove%", "category": "SoPHP" },
-      { "command": "phpCompanion.safeRename", "title": "%command.safeRename%", "category": "SoPHP", "enablement": "phpCompanion.safeRenameAvailable" },
-      { "command": "phpCompanion.addMethodParameter", "title": "%command.addMethodParameter%", "category": "SoPHP", "enablement": "phpCompanion.safeRenameAvailable" },
-      { "command": "phpCompanion.removeMethodParameter", "title": "%command.removeMethodParameter%", "category": "SoPHP", "enablement": "phpCompanion.safeRenameAvailable" },
-      { "command": "phpCompanion.reorderMethodParameters", "title": "%command.reorderMethodParameters%", "category": "SoPHP", "enablement": "phpCompanion.safeRenameAvailable" },
-      { "command": "phpCompanion.rebuildIndex", "title": "%command.rebuildIndex%", "category": "SoPHP" },
-      { "command": "phpCompanion.importClass", "title": "%command.importClass%", "category": "SoPHP" },
-      { "command": "phpCompanion.resolvePastedImports", "title": "%command.resolvePastedImports%", "category": "SoPHP" },
-      { "command": "phpCompanion.optimizeImports", "title": "%command.optimizeImports%", "category": "SoPHP" },
-      { "command": "phpCompanion.new.class", "title": "%command.new.class%", "category": "SoPHP" },
-      { "command": "phpCompanion.new.abstractclass", "title": "%command.new.abstractclass%", "category": "SoPHP" },
-      { "command": "phpCompanion.new.interface", "title": "%command.new.interface%", "category": "SoPHP" },
-      { "command": "phpCompanion.new.trait", "title": "%command.new.trait%", "category": "SoPHP" },
-      { "command": "phpCompanion.new.enum", "title": "%command.new.enum%", "category": "SoPHP" },
-      { "command": "phpCompanion.new.test", "title": "%command.new.test%", "category": "SoPHP" },
-      { "command": "phpCompanion.copy.fqcn", "title": "%command.copy.fqcn%", "category": "SoPHP" },
-      { "command": "phpCompanion.copy.namespace", "title": "%command.copy.namespace%", "category": "SoPHP" },
-      { "command": "phpCompanion.copy.classReference", "title": "%command.copy.classReference%", "category": "SoPHP" },
-      { "command": "phpCompanion.copy.relativePath", "title": "%command.copy.relativePath%", "category": "SoPHP" },
-      { "command": "phpCompanion.goToDefinition", "title": "%command.goToDefinition%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" },
-      { "command": "phpCompanion.goToImplementation", "title": "%command.goToImplementation%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" },
-      { "command": "phpCompanion.findReferences", "title": "%command.findReferences%", "category": "SoPHP", "enablement": "phpCompanion.hasPhpNavigation" }
+      {
+        "command": "phpCompanion.selectPhpVersion",
+        "title": "%command.selectPhpVersion%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.detectPhpVersions",
+        "title": "%command.detectPhpVersions%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.showCompatibilityReport",
+        "title": "%command.showCompatibilityReport%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.showPerformanceLog",
+        "title": "%command.showPerformanceLog%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.safeMove",
+        "title": "%command.safeMove%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.safeRename",
+        "title": "%command.safeRename%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.addMethodParameter",
+        "title": "%command.addMethodParameter%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.removeMethodParameter",
+        "title": "%command.removeMethodParameter%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.reorderMethodParameters",
+        "title": "%command.reorderMethodParameters%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      },
+      {
+        "command": "phpCompanion.rebuildIndex",
+        "title": "%command.rebuildIndex%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.importClass",
+        "title": "%command.importClass%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.resolvePastedImports",
+        "title": "%command.resolvePastedImports%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.optimizeImports",
+        "title": "%command.optimizeImports%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.class",
+        "title": "%command.new.class%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.abstractclass",
+        "title": "%command.new.abstractclass%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.interface",
+        "title": "%command.new.interface%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.trait",
+        "title": "%command.new.trait%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.enum",
+        "title": "%command.new.enum%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.new.test",
+        "title": "%command.new.test%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.fqcn",
+        "title": "%command.copy.fqcn%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.namespace",
+        "title": "%command.copy.namespace%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.classReference",
+        "title": "%command.copy.classReference%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.copy.relativePath",
+        "title": "%command.copy.relativePath%",
+        "category": "SoPHP"
+      },
+      {
+        "command": "phpCompanion.goToDefinition",
+        "title": "%command.goToDefinition%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.hasPhpNavigation"
+      },
+      {
+        "command": "phpCompanion.goToImplementation",
+        "title": "%command.goToImplementation%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.hasPhpNavigation"
+      },
+      {
+        "command": "phpCompanion.findReferences",
+        "title": "%command.findReferences%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.hasPhpNavigation"
+      },
+      {
+        "command": "phpCompanion.moveMember",
+        "title": "%command.moveMember%",
+        "category": "SoPHP",
+        "enablement": "phpCompanion.safeRenameAvailable"
+      }
     ],
     "keybindings": [
-      { "command": "phpCompanion.safeRename", "key": "f2", "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled" },
-      { "command": "phpCompanion.safeRename", "key": "shift+f6", "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled" }
+      {
+        "command": "phpCompanion.safeRename",
+        "key": "f2",
+        "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled"
+      },
+      {
+        "command": "phpCompanion.safeRename",
+        "key": "shift+f6",
+        "when": "editorTextFocus && editorLangId == php && !editorReadonly && !isInDiffEditor && phpCompanion.safeRenameAvailable && config.phpCompanion.rename.enabled"
+      }
     ],
     "menus": {
       "explorer/context": [
-        { "command": "phpCompanion.safeMove", "when": "resourceExtname == .php && (resourceScheme == file || resourceScheme == vscode-remote)", "group": "phpCompanion@0" },
-        { "command": "phpCompanion.new.class", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@1" },
-        { "command": "phpCompanion.new.interface", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@2" },
-        { "command": "phpCompanion.new.trait", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@3" },
-        { "command": "phpCompanion.new.enum", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@4" },
-        { "command": "phpCompanion.new.test", "when": "resourceScheme == file || resourceScheme == vscode-remote", "group": "phpCompanion@5" }
+        {
+          "command": "phpCompanion.safeMove",
+          "when": "resourceExtname == .php && (resourceScheme == file || resourceScheme == vscode-remote)",
+          "group": "phpCompanion@0"
+        },
+        {
+          "command": "phpCompanion.new.class",
+          "when": "resourceScheme == file || resourceScheme == vscode-remote",
+          "group": "phpCompanion@1"
+        },
+        {
+          "command": "phpCompanion.new.interface",
+          "when": "resourceScheme == file || resourceScheme == vscode-remote",
+          "group": "phpCompanion@2"
+        },
+        {
+          "command": "phpCompanion.new.trait",
+          "when": "resourceScheme == file || resourceScheme == vscode-remote",
+          "group": "phpCompanion@3"
+        },
+        {
+          "command": "phpCompanion.new.enum",
+          "when": "resourceScheme == file || resourceScheme == vscode-remote",
+          "group": "phpCompanion@4"
+        },
+        {
+          "command": "phpCompanion.new.test",
+          "when": "resourceScheme == file || resourceScheme == vscode-remote",
+          "group": "phpCompanion@5"
+        }
       ],
       "editor/context": [
-        { "command": "phpCompanion.importClass", "when": "editorLangId == php", "group": "phpCompanion@0" },
-        { "command": "phpCompanion.copy.fqcn", "when": "editorLangId == php", "group": "phpCompanion@1" },
-        { "command": "phpCompanion.copy.namespace", "when": "editorLangId == php", "group": "phpCompanion@2" },
-        { "command": "phpCompanion.copy.classReference", "when": "editorLangId == php", "group": "phpCompanion@3" }
+        {
+          "command": "phpCompanion.importClass",
+          "when": "editorLangId == php",
+          "group": "phpCompanion@0"
+        },
+        {
+          "command": "phpCompanion.copy.fqcn",
+          "when": "editorLangId == php",
+          "group": "phpCompanion@1"
+        },
+        {
+          "command": "phpCompanion.copy.namespace",
+          "when": "editorLangId == php",
+          "group": "phpCompanion@2"
+        },
+        {
+          "command": "phpCompanion.copy.classReference",
+          "when": "editorLangId == php",
+          "group": "phpCompanion@3"
+        }
       ]
     },
     "configuration": {
       "title": "SoPHP",
       "properties": {
-        "phpCompanion.phpVersion": { "type": "string", "scope": "resource", "enum": ["auto", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2", "8.3", "8.4", "8.5"], "default": "auto", "description": "%config.phpVersion%" },
-        "phpCompanion.disabledExtensions": { "type": "array", "scope": "resource", "items": { "type": "string", "enum": ["apcu", "bcmath", "bz2", "calendar", "ctype", "curl", "dom", "exif", "fileinfo", "filter", "ftp", "gd", "gettext", "iconv", "igbinary", "imagick", "intl", "mbstring", "mcrypt", "msgpack", "mysqli", "openssl", "pcntl", "pdo", "pgsql", "phar", "posix", "readline", "redis", "session", "shmop", "simplexml", "sockets", "sodium", "sqlite3", "sysvmsg", "sysvsem", "sysvshm", "tokenizer", "xml", "xmlreader", "xmlwriter", "xsl", "yaml", "zip", "zlib"] }, "uniqueItems": true, "default": [], "description": "%config.disabledExtensions%" },
-        "phpCompanion.phpExecutablePath": { "type": ["string", "null"], "scope": "resource", "default": null, "description": "%config.phpExecutablePath%" },
-        "phpCompanion.symfony.environment": { "type": ["string", "null"], "scope": "resource", "default": null, "pattern": "^[A-Za-z0-9_.-]{1,64}$", "description": "%config.symfony.environment%" },
-        "phpCompanion.symfony.winstarRoutes.enabled": { "type": "boolean", "scope": "resource", "default": false, "description": "%config.symfony.winstarRoutes.enabled%" },
-        "phpCompanion.languageServer.enabled": { "type": "boolean", "scope": "window", "default": true, "description": "%config.languageServer.enabled%" },
-        "phpCompanion.semanticProviders": { "type": "array", "scope": "window", "default": [], "description": "%config.semanticProviders%", "items": { "type": "object", "additionalProperties": false, "required": ["providerId", "command"], "properties": { "providerId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$" }, "command": { "type": "string", "minLength": 1 }, "args": { "type": "array", "maxItems": 64, "items": { "type": "string" } }, "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 }, "maxOutputBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216, "default": 4194304 } } } },
-        "phpCompanion.routeProviders": { "type": "array", "scope": "window", "default": [], "description": "%config.routeProviders%", "items": { "type": "object", "additionalProperties": false, "required": ["providerId", "command"], "properties": { "providerId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$" }, "command": { "type": "string", "minLength": 1 }, "args": { "type": "array", "maxItems": 64, "items": { "type": "string" } }, "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 30000, "default": 5000 }, "maxOutputBytes": { "type": "integer", "minimum": 1024, "maximum": 16777216, "default": 4194304 }, "cacheUntilInvalidated": { "type": "boolean", "default": false, "description": "%config.routeProviders.cacheUntilInvalidated%" } } } },
-        "phpCompanion.diagnostics.disabledCodes": { "type": "array", "scope": "window", "items": { "type": "string" }, "uniqueItems": true, "default": [], "description": "%config.diagnostics.disabledCodes%" },
-        "phpCompanion.diagnostics.severity": { "type": "object", "scope": "window", "additionalProperties": { "type": "string", "enum": ["error", "warning", "information", "hint", "off"] }, "default": {}, "description": "%config.diagnostics.severity%" },
-        "phpCompanion.composer.includeDevAutoload": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.composer.includeDevAutoload%" },
-        "phpCompanion.files.exclude": { "type": "array", "scope": "resource", "items": { "type": "string" }, "default": ["**/vendor/**", "**/.git/**", "**/node_modules/**", "**/var/cache/**", "**/storage/framework/**"], "description": "%config.files.exclude%" },
-        "phpCompanion.indexing.mode": { "type": "string", "scope": "resource", "enum": ["off", "onDemand", "progressive", "experimental"], "default": "onDemand", "description": "%config.indexing.mode%" },
-        "phpCompanion.indexing.referenceMemoryBudgetMiB": { "type": "integer", "scope": "resource", "minimum": 768, "maximum": 4096, "default": 1536, "description": "%config.indexing.referenceMemoryBudgetMiB%" },
-        "phpCompanion.indexing.experimentalSourceOnlyReferences": { "type": "boolean", "scope": "resource", "default": false, "description": "%config.indexing.experimentalSourceOnlyReferences%" },
-        "phpCompanion.indexing.maxFiles": { "type": "number", "scope": "resource", "minimum": 100, "default": 10000, "description": "%config.indexing.maxFiles%" },
-        "phpCompanion.indexing.maxFileSizeKb": { "type": "number", "scope": "resource", "minimum": 16, "default": 512, "description": "%config.indexing.maxFileSizeKb%" },
-        "phpCompanion.indexing.maxTotalMb": { "type": "number", "scope": "resource", "minimum": 1, "default": 128, "description": "%config.indexing.maxTotalMb%" },
-        "phpCompanion.indexing.onStartup": { "type": "boolean", "scope": "resource", "default": false, "description": "%config.indexing.onStartup%", "deprecationMessage": "%config.indexing.onStartup.deprecation%" },
-        "phpCompanion.imports.onPaste": { "type": "string", "scope": "resource", "enum": ["off", "prompt", "auto"], "default": "prompt", "description": "%config.imports.onPaste%" },
-        "phpCompanion.imports.optimize.preview": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.imports.optimize.preview%" },
-        "phpCompanion.imports.sort": { "type": "string", "scope": "resource", "enum": ["grouped", "fqcn"], "default": "grouped", "description": "%config.imports.sort%" },
-        "phpCompanion.generation.strictTypes": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.generation.strictTypes%" },
-        "phpCompanion.experimental.refactoring": { "type": "boolean", "scope": "resource", "default": false, "description": "%config.experimental.refactoring%" },
-        "phpCompanion.move.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.move.enabled%" },
-        "phpCompanion.move.preview": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.move.preview%" },
-        "phpCompanion.rename.enabled": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.rename.enabled%" },
-        "phpCompanion.rename.file": { "type": "string", "scope": "resource", "enum": ["off", "preview", "always"], "default": "preview", "description": "%config.rename.file%" },
-        "phpCompanion.rename.phpDoc": { "type": "boolean", "scope": "resource", "default": true, "description": "%config.rename.phpDoc%" },
-        "phpCompanion.rename.stringReferences": { "type": "boolean", "scope": "resource", "default": false, "description": "%config.rename.stringReferences%" }
+        "phpCompanion.phpVersion": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "auto",
+            "7.2",
+            "7.3",
+            "7.4",
+            "8.0",
+            "8.1",
+            "8.2",
+            "8.3",
+            "8.4",
+            "8.5"
+          ],
+          "default": "auto",
+          "description": "%config.phpVersion%"
+        },
+        "phpCompanion.disabledExtensions": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "string",
+            "enum": [
+              "apcu",
+              "bcmath",
+              "bz2",
+              "calendar",
+              "ctype",
+              "curl",
+              "dom",
+              "exif",
+              "fileinfo",
+              "filter",
+              "ftp",
+              "gd",
+              "gettext",
+              "iconv",
+              "igbinary",
+              "imagick",
+              "intl",
+              "mbstring",
+              "mcrypt",
+              "msgpack",
+              "mysqli",
+              "openssl",
+              "pcntl",
+              "pdo",
+              "pgsql",
+              "phar",
+              "posix",
+              "readline",
+              "redis",
+              "session",
+              "shmop",
+              "simplexml",
+              "sockets",
+              "sodium",
+              "sqlite3",
+              "sysvmsg",
+              "sysvsem",
+              "sysvshm",
+              "tokenizer",
+              "xml",
+              "xmlreader",
+              "xmlwriter",
+              "xsl",
+              "yaml",
+              "zip",
+              "zlib"
+            ]
+          },
+          "uniqueItems": true,
+          "default": [],
+          "description": "%config.disabledExtensions%"
+        },
+        "phpCompanion.phpExecutablePath": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "scope": "resource",
+          "default": null,
+          "description": "%config.phpExecutablePath%"
+        },
+        "phpCompanion.symfony.environment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "scope": "resource",
+          "default": null,
+          "pattern": "^[A-Za-z0-9_.-]{1,64}$",
+          "description": "%config.symfony.environment%"
+        },
+        "phpCompanion.symfony.winstarRoutes.enabled": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "%config.symfony.winstarRoutes.enabled%"
+        },
+        "phpCompanion.languageServer.enabled": {
+          "type": "boolean",
+          "scope": "window",
+          "default": true,
+          "description": "%config.languageServer.enabled%"
+        },
+        "phpCompanion.semanticProviders": {
+          "type": "array",
+          "scope": "window",
+          "default": [],
+          "description": "%config.semanticProviders%",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "providerId",
+              "command"
+            ],
+            "properties": {
+              "providerId": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "command": {
+                "type": "string",
+                "minLength": 1
+              },
+              "args": {
+                "type": "array",
+                "maxItems": 64,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "timeoutMs": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 30000,
+                "default": 5000
+              },
+              "maxOutputBytes": {
+                "type": "integer",
+                "minimum": 1024,
+                "maximum": 16777216,
+                "default": 4194304
+              }
+            }
+          }
+        },
+        "phpCompanion.routeProviders": {
+          "type": "array",
+          "scope": "window",
+          "default": [],
+          "description": "%config.routeProviders%",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "providerId",
+              "command"
+            ],
+            "properties": {
+              "providerId": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+              },
+              "command": {
+                "type": "string",
+                "minLength": 1
+              },
+              "args": {
+                "type": "array",
+                "maxItems": 64,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "timeoutMs": {
+                "type": "integer",
+                "minimum": 100,
+                "maximum": 30000,
+                "default": 5000
+              },
+              "maxOutputBytes": {
+                "type": "integer",
+                "minimum": 1024,
+                "maximum": 16777216,
+                "default": 4194304
+              },
+              "cacheUntilInvalidated": {
+                "type": "boolean",
+                "default": false,
+                "description": "%config.routeProviders.cacheUntilInvalidated%"
+              }
+            }
+          }
+        },
+        "phpCompanion.diagnostics.disabledCodes": {
+          "type": "array",
+          "scope": "window",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true,
+          "default": [],
+          "description": "%config.diagnostics.disabledCodes%"
+        },
+        "phpCompanion.diagnostics.severity": {
+          "type": "object",
+          "scope": "window",
+          "additionalProperties": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warning",
+              "information",
+              "hint",
+              "off"
+            ]
+          },
+          "default": {},
+          "description": "%config.diagnostics.severity%"
+        },
+        "phpCompanion.composer.includeDevAutoload": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.composer.includeDevAutoload%"
+        },
+        "phpCompanion.files.exclude": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/vendor/**",
+            "**/.git/**",
+            "**/node_modules/**",
+            "**/var/cache/**",
+            "**/storage/framework/**"
+          ],
+          "description": "%config.files.exclude%"
+        },
+        "phpCompanion.indexing.mode": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "off",
+            "onDemand",
+            "progressive",
+            "experimental"
+          ],
+          "default": "onDemand",
+          "description": "%config.indexing.mode%"
+        },
+        "phpCompanion.indexing.referenceMemoryBudgetMiB": {
+          "type": "integer",
+          "scope": "resource",
+          "minimum": 768,
+          "maximum": 4096,
+          "default": 1536,
+          "description": "%config.indexing.referenceMemoryBudgetMiB%"
+        },
+        "phpCompanion.indexing.experimentalSourceOnlyReferences": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "%config.indexing.experimentalSourceOnlyReferences%"
+        },
+        "phpCompanion.indexing.maxFiles": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 100,
+          "default": 10000,
+          "description": "%config.indexing.maxFiles%"
+        },
+        "phpCompanion.indexing.maxFileSizeKb": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 16,
+          "default": 512,
+          "description": "%config.indexing.maxFileSizeKb%"
+        },
+        "phpCompanion.indexing.maxTotalMb": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 1,
+          "default": 128,
+          "description": "%config.indexing.maxTotalMb%"
+        },
+        "phpCompanion.indexing.onStartup": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "%config.indexing.onStartup%",
+          "deprecationMessage": "%config.indexing.onStartup.deprecation%"
+        },
+        "phpCompanion.imports.onPaste": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "off",
+            "prompt",
+            "auto"
+          ],
+          "default": "prompt",
+          "description": "%config.imports.onPaste%"
+        },
+        "phpCompanion.imports.optimize.preview": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.imports.optimize.preview%"
+        },
+        "phpCompanion.imports.sort": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "grouped",
+            "fqcn"
+          ],
+          "default": "grouped",
+          "description": "%config.imports.sort%"
+        },
+        "phpCompanion.generation.strictTypes": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.generation.strictTypes%"
+        },
+        "phpCompanion.experimental.refactoring": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "%config.experimental.refactoring%"
+        },
+        "phpCompanion.move.enabled": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.move.enabled%"
+        },
+        "phpCompanion.move.preview": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.move.preview%"
+        },
+        "phpCompanion.rename.enabled": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.rename.enabled%"
+        },
+        "phpCompanion.rename.file": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "off",
+            "preview",
+            "always"
+          ],
+          "default": "preview",
+          "description": "%config.rename.file%"
+        },
+        "phpCompanion.rename.phpDoc": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "%config.rename.phpDoc%"
+        },
+        "phpCompanion.rename.stringReferences": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "%config.rename.stringReferences%"
+        }
       }
     }
   },

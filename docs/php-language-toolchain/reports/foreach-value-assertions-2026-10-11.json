@@ -1,0 +1,58 @@
+{
+  "qualified": false,
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "4eb4a28b9c4c08cfb92214e7559a2e78c22ee18925874a870ca4a188a45779a0",
+  "normalFullSemanticPassed": 23896,
+  "normalFullSemanticFiles": 183,
+  "original23866IdentitiesPreserved": true,
+  "addedSemanticCases": 30,
+  "normalFullLspPassed": 1533,
+  "normalFullLspFailed": 1,
+  "normalFullLspFiles": 127,
+  "original1530IdentitiesPreserved": true,
+  "addedProtocolCases": 4,
+  "qualityGatesPassed": 7,
+  "rootTestsPassed": 113,
+  "componentTypechecksPassed": 24,
+  "publicSemanticDeclarationsUnchanged": true,
+  "publicDeclarationFiles": 9,
+  "frozenInputsRechecked": 30173,
+  "frozenSymlinksRechecked": 184,
+  "allOwnedProcessesGone": true,
+  "checkedPids": [
+    64339,
+    64432,
+    64461,
+    64747,
+    64770,
+    64783,
+    64806,
+    64823,
+    65345,
+    65681,
+    67918,
+    70352
+  ],
+  "fullCurrentLspQualified": false,
+  "fullCurrentEditorQualified": false,
+  "fullCurrent12ProfileQualified": false,
+  "fullPerformanceQualified": false,
+  "currentLongSessionQualified": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "numberedFixtures": 177,
+  "fixtureFamilies": 14,
+  "remainingRoadmapMajorItems": 26,
+  "focusedProtocolPassed": 4,
+  "focusedProtocolVersionObservations": 44,
+  "fullProtocolFailures": [
+    {
+      "file": "test/semantic-provider-lifecycle-stdio.test.ts",
+      "name": "physically cancels superseded 'controllers' snapshots and retains newest facts at PHP '7.2'",
+      "messages": [
+        "AssertionError: expected false to be true // Object.is equality\n    at /var/www/node/php-companion/packages/language-server/test/semantic-provider-lifecycle-stdio.test.ts:204:27\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    }
+  ]
+}

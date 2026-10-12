@@ -1,0 +1,66 @@
+{
+  "session": {
+    "recordedAtUtc": "2026-10-11T23:38:38.039095+00:00",
+    "terminalAuditQualified": true,
+    "realEditorCorrectnessQualified": true,
+    "multiHourEditorSessionQualified": true,
+    "seconds": 7200,
+    "actualActiveSeconds": 7200.664608451,
+    "cycles": 1553,
+    "actualUndoRedoCycles": 31,
+    "normalBundleSha256": "a154b2136dab13bdff2e3add279e80913d72faf9825e411605371630815339f2",
+    "privateInputsRechecked": 261,
+    "projectInputsRechecked": 66079,
+    "ownedProcessesGone": true,
+    "diskUnchanged": true,
+    "originalBufferRestored": true,
+    "originalHot150msBudgetPassed": false,
+    "originalDiagnostic500msBudgetPassed": false,
+    "diagnosticTimingScope": "Upper bound measured after the completion/hover/definition sequence and diagnostic polling; actual versioned-publisher latency is not measured",
+    "diagnosticReceiptTimingScope": "Monotonic actual normal-server versioned diagnostic receipt for the exact current dirty document version, measured from before editor.edit, including debounce and client transport; original post-query upper bound retained separately",
+    "diagnosticReceiptTimings": {
+      "count": 1553,
+      "p95Ms": 3289.8350029999856,
+      "maxMs": 8862.534272000194
+    },
+    "versionedDiagnostic500msBudgetPassed": false,
+    "scope": "Linux actual VS Code normal Core in fixed Winstar project; real getRows completion/hover/references plus unsaved probes and two actual crashes/cache recovery. Default source-index limits retained; no all-file/whole-F13/WSL Remote/manual acceptance claim.",
+    "firstFailedControlPreserved": true,
+    "profileUpdated": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "realWslRemoteQualified": false
+  },
+  "timings": {
+    "completion": {
+      "count": 1553,
+      "p95Ms": 902.7205169999506,
+      "maxMs": 5584.024656000081
+    },
+    "realCompletion": {
+      "count": 1553,
+      "p95Ms": 3060.4221109999344,
+      "maxMs": 3627.6701709995978
+    },
+    "hover": {
+      "count": 1553,
+      "p95Ms": 399.9829390000086,
+      "maxMs": 682.2850489998236
+    },
+    "definition": {
+      "count": 1553,
+      "p95Ms": 106.84523399999307,
+      "maxMs": 901.7532090004534
+    },
+    "diagnostics": {
+      "count": 1553,
+      "p95Ms": 3756.9421169999987,
+      "maxMs": 9235.693597000092
+    }
+  },
+  "archivesRechecked": 22,
+  "normalRuntimeAtReport": "a154b2136dab13bdff2e3add279e80913d72faf9825e411605371630815339f2",
+  "frozenRuntimeStillCurrentAtReport": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false
+}

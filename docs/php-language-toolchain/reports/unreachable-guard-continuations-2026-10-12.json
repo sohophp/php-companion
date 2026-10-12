@@ -1,0 +1,445 @@
+{
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "c390c035998872f2ef9066a241cb780eba96f790ac2665517ba1c3170a7a0ede",
+  "parser": {
+    "files": 15,
+    "passed": 244,
+    "previousIdentitiesPreserved": 228,
+    "added": 16
+  },
+  "semantic": {
+    "files": 187,
+    "passed": 24098,
+    "previousIdentitiesPreserved": 24070,
+    "added": 28
+  },
+  "beforeParserFailures": 8,
+  "beforeSemanticFailures": 16,
+  "productionProtocolPassed": 16,
+  "newGuardProtocolCases": 4,
+  "newGuardVersionUpdates": 64,
+  "observations": [
+    {
+      "phpVersion": "7.2",
+      "indexingMode": "onDemand",
+      "observations": [
+        {
+          "state": "return before unreachable call",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable assignment",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "throw before unreachable call",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break before unreachable call",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue before unreachable call",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "all branches return before unreachable calls",
+          "version": 6,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "finally return before unreachable call",
+          "version": 7,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "try and catch return before unreachable calls",
+          "version": 8,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "nonterminating body",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "conditional return only",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "nested confined break",
+          "version": 11,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "continuing catch",
+          "version": 12,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "return control",
+          "version": 13,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "break control",
+          "version": 14,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 15,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 16,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    },
+    {
+      "phpVersion": "7.2",
+      "indexingMode": "progressive",
+      "observations": [
+        {
+          "state": "return before unreachable call",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable assignment",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "throw before unreachable call",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break before unreachable call",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue before unreachable call",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "all branches return before unreachable calls",
+          "version": 6,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "finally return before unreachable call",
+          "version": 7,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "try and catch return before unreachable calls",
+          "version": 8,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "nonterminating body",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "conditional return only",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "nested confined break",
+          "version": 11,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "continuing catch",
+          "version": 12,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "return control",
+          "version": 13,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "break control",
+          "version": 14,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 15,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 16,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "observations": [
+        {
+          "state": "return before unreachable call",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable assignment",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "throw before unreachable call",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break before unreachable call",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue before unreachable call",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "all branches return before unreachable calls",
+          "version": 6,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "finally return before unreachable call",
+          "version": 7,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "try and catch return before unreachable calls",
+          "version": 8,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "nonterminating body",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "conditional return only",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "nested confined break",
+          "version": 11,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "continuing catch",
+          "version": 12,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "return control",
+          "version": 13,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "break control",
+          "version": 14,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 15,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 16,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    },
+    {
+      "phpVersion": "8.5",
+      "indexingMode": "progressive",
+      "observations": [
+        {
+          "state": "return before unreachable call",
+          "version": 1,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable assignment",
+          "version": 2,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "throw before unreachable call",
+          "version": 3,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop break before unreachable call",
+          "version": 4,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "loop continue before unreachable call",
+          "version": 5,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "all branches return before unreachable calls",
+          "version": 6,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "finally return before unreachable call",
+          "version": 7,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "try and catch return before unreachable calls",
+          "version": 8,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "nonterminating body",
+          "version": 9,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "conditional return only",
+          "version": 10,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "nested confined break",
+          "version": 11,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "continuing catch",
+          "version": 12,
+          "narrowed": false,
+          "mismatches": 1
+        },
+        {
+          "state": "return control",
+          "version": 13,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "break control",
+          "version": 14,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 15,
+          "narrowed": true,
+          "mismatches": 0
+        },
+        {
+          "state": "return before unreachable call",
+          "version": 16,
+          "narrowed": true,
+          "mismatches": 0
+        }
+      ],
+      "normalExit": true
+    }
+  ],
+  "legacyV81CacheRejectedAndWarmReferencesQualified": true,
+  "cacheVersion": "semantic-v82",
+  "publicPackageDeclarationsUnchanged": 202,
+  "unrelatedSourceAndTestInputsUnchanged": 2245,
+  "originalRootWorkPreserved": true,
+  "currentFullLspQualified": false,
+  "currentEditorsQualified": false,
+  "currentPerformanceQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false
+}

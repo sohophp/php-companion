@@ -4,9 +4,11 @@ export type PhpDocNameRole = 'type' | 'generic-base' | 'integer-bound' | 'callab
 
 /** Bind only parsed names. Preserve grouping, keys, literals and parameter names. */
 export function bindPhpDocTypeNames(text: string,
-  resolve: (name: string, role: PhpDocNameRole) => string | undefined): string | undefined {
+  resolve: (name: string, role: PhpDocNameRole) => string | undefined, fromComment = false): string | undefined {
   if (text.length > 131_072) return undefined;
-  const parsed = parsePhpDocType(text);
+  const typeSource = fromComment ? text.replace(/(?:\r\n?|\n)[\t ]*\*(?!\/)/g,
+    prefix => prefix.replace(/[^\r\n]/g, ' ')) : text;
+  const parsed = parsePhpDocType(typeSource);
   if (!parsed.type || parsed.errors.length || text.slice(parsed.consumed).trim()) return undefined;
   const edits: Array<{ start: number; end: number; text: string }> = [];
   let remaining = 256, complete = true;

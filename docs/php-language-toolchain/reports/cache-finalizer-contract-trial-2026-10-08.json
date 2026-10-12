@@ -1,0 +1,1540 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "decision": "private-finalizer-contract-qualified-memory-open-not-adopted",
+  "adopted": false,
+  "normalProductChanged": false,
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "candidatePreparation": {
+    "status": "prepared-not-executed",
+    "candidateAdopted": false,
+    "normalProductChanged": false,
+    "indexExactReverseToPrevious": true,
+    "testsOnlyImportChanged": true,
+    "candidateHashes": {
+      "/var/www/node/php-companion/.vscode-test/d385-index.mjs": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff",
+      "/var/www/node/php-companion/.vscode-test/d385-entry-store-controls.mjs": "c675a01a45c603bfa9e4f431cb48ece8b2f84fcac8a9f7ba34edbb6b4ec36940",
+      "/var/www/node/php-companion/.vscode-test/d385-entry-store-edge-controls.mjs": "5f00bacfa3b6a526e7185405cc560655080a316ba1d0abda016a4cf74171a868",
+      "/var/www/node/php-companion/.vscode-test/d385-entry-transaction-controls.mjs": "c6fe19394cf4798b11d7b6517be22ced95e991ccce561b3e4f139463d5e7cd69",
+      "/var/www/node/php-companion/.vscode-test/d385-index-api.test.ts": "f178f3f90fe30d06aee5bb06aa6280459c94bc5f9556566b4964939c74e80c4f",
+      "/var/www/node/php-companion/.vscode-test/d385-index-api-vitest.config.mjs": "af50b8e8b7080817e3ea1dfa72915c02fcc16bb28d5a239c43cbc638c8bd8431",
+      "/var/www/node/php-companion/.vscode-test/d387-finalizer-negative-index.mjs": "64d7281825f70527e788d7fd66f9e769bf4f1708934fe0fccf4510744fc2e075",
+      "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+      "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d",
+      "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    "diff": "--- d375-index.mjs\n+++ d385-index.mjs\n@@ -323,12 +323,14 @@\n                 cacheChanged = true;\n                 const entry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash };\n                 next.set(path, entry);\n+                let payloadFinalized = false;\n                 const finish = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)\n                     .then(async (finalized) => {\n+                        payloadFinalized = true;\n                         if (finalized === undefined) next.delete(path);\n                         else Object.assign(entry, await store.stage(finalized));\n                     })\n-                    .catch(() => { cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n+                    .catch(() => { if (payloadFinalized || store.loadedManifestDigest !== undefined) cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n                     .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });\n                 pendingPayloads.add(finish);\n             }\n",
+    "behavior": "Cold finalizer rejection skips only that entry; finalization-complete serialization/staging error always fences publication; any finalizer rejection with prior manifest still fences publication.",
+    "scope": "No new memory optimization or scale qualification; retain complete prior 50k 1615.89/1536 failure.",
+    "edits": [
+      {
+        "old": "                const finish = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)",
+        "new": "                let payloadFinalized = false;\n                const finish = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)"
+      },
+      {
+        "old": "                    .then(async (finalized) => {\n                        if (finalized === undefined)",
+        "new": "                    .then(async (finalized) => {\n                        payloadFinalized = true;\n                        if (finalized === undefined)"
+      },
+      {
+        "old": ".catch(() => { cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })",
+        "new": ".catch(() => { if (payloadFinalized || store.loadedManifestDigest !== undefined) cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })"
+      }
+    ]
+  },
+  "runs": {
+    "d388-finalizer-full-api": {
+      "status": "exited",
+      "parentPid": 954414,
+      "childPid": 954504,
+      "startedAtUtc": "2026-10-07T16:13:09.440260+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        ".vscode-test/d385-index-api-vitest.config.mjs",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=.vscode-test/d388-finalizer-full-api-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d388-finalizer-full-api-input.json",
+      "exitCode": 0,
+      "durationSeconds": 5.201037512997573,
+      "finishedAtUtc": "2026-10-07T16:13:14.640140+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "4916b317fad778064f1a8307e6db70d2917ca151bc4dc637712b3495e5539dd7"
+    },
+    "d388-finalizer-original-controls": {
+      "status": "exited",
+      "parentPid": 954707,
+      "childPid": 954817,
+      "startedAtUtc": "2026-10-07T16:13:23.571671+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_CONTROL_REPORT=/var/www/node/php-companion/.vscode-test/d388-finalizer-original-controls-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d385-entry-store-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d388-finalizer-original-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.5230625830008648,
+      "finishedAtUtc": "2026-10-07T16:13:24.092936+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    "d388-finalizer-edge-controls": {
+      "status": "exited",
+      "parentPid": 956097,
+      "childPid": 956430,
+      "startedAtUtc": "2026-10-07T16:13:50.008064+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_EDGE_REPORT=/var/www/node/php-companion/.vscode-test/d388-finalizer-edge-controls-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d385-entry-store-edge-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d388-finalizer-edge-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.258904499001801,
+      "finishedAtUtc": "2026-10-07T16:13:50.265167+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    "d388-finalizer-transaction-controls": {
+      "status": "exited",
+      "parentPid": 956469,
+      "childPid": 956566,
+      "startedAtUtc": "2026-10-07T16:13:57.829085+00:00",
+      "command": [
+        "env",
+        "SOPHP_D356_TRANSACTION_REPORT=/var/www/node/php-companion/.vscode-test/d388-finalizer-transaction-controls-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d385-entry-transaction-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d388-finalizer-transaction-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.2339531760007958,
+      "finishedAtUtc": "2026-10-07T16:13:58.060338+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    },
+    "d388-finalizer-boundaries": {
+      "status": "exited",
+      "parentPid": 956587,
+      "childPid": 956680,
+      "startedAtUtc": "2026-10-07T16:14:03.541651+00:00",
+      "command": [
+        "env",
+        "SOPHP_FINALIZER_BOUNDARY_REPORT=/var/www/node/php-companion/.vscode-test/d388-finalizer-boundaries-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d388-finalizer-boundaries-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.26882350999949267,
+      "finishedAtUtc": "2026-10-07T16:14:03.808773+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    "d388-finalizer-negative": {
+      "status": "exited",
+      "parentPid": 956808,
+      "childPid": 957022,
+      "startedAtUtc": "2026-10-07T16:14:28.177823+00:00",
+      "command": [
+        "env",
+        "SOPHP_FINALIZER_BOUNDARY_REPORT=/var/www/node/php-companion/.vscode-test/d388-finalizer-negative-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs",
+        "./d387-finalizer-negative-index.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d388-finalizer-negative-input.json",
+      "exitCode": 1,
+      "durationSeconds": 0.40611671099759405,
+      "finishedAtUtc": "2026-10-07T16:14:28.582336+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "ad05b4e60f153924dcfc2459b2a0c1d24b6d0f6e74339dd3f52f7a72fba5a2b4"
+    },
+    "d389-finalizer-boundaries": {
+      "status": "exited",
+      "parentPid": 957470,
+      "childPid": 957559,
+      "startedAtUtc": "2026-10-07T16:15:29.895103+00:00",
+      "command": [
+        "env",
+        "SOPHP_FINALIZER_BOUNDARY_REPORT=/var/www/node/php-companion/.vscode-test/d389-finalizer-boundaries-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundaries-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.29665331700380193,
+      "finishedAtUtc": "2026-10-07T16:15:30.189892+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    "d389-finalizer-negative": {
+      "status": "exited",
+      "parentPid": 957619,
+      "childPid": 957706,
+      "startedAtUtc": "2026-10-07T16:15:39.830239+00:00",
+      "command": [
+        "env",
+        "SOPHP_FINALIZER_BOUNDARY_REPORT=/var/www/node/php-companion/.vscode-test/d389-finalizer-negative-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs",
+        "./d387-finalizer-negative-index.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d389-finalizer-negative-input.json",
+      "exitCode": 1,
+      "durationSeconds": 0.3142231809979421,
+      "finishedAtUtc": "2026-10-07T16:15:40.143073+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "a4d00707768bb122127364c86f6948b8635506a6dc0e102cf10bf5a322a00293"
+    }
+  },
+  "results": {
+    "d388-finalizer-full-api": {
+      "numTotalTestSuites": 7,
+      "numPassedTestSuites": 7,
+      "numFailedTestSuites": 0,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 52,
+      "numPassedTests": 52,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791389590799,
+      "success": true,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "DocumentDependencyGraph"
+              ],
+              "fullName": "DocumentDependencyGraph replaces document contributions without removing another declaration of the same node",
+              "status": "passed",
+              "title": "replaces document contributions without removing another declaration of the same node",
+              "duration": 4.878205999999977,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "DocumentDependencyGraph"
+              ],
+              "fullName": "DocumentDependencyGraph returns deterministic snapshots and atomically rejects invalid replacements",
+              "status": "passed",
+              "title": "returns deterministic snapshots and atomically rejects invalid replacements",
+              "duration": 16.775979000000007,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389594279,
+          "endTime": 1791389594300.776,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/.vscode-test/d382-dependency-api.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "retains changes arriving during a drain and coalesces earlier events",
+              "status": "passed",
+              "title": "retains changes arriving during a drain and coalesces earlier events",
+              "duration": 4.15217899999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "retains a failed event for retry without replacing a newer event",
+              "status": "passed",
+              "title": "retains a failed event for retry without replacing a newer event",
+              "duration": 2.564690999999982,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389594567,
+          "endTime": 1791389594574.5647,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/.vscode-test/d382-pending-api.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "incremental document-key inverted index"
+              ],
+              "fullName": "incremental document-key inverted index replaces and removes document postings without disturbing shared keys",
+              "status": "passed",
+              "title": "replaces and removes document postings without disturbing shared keys",
+              "duration": 5.796889999999962,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "incremental document-key inverted index"
+              ],
+              "fullName": "incremental document-key inverted index rejects oversized replacement atomically and validates limits",
+              "status": "passed",
+              "title": "rejects oversized replacement atomically and validates limits",
+              "duration": 1.1552000000000362,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries keeps Unicode case mappings and repeated mixed-case lookups consistent",
+              "status": "passed",
+              "title": "keeps Unicode case mappings and repeated mixed-case lookups consistent",
+              "duration": 5.57778600000006,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries separates symbol and named-argument candidates including comments",
+              "status": "passed",
+              "title": "separates symbol and named-argument candidates including comments",
+              "duration": 1.2850200000000314,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries never treats a symbol-only summary as proof that a named argument is absent",
+              "status": "passed",
+              "title": "never treats a symbol-only summary as proof that a named argument is absent",
+              "duration": 0.5745550000000321,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries rebuilds invalid payloads and reads incomplete summaries conservatively",
+              "status": "passed",
+              "title": "rebuilds invalid payloads and reads incomplete summaries conservatively",
+              "duration": 0.4130089999999882,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries preserves cold substring candidates after reload and treats oversized tokens as incomplete",
+              "status": "passed",
+              "title": "preserves cold substring candidates after reload and treats oversized tokens as incomplete",
+              "duration": 0.6871629999999413,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index emits source snapshots without depending on a semantic consumer",
+              "status": "passed",
+              "title": "emits source snapshots without depending on a semantic consumer",
+              "duration": 20.62660900000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=1)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=1)",
+              "duration": 62.461366999999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=128)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=128)",
+              "duration": 38.66421700000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=1)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=1)",
+              "duration": 40.992706,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=128)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=128)",
+              "duration": 39.282151999999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index accounts for filtered files without preparing or emitting their source",
+              "status": "passed",
+              "title": "accounts for filtered files without preparing or emitting their source",
+              "duration": 10.650287000000048,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index keeps verified nonmatches outside candidate budgets while preserving inspected file counts",
+              "status": "passed",
+              "title": "keeps verified nonmatches outside candidate budgets while preserving inspected file counts",
+              "duration": 12.99987299999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index uses a batch inspector for large inventories and rejects missing metadata",
+              "status": "passed",
+              "title": "uses a batch inspector for large inventories and rejects missing metadata",
+              "duration": 567.659589,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reports an incomplete candidate scan when matching sources exceed the read budget",
+              "status": "passed",
+              "title": "reports an incomplete candidate scan when matching sources exceed the read budget",
+              "duration": 13.11475100000007,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index retains unchanged cache entries for files omitted by a source prefilter",
+              "status": "passed",
+              "title": "retains unchanged cache entries for files omitted by a source prefilter",
+              "duration": 34.33727699999986,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reuses a caller-owned immutable Composer project snapshot",
+              "status": "passed",
+              "title": "reuses a caller-owned immutable Composer project snapshot",
+              "duration": 10.48008700000014,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index lets an adapter preserve its remote document URI scheme",
+              "status": "passed",
+              "title": "lets an adapter preserve its remote document URI scheme",
+              "duration": 8.552264999999807,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not emit a partial set when the file-count budget is exceeded",
+              "status": "passed",
+              "title": "does not emit a partial set when the file-count budget is exceeded",
+              "duration": 8.904144999999971,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index rejects invalid resource limits",
+              "status": "passed",
+              "title": "rejects invalid resource limits",
+              "duration": 5.161615999999867,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index marks a skipped oversized project source as project-incomplete",
+              "status": "passed",
+              "title": "marks a skipped oversized project source as project-incomplete",
+              "duration": 8.184316999999965,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index keeps project completeness while marking an oversized dependency as incomplete",
+              "status": "passed",
+              "title": "keeps project completeness while marking an oversized dependency as incomplete",
+              "duration": 19.517295999999988,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index indexes project sources first and deterministically truncates dependencies",
+              "status": "passed",
+              "title": "indexes project sources first and deterministically truncates dependencies",
+              "duration": 20.35131299999989,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reports cumulative dependency progress against the full planned file count",
+              "status": "passed",
+              "title": "reports cumulative dependency progress against the full planned file count",
+              "duration": 23.130915999999843,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index signals project completeness before dependency sources are discovered and indexed",
+              "status": "passed",
+              "title": "signals project completeness before dependency sources are discovered and indexed",
+              "duration": 20.343823000000157,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index can stop after the complete project phase for on-demand indexing",
+              "status": "passed",
+              "title": "can stop after the complete project phase for on-demand indexing",
+              "duration": 19.08057699999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prefetches source reads concurrently while preserving deterministic callback order",
+              "status": "passed",
+              "title": "prefetches source reads concurrently while preserving deterministic callback order",
+              "duration": 13.53222699999992,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares cold sources concurrently and commits them in path order while skipping warm cache hits",
+              "status": "passed",
+              "title": "prepares cold sources concurrently and commits them in path order while skipping warm cache hits",
+              "duration": 52.95123400000011,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index commits a ready source without waiting for later preparation while keeping the window bounded",
+              "status": "passed",
+              "title": "commits a ready source without waiting for later preparation while keeping the window bounded",
+              "duration": 13.371298999999908,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index stops ordered commits after cancellation with speculative preparations still in flight",
+              "status": "passed",
+              "title": "stops ordered commits after cancellation with speculative preparations still in flight",
+              "duration": 9.772623000000067,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares warm restores concurrently and commits them in path order with fallback",
+              "status": "passed",
+              "title": "prepares warm restores concurrently and commits them in path order with fallback",
+              "duration": 54.8357410000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index waits for deferred cache payloads before persisting ordered source entries",
+              "status": "passed",
+              "title": "waits for deferred cache payloads before persisting ordered source entries",
+              "duration": 44.99492699999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index bounds pending payload finalization to the read window (1)",
+              "status": "passed",
+              "title": "bounds pending payload finalization to the read window (1)",
+              "duration": 174.76762500000018,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index bounds pending payload finalization to the read window (3)",
+              "status": "passed",
+              "title": "bounds pending payload finalization to the read window (3)",
+              "duration": 167.212757,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index cancels a blocked payload window without replacing the cache (1 files)",
+              "status": "passed",
+              "title": "cancels a blocked payload window without replacing the cache (1 files)",
+              "duration": 61.985645000000204,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index cancels a blocked payload window without replacing the cache (3 files)",
+              "status": "passed",
+              "title": "cancels a blocked payload window without replacing the cache (3 files)",
+              "duration": 266.87080799999967,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index continues after a payload finalizer rejects and persists only completed entries",
+              "status": "passed",
+              "title": "continues after a payload finalizer rejects and persists only completed entries",
+              "duration": 49.57462200000009,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index restores unchanged payloads and rebuilds a corrupt persistent cache",
+              "status": "passed",
+              "title": "restores unchanged payloads and rebuilds a corrupt persistent cache",
+              "duration": 41.5130979999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails",
+              "status": "passed",
+              "title": "restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails",
+              "duration": 122.18054299999994,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index isolates malformed entry metadata and rebuilds unsupported cache versions",
+              "status": "passed",
+              "title": "isolates malformed entry metadata and rebuilds unsupported cache versions",
+              "duration": 227.26420199999984,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not rewrite a fully restored cache when source metadata is unchanged",
+              "status": "passed",
+              "title": "does not rewrite a fully restored cache when source metadata is unchanged",
+              "duration": 23.794753000000128,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index checks cached source hashes before restoring complete reference facts",
+              "status": "passed",
+              "title": "checks cached source hashes before restoring complete reference facts",
+              "duration": 32.18458600000031,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reads only cache-selected sources while restoring skipped files concurrently",
+              "status": "passed",
+              "title": "reads only cache-selected sources while restoring skipped files concurrently",
+              "duration": 37.12665100000004,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index rebuilds a cache entry when its restore adapter rejects the payload",
+              "status": "passed",
+              "title": "rebuilds a cache entry when its restore adapter rejects the payload",
+              "duration": 34.24986799999988,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not index files excluded from Composer classmaps",
+              "status": "passed",
+              "title": "does not index files excluded from Composer classmaps",
+              "duration": 12.801916999999776,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index stops during directory discovery before emitting a partial index",
+              "status": "passed",
+              "title": "stops during directory discovery before emitting a partial index",
+              "duration": 10.576763000000028,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "invalidates same-size content changes even when the timestamp is preserved",
+              "status": "passed",
+              "title": "invalidates same-size content changes even when the timestamp is preserved",
+              "duration": 43.83014100000037,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389591490,
+          "endTime": 1791389593987.83,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/.vscode-test/d385-index-api.test.ts"
+        }
+      ]
+    },
+    "d388-finalizer-original-controls": {
+      "status": "passed",
+      "checks": [
+        "cold Unicode entries are stored outside metadata and warm restore preserves path order",
+        "fully warm metadata and generation remain unchanged",
+        "payload checksum corruption rebuilds exactly one file and prunes replaced generation",
+        "adapter-level payload rejection rebuilds one file with outer hash kept valid",
+        "cancelled source production preserves manifest and leaves no staging directories",
+        "commit contention preserves published cache and cleans private staging",
+        "legacy schema 1 payloads migrate without reparsing source",
+        "unsafe payload identity is rejected before reads and rebuilds one entry",
+        "malformed manifest tail cannot partially restore",
+        "deleted source drops its payload from the committed generation",
+        "cancellation during cache commit preserves old manifest",
+        "concurrent commit contender cannot publish an incomplete generation"
+      ]
+    },
+    "d388-finalizer-edge-controls": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "serialization failure preserves the complete prior manifest (existing index contract)",
+          "passed": true
+        },
+        {
+          "name": "schema 2 metadata cannot bypass the payload checksum with an inline payload field",
+          "passed": true
+        },
+        {
+          "name": "a commit lock with a dead local owner is recoverable",
+          "passed": true
+        }
+      ]
+    },
+    "d388-finalizer-transaction-controls": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "late asynchronous finalizer rejection preserves all prior entries and successful source analysis",
+          "passed": true
+        },
+        {
+          "name": "a stale loaded writer cannot overwrite a later committed manifest even after its lock is released",
+          "passed": true
+        }
+      ]
+    },
+    "d388-finalizer-boundaries": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "late cold asynchronous finalizer rejection persists completed entries and rebuilds only the failed file",
+          "passed": true
+        },
+        {
+          "name": "cold synchronous finalizer throw preserves successful entries and deterministic warm order",
+          "passed": true
+        },
+        {
+          "name": "cold cyclic serialization failure fences the entire publication and leaves no staging",
+          "passed": true
+        },
+        {
+          "name": "a cold finalizer rejection cannot clear a concurrent serialization publication fence",
+          "passed": true
+        }
+      ]
+    },
+    "d388-finalizer-negative": {
+      "status": "failed",
+      "checks": [
+        {
+          "name": "late cold asynchronous finalizer rejection persists completed entries and rebuilds only the failed file",
+          "passed": true
+        },
+        {
+          "name": "cold synchronous finalizer throw preserves successful entries and deterministic warm order",
+          "passed": true
+        },
+        {
+          "name": "cold cyclic serialization failure fences the entire publication and leaves no staging",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(result.warnings.includes('Persistent index cache could not be written.'))\n\n    at file:///var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs:67:47\n    at async check (file:///var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs:16:5)\n    at async file:///var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs:63:1"
+        },
+        {
+          "name": "a cold finalizer rejection cannot clear a concurrent serialization publication fence",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(result.warnings.includes('Persistent index cache could not be written.'))\n\n    at file:///var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs:77:47\n    at async check (file:///var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs:16:5)\n    at async file:///var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs:70:1"
+        }
+      ]
+    },
+    "d389-finalizer-boundaries": {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "late cold asynchronous finalizer rejection persists completed entries and rebuilds only the failed file",
+          "passed": true
+        },
+        {
+          "name": "cold synchronous finalizer throw preserves successful entries and deterministic warm order",
+          "passed": true
+        },
+        {
+          "name": "cold cyclic serialization failure fences the entire publication and leaves no staging",
+          "passed": true
+        },
+        {
+          "name": "a cold finalizer rejection cannot clear a concurrent serialization publication fence",
+          "passed": true
+        }
+      ]
+    },
+    "d389-finalizer-negative": {
+      "status": "failed",
+      "checks": [
+        {
+          "name": "late cold asynchronous finalizer rejection persists completed entries and rebuilds only the failed file",
+          "passed": true
+        },
+        {
+          "name": "cold synchronous finalizer throw preserves successful entries and deterministic warm order",
+          "passed": true
+        },
+        {
+          "name": "cold cyclic serialization failure fences the entire publication and leaves no staging",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: Serialization failure must not publish a partial cold manifest.\n+ actual - expected\n\n+ [\n+   '83e94f3826eb913d9bd38ac6cda94cbec965ef1db84e751f71ba75d5acefdc4c.json'\n+ ]\n- []\n\n    at verifyNoPublicationThenRecovery (file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:36:10)\n    at async file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:68:3\n    at async check (file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:16:5)\n    at async file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:63:1"
+        },
+        {
+          "name": "a cold finalizer rejection cannot clear a concurrent serialization publication fence",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: Serialization failure must not publish a partial cold manifest.\n+ actual - expected\n\n+ [\n+   '806a9a327f91ea799e66c43cc819e63ca0d6290cde90e9d4f5836fed8fb68ab3.json'\n+ ]\n- []\n\n    at verifyNoPublicationThenRecovery (file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:36:10)\n    at async file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:79:3\n    at async check (file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:16:5)\n    at async file:///var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs:71:1"
+        }
+      ]
+    }
+  },
+  "completeApi": {
+    "passed": 52,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "originalCaseIdentitiesAndMultiplicityPreserved": true,
+    "priorCandidateFailed": 1,
+    "originalTestsChanged": false
+  },
+  "originalCacheSafetyChecksPassed": 17,
+  "newFinalizerBoundaryChecksPassed": 4,
+  "priorBoundaryObservationNotDoubleCounted": true,
+  "negative": {
+    "onlyRemovesSerializationFailureGuard": true,
+    "sameFourChecks": true,
+    "passed": 2,
+    "expectedFailed": 2,
+    "actualPartialColdManifestObserved": true,
+    "warningFirstPriorObservationRetained": true
+  },
+  "storeCleanupAndOwnerLockUnchanged": true,
+  "previousEightOwnerLockChecksNotRerunOrRecounted": true,
+  "memorySourceAudit": {
+    "schemaVersion": 1,
+    "status": "read-only-source-and-existing-evidence-audit",
+    "newRuntimeMeasurement": false,
+    "qualification": false,
+    "sources": {
+      "/var/www/node/php-companion/packages/semantic/src/index.ts": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+      "/var/www/node/php-companion/packages/language-server/src/projectFacts.ts": "5d3dd3757b003fbb8212dd283856ce3b6f001faf2c5bffe6e9404af34a351613",
+      "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+      "/var/www/node/php-companion/.vscode-test/d385-index.mjs": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff",
+      "/var/www/node/php-companion/.vscode-test/d375-benchmark-entry-store.mjs": "d1102a15937d4691e74dfd2d66d482ee477547a7f7984dd6536a591fa54887f6",
+      "/var/www/node/php-companion/.vscode-test/d370-entry-memory-analysis.json": "08d83ec46564b84a4dffb3b9824bf7e97996d8524d84ecf48911387f39aebde0",
+      "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-50000.log": "21b8185c9c22fbdcfc2808f8d54ce556a30db2631ac097703e885abf30d7d96e"
+    },
+    "historicalUnboundedDiagnosticPeaks": {
+      "warm": {
+        "startMs": 133947.972657,
+        "endMs": 211502.667003,
+        "sampledPeak": {
+          "elapsedMs": 211496.27565,
+          "rss": 865558528,
+          "heapUsed": 708597344,
+          "heapTotal": 741183488,
+          "external": 36739504,
+          "arrayBuffers": 1245875
+        },
+        "peakMemoryMiB": {
+          "rss": 825.46,
+          "heapUsed": 675.77,
+          "heapTotal": 706.85,
+          "external": 35.04,
+          "arrayBuffers": 1.19
+        }
+      },
+      "layerRecovery": {
+        "startMs": 221551.511524,
+        "endMs": 336159.512884,
+        "sampledPeak": {
+          "elapsedMs": 283359.672355,
+          "rss": 1671569408,
+          "heapUsed": 1481744608,
+          "heapTotal": 1531047936,
+          "external": 36942173,
+          "arrayBuffers": 1448544
+        },
+        "peakMemoryMiB": {
+          "rss": 1594.13,
+          "heapUsed": 1413.1,
+          "heapTotal": 1460.12,
+          "external": 35.23,
+          "arrayBuffers": 1.38
+        }
+      },
+      "callableRecovery": {
+        "startMs": 336664.704739,
+        "endMs": 451385.811049,
+        "sampledPeak": {
+          "elapsedMs": 389780.479343,
+          "rss": 1683705856,
+          "heapUsed": 1387876440,
+          "heapTotal": 1441972224,
+          "external": 52293397,
+          "arrayBuffers": 16799768
+        },
+        "peakMemoryMiB": {
+          "rss": 1605.71,
+          "heapUsed": 1323.58,
+          "heapTotal": 1375.17,
+          "external": 49.87,
+          "arrayBuffers": 16.02
+        }
+      }
+    },
+    "currentBoundedComplete50k": {
+      "coldPeakRssMb": 738.11,
+      "warmPeakRssMb": 761.19,
+      "layerRecoveryPeakRssMb": 1615.89,
+      "callableRecoveryPeakRssMb": 1503.31,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 1536,
+      "processPeakRssMb": 1615.89,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": false
+    },
+    "sourceFindings": [
+      {
+        "function": "SemanticWorkspace.callableImplementationStates",
+        "snippet": "  callableImplementationStates(uri: string): SemanticCallableImplementationState[] {\n    const source = this.deferredSources.get(uri);\n    if (source) return callableImplementationRanges(source).map(({ identity, kind }) => ({ identity, kind, state: 'deferred' }));\n    const deferred = this.deferredImplementations.get(uri);\n    if (deferred) return deferred.snapshot.callables.map(({ identity, kind }) => ({\n      identity, kind, state: deferred.loadedCallables.has(identity) ? 'loaded' : 'deferred',\n    }));\n    const file = this.files.get(uri);\n    return file ? callableImplementationRanges(file).map(({ identity, kind }) => ({ identity, kind, state: 'loaded' })) : [];\n  }\n\n",
+        "finding": "Returned observations contain only identity/kind/state. Source does not retain entire snapshot or workspace through those records; string storage/GC reachability not measured."
+      },
+      {
+        "function": "SemanticWorkspace.deferredSemanticFile",
+        "snippet": "  private deferredSemanticFile(file: SemanticFile, implementation: SemanticImplementationSnapshot): SemanticFile {\n    const deferred: DeferredImplementation = {\n      snapshot: implementation,\n      loadedCallables: new Set(),\n      fileFactsLoaded: false,\n      facts: emptyImplementationFacts(),\n    };\n    this.deferredImplementations.set(file.uri, deferred);\n    for (const field of IMPLEMENTATION_ARRAY_FIELDS) {\n      let getter = this.deferredImplementationGetters.get(field);\n      if (!getter) {\n        // One accessor per field and workspace, rather than twelve closures per\n        // restored document. The receiver selects the current document facts.\n        getter = SemanticWorkspace.deferredImplementationGetter(this, field);\n        this.deferredImplementationGetters.set(field, getter);\n      }\n      Object.defineProperty(file, field, { configurable: true, enumerable: true, get: getter });\n    }\n    return file;\n  }\n\n",
+        "finding": "Lazy hydration retains the validated implementation snapshot and separate empty implementation facts; no whole snapshot elimination is justified by callable hydration being deferred."
+      },
+      {
+        "function": "EntryStore.payload -> restoreCachedProjectPhpFile -> SemanticWorkspace.restoreDeclaration -> EntryStore.commit",
+        "finding": "The complete restore path reads/decodes a blob, verifies outer and internal checksums, validates and registers semantic snapshots, then may publish/prune generations. Current stage-level high water cannot attribute RSS to one operation."
+      }
+    ],
+    "interpretation": [
+      "Historical instrumented recovery peaks include large heapUsed values, but heapUsed includes both live and not-yet-collected objects; no unique allocation/leak cause follows.",
+      "Latest bounded candidate fails during layer recovery; bounded deletion is insufficient, and final fixture cleanup is not the sole observed peak.",
+      "Finalizer compatibility fix changes failure classification, not the no-error restoration workload; no equivalent 50k retry or memory improvement claim is warranted."
+    ],
+    "next": "Prepare a bounded observer with payload/validation/semantic-restore progress plus commit begin/end markers. Verify on a small complete original four-stage fixture first, then use one full original failed-scale diagnostic with natural GC only; preserve original final cleanup, assertions and budgets. Mark diagnostics unqualified and capture bounded sample loss counters."
+  },
+  "newScaleRuns": 0,
+  "fullScaleQualified": false,
+  "ordinaryRuntimeIntegrationQualified": false,
+  "retainedFailures": {
+    "previousCompletePrivate50kRssMiB": 1615.89,
+    "previousCompletePrivate50kBudgetMiB": 1536,
+    "normal10kRssMiB": 920.54,
+    "normalControllerP95Ms": 157.74
+  },
+  "scope": [
+    "Distinct private index only distinguishes a failed finalizer from a completed payload that fails serialization/staging.",
+    "With no existing manifest, a rejected finalizer skips that entry and persists successful entries; prior manifests still fence any finalizer rejection; serialization/staging failures always fence publication.",
+    "Full original three-file API suite 52 passes with identical cases and multiplicity; original source tests untouched and private fixture bodies only change import from already audited format adaptation.",
+    "Original cache controls 12+3+2 rerun and pass; four new synchronous/late asynchronous cold finalizer and serialization/mixed-failure controls pass.",
+    "Initial negative failed on warnings before publication-state assertions. Reordered the same assertions, preserving both versions; latest negative proves actual forbidden partial publication in two cases. Four positive cases counted once.",
+    "Store, bounded cleanup, owner lock, schema, digest fence and all original assertions retained. No memory optimization or new scale qualification follows from finalizer compatibility.",
+    "All C1-C4/R4/P0-P9/F01-F14, advanced types/refactors, ordinary latency, original scales, versions/platforms/tool combinations/long sessions/human WSL remain open."
+  ],
+  "next": "Prepare a bounded observer with payload/validation/semantic-restore progress plus commit begin/end markers. Verify on a small complete original four-stage fixture first, then use one full original failed-scale diagnostic with natural GC only; preserve original final cleanup, assertions and budgets. Mark diagnostics unqualified and capture bounded sample loss counters.",
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-full-api-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-full-api-input.json",
+      "bytes": 720181,
+      "sha256": "b73fa52da8326a6e39e0867f61a20381553d8548464f012c74cd9483197a7f7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-full-api-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-full-api-run.json",
+      "bytes": 722,
+      "sha256": "10d60bda8e5e69496c296e872f3b9f5da6cdfd0659eb838075e5c2f11077e21f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-full-api-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-full-api-result.json",
+      "bytes": 18681,
+      "sha256": "aaffaf0c0b75adb07a8431683a5e804b27abc96c4e32fb5296cdb1a7c283515f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-full-api.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-full-api.log",
+      "bytes": 2070,
+      "sha256": "4916b317fad778064f1a8307e6db70d2917ca151bc4dc637712b3495e5539dd7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-original-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-original-controls-input.json",
+      "bytes": 720161,
+      "sha256": "235d5f17f17d646db461be5abbf15faff3973aeba93711a028c75c7687eac7be"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-original-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-original-controls-run.json",
+      "bytes": 712,
+      "sha256": "847e8a872738a68f06db04f280a968d752ff3c4bea7e5e26b91c33eb5e12e9bc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-original-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-original-controls-result.json",
+      "bytes": 945,
+      "sha256": "feb75faf3187721ec07d3fa264872571e9fa3b900b57a6e4964d22f2b97bd4b6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-original-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-original-controls.log",
+      "bytes": 879,
+      "sha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-edge-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-edge-controls-input.json",
+      "bytes": 720159,
+      "sha256": "1878def4af4dfdb7867e55b05b514fe3b40d64c42da867e4f913ca6a773d294f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-edge-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-edge-controls-run.json",
+      "bytes": 705,
+      "sha256": "a445c10fd1ee816824304e3bcd320c8300452e4bf67b3655536e571fef162dbd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-edge-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-edge-controls-result.json",
+      "bytes": 416,
+      "sha256": "84c351d42c3275dc770d50f26e481b60bc56001ba288a6c29fd65db2df4e2b7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-edge-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-edge-controls.log",
+      "bytes": 417,
+      "sha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-transaction-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-transaction-controls-input.json",
+      "bytes": 720173,
+      "sha256": "bbb99db418b6c321c905f444373ae9f80fb12112262fc62e86fab46abb5de25d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-transaction-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-transaction-controls-run.json",
+      "bytes": 727,
+      "sha256": "b0e27ec1381441d9a709db167f8a9522ee06a3e6631011bd05ddb55fb62481ac"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-transaction-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-transaction-controls-result.json",
+      "bytes": 339,
+      "sha256": "def47d6d1e77eedaf6662db8e3ab77d1d92b3690f9a24f7ff049419248c5f967"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-transaction-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-transaction-controls.log",
+      "bytes": 340,
+      "sha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-boundaries-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-boundaries-input.json",
+      "bytes": 720166,
+      "sha256": "30e13bdc33747088205b44aea5e49738b2126672b8d1115decd180045f9eb85a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-boundaries-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-boundaries-run.json",
+      "bytes": 711,
+      "sha256": "96b573b18d7064eeda949c10a1081cec74ac4dcc9b8b85da85648c6c49c0db8c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-boundaries-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-boundaries-result.json",
+      "bytes": 613,
+      "sha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-boundaries.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-boundaries.log",
+      "bytes": 613,
+      "sha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-negative-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-negative-input.json",
+      "bytes": 720207,
+      "sha256": "597d2758216490bfc78f58f23185b3c340429854daabd14b7271b3e29ce9a6d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-negative-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-negative-run.json",
+      "bytes": 750,
+      "sha256": "00a3b5ec8cfe9ee38050420448f1fe92c04b6e4047f06cc50460faac34e0d0a0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-negative-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-negative-result.json",
+      "bytes": 1613,
+      "sha256": "ad05b4e60f153924dcfc2459b2a0c1d24b6d0f6e74339dd3f52f7a72fba5a2b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d388-finalizer-negative.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d388-finalizer-negative.log",
+      "bytes": 1613,
+      "sha256": "ad05b4e60f153924dcfc2459b2a0c1d24b6d0f6e74339dd3f52f7a72fba5a2b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundaries-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-boundaries-input.json",
+      "bytes": 720472,
+      "sha256": "59a80beeb2d2029c6e8c29a5b620383d864929dbc5939f14ab1a3b01867a40a6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundaries-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-boundaries-run.json",
+      "bytes": 711,
+      "sha256": "731c62e65cd66f4d06948868bb01a0d95c3664f7e30468884c6dc8d0812d0573"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundaries-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-boundaries-result.json",
+      "bytes": 613,
+      "sha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundaries.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-boundaries.log",
+      "bytes": 613,
+      "sha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-negative-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-negative-input.json",
+      "bytes": 720513,
+      "sha256": "60425f608f608671b1d1d044ca4c0990af9f569ad7f6b8163aaf9c382e77ec4b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-negative-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-negative-run.json",
+      "bytes": 749,
+      "sha256": "cfa09588c0610a3c01de04b7c37443951ec03bb3e16f539bfc403bfd6556c6f2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-negative-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-negative-result.json",
+      "bytes": 1985,
+      "sha256": "a4d00707768bb122127364c86f6948b8635506a6dc0e102cf10bf5a322a00293"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-negative.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-negative.log",
+      "bytes": 1985,
+      "sha256": "a4d00707768bb122127364c86f6948b8635506a6dc0e102cf10bf5a322a00293"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-finalizer-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-finalizer-preparation.json",
+      "bytes": 4325,
+      "sha256": "9f8a1cc6867c76dec61b8e51295be4054f0e2d2ba09349977d8377f2e5941c6b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-index.mjs",
+      "bytes": 22265,
+      "sha256": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-entry-store-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-entry-store-controls.mjs",
+      "bytes": 8834,
+      "sha256": "c675a01a45c603bfa9e4f431cb48ece8b2f84fcac8a9f7ba34edbb6b4ec36940"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-entry-store-edge-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-entry-store-edge-controls.mjs",
+      "bytes": 3324,
+      "sha256": "5f00bacfa3b6a526e7185405cc560655080a316ba1d0abda016a4cf74171a868"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-entry-transaction-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-entry-transaction-controls.mjs",
+      "bytes": 3851,
+      "sha256": "c6fe19394cf4798b11d7b6517be22ced95e991ccce561b3e4f139463d5e7cd69"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-index-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-index-api.test.ts",
+      "bytes": 53085,
+      "sha256": "f178f3f90fe30d06aee5bb06aa6280459c94bc5f9556566b4964939c74e80c4f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-index-api-vitest.config.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d385-index-api-vitest.config.mjs",
+      "bytes": 251,
+      "sha256": "af50b8e8b7080817e3ea1dfa72915c02fcc16bb28d5a239c43cbc638c8bd8431"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d386-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d386-run.py",
+      "bytes": 7776,
+      "sha256": "66940a21e1231e8fea9d50585b1d8a62cd2057d6a748935f264a054050ac8ef8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d387-finalizer-boundary-controls.mjs",
+      "bytes": 6013,
+      "sha256": "bbdf7644169e1f8425cdfa6112e22b697d112835cb7789014688bfaa3df1f17f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d387-finalizer-negative-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d387-finalizer-negative-index.mjs",
+      "bytes": 22245,
+      "sha256": "64d7281825f70527e788d7fd66f9e769bf4f1708934fe0fccf4510744fc2e075"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-finalizer-boundary-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-finalizer-boundary-controls.mjs",
+      "bytes": 6017,
+      "sha256": "dd871f552296145a3f38d33d092298f5604fa001b055e1b892289bff61fb853a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-boundary-observation-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-boundary-observation-audit.json",
+      "bytes": 546,
+      "sha256": "e74e2111d809d908e3f364444cd0502203308073bdc0a4140304b9608c9404f0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d389-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d389-run.py",
+      "bytes": 7921,
+      "sha256": "9158edaab9c182ead88f3112cb6fbc4dfc9424bb82dce0b01f5063e946a1e5b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d390-restore-memory-source-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d390-restore-memory-source-audit.json",
+      "bytes": 6716,
+      "sha256": "7b57c1d2525315ba2d34626b4a09ec130d1358f5ba50f36ad8bab75bf6252391"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d375-index.mjs",
+      "bytes": 22104,
+      "sha256": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d375-entry-store.mjs",
+      "bytes": 7820,
+      "sha256": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d372-bounded-cache-removal.mjs",
+      "bytes": 2782,
+      "sha256": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d353-owned-cache-lock.mjs",
+      "bytes": 4321,
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-index-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d382-index-api.test.ts",
+      "bytes": 53085,
+      "sha256": "393817e66afaf9e0b809fdd27672c88ccb33f1e3edca2195173531f1bf010cb1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-dependency-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d382-dependency-api.test.ts",
+      "bytes": 1634,
+      "sha256": "ef7c928037388c2b3fbff21a1d017f8795c09928aacd69b7e0a023f629e36cbe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-pending-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d382-pending-api.test.ts",
+      "bytes": 956,
+      "sha256": "38199eb50abb2eb6f56e03ac370c4d3d5c6ec35fa979916120fc340155c3e66c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-index-api-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d382-index-api-preparation.json",
+      "bytes": 14142,
+      "sha256": "7609ae244c53f1554ae246787150aac1afd25c870a66b8d28a809511943fd36c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d383-normal-index-full-api-result.json",
+      "bytes": 18692,
+      "sha256": "3518a30a426c328b54ffcbbbce24397d0a4066e816229798b6945ba079eec3f8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-bounded-entry-full-api-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d383-bounded-entry-full-api-result.json",
+      "bytes": 18985,
+      "sha256": "97b2da9340a3d2a1965a2fb4451ac83d7308596e22cea5e92e2a711d43f56e12"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d384-bounded-scale-final-validation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d384-bounded-scale-final-validation.json",
+      "bytes": 940,
+      "sha256": "e87818e86646b577d7677703dbdd7640e7a82da9ee010e7e5f31c01a8ca130c0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d390-record-finalizer-contract.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/d390-record-finalizer-contract.py",
+      "bytes": 11877,
+      "sha256": "43866d1e4cf0420a1379f4caaede054b38d1f21d055ab7e70330e4717f2b353d"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/test/index.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/original-api/packages/index/test/index.test.ts",
+      "bytes": 52096,
+      "sha256": "ff5e746d32959c6b1f1cc94d77a2874ae8a307d2cb270105fb9c794b1de204be"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/test/dependency.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/original-api/packages/index/test/dependency.test.ts",
+      "bytes": 1618,
+      "sha256": "8d421b47db4e67fd8433ff71c5311f01f85bd75434bf4c7a84a276387149aaae"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/test/pending.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/original-api/packages/index/test/pending.test.ts",
+      "bytes": 940,
+      "sha256": "2bbc5dbe6101a87058b6f9bbe639daabf273feb4c0d9c60d88481e53aaabd808"
+    },
+    {
+      "source": "/var/www/node/php-companion/docs/php-language-toolchain/reports/bounded-cache-cleanup-scale-trial-2026-10-08.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d390-finalizer-contract-evidence/bounded-cache-cleanup-scale-trial-2026-10-08.json",
+      "bytes": 114444,
+      "sha256": "7d4ecce5d0780b0bef82c91b736c73d876497da6952cc39c15b30328b0fe1426"
+    }
+  ]
+}

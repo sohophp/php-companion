@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes } from 'node:fs/promises';
+import { mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes, cp } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join, sep } from 'node:path';
@@ -438,8 +438,10 @@ describe('bounded project source index', () => {
     const directory = join(root, 'cache');
     await indexComposerSources(root, { onSource: ({ path }) => ({ path }),
       cache: { directory, version: 'cancel-finalize-v1', restore: () => false } });
-    const cacheFile = join(directory, (await readdir(directory))[0]!);
+    const cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json'))!);
     const original = await readFile(cacheFile, 'utf8');
+    const originalNames = await readdir(directory);
+    const originalGenerations = await readdir(cacheFile + '.entries');
     await Promise.all(names.map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} { public $changed; }`)));
     let cancelled = false; let release: (() => void) | undefined;
     let queued: (() => void) | undefined; const started = new Promise<void>((done) => { queued = done; });
@@ -459,7 +461,8 @@ describe('bounded project source index', () => {
         warnings: expect.arrayContaining(['Project indexing was cancelled.']) });
       expect(analyzed).toEqual(['A.php']);
       expect(await readFile(cacheFile, 'utf8')).toBe(original);
-      expect(await readdir(directory)).toEqual([cacheFile.split(sep).at(-1)]);
+      expect(await readdir(directory)).toEqual(originalNames);
+      expect(await readdir(cacheFile + '.entries')).toEqual(originalGenerations);
     } finally { cancelled = true; release!(); await running; }
   });
   it('continues after a payload finalizer rejects and persists only completed entries', async () => {
@@ -498,7 +501,7 @@ describe('bounded project source index', () => {
       restoredHash = source.hash; return (payload as { sourceLength?: number }).sourceLength === 19;
     } }, onSource: () => { parsed += 1; } });
     expect(second.cached).toBe(1); expect(parsed).toBe(0); expect(restoredHash).toBe(expectedHash);
-    const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');
+    const cacheFile = join(cache, (await readdir(cache)).find((name) => name.endsWith('.json'))!); await writeFile(cacheFile, '{broken');
     const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: () => { parsed += 1; return {}; } });
     expect(third.cached).toBe(0); expect(parsed).toBe(1); expect(third.warnings).toContain('Persistent index cache was unreadable and will be rebuilt.');
   });
@@ -512,8 +515,11 @@ describe('bounded project source index', () => {
     const cache = { directory, version: 'batches-v1', restore: (value: unknown): boolean => { restored.push(value); return true; } };
     const cold = await indexComposerSources(root, { cache, onSource: () => payload });
     expect(cold).toMatchObject({ files: 3, cached: 0, complete: true, warnings: [] });
-    const names = await readdir(directory); expect(names).toHaveLength(1);
-    const cacheFile = join(directory, names[0]!); const before = await readFile(cacheFile, 'utf8');
+    const names = await readdir(directory); expect(names).toHaveLength(2);
+    const manifestName = names.find((name) => name.endsWith('.json'))!;
+    expect([...names].sort()).toEqual([manifestName, manifestName + '.entries'].sort());
+    const cacheFile = join(directory, manifestName); const before = await readFile(cacheFile, 'utf8');
+    const originalGenerations = await readdir(cacheFile + '.entries');
     const warm = await indexComposerSources(root, { cache, onSource: () => { throw new Error('Must restore every payload'); } });
     expect(warm).toMatchObject({ files: 3, cached: 3, complete: true, warnings: [] });
     expect(restored).toEqual([payload, payload, payload]);
@@ -523,6 +529,7 @@ describe('bounded project source index', () => {
     expect(failed.warnings).toContain('Persistent index cache could not be written.');
     expect(await readFile(cacheFile, 'utf8')).toBe(before);
     expect(await readdir(directory)).toEqual(names);
+    expect(await readdir(cacheFile + '.entries')).toEqual(originalGenerations);
   });
   it('isolates malformed entry metadata and rebuilds unsupported cache versions', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-metadata-'));
@@ -536,19 +543,23 @@ describe('bounded project source index', () => {
       restored.push(source.path); return true;
     } }, onSource: ({ path }: { path: string }): { path: string } => { parsed.push(path); return { path }; } };
     await indexComposerSources(root, options);
-    const cacheFile = join(directory, (await readdir(directory))[0]!);
+    const cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json'))!);
     const original = JSON.parse(await readFile(cacheFile, 'utf8'));
+    const originalGeneration = join(cacheFile + '.entries', original.generation);
+    const generationBackup = join(root, 'original-generation-backup');
+    await cp(originalGeneration, generationBackup, { recursive: true });
     for (const mutation of [null, [], { ...original.entries[damagedPath], hash: 'invalid' },
       { ...original.entries[damagedPath], size: -1 }, { ...original.entries[damagedPath], mtimeMs: 'invalid' },
       { ...original.entries[damagedPath], ctimeMs: null }]) {
       const manifest = structuredClone(original); manifest.entries[damagedPath] = mutation;
+      await cp(generationBackup, originalGeneration, { recursive: true });
       await writeFile(cacheFile, JSON.stringify(manifest)); restored.length = 0; parsed.length = 0;
       const result = await indexComposerSources(root, options);
       expect(result).toMatchObject({ files: 2, cached: 1, complete: true });
       expect(restored).toEqual([intactPath]); expect(parsed).toEqual([damagedPath]);
       expect(result.warnings).toContain(`Persistent index entry for ${damagedPath} was rejected and rebuilt.`);
     }
-    for (const override of [{ schema: 2 }, { version: 'metadata-v0' }, { entries: [] }]) {
+    for (const override of [{ schema: 3 }, { version: 'metadata-v0' }, { entries: [] }]) {
       await writeFile(cacheFile, JSON.stringify({ ...original, ...override })); restored.length = 0; parsed.length = 0;
       const result = await indexComposerSources(root, options);
       expect(result).toMatchObject({ files: 2, cached: 0, complete: true });
@@ -565,7 +576,7 @@ describe('bounded project source index', () => {
     await writeFile(join(root, 'src', 'User.php'), '<?php class User {}');
     const options = { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: (): { schema: number } => ({ schema: 1 }) };
     await indexComposerSources(root, options);
-    const cacheFile = join(cache, (await readdir(cache))[0]!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);
+    const cacheFile = join(cache, (await readdir(cache)).find((name) => name.endsWith('.json'))!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);
     const result = await indexComposerSources(root, options);
     expect(result.cached).toBe(1); expect((await stat(cacheFile)).mtimeMs).toBe(fixed.getTime());
   });
@@ -578,7 +589,7 @@ describe('bounded project source index', () => {
     await indexComposerSources(root, { cache, onSource: ({ source }) => ({ source }) });
     await writeFile(path, '<?php class Team {}');
     const information = await stat(path);
-    const cacheFile = join(directory, (await readdir(directory))[0]!);
+    const cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json'))!);
     const manifest = JSON.parse(await readFile(cacheFile, 'utf8')) as { entries: Record<string, { mtimeMs: number; ctimeMs: number }> };
     manifest.entries[path]!.mtimeMs = information.mtimeMs;
     manifest.entries[path]!.ctimeMs = information.ctimeMs;

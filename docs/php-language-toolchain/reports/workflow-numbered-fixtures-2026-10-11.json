@@ -1,0 +1,887 @@
+{
+  "recordedAtUtc": "2026-10-10T17:09:54.969Z",
+  "entryCount": 16,
+  "previousFixtureIds": [
+    "F02-VERSION-01",
+    "F02-VERSION-02",
+    "F02-VERSION-03",
+    "F02-VERSION-04",
+    "F02-VERSION-05",
+    "F02-VERSION-06",
+    "F03-BUILTIN-01",
+    "F03-BUILTIN-02",
+    "F03-BUILTIN-03",
+    "F03-BUILTIN-04",
+    "F03-BUILTIN-05",
+    "F03-BUILTIN-06",
+    "F03-BUILTIN-07",
+    "F03-BUILTIN-08",
+    "F04-COMP-TRIVIA-01",
+    "F04-COMP-TRIVIA-02",
+    "F04-COMP-TRIVIA-03",
+    "F04-COMP-INHERIT-01",
+    "F04-COMP-INHERIT-02",
+    "F04-COMP-INHERIT-03",
+    "F04-COMP-MAGIC-01",
+    "F04-COMP-PROPERTY-01",
+    "F04-REF-01",
+    "F04-REF-02",
+    "F04-REF-03",
+    "F04-REF-04",
+    "F04-REF-05",
+    "F04-REF-06",
+    "F05-GEN-01",
+    "F05-GEN-02",
+    "F05-GEN-03",
+    "F05-GEN-04",
+    "F05-GEN-05",
+    "F04-NAV-01",
+    "F04-NAV-02",
+    "F04-NAV-03",
+    "F04-NAV-04",
+    "F04-NAV-05",
+    "F04-NAV-06",
+    "F04-NAV-07",
+    "F04-NAV-08",
+    "F04-NAV-09",
+    "F04-NAV-10",
+    "F04-NAV-11",
+    "F04-NAV-12",
+    "F04-NAV-13",
+    "F04-NAV-14",
+    "F04-NAV-15",
+    "F04-NAV-16",
+    "F04-NAV-17",
+    "F04-NAV-18",
+    "F04-NAV-19",
+    "F04-HOST-01",
+    "F04-HOST-02",
+    "F04-HOST-03",
+    "F04-HOST-04",
+    "F04-HOST-05",
+    "F04-HOST-06",
+    "F04-HOST-07",
+    "F04-HOST-08",
+    "F04-HOST-09",
+    "F04-HOST-10",
+    "F04-HOST-11",
+    "F04-HOST-12",
+    "F04-HOST-13",
+    "F08-EI-01",
+    "F08-EI-02",
+    "F08-EI-03",
+    "F08-EM-01",
+    "F08-EM-02",
+    "F08-EM-03",
+    "F08-EM-04",
+    "F08-EM-05",
+    "F08-EM-06",
+    "F08-EM-07",
+    "F08-RP-01",
+    "F08-RP-02",
+    "F08-RP-03",
+    "F09-SVC-01",
+    "F09-SVC-02",
+    "F09-SVC-03",
+    "F09-ROUTE-01",
+    "F09-ROUTE-02",
+    "F09-ROUTE-03",
+    "F09-ROUTE-04",
+    "F09-ROUTE-05",
+    "F09-ROUTE-06",
+    "F09-DOC-01",
+    "F09-DOC-02",
+    "F09-DOC-03",
+    "F06-DIAG-01",
+    "F06-DIAG-02",
+    "F06-DIAG-03",
+    "F06-DIAG-04",
+    "F07-GEN-01",
+    "F07-GEN-02",
+    "F07-GEN-03",
+    "F07-IMPORT-01",
+    "F13-REF-LIFETIME-01",
+    "F13-REF-LIFETIME-02",
+    "F14-CONFIG-01",
+    "F14-MANIFEST-01",
+    "F14-LOCALE-01",
+    "F05-TEMPLATE-01",
+    "F05-TEMPLATE-02",
+    "F05-SHAPE-01",
+    "F05-SHAPE-02",
+    "F05-SHAPE-03",
+    "F05-CALLABLE-01",
+    "F05-CONDITIONAL-01",
+    "F05-FLOW-01",
+    "F05-FLOW-02",
+    "F05-FLOW-03",
+    "F05-BOUND-01",
+    "F05-MIXIN-01",
+    "F07-GEN-BODY-01",
+    "F07-GEN-BODY-02",
+    "F07-GEN-BODY-03",
+    "F05-GEN-06",
+    "F05-CALLABLE-02",
+    "F02-DOC-AST-01",
+    "F02-DOC-AST-02",
+    "F02-DOC-AST-03",
+    "F02-DOC-MULTI-01",
+    "F02-DOC-MULTI-02",
+    "F05-DOC-MULTI-01",
+    "F05-DOC-MULTI-CACHE-01",
+    "F05-DOC-MULTI-LSP-01",
+    "F02-DOC-METHOD-01",
+    "F02-DOC-METHOD-02",
+    "F05-DOC-METHOD-01",
+    "F05-DOC-METHOD-LSP-01",
+    "F09-CTX-GEN-01",
+    "F09-CTX-GEN-02",
+    "F02-DOC-BUDGET-01",
+    "F05-DOC-BUDGET-01"
+  ],
+  "newFixtureIds": [
+    "F01-PACK-01",
+    "F01-ACTIVATION-01",
+    "F01-ACTIVATION-02",
+    "F01-LIFECYCLE-01",
+    "F10-CONTEXT-01",
+    "F10-CONTEXT-02",
+    "F10-CONTRACT-01",
+    "F10-CONTRACT-02",
+    "F10-CONTRACT-03",
+    "F11-FORMAT-01",
+    "F11-FORMAT-02",
+    "F12-DEBUG-01",
+    "F12-PHPUNIT-01",
+    "F12-RUNTIME-01",
+    "F12-RUNTIME-02",
+    "F12-PAYLOAD-01"
+  ],
+  "totalFixtureIds": 152,
+  "distinctExistingPassingUnitPackageCases": 21,
+  "focusedExecutedCases": 24,
+  "originalCompleteProfileFlowsReused": 1,
+  "newProductTestsAdded": 0,
+  "normalEngineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "sourceAndRuntimeUnchanged": true,
+  "currentProfileFunctionalQualified": true,
+  "currentProfilePerformanceQualified": false,
+  "originalNormalUnionP95Ms": 165,
+  "originalC3FailurePreserved": true,
+  "fullP0FixtureMappingComplete": false,
+  "fullF01ThroughF14Complete": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "entries": [
+    {
+      "id": "F01-PACK-01",
+      "requirement": "F01",
+      "input": "冻结Open Source Pack、Core默认启用、无Intelephense的干净源码Profile",
+      "expected": "十个默认成员保持；内置PHP补全关闭，Core按onDemand启动，真实Definition/References可用",
+      "kind": "positive-and-negative",
+      "bindings": [
+        {
+          "file": "test/unit/extension-pack.test.ts",
+          "sourceSha256": "92366e0e3ab28bdb5371476d98774746791ce53a6a6222763b3d6637536ad37e",
+          "start": 1949,
+          "end": 3318,
+          "startLine": 46,
+          "endLine": 63,
+          "snippetSha256": "f46f469fd260795e559d3399c74d00d27e7fb0de46d92c7fbef4abe2976500e8",
+          "titleTemplate": "restores the core with lazy activation and contributions",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "SoPHP manifests restores the core with lazy activation and contributions",
+              "title": "restores the core with lazy activation and contributions",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/unit/extension-pack.test.ts",
+          "sourceSha256": "92366e0e3ab28bdb5371476d98774746791ce53a6a6222763b3d6637536ad37e",
+          "start": 3323,
+          "end": 4934,
+          "startLine": 65,
+          "endLine": 86,
+          "snippetSha256": "aa20300acba8aedd0308498511daa60eb0442b47add131e2e797b66042e45450",
+          "titleTemplate": "ships the Open Source Pack without another PHP language server",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "SoPHP manifests ships the Open Source Pack without another PHP language server",
+              "title": "ships the Open Source Pack without another PHP language server",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 49873,
+          "end": 74889,
+          "startLine": 607,
+          "endLine": 930,
+          "snippetSha256": "e1ca30814c9325eb51adf9583c66e6e0fe381c73324c29ea13f4684950480d3f",
+          "functionName": "verifyOpenSourceProfile",
+          "requiredAssertions": [
+            "Open Source Profile unexpectedly contains Intelephense",
+            "SoPHP Core did not find the PHP call in the Open Source Profile"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "run",
+            "guard": "PHP_COMPANION_OPEN_SOURCE_PROFILE",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "源码宿主与manifest证据；不能代替当前VSIX、真实WSL或长期编码验收。"
+    },
+    {
+      "id": "F01-ACTIVATION-01",
+      "requirement": "F01",
+      "input": "仅安装SoPHP且未显式改语言服务器设置",
+      "expected": "默认启动，不标记竞争服务器阻止",
+      "kind": "positive",
+      "bindings": [
+        {
+          "file": "test/unit/language-server-policy.test.ts",
+          "sourceSha256": "2316c21001c7cfd753bf04c7fddf81b4c3993d57a12ac86070d0ab4e59cc35ca",
+          "start": 1320,
+          "end": 1598,
+          "startLine": 25,
+          "endLine": 28,
+          "snippetSha256": "cd0f3b1a5a9110fac2b7a6ed1b0a82993e8590da0a1c4e906159a6e6ccea7bb1",
+          "titleTemplate": "starts by default when SoPHP is the only general PHP language server",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "language server activation policy starts by default when SoPHP is the only general PHP language server",
+              "title": "starts by default when SoPHP is the only general PHP language server",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "注入状态的策略单元；实际启动由完整Profile另证。"
+    },
+    {
+      "id": "F01-ACTIVATION-02",
+      "requirement": "F01",
+      "input": "Intelephense已安装、显式启用或显式关闭SoPHP",
+      "expected": "未作选择时保留旧工作流；显式启用/关闭分别生效",
+      "kind": "negative-and-explicit-choice",
+      "bindings": [
+        {
+          "file": "test/unit/language-server-policy.test.ts",
+          "sourceSha256": "2316c21001c7cfd753bf04c7fddf81b4c3993d57a12ac86070d0ab4e59cc35ca",
+          "start": 1603,
+          "end": 2084,
+          "startLine": 30,
+          "endLine": 35,
+          "snippetSha256": "3f0b3a6c527decc1a063e4b9befa5509f79be2c2d1d435a42402be3fbfea2bff",
+          "titleTemplate": "preserves an existing Intelephense workflow until the user makes an explicit choice",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "language server activation policy preserves an existing Intelephense workflow until the user makes an explicit choice",
+              "title": "preserves an existing Intelephense workflow until the user makes an explicit choice",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/unit/language-server-policy.test.ts",
+          "sourceSha256": "2316c21001c7cfd753bf04c7fddf81b4c3993d57a12ac86070d0ab4e59cc35ca",
+          "start": 2089,
+          "end": 2370,
+          "startLine": 37,
+          "endLine": 40,
+          "snippetSha256": "58547043731f325adbebed6994eadb7d0649a5b45356560c903742bf073068af",
+          "titleTemplate": "honors an explicit disabled setting regardless of installed extensions",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "language server activation policy honors an explicit disabled setting regardless of installed extensions",
+              "title": "honors an explicit disabled setting regardless of installed extensions",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "策略单元；不声称竞争Profile真实UI或所有第三方LS均完成。"
+    },
+    {
+      "id": "F01-LIFECYCLE-01",
+      "requirement": "F01",
+      "input": "一分钟内连续四次关闭及超过窗口后的再次关闭",
+      "expected": "前三次重启，第四次拒绝循环；窗口结束后重新允许",
+      "kind": "failure-policy",
+      "bindings": [
+        {
+          "file": "test/unit/language-server-policy.test.ts",
+          "sourceSha256": "2316c21001c7cfd753bf04c7fddf81b4c3993d57a12ac86070d0ab4e59cc35ca",
+          "start": 242,
+          "end": 728,
+          "startLine": 5,
+          "endLine": 12,
+          "snippetSha256": "92184ac34ca913ce0aaf6b54746d45ac078ffe63b78e696071c1656f9e2323ed",
+          "titleTemplate": "allows three restarts in a minute and stops a crash loop",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "language server restart policy allows three restarts in a minute and stops a crash loop",
+              "title": "allows three restarts in a minute and stops a crash loop",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "注入时钟与状态，不替代真实崩溃、恢复或多小时会话。"
+    },
+    {
+      "id": "F10-CONTEXT-01",
+      "requirement": "F10",
+      "input": "named render/renderView、compact、局部/多变量/assigned参数及Template属性",
+      "expected": "完整上下文提供真实变量类型和PHP来源；各模板与属性路径保持独立",
+      "kind": "positive",
+      "bindings": [
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 761,
+          "end": 38058,
+          "startLine": 9,
+          "endLine": 462,
+          "snippetSha256": "07f09e8804fc6dc1e524e7cdfee0fdede490c88e14c74e17aa4e0bce3ab1e035",
+          "functionName": "verifySymfonyControllerContextBridge",
+          "requiredAssertions": [
+            "Template",
+            "variables",
+            "sources",
+            "templates/attribute-only.html.twig"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "verifyOpenSourceProfile",
+            "guard": "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "当前Core/Symfony/Twig源码组合；其它框架版本和所有上下文仍待验证。"
+    },
+    {
+      "id": "F10-CONTEXT-02",
+      "requirement": "F10",
+      "input": "assigned参数的未保存key编辑及Undo",
+      "expected": "Twig补全和Definition刷新并在Undo后恢复",
+      "kind": "edit-and-restore",
+      "bindings": [
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 761,
+          "end": 38058,
+          "startLine": 9,
+          "endLine": 462,
+          "snippetSha256": "07f09e8804fc6dc1e524e7cdfee0fdede490c88e14c74e17aa4e0bce3ab1e035",
+          "functionName": "verifySymfonyControllerContextBridge",
+          "requiredAssertions": [
+            "Symfony assigned context: unsaved key edit and Undo refreshed Twig completion and Definition"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "verifyOpenSourceProfile",
+            "guard": "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "同一完整Profile流程，不重复算测试；未运行的route Rename分支不计为通过。"
+    },
+    {
+      "id": "F10-CONTRACT-01",
+      "requirement": "F10",
+      "input": "有效上下文、无来源、空union及反向valueLocation范围",
+      "expected": "接受有效结构，拒绝缺失或损坏结构",
+      "kind": "positive-and-negative",
+      "bindings": [
+        {
+          "file": "packages/interop/test/interop.test.ts",
+          "sourceSha256": "7426d43b7c94e1b7f5da6889e0e482cd1954cca6df5df8ca68abbb58b4b950b0",
+          "start": 864,
+          "end": 1725,
+          "startLine": 11,
+          "endLine": 20,
+          "snippetSha256": "7bb0ff32ac231455a8d80aa271cb7a91fc532501c7dda78ca64c173d4acf3771",
+          "titleTemplate": "validates bounded controller contexts",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "versioned PHP/template interop contract validates bounded controller contexts",
+              "title": "validates bounded controller contexts",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-interop-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "包级协议合同，不替代真实跨仓UI或全部恶意输入。"
+    },
+    {
+      "id": "F10-CONTRACT-02",
+      "requirement": "F10",
+      "input": "共有能力、错误协议版本与未知capability",
+      "expected": "只协商共有能力；错误版本和未知能力拒绝",
+      "kind": "positive-and-negative",
+      "bindings": [
+        {
+          "file": "packages/interop/test/interop.test.ts",
+          "sourceSha256": "7426d43b7c94e1b7f5da6889e0e482cd1954cca6df5df8ca68abbb58b4b950b0",
+          "start": 1730,
+          "end": 2329,
+          "startLine": 22,
+          "endLine": 27,
+          "snippetSha256": "8b512d9d9f881a2c857648007916c5a263d2169c36a629f2ef8ccc1d0b75346d",
+          "titleTemplate": "negotiates only shared capabilities for the same project",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "versioned PHP/template interop contract negotiates only shared capabilities for the same project",
+              "title": "negotiates only shared capabilities for the same project",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-interop-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "仅记录此案例实际断言，不扩展为所有project/snapshot协商已验收。"
+    },
+    {
+      "id": "F10-CONTRACT-03",
+      "requirement": "F10",
+      "input": "多个控制器、条件变量、unknown/incomplete与不同模板",
+      "expected": "合并保留可选性及来源；未知不猜测；不同模板拒绝合并",
+      "kind": "positive-and-unknown",
+      "bindings": [
+        {
+          "file": "packages/interop/test/interop.test.ts",
+          "sourceSha256": "7426d43b7c94e1b7f5da6889e0e482cd1954cca6df5df8ca68abbb58b4b950b0",
+          "start": 2334,
+          "end": 3544,
+          "startLine": 29,
+          "endLine": 41,
+          "snippetSha256": "3826024e5f119d3578dcc3d468a03efcffbea4d83947d2398ecf06754497d348",
+          "titleTemplate": "merges multiple controller contexts without turning conditional variables into required ones",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "versioned PHP/template interop contract merges multiple controller contexts without turning conditional variables into required ones",
+              "title": "merges multiple controller contexts without turning conditional variables into required ones",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-interop-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "packages/interop/test/interop.test.ts",
+          "sourceSha256": "7426d43b7c94e1b7f5da6889e0e482cd1954cca6df5df8ca68abbb58b4b950b0",
+          "start": 3549,
+          "end": 4051,
+          "startLine": 43,
+          "endLine": 47,
+          "snippetSha256": "38699755271d01de12acaec163bcff8f67487a655e9fde80213986baa6aa5c48",
+          "titleTemplate": "propagates incomplete and unknown source facts instead of guessing",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "versioned PHP/template interop contract propagates incomplete and unknown source facts instead of guessing",
+              "title": "propagates incomplete and unknown source facts instead of guessing",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-interop-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "合同级已有四项，不替代全F10或受限跨语言Rename。"
+    },
+    {
+      "id": "F11-FORMAT-01",
+      "requirement": "F11",
+      "input": "PHP8.5 wrapper、项目PSR12配置及有空格错误的PHP类",
+      "expected": "PHP CS Fixer真实提供并应用编辑；一次Undo恢复原文",
+      "kind": "edit-and-undo",
+      "bindings": [
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 49873,
+          "end": 74889,
+          "startLine": 607,
+          "endLine": 930,
+          "snippetSha256": "e1ca30814c9325eb51adf9583c66e6e0fe381c73324c29ea13f4684950480d3f",
+          "functionName": "verifyOpenSourceProfile",
+          "requiredAssertions": [
+            "PHP CS Fixer did not apply PSR-12 class spacing",
+            "PHP formatting was not one Undo transaction"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "run",
+            "guard": "PHP_COMPANION_OPEN_SOURCE_PROFILE",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "没有Save/失败/Redo或全部版本证据，完整F11仍开放。"
+    },
+    {
+      "id": "F11-FORMAT-02",
+      "requirement": "F11",
+      "input": "同一组合中的Profile.html.twig及PHP默认formatter",
+      "expected": "PHP选择junstyle.php-cs-fixer；Twig格式化入口返回编辑",
+      "kind": "positive-owner-separation",
+      "bindings": [
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 49873,
+          "end": 74889,
+          "startLine": 607,
+          "endLine": 930,
+          "snippetSha256": "e1ca30814c9325eb51adf9583c66e6e0fe381c73324c29ea13f4684950480d3f",
+          "functionName": "verifyOpenSourceProfile",
+          "requiredAssertions": [
+            "The Open Source Pack did not select the PHP formatter",
+            "TwigPlus did not remain the Twig formatter in the Open Source Profile"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "run",
+            "guard": "PHP_COMPANION_OPEN_SOURCE_PROFILE",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "未应用Twig编辑或验证其Save/Undo/失败，不推断所有Provider注册唯一性。"
+    },
+    {
+      "id": "F12-DEBUG-01",
+      "requirement": "F12",
+      "input": "php类型launch会话，真实项目PHP执行路径及debug-profile.php",
+      "expected": "启动事件出现、会话在原期限内结束，清除active session",
+      "kind": "positive-lifecycle",
+      "bindings": [
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 49873,
+          "end": 74889,
+          "startLine": 607,
+          "endLine": 930,
+          "snippetSha256": "e1ca30814c9325eb51adf9583c66e6e0fe381c73324c29ea13f4684950480d3f",
+          "functionName": "verifyOpenSourceProfile",
+          "requiredAssertions": [
+            "Open Source Profile Xdebug probe",
+            "PHP Debug did not start a php debug session",
+            "PHP Debug probe did not leave the active session"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "run",
+            "guard": "PHP_COMPANION_OPEN_SOURCE_PROFILE",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "只证明入口/会话生命周期，不声称断点、变量值或Remote调试全部通过。"
+    },
+    {
+      "id": "F12-PHPUNIT-01",
+      "requirement": "F12",
+      "input": "PHP CLI执行真实ProfileTest及未认证PHPUnit扩展命令",
+      "expected": "真实测试写入passed；默认Pack无phpunit.run-all命令",
+      "kind": "positive-and-exclusion",
+      "bindings": [
+        {
+          "file": "test/extension/suite/index.ts",
+          "sourceSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+          "start": 49873,
+          "end": 74889,
+          "startLine": 607,
+          "endLine": 930,
+          "snippetSha256": "e1ca30814c9325eb51adf9583c66e6e0fe381c73324c29ea13f4684950480d3f",
+          "functionName": "verifyOpenSourceProfile",
+          "requiredAssertions": [
+            "phpunit.run-all",
+            "Project PHPUnit CLI did not execute the test in the default Pack Profile"
+          ],
+          "originalCompleteFlow": "Open Source Profile",
+          "evidenceLevel": "Linux source Extension Host, actual 12 extensions; packaged VSIX and real WSL not claimed",
+          "passingEvidence": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+          "normalCompiledSuiteSha256": "59fe6610f524fde5dbb0c0cc476c29168abb68ba1e695be3428fbe60f9c1a4e4",
+          "caller": {
+            "functionName": "run",
+            "guard": "PHP_COMPANION_OPEN_SOURCE_PROFILE",
+            "actualValue": "1"
+          }
+        }
+      ],
+      "limits": "CLI入口与真实结果，不替代编辑器Test Explorer或所有运行时矩阵。"
+    },
+    {
+      "id": "F12-RUNTIME-01",
+      "requirement": "F12",
+      "input": "注入进程依赖的php72/81/82/84/85版本输出",
+      "expected": "返回对应minor及完整版本",
+      "kind": "positive",
+      "bindings": [
+        {
+          "file": "test/unit/executables.test.ts",
+          "sourceSha256": "089dd54e288073b086da5dcb4d61e27336c5838023b195718a3464652e532f6c",
+          "start": 253,
+          "end": 717,
+          "startLine": 6,
+          "endLine": 21,
+          "snippetSha256": "2d7ae1261b2e08f4f7e6b2ea52e6a528b49a66260a0085741138b2d6e1cfcd95",
+          "titleTemplate": "probes %s with injected process dependencies",
+          "parameterized": true,
+          "passingCases": [
+            {
+              "fullName": "PHP executable probing probes php72 with injected process dependencies",
+              "title": "probes php72 with injected process dependencies",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            },
+            {
+              "fullName": "PHP executable probing probes php81 with injected process dependencies",
+              "title": "probes php81 with injected process dependencies",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            },
+            {
+              "fullName": "PHP executable probing probes php82 with injected process dependencies",
+              "title": "probes php82 with injected process dependencies",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            },
+            {
+              "fullName": "PHP executable probing probes php84 with injected process dependencies",
+              "title": "probes php84 with injected process dependencies",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            },
+            {
+              "fullName": "PHP executable probing probes php85 with injected process dependencies",
+              "title": "probes php85 with injected process dependencies",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "五个已有参数化单元；实际CLI仅由其它原运行时证据证明。"
+    },
+    {
+      "id": "F12-RUNTIME-02",
+      "requirement": "F12",
+      "input": "不存在命令、坏输出、相同可执行文件、Composer目标、PATH优先与缺失PATH",
+      "expected": "无效结果忽略，路径去重；Composer已确定目标不启动PHP；优先PATH并支持版本命令回退",
+      "kind": "negative-and-priority",
+      "bindings": [
+        {
+          "file": "test/unit/executables.test.ts",
+          "sourceSha256": "089dd54e288073b086da5dcb4d61e27336c5838023b195718a3464652e532f6c",
+          "start": 722,
+          "end": 1003,
+          "startLine": 23,
+          "endLine": 26,
+          "snippetSha256": "038f4e0aceb384df2e8412659194ff98f4b4d0fe03b1aab123cb6b50e4bc16ff",
+          "titleTemplate": "ignores invalid output and unavailable commands",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "PHP executable probing ignores invalid output and unavailable commands",
+              "title": "ignores invalid output and unavailable commands",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/unit/executables.test.ts",
+          "sourceSha256": "089dd54e288073b086da5dcb4d61e27336c5838023b195718a3464652e532f6c",
+          "start": 1008,
+          "end": 1317,
+          "startLine": 28,
+          "endLine": 37,
+          "snippetSha256": "9fac36e78d9e2a6dcf7c9486f931b7f6781a0cb5bca951a6018675ccae224ed2",
+          "titleTemplate": "deduplicates commands resolving to the same executable",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "PHP executable probing deduplicates commands resolving to the same executable",
+              "title": "deduplicates commands resolving to the same executable",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/unit/executables.test.ts",
+          "sourceSha256": "089dd54e288073b086da5dcb4d61e27336c5838023b195718a3464652e532f6c",
+          "start": 1322,
+          "end": 1948,
+          "startLine": 39,
+          "endLine": 49,
+          "snippetSha256": "e60d4d1ae6f1b7a12710fbc284bddff9258ff2309562bc14b5acda50349e9c0b",
+          "titleTemplate": "does not start PHP when Composer already determines the target version",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "PHP executable probing does not start PHP when Composer already determines the target version",
+              "title": "does not start PHP when Composer already determines the target version",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/unit/executables.test.ts",
+          "sourceSha256": "089dd54e288073b086da5dcb4d61e27336c5838023b195718a3464652e532f6c",
+          "start": 1953,
+          "end": 2531,
+          "startLine": 51,
+          "endLine": 61,
+          "snippetSha256": "58ab6345279bc7136dc0ad89a527eeb16b0fe99e1ecfe935b70d93591a92f11e",
+          "titleTemplate": "uses the PHP command on PATH before a different installed versioned command",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "PHP executable probing uses the PHP command on PATH before a different installed versioned command",
+              "title": "uses the PHP command on PATH before a different installed versioned command",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        },
+        {
+          "file": "test/unit/executables.test.ts",
+          "sourceSha256": "089dd54e288073b086da5dcb4d61e27336c5838023b195718a3464652e532f6c",
+          "start": 2536,
+          "end": 2966,
+          "startLine": 63,
+          "endLine": 70,
+          "snippetSha256": "89d6ef3e9bf656f63724cb457ed50b37c8c0b6fe555e300eabd736e5907679d2",
+          "titleTemplate": "uses an installed versioned command when PHP is absent from PATH",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "PHP executable probing uses an installed versioned command when PHP is absent from PATH",
+              "title": "uses an installed versioned command when PHP is absent from PATH",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "注入进程依赖的单元，不声称真实环境所有发现路径。"
+    },
+    {
+      "id": "F12-PAYLOAD-01",
+      "requirement": "F12",
+      "input": "带扩展事实的PhpRuntime及command/path/minor客户端字段",
+      "expected": "扩展事实传到LS；客户端专有字段不进入payload",
+      "kind": "positive-and-exclusion",
+      "bindings": [
+        {
+          "file": "test/unit/php-runtime-payload.test.ts",
+          "sourceSha256": "44f649fced507c93fc5c75ab7c36b158b250b94e1f2ed42ff8fda2b0170a171d",
+          "start": 232,
+          "end": 1731,
+          "startLine": 6,
+          "endLine": 27,
+          "snippetSha256": "6f18918dae9bb21d413b998f342866d19407e8965cecfed3235b8d5429e02970",
+          "titleTemplate": "forwards extension facts to the language server without client-only fields",
+          "parameterized": false,
+          "passingCases": [
+            {
+              "fullName": "PHP runtime payload forwards extension facts to the language server without client-only fields",
+              "title": "forwards extension facts to the language server without client-only fields",
+              "status": "passed",
+              "result": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json"
+            }
+          ],
+          "evidenceLevel": "current focused package/unit tests"
+        }
+      ],
+      "limits": "序列化边界单元，不代替全部扩展启用矩阵。"
+    }
+  ],
+  "focusedEvidence": [
+    {
+      "file": "/var/www/node/php-companion/.vscode-test/d1700-root-fixture-result.json",
+      "sha256": "414d178ec251b3e1789dfd5ab49000798aba38012462e4be8cdfde2541ca8d86",
+      "passed": 20
+    },
+    {
+      "file": "/var/www/node/php-companion/.vscode-test/d1700-interop-fixture-result.json",
+      "sha256": "23344fecff9b870214ef26766ddf79d5fc1f0f5a07f4d00ecd19b7f96df3e0d5",
+      "passed": 4
+    }
+  ],
+  "profileEvidence": {
+    "audit": ".vscode-test/d1689-mixed-html-profile-terminal-audit.json",
+    "auditSha256": "b788ba6670a5e05c151376274cd2db7ad8ccd2b811c366bbcd343111448eab8d",
+    "manifest": ".vscode-test/d1689-mixed-html-profile-evidence/manifest.json",
+    "manifestSha256": "98221a56d7f5752e4b9a8f40dd9c4d179aa81d1e1560b880d649ca5e680fa035",
+    "preparation": ".vscode-test/d1688-mixed-html-profile-preparation.json",
+    "sourceSuiteSha256": "42660cc8345c0c77777a0e8827cd3ec65e918c7c2911138c14e7c77491ded85a",
+    "unchangedCompiledTests": 91,
+    "full12ExtensionSourceProfile": true,
+    "performanceQualified": false
+  }
+}

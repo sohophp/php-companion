@@ -342,12 +342,35 @@ try {
   // The on-demand candidate index rebuilds lazily and does not publish the
   // eager index's warning. Require actual repair of the same damaged cache.
   const rebuiltCache = JSON.parse(await readFile(join(cacheDirectory, corruptedCacheFile), 'utf8'));
-  if (rebuiltCache.schema !== 1 || rebuiltCache.version !== corruptedCacheVersion
+  if (rebuiltCache.schema !== 2 || rebuiltCache.version !== corruptedCacheVersion
     || typeof rebuiltCache.root !== 'string' || !samePath(rebuiltCache.root, root)
     || !rebuiltCache.entries || typeof rebuiltCache.entries !== 'object' || Array.isArray(rebuiltCache.entries)
     || !Object.keys(rebuiltCache.entries).length) {
     throw new Error('The corrupted persistent cache was not rebuilt with project entries.');
   }
+
+  // Schema 2 stores immutable payloads separately; verify the repaired generation.
+  const { createHash } = await import('node:crypto');
+  const { lstat } = await import('node:fs/promises');
+  if (!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(rebuiltCache.generation)) {
+    throw new Error('Rebuilt cache generation is invalid.');
+  }
+  const rebuiltGeneration = join(cacheDirectory, corruptedCacheFile + '.entries', rebuiltCache.generation);
+  const generationInfo = await lstat(rebuiltGeneration);
+  if (!generationInfo.isDirectory() || generationInfo.isSymbolicLink()) throw new Error('Rebuilt generation is not a real directory.');
+  let verifiedRebuiltPayloads = 0;
+  for (const entry of Object.values(rebuiltCache.entries)) {
+    if (!entry || Object.hasOwn(entry, 'payload') || !/^[a-f0-9]{64}$/.test(entry.payloadHash)
+      || !Number.isSafeInteger(entry.payloadBytes) || entry.payloadBytes < 0 || entry.payloadBytes > 64 * 1024 * 1024) {
+      throw new Error('Rebuilt payload descriptor is invalid.');
+    }
+    const payloadPath = join(rebuiltGeneration, entry.payloadHash + '.json');
+    const info = await lstat(payloadPath); const bytes = await readFile(payloadPath);
+    if (!info.isFile() || info.isSymbolicLink() || info.size !== entry.payloadBytes || bytes.length !== entry.payloadBytes
+      || createHash('sha256').update(bytes).digest('hex') !== entry.payloadHash) throw new Error('Rebuilt payload failed integrity verification.');
+    JSON.parse(bytes.toString('utf8')); verifiedRebuiltPayloads += 1;
+  }
+  if (!verifiedRebuiltPayloads) throw new Error('Rebuilt cache contains no verified payloads.');
 
   const sampledPeakRssMb = Math.max(...rssSamples); const rssEndMinusBaselineMb = finalRssMb - baselineRssMb;
   const report = {
@@ -362,7 +385,7 @@ try {
     cancellationProbes, cancellationControlSymbols: cancellationProbes.reduce((sum, probe) => sum + probe.controlSymbols, 0),
     languageServerRssMb: { baseline: baselineRssMb, sampledPeak: sampledPeakRssMb, final: finalRssMb, endMinusBaseline: rssEndMinusBaselineMb,
       samples: rssSamples.length, sampledEveryIterations: 10, metric: 'external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap' },
-    persistentCache: { files: cacheFiles.length, corruptedFile: corruptedCacheFile, corruptCacheRecovered: true,
+    persistentCache: { files: cacheFiles.length, rebuiltSchema: rebuiltCache.schema, verifiedRebuiltPayloads, corruptedFile: corruptedCacheFile, corruptCacheRecovered: true,
       rebuiltCacheValidated: true, corruptionWarningObserved,
       referencesRecoveredAfterRestart: indexingMode === 'onDemand' ? true : null,
       completionRecoveredAfterRestart: true, hoverRecoveredAfterRestart: true, definitionRecoveredAfterRestart: true,

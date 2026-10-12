@@ -1,0 +1,405 @@
+{
+  "date": "2026-10-09",
+  "normalValidation": {
+    "steps": [
+      {
+        "name": "server-build",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "-p",
+          "/var/www/node/php-companion/packages/language-server/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "pid": 2901982,
+        "exitCode": 0,
+        "durationSeconds": 7.607649929996114,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "root-strict",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "pid": 2902031,
+        "exitCode": 0,
+        "durationSeconds": 4.263249654992251,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "fixture-strict",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d1083-typecheck-lifecycle-test.mjs"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "pid": 2902059,
+        "exitCode": 0,
+        "durationSeconds": 2.30738460100838,
+        "logSha256": "f345e3d174162fbe8376e77fe55325b4ca70ec75bff416ba90364a5878ed1ac5"
+      },
+      {
+        "name": "lint",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/eslint/bin/eslint.js",
+          "src",
+          "test",
+          "packages",
+          "scripts",
+          "esbuild.mjs",
+          "vitest.config.ts",
+          "vitest.integration.config.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "pid": 2902079,
+        "exitCode": 0,
+        "durationSeconds": 37.56853600600152,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "bundle",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/esbuild.mjs",
+          "--production"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "pid": 2902311,
+        "exitCode": 0,
+        "observation": "Bundle succeeded; byte comparison stopped verifier because Lint cleanup removed an unused local. Fresh normal tests will qualify the actual assets."
+      },
+      {
+        "name": "root-unit",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1086-root-unit.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "pid": 2902808,
+        "exitCode": 0,
+        "durationSeconds": 6.382153503014706,
+        "logSha256": "3b3816851419fe48555cd9d6f11b5da159dfcc96f2fc1815c644e6220b830a97",
+        "passed": 113,
+        "failed": 0,
+        "resultSha256": "20da6147bb9ddd338f440188286d2a2e6914c37073c1d11c95a40648873e4e88"
+      },
+      {
+        "name": "lifecycle-ownership",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/semantic-provider-lifecycle-stdio.test.ts",
+          "test/controller-context-concurrency-stdio.test.ts",
+          "test/controller-context-progressive-stdio.test.ts",
+          "test/symfony-container-provider-concurrency-stdio.test.ts",
+          "test/symfony-service-definition-lazy-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1086-lifecycle-ownership.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "pid": 2903111,
+        "exitCode": 0,
+        "durationSeconds": 89.23626381301438,
+        "logSha256": "b193cb0e61d21cfe1c21d093f0e2c5aa5e46ab0376c95b05576438784a3b2a5e",
+        "passed": 64,
+        "failed": 0,
+        "resultSha256": "60d090e9c73af1e0cf0f283ea27c3350228ed2e6b4500dbe50452f7fdf4d8a1b",
+        "ownershipSha256": "6bed7eda354e5faf6fd303e08e99a386a15a56e088c7fceea96e8c34cab2aeec",
+        "remainingOwnedPids": []
+      },
+      {
+        "name": "ordering",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/stdio.test.ts",
+          "--testNamePattern=keeps the newest generic semantic-provider facts|does not treat an experimental index as reference-complete|merges unchanged files from a full controller refresh",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1086-ordering.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "pid": 2907658,
+        "exitCode": 0,
+        "durationSeconds": 14.412659491994418,
+        "logSha256": "be74155fc69681e5c3124d70016093d3168e431f722e8e330ef7a352e350e19b",
+        "passed": 3,
+        "failed": 0,
+        "resultSha256": "431283fdede05e59d31e40c1a78fc4aa629ddd946fba52235f99de7dd6967fb7",
+        "ownershipSha256": "e10c66f31ecb03a0fcc7cef08099e12b788e9dc25d3299ad9de807de4e52596a",
+        "remainingOwnedPids": []
+      }
+    ],
+    "qualified": true,
+    "scope": "Normal build and focused lifecycle/ownership/order validation; full current regression remains open",
+    "normalAssetsMatchCandidate": false,
+    "normalAssets": {
+      "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/language-server.js": "4c91f86b973ed30fe514fbb3d6ffd1cf275f46e7a1bff2af2bd75164db9ce5a8",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    "status": "exited",
+    "sourceSha256": "c6f52526ba00a681cb1ab28e8257046447d2a4aed64cc781491c3982adc5189c",
+    "testSha256": "659ac0343713a0a4e5daf00b4018923b629273801fd89800bc3fd44845f52c8f"
+  },
+  "baselineFrozenInputChanges": [
+    "/var/www/node/php-companion/packages/language-server/dist/server.js",
+    "/var/www/node/php-companion/packages/language-server/src/server.ts",
+    "/var/www/node/php-companion/dist/language-server.js"
+  ],
+  "actualOwnedProcessCount": 348,
+  "allObservedOwnedProcessesGone": true,
+  "remainingValidationProcessGroupPids": [],
+  "physicalStopObservations": [
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "container",
+      "phpVersion": "7.2",
+      "pid": 2903335,
+      "gone": true,
+      "elapsedMs": 32.326580999999805
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "container",
+      "phpVersion": "8.5",
+      "pid": 2903563,
+      "gone": true,
+      "elapsedMs": 33.33361699999932
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "events",
+      "phpVersion": "7.2",
+      "pid": 2903760,
+      "gone": true,
+      "elapsedMs": 31.462024999999812
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "events",
+      "phpVersion": "8.5",
+      "pid": 2903958,
+      "gone": true,
+      "elapsedMs": 28.537599000001137
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "controllers",
+      "phpVersion": "7.2",
+      "pid": 2904226,
+      "gone": true,
+      "elapsedMs": 35.51999500000056
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "controllers",
+      "phpVersion": "8.5",
+      "pid": 2904409,
+      "gone": true,
+      "elapsedMs": 31.074705000000904
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "generic",
+      "phpVersion": "7.2",
+      "pid": 2904618,
+      "gone": true,
+      "elapsedMs": 31.041568999997253
+    },
+    {
+      "case": "shutdown-immediate-exit",
+      "kind": "generic",
+      "phpVersion": "8.5",
+      "pid": 2904795,
+      "gone": true,
+      "elapsedMs": 32.51631100000304
+    },
+    {
+      "case": "superseded-snapshot",
+      "kind": "events",
+      "phpVersion": "7.2",
+      "pid": 2905044,
+      "gone": true,
+      "elapsedMs": 40.409489000001486
+    },
+    {
+      "case": "superseded-snapshot",
+      "kind": "events",
+      "phpVersion": "8.5",
+      "pid": 2905359,
+      "gone": true,
+      "elapsedMs": 45.05621699999756
+    },
+    {
+      "case": "superseded-snapshot",
+      "kind": "controllers",
+      "phpVersion": "7.2",
+      "pid": 2905527,
+      "gone": true,
+      "elapsedMs": 37.86142599999948
+    },
+    {
+      "case": "superseded-snapshot",
+      "kind": "controllers",
+      "phpVersion": "8.5",
+      "pid": 2905653,
+      "gone": true,
+      "elapsedMs": 50.775086000001465
+    },
+    {
+      "case": "superseded-snapshot",
+      "kind": "generic",
+      "phpVersion": "7.2",
+      "pid": 2905819,
+      "gone": true,
+      "elapsedMs": 52.58361600000353
+    },
+    {
+      "case": "superseded-snapshot",
+      "kind": "generic",
+      "phpVersion": "8.5",
+      "pid": 2906001,
+      "gone": true,
+      "elapsedMs": 42.7479170000006
+    },
+    {
+      "case": "configuration-replacement",
+      "kind": "events",
+      "phpVersion": "7.2",
+      "pid": 2906120,
+      "gone": true,
+      "elapsedMs": 33.86637300000439
+    },
+    {
+      "case": "configuration-replacement",
+      "kind": "events",
+      "phpVersion": "8.5",
+      "pid": 2906292,
+      "gone": true,
+      "elapsedMs": 42.50780599999416
+    },
+    {
+      "case": "configuration-replacement",
+      "kind": "controllers",
+      "phpVersion": "7.2",
+      "pid": 2906413,
+      "gone": true,
+      "elapsedMs": 49.576914999997825
+    },
+    {
+      "case": "configuration-replacement",
+      "kind": "controllers",
+      "phpVersion": "8.5",
+      "pid": 2906499,
+      "gone": true,
+      "elapsedMs": 44.5005799999999
+    },
+    {
+      "case": "configuration-replacement",
+      "kind": "generic",
+      "phpVersion": "7.2",
+      "pid": 2906624,
+      "gone": true,
+      "elapsedMs": 35.619212000005064
+    },
+    {
+      "case": "configuration-replacement",
+      "kind": "generic",
+      "phpVersion": "8.5",
+      "pid": 2906728,
+      "gone": true,
+      "elapsedMs": 44.92017299999861
+    },
+    {
+      "case": "controller-all-cancelled",
+      "phpVersion": "7.2",
+      "pid": 2906943,
+      "gone": true,
+      "elapsedMs": 36.249645999996574
+    },
+    {
+      "case": "controller-all-cancelled",
+      "phpVersion": "8.5",
+      "pid": 2907143,
+      "gone": true,
+      "elapsedMs": 36.7445630000002
+    },
+    {
+      "case": "all-owners-cancelled",
+      "phpVersion": "7.2",
+      "pid": 2907242,
+      "gone": true,
+      "elapsedMs": 32.04738400000497
+    },
+    {
+      "case": "all-owners-cancelled",
+      "phpVersion": "8.5",
+      "pid": 2907453,
+      "gone": true,
+      "elapsedMs": 21.150949999995646
+    },
+    {
+      "case": "shutdown",
+      "phpVersion": "7.2",
+      "pid": 2907561,
+      "gone": true,
+      "elapsedMs": 9.095243000003393
+    },
+    {
+      "case": "shutdown",
+      "phpVersion": "8.5",
+      "pid": 2907647,
+      "gone": true,
+      "elapsedMs": 9.13705600000685
+    }
+  ],
+  "maximumPhysicalStopMs": 52.58361600000353,
+  "retainedOriginalProtocolCases": 43,
+  "newLifecycleCases": 24,
+  "fullCurrentRegressionQualified": false,
+  "profileUpdated": false,
+  "published": false,
+  "evidenceManifest": "/var/www/node/php-companion/.vscode-test/d1085-provider-lifecycle-evidence/manifest.json",
+  "evidenceFiles": 89,
+  "limitations": [
+    "direct children only",
+    "full current LSP/editor/profile/platform/scale/session qualification remains open"
+  ],
+  "preservedFailures": [
+    "d1076 original/candidate raw results",
+    "d1079 refined four event fixture failures: required services CLI WASM arguments omitted",
+    "d1081 initial four true event/replacement negative controls",
+    "d1083 lint failure: unused local and fixture return annotations",
+    "d1084 verifier stopped on changed server bundle after removing unused local; successful earlier checks retained and fresh actual normal tests executed"
+  ]
+}

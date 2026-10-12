@@ -56,7 +56,11 @@ describe('F14 public manifest baseline', () => {
     const symfony = publicContract(await readJson('packages/php-companion-symfony/package.json') as unknown as Manifest,
       await readJson('packages/php-companion-symfony/package.nls.json'),
       await readJson('packages/php-companion-symfony/package.nls.zh-cn.json'));
-    expect(core).toEqual(baseline.core);
+    const coreBaseline = baseline.core as { commands: Array<{ command: string }> };
+    expect(core).toEqual({ ...coreBaseline, commands: [...coreBaseline.commands, {
+      command: 'phpCompanion.moveMember', title: 'Move PHP Member with Preview', category: 'SoPHP',
+      enablement: 'phpCompanion.safeRenameAvailable',
+    }] });
     expect(symfony).toEqual(baseline.symfony);
     const commands = [...(core.commands as Array<{ command: string; category?: string }>),
       ...(symfony.commands as Array<{ command: string; category?: string }>)];

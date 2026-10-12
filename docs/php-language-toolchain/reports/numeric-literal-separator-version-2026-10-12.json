@@ -1,0 +1,228 @@
+{
+  "qualified": true,
+  "normalBundleSha256": "1a3f9b13ecd5e596f94af6c2ebb981e1180085f8014b0027c88d9f53ade59574",
+  "beforeApiFailures": 16,
+  "beforeTestFailures": 11,
+  "newTestCases": 47,
+  "languageSpecPassed": 340,
+  "originalLanguageSpecCasesPreserved": 320,
+  "relatedLspPassed": 122,
+  "originalRelatedLspCasesPreserved": 95,
+  "productionVersionModeCases": 18,
+  "nativeVersionCases": 90,
+  "nativeVersions": 9,
+  "declarationsUnchanged": 202,
+  "cacheVersionUnchanged": true,
+  "archives": 30,
+  "sourceDiff": [
+    "--- before/index.ts\n",
+    "+++ after/index.ts\n",
+    "@@ -3669,7 +3669,7 @@\n",
+    " const versionNumber = (version: SupportedPhpVersion): number => Number(version.replace('.', ''));",
+    " const SYNTAX_FEATURE_NODE_TYPES = [...new Set([",
+    "   ...Object.keys(FEATURE_VERSIONS),",
+    "-  'argument', 'arguments', 'augmented_assignment_expression', 'integer', 'property_declaration',",
+    "+  'argument', 'arguments', 'augmented_assignment_expression', 'integer', 'float', 'property_declaration',",
+    "   'primitive_type', 'named_type', 'optional_type', 'visibility_modifier', 'anonymous_function',",
+    "   'variadic_placeholder', 'final_modifier', 'abstract_modifier', 'binary_expression',",
+    "   'function_call_expression', 'clone_expression', 'class_constant_access_expression',",
+    "@@ -3797,7 +3797,7 @@\n",
+    "         range = operator;",
+    "       }",
+    "     }",
+    "-    if (nodeType === 'integer' && node.text.includes('_')) rule = { feature: 'numeric literal separator', version: '7.4' };",
+    "+    if ((nodeType === 'integer' || nodeType === 'float') && node.text.includes('_')) rule = { feature: 'numeric literal separator', version: '7.4' };",
+    "     if (nodeType === 'property_declaration' && fieldNode('type')) rule = { feature: 'typed property', version: '7.4' };",
+    "     if (nodeType === 'disjunctive_normal_form_type') rule = { feature: 'DNF type', version: '8.2' };",
+    "     if (nodeType === 'primitive_type') {"
+  ],
+  "stageResults": [
+    {
+      "name": "d2430-before-spec",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-spec",
+        "test",
+        "test/numeric-literal-separators.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2430-before-spec.json"
+      ],
+      "status": "exited",
+      "pid": 54706,
+      "exitCode": 1,
+      "childGone": true,
+      "passed": 15,
+      "failed": 5,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2430-before-analysis",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-server",
+        "test",
+        "test/numeric-literal-analysis.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2430-before-analysis.json"
+      ],
+      "status": "exited",
+      "pid": 54810,
+      "exitCode": 1,
+      "childGone": true,
+      "passed": 7,
+      "failed": 2,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2430-before-stdio",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-server",
+        "test",
+        "test/numeric-literal-separators-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2430-before-stdio.json"
+      ],
+      "status": "exited",
+      "pid": 54895,
+      "exitCode": 1,
+      "childGone": true,
+      "passed": 14,
+      "failed": 4,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2430-build",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "build"
+      ],
+      "status": "exited",
+      "pid": 55310,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2430-after-spec",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-spec",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2430-after-spec.json"
+      ],
+      "status": "exited",
+      "pid": 56264,
+      "exitCode": 0,
+      "childGone": true,
+      "passed": 340,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2430-after-lsp",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-server",
+        "test",
+        "test/numeric-literal-analysis.test.ts",
+        "test/numeric-literal-separators-stdio.test.ts",
+        "test/analysis.test.ts",
+        "test/analysis-null-coalescing-throw.test.ts",
+        "test/projectless-version-stdio.test.ts",
+        "test/native-clone-stdio.test.ts",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2430-after-lsp.json"
+      ],
+      "status": "exited",
+      "pid": 56568,
+      "exitCode": 0,
+      "childGone": true,
+      "passed": 122,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2430-spec-typecheck",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-spec",
+        "typecheck"
+      ],
+      "status": "exited",
+      "pid": 58422,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2430-lsp-typecheck",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-server",
+        "typecheck"
+      ],
+      "status": "exited",
+      "pid": 58465,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2430-lint",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "exec",
+        "eslint",
+        "packages/language-spec/src/index.ts",
+        "packages/language-spec/test/numeric-literal-separators.test.ts",
+        "packages/language-server/test/numeric-literal-analysis.test.ts",
+        "packages/language-server/test/numeric-literal-separators-stdio.test.ts"
+      ],
+      "status": "exited",
+      "pid": 58514,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2430-public-contracts",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "check:public-contracts"
+      ],
+      "status": "exited",
+      "pid": 58548,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    }
+  ],
+  "fullObjectiveComplete": false,
+  "fullVersionMatrixQualified": false,
+  "currentFullRegressionQualified": false,
+  "profileUpdated": false,
+  "fixtureIds": 181,
+  "fixtureFamilies": 14,
+  "uncheckedRoadmapItems": 26,
+  "uncheckedFinalChecks": 6
+}

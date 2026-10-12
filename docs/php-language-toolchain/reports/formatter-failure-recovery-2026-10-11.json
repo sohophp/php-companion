@@ -1,0 +1,211 @@
+{
+  "recordedAtUtc": "2026-10-10T17:24:23.330157+00:00",
+  "fixture": "F11-FORMAT-03",
+  "scope": "Persistent real formatter throwing configuration / preservation / restoration / apply / exact Undo within original full12 Linux source Profile",
+  "source": {
+    "entry": {
+      "path": "/var/www/node/php-companion/test/extension/suite/index.ts",
+      "sha256": "b8dce34af082cf5a257a40880ef1fd3c85b79b4526976f7fa0f462eb937dcca9",
+      "addedCallLine": 837
+    },
+    "helper": {
+      "path": "/var/www/node/php-companion/test/extension/suite/formatterFailure.ts",
+      "sha256": "2defdece25f31fbed66aee2287019754f3631e82cd4d2e99a71eee9bab647587",
+      "function": "verifyFormatterFailureRecovery",
+      "startLine": 5,
+      "endLine": 70
+    }
+  },
+  "compiled": {
+    "/var/www/node/php-companion/dist-test/suite/index.js": "a7bb0e83e3d7f7f8755fa8a666a0b965668b2ea5924b0d1d4c668ee3d4e1e6eb",
+    "/var/www/node/php-companion/dist-test/suite/formatterFailure.js": "72f41b362990f884444002b3ad04d3fba092a48da71b88af59931f4e50234ae0"
+  },
+  "strictCompilePassed": true,
+  "scopedLintPassed": true,
+  "qualifiedCompiledFiles": 92,
+  "originalQualifiedCompiledFilesRetained": 91,
+  "originalQualifiedCompiledFilesUnchanged": 90,
+  "normalRuntimeAssetsUnchanged": 8,
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "failureWitness": {
+    "message": "SoPHP Profile intentional formatter configuration failure",
+    "config": "/tmp/php-companion-packaged-cqd5h2/workspace/.php-cs-fixer.dist.php",
+    "phpVersion": "8.5.9",
+    "phpBinary": "/opt/remi/php85/root/usr/bin/php",
+    "failureResult": "empty",
+    "edits": 0,
+    "bufferUnchanged": true,
+    "versionUnchanged": true,
+    "diskUnchanged": true,
+    "dirtyStateUnchanged": true
+  },
+  "intentionalFormatterExitCode": 1,
+  "recoveryConfigRestoredByteExactly": true,
+  "recoveredRealFormattingApplied": true,
+  "recoveredSingleUndoRestoredExactBuffer": true,
+  "recoveredApplyAndUndoKeptDiskUnchanged": true,
+  "full12ExtensionProfileFunctionPassed": true,
+  "thisProfileRunPerformanceBudgetPassed": true,
+  "feedbackMetrics": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 69,
+      "p95Ms": 83,
+      "maxMs": 1074,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        64,
+        8,
+        7,
+        7,
+        5,
+        7
+      ],
+      "slowRounds": [
+        {
+          "round": 1,
+          "elapsedMs": 1074,
+          "applyEditMs": 3,
+          "diagnosticReadyMs": 104,
+          "hoverReadyMs": 1074
+        }
+      ],
+      "firstCompositeHoverCallMs": 970,
+      "firstRoundServerTimings": {
+        "candidateInvalidatedOpen": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "generationDiskRefresh": {
+          "count": 2,
+          "maxMs": 97,
+          "firstMs": [
+            92,
+            97
+          ]
+        },
+        "generationDiskRefreshEpochRetry": {
+          "count": 1,
+          "maxMs": 92,
+          "firstMs": [
+            92
+          ]
+        },
+        "diagnostics": {
+          "count": 4,
+          "maxMs": 79,
+          "firstMs": [
+            9,
+            79,
+            18,
+            18
+          ]
+        },
+        "documentChangeDiagnostics": {
+          "count": 1,
+          "maxMs": 80,
+          "firstMs": [
+            80
+          ]
+        },
+        "hoverWorkspace": {
+          "count": 1,
+          "maxMs": 926,
+          "firstMs": [
+            926
+          ]
+        },
+        "hoverFrameworkContext": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hoverMemberLookup": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hover": {
+          "count": 1,
+          "maxMs": 931,
+          "firstMs": [
+            931
+          ]
+        }
+      },
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 78,
+      "p95Ms": 110,
+      "maxMs": 503,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        212,
+        212,
+        212,
+        212,
+        212,
+        212,
+        212
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "p95BudgetMs": 150,
+  "originalFullProfileChecksAndBudgetsRetained": true,
+  "original165MsFailurePreserved": true,
+  "performanceRootCauseProvenOrFixed": false,
+  "fullLspCasesForUnchangedRuntime": 1488,
+  "frozenInputsChecked": 31409,
+  "precompileFrozenInputsChecked": 31416,
+  "frozenLinksChecked": 185,
+  "inputsAndRepositoriesUnchangedDuringRun": true,
+  "ownedProcessesGone": true,
+  "audit": "/var/www/node/php-companion/.vscode-test/d1705-mixed-html-profile-terminal-audit.json",
+  "auditSha256": "22eaba79a37d2755030188c33d631977ec1e26d30a22cf11381d2b51fabb2229",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1705-mixed-html-profile-evidence/manifest.json",
+  "manifestSha256": "12e696794e1de49ac3571554f33dbf8997118307be970c40ebe29946db1f0623",
+  "archivedFiles": 67,
+  "numberedFixturesBefore": 152,
+  "numberedFixturesAfter": 153,
+  "familiesWithNumberedInput": 14,
+  "openMajorRoadmapItems": 26,
+  "limitations": [
+    "No Save or Redo qualification from this new failure case",
+    "No Twig apply/failure/Undo qualification from this new case",
+    "PHP runtime 8.5.9 / Linux / VS Code 1.140.0 only; full version and platform matrix remains open",
+    "Original C3 and Windows/createFile limitations remain open",
+    "Original165ms failure retained; this functional verification run does not prove its cause or fix",
+    "Full F11 / P0-P9 / F01-F14 / C1-C4 / R4 and real WSL acceptance remain open"
+  ],
+  "testCodeChanged": true,
+  "productSourceChanged": false,
+  "runtimeChanged": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "fullObjectiveComplete": false
+}

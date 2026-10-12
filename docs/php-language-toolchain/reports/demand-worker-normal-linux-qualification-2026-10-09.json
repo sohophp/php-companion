@@ -1,0 +1,1445 @@
+{
+  "recordedAtUtc": "2026-10-08T16:33:51.178060+00:00",
+  "scope": "Current demand-start worker normal full LSP and original complete Linux editor/source Profile qualification",
+  "qualified": true,
+  "previousGoalTurnClassification": "verified wait",
+  "currentGoalTurnClassification": "progress",
+  "normalRuntimeAssets": [
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "realpath": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "realpath": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "64d443d99fb6b7d5ebd0962fb005d86bf9da271e77a1f3a2a02327485fbe66f3"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "realpath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "realpath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "allEightNormalAssetsMatchQualifiedCandidate": true,
+  "fullLsp": {
+    "files": 110,
+    "cases": 1384,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "exactCaseMultiplicityPreserved": true,
+    "durationSeconds": 2158.4958110259904,
+    "frozenInputCount": 26884,
+    "remainingOwnedProcessGroupPids": []
+  },
+  "originalLinuxEditorWorkflows": [
+    {
+      "name": "d971-normal-demand-full-c3-progressive",
+      "suite": "c3",
+      "mode": "progressive",
+      "durationSeconds": 263.8929904760007,
+      "qualified": true,
+      "actualServers": [
+        {
+          "pid": 2561979,
+          "argv": [
+            "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+            "/var/www/node/php-companion/dist/language-server.js",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+            "--stdio",
+            "--clientProcessId=2561597"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive"
+      },
+      "generationBoundaryRows": 40
+    },
+    {
+      "name": "d971-normal-demand-full-c1-onDemand",
+      "suite": "c1",
+      "mode": "onDemand",
+      "durationSeconds": 115.96516419399995,
+      "qualified": true,
+      "actualServers": [
+        {
+          "pid": 2574253,
+          "argv": [
+            "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+            "/var/www/node/php-companion/dist/language-server.js",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+            "--stdio",
+            "--clientProcessId=2570602"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "settings": {
+        "phpVersion": "auto",
+        "indexingMode": "onDemand"
+      },
+      "generationBoundaryRows": 0
+    },
+    {
+      "name": "d971-normal-demand-full-c2-onDemand",
+      "suite": "c2",
+      "mode": "onDemand",
+      "durationSeconds": 161.2802540190023,
+      "qualified": true,
+      "actualServers": [
+        {
+          "pid": 2575282,
+          "argv": [
+            "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+            "/var/www/node/php-companion/dist/language-server.js",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+            "--stdio",
+            "--clientProcessId=2574858"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      },
+      "generationBoundaryRows": 0
+    },
+    {
+      "name": "d971-normal-demand-full-c3-onDemand",
+      "suite": "c3",
+      "mode": "onDemand",
+      "durationSeconds": 305.4201290380006,
+      "qualified": true,
+      "actualServers": [
+        {
+          "pid": 2579778,
+          "argv": [
+            "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+            "/var/www/node/php-companion/dist/language-server.js",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+            "--stdio",
+            "--clientProcessId=2579391"
+          ]
+        }
+      ],
+      "lifecycle": {
+        "unexpectedCloses": 0,
+        "restartFailures": 0,
+        "pendingVersionRefreshes": 0,
+        "restarting": false,
+        "scheduled": false
+      },
+      "settings": {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand"
+      },
+      "generationBoundaryRows": 40
+    }
+  ],
+  "generationBoundaryRows": 80,
+  "editorFrozenInputCount": 26893,
+  "fullSourceProfileDurationSeconds": 122.41216893099772,
+  "profileInventory": [
+    {
+      "id": "sohophp.php-companion",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d973-current-full-profile-workspace",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d973-current-full-profile-workspace/packages/php-companion-symfony",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d973-current-full-profile-workspace/packages/php-companion-extension-pack",
+      "active": false
+    },
+    {
+      "id": "sohophp.twig-plus",
+      "version": "1.3.8",
+      "extensionPath": "/var/www/node/twig-plus/packages/vscode",
+      "active": true
+    },
+    {
+      "id": "editorconfig.editorconfig",
+      "version": "0.18.2",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/editorconfig.editorconfig-0.18.2",
+      "active": true
+    },
+    {
+      "id": "eiminsasete.apacheconf-snippets",
+      "version": "1.4.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/eiminsasete.apacheconf-snippets-1.4.0",
+      "active": false
+    },
+    {
+      "id": "junstyle.php-cs-fixer",
+      "version": "0.3.21",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/junstyle.php-cs-fixer-0.3.21",
+      "active": true
+    },
+    {
+      "id": "mrmlnc.vscode-apache",
+      "version": "1.2.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/mrmlnc.vscode-apache-1.2.0",
+      "active": false
+    },
+    {
+      "id": "neilbrayfield.php-docblocker",
+      "version": "2.7.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/neilbrayfield.php-docblocker-2.7.0",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-xml",
+      "version": "0.29.3",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/redhat.vscode-xml-0.29.3-linux-x64",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-yaml",
+      "version": "1.24.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/redhat.vscode-yaml-1.24.0",
+      "active": true
+    },
+    {
+      "id": "xdebug.php-debug",
+      "version": "1.40.1",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions/xdebug.php-debug-1.40.1",
+      "active": true
+    }
+  ],
+  "profileActualServers": [
+    2591215,
+    2591780
+  ],
+  "profileLifecycle": {
+    "unexpectedCloses": 0,
+    "restartFailures": 0,
+    "pendingVersionRefreshes": 0,
+    "restarting": false,
+    "scheduled": false
+  },
+  "profileRealVendorScalar": {
+    "noiseFiles": 9100,
+    "rounds": 50,
+    "presentExternalMembers": [
+      "sohophp.twig-plus",
+      "redhat.vscode-yaml",
+      "redhat.vscode-xml",
+      "xdebug.php-debug",
+      "junstyle.php-cs-fixer",
+      "EditorConfig.EditorConfig",
+      "eiminsasete.apacheconf-snippets",
+      "neilbrayfield.php-docblocker"
+    ],
+    "p50Ms": 138,
+    "p95Ms": 153,
+    "maxMs": 1472,
+    "declarationUnsaved": true,
+    "consumerVersion": 1,
+    "definitionWaitMs": [
+      115,
+      447,
+      415,
+      333,
+      442,
+      337
+    ],
+    "slowRounds": [
+      {
+        "round": 1,
+        "elapsedMs": 1472,
+        "applyEditMs": 33,
+        "diagnosticReadyMs": 195,
+        "hoverReadyMs": 1472
+      }
+    ],
+    "firstCompositeHoverCallMs": 1277,
+    "firstRoundServerTimings": {
+      "candidateInvalidatedOpen": {
+        "count": 1,
+        "maxMs": 0,
+        "firstMs": [
+          0
+        ]
+      },
+      "diagnostics": {
+        "count": 4,
+        "maxMs": 35,
+        "firstMs": [
+          26,
+          35,
+          24,
+          24
+        ]
+      },
+      "documentChangeDiagnostics": {
+        "count": 1,
+        "maxMs": 27,
+        "firstMs": [
+          27
+        ]
+      },
+      "generationDiskRefresh": {
+        "count": 2,
+        "maxMs": 270,
+        "firstMs": [
+          117,
+          270
+        ]
+      },
+      "generationDiskRefreshEpochRetry": {
+        "count": 1,
+        "maxMs": 117,
+        "firstMs": [
+          117
+        ]
+      },
+      "hoverWorkspace": {
+        "count": 1,
+        "maxMs": 1191,
+        "firstMs": [
+          1191
+        ]
+      },
+      "hoverFrameworkContext": {
+        "count": 1,
+        "maxMs": 0,
+        "firstMs": [
+          0
+        ]
+      },
+      "hoverMemberLookup": {
+        "count": 1,
+        "maxMs": 0,
+        "firstMs": [
+          0
+        ]
+      },
+      "hover": {
+        "count": 1,
+        "maxMs": 1202,
+        "firstMs": [
+          1202
+        ]
+      }
+    },
+    "nestedPhp72Verified": true
+  },
+  "profileRealVendorUnion": {
+    "rounds": 30,
+    "p50Ms": 504,
+    "p95Ms": 570,
+    "maxMs": 603,
+    "declarationUnsaved": true,
+    "consumerVersion": 3,
+    "hostRssMiB": [
+      214,
+      213,
+      213,
+      214,
+      213,
+      214,
+      215
+    ],
+    "watcherBufferPriority": true,
+    "watcherChanges": 3,
+    "pausedHoverEditWatcher": true
+  },
+  "currentSourceProfileQualified": true,
+  "strictCompiledTestsReusedByExactIdentity": 89,
+  "originalStrictCompilationReexecuted": false,
+  "profileFrozenInputCount": 28286,
+  "originalDependencyCount": 14393,
+  "changedInputsBeforeDocumentation": [],
+  "changedSymlinks": [],
+  "changedRepositoriesBeforeDocumentation": [],
+  "allObservedQualificationControllersAndServersGone": true,
+  "editorWarnings": [
+    {
+      "run": "d971-normal-demand-full-c3-progressive",
+      "potentialListenerLeakWarnings": 1
+    },
+    {
+      "run": "d971-normal-demand-full-c1-onDemand",
+      "potentialListenerLeakWarnings": 0
+    },
+    {
+      "run": "d971-normal-demand-full-c2-onDemand",
+      "potentialListenerLeakWarnings": 0
+    },
+    {
+      "run": "d971-normal-demand-full-c3-onDemand",
+      "potentialListenerLeakWarnings": 1
+    }
+  ],
+  "normalProductSourceChangedThisQualification": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false,
+  "published": false,
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullPlatformMatrixQualified": false,
+  "fullObjectiveComplete": false,
+  "limitations": [
+    "Linux VS Code 1.140.0 current normal source hosts only; no new VSIX or other-platform qualification",
+    "Original source Profile correctness pass does not qualify scalar/union feedback latency",
+    "Earlier 100+1000 editing pass is reused only by exact eight-asset identity; not rerun in this batch",
+    "Five-round editing, scale and long sessions, real WSL use and remaining P0-P9/F01-F14 work remain open",
+    "Original failures, two current listener warnings and createFile fallback Redo boundary remain preserved"
+  ],
+  "evidence": [
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp-constructor-traces/constructor-7.2.jsonl",
+      "source": ".vscode-test/d970-normal-demand-full-lsp-constructor-traces/constructor-7.2.jsonl",
+      "sha256": "7711e0e127c4068d6e4661cab481289a6f1dfbe9cb88f5161147998b62ac6783"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp-constructor-traces/constructor-8.5.jsonl",
+      "source": ".vscode-test/d970-normal-demand-full-lsp-constructor-traces/constructor-8.5.jsonl",
+      "sha256": "add4d074c62616ad8c0fe08bdf6b888d4b2395999d25633456909eff998a7988"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp-controller.log",
+      "source": ".vscode-test/d970-normal-demand-full-lsp-controller.log",
+      "sha256": "8d2e72b56f15b2ca4edecced1239dba638b38cc8ee366b0ce5ac80bf7e856221"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp-input.json",
+      "source": ".vscode-test/d970-normal-demand-full-lsp-input.json",
+      "sha256": "5313982391023063fccb62fc7e808a4531c19e92e27e8e0671e48ba8127cf242"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp-result.json",
+      "source": ".vscode-test/d970-normal-demand-full-lsp-result.json",
+      "sha256": "4c6849c7a13117c0ea40975d00333dc00b270549347cac0ad4ce15f976d157e2"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp-run.json",
+      "source": ".vscode-test/d970-normal-demand-full-lsp-run.json",
+      "sha256": "5b7690ce763e36baa71e7fb76a9243d4bd3169c2159b0bc543a8bcdb18f3c3ee"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-normal-demand-full-lsp.log",
+      "source": ".vscode-test/d970-normal-demand-full-lsp.log",
+      "sha256": "1b1713b7981dc02361e79d0f484a3045c4171420b5448a18cdc26a4b9a272d67"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d970-run-normal-demand-full-lsp.py",
+      "source": ".vscode-test/d970-run-normal-demand-full-lsp.py",
+      "sha256": "5a7ebea5e77e9f3802b13f5a2ea6979ff2d4d25acdb4c84e4cd1c4ba1236a146"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-editor-controller.log",
+      "source": ".vscode-test/d971-normal-demand-editor-controller.log",
+      "sha256": "b6bfdfca50e33c0b4ce0cd67a5226a1aba518bc61700a3f9d71fab9c90c223ae"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-editor-input.json",
+      "source": ".vscode-test/d971-normal-demand-editor-input.json",
+      "sha256": "982a792c44575a95581957b881daf2b4448b5f2f03e8701a458c8c0ee33c4954"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-editor-qualification.json",
+      "source": ".vscode-test/d971-normal-demand-editor-qualification.json",
+      "sha256": "9488b128943d98ba70148ab804fae403ffeaab5ae57b91f9b088aa543017fcc5"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/acceptance-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/acceptance-proof.json",
+      "sha256": "d7332c2beecd2d0bd47c675c1462c677605257736391c90222bb8184c7e5de21"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/c1.code-workspace",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/c1.code-workspace",
+      "sha256": "a4a8b2a2053c3c3800b5d47bb15a2213e5167994886d260873a62b69f19ef389"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/agentHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/agenthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/agenthost.log",
+      "sha256": "0e4875e94adf9a2c53fe68c33df0b279a54bf4fa366a807e8bd8d51615df9cdc"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/editSessions.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/editSessions.log",
+      "sha256": "c1d6e567ed10893289a1d235bf8c0c4dc255ea54c687ca5e0b17136d46cf450b"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/main.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/main.log",
+      "sha256": "4d03586179190b12114cafa1b9e44c6cf78a3bef745bd93446ac9146d22caa6c"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/mcpGateway.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/mcpGateway.log",
+      "sha256": "3abc34ed394a7538f56d39c19ff49c48c46902b5e275c8e435840ba8622d8644"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/network-shared.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/remoteTunnelService.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/sharedprocess.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/telemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/terminal.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/userDataSync.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/userDataSync.log",
+      "sha256": "fe76e4c72218d32fd29346eb81e4ac0b0833997755715ca3917318c61b4fedb1"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/extHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/exthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/exthost.log",
+      "sha256": "4c821d942f572f60e351d95071f916886a078d94c8d4d7ab44efe54a0f02fde6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "8f2abba4035905f7ed5631528a1c3358a30638b32f39223b2c69382858c4acc1"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.git/Git.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.git/Git.log",
+      "sha256": "50526e80632694fce9d5e282a417fa3dbd3f7d79d47a6e75873a85694953c53d"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.github/GitHub.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "104084aa354ce921a99deb8de68de9efa3626ecb434598cf5b4ccebc5b285277"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "d25b4f117bb00e4e4b88f4b0f033a2a93859c9d122e9f2bbc8df2fc6196c66e7"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/network.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/notebook.rendering.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/output_20261009T001926/agentSessionsOutput.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/output_20261009T001926/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/output_20261009T001926/tasks.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/output_20261009T001926/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/renderer.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/renderer.log",
+      "sha256": "7bca89b631316204ade4d36f8f864db927fdb1971eb4af9211f2d803837f1100"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/textModelChanges.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/views.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/host-logs/php-companion-extension-NXWhVA/logs/20261009T001922/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/runtime-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/runtime-proof.json",
+      "sha256": "f77f7947f4b54e8bf1fa75bf62b1c7a6f59f71fdc28a2b8a8cda7163b12d70a0"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-evidence/suite-selection.json",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-evidence/suite-selection.json",
+      "sha256": "40242639700c42deef8c580b38332b5f52121c6fdb820bf5bab6ac983cca4bee"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-owned-display/display-run.json",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-owned-display/display-run.json",
+      "sha256": "78e70a36b8bc9450cb9b91948c196eee29868f91f8ffa9bf07c115766070ab75"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand-owned-display/xserver.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand-owned-display/xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c1-onDemand.log",
+      "source": ".vscode-test/d971-normal-demand-full-c1-onDemand.log",
+      "sha256": "4f59e1c3a2b343f1dcb4b8b99aa845ba529e29e1cfe6c17d503275389a718f7c"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/acceptance-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/acceptance-proof.json",
+      "sha256": "6359cb957887f6642ee43991db947f04825420522b1c4baf43c31ec3ac252ef6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/agentHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/agenthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/agenthost.log",
+      "sha256": "788924dc966dc1ad34e8d8efb4b5a235be520b57f23c9f00f57cb689b9c3f0eb"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/editSessions.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/editSessions.log",
+      "sha256": "d228bcaa608ad382c514b5f39900137e252ed2325be67770ee8eae890096ea2c"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/main.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/main.log",
+      "sha256": "7d4042216805c258af17477bd541468950d0391c33a7b2ce6c70a7f8b6db5344"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/mcpGateway.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/mcpGateway.log",
+      "sha256": "03199b34f3636c45d61c823dc3a6bb5ae0b3eca2783bc7c4da1df71cd9d69f7b"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/network-shared.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/remoteTunnelService.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/sharedprocess.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/telemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/terminal.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/userDataSync.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/userDataSync.log",
+      "sha256": "cec282d63354a3ed36e8f296f7f43c61bd650d25adb91549f65fec5cc58057be"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/extHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/exthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/exthost.log",
+      "sha256": "6750648c669a7867cb9404d3d36bd326c9fe2982e2fb458e00d771051e5843dc"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "910ce55ae920e18a3e451f59e1f6f52b895cf1f5646b6cc0fe172c28ea2202b2"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.git/Git.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.git/Git.log",
+      "sha256": "8c2a4f8b9f5c1042fd1d813e11f122854e483d406e9a079330a62f1b8656a3ed"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.github/GitHub.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "7c667b2973a90e5a1e8d90a07fa492728e984d1028bc622b928d22783d3b9536"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "ae803120219ea798abad08719ecbc31349b53fdc7ac3ef0bd8bbc7bdbd2fdb1f"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/network.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/notebook.rendering.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/output_20261009T002122/agentSessionsOutput.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/output_20261009T002122/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/output_20261009T002122/tasks.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/output_20261009T002122/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/renderer.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/renderer.log",
+      "sha256": "672a06975006d851150f1a2642e3ea85c89b6288849b9ef09ff463db335bc5d5"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/textModelChanges.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/views.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/host-logs/php-companion-extension-XEhdkJ/logs/20261009T002117/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/runtime-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/runtime-proof.json",
+      "sha256": "9279a42f9f53401f0be90979af2fa06edf90c3e8f024eba02d7fdd35c38e9161"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-evidence/suite-selection.json",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-evidence/suite-selection.json",
+      "sha256": "72782b4466da3fce1fd5bc59399aae579c7b307f61c5eaf868a5de56b2f5ff21"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-owned-display/display-run.json",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-owned-display/display-run.json",
+      "sha256": "b90897b7fca1ff7cf248104406036f4ac21f6f0d733b706dbdbe0d1ce77217e3"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand-owned-display/xserver.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand-owned-display/xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c2-onDemand.log",
+      "source": ".vscode-test/d971-normal-demand-full-c2-onDemand.log",
+      "sha256": "b26e8a2e068f74ad12495dd4b9029a7991250c64e95785a5aa3e7f9954a63853"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/acceptance-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/acceptance-proof.json",
+      "sha256": "bd3b1811b02cdaf579d42bbc94171ec95db5121f61154752ae4681798f53fbf3"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/agentHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/agenthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/agenthost.log",
+      "sha256": "d6d3c549b9bfcd00524e57540c7aeee0dbdf9a471f088f0524e108170977dcfb"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/editSessions.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/editSessions.log",
+      "sha256": "efcaf6b4873ac794c9daa2b65cf448d7b3b32b8c38542dbf6377435c2b8ceab5"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/main.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/main.log",
+      "sha256": "f6d0a9b6d55b717a22683e23fbfbf174eff3a1b0d4fa62962a63e0c8e7edf548"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/mcpGateway.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/mcpGateway.log",
+      "sha256": "06297564e2d0f8346db97819dc2a41919d64f9df925cf5fc2105c6eabc474b9d"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/network-shared.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/remoteTunnelService.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/sharedprocess.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/telemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/terminal.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/userDataSync.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/userDataSync.log",
+      "sha256": "8c48a2fcb049177b1941aa946f6d4a13b1b8a190c7fdca493630d7b9b48b64a9"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/extHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/exthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/exthost.log",
+      "sha256": "738f59b45c17cc04cc227d3be2c6825305100b9c34b437db07623b9b3edc6824"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "6a32eae14cf17ae7ac77e4399d842ddc5baf261c38284bdfdaa8d01feacf53ec"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.git/Git.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.git/Git.log",
+      "sha256": "ca950845032006a48fd27221b06ce1ac4f2858603364d5fb0eb26ff5a633664e"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.github/GitHub.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "77fd7b1125a7cf80303057485a643151b364c6234a3509e73a73c7a3b4895707"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "7270b16346451627f8f523cc2aa9de345e516f04300ec252b4cd44ed6521af3a"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/fileWatcher.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/fileWatcher.log",
+      "sha256": "592df3a970e927dbedd61198695a006ad460b73e4e4cb63dab2a1be36028efba"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/network.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/notebook.rendering.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/output_20261009T002402/agentSessionsOutput.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/output_20261009T002402/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/output_20261009T002402/tasks.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/output_20261009T002402/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/renderer.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/renderer.log",
+      "sha256": "20d50a0871fd2a16536825d8a8e766ef3595325233be498eb713b80e5e37ebc5"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/textModelChanges.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/views.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/host-logs/php-companion-extension-RFczss/logs/20261009T002359/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/runtime-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/runtime-proof.json",
+      "sha256": "f82cbc3f56a78d4a555de53c29d86bc8a65b680f2aec73ac0cb107e899e4f65d"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-evidence/suite-selection.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-evidence/suite-selection.json",
+      "sha256": "fe7783c39c600f98e0abb1815671b668eed90340371f835c2effeead00b9ac32"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-owned-display/display-run.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-owned-display/display-run.json",
+      "sha256": "fe2fe9587a87c985f4e6537aa37ff68b54b10f3e6726f121ff5245e54ee01741"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand-owned-display/xserver.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand-owned-display/xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-onDemand.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-onDemand.log",
+      "sha256": "5fadb4295314be7024e603a22d796d9c2e16e158f9455b4c523a10b09362bd50"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/acceptance-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/acceptance-proof.json",
+      "sha256": "ca7ae68b47e379b98d893ecbf87b509ab231309d235035d977a07b9042363dde"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/agentHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/agenthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/agenthost.log",
+      "sha256": "3961ad63e2565b059a70fc18c1742c0d41852d1c24ea2b628e9bcd6b2986c596"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/editSessions.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/editSessions.log",
+      "sha256": "c684fb786dc7bd548e2e7b6a90298dc9b399ddb53a7dd7290796ee04706e8e1c"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/main.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/main.log",
+      "sha256": "e417efe7cc59a91c51596a1428cd8e6d470944b403cb8b37ab83e3c3f7121998"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/mcpGateway.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/mcpGateway.log",
+      "sha256": "aaca0bd1fa8095b499565b86c59caef8a3a1e34901525129ddf6566203c0876e"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/network-shared.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/remoteTunnelService.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/sharedprocess.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/telemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/terminal.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/userDataSync.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/userDataSync.log",
+      "sha256": "3e9bb4bac73aad49c678d417855865440af15c4dcf6e5e8d1cd3659d213e74de"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/extHostTelemetry.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/exthost.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/exthost.log",
+      "sha256": "ebbd4b32ef1d722a3e5f4968e1faae88150418a5fa57411a86bdd6441a7cfe3b"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "a2d02e241b29dc6e6abe23bd99c46a2adc69d019e1857effcf5bf9064e2ddc89"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.git/Git.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.git/Git.log",
+      "sha256": "0e0ce091f56e6a27d177803b2ba9a4b274112255f0933888b24a01aab76b3ec2"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.github/GitHub.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "0df6a728489b7c260b482b3ecd615a5b950a28515b2dd1ae1201207bbe1d366f"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "e4976cc70adcda79a1a05daf5647d50d5e5254d8bddc174ebfb6439a0ac82124"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/fileWatcher.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/fileWatcher.log",
+      "sha256": "320617b15daa7748262af2ee58bb4a476e3182768d962824f950707c3469f628"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/network.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/notebook.rendering.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/output_20261009T001501/agentSessionsOutput.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/output_20261009T001501/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/output_20261009T001501/tasks.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/output_20261009T001501/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/renderer.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/renderer.log",
+      "sha256": "bd011ab47f95cd46b821344504d4ffc2ed123c4e0cbc2e5e6e06c81e4e74d581"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/textModelChanges.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/views.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/host-logs/php-companion-extension-hUvIKT/logs/20261009T001458/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/runtime-proof.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/runtime-proof.json",
+      "sha256": "bbe5df592ba8d9ece5aafe0974b9b997a4fded5bb11bf1a36f2e05f33bf1989a"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-evidence/suite-selection.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-evidence/suite-selection.json",
+      "sha256": "6e54a99df17915025317f2a763ad13548e152c8d47595cfa3a231cc636f6cb0e"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-owned-display/display-run.json",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-owned-display/display-run.json",
+      "sha256": "705dd9c60a0bb3c34f8c2a59bbc16dd66053da93f100c30c75f12e1e668fa744"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive-owned-display/xserver.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive-owned-display/xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-normal-demand-full-c3-progressive.log",
+      "source": ".vscode-test/d971-normal-demand-full-c3-progressive.log",
+      "sha256": "e49e104debaeff9f7aa655eb9b0aca63224cf0760577ed86497e2bf4cf69afc3"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-observed-private-host.cjs",
+      "source": ".vscode-test/d971-observed-private-host.cjs",
+      "sha256": "9377c0da7b01eb6b55b92ca8fd3b05d412f71473adcbcc6cd4cf6e0b15195dc0"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-observer-host-preparation.json",
+      "source": ".vscode-test/d971-observer-host-preparation.json",
+      "sha256": "94157ef90d58aec0187ef55f6f073949b46562ad0c16e2f567484a1e8939e896"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-prepare-demand-editor-observers.py",
+      "source": ".vscode-test/d971-prepare-demand-editor-observers.py",
+      "sha256": "ff81139c5fd217bbce27d19dff7c1f9e66a5bdb6355de78ac202450a41004df3"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-private-host-observer.cjs",
+      "source": ".vscode-test/d971-private-host-observer.cjs",
+      "sha256": "39c5062727f819c3b3042db78cffa4ebff895c6408f14124368db591e297664c"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d971-qualify-demand-editor-hosts.py",
+      "source": ".vscode-test/d971-qualify-demand-editor-hosts.py",
+      "sha256": "841de50869d72f8062c6414dd73edd56578b844197ec0a4a28522e60556d3c23"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-controller.log",
+      "source": ".vscode-test/d973-current-full-profile-controller.log",
+      "sha256": "91ea159fafe07f93f1ff3534e0570947f67f0b572c3ae9647168ea61936f5b16"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/acceptance-proof.json",
+      "source": ".vscode-test/d973-current-full-profile-evidence/acceptance-proof.json",
+      "sha256": "322ea76741ce732c6399d08d51d7dbd9b9ecff6c5117aff1208f98ccfd407351"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/final-workspace-settings.json",
+      "source": ".vscode-test/d973-current-full-profile-evidence/final-workspace-settings.json",
+      "sha256": "ce3ac94ac3dbf67567a89caeedf7b609db3d5c0724638f38df1bbd8d1f4feb42"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/agentHostTelemetry.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/agenthost.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/agenthost.log",
+      "sha256": "8853bc91b38d4b07a599692595b18cd265939a8bfc3993d7622409dd8bd85d2a"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/editSessions.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/editSessions.log",
+      "sha256": "7bfd51c009110843a8f635a5f04de56fce33802976d790df0518841f4b2ebe5e"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/main.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/main.log",
+      "sha256": "75c44e29a3cc88dac46a55296c7e225090eac7bfd2c4b8a5c56f1fdb1a688843"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/mcpGateway.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/mcpGateway.log",
+      "sha256": "75d724a01a5acfc238d7c1813a0ecf672f3b1d2e39a3d8cdd37b4dbd35e3a685"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/network-shared.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/remoteTunnelService.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/sharedprocess.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/telemetry.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/terminal.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/userDataSync.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/userDataSync.log",
+      "sha256": "9ef8a523d49b92b627fb5dbf0913113adab61d66c8e3fff7b0eadce4cabede36"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/extHostTelemetry.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/exthost.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/exthost.log",
+      "sha256": "29bf455f7c1e2a5a4ea0c5caac6de7185551ee1021c14d931ffcca014d280abb"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/1-EditorConfig.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/1-EditorConfig.log",
+      "sha256": "2ff2646456603c11f353068afab48e38c86f7af58ce77755ffbece1c5211d6fa"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/2-YAML Support.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/2-YAML Support.log",
+      "sha256": "fc4a64550371d4a863a06a611a2502b2b4fb0d00fc927ed9f50672124984e84c"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/3-php-cs-fixer.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/3-php-cs-fixer.log",
+      "sha256": "4bc62808d43ae7f35d7b1b18d704a87688d9a910868814ccc9c0d59184323990"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/4-TwigPlus.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/4-TwigPlus.log",
+      "sha256": "688a6ff5c73cbbcf2b7113bfedc20e346d2fd6f5bb2f26aae727148a79b7975b"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/5-XML Support.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/output_logging_20261009T002927/5-XML Support.log",
+      "sha256": "77809a7c674c4ad39b860fa908766e21ad0c5a6cc129b4ad81fac79c3528ec5a"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "0dcb6785342cc598733059a997228a1f20d428a17398b4df2dda8a09a408951b"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.git/Git.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.git/Git.log",
+      "sha256": "3331dd464fcfb92101b990512224ec7f3f2c77fa0c525eab60a000727384916e"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.github/GitHub.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "306dd119a0f3bcb0176938856f37def639a4736981ee0b1e3b90e79105acef04"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "4f878d099aa988bdac989ab2d240e4c66d2788add6c94e3cddf27b1e7a3a4275"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/network.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/notebook.rendering.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/output_20261009T002926/agentSessionsOutput.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/output_20261009T002926/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/output_20261009T002926/tasks.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/output_20261009T002926/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/renderer.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/renderer.log",
+      "sha256": "cd7b0a524f05306af6464030159da5db2fb28611dfb49d64f4ba6e050e4e955d"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/textModelChanges.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/views.log",
+      "source": ".vscode-test/d973-current-full-profile-evidence/host-logs/20261009T002923/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/isolated-user-settings.json",
+      "source": ".vscode-test/d973-current-full-profile-evidence/isolated-user-settings.json",
+      "sha256": "f35e75c5709f6c8f6309115d0bb309a9b7bc8c9aeaca06f1c66e5d3a75746010"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/owned-fixture.json",
+      "source": ".vscode-test/d973-current-full-profile-evidence/owned-fixture.json",
+      "sha256": "e2bebb5a5af909c63b8e297d490d707cab26ec7381827d53175a28c0beea8e83"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/runtime-proof.json",
+      "source": ".vscode-test/d973-current-full-profile-evidence/runtime-proof.json",
+      "sha256": "06b7cb4e3501999a755c6f653612e1208c18281fc4753a1e71e03af88f68c784"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-evidence/suite-selection.json",
+      "source": ".vscode-test/d973-current-full-profile-evidence/suite-selection.json",
+      "sha256": "ad1380a659ab4421a0537f20c0a75603bf654359688645ed7a095fd3717b3c24"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-input.json",
+      "source": ".vscode-test/d973-current-full-profile-input.json",
+      "sha256": "ead120c2443f2c7dd2580f8e5e8564d7871cc9e49c19a1fa4615d07a85a85c48"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile-run.json",
+      "source": ".vscode-test/d973-current-full-profile-run.json",
+      "sha256": "b1cd7162033bdae2794057c0591546f3b3506424b0cc1e18ed78fe2359bccf51"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-full-profile.log",
+      "source": ".vscode-test/d973-current-full-profile.log",
+      "sha256": "73fe8623ffed93fdfa99d7f03988653cd8ad9cc9cf36c5e22d86f500aee8fa2a"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-profile-owned-display/display-run.json",
+      "source": ".vscode-test/d973-current-profile-owned-display/display-run.json",
+      "sha256": "702fb80308f09e70f4af0369adab55d90238738cc96c76759ac4b4faac6f2dda"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-profile-owned-display/xserver.log",
+      "source": ".vscode-test/d973-current-profile-owned-display/xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-profile-preparation.json",
+      "source": ".vscode-test/d973-current-profile-preparation.json",
+      "sha256": "cd29240751392211d895662bb338688c97a7bfdf855251ef28507cfd53e67f28"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-current-profile-preparation.log",
+      "source": ".vscode-test/d973-current-profile-preparation.log",
+      "sha256": "17c55cbb45f0cfbae0851aada0e51a22996d6ddd0600b1daf3a71c3dcb0314b0"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-full-profile-preload.cjs",
+      "source": ".vscode-test/d973-full-profile-preload.cjs",
+      "sha256": "f34c55357710da2c3b62c16497f8442bc125c717374fbdfa700a8f63c157d6b1"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-observed-full-profile.cjs",
+      "source": ".vscode-test/d973-observed-full-profile.cjs",
+      "sha256": "17a988ea09fda5359ad6ce3b89fb770f93bcb606951a87c1706d9fdda691592b"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-prepare-current-profile.py",
+      "source": ".vscode-test/d973-prepare-current-profile.py",
+      "sha256": "74e115acd92c29482be4dcf79514f0feeffa65501b892fe65f954e4f2d125119"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d973-run-current-full-profile.py",
+      "source": ".vscode-test/d973-run-current-full-profile.py",
+      "sha256": "c1541fe0e1e87038e722622c3b3d1a416817b739cddeb214d0b21d57de272b4a"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d974-current-profile-queue-preflight.json",
+      "source": ".vscode-test/d974-current-profile-queue-preflight.json",
+      "sha256": "422741b6043e4dbac1fb292e9433c359861a3a71a1584542029892fe5a63e15e"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d975-current-demand-full-lsp-terminal-review.json",
+      "source": ".vscode-test/d975-current-demand-full-lsp-terminal-review.json",
+      "sha256": "1b1bf128289c876fbee3518d8829c22459168d9247b1e12acce831cadc377e42"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/.vscode-test/d976-record-current-demand-qualification.py",
+      "source": ".vscode-test/d976-record-current-demand-qualification.py",
+      "sha256": "6f171c6dd39347ae4d7ec89ca3333f8cf1bb93990b78d05f0a83d9e2b23819c4"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/docs/php-language-toolchain/future-core-plan.md",
+      "source": "docs/php-language-toolchain/future-core-plan.md",
+      "sha256": "eeea59c0451d007ec889d11215caceb74e7158237ea67b0b562249e1d9b46422"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/docs/php-language-toolchain/roadmap.md",
+      "source": "docs/php-language-toolchain/roadmap.md",
+      "sha256": "0cf7798a48531a379020503345fbf24d807e2a6e8ca804c1432cb9667e7d284f"
+    },
+    {
+      "path": ".vscode-test/d976-normal-demand-qualification-evidence/docs/php-language-toolchain/status.md",
+      "source": "docs/php-language-toolchain/status.md",
+      "sha256": "1cc253415299a05c08c20ce2a2f95ed723a557f36858068daebed309c108f912"
+    }
+  ]
+}

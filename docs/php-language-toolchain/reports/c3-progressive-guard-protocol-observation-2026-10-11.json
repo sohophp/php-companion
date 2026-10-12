@@ -1,0 +1,792 @@
+{
+  "status": "exited",
+  "qualified": true,
+  "originalFullProgressiveAssertionsRetained": true,
+  "privateInMemoryGuardObservation": true,
+  "guardConditions": 40,
+  "originalBundleRecoveredExactly": true,
+  "conditionsEvaluatedOnce": true,
+  "actualClientServerProtocolCaptured": true,
+  "requestCount": 50,
+  "responseCount": 50,
+  "guardEvents": 396,
+  "commandOutcomes": [
+    {
+      "ordinal": 1,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 0
+      }
+    },
+    {
+      "ordinal": 2,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 0
+      }
+    },
+    {
+      "ordinal": 3,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 4,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 5,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 6,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 7,
+      "result": true,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 0
+      }
+    }
+  ],
+  "thirdPreviewBeforeApplyActual": true,
+  "thirdCaller": [
+    {
+      "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+      "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+      "version": 2,
+      "dirty": true,
+      "closed": false
+    }
+  ],
+  "thirdDidChange": [
+    {
+      "epochMs": 1791657206486.2314,
+      "pid": 1797436,
+      "ordinal": 3,
+      "kind": "didChange",
+      "direction": "client",
+      "message": {
+        "jsonrpc": "2.0",
+        "method": "textDocument/didChange",
+        "params": {
+          "textDocument": {
+            "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+            "version": 2
+          },
+          "contentChanges": [
+            {
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 131
+                },
+                "end": {
+                  "line": 0,
+                  "character": 131
+                }
+              },
+              "rangeLength": 0,
+              "text": "\n// user input during preview"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "changedParticipantGuardAndPostPreviewCancellationObserved": true,
+  "thirdGuardTrace": [
+    {
+      "id": 32,
+      "truthy": false,
+      "expression": "!r",
+      "epochMs": 1791657205251.178,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 33,
+      "truthy": false,
+      "expression": "!G||!z",
+      "epochMs": 1791657205251.3794,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 34,
+      "truthy": false,
+      "expression": "F.languageId!==\"php\"",
+      "epochMs": 1791657205251.6042,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 35,
+      "truthy": false,
+      "expression": "!fe",
+      "epochMs": 1791657205253.7356,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 36,
+      "truthy": false,
+      "expression": "!Re",
+      "epochMs": 1791657205254.0112,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 37,
+      "truthy": false,
+      "expression": "!ce",
+      "epochMs": 1791657205254.166,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 39,
+      "truthy": false,
+      "expression": "ve",
+      "epochMs": 1791657205343.041,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 1,
+      "truthy": false,
+      "expression": "!ve",
+      "epochMs": 1791657205346.0596,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 2,
+      "truthy": false,
+      "expression": "x.sourceDiskHash&&ve!==x.sourceDiskHash",
+      "epochMs": 1791657205346.2617,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 3,
+      "truthy": true,
+      "expression": "x.targetHashes",
+      "epochMs": 1791657205348.9778,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 4,
+      "truthy": false,
+      "expression": "Le.some(([se])=>!x.targetHashes?.[se.toString()])",
+      "epochMs": 1791657205349.219,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 5,
+      "truthy": false,
+      "expression": "se===F.toString()",
+      "epochMs": 1791657205349.3457,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 6,
+      "truthy": false,
+      "expression": "!I",
+      "epochMs": 1791657205349.5344,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 7,
+      "truthy": false,
+      "expression": "!Y",
+      "epochMs": 1791657205352.093,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 8,
+      "truthy": false,
+      "expression": "(0,Hl.createHash)(\"sha256\").update(H).digest(\"hex\")!==I",
+      "epochMs": 1791657205352.566,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 5,
+      "truthy": true,
+      "expression": "se===F.toString()",
+      "epochMs": 1791657205352.951,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 5,
+      "truthy": false,
+      "expression": "se===F.toString()",
+      "epochMs": 1791657205353.3472,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 6,
+      "truthy": false,
+      "expression": "!I",
+      "epochMs": 1791657205353.6697,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 7,
+      "truthy": false,
+      "expression": "!Y",
+      "epochMs": 1791657205355.6653,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 8,
+      "truthy": false,
+      "expression": "(0,Hl.createHash)(\"sha256\").update(H).digest(\"hex\")!==I",
+      "epochMs": 1791657205355.8508,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 9,
+      "truthy": false,
+      "expression": "!await we()",
+      "epochMs": 1791657205356.806,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 10,
+      "truthy": false,
+      "expression": "fe.isClosed||fe.version!==K||fe.getText()!==ae",
+      "epochMs": 1791657205357.1125,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 11,
+      "truthy": false,
+      "expression": "$&&$.getText()!==I.text||I.document&&(I.document.isClosed||I.document.version!==I.version||I.document.getText()!==I.text)",
+      "epochMs": 1791657205357.425,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 11,
+      "truthy": false,
+      "expression": "$&&$.getText()!==I.text||I.document&&(I.document.isClosed||I.document.version!==I.version||I.document.getText()!==I.text)",
+      "epochMs": 1791657205357.6885,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 12,
+      "truthy": false,
+      "expression": "!await it()||!T()",
+      "epochMs": 1791657205357.814,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 13,
+      "truthy": false,
+      "expression": "x.generation",
+      "epochMs": 1791657205357.9382,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 15,
+      "truthy": false,
+      "expression": "x.interfaceExtraction",
+      "epochMs": 1791657205358.0823,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 17,
+      "truthy": true,
+      "expression": "x.moveMember",
+      "epochMs": 1791657205358.3643,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 18,
+      "truthy": false,
+      "expression": "!se||await se.sendRequest(\"phpCompanion/validateMoveMember\",{textDocument:{uri:F.toString(),version:K},...x.moveMember})!==!0",
+      "epochMs": 1791657206033.8281,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 19,
+      "truthy": false,
+      "expression": "!await ce(F,ve)",
+      "epochMs": 1791657206036.8882,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 20,
+      "truthy": false,
+      "expression": "!await ce(E.Uri.parse(se),I.diskHash)",
+      "epochMs": 1791657206039.404,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 20,
+      "truthy": false,
+      "expression": "!await ce(E.Uri.parse(se),I.diskHash)",
+      "epochMs": 1791657206042.0764,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 21,
+      "truthy": false,
+      "expression": "!Qe.has(se.toString())",
+      "epochMs": 1791657206042.3147,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 21,
+      "truthy": false,
+      "expression": "!Qe.has(se.toString())",
+      "epochMs": 1791657206042.5046,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 9,
+      "truthy": false,
+      "expression": "!await we()",
+      "epochMs": 1791657206043.295,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 10,
+      "truthy": false,
+      "expression": "fe.isClosed||fe.version!==K||fe.getText()!==ae",
+      "epochMs": 1791657206043.5725,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 11,
+      "truthy": false,
+      "expression": "$&&$.getText()!==I.text||I.document&&(I.document.isClosed||I.document.version!==I.version||I.document.getText()!==I.text)",
+      "epochMs": 1791657206043.7263,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 11,
+      "truthy": false,
+      "expression": "$&&$.getText()!==I.text||I.document&&(I.document.isClosed||I.document.version!==I.version||I.document.getText()!==I.text)",
+      "epochMs": 1791657206043.8586,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 23,
+      "truthy": false,
+      "expression": "!await Q()",
+      "epochMs": 1791657206043.9463,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 24,
+      "truthy": false,
+      "expression": "!await Ie(U(\"applyPreviewedExtract\",x.title),G?.testPreviewAction)",
+      "epochMs": 1791657206421.945,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 25,
+      "truthy": false,
+      "expression": "!Xe(B)",
+      "epochMs": 1791657206422.15,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}",
+        "version": 1,
+        "dirty": false,
+        "closed": false
+      }
+    },
+    {
+      "id": 9,
+      "truthy": false,
+      "expression": "!await we()",
+      "epochMs": 1791657206488.7368,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    },
+    {
+      "id": 10,
+      "truthy": false,
+      "expression": "fe.isClosed||fe.version!==K||fe.getText()!==ae",
+      "epochMs": 1791657206489.3833,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    },
+    {
+      "id": 11,
+      "truthy": true,
+      "expression": "$&&$.getText()!==I.text||I.document&&(I.document.isClosed||I.document.version!==I.version||I.document.getText()!==I.text)",
+      "epochMs": 1791657206489.6655,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    },
+    {
+      "id": 12,
+      "truthy": true,
+      "expression": "!await it()||!T()",
+      "epochMs": 1791657206490.1057,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    },
+    {
+      "id": 26,
+      "truthy": true,
+      "expression": "a.extensionMode===E.ExtensionMode.Test&&await G?.testBeforeApply?.(),!await Q()",
+      "epochMs": 1791657206490.516,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    },
+    {
+      "id": 9,
+      "truthy": false,
+      "expression": "!await we()",
+      "epochMs": 1791657206507.776,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    },
+    {
+      "id": 31,
+      "truthy": true,
+      "expression": "se.length",
+      "epochMs": 1791657206508.6497,
+      "caller": {
+        "uri": "file:///tmp/php-companion-extension-apopsV/src/Service/C3MoveMemberCaller.php",
+        "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+        "version": 2,
+        "dirty": true,
+        "closed": false
+      }
+    }
+  ],
+  "original40GenerationCases": 40,
+  "frozenInputsChecked": 32879,
+  "frozenLinksChecked": 186,
+  "twoRepositoriesUnchanged": true,
+  "copiedFilesVerified": 2482,
+  "compiledInputsVerified": 95,
+  "normalCoreAssetsUnchanged": 8,
+  "normalSymfonyAssetsUnchanged": 8,
+  "normalProductSourceAndRuntimeChanged": false,
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    1796787,
+    1796910,
+    1796912,
+    1796929,
+    1797803,
+    1797436
+  ],
+  "exactOwnedFixture": "/tmp/php-companion-extension-apopsV",
+  "originalProgressiveFailurePreserved": true,
+  "originalFailureRootCauseProvenOrFixed": false,
+  "previousOnDemandFullSuiteRetained": true,
+  "uninstrumentedFullProgressiveQualification": false,
+  "fullFourEditorWorkflowQualification": false,
+  "original165MsFailurePreserved": true,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "recordedAtUtc": "2026-10-10T18:39:05.623722+00:00",
+  "audit": "/var/www/node/php-companion/.vscode-test/d1738-progressive-guard-terminal-audit.json",
+  "auditSha256": "c013af146585cef9fb45cd12114fe0b8324c63f7b536ea2dac2b06f0a1da8f8b",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1738-progressive-guard-archive/manifest.json",
+  "manifestSha256": "1c7dff2a1839db45a2f904551857252e0534582826046e5143e4eb7797dfe3c7",
+  "archivedFiles": 70,
+  "numberedFixtures": 165,
+  "familiesWithNumberedInput": 14,
+  "openMajorRoadmapItems": 26,
+  "diagnosticQualification": true,
+  "productSourceChanged": false,
+  "runtimeFilesChanged": false,
+  "privateManifestMainChanged": true,
+  "packaged": false,
+  "limitations": [
+    "Original full progressive C3 assertions/order run with private in-memory client condition observation",
+    "Each condition is evaluated once; exact normal bundle bytes recovered by reverse substitution; observation can affect timing",
+    "This run captured real client/server frames and editor snapshots; original historical failure root cause remains unproven",
+    "Not uninstrumented full progressive or whole four-workflow/platform/WSL/VSIX/performance/long-session qualification"
+  ]
+}

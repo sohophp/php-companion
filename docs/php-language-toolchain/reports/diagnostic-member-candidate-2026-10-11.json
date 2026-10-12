@@ -1,0 +1,96 @@
+{
+  "terminalAuditQualified": true,
+  "privateCandidateOnly": true,
+  "normalProductChanged": false,
+  "fullPerformanceQualified": false,
+  "candidateAdopted": false,
+  "reason": "Four diagnostic observations do not establish stable warm-edit improvement; retain candidate without adoption.",
+  "actualRuntime": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+  "readonlyProjectFilesRechecked": 66079,
+  "ownedProcessesGone": true,
+  "originalPhasesQueriesAndOutputsExactlyEqual": true,
+  "normalReceiptMs": [
+    5908.7345669999995,
+    3003.994681,
+    2236.462043999998,
+    2306.0305599999992
+  ],
+  "candidateReceiptMs": [
+    3851.330917,
+    2639.363738,
+    2391.348293000001,
+    2269.3634200000015
+  ],
+  "original500msBudgetPassed": false,
+  "normalMembersSelf": [
+    {
+      "function": "members",
+      "url": "file:///var/www/node/php-companion/dist/language-server.js",
+      "lineZeroBased": 254,
+      "columnZeroBased": 13982,
+      "sampledMs": 900.852,
+      "actualBundleSnippet": "e.toLowerCase()));return[...this.composeTraitEntries(r,o,c).map(p=>p.member).filter(p=>!d.has(p.name.toLowerCase())),...u]}members(e,t,n=new Set,l=!1,s,r=!1){let o=e.toLowerCase();if(n.size>=kt||n.has(o))return[];let u=this.referenceMemberCache&&n.size===0?JSON.stringify([e,t,l,r,s&&Object.entries(s).sort(([q],[ae])=>q.localeCompare(ae))]):void 0,f=u?this.referenceMemberCache?.get(u):void 0;if(f)return f;n.add(o);let c=this.fi"
+    }
+  ],
+  "candidateMembersSelf": [
+    {
+      "function": "members",
+      "url": "file:///var/www/node/php-companion/.vscode-test/d2182-diagnostic-member-candidate-runtime/language-server.js",
+      "lineZeroBased": 254,
+      "columnZeroBased": 13982,
+      "sampledMs": 627.337,
+      "actualBundleSnippet": "e.toLowerCase()));return[...this.composeTraitEntries(r,o,c).map(p=>p.member).filter(p=>!d.has(p.name.toLowerCase())),...u]}members(e,t,n=new Set,l=!1,s,r=!1){let o=e.toLowerCase();if(n.size>=kt||n.has(o))return[];let u=!this.referenceMemberCache&&!this.readonlyAnalysisInProgress.size&&!this.generatorInferenceInProgress.size&&!this.contextualClosureInferenceInProgress.size&&!this.capturedValueInferenceInProgress.size&&!this.ass"
+    }
+  ],
+  "normalMembersInclusive": [
+    {
+      "function": "members",
+      "url": "file:///var/www/node/php-companion/dist/language-server.js",
+      "lineZeroBased": 254,
+      "columnZeroBased": 13982,
+      "sampledMs": 2281.085,
+      "actualBundleSnippet": "e.toLowerCase()));return[...this.composeTraitEntries(r,o,c).map(p=>p.member).filter(p=>!d.has(p.name.toLowerCase())),...u]}members(e,t,n=new Set,l=!1,s,r=!1){let o=e.toLowerCase();if(n.size>=kt||n.has(o))return[];let u=this.referenceMemberCache&&n.size===0?JSON.stringify([e,t,l,r,s&&Object.entries(s).sort(([q],[ae])=>q.localeCompare(ae))]):void 0,f=u?this.referenceMemberCache?.get(u):void 0;if(f)return f;n.add(o);let c=this.fi"
+    }
+  ],
+  "candidateMembersInclusive": [
+    {
+      "function": "members",
+      "url": "file:///var/www/node/php-companion/.vscode-test/d2182-diagnostic-member-candidate-runtime/language-server.js",
+      "lineZeroBased": 254,
+      "columnZeroBased": 13982,
+      "sampledMs": 1568.417,
+      "actualBundleSnippet": "e.toLowerCase()));return[...this.composeTraitEntries(r,o,c).map(p=>p.member).filter(p=>!d.has(p.name.toLowerCase())),...u]}members(e,t,n=new Set,l=!1,s,r=!1){let o=e.toLowerCase();if(n.size>=kt||n.has(o))return[];let u=!this.referenceMemberCache&&!this.readonlyAnalysisInProgress.size&&!this.generatorInferenceInProgress.size&&!this.contextualClosureInferenceInProgress.size&&!this.capturedValueInferenceInProgress.size&&!this.ass"
+    }
+  ],
+  "sourceMapsUsed": false,
+  "fullObjectiveComplete": false,
+  "evidenceHashes": {
+    "d2185-private-diagnostic-member-terminal-audit.json": "a035f5a989f11979e7c64f17dd60530a3f193ee4e2aafc7bac0a6fdd94ad0cf7",
+    "d2187-real-controller-member-cpu-run.json": "d76fa2e9e6ad1779c300f718c3a5fb5e646746c0932596cd962a7f01d1cb77ba",
+    "d2186-real-controller-member-cpu/result.json": "dae9db60855980426b869f08bc1dbdca81eec09f8da1bfae7b1f6daef86ef5ad",
+    "d2189-candidate-controller-member-cpu-analysis.json": "fd7150d5b2379210625e55f9cbb6f6d0cd3d6b73f6a424ee0bea7d7241481c19"
+  },
+  "freshSafetyControls": {
+    "controlPassed": 4,
+    "candidatePassed": 4,
+    "coverage": [
+      "within-query source update",
+      "restored declaration",
+      "external fact replacement and removal",
+      "visibility, generic bindings, enum, hooks and eight recursive proof guards"
+    ],
+    "initialHarnessFailuresRetained": true,
+    "initialHarnessFailureReasons": [
+      "ExternalMethodFact lacked required location; contribution rejected",
+      "test reused visited Set mutated by member recursion"
+    ],
+    "correctedControlAndCandidateSameTests": true,
+    "hashes": {
+      "d2190-member-cache-safety-first-failure.json": "65da30be936a7d8571fc39fbf6e646c41883e1ddb50723ca2c828b31a1d27cab",
+      "d2192-member-cache-safety.test.ts": "ef8e389060054921d8c5369b0cbe1f25e6b65ce01e1d9c3432a1cac5086e2eeb",
+      "d2192-member-cache-safety-control-result.json": "182b06a7fa58f0464bbc18f9bd2399f3d29a9456dd41c81202fb7f7fa13ee5c6",
+      "d2192-member-cache-safety-candidate-result.json": "9ad7b1c66c8ab2c4be873b590724d43f5b50786f947815d7b6df845b981b4e66"
+    }
+  },
+  "normalRuntimeSha256": "169e923bda8dd948a37d65f4c78c74c733a63789350966c5b66babafdce0a9fe"
+}

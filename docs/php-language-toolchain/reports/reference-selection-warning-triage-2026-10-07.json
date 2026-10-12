@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestone": "D287",
+  "decision": "retain-original-full-failure-cause-unproven",
+  "productionChanged": false,
+  "coreBundleSha256": "a6e9f6502f27c39697ed6f6b815ee42dfd4206cecc389f5ed48085998ac48506",
+  "originalFull": {
+    "passed": 1320,
+    "failed": 1,
+    "total": 1321,
+    "qualified": false,
+    "failure": [
+      {
+        "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+        "name": "cancels waiting reference selections cleanly in progressive mode",
+        "status": "failed",
+        "durationMs": 3740.034010000003,
+        "failureMessages": [
+          "AssertionError: expected [ { jsonrpc: '2.0', …(2) } ] to deeply equal []\n    at /var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts:263:77\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      }
+    ]
+  },
+  "runs": {
+    "d287-reference-selection-triage": {
+      "status": "exited",
+      "parentPid": 573389,
+      "childPid": 573471,
+      "startedAtUtc": "2026-10-07T10:59:47.799928+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "-t",
+        "^cancels waiting reference selections cleanly in progressive mode$",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d287-reference-selection-triage-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d287-reference-selection-triage-input.json",
+      "exitCode": 0,
+      "durationSeconds": 7.29962080399855,
+      "finishedAtUtc": "2026-10-07T10:59:55.098347+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "d9c6817e54bf25a45da6b0066d5207142e1a384066878403c6808c80eeb135d2"
+    },
+    "d287-shutdown-lifecycle-file": {
+      "status": "exited",
+      "parentPid": 573922,
+      "childPid": 574013,
+      "startedAtUtc": "2026-10-07T11:00:44.664603+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d287-shutdown-lifecycle-file-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d287-shutdown-lifecycle-file-input.json",
+      "exitCode": 0,
+      "durationSeconds": 177.25871776599888,
+      "finishedAtUtc": "2026-10-07T11:03:41.921823+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "f5f5e4551b6c311ebf6b239945952f7b6c00b468a5bdcd6e9f19354ccc6d7489"
+    }
+  },
+  "results": {
+    "d287-reference-selection-triage": {
+      "success": true,
+      "numTotalTests": 36,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 35,
+      "numTodoTests": 0
+    },
+    "d287-shutdown-lifecycle-file": {
+      "success": true,
+      "numTotalTests": 36,
+      "numPassedTests": 36,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    }
+  },
+  "fileFailures": [],
+  "originalWarningTextAvailable": false,
+  "historicalRootCauseProven": false,
+  "originalDependentMemoryDiagnostic": "skipped-after-regression-failure",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-reference-selection-triage-input.json",
+      "sha256": "e6cc90c18331ea553d69c7c352af4a36f3aa718d2e000a9ad5155118b17e172d"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-reference-selection-triage-run.json",
+      "sha256": "e5822cc7592c783290965b0a59456b4fd01773258b4ff523c9fbcda1827fdff7"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-reference-selection-triage-result.json",
+      "sha256": "a2700f1c4815e027c46bb744a87374faf6ad9e9853f1befb98e020841866c79f"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-reference-selection-triage.log",
+      "sha256": "d9c6817e54bf25a45da6b0066d5207142e1a384066878403c6808c80eeb135d2"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-shutdown-lifecycle-file-input.json",
+      "sha256": "1e5523f9555f6a63560659bff04b7d835324fde8c52effcad77a80daf230d2a8"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-shutdown-lifecycle-file-run.json",
+      "sha256": "152322f0bab2b15ea9846b4b7183dc4776668a07869f9ff08aa8a11e0f795faa"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-shutdown-lifecycle-file-result.json",
+      "sha256": "a175db51cdf92d45d444d6c27f84cb00426ed62a87f8bc3f47dd57117cdcf7ba"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-shutdown-lifecycle-file.log",
+      "sha256": "f5f5e4551b6c311ebf6b239945952f7b6c00b468a5bdcd6e9f19354ccc6d7489"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/diagnostic-test.ts",
+      "sha256": "6220d237973175fb99c1296e46ed019d196072e9026d503f7471702605b5e9f0"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/original-full-audit.json",
+      "sha256": "413f2e96d96a4817f61795d6642a41f1e0f39052ec5b35709e36d3110174b64a"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/original-skipped-profile.json",
+      "sha256": "b91b9df9859ab06bd4f5b8c436a23b631e610d7e543c4046f713bb8d74108339"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d282-run.py",
+      "sha256": "be434f0c36a50567a3edfb580dfb917ecb372d9826387b3850eff3d0ff4fdf88"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/d287-record-warning-triage.py",
+      "sha256": "f75fe190415d647e35efe28c2d079f232412df9bf3ac0c4815a47b2a0a4c26f9"
+    },
+    {
+      "path": ".vscode-test/d287-reference-warning-evidence/original-test.ts",
+      "sha256": "ad7791a4e21f933b8c8227a814c1c08f02219257ba286e4adfd7d89f8d4688ef"
+    }
+  ],
+  "archive": ".vscode-test/d287-reference-warning-evidence",
+  "scope": "Only add warning/full-message context to the same strict zero-warning assertion. No deleted checks, changed budgets or product fix. Single selected case excludes 35; full file separately covers all 36. Neither result replaces the failed 99-file full suite."
+}

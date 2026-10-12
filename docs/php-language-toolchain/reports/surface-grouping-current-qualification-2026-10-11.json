@@ -1,0 +1,90 @@
+{
+  "normalBundleSha256": "ac1147152e71b18967f9db0d05524262d0e25d79f937f0e4b57c87ea400af062",
+  "currentNormalSemanticCases": 23862,
+  "currentNormalLspCases": 1530,
+  "qualityGates": 7,
+  "currentReferenceWorkflows": 6,
+  "currentLinuxEditorWorkflows": 4,
+  "currentFull12ExtensionProfileQualified": true,
+  "profileP95Ms": {
+    "scalar": 80,
+    "union-shape": 96
+  },
+  "nativeWindowsC3Qualified": false,
+  "nativeFailure": "Move Member preview-time user edit remained after the original Undo command",
+  "nativeUndoCauseProven": false,
+  "correctedControlCyclesBeforeRestartFailure": 7,
+  "realEditor120SecondControlQualified": true,
+  "twoHourNotStartedAtReport": false,
+  "realProjectEditingPerformanceQualified": false,
+  "realProjectControlTimingScope": "Seven recorded cycles only; not a completed P95 qualification. Actual Controller completion rows include multi-second requests.",
+  "restartReadinessCorrectionPrepared": true,
+  "publicLocalOnlyDiagnosticControls": 8,
+  "fixtureCount": 176,
+  "fixtureFamilies": 14,
+  "roadmapOpenItems": 26,
+  "sourceOrRuntimeChangedForThisQualification": false,
+  "ordinaryProfileUpdated": false,
+  "fullPerformanceQualified": false,
+  "realWslRemoteQualified": false,
+  "fullObjectiveComplete": false,
+  "evidence": {
+    "semantic": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2016-surface-normal-terminal-audit.json",
+      "sha256": "0915dd3cfb99db203a47070a4c128b55fe99ae2135413d8249b5bff7104266fb"
+    },
+    "lsp": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2019-current-full-lsp-terminal-audit.json",
+      "sha256": "5841d4c5650dda2e53299cf5e177e11cd037eb1a0d9dc476a35b8e9257f31f95"
+    },
+    "references": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2022-current-reference-terminal-audit.json",
+      "sha256": "f069f1be1f6f4a542ce8819730411b67a0c01fa959336a5c822f7fd7dbf949da"
+    },
+    "linuxEditor": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2024-current-editor-terminal-audit.json",
+      "sha256": "1602dd51d9402672e902720dfa919fea14a6a7b3a7a89edd955e41d073801d0b"
+    },
+    "fullProfile": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2029-current-full-profile-terminal-audit.json",
+      "sha256": "a0eca841fb519f67ed0117d0ade14a848d7748d52159284e1acff32e311a13ec"
+    },
+    "nativeFailure": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2052-current-native-first-failure-terminal-audit.json",
+      "sha256": "33ed2bb4f9fc4c18a76fde3812340e9e96b1e81cc5747441e271db2448e75c2e"
+    },
+    "originalControlFailure": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2045-first-native-and-real-control-failure-audit.json",
+      "sha256": "71d46258e509832d784a7f9d26e700c71b468cc2930547aa89fbccdfae96b318"
+    },
+    "correctedControlFailure": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2051-real-editor-120-terminal-audit.json",
+      "sha256": "e594fe14274d1d3838162845f978c205f4220c22ed194bea51309ce0659c8242"
+    }
+  },
+  "twoHourStarted": true,
+  "twoHourStatus": "running",
+  "twoHourQualified": false,
+  "correctedShortControl": {
+    "seconds": 120,
+    "actualActiveSeconds": 131.758612575,
+    "cycles": 16,
+    "twoActualRestartRecoveries": true,
+    "actualCacheCorruptionAndRebuild": true,
+    "originalHot150msBudgetPassed": false,
+    "originalDiagnostic500msBudgetPassed": false,
+    "diagnosticTimingScope": "Upper bound measured after the completion/hover/definition sequence and diagnostic polling; actual versioned-publisher latency is not measured",
+    "audit": "/var/www/node/php-companion/.vscode-test/d2061-real-editor-120-terminal-audit.json",
+    "auditSha256": "05d663b32d2c4e8ce75988798551976887a0c4513a487e58a0e102b22ebefa0a"
+  },
+  "verifiedLongStartHandles": {
+    "parentPid": {
+      "pid": 32175,
+      "command": "/home/jason/.pyenv/versions/3.11.9/bin/python3 /var/www/node/php-companion/.vscode-test/d2056-run-real-editor-long.py 7200 "
+    },
+    "childPid": {
+      "pid": 32224,
+      "command": "/home/jason/.pyenv/versions/3.11.9/bin/python3 /var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py --evidence /var/www/node/php-companion/.vscode-test/d2055-real-editor-7200/owned-display -- /home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/.vscode-test/d2054-real-editor-long-helpers/worker.mjs /var/www/node/php-companion/.vscode-test/d2055-real-editor-7200-case.json "
+    }
+  }
+}

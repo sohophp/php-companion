@@ -2,6 +2,10 @@ import * as vscode from 'vscode';
 
 const messages = {
   en: {
+    moveMemberTarget: "Move member to class (fully qualified name)",
+    moveMemberUnavailable: "Cannot move this member safely. Select a public static method and an existing destination class.",
+    moveMemberPreviewTitle: "Move {0} to {1}",
+    moveMemberPreparing: "Preparing member move…",
     auto: 'Auto',
     redetect: 'Re-detect PHP versions',
     settings: 'Open workspace settings',
@@ -151,6 +155,10 @@ const messages = {
     indexLimit: 'Index limit exceeded ({0} files). Narrow phpCompanion.files.exclude or raise indexing.maxFiles.',
   },
   zh: {
+    moveMemberTarget: "将成员移动到类（完整限定类名）",
+    moveMemberUnavailable: "无法安全移动此成员。请选择公开静态方法和现有目标类。",
+    moveMemberPreviewTitle: "将 {0} 移动到 {1}",
+    moveMemberPreparing: "正在准备成员移动…",
     auto: '自动检测',
     redetect: '重新检测 PHP 版本',
     settings: '打开工作区设置',

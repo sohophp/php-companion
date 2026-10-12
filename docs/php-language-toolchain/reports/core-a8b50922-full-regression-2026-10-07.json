@@ -1,0 +1,189 @@
+{
+  "milestone": "D256",
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "coreSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+  "qualified": true,
+  "result": {
+    "numTotalTests": 1313,
+    "numPassedTests": 1313,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "run": {
+    "status": "exited",
+    "phase": "lsp",
+    "parentPid": 34023,
+    "childPid": 34083,
+    "startedAtUtc": "2026-10-07T07:13:56.660473+00:00",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d256-current-lsp-full.json"
+    ],
+    "cwd": "/var/www/node/php-companion/packages/language-server",
+    "exitCode": 0,
+    "durationSeconds": 2054.0001512599993,
+    "finishedAtUtc": "2026-10-07T07:48:10.649286+00:00"
+  },
+  "audit": {
+    "inputs": 4910,
+    "changedInputs": [],
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "headChanged": false,
+    "worktreeChanged": false,
+    "collectionChanged": false,
+    "expectedCases": 1313,
+    "actualCases": 1313,
+    "expectedFiles": 98,
+    "actualFiles": 98,
+    "missing": [],
+    "extra": [],
+    "preexistingDuplicateLabels": [],
+    "duplicateMultiplicityPreserved": true
+  },
+  "runtimes": {
+    "7.2": {
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34"
+    },
+    "7.3": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73",
+      "sha256": "5564207ec9f30fa67f822b031ce74ab701805e9506d5db953faed50d12149be6",
+      "version": "7.3.33"
+    },
+    "7.4": {
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33"
+    },
+    "8.0": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+      "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958",
+      "version": "8.0.30"
+    },
+    "8.1": {
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34"
+    },
+    "8.2": {
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32"
+    },
+    "8.3": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+      "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae",
+      "version": "8.3.35"
+    },
+    "8.4": {
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23"
+    },
+    "8.5": {
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9"
+    }
+  },
+  "nodePath": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+  "nodeVersion": "v22.14.0",
+  "collectedCases": 1313,
+  "collectedFiles": 98,
+  "priorCases": 1313,
+  "missingPriorCases": [],
+  "addedCases": [],
+  "evidence": [
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/d256-current-lsp-input.json",
+      "sha256": "afa0ccb0acb6e6b77cac74bf6f256327a7273dc976eb94f9552c0380ee274970"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/d256-current-lsp-run.json",
+      "sha256": "15d9a7da62166bd634148c598e388c0bcb06a4130e9712c128aa686ea22cead8"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/sophp-d256-current-lsp-full.json",
+      "sha256": "a1d74009d8ce2bddff32561870f56e8e6b59a26c26aa9cbe76b2c82acebf2cfd"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/sophp-d256-current-lsp-collection.json",
+      "sha256": "a2d3f50eccc446150e2d2560b718cbff573ff382d6fb24227373bf19bfd91f16"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/sophp-d256-current-lsp-full.log",
+      "sha256": "d93434c387e0010ee98a675ad79bc3aee3b3624ecd6217c4d0837011670e81ad"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/d256-current-full-run.py",
+      "sha256": "a128ac17a4d96e00c7945f058374287f90029e4deb5840ef18800d14c1527c5a"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/d256-current-audit.py",
+      "sha256": "dbd1f227c1c88cac92ef57b3f0b71fb11c860cd7989f54c16163c58e1a6e04b0"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/d256-current-freeze.py",
+      "sha256": "972346647d7e882b1974761a8682e8d9a9a53c33d3661a51043e31bdedd8b7b7"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/output-completion-progressive.json",
+      "sha256": "22645e95c881264015163789cc0003d86ceee026ab803923eb6c4f44fc5fd937"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "3e90d13603e5c559d677fe482c1d6e3f247f06d34df745bb10af1148074c1fbf"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/onDemand-true.json",
+      "sha256": "2bf06d06756767cb3dd8426a64604d7b0bcc3ec795d3e316086e5031febb50ec"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "00f2372ed645d8b6785f2ed48176ce9882ba02fc8e832ebc4e9bc6fcd1de10b6"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/progressive-false.json",
+      "sha256": "becc11f63702a30f3493e449519495511e2ffb1bd241d80d580bf06954c64914"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/progressive-true.json",
+      "sha256": "698b98354334e7efa77da2a4c48a8d325b0ea624803fa08c958838a0f8559dfe"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "f1b4667bc5775b7650f7d05ee3968f0cf6083842f14af30c18c484d01ff27fe7"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/onDemand-false.json",
+      "sha256": "c0b6c32702bb8653f8af29bb8c4517847af45bf3a3e69faa97bd3ca0b912a5f4"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/sophp-d256-process-observations.jsonl",
+      "sha256": "44294976ddd096b033a4ad933d4c26815999787ab126c17db056af97dd6bef3a"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-evidence/sophp-d256-process-observer.py",
+      "sha256": "095a0ecfb2809f615d1a79ca2719c4deb163988fe193980e8cc78f527018b050"
+    },
+    {
+      "path": ".vscode-test/d256-current-lsp-audit.json",
+      "sha256": "00320a80193bdf51cde95436dbd1db96727b6b42d3629df068ce6e68df70f4fe"
+    }
+  ],
+  "historicalD225FailuresRetained": 14,
+  "historicalTimeoutRootCauseProven": false,
+  "scope": "Complete current LSP suite after bounded asynchronous cache finalization. All original D225 cases and budgets retained, including nine actual PHP CLI syntax cases. No builds, concurrent tests, Profile update or publishing. Original fourteen D225 failures retained separately; no implication of their root cause being fixed. Not real WSL, scale-memory, ordinary-editing or full roadmap qualification.",
+  "profileUpdated": false,
+  "pushed": false,
+  "published": false,
+  "goalComplete": false
+}

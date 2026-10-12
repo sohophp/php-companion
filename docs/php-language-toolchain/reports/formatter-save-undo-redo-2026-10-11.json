@@ -1,0 +1,241 @@
+{
+  "recordedAtUtc": "2026-10-10T17:33:08.551740+00:00",
+  "fixtures": [
+    "F11-FORMAT-04",
+    "F11-FORMAT-05"
+  ],
+  "scope": "Persistent actual Format Document command / explicit Save / exact one Undo / exact one Redo in PHP and Twig, original full12 Linux source Profile",
+  "source": {
+    "entry": {
+      "path": "/var/www/node/php-companion/test/extension/suite/index.ts",
+      "sha256": "cb16ea1b94bd1336695af2854211ae35d19c91dca43d0619e0c10be396dd5c9d",
+      "addedCallLines": [
+        839,
+        849
+      ]
+    },
+    "helper": {
+      "path": "/var/www/node/php-companion/test/extension/suite/formatterSave.ts",
+      "sha256": "148d2b0697b8493ebc73fd7a07845743e8b5c446da8d3b3cc7f446542e9e04ae",
+      "function": "verifyFormatterSaveUndoRedo",
+      "startLine": 5,
+      "endLine": 42
+    }
+  },
+  "compiled": {
+    "/var/www/node/php-companion/dist-test/suite/index.js": "e990cf79661ca5a616594479a9d5ef43b6e0b06cd9cd4b38705786f704d4fb08",
+    "/var/www/node/php-companion/dist-test/suite/formatterSave.js": "1b2e299d8492a51a32394528382c467e4cfbb9d2f51f62d9169709d985d6f494"
+  },
+  "strictCompilePassed": true,
+  "scopedLintPassed": true,
+  "qualifiedCompiledFiles": 93,
+  "previousQualifiedCompiledFilesRetained": 92,
+  "previousQualifiedCompiledFilesUnchanged": 91,
+  "allPreviousCompiledFiles": 99,
+  "allCurrentCompiledFiles": 100,
+  "normalRuntimeAssetsUnchanged": 8,
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "formatterSaveProofs": [
+    {
+      "language": "php",
+      "formatterId": "junstyle.php-cs-fixer",
+      "originalText": "<?php\nclass  ProfileFormat{public function run( ):void{}}\n",
+      "formattedText": "<?php\n\nclass ProfileFormat\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "actualFormatDocumentCommand": true,
+      "savePersistedExactBuffer": true,
+      "undoRestoredExactSource": true,
+      "redoRestoredExactFormat": true,
+      "undoAndRedoKeptSavedDisk": true,
+      "dirtyStates": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "language": "twig",
+      "formatterId": "sohophp.twig-plus",
+      "originalText": "{%if true%}{{ value }}{%endif%}\n",
+      "formattedText": "{% if true %}\n  {{ value }}{% endif %}\n",
+      "actualFormatDocumentCommand": true,
+      "savePersistedExactBuffer": true,
+      "undoRestoredExactSource": true,
+      "redoRestoredExactFormat": true,
+      "undoAndRedoKeptSavedDisk": true,
+      "dirtyStates": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    }
+  ],
+  "previousRealFormatterFailureRecoveryPassed": true,
+  "full12ExtensionProfileFunctionPassed": true,
+  "thisProfileRunPerformanceBudgetPassed": true,
+  "feedbackMetrics": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 71,
+      "p95Ms": 86,
+      "maxMs": 1164,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        64,
+        9,
+        6,
+        10,
+        6,
+        9
+      ],
+      "slowRounds": [
+        {
+          "round": 1,
+          "elapsedMs": 1164,
+          "applyEditMs": 23,
+          "diagnosticReadyMs": 103,
+          "hoverReadyMs": 1164
+        }
+      ],
+      "firstCompositeHoverCallMs": 1062,
+      "firstRoundServerTimings": {
+        "candidateInvalidatedOpen": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "generationDiskRefresh": {
+          "count": 2,
+          "maxMs": 84,
+          "firstMs": [
+            74,
+            84
+          ]
+        },
+        "generationDiskRefreshEpochRetry": {
+          "count": 1,
+          "maxMs": 74,
+          "firstMs": [
+            74
+          ]
+        },
+        "diagnostics": {
+          "count": 4,
+          "maxMs": 30,
+          "firstMs": [
+            5,
+            30,
+            7,
+            7
+          ]
+        },
+        "documentChangeDiagnostics": {
+          "count": 1,
+          "maxMs": 32,
+          "firstMs": [
+            32
+          ]
+        },
+        "hoverWorkspace": {
+          "count": 1,
+          "maxMs": 892,
+          "firstMs": [
+            892
+          ]
+        },
+        "hoverFrameworkContext": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hoverMemberLookup": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hover": {
+          "count": 1,
+          "maxMs": 897,
+          "firstMs": [
+            897
+          ]
+        }
+      },
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 86,
+      "p95Ms": 107,
+      "maxMs": 456,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        219,
+        219,
+        218,
+        218,
+        218,
+        218,
+        219
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "p95BudgetMs": 150,
+  "allPreviousProfileChecksAndBudgetsRetained": true,
+  "original165MsFailurePreserved": true,
+  "performanceRootCauseProvenOrFixed": false,
+  "currentUnchangedRuntimeFullLspCases": 1488,
+  "frozenInputsChecked": 31413,
+  "beforeEditFrozenInputsChecked": 31411,
+  "frozenLinksChecked": 185,
+  "inputsAndRepositoriesUnchangedDuringRun": true,
+  "ownedProcessesGone": true,
+  "audit": "/var/www/node/php-companion/.vscode-test/d1709-mixed-html-profile-terminal-audit.json",
+  "auditSha256": "2d3ed4caada5abd9029f27bcf09851ee0d4fef4cd20f459658abd585113be934",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1709-mixed-html-profile-evidence/manifest.json",
+  "manifestSha256": "afc727fd6b937c2b05021c458d483f98e49a30e24c1b3f3ec55226a0cdd5e116",
+  "archivedFiles": 69,
+  "numberedFixturesBefore": 153,
+  "numberedFixturesAfter": 155,
+  "familiesWithNumberedInput": 14,
+  "openMajorRoadmapItems": 26,
+  "limitations": [
+    "Explicit Format Document followed by Save; format-on-save remains unqualified by this new case",
+    "PHP runtime 8.5.9 / Linux / VS Code 1.140.0 only; full version/platform matrix remains open",
+    "Default formatter selection is verified; all provider registration uniqueness is not proved",
+    "Twig formatter failure recovery remains open",
+    "Original C3/Windows/createFile and 165 ms limitations remain open",
+    "Whole F11/P0-P9/F01-F14/C1-C4/R4, real VSIX, long sessions and real WSL acceptance remain open"
+  ],
+  "testCodeChanged": true,
+  "productSourceChanged": false,
+  "runtimeChanged": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "fullObjectiveComplete": false
+}

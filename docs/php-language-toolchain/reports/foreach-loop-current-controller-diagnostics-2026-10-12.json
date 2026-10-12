@@ -1,0 +1,1101 @@
+{
+  "audit": {
+    "terminalAuditQualified": true,
+    "diagnosticOnly": true,
+    "normalBundleSha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+    "rounds": 4,
+    "readonlyProjectInputsRechecked": 66079,
+    "frozenInputsRechecked": 20,
+    "ownedProcessesGone": true,
+    "diskUnchanged": true,
+    "businessPhpExecuted": false,
+    "actualEditorRuntimeRechecked": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+    "directStdioDiagnosticNotEditorUiQualification": true,
+    "exactFrameKeyIncludesColumn": true,
+    "sourceMapsUsed": false,
+    "diagnosticReceiptMeasuredAtDecoder": true,
+    "diagnosticReceiptLatencyMs": [
+      3820.393555,
+      3062.5286990000004,
+      2554.2453959999984,
+      2457.3877350000002
+    ],
+    "original500msBudgetSatisfiedInTheseFourDiagnosticObservations": false,
+    "originalQueriesAndPhaseOrderPreserved": true,
+    "rawQueryAndDiagnosticPayloadsRetained": true,
+    "fullPerformanceQualified": false,
+    "realEditorPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "analysis": {
+    "diagnosticOnly": true,
+    "normalBundleSha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+    "actualServerPid": 79970,
+    "mainThreadProfile": "/var/www/node/php-companion/.vscode-test/d2291-real-controller-cpu/profiles/CPU.20261012.031830.79970.0.001.cpuprofile",
+    "mainProfileSha256": "968d8885dc9b3b53f96db2c021e89a5826272271ddde20303fb63635a93a1675",
+    "exactFrameKeyIncludesColumn": true,
+    "sourceMapsUsed": false,
+    "originalSourceLineClaims": false,
+    "profileDurationMs": 20170.064,
+    "sampledMs": 20169.664,
+    "topSelf": [
+      {
+        "function": "(idle)",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 2310.985
+      },
+      {
+        "function": "wasm-function[24]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 10750,
+        "sampledMs": 914.636
+      },
+      {
+        "function": "members",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 13982,
+        "sampledMs": 855.012,
+        "actualBundleSnippet": "e.toLowerCase()));return[...this.composeTraitEntries(r,o,c).map(p=>p.member).filter(p=>!d.has(p.name.toLowerCase())),...u]}members(e,t,n=new Set,l=!1,s,r=!1){let o=e.toLowerCase();if(n.size>=kt||n.has(o))return[];let u=this.referenceMemberCache&&n.size===0?JSON.stringify([e,t,l,r,s&&Object.entries(s).sort(([w],[X])=>w.localeCompare(X))]):void 0,f=u?this.referenceMemberCache?.get(u):void 0;if(f)return f;n.add(o);let c=this.file"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 7515,
+        "sampledMs": 739.451,
+        "actualBundleSnippet": "To(e){da(this,ut),da(e,ut+m_),ie._ts_tree_cursor_reset_to_wasm(this.tree[0],e.tree[0]),Zn(this)}},KF=class{static{ke(this,\"Node\")}0=0;_children;_namedChildren;constructor(a,{id:e,tree:t,startIndex:n,startPosition:l,other:s}){Bi(a),this[0]=s,this.id=e,this.tree=t,this.startIndex=n,this.startPosition=l}id;startIndex;startPosition;tree;get typeId(){return Dt(this),ie._ts_node_symbol_wasm(this.tree[0])}get grammarId(){return Dt(th"
+      },
+      {
+        "function": "wasm-function[37]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 31170,
+        "sampledMs": 503.15
+      },
+      {
+        "function": "(garbage collector)",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 436.87
+      },
+      {
+        "function": "signaturesWithImplementation",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 62616,
+        "sampledMs": 412.913,
+        "actualBundleSnippet": "/\\s/u.test(b)&&(_=!0)}if(!(y||R||_))return{name:d[1],argumentsText:l.slice(c+1,t),argumentsStart:c+1}}signaturesWithImplementation(e,t){let n=this.files.get(e);if(!n)return[];if(this.cursorInsideNonPhp(n,t))return[];if(this.cursorInsideSourceTrivia(n,t))return[];let l;for(let C of n.calls)C.argumentsStart<t&&t<C.argumentsEnd&&(!l||C.argumentsStart>l.argumentsStart)&&(l=C);let s=n.source.slice(l?.start??0,t),r=n.source[t]===\")\""
+      },
+      {
+        "function": "sT",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 184,
+        "columnZeroBased": 8690,
+        "sampledMs": 320.632,
+        "actualBundleSnippet": "e(\"node:crypto\");var vs=require(\"node:fs/promises\"),lT=require(\"node:crypto\"),_t=require(\"node:path\"),eT=new Map;async function sT(a){let e=(0,_t.resolve)(a.vendorDirectory??(0,_t.join)(a.root,\"vendor\")),t=(0,_t.join)(e,\"composer\",\"autoload_classmap.php\"),n;try{n=await(0,vs.stat)(t)}catch(u){return u.code===\"ENOENT\"?{kind:\"missing\"}:{kind:\"invalid\"}}if(!n.isFile()||n.size>16*1024*1024)return{kind:\"invalid\"};let l=eT.get(t);if("
+      },
+      {
+        "function": "(program)",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 299.157
+      },
+      {
+        "function": "close",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 290.203
+      },
+      {
+        "function": "wasm-function[70]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 47840,
+        "sampledMs": 261.267
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 10076,
+        "sampledMs": 260.606,
+        "actualBundleSnippet": "ace,o=this.resolveType(e,s.name,r,n);return o?{fqcn:o,nullable:s.nullable}:void 0}classImportAt(e,t,n,l,s){let r=e.imports.filter(f=>f.kind===\"class\"&&f.namespace===n&&f.alias.toLowerCase()===t.toLowerCase());if(!r.length)return;if(this.singleNamespaceRestore.has(e.uri))return r[0];let o=l?.toLowerCase(),u=s??e.declarations.find(f=>f.fqcn.toLowerCase()===o)?.start??e.callables.find(f=>f.fqcn.toLowerCase()===o)?.start;if(u!==vo"
+      },
+      {
+        "function": "stat",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 235.049
+      },
+      {
+        "function": "Dt",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 14382,
+        "sampledMs": 203.326,
+        "actualBundleSnippet": "32\");t+=yt;let u=Sa(e,t);t+=Fn,l[s]={patternIndex:n,name:a.captureNames[o],node:u}}return t}ke(b_,\"unmarshalCaptures\");function Dt(a,e=0){let t=ut+e*Fn;ie.setValue(t,a.id,\"i32\"),t+=yt,ie.setValue(t,a.startIndex,\"i32\"),t+=yt,ie.setValue(t,a.startPosition.row,\"i32\"),t+=yt,ie.setValue(t,a.startPosition.column,\"i32\"),t+=yt,ie.setValue(t,a[0],\"i32\")}ke(Dt,\"marshalNode\");function Sa(a,e=ut){let t=ie.getValue(e,\"i32\");if(e+=yt,t===0)"
+      },
+      {
+        "function": "hasUniqueCallableDeclaration",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 4274,
+        "sampledMs": 199.488,
+        "actualBundleSnippet": "on:${t}`):n>0?this.filesForReferenceKeys(`declaration:type:${t.slice(0,n)}`):[...this.files.values()]}hasUniqueCallableDeclaration(e){let t=e.fqcn.toLowerCase(),n=0;for(let l of this.filesDeclaringCallable(e))for(let s of l.callables)if(s.kind===e.kind&&s.fqcn.toLowerCase()===t&&++n>1)return!1;return n===1}callableDeclarationsForSignature(e){let t=this.files.get(e.uri),n=t?.callables.filter(r=>r.start===e.start&&r.kind===e.kin"
+      },
+      {
+        "function": "update",
+        "url": "node:internal/crypto/hash",
+        "lineZeroBased": 145,
+        "columnZeroBased": 39,
+        "sampledMs": 194.242
+      },
+      {
+        "function": "openFileHandle",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 186.786
+      },
+      {
+        "function": "setValue",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 178,
+        "columnZeroBased": 19977,
+        "sampledMs": 183.374,
+        "actualBundleSnippet": "0,allowUndefined:!0});reportUndefinedSymbols(),removeRunDependency(\"loadDylibs\")},\"loadDylibs\"),noExitRuntime=!0;function setValue(a,e,t=\"i8\"){switch(t.endsWith(\"*\")&&(t=\"*\"),t){case\"i1\":HEAP8[a]=e;break;case\"i8\":HEAP8[a]=e;break;case\"i16\":LE_HEAP_STORE_I16((a>>1)*2,e);break;case\"i32\":LE_HEAP_STORE_I32((a>>2)*4,e);break;case\"i64\":LE_HEAP_STORE_I64((a>>3)*8,BigInt(e));break;case\"float\":LE_HEAP_STORE_F32((a>>2)*4,e);break;case\"d"
+      },
+      {
+        "function": "variableClass",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 78115,
+        "sampledMs": 180.731,
+        "actualBundleSnippet": "(\"right\")].some(c=>c?.type===\"variable_name\"&&c.text===n))return!0;f=f.parent??void 0}}return!1}finally{r?.delete()}}variableClass(e,t,n,l=new Set,s=!1){let r=this.containingScope(e,n);if(!r)return;if(t===\"$this\")return r.containerFqcn&&this.canUseThisInScope(e,r)?{fqcn:r.containerFqcn,nullable:!1}:void 0;if(this.localReferenceBindingBefore(e,r,t,n)){let T=this.linearLocalValueType(e,t,n,!0),$=T&&this.objectGroups(T),L=$?.grou"
+      },
+      {
+        "function": "normalizeString",
+        "url": "node:path",
+        "lineZeroBased": 85,
+        "columnZeroBased": 24,
+        "sampledMs": 174.45
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 15527,
+        "sampledMs": 173.811,
+        "actualBundleSnippet": "typeScopeFqcn:e,calledOnFqcn:e,templateArguments:s,callableTemplates:w.templates,synthetic:\"phpdoc-magic\"})),g=d.callables.filter(w=>w.containerFqcn?.toLowerCase()===o&&(r||![\"__construct\",\"__destruct\"].includes(w.name.toLowerCase()))).filter(y).map(w=>({kind:\"method\",uri:d.uri,start:w.start,end:w.end,name:w.name,fqcn:w.fqcn,parameters:w.parameters.map(X=>({...X,type:p.kind===\"trait\"&&X.type===X.nativeType?X.type:R(X.type,w.fq"
+      },
+      {
+        "function": "wrapSafe",
+        "url": "node:internal/modules/cjs/loader",
+        "lineZeroBased": 1825,
+        "columnZeroBased": 17,
+        "sampledMs": 172.423
+      },
+      {
+        "function": "mkdir",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 166.094
+      },
+      {
+        "function": "wasm-function[71]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 48652,
+        "sampledMs": 161.741
+      },
+      {
+        "function": "Sa",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 14631,
+        "sampledMs": 154.384,
+        "actualBundleSnippet": "tion.row,\"i32\"),t+=yt,ie.setValue(t,a.startPosition.column,\"i32\"),t+=yt,ie.setValue(t,a[0],\"i32\")}ke(Dt,\"marshalNode\");function Sa(a,e=ut){let t=ie.getValue(e,\"i32\");if(e+=yt,t===0)return null;let n=ie.getValue(e,\"i32\");e+=yt;let l=ie.getValue(e,\"i32\");e+=yt;let s=ie.getValue(e,\"i32\");e+=yt;let r=ie.getValue(e,\"i32\");return new KF(Hs,{id:t,tree:a,startIndex:n,startPosition:{row:l,column:s},other:r})}ke(Sa,\"unmarshalNode\");func"
+      },
+      {
+        "function": "callableDeclarationsForSignature",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 4484,
+        "sampledMs": 138.047,
+        "actualBundleSnippet": "or(let s of l.callables)if(s.kind===e.kind&&s.fqcn.toLowerCase()===t&&++n>1)return!1;return n===1}callableDeclarationsForSignature(e){let t=this.files.get(e.uri),n=t?.callables.filter(r=>r.start===e.start&&r.kind===e.kind&&r.fqcn.toLowerCase()===e.fqcn.toLowerCase());if(t&&n?.length===1)return[{file:t,item:n[0]}];let l=[...this.files.values()].flatMap(r=>r.callables.map(o=>({file:r,item:o}))).filter(({item:r})=>r.kind===e.kind"
+      },
+      {
+        "function": "writeBuffer",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 134.999
+      },
+      {
+        "function": "priorReferenceMutations",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 879,
+        "sampledMs": 134.413,
+        "actualBundleSnippet": "e.indexOf(\":\",_.nameEnd),v=g>=0&&g<_.end?g+1:_.start;return e.source.slice(v,_.end).trim()===t.variable}))}priorReferenceMutations(e,t,n,l,s=t.start){let r=[],o=e.scopes.some(u=>u.parentId===t.id&&u.captures.some(f=>f.variable===n&&f.byReference));for(let u of e.calls.filter(f=>f.end<=l&&!f.firstClassCallable&&f.start>=Math.max(t.start,s)&&f.end<=t.end&&this.containingScope(e,f.start)?.id===t.id)){if(u.arguments.some(R=>R.unpa"
+      },
+      {
+        "function": "read",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 133.441
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 22083,
+        "sampledMs": 132.972,
+        "actualBundleSnippet": "LowerCase()),j;return re&&(j=this.templateArgumentsFor(X,re.arguments.map(ue=>La(ue,s)??ue),d,N,e)),this.members(X,t,n,l,j,r).map(ue=>({...ue,calledOnFqcn:e,calledOnTemplateArguments:s}))}),k=[...x,...q,...L,...A],Y=E.some(w=>w.hooked);if(!Y&&E.length>0){let w=new Set(E.map(X=>X.name));Y=q.some(X=>X.kind===\"property\"&&X.hooked&&w.has(X.name))||L.some(X=>X.kind===\"property\"&&X.hooked&&w.has(X.name))}let te=Y?new Map:void 0,ne=Y"
+      },
+      {
+        "function": "RegExp: ^<\\?php\\s*(?:(?:\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)\\s*)*\\$vendorDir = dirname\\(__DIR__\\);\\s*\\$baseDir = dirname\\(\\$vendorDir\\);\\s*return array\\(\\s*([\\s\\S]*?)\\s*\\);\\s*$",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 130.152
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 1025,
+        "sampledMs": 129.565,
+        "actualBundleSnippet": "rt){let r=[],o=e.scopes.some(u=>u.parentId===t.id&&u.captures.some(f=>f.variable===n&&f.byReference));for(let u of e.calls.filter(f=>f.end<=l&&!f.firstClassCallable&&f.start>=Math.max(t.start,s)&&f.end<=t.end&&this.containingScope(e,f.start)?.id===t.id)){if(u.arguments.some(R=>R.unpacked))continue;let f=new Set(u.arguments.flatMap((R,_)=>{let g=R.nameEnd===void 0?-1:e.source.indexOf(\":\",R.nameEnd),v=g>=0&&g<R.end?g+1:R.start;r"
+      },
+      {
+        "function": "get namedChildren",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 10853,
+        "sampledMs": 127.678,
+        "actualBundleSnippet": "y(a),a>0){let t=e;for(let n=0;n<a;n++)this._children[n]=Sa(this.tree,t),t+=Fn;ie._free(e)}}return this._children}get namedChildren(){if(!this._namedChildren){Dt(this),ie._ts_node_named_children_wasm(this.tree[0]);let a=ie.getValue(ut,\"i32\"),e=ie.getValue(ut+yt,\"i32\");if(this._namedChildren=new Array(a),a>0){let t=e;for(let n=0;n<a;n++)this._namedChildren[n]=Sa(this.tree,t),t+=Fn;ie._free(e)}}return this._namedChildren}descenda"
+      },
+      {
+        "function": "structuredClone",
+        "url": "node:internal/worker/js_transferable",
+        "lineZeroBased": 112,
+        "columnZeroBased": 24,
+        "sampledMs": 122.03
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 60183,
+        "sampledMs": 121.043,
+        "actualBundleSnippet": "?this.inferredGeneratorReturnType(t,n):void 0;return l?{...e,returnType:l}:e}signatures(e,t){return this.withImplementationAt(e,t,()=>{let n=Qi.get(this);if(!n||this.readonlyAnalysisInProgress.size||this.generatorInferenceInProgress.size||this.contextualClosureInferenceInProgress.size||this.capturedValueInferenceInProgress.size||this.assertedTargetInferenceInProgress.size||this.valueParameterCallInProgress.size||this.callableV"
+      },
+      {
+        "function": "wasm-function[224]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 144961,
+        "sampledMs": 114.14
+      },
+      {
+        "function": "xl",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 185,
+        "columnZeroBased": 36862,
+        "sampledMs": 113.882,
+        "actualBundleSnippet": "ltValue?.trim()??\"\")||t.trim().startsWith(\"?\")||t.split(\"|\").some(n=>/^(?:null|mixed)$/i.test(n.trim()))?t:`${t}|null`}function xl(a,e){return a===\"method\"||a===\"function\"?e.toLowerCase():e}function Za(a,e,t){return xl(a,e)===xl(a,t)}function pn(a,e){let t=e.lastIndexOf(\"::\");return t<0?xl(a,e):`${e.slice(0,t).toLowerCase()}::${xl(a,e.slice(t+2))}`}function Es(a){return[\"bool\",\"int\",\"float\",\"string\"].includes(st(a))}function V"
+      },
+      {
+        "function": "wasm-function[192]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 135473,
+        "sampledMs": 112.615
+      },
+      {
+        "function": "RegExp: (\\$[A-Za-z_][A-Za-z0-9_]*|[\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*)\\s*(\\?->|->|::)\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([^()]*)$",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 112.078
+      },
+      {
+        "function": "postMessage",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 104.109
+      },
+      {
+        "function": "wasm-function[205]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 138910,
+        "sampledMs": 103.332
+      },
+      {
+        "function": "completionNonPhpRanges",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 217,
+        "columnZeroBased": 83332,
+        "sampledMs": 103.051,
+        "actualBundleSnippet": "\\s/u.test(e.source[n]);)n++;let l=e.commentRanges.find(s=>s.start<=n&&n<s.end);if(!l)break;n=l.end}return n}completionNonPhpRanges(e){if(!e.source.includes(\"?>\")&&/^\\s*<\\?(?:php|=)/u.test(e.source))return[];let t=this.completionNonPhpRangesCache.get(e);if(t)return t;let n=this.trees.get(e.uri),l=n?void 0:this.parser.parseTree(e.source);try{let s=(n??l).rootNode.descendantsOfType([\"text\",\"php_tag\",\"php_end_tag\"]).map(r=>({start"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 11401,
+        "columnZeroBased": 9367,
+        "sampledMs": 102.289,
+        "actualBundleSnippet": "rker.js\");try{let t=new Z0.Worker(e,{workerData:{paths:this.paths}});t.unref();let n={worker:t,pending:0,alive:!0};t.on(\"message\",s=>{n.pending=Math.max(0,n.pending-1);let r=this.waiting.get(s.id);this.waiting.delete(s.id),this.owners.delete(s.id);let o=s;if(\"json\"in s)try{o=JSON.parse(s.json)}catch{o=void 0}let u=o!==null&&typeof o==\"object\"&&\"id\"in o&&o.id===s.id&&(\"kind\"in o&&(o.kind===\"restored\"||o.kind===\"compressed\")||\"f"
+      },
+      {
+        "function": "wasm-function[196]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 136843,
+        "sampledMs": 101.029
+      },
+      {
+        "function": "fstat",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 100.279
+      },
+      {
+        "function": "provenArgumentType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 107208,
+        "sampledMs": 99.12,
+        "actualBundleSnippet": "rty\"&&d.static&&d.name===l.name&&d.readable!==!1);return c.length===1?this.memberDiagnosticType(c[0],!0):void 0}provenArgumentType(e,t,n){let l=e.source.slice(t,n),s=l.trim(),r=t+l.indexOf(s),o=r+s.length;if(s.toLowerCase()===\"null\")return Qe(\"null\");if(/^(?:true|false)$/i.test(s))return Qe(\"bool\");if(/^[+-]?(?:0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)$/.test(s))return Qe(\"int\");if(/^[+-]?(?:(?:[0-9][0-9_]*)?"
+      },
+      {
+        "function": "wasm-function[265]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 160179,
+        "sampledMs": 98.603
+      },
+      {
+        "function": "get typeId",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 7730,
+        "sampledMs": 97.011,
+        "actualBundleSnippet": "other:s}){Bi(a),this[0]=s,this.id=e,this.tree=t,this.startIndex=n,this.startPosition=l}id;startIndex;startPosition;tree;get typeId(){return Dt(this),ie._ts_node_symbol_wasm(this.tree[0])}get grammarId(){return Dt(this),ie._ts_node_grammar_symbol_wasm(this.tree[0])}get type(){return this.tree.language.types[this.typeId]||\"ERROR\"}get grammarType(){return this.tree.language.types[this.grammarId]||\"ERROR\"}get isNamed(){return Dt(t"
+      },
+      {
+        "function": "attributeConstructorAt",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 60961,
+        "sampledMs": 96.444,
+        "actualBundleSnippet": "ributeConstructorAt(n,t);return n&&l?this.resolveSourceType(n,l.name,this.namespaceAt(n,t),void 0,t):void 0}attributeConstructorAt(e,t,n){let l=e.source;if(l.lastIndexOf(\"#[\",t)<0)return;let s=n??this.trees.get(e.uri),r=s?void 0:this.parser.parseTree(l);try{let g=(s??r).rootNode.namedDescendantForIndex(Math.max(0,t-1),t),v=256;for(;g&&v-- >0;){if([\"function_call_expression\",\"member_call_expression\",\"nullsafe_member_call_expres"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 4538,
+        "sampledMs": 93.731,
+        "actualBundleSnippet": "owerCase()===t&&++n>1)return!1;return n===1}callableDeclarationsForSignature(e){let t=this.files.get(e.uri),n=t?.callables.filter(r=>r.start===e.start&&r.kind===e.kind&&r.fqcn.toLowerCase()===e.fqcn.toLowerCase());if(t&&n?.length===1)return[{file:t,item:n[0]}];let l=[...this.files.values()].flatMap(r=>r.callables.map(o=>({file:r,item:o}))).filter(({item:r})=>r.kind===e.kind&&r.fqcn.toLowerCase()===e.fqcn.toLowerCase()),s=l.fil"
+      },
+      {
+        "function": "namespaceAt",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 59519,
+        "sampledMs": 93.437,
+        "actualBundleSnippet": ".insteadOf.some(s=>s.toLowerCase()===t.text.toLowerCase())}return t.context===\"code\"||this.phpDocTypeNameAt(e,t.start)}namespaceAt(e,t){let n=e.declarations.find(s=>t>=s.declarationStart&&t<=s.declarationEnd);if(n)return n.fqcn.split(\"\\\\\").slice(0,-1).join(\"\\\\\");let l=this.containingCallable(e,t);return l?(l.containerFqcn??l.fqcn).split(\"\\\\\").slice(0,-1).join(\"\\\\\"):this.importScope(e,t)?.namespace??e.namespace}withInferredGene"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 15647,
+        "sampledMs": 90.951,
+        "actualBundleSnippet": "es.filter(w=>w.containerFqcn?.toLowerCase()===o&&(r||![\"__construct\",\"__destruct\"].includes(w.name.toLowerCase()))).filter(y).map(w=>({kind:\"method\",uri:d.uri,start:w.start,end:w.end,name:w.name,fqcn:w.fqcn,parameters:w.parameters.map(X=>({...X,type:p.kind===\"trait\"&&X.type===X.nativeType?X.type:R(X.type,w.fqcn)})),returnType:p.kind===\"trait\"&&w.returnType===w.nativeReturnType?w.returnType:R(w.returnType,w.fqcn),nativeReturnTy"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 178,
+        "columnZeroBased": 7379,
+        "sampledMs": 90.283,
+        "actualBundleSnippet": ",e,!0),\"LE_HEAP_STORE_F64\"),LE_HEAP_STORE_I16=ke((a,e)=>HEAP_DATA_VIEW.setInt16(a,e,!0),\"LE_HEAP_STORE_I16\"),LE_HEAP_STORE_I32=ke((a,e)=>HEAP_DATA_VIEW.setInt32(a,e,!0),\"LE_HEAP_STORE_I32\"),LE_HEAP_STORE_I64=ke((a,e)=>HEAP_DATA_VIEW.setBigInt64(a,e,!0),\"LE_HEAP_STORE_I64\"),LE_HEAP_STORE_U32=ke((a,e)=>HEAP_DATA_VIEW.setUint32(a,e,!0),\"LE_HEAP_STORE_U32\"),callRuntimeCallbacks=ke(a=>{for(;a.length>0;)a.shift()(Module)},\"callRunti"
+      },
+      {
+        "function": "getValue",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 178,
+        "columnZeroBased": 9800,
+        "sampledMs": 87.471,
+        "actualBundleSnippet": "s(),O=s(),A=l();(A&h)==E&&m.weakImports.add(O)}else C===v?m.runtimePaths=r():e+=S}return m},\"getDylinkMetadata\");function getValue(a,e=\"i8\"){switch(e.endsWith(\"*\")&&(e=\"*\"),e){case\"i1\":return HEAP8[a];case\"i8\":return HEAP8[a];case\"i16\":return LE_HEAP_LOAD_I16((a>>1)*2);case\"i32\":return LE_HEAP_LOAD_I32((a>>2)*4);case\"i64\":return LE_HEAP_LOAD_I64((a>>3)*8);case\"float\":return LE_HEAP_LOAD_F32((a>>2)*4);case\"double\":return LE_HEA"
+      },
+      {
+        "function": "wasm-function[85]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 73327,
+        "sampledMs": 87.023
+      },
+      {
+        "function": "cursorInsideSourceTrivia",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 67630,
+        "sampledMs": 86.547,
+        "actualBundleSnippet": "(C=>{let S=this.withInferredGeneratorReturn(C);return{...S,...this.signatureContext(y[2],S.parameters)}})}cursorInsideSourceTrivia(e,t){if(e.commentRanges.some(u=>u.start<t&&t<=u.end))return!0;let n=e.stringRanges.find(u=>u.start<t&&t<u.end);if(n)return!e.calls.some(u=>u.argumentsStart<n.start&&n.end<=u.argumentsEnd);let l=e.syntaxErrors.filter(u=>u.start<t&&t<=u.end).sort((u,f)=>u.start-f.start)[0];if(!l)return!1;let s=\"code\""
+      },
+      {
+        "function": "start",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 11401,
+        "columnZeroBased": 9021,
+        "sampledMs": 86.056,
+        "actualBundleSnippet": "s{constructor(e,t=4){this.paths=e;this.maxWorkers=t}paths;maxWorkers;slots=[];waiting=new Map;nextId=0;disabled=!1;warned=!1;start(){if(this.disabled||this.slots.some(t=>t.alive&&t.pending===0)||this.slots.length>=Math.min(this.maxWorkers,(0,X0.availableParallelism)()))return;let e=(0,Ry.resolve)((0,Ry.dirname)(process.argv[1]??\"\"),\"candidateWorker.js\");try{let t=new Z0.Worker(e,{workerData:{paths:this.paths}});t.unref();let n"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 57504,
+        "sampledMs": 82.817,
+        "actualBundleSnippet": "((n,l)=>n.declarationEnd-n.declarationStart-(l.declarationEnd-l.declarationStart))[0]}containingScope(e,t){return e.scopes.filter(n=>t>=n.start&&t<=n.end).sort((n,l)=>n.end-n.start-(l.end-l.start))[0]}variableType(e,t,n,l=new Set){let s=this.variableClass(e,t,n,l);return s?.nullable?void 0:s?.fqcn}variableShapeElementClass(e,t,n,l,s){let r=this.containingScope(e,l);if(!r)return;let o=this.standaloneLocalVariableAnnotationType("
+      },
+      {
+        "function": "y",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 14354,
+        "sampledMs": 80.244,
+        "actualBundleSnippet": "ache?.get(u):void 0;if(f)return f;n.add(o);let c=this.fileAndDeclaration(e),d=c?.file,p=c?.declaration;if(!d||!p)return[];let m,y=w=>l||w.visibility===\"public\"||t?.toLowerCase()===o?!0:w.visibility===\"protected\"&&t!==void 0&&(m??=this.memberVisibilityAllowed(\"protected\",e,t)),R=(w,X)=>{if(p.kind!==\"trait\"||!s||!Object.keys(s).length)return La(w,s);if(!w)return w;if(w.length>8192||Object.values(s).some(j=>j.length>8192))return;"
+      },
+      {
+        "function": "filesForReferenceKeys",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 191,
+        "columnZeroBased": 8510,
+        "sampledMs": 78.178,
+        "actualBundleSnippet": ".replace(e.uri,t)?this.unindexedTypeDependencyUris.delete(e.uri):this.unindexedTypeDependencyUris.add(e.uri)}filesForReferenceKeys(...e){let t=e.every(l=>l.startsWith(\"declaration:\")||l.startsWith(\"import:\")),n=new Set(this.unindexedReferenceCandidateUris);if(!t)for(let l of this.deferredSources.keys())n.add(l);for(let l of e)for(let s of this.referenceCandidates.documents(l))n.add(s);return[...n].sort().flatMap(l=>{let s=this"
+      },
+      {
+        "function": "standaloneLocalVariableAnnotationTag",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 46498,
+        "sampledMs": 76.184,
+        "actualBundleSnippet": "e(u=>!u.negated)&&(o=Qe(\"mixed\")),{applied:!0,type:this.applyDirectFlowNarrowings(e,s,o,n,l)}}standaloneLocalVariableAnnotationTag(e,t,n,l){let s=t.replace(/[.*+?^${}()|[\\]\\\\]/g,\"\\\\$&\"),r=new RegExp(`@(?:(?:phpstan|psalm)-)?var\\\\b[^\\\\r\\\\n]*${s}(?![\\\\p{L}\\\\p{N}_])`,\"iu\"),o=e.commentRanges.filter(d=>d.start>=l.start&&d.end<=n&&e.source.startsWith(\"/**\",d.start)&&r.test(e.source.slice(d.start,d.end))).sort((d,p)=>p.end-d.end).sli"
+      },
+      {
+        "function": "wasm-function[20]",
+        "url": "wasm://wasm/004093e6",
+        "lineZeroBased": 0,
+        "columnZeroBased": 11586,
+        "sampledMs": 73.006
+      },
+      {
+        "function": "get endIndex",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 8473,
+        "sampledMs": 71.57,
+        "actualBundleSnippet": "s_node_has_changes_wasm(this.tree[0])===1}get hasError(){return Dt(this),ie._ts_node_has_error_wasm(this.tree[0])===1}get endIndex(){return Dt(this),ie._ts_node_end_index_wasm(this.tree[0])}get endPosition(){return Dt(this),ie._ts_node_end_point_wasm(this.tree[0]),Dr(ut)}get text(){return R_(this.tree,this.startIndex,this.endIndex,this.startPosition)}get parseState(){return Dt(this),ie._ts_node_parse_state_wasm(this.tree[0])}g"
+      },
+      {
+        "function": "postMessage",
+        "url": "node:internal/worker",
+        "lineZeroBased": 463,
+        "columnZeroBased": 13,
+        "sampledMs": 70.97
+      },
+      {
+        "function": "get type",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 7873,
+        "sampledMs": 69.999,
+        "actualBundleSnippet": "this),ie._ts_node_symbol_wasm(this.tree[0])}get grammarId(){return Dt(this),ie._ts_node_grammar_symbol_wasm(this.tree[0])}get type(){return this.tree.language.types[this.typeId]||\"ERROR\"}get grammarType(){return this.tree.language.types[this.grammarId]||\"ERROR\"}get isNamed(){return Dt(this),ie._ts_node_is_named_wasm(this.tree[0])===1}get isExtra(){return Dt(this),ie._ts_node_is_extra_wasm(this.tree[0])===1}get isError(){return"
+      }
+    ],
+    "topInclusive": [
+      {
+        "function": "(root)",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 20169.664
+      },
+      {
+        "function": "ps",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 11403,
+        "columnZeroBased": 50468,
+        "sampledMs": 11449.613,
+        "actualBundleSnippet": "async function yQ(a,e,t){return eE(a,e,t,a.missingRequiredArguments(t.uri).filter(n=>n.callable.includes(\"::\")))}async function ps(a,e=0,t=!1){if(pt)return;let n=bt?performance.now():0,l=a.version;if(e>0&&(await new Promise(b=>setTimeout(b,e)),ge.get(a.uri)!==a||a.version!==l))return;let s;try{s=await Ta(a.uri)}catch(b){if(pt)return;throw b}if(pt)return;let r=Ke(a.uri),o=ma(a.uri),u=Xt(o,\"8.1\")?s.neverReturningCalls(a.uri,!r||"
+      },
+      {
+        "function": "incompatibleArguments",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 15658,
+        "sampledMs": 5772.922,
+        "actualBundleSnippet": "eBoundResolver(n,[o.containerFqcn],o.containerFqcn);r(f,o.type,o.containerFqcn,\"property\",o.fqcn,c)}return l}incompatibleArguments(e,t=!1){let n=!Qi.has(this);n&&Qi.set(this,{generation:0,entries:new Map});try{let l=this.files.get(e);return l?l.calls.flatMap(s=>{if(s.arguments.some(d=>d.unpacked))return[];let r=this.completedCallSignature(l,s);if(!r)return[];if(t&&r.uri!==e&&!r.uri.startsWith(\"php-companion-builtin:\"))return[]"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 15787,
+        "sampledMs": 5768.055,
+        "actualBundleSnippet": "s(e,t=!1){let n=!Qi.has(this);n&&Qi.set(this,{generation:0,entries:new Map});try{let l=this.files.get(e);return l?l.calls.flatMap(s=>{if(s.arguments.some(d=>d.unpacked))return[];let r=this.completedCallSignature(l,s);if(!r)return[];if(t&&r.uri!==e&&!r.uri.startsWith(\"php-companion-builtin:\"))return[];if(!(r.synthetic===\"phpdoc-callable\"||r.synthetic===\"closure-literal\")){if(r.kind===\"function\"){if(this.callableDeclarationsForS"
+      },
+      {
+        "function": "withImplementationAt",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 191,
+        "columnZeroBased": 5967,
+        "sampledMs": 5610.984,
+        "actualBundleSnippet": "deferredImplementations.get(e);t&&this.loadCallableImplementations(e,t.snapshot.callables.map(n=>n.identity))}withImplementationAt(e,t,n){this.loadSourceImplementation(e);let l=this.deferredImplementations.get(e);if(!l)return n();let s=l.snapshot.callables.filter(r=>t>=r.start&&t<=r.end).sort((r,o)=>r.end-r.start-(o.end-o.start))[0];if(this.loadCallableImplementations(e,s?[s.identity]:[]),!this.deferredImplementations.has(e))r"
+      },
+      {
+        "function": "signatures",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 60140,
+        "sampledMs": 5473.313,
+        "actualBundleSnippet": "cn.toLowerCase()&&s.start===e.start),l=t&&n?this.inferredGeneratorReturnType(t,n):void 0;return l?{...e,returnType:l}:e}signatures(e,t){return this.withImplementationAt(e,t,()=>{let n=Qi.get(this);if(!n||this.readonlyAnalysisInProgress.size||this.generatorInferenceInProgress.size||this.contextualClosureInferenceInProgress.size||this.capturedValueInferenceInProgress.size||this.assertedTargetInferenceInProgress.size||this.valueP"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 60183,
+        "sampledMs": 5446.482,
+        "actualBundleSnippet": "?this.inferredGeneratorReturnType(t,n):void 0;return l?{...e,returnType:l}:e}signatures(e,t){return this.withImplementationAt(e,t,()=>{let n=Qi.get(this);if(!n||this.readonlyAnalysisInProgress.size||this.generatorInferenceInProgress.size||this.contextualClosureInferenceInProgress.size||this.capturedValueInferenceInProgress.size||this.assertedTargetInferenceInProgress.size||this.valueParameterCallInProgress.size||this.callableV"
+      },
+      {
+        "function": "signaturesWithImplementation",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 247,
+        "columnZeroBased": 62616,
+        "sampledMs": 5323.394,
+        "actualBundleSnippet": "/\\s/u.test(b)&&(_=!0)}if(!(y||R||_))return{name:d[1],argumentsText:l.slice(c+1,t),argumentsStart:c+1}}signaturesWithImplementation(e,t){let n=this.files.get(e);if(!n)return[];if(this.cursorInsideNonPhp(n,t))return[];if(this.cursorInsideSourceTrivia(n,t))return[];let l;for(let C of n.calls)C.argumentsStart<t&&t<C.argumentsEnd&&(!l||C.argumentsStart>l.argumentsStart)&&(l=C);let s=n.source.slice(l?.start??0,t),r=n.source[t]===\")\""
+      },
+      {
+        "function": "provenArgumentType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 107208,
+        "sampledMs": 4115.067,
+        "actualBundleSnippet": "rty\"&&d.static&&d.name===l.name&&d.readable!==!1);return c.length===1?this.memberDiagnosticType(c[0],!0):void 0}provenArgumentType(e,t,n){let l=e.source.slice(t,n),s=l.trim(),r=t+l.indexOf(s),o=r+s.length;if(s.toLowerCase()===\"null\")return Qe(\"null\");if(/^(?:true|false)$/i.test(s))return Qe(\"bool\");if(/^[+-]?(?:0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)$/.test(s))return Qe(\"int\");if(/^[+-]?(?:(?:[0-9][0-9_]*)?"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 16415,
+        "sampledMs": 3758.924,
+        "actualBundleSnippet": "Templates:void 0,f=u?.length?this.phpDocTemplateBoundResolver(o,[r.fqcn],r.typeScopeFqcn,u):void 0,c=0;return s.arguments.flatMap(d=>{let p=d.name?r.parameters.find(O=>O.name===d.name):r.parameters[Math.min(c++,Math.max(0,r.parameters.length-1))];if(!p)return[];let m=d.nameEnd===void 0?-1:l.source.indexOf(\":\",d.nameEnd),y=m>=0&&m<d.end?m+1:d.start,R=r.synthetic===\"phpdoc-callable\"&&p.type?tt(p.type).type:void 0,_=!p.nativeType"
+      },
+      {
+        "function": "signature",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 249,
+        "columnZeroBased": 693,
+        "sampledMs": 3599.613,
+        "actualBundleSnippet": "start<=r&&r<o.end){r=Math.min(t,o.end)-1;continue}e.source[r]===\"(\"?l.push(r):e.source[r]===\")\"&&l.pop()}return l.at(-1)}signature(e,t){let n=this.signatures(e,t);return n.length===1?n[0]:void 0}completedCallSignature(e,t){let n=this.completedCallSignatures(e,t);return n.length===1?n[0]:void 0}completedCallSignatures(e,t){if(t.kind===\"constructor\"&&this.constructorTargetMayVary(e,t))return[];if(t.kind===\"function\"&&[\"isset\",\"e"
+      },
+      {
+        "function": "variableClass",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 78115,
+        "sampledMs": 3493.155,
+        "actualBundleSnippet": "(\"right\")].some(c=>c?.type===\"variable_name\"&&c.text===n))return!0;f=f.parent??void 0}}return!1}finally{r?.delete()}}variableClass(e,t,n,l=new Set,s=!1){let r=this.containingScope(e,n);if(!r)return;if(t===\"$this\")return r.containerFqcn&&this.canUseThisInScope(e,r)?{fqcn:r.containerFqcn,nullable:!1}:void 0;if(this.localReferenceBindingBefore(e,r,t,n)){let T=this.linearLocalValueType(e,t,n,!0),$=T&&this.objectGroups(T),L=$?.grou"
+      },
+      {
+        "function": "signatureForParsedCall",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 231,
+        "columnZeroBased": 12589,
+        "sampledMs": 3228.383,
+        "actualBundleSnippet": "h.start}:${h.end}`,h])).values()];return{uri:e,start:o.start,end:o.end,name:o.name,fqcn:o.fqcn,locations:b}}signatureForParsedCall(e,t){if(t.kind===\"constructor\"&&this.constructorTargetMayVary(e,t))return;if(t.kind===\"constructor\"&&t.argumentsStart===t.argumentsEnd){let l=this.signaturesForParsedCall(e,t);return l.length===1?l[0]:void 0}return this.signature(e.uri,t.argumentsStart+1)??(t.arguments[0]?this.signature(e.uri,t.arg"
+      },
+      {
+        "function": "pQ",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 11403,
+        "columnZeroBased": 49652,
+        "sampledMs": 2779.77,
+        "actualBundleSnippet": "return r&&Ie.console.info(`[test-constructor-proof] revision=${s} current=${a.revision()} proven=${p.length}`),p}async function pQ(a,e,t){let n=new Map,l=a.incompatibleArguments(t.uri).filter(s=>{if(!s.callable.includes(\"::\"))return!1;if(a.directScalarLiteralArgument(t.uri,s.start,s.end,s.actualType)||a.directQuotedStringArgument(t.uri,s.start,s.end,s.actualType)||a.stableLocalScalarLiteralArgument(t.uri,s.start,s.end,s.actual"
+      },
+      {
+        "function": "scalarArgumentFact",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 249,
+        "columnZeroBased": 19640,
+        "sampledMs": 2614.102,
+        "actualBundleSnippet": "ber(e.replaceAll(\"_\",\"\"));if(Number.isFinite(l))return{type:Yt(l),numericKind:\"float\"}}return t?{type:t}:void 0}scalarArgumentFact(e,t,n){let l=e.source.slice(t,n).trim(),s=this.directNativeScalarFact(l);if(s)return s;if(!/^\\$[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*$/.test(l)){let c=this.provenArgumentType(e,t,n);return c?{type:c}:void 0}let r=this.trees.get(e.uri),o=r?void 0:this.parser.parseTree(e.source),u=r??o;try{let c=dt"
+      },
+      {
+        "function": "members",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 13982,
+        "sampledMs": 2328.591,
+        "actualBundleSnippet": "e.toLowerCase()));return[...this.composeTraitEntries(r,o,c).map(p=>p.member).filter(p=>!d.has(p.name.toLowerCase())),...u]}members(e,t,n=new Set,l=!1,s,r=!1){let o=e.toLowerCase();if(n.size>=kt||n.has(o))return[];let u=this.referenceMemberCache&&n.size===0?JSON.stringify([e,t,l,r,s&&Object.entries(s).sort(([w],[X])=>w.localeCompare(X))]):void 0,f=u?this.referenceMemberCache?.get(u):void 0;if(f)return f;n.add(o);let c=this.file"
+      },
+      {
+        "function": "(idle)",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 2310.985
+      },
+      {
+        "function": "linearLocalValueType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 22031,
+        "sampledMs": 2263.037,
+        "actualBundleSnippet": "sion\"].includes(f.type)&&!this.documentedCallOutputType(e,f,n))return!1;r.push(...f.namedChildren)}}}return!0}linearLocalValueType(e,t,n,l=!1){let s=this.containingScope(e,n);if(!s)return;let r=this.trees.get(e.uri),o=r?void 0:this.parser.parseTree(e.source),u=r??o;try{let Y=function(J){let pe=J.childForFieldName(\"body\"),Oe=J.namedChildren.filter(Te=>Te.type===\"else_if_clause\").map(Te=>Te.childForFieldName(\"body\")),$e=J.namedC"
+      },
+      {
+        "function": "completedCallSignatures",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 249,
+        "columnZeroBased": 881,
+        "sampledMs": 2203.931,
+        "actualBundleSnippet": "void 0}completedCallSignature(e,t){let n=this.completedCallSignatures(e,t);return n.length===1?n[0]:void 0}completedCallSignatures(e,t){if(t.kind===\"constructor\"&&this.constructorTargetMayVary(e,t))return[];if(t.kind===\"function\"&&[\"isset\",\"empty\"].includes(e.source.slice(t.nameStart,t.nameEnd).toLowerCase()))return[];let n=this.signaturesForParsedCall(e,t),l=e.source.slice(t.argumentsStart+1,Math.max(t.argumentsStart+1,t.argu"
+      },
+      {
+        "function": "Ia",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 186,
+        "columnZeroBased": 1908,
+        "sampledMs": 2014.369,
+        "actualBundleSnippet": "_PARAMETER:32,TARGET_CONSTANT:64,TARGET_ALL:127,IS_REPEATABLE:1024},kt=64,Fq=4,Ll=16,qq=64,js=256,Xi=1e5,CT=32,ET=2048;function Ia(a,e){let t=[{node:a,depth:0}],n=0;for(;t.length;){let l=t.pop();if(n+=1,n>Xi||l.depth>js)return{complete:!1,stopped:!1};let s=e(l.node,l.depth);if(s===\"stop\")return{complete:!0,stopped:!0};if(s!==\"skip\")for(let r=l.node.namedChildren.length-1;r>=0;r-=1)t.push({node:l.node.namedChildren[r],depth:l.d"
+      },
+      {
+        "function": "get namedChildren",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 10853,
+        "sampledMs": 1931.548,
+        "actualBundleSnippet": "y(a),a>0){let t=e;for(let n=0;n<a;n++)this._children[n]=Sa(this.tree,t),t+=Fn;ie._free(e)}}return this._children}get namedChildren(){if(!this._namedChildren){Dt(this),ie._ts_node_named_children_wasm(this.tree[0]);let a=ie.getValue(ut,\"i32\"),e=ie.getValue(ut+yt,\"i32\");if(this._namedChildren=new Array(a),a>0){let t=e;for(let n=0;n<a;n++)this._namedChildren[n]=Sa(this.tree,t),t+=Fn;ie._free(e)}}return this._namedChildren}descenda"
+      },
+      {
+        "function": "signaturesForParsedCall",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 249,
+        "columnZeroBased": 1941,
+        "sampledMs": 1910.612,
+        "actualBundleSnippet": "lass\"||r.finalClass)return!1;let o=this.constructorsFor(s);return o.length!==1||!o[0].callable.finalMethod}signaturesForParsedCall(e,t){if(t.kind!==\"constructor\"||t.argumentsStart!==t.argumentsEnd)return this.signatures(e.uri,t.argumentsStart+1);let n=this.containingCallable(e,t.start)?.containerFqcn,l=e.source.slice(t.nameStart,t.nameEnd),s=this.resolveSourceType(e,l,this.namespaceAt(e,t.nameStart),n),r=s&&this.fileAndDeclara"
+      },
+      {
+        "function": "missingRequiredArguments",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 13633,
+        "sampledMs": 1837.623,
+        "actualBundleSnippet": "n.start,end:n.end,name:n.name,ownerFqcn:p,kind:n.kind,operatorStart:d,operatorEnd:d+r[2].length}]:[]}):[]}missingRequiredArguments(e,t=!1){let n=this.files.get(e);return n?n.calls.flatMap(l=>{if(l.firstClassCallable)return[];if(!l.flat||l.arguments.some(c=>c.unpacked))return[];let s=this.signatureForParsedCall(n,l);if(!s)return[];if(t&&s.uri!==e)return[];if(t&&s.kind===\"method\"&&!this.hasUniqueCallableDeclaration(s))return[];i"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 13691,
+        "sampledMs": 1832.672,
+        "actualBundleSnippet": "atorStart:d,operatorEnd:d+r[2].length}]:[]}):[]}missingRequiredArguments(e,t=!1){let n=this.files.get(e);return n?n.calls.flatMap(l=>{if(l.firstClassCallable)return[];if(!l.flat||l.arguments.some(c=>c.unpacked))return[];let s=this.signatureForParsedCall(n,l);if(!s)return[];if(t&&s.uri!==e)return[];if(t&&s.kind===\"method\"&&!this.hasUniqueCallableDeclaration(s))return[];if(s.kind===\"function\"&&s.synthetic!==\"phpdoc-callable\"&&s."
+      },
+      {
+        "function": "readonlyPropertyAssignments",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 34560,
+        "sampledMs": 1782.944,
+        "actualBundleSnippet": "turn e.readonlyClass?this.fileAndDeclaration(e.typeScopeFqcn)?.declaration.anonymous?\"8.3\":\"8.2\":\"8.1\"}readonlyPropertyAssignments(e){let t=this.files.get(e);if(!t)return[];if(this.readonlyAnalysisInProgress.has(e))return[];this.readonlyAnalysisInProgress.add(e);try{let n=[],l=new Map,s=(y,R,_)=>{let g=this.memberAt(e,y+1);if(g?.kind!==\"property\"||!g.readonly||!this.hasCompleteHierarchy(g.calledOnFqcn))return;let v=this.contai"
+      },
+      {
+        "function": "completedCallSignature",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 249,
+        "columnZeroBased": 780,
+        "sampledMs": 1776.266,
+        "actualBundleSnippet": "r]===\")\"&&l.pop()}return l.at(-1)}signature(e,t){let n=this.signatures(e,t);return n.length===1?n[0]:void 0}completedCallSignature(e,t){let n=this.completedCallSignatures(e,t);return n.length===1?n[0]:void 0}completedCallSignatures(e,t){if(t.kind===\"constructor\"&&this.constructorTargetMayVary(e,t))return[];if(t.kind===\"function\"&&[\"isset\",\"empty\"].includes(e.source.slice(t.nameStart,t.nameEnd).toLowerCase()))return[];let n=thi"
+      },
+      {
+        "function": "dt",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 186,
+        "columnZeroBased": 2259,
+        "sampledMs": 1571.848,
+        "actualBundleSnippet": "namedChildren.length-1;r>=0;r-=1)t.push({node:l.node.namedChildren[r],depth:l.depth+1})}return{complete:!0,stopped:!1}}function dt(a,e,t,n){if(e<t){if(e<a.startIndex||t>a.endIndex)return;let o=[],u=a.namedDescendantForIndex(e,t);for(;u;){if(o.push(u),o.length>js+1)return;if(u.id===a.id)break;u=u.parent}if(o.at(-1)?.id!==a.id)return;let f;for(let c of o.reverse())c.isNamed&&n(c)&&(f=c);return f}let l,s=-1;return Ia(a,(o,u)=>e<o"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 21754,
+        "sampledMs": 1500.755,
+        "actualBundleSnippet": "M.get(X)??0)+1)}let x=P.filter(w=>M.get(`${w.kind}:${xl(w.kind,w.name)}`)===1),q=[...p.extendsNames,...p.implementsNames].flatMap(w=>{let X=this.resolveSourceType(d,w,N);if(!X)return[];let re=d.genericParents.find(ue=>ue.ownerFqcn.toLowerCase()===e.toLowerCase()&&this.resolveSourceType(d,ue.parentName,N,e)?.toLowerCase()===X.toLowerCase()),j;return re&&(j=this.templateArgumentsFor(X,re.arguments.map(ue=>La(ue,s)??ue),d,N,e)),t"
+      },
+      {
+        "function": "get parent",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 12191,
+        "sampledMs": 1458.377,
+        "actualBundleSnippet": "_wasm(this.tree[0]),Sa(this.tree)}get descendantCount(){return Dt(this),ie._ts_node_descendant_count_wasm(this.tree[0])}get parent(){return Dt(this),ie._ts_node_parent_wasm(this.tree[0]),Sa(this.tree)}childWithDescendant(a){return Dt(this),Dt(a,1),ie._ts_node_child_with_descendant_wasm(this.tree[0]),Sa(this.tree)}descendantForIndex(a,e=a){if(typeof a!=\"number\"||typeof e!=\"number\")throw new Error(\"Arguments must be numbers\");Dt"
+      },
+      {
+        "function": "callResultType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 53904,
+        "sampledMs": 1453.163,
+        "actualBundleSnippet": "(ua(\"Generator\"),nt(...f),nt(...c),Qe(\"mixed\"),R))}finally{this.generatorInferenceInProgress.delete(l),r?.delete()}}callResultType(e,t,n){let l=e.calls.find(u=>u.start===t&&u.end===n);if(!l)return;if(l.firstClassCallable)return ua(\"Closure\");let s=this.dynamicCallResultType(e,l);if(s)return s;let r=this.completedCallSignatures(e,l);if(r.length&&r.every(u=>u.synthetic===\"phpdoc-magic\"))return this.documentedMethodCallResult(e,l"
+      },
+      {
+        "function": "undefinedVariables",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 226,
+        "columnZeroBased": 16092,
+        "sampledMs": 1234.635,
+        "actualBundleSnippet": "c.includes(\"\\\\\")&&!t.has(c)||l.has(c)?[]:[{uri:e,start:r.start,end:r.end,kind:\"constant\",name:r.text,fqcn:c}]})}undefinedVariables(e){let t=this.files.get(e);if(!t)return[];if(t.syntaxErrors.some(d=>{let p=t.source.lastIndexOf(`"
+      },
+      {
+        "function": "updateSource",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 191,
+        "columnZeroBased": 11177,
+        "sampledMs": 1122.133,
+        "actualBundleSnippet": "{return this.updateSource(e,t,!1,!0)}updatePrepared(e,t,n){return this.updateSource(e,t,!1,n.kind===\"declarations\",n)}updateSource(e,t,n,l,s){if(s&&n)throw new TypeError(\"Prepared PHP facts cannot retain a syntax tree.\");this.recordMutation(e),this.referenceResultCache.clear(),this.clearSourceImplementation(e);let r=this.files.get(e),o=this.constructorInitializationSummaries.size>0||this.factoryConstructionSummaries.size>0,u=r"
+      },
+      {
+        "function": "wasm-function[192]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 135473,
+        "sampledMs": 1078.164
+      },
+      {
+        "function": "Sa",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 14631,
+        "sampledMs": 1062.831,
+        "actualBundleSnippet": "tion.row,\"i32\"),t+=yt,ie.setValue(t,a.startPosition.column,\"i32\"),t+=yt,ie.setValue(t,a[0],\"i32\")}ke(Dt,\"marshalNode\");function Sa(a,e=ut){let t=ie.getValue(e,\"i32\");if(e+=yt,t===0)return null;let n=ie.getValue(e,\"i32\");e+=yt;let l=ie.getValue(e,\"i32\");e+=yt;let s=ie.getValue(e,\"i32\");e+=yt;let r=ie.getValue(e,\"i32\");return new KF(Hs,{id:t,tree:a,startIndex:n,startPosition:{row:l,column:s},other:r})}ke(Sa,\"unmarshalNode\");func"
+      },
+      {
+        "function": "resolvedCallResultType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 60976,
+        "sampledMs": 1030.841,
+        "actualBundleSnippet": "s.memberDiagnosticType(A[0]);if(!N)return;C.push(N)}if(!C.length)return;let S=nt(...C);return c?bs(S):Xa(S)}resolvedCallResultType(e,t,n){let l=this.callableDeclarationsForSignature(n);if(l.length!==1)return;let s=l[0].file,r=this.builtinArrayMapNullZipResultType(e,t,n,s);if(r)return r;let o=n.uri.startsWith(\"php-companion-builtin:\")&&n.fqcn.toLowerCase()===\"array_map\"&&t.arguments.length>=3&&t.arguments.length<=17&&!t.argumen"
+      },
+      {
+        "function": "wasm-function[205]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 138910,
+        "sampledMs": 1005.851
+      },
+      {
+        "function": "yQ",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 11403,
+        "columnZeroBased": 50355,
+        "sampledMs": 942.349,
+        "actualBundleSnippet": "})}async function mQ(a,e,t){return eE(a,e,t,a.unknownNamedArguments(t.uri).filter(n=>n.callable.includes(\"::\")))}async function yQ(a,e,t){return eE(a,e,t,a.missingRequiredArguments(t.uri).filter(n=>n.callable.includes(\"::\")))}async function ps(a,e=0,t=!1){if(pt)return;let n=bt?performance.now():0,l=a.version;if(e>0&&(await new Promise(b=>setTimeout(b,e)),ge.get(a.uri)!==a||a.version!==l))return;let s;try{s=await Ta(a.uri)}catc"
+      },
+      {
+        "function": "wasm-function[24]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 10750,
+        "sampledMs": 914.636
+      },
+      {
+        "function": "callableVariableResultType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 90325,
+        "sampledMs": 876.377,
+        "actualBundleSnippet": ",u)!==\"no\"))))return!1}return!n.parameters.some((R,_)=>R.defaultValue===void 0&&!R.variadic&&!c.has(_))}callableVariableResultType(e,t,n){let l=this.trees.get(e.uri),s=l?void 0:this.parser.parseTree(e.source),r=l??s,o,u=t,f=n;try{let T=TT(r.rootNode,L=>L.endIndex>=t&&L.startIndex<=n&&L.startIndex>=t&&L.endIndex<=n&&L.type===\"function_call_expression\"&&L.childForFieldName(\"function\")?.type===\"variable_name\",{start:t,end:n}),$=T"
+      },
+      {
+        "function": "TT",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 186,
+        "columnZeroBased": 3167,
+        "sampledMs": 848.81,
+        "actualBundleSnippet": "(?:\\.\\.\\.|&)/.test(n.text)&&n.namedChildren.length>=1&&n.namedChildren.length<=2&&n.namedChildren.every(l=>K_(l,e,t)))}function TT(a,e,t){let n;return Ia(a,s=>t&&(s.endIndex<t.start||s.startIndex>t.end)?\"skip\":e(s)?(n=s,\"stop\"):\"descend\").complete?n:void 0}function tl(a,e){let t=Math.min(e,a.length),n=t;for(;t>0&&/[A-Za-z0-9_\\\\\\u0080-\\uffff]/.test(a[t-1]);)t-=1;for(;n<a.length&&/[A-Za-z0-9_\\\\\\u0080-\\uffff]/.test(a[n]);)n+=1;re"
+      },
+      {
+        "function": "callArgumentsCompatible",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 88510,
+        "sampledMs": 821.067,
+        "actualBundleSnippet": "actual,N,p)!==\"yes\"){C=!1;break}}C&&b.push(S)}return[...new Map(b.map(E=>[JSON.stringify(E),E])).values()]}callArgumentsCompatible(e,t,n,l,s,r=!1){let o=this.expandedCallArguments(e,t.start,t.end);if(!o)return!1;let u=this.typeRelationContext(),f=n.callableTemplates??l.templates.filter(R=>R.ownerFqcn.toLowerCase()===n.fqcn.toLowerCase()),c=new Set,d=new Set,p=n.parameters.findIndex(R=>R.variadic),m=0,y=!1;for(let R of o){let _"
+      },
+      {
+        "function": "KF",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 7555,
+        "sampledMs": 777.865,
+        "actualBundleSnippet": "e_cursor_reset_to_wasm(this.tree[0],e.tree[0]),Zn(this)}},KF=class{static{ke(this,\"Node\")}0=0;_children;_namedChildren;constructor(a,{id:e,tree:t,startIndex:n,startPosition:l,other:s}){Bi(a),this[0]=s,this.id=e,this.tree=t,this.startIndex=n,this.startPosition=l}id;startIndex;startPosition;tree;get typeId(){return Dt(this),ie._ts_node_symbol_wasm(this.tree[0])}get grammarId(){return Dt(this),ie._ts_node_grammar_symbol_wasm(this"
+      },
+      {
+        "function": "c",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 228,
+        "columnZeroBased": 478,
+        "sampledMs": 765.51,
+        "actualBundleSnippet": ",\"$_COOKIE\",\"$_SESSION\",\"$_REQUEST\",\"$_ENV\"]),o=[],u=new Map,f=(d,p)=>!!(d&&p.startIndex>=d.startIndex&&p.endIndex<=d.endIndex),c=(d,p,m)=>{let y=d.parent;for(;y&&y!==p;){if(m(y))return y;y=y.parent}};try{let d=new Map,p=(y,R,_)=>{if(r.has(R)||R===\"$this\")return!0;let g=y&&d.get(y);return g?(g.definitions.get(R)??[]).some(v=>v<=_)||g.dynamicDefinitionOffsets.some(v=>v<=_):!0},m=[...t.scopes].sort((y,R)=>R.end-R.start-(y.end-y."
+      },
+      {
+        "function": "N",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 185,
+        "columnZeroBased": 15521,
+        "sampledMs": 764.066,
+        "actualBundleSnippet": ")!==!1},I=!1,O=!1,A=(ne,U)=>{ne.project?I=!0:O=!0,s.push(`${ne.project?\"Project source\":\"Dependency source\"} ${ne.path} ${U}`)},N=async(ne,U)=>{let z;try{z=await U(ne)}catch{return{inspectFailed:!0}}let V={size:z.size,mtimeMs:z.mtimeMs,ctimeMs:z.ctimeMs};if(V.size>t.maxFileSizeBytes)return{info:V};if(e.skipSource?.(ne,V))return{info:V,omitted:!0};let w=f.get(ne),X=\"source\"in z&&typeof z.source==\"string\"?z.source:void 0,re;if(e"
+      },
+      {
+        "function": "update",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 191,
+        "columnZeroBased": 10978,
+        "sampledMs": 745.405,
+        "actualBundleSnippet": "nstructionCaches();else{for(let u of o)this.factoryConstructionSummaries.delete(u);this.removeCallableDependencyEntries(o)}}update(e,t,n=!1){return this.updateSource(e,t,n,!1)}updateDeclarations(e,t){return this.updateSource(e,t,!1,!0)}updatePrepared(e,t,n){return this.updateSource(e,t,!1,n.kind===\"declarations\",n)}updateSource(e,t,n,l,s){if(s&&n)throw new TypeError(\"Prepared PHP facts cannot retain a syntax tree.\");this.recor"
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 7515,
+        "sampledMs": 739.451,
+        "actualBundleSnippet": "To(e){da(this,ut),da(e,ut+m_),ie._ts_tree_cursor_reset_to_wasm(this.tree[0],e.tree[0]),Zn(this)}},KF=class{static{ke(this,\"Node\")}0=0;_children;_namedChildren;constructor(a,{id:e,tree:t,startIndex:n,startPosition:l,other:s}){Bi(a),this[0]=s,this.id=e,this.tree=t,this.startIndex=n,this.startPosition=l}id;startIndex;startPosition;tree;get typeId(){return Dt(this),ie._ts_node_symbol_wasm(this.tree[0])}get grammarId(){return Dt(th"
+      },
+      {
+        "function": "parse",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 181,
+        "columnZeroBased": 3854,
+        "sampledMs": 713.614,
+        "actualBundleSnippet": ";if(!s)throw new Error(\"Tree-sitter returned no recovered parse tree.\");this.recoveredSyntaxTrees.add(s)}else break}return s}parse(e,t,n=\"\"){let l=this.cachedDocuments.get(n);if(!t&&n&&l?.source===e){this.cachedDocuments.delete(n),this.cachedDocuments.set(n,l);let r=l.tree.copy();return this.recoveredSyntaxTrees.has(l.tree)&&this.recoveredSyntaxTrees.add(r),{...NE(l.facts),tree:r}}let s=this.parseDocument(e,t,n);if(n){let{tree"
+      },
+      {
+        "function": "sT",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 184,
+        "columnZeroBased": 8690,
+        "sampledMs": 681.686,
+        "actualBundleSnippet": "e(\"node:crypto\");var vs=require(\"node:fs/promises\"),lT=require(\"node:crypto\"),_t=require(\"node:path\"),eT=new Map;async function sT(a){let e=(0,_t.resolve)(a.vendorDirectory??(0,_t.join)(a.root,\"vendor\")),t=(0,_t.join)(e,\"composer\",\"autoload_classmap.php\"),n;try{n=await(0,vs.stat)(t)}catch(u){return u.code===\"ENOENT\"?{kind:\"missing\"}:{kind:\"invalid\"}}if(!n.isFile()||n.size>16*1024*1024)return{kind:\"invalid\"};let l=eT.get(t);if("
+      },
+      {
+        "function": "parseDocument",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 181,
+        "columnZeroBased": 5170,
+        "sampledMs": 603.158,
+        "actualBundleSnippet": "kind:\"full\",facts:s,controlFlowAssignments:E_(l,s.assignments),namespaceScopes:Ou(e,l.rootNode)}}finally{l.delete()}}parseDocument(e,t,n=\"\",l=!1){let s=this.parseTree(e,t),r=s.rootNode.hasError,o=[],u=[],f=[],c=[{id:\"@global\",kind:\"global\",parameters:[],captures:[],start:0,end:s.rootNode.endIndex}],d=[],p=[],m=[],y=[],R=[],_=[],g=[],v=[],b=[],h=[],E=[],C=[],S=[],I=[],O=[],A=[],N=[],T=new Set,$=s.rootNode.descendantsOfType([..."
+      },
+      {
+        "function": "",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 184,
+        "columnZeroBased": 6063,
+        "sampledMs": 582.894,
+        "actualBundleSnippet": " t=JSON.stringify(e),n=Buffer.byteLength(t);if(n>JE)throw new RangeError(\"Cache payload exceeded its size limit.\");let l=sd(t),s=(async()=>{if(await(0,pa.mkdir)(this.staging,{recursive:!0}),this.disposed)throw new Error(\"Cache store disposed.\");let r=(0,Wl.join)(this.staging,l+\".json\");try{let o=await(0,pa.open)(r,\"wx\");try{await o.writeFile(t)}finally{await o.close()}}catch(o){if(o.code!==\"EEXIST\")throw o}return{payloadHash:l"
+      },
+      {
+        "function": "js-to-wasm",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 542.619
+      },
+      {
+        "function": "wasm-function[70]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 47840,
+        "sampledMs": 507.907
+      },
+      {
+        "function": "wasm-function[37]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 31170,
+        "sampledMs": 503.15
+      },
+      {
+        "function": "localReferenceBindingBefore",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 251,
+        "columnZeroBased": 77540,
+        "sampledMs": 482.371,
+        "actualBundleSnippet": "=>this.fileAndDeclaration(u.fqcn))&&(!r.nullable||l)?{...o,nullable:r.nullable,groups:r.groups}:void 0}localReferenceBindingBefore(e,t,n,l){if(!e.source.slice(t.start,l).includes(\"&\"))return!1;let s=this.trees.get(e.uri),r=s?void 0:this.parser.parseTree(e.source);try{let o=(s??r).rootNode;for(let u of e.variableReferences.filter(f=>f.scopeId===t.id&&f.variable===n&&f.end<=l)){let f=dt(o,u.start,u.end,c=>c.type===\"variable_name"
+      },
+      {
+        "function": "memberChainResultType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 252,
+        "columnZeroBased": 92830,
+        "sampledMs": 471.174,
+        "actualBundleSnippet": "($.start,$.end).trim();return/^\\$[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*$/.test(L)?`argument:${L}`:void 0})}memberChainResultType(e,t,n){let l=this.trees.get(e.uri),s=l?void 0:this.parser.parseTree(e.source),r=l??s,o;try{let c=(m,y=0)=>{if(y>js)return;if(m.type===\"variable_name\")return{variable:m.text,steps:[]};let R=m.type===\"member_access_expression\"||m.type===\"nullsafe_member_access_expression\",_=m.type===\"member_call_expr"
+      },
+      {
+        "function": "parseTree",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 181,
+        "columnZeroBased": 1633,
+        "sampledMs": 459.952,
+        "actualBundleSnippet": "t=await v_.load(e.phpWasmPath),n=new h_;return n.setLanguage(t),new a(n)}static createDefault(){return this.create(eq())}parseTree(e,t,n=\"\"){let l=this.cachedDocuments.get(n);if(!t&&n&&l?.source===e){this.cachedDocuments.delete(n),this.cachedDocuments.set(n,l);let u=l.tree.copy();return this.recoveredSyntaxTrees.has(l.tree)&&this.recoveredSyntaxTrees.add(u),u}let s=this.parser.parse(e,t&&!this.recoveredSyntaxTrees.has(t)?t:voi"
+      },
+      {
+        "function": "Dt",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 14382,
+        "sampledMs": 459.659,
+        "actualBundleSnippet": "32\");t+=yt;let u=Sa(e,t);t+=Fn,l[s]={patternIndex:n,name:a.captureNames[o],node:u}}return t}ke(b_,\"unmarshalCaptures\");function Dt(a,e=0){let t=ut+e*Fn;ie.setValue(t,a.id,\"i32\"),t+=yt,ie.setValue(t,a.startIndex,\"i32\"),t+=yt,ie.setValue(t,a.startPosition.row,\"i32\"),t+=yt,ie.setValue(t,a.startPosition.column,\"i32\"),t+=yt,ie.setValue(t,a[0],\"i32\")}ke(Dt,\"marshalNode\");function Sa(a,e=ut){let t=ie.getValue(e,\"i32\");if(e+=yt,t===0)"
+      },
+      {
+        "function": "parse",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 178,
+        "columnZeroBased": 45088,
+        "sampledMs": 458.799,
+        "actualBundleSnippet": "y_}.`);this.language=a}else throw new Error(\"Argument must be a Language\");return ie._ts_parser_set_language(this[0],e),this}parse(a,e,t){if(typeof a==\"string\")ie.currentParseCallback=o=>a.slice(o);else if(typeof a==\"function\")ie.currentParseCallback=a;else throw new Error(\"Argument must be a string or a function\");t?.progressCallback?ie.currentProgressCallback=t.progressCallback:ie.currentProgressCallback=null,this.logCallbac"
+      },
+      {
+        "function": "wasm-function[265]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 160179,
+        "sampledMs": 455.242
+      },
+      {
+        "function": "resolveSourceType",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 11244,
+        "sampledMs": 442.437,
+        "actualBundleSnippet": "(\"\\\\\");let c=[n,r].filter(Boolean).join(\"\\\\\");return this.fileAndDeclaration(c)?c:this.fileAndDeclaration(r)?r:c}resolveSourceType(e,t,n,l,s){let r=t.trim();if(!/^[\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*$/.test(r))return;if([\"self\",\"static\"].includes(r.toLowerCase()))return l;if(r.toLowerCase()===\"parent\"){let d=(l?e.declarations.find(p=>p.fqcn.toLowerCase()===l.toLowerCase()):void 0)?.extendsNames[0];return d?this.resolve"
+      },
+      {
+        "function": "(garbage collector)",
+        "url": "",
+        "lineZeroBased": -1,
+        "columnZeroBased": -1,
+        "sampledMs": 436.87
+      },
+      {
+        "function": "get type",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 175,
+        "columnZeroBased": 7873,
+        "sampledMs": 421.569,
+        "actualBundleSnippet": "this),ie._ts_node_symbol_wasm(this.tree[0])}get grammarId(){return Dt(this),ie._ts_node_grammar_symbol_wasm(this.tree[0])}get type(){return this.tree.language.types[this.typeId]||\"ERROR\"}get grammarType(){return this.tree.language.types[this.grammarId]||\"ERROR\"}get isNamed(){return Dt(this),ie._ts_node_is_named_wasm(this.tree[0])===1}get isExtra(){return Dt(this),ie._ts_node_is_extra_wasm(this.tree[0])===1}get isError(){return"
+      },
+      {
+        "function": "tv",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 11389,
+        "columnZeroBased": 55327,
+        "sampledMs": 407.566,
+        "actualBundleSnippet": "sh(...g.namedChildren)}}}n.push(...s.namedChildren)}return n.length===0?t.sort((s,r)=>s.start-r.start||s.end-r.end):[]}function tv(a,e,t=\"8.5\",n,l=[],s=\"en\"){let r=e.parse(a.getText(),void 0,a.uri);try{let o=a.getText(),u=b8(o,e,r.tree.rootNode,r.errors),f=u.ranges,c=r.tree.rootNode.hasError?r.tree.rootNode.descendantsOfType(\"ERROR\"):[];for(;c.length>0;){let T=c.pop();if(T.type===\"ERROR\"&&/^\\(\\s*void\\s*\\)$/i.test(T.text)){let "
+      },
+      {
+        "function": "wasm-function[71]",
+        "url": "wasm://wasm/000c4536",
+        "lineZeroBased": 0,
+        "columnZeroBased": 48652,
+        "sampledMs": 404.606
+      },
+      {
+        "function": "priorReferenceMutations",
+        "url": "file:///var/www/node/php-companion/dist/language-server.js",
+        "lineZeroBased": 254,
+        "columnZeroBased": 879,
+        "sampledMs": 402.611,
+        "actualBundleSnippet": "e.indexOf(\":\",_.nameEnd),v=g>=0&&g<_.end?g+1:_.start;return e.source.slice(v,_.end).trim()===t.variable}))}priorReferenceMutations(e,t,n,l,s=t.start){let r=[],o=e.scopes.some(u=>u.parentId===t.id&&u.captures.some(f=>f.variable===n&&f.byReference));for(let u of e.calls.filter(f=>f.end<=l&&!f.firstClassCallable&&f.start>=Math.max(t.start,s)&&f.end<=t.end&&this.containingScope(e,f.start)?.id===t.id)){if(u.arguments.some(R=>R.unpa"
+      }
+    ],
+    "diagnosticReceiptLatencyMs": [
+      3820.393555,
+      3062.5286990000004,
+      2554.2453959999984,
+      2457.3877350000002
+    ],
+    "fullPerformanceQualified": false
+  },
+  "globalDiagnosticTimingsByRound": [
+    {
+      "round": 0,
+      "timings": {
+        "diagnostics": [
+          3477.003326,
+          5248.274994
+        ],
+        "documentChangeDiagnostics": [
+          3807.557152
+        ]
+      }
+    },
+    {
+      "round": 1,
+      "timings": {
+        "diagnostics": [
+          2954.3123809999997
+        ],
+        "documentChangeDiagnostics": [
+          3056.435003999999
+        ]
+      }
+    },
+    {
+      "round": 2,
+      "timings": {
+        "diagnostics": [
+          2418.7597650000007
+        ],
+        "documentChangeDiagnostics": [
+          2551.850166
+        ]
+      }
+    },
+    {
+      "round": 3,
+      "timings": {
+        "diagnostics": [
+          2358.925997999999
+        ],
+        "documentChangeDiagnostics": [
+          2455.728555999998
+        ]
+      }
+    }
+  ]
+}

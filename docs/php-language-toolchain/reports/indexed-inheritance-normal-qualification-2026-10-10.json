@@ -1,0 +1,152 @@
+{
+  "recordedAtUtc": "2026-10-09T17:03:40.960220+00:00",
+  "engineBuildId": "700d58bc2ce94a6103b517e495de9d7b67b688640a63c55b01bdc4a915439166",
+  "sourceStageQualified": true,
+  "fullLsp": {
+    "files": 116,
+    "passed": 1458,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "originalCaseMultiplicityPreserved": true
+  },
+  "semantic": {
+    "passed": 23704,
+    "normalRerun": true,
+    "original23686CaseIdentitiesPreserved": true,
+    "newControls": 18
+  },
+  "targetedControls": {
+    "oldPassed": 16,
+    "oldFailed": 6,
+    "newPassed": 50
+  },
+  "rootUnitPassed": 113,
+  "directFunctionProtocolPassed": 48,
+  "parser": {
+    "passed": 186,
+    "reusedOnlyByExactIdentity": true
+  },
+  "languageSpec": {
+    "passed": 320,
+    "reusedOnlyByExactIdentity": true
+  },
+  "linuxWorkflows": [
+    {
+      "suite": "c3",
+      "mode": "progressive",
+      "qualified": true,
+      "durationSeconds": 252.89595285098767
+    },
+    {
+      "suite": "c1",
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 110.30355521099409
+    },
+    {
+      "suite": "c2",
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 136.96367683901917
+    },
+    {
+      "suite": "c3",
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 270.99083627501386
+    }
+  ],
+  "generationBoundaryRows": 80,
+  "nativeWindowsC2": {
+    "qualified": true,
+    "durationSeconds": 127.80894178000744,
+    "originalDeadlineMs": 300000,
+    "ownedProcessesAfterExit": []
+  },
+  "complete12ExtensionProfile": {
+    "functionalQualified": true,
+    "compositeFeedbackQualified": true,
+    "scalarRounds": 50,
+    "unionRounds": 30,
+    "scalarP95Ms": 78,
+    "unionP95Ms": 89,
+    "coldFirstFeedbackMs": 1373,
+    "firstHoverMs": 1289
+  },
+  "diagnostic": {
+    "normalEngineBeforeChange": "75a09f181298e42df19158961ce9b61d34e9160c58172a0c53cebfc20597bf4f",
+    "exactProductionMapping": true,
+    "samples": 3860,
+    "sampleDurationMs": 5391.939,
+    "inheritanceSourceInclusiveMs": 3984.520000000002,
+    "acceptanceQualified": false
+  },
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false,
+  "remaining": [
+    "Current original two-mode100+1000 recovery, ordinary25-round editing and original production15-round scale matrices",
+    "Cold first usable feedback",
+    "Remaining version, platform, indexing mode and direct-package persistence matrices",
+    "Long real-project sessions and real Windows+WSL Remote acceptance",
+    "Full original C1-C4/R4, P0-P9/F01-F14 scope and final deliverables"
+  ],
+  "evidence": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1408-indexed-hierarchy-source-validation.json",
+      "sha256": "f0472fe46b7594b2f72b41ea5ef8027610d115c8d77753a56fe72838c7aa7efe"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1409-indexed-hierarchy-full-lsp-run.json",
+      "sha256": "61bc9f27546d71eff2a3e1a9febb13f19694db7261a9ce9ff223cc5155f57e63"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1410-indexed-hierarchy-editor-qualification.json",
+      "sha256": "07004c547968ac3c610f76dded98cf3369159a00d9703ce706308e7ed2c443aa"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1413-native-c2-audit.json",
+      "sha256": "6608e3fe3c62dac284cc13c004089a3a478035f4966f4273e59918a7d581c56d"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1414-indexed-hierarchy-native-pipeline.json",
+      "sha256": "2ef23c296082bfae3d2a032cb01b5e3fa3f1091c4266e277af3ed65f5f1a4a12"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1415-indexed-hierarchy-profile-run.json",
+      "sha256": "1148a29c562ed8276c2f994ecec08bbcc64a9f1987a62098ccd09689d91c5e3f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1416-indexed-hierarchy-profile-pipeline.json",
+      "sha256": "c6aa19260df2a559899ddca56a87c35324db10b1c2314418d808d6d691f4eb33"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1405-scale-cpu-evidence/manifest.json",
+      "sha256": "f8145abd7fe669351741d6598347ee4392ea00b156dc29771beab8b0610bb0fa"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1411-indexed-hierarchy-source-evidence/manifest.json",
+      "sha256": "4bd01c52b00d5b913403306d0458e9e5416c515babf9c617f1487b0ea3940b41"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1417-indexed-hierarchy-full-lsp-evidence/manifest.json",
+      "sha256": "cbd29ef8a9e0b8384589a11ad074fb37a9f8cd4b9e9368f884e851e01eb64fc6"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1418-indexed-hierarchy-linux-editor-evidence/manifest.json",
+      "sha256": "efc4973b74921789b63f9d01552a81a21ca0978433ad8bd8b1c3e1d024de7f18"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1419-indexed-hierarchy-native-terminal-evidence.json",
+      "sha256": "9bcbbeca9a4821dcc7f0d622420e113256cd7d1e9672cdcbcda1cfee02335c48"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1420-indexed-hierarchy-profile-evidence/manifest.json",
+      "sha256": "4b2cd3bb56b76488bdb6b11256621678f03ec4b7facd55532a8f6dd18633d2f6"
+    }
+  ]
+}

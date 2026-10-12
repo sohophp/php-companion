@@ -1,0 +1,149 @@
+{
+  "qualified": true,
+  "recordedAtUtc": "2026-10-11T00:49:08.606992+00:00",
+  "normalBundleSha256": "a1730fb9bad08fe453b8e390a1bd1ece4150bb638ca0e269d240c6a2bbb9ff2a",
+  "frozenInputCount": 30083,
+  "changedInputs": [],
+  "changedSymlinks": [],
+  "originalSemanticFailures": 10,
+  "originalNormalProtocolFailures": 4,
+  "semanticTests": 48,
+  "normalProtocolTests": 14,
+  "actualPhpVersions": 6,
+  "actualPhpComparisons": 60,
+  "actualPhpExecutions": 120,
+  "focusedLinuxEditorModes": [
+    "onDemand",
+    "progressive"
+  ],
+  "editorFullC3Qualified": false,
+  "currentFullLspQualified": false,
+  "sourceInputs": [
+    {
+      "path": "packages/semantic/src/index.ts",
+      "sha256": "ebc7a840442e3f8ef3f0df3788e78eabea8f060af73769c3841fd33d85f93596"
+    },
+    {
+      "path": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "sha256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76"
+    },
+    {
+      "path": "packages/language-server/test/reorder-effectful-arguments-stdio.test.ts",
+      "sha256": "483645871ebd520087c5d296cd646558743b1600f1a9878c69d9a85e5a6e1155"
+    },
+    {
+      "path": "test/extension/suite/reorderEffects.ts",
+      "sha256": "775cf233534333163a5cc73e3937a69c2f51d7895a31855dcc5379e2eb0f2fc3"
+    },
+    {
+      "path": "test/extension/suite/c3.ts",
+      "sha256": "2ffe2a8f96d025adceee1f6a50f3cf6561bebbefc36c43fd32d0b9e3a7daecce"
+    }
+  ],
+  "assets": [
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js.map",
+      "sha256": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js.map",
+      "sha256": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "b7acdb1b9534900f66ab9e5d4966429725dc0f9718d30f02dc14ae0fede2e093"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "78a6ad4dd502dc86cbdf39b2a18983a65caf6c5c0fb9f6908437ade4168773e3"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "496cd74d759ef5e1550dfe1edfe057c8e9b6a28bc0f4057c5824862f73c7ba39"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "a1730fb9bad08fe453b8e390a1bd1ece4150bb638ca0e269d240c6a2bbb9ff2a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "33d5aef1aa9762205015bf158a4ceec34aa3ce74ef34eacef9b8f66c569ea446"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js.map",
+      "sha256": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map",
+      "sha256": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js.map",
+      "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    }
+  ],
+  "steps": [
+    {
+      "mode": "onDemand",
+      "status": "exited",
+      "command": [
+        "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+        "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+        "--evidence",
+        "/var/www/node/php-companion/.vscode-test/d1858-named-reorder-editor-onDemand-display",
+        "--",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/.vscode-test/d1858-run-named-reorder-editor.mjs"
+      ],
+      "childPid": 2067295,
+      "exitCode": 0,
+      "durationSeconds": 24.725942379038315,
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "actualServersGone": true,
+      "displayGone": true,
+      "fixtureGone": true,
+      "qualified": true
+    },
+    {
+      "mode": "progressive",
+      "status": "exited",
+      "command": [
+        "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+        "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+        "--evidence",
+        "/var/www/node/php-companion/.vscode-test/d1858-named-reorder-editor-progressive-display",
+        "--",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/.vscode-test/d1858-run-named-reorder-editor.mjs"
+      ],
+      "childPid": 2068392,
+      "exitCode": 0,
+      "durationSeconds": 20.330231883039232,
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "actualServersGone": true,
+      "displayGone": true,
+      "fixtureGone": true,
+      "qualified": true
+    }
+  ],
+  "report": "reorder-effectful-arguments-2026-10-11.md",
+  "fixture": "F08-RP-04",
+  "numberedFixtures": 172,
+  "fixtureFamilies": 14,
+  "majorOpenItems": 26,
+  "archive": ".vscode-test/d1859-named-reorder-archive/manifest.json"
+}

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import { hasFollowingCallParenthesis, nextPhpTokenOffset } from './completionCallTrivia.js';
 import { PhpSyntaxParser, type PhpParserPaths, type PreparedPhpDocument } from '@php-companion/parser';
-import { SemanticWorkspace, completionIdentifierPrefix, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type PhpInitializerCompletionKind, type TypeInfo, type TypeRename } from '@php-companion/semantic';
+import { SemanticWorkspace, completionIdentifierPrefix, completionMatchRank, quoteCompletionLiteral, type SemanticLocation, type SemanticUpdateResult, type PhpDeclarationNameCompletionContext, type PhpKeywordCompletionContext, type PhpInitializerCompletionKind, type TypeInfo, type TypeRename } from '@php-companion/semantic';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { lstat, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
 import { BuiltinSnapshotService, type BuiltinDocument } from './builtinSnapshotService.js';
 import { createHash } from 'node:crypto';
-import type { Dirent } from 'node:fs';
+import { readFile as readFileCallback, stat as statCallback, type Dirent, type Stats } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { setImmediate as yieldToEventLoop } from 'node:timers/promises';
 import {
@@ -59,8 +59,8 @@ import { doctrineQueryMethodFacts, type DoctrineAssociationPropertyFact, type Do
 import { INTEROP_PROTOCOL_VERSION, mergeControllerContexts, type ControllerContextPayload, type ControllerTemplateContext, type PhpInteropType, type SerializedPhpType } from '@php-companion/interop';
 import { SEMANTIC_PROVIDER_DOCUMENT_LIMITS, isSemanticProviderDescriptor, semanticFacts, type SemanticFactsContribution, type SemanticProviderDescriptor,
   type ExternalContainerParameterFact, type ExternalEventDispatchFact, type ExternalEventSubscriptionFact, type SemanticProviderDocument, type SemanticProviderProjectType } from '@php-companion/semantic-provider';
-import { runSemanticProvider } from '@php-companion/semantic-provider-host';
-import { isRouteProviderDescriptor, type RouteFact, type RouteProviderDescriptor, type RouteProviderDocument } from '@php-companion/route-provider';
+import { runSemanticProvider, type SemanticProviderContext, type SemanticProviderRunResult } from '@php-companion/semantic-provider-host';
+import { isRouteProviderDescriptor, type RouteFact, type RouteFactsContribution, type RouteProviderDescriptor, type RouteProviderDocument } from '@php-companion/route-provider';
 import { runRouteProvider } from '@php-companion/route-provider-host';
 import { analyzeProjectPhpFileFacts, compressCachedProjectPhpFile, compressCachedSourceDeclaration, createCachedProjectPhpFile, decompressCachedProjectPhpFile,
   restoreCachedProjectPhpFile, restoreCachedSourceDeclaration, type ProjectPhpFileFacts } from './projectFacts.js';
@@ -199,7 +199,9 @@ let testPortableTypeSearch = false;
 let versionedDiagnostics = false;
 // Give a burst of incremental changes time to arrive before CPU-bound analysis.
 const diagnosticEditCoalesceMs = 25;
-const relatedDiagnosticRefreshMs = 75;
+// Related open files share the edit coalescing window so navigation and
+// diagnostics converge without a second, longer debounce after a declaration edit.
+const relatedDiagnosticRefreshMs = diagnosticEditCoalesceMs;
 const relatedDiagnosticRefreshes = new Map<string, { timer: ReturnType<typeof setTimeout>; editedUris: Set<string>; priorityNames: Set<string> }>();
 const lastPublishedDiagnostics = new Map<string, { document: TextDocument; version: number; serialized: string }>();
 const testPauseNextQueries = new Set<string>();
@@ -781,7 +783,13 @@ function setFrameworkDocumentSnapshots(value: unknown): boolean {
     const path = pathForUri(document.uri); if (!path || !workspaceFolderRoots.some((root) => pathWithin(root, path))) return false;
     next.set(document.uri, document as SemanticProviderDocument);
   }
-  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete; invalidateRouteProviderCache(); invalidateContainerFacts(); return true;
+  frameworkDocumentSnapshots = next; frameworkDocumentSnapshotsComplete = payload.complete;
+  invalidateRouteProviderCache(); invalidateContainerFacts();
+  // Every running request captured the replaced snapshot or container revision.
+  // Cancel now rather than waiting for its periodic freshness check.
+  for (const abortController of pendingSemanticProviderRuns.keys()) abortController.abort();
+  for (const task of containerProviderTasks.values()) task.abortController.abort();
+  return true;
 }
 
 const routeSnapshotUnavailableRoots = new Set<string>();
@@ -799,8 +807,10 @@ function invalidateRouteProviderCache(root?: string): void {
   routeProviderCacheRevision++;
   for (const affected of routeSnapshotUnavailableRoots) if (!root || root === affected) publishRouteSnapshotStatus(affected, false);
   if (root) routeSnapshotLatestQueryByRoot.delete(root); else routeSnapshotLatestQueryByRoot.clear();
-  if (root) { routeProviderCacheByRoot.delete(root); routeProviderInputsByRoot.delete(root); }
-  else { routeProviderCacheByRoot.clear(); routeProviderInputsByRoot.clear(); }
+  if (root) routeProviderCacheByRoot.delete(root);
+  else routeProviderCacheByRoot.clear();
+  // Keep the previous inventory only as a hint for live imported documents.
+  // Its old revision cannot serve as current reference input evidence.
 }
 
 function phpPathMayAffectSymfonyRoutes(root: string, path: string): boolean {
@@ -815,9 +825,33 @@ function phpSourceMayAffectSymfonyRoutes(source: string | undefined): boolean {
     || /\bRoutingConfigurator\b/u.test(source));
 }
 
+function routeProviderPathIsInput(root: string, path: string): boolean {
+  const inputs = routeProviderInputsByRoot.get(root);
+  if (inputs?.files.has(resolve(path)) || [...(inputs?.directories ?? [])].some(directory => pathWithin(directory, path))) return true;
+  // A snapshot may have been cached while another provider is still running,
+  // before the combined input inventory has been published.
+  for (const cached of routeProviderCacheByRoot.get(root)?.values() ?? []) {
+    for (const uri of cached.inputUris ?? []) {
+      try { if (sameFilesystemPath(fileURLToPath(uri), path)) return true; } catch { /* Unusable input evidence is not a path match. */ }
+    }
+    for (const uri of cached.inputDirectoryUris ?? []) {
+      try { if (pathWithin(fileURLToPath(uri), path)) return true; } catch { /* Unusable input evidence is not a path match. */ }
+    }
+  }
+  return false;
+}
+
+function routeContributionHasLocalInputs(root: string, contribution: RouteFactsContribution): boolean {
+  if (contribution.inputEvidenceComplete !== true || !contribution.inputUris || !contribution.inputDirectoryUris) return false;
+  const uris = [...contribution.inputUris, ...contribution.inputDirectoryUris];
+  if (!uris.length) return false;
+  try { return uris.every(uri => pathWithin(root, fileURLToPath(uri))); } catch { return false; }
+}
+
 function phpDocumentMayAffectSymfonyRoutes(root: string, uri: string, ...sources: Array<string | undefined>): boolean {
   const path = pathForUri(uri);
-  return Boolean(path && phpPathMayAffectSymfonyRoutes(root, path)) || sources.some(phpSourceMayAffectSymfonyRoutes);
+  return Boolean(path && (phpPathMayAffectSymfonyRoutes(root, path) || routeProviderPathIsInput(root, path)))
+    || sources.some(phpSourceMayAffectSymfonyRoutes);
 }
 
 function acceptedRouteProviders(value: unknown, source: string): RouteProviderDescriptor[] {
@@ -950,12 +984,88 @@ function clearContainerFacts(root: string, workspace: SemanticWorkspace, provide
   if (providerId) workspace.removeExternalFacts(providerId);
 }
 
+const pendingSemanticProviderRuns = new Map<AbortController, Promise<SemanticProviderRunResult>>();
+
+async function runCurrentSemanticProvider(descriptor: SemanticProviderDescriptor, context: SemanticProviderContext,
+  current: () => boolean): Promise<SemanticProviderRunResult> {
+  const abortController = new AbortController();
+  const continues = (): boolean => !shuttingDown && current();
+  if (!continues()) abortController.abort();
+  const monitor = setInterval(() => { if (!continues()) abortController.abort(); }, 25);
+  const pending = runSemanticProvider(descriptor, context, { signal: abortController.signal });
+  pendingSemanticProviderRuns.set(abortController, pending);
+  try { return await pending; }
+  finally { clearInterval(monitor); pendingSemanticProviderRuns.delete(abortController); }
+}
+
+interface ContainerProviderTask {
+  inputRevision: number;
+  generation: number;
+  workspace: SemanticWorkspace;
+  requestRevision: number;
+  waiters: Set<() => boolean>;
+  abortController: AbortController;
+  promise: Promise<boolean>;
+}
+const containerProviderTasks = new Map<string, ContainerProviderTask>();
+
 async function runContainerProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean): Promise<boolean> {
+  // Source invalidation precedes asynchronous workspace publication. Wait for
+  // that publication before identifying a snapshot that another caller can share.
+  while (!shuttingDown && shouldContinue() && generation === indexingGeneration) {
+    const pending = [...pendingOpenSourcePublications.entries()]
+      .filter(([uri]) => rootForUri(uri) === root).map(([, publication]) => publication.ready);
+    if (!pending.length) break;
+    await new Promise<void>((done) => {
+      const timer = setInterval(() => {
+        if (shuttingDown || !shouldContinue() || generation !== indexingGeneration) { clearInterval(timer); done(); }
+      }, 50);
+      void Promise.all(pending).then(() => { clearInterval(timer); done(); });
+    });
+  }
+  if (shuttingDown || !shouldContinue() || generation !== indexingGeneration) return false;
   const inputRevision = containerFactsRevision;
-  const requestRevision = beginRootSemanticProviderRequest(root, 'container');
+  let task = containerProviderTasks.get(root);
+  if (!task || task.inputRevision !== inputRevision || task.generation !== generation || task.workspace !== workspace
+    || !isCurrentRootSemanticProviderRequest(root, 'container', task.requestRevision)
+    || ![...task.waiters].some((continues) => continues())) {
+    task?.abortController.abort();
+    const abortController = new AbortController();
+    const waiters = new Set<() => boolean>([shouldContinue]);
+    const requestRevision = beginRootSemanticProviderRequest(root, 'container');
+    task = { inputRevision, generation, workspace, requestRevision, waiters, abortController, promise: Promise.resolve(false) };
+    const running = task;
+    containerProviderTasks.set(root, running);
+    const current = (): boolean => !shuttingDown && generation === indexingGeneration && inputRevision === containerFactsRevision
+      && containerProviderTasks.get(root) === running && isCurrentRootSemanticProviderRequest(root, 'container', requestRevision)
+      && [...waiters].some((continues) => continues());
+    const monitor = setInterval(() => { if (!current()) abortController.abort(); }, 25);
+    task.promise = performContainerProvider(root, generation, workspace, inputRevision, requestRevision, current, abortController.signal)
+      .finally(() => {
+        clearInterval(monitor);
+        if (containerProviderTasks.get(root) === running) containerProviderTasks.delete(root);
+      });
+  } else task.waiters.add(shouldContinue);
+  try {
+    const ready = await new Promise<boolean>((done, fail) => {
+      const timer = setInterval(() => {
+        if (shuttingDown || !shouldContinue()) { clearInterval(timer); done(false); }
+      }, 50);
+      void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error: unknown) => { clearInterval(timer); fail(error); });
+    });
+    return ready && !shuttingDown && shouldContinue();
+  } finally {
+    task.waiters.delete(shouldContinue);
+    if (![...task.waiters].some((continues) => continues())) task.abortController.abort();
+  }
+}
+
+async function performContainerProvider(root: string, generation: number, workspace: SemanticWorkspace,
+  inputRevision: number, requestRevision: number, shouldContinue: () => boolean, signal: AbortSignal): Promise<boolean> {
   const stillCurrent = (): boolean => shouldContinue() && inputRevision === containerFactsRevision
     && isCurrentRootSemanticProviderRequest(root, 'container', requestRevision);
+  if (!stillCurrent() || signal.aborted) return false;
   const authoritative = semanticProviders.filter((provider) => provider.replacesContainerServices);
   if (authoritative.length !== 1) {
     clearContainerFacts(root, workspace);
@@ -963,6 +1073,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
     return false;
   }
   const descriptor = authoritative[0]!; const snapshots = semanticProviderDocuments(root); const types = await semanticProviderProjectTypes(root, workspace);
+  if (!stillCurrent() || signal.aborted) return false;
   if (!snapshots.complete || !types.complete) {
     clearContainerFacts(root, workspace, descriptor.providerId);
     connection.console.warn(outputMessage(clientDiagnosticLanguage, 'containerSnapshotSkipped', descriptor.providerId)); return false;
@@ -972,7 +1083,7 @@ async function runContainerProvider(root: string, generation: number, workspace:
     generation: String(generation), phpVersion: phpVersionForRoot(root),
     ...(environment ? { environment } : {}),
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
-    ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}) });
+    ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}) }, { signal });
   if (!stillCurrent()) return false;
   if (result.ok && applyExternalContainerFacts(root, workspace, result.contribution)) {
     completeContainerFactsByRoot.set(root, { revision: inputRevision, generation });
@@ -1008,9 +1119,11 @@ function eventProviderInputSignature(generation: number, documentsSnapshot: read
 
 async function runEventProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, onlyIfStale = false): Promise<boolean> {
+  if (shuttingDown || generation !== indexingGeneration || !shouldContinue()) return false;
   const started = Date.now();
+  const frameworkSnapshot = frameworkDocumentSnapshots;
   const requestRevision = beginRootSemanticProviderRequest(root, 'events');
-  const stillCurrent = (): boolean => shouldContinue() && isCurrentRootSemanticProviderRequest(root, 'events', requestRevision);
+  const stillCurrent = (): boolean => !shuttingDown && frameworkSnapshot === frameworkDocumentSnapshots && generation === indexingGeneration && shouldContinue() && isCurrentRootSemanticProviderRequest(root, 'events', requestRevision);
   const authoritative = semanticProviders.filter((provider) => provider.replacesEventRelations);
   if (authoritative.length !== 1) {
     externalSymfonyEventsByRoot.delete(root);
@@ -1022,6 +1135,7 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   if (!stillCurrent()) return false;
   const services = symfonyServiceCatalog(root);
   const types = await semanticProviderProjectTypes(root, workspace, new Set(services.map((service) => service.className.toLowerCase())));
+  if (!stillCurrent()) return false;
   if (!snapshots.complete || !types.complete) {
     externalSymfonyEventsByRoot.delete(root);
     connection.console.warn(outputMessage(clientDiagnosticLanguage, 'eventSnapshotSkipped', descriptor.providerId)); return false;
@@ -1030,11 +1144,11 @@ async function runEventProvider(root: string, generation: number, workspace: Sem
   const current = externalSymfonyEventsByRoot.get(root);
   if (onlyIfStale && current?.providerId === descriptor.providerId && current.inputSignature === inputSignature) return true;
   const providerStarted = Date.now();
-  const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
+  const result = await runCurrentSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
     generation: String(generation), phpVersion: phpVersionForRoot(root),
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
     ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}),
-    ...(descriptor.requiresContainerServices ? { containerServices: services } : {}) });
+    ...(descriptor.requiresContainerServices ? { containerServices: services } : {}) }, stillCurrent);
   if (!stillCurrent()) return false;
   if (result.ok && result.contribution.eventSubscriptions && result.contribution.eventDispatches) {
     externalSymfonyEventsByRoot.set(root, { providerId: descriptor.providerId, inputSignature,
@@ -1065,7 +1179,13 @@ function controllerContextMap(contexts: readonly ControllerTemplateContext[], al
 
 async function runControllerContextProvider(root: string, generation: number, workspace: SemanticWorkspace,
   shouldContinue: () => boolean, scopes?: readonly { uri: string; source: string; snapshotVersion: string }[]): Promise<boolean> {
+  if (shuttingDown || generation !== indexingGeneration || !shouldContinue()) return false;
   const request = beginControllerContextProviderRequest(root, scopes);
+  const stillCurrent = (): boolean => {
+    if (shuttingDown || generation !== indexingGeneration || !shouldContinue()) return false;
+    const scope = controllerContextProviderCommitScope(root, request);
+    return scope !== undefined && (scope.kind === 'full' || scope.currentUris.size > 0);
+  };
   const providerScopes = scopes?.filter((scope) => /render|template/i.test(scope.source));
   if (scopes && providerScopes?.length !== scopes.length) {
     const byFile = interopContextsByRoot.get(root);
@@ -1084,17 +1204,18 @@ async function runControllerContextProvider(root: string, generation: number, wo
     return false;
   }
   const descriptor = authoritative[0]!; const allTypes = await semanticProviderProjectTypes(root, workspace);
+  if (!stillCurrent()) return false;
   const scopedUris = providerScopes ? new Set(providerScopes.map((scope) => scope.uri)) : undefined;
   const projectTypes = scopedUris ? allTypes.projectTypes.filter((type) => scopedUris.has(type.uri)) : allTypes.projectTypes;
   const snapshots = providerScopes ? controllerContextScopedDocuments(root, providerScopes) : semanticProviderDocuments(root);
   if (!allTypes.complete || !snapshots.complete) {
     connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticSnapshotSkipped', descriptor.providerId)); return false;
   }
-  const result = await runSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
+  const result = await runCurrentSemanticProvider(descriptor, { rootUri: indexedUriForPath(root, root), rootPath: root,
     generation: String(generation), phpVersion: phpVersionForRoot(root),
     ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
-    ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) });
-  if (!shouldContinue()) return false;
+    ...(descriptor.requiresProjectTypes ? { projectTypes } : {}) }, stillCurrent);
+  if (!stillCurrent()) return false;
   const commitScope = controllerContextProviderCommitScope(root, request);
   if (!commitScope || (commitScope.kind === 'scoped' && commitScope.currentUris.size === 0)) return false;
   if (result.ok && result.contribution.controllerContexts) {
@@ -1197,24 +1318,28 @@ function scheduleSymfonyContainerRefresh(root: string): void {
 
 async function refreshSemanticProviders(root: string, generation: number, workspace: SemanticWorkspace, shouldContinue: () => boolean,
   onReferenceFactsReady?: () => Promise<void>): Promise<void> {
+  const frameworkSnapshot = frameworkDocumentSnapshots;
+  const current = (): boolean => !shuttingDown && frameworkSnapshot === frameworkDocumentSnapshots && generation === indexingGeneration && shouldContinue();
+  if (!current()) return;
   const snapshots = semanticProviderDocuments(root); const types = await semanticProviderProjectTypes(root, workspace);
-  await runContainerProvider(root, generation, workspace, shouldContinue);
-  if (!shouldContinue()) return;
-  await runEventProvider(root, generation, workspace, shouldContinue);
+  await runContainerProvider(root, generation, workspace, current);
+  if (!current()) return;
+  await runEventProvider(root, generation, workspace, current);
   for (const descriptor of semanticProviders) {
-    if (!shouldContinue()) return;
+    if (!current()) return;
     if (descriptor.replacesContainerServices || descriptor.replacesEventRelations || descriptor.replacesControllerContexts) continue;
     if ((descriptor.acceptsDocumentSnapshots && !snapshots.complete) || (descriptor.requiresProjectTypes && !types.complete)) {
       connection.console.warn(outputMessage(clientDiagnosticLanguage, 'semanticSnapshotSkipped', descriptor.providerId)); continue;
     }
     const requestRevision = beginGenericSemanticProviderRequest(root, descriptor.providerId);
-    const result = await runSemanticProvider(descriptor, {
+    const stillCurrent = (): boolean => current() && isCurrentGenericSemanticProviderRequest(root, descriptor.providerId, requestRevision);
+    const result = await runCurrentSemanticProvider(descriptor, {
       rootUri: indexedUriForPath(root, root), rootPath: root, generation: String(generation), phpVersion: phpVersionForRoot(root),
       ...(descriptor.acceptsDocumentSnapshots && snapshots.documents.length ? { documents: snapshots.documents } : {}),
       ...(descriptor.requiresProjectTypes ? { projectTypes: types.projectTypes } : {}),
       ...(descriptor.requiresContainerServices ? { containerServices: symfonyServiceCatalog(root) } : {}),
-    });
-    if (!shouldContinue()) return;
+    }, stillCurrent);
+    if (!current()) return;
     if (!isCurrentGenericSemanticProviderRequest(root, descriptor.providerId, requestRevision)) continue;
     if (result.ok) {
       workspace.replaceExternalFacts(result.contribution);
@@ -1223,9 +1348,13 @@ async function refreshSemanticProviders(root: string, generation: number, worksp
       connection.console.warn(outputMessage(clientDiagnosticLanguage, 'genericProviderFailed', descriptor.providerId, result.code, result.message));
     }
   }
-  if (shouldContinue()) await onReferenceFactsReady?.();
-  if (shouldContinue() && semanticProviders.some((provider) => provider.replacesControllerContexts)) {
-    await runControllerContextProvider(root, generation, workspace, shouldContinue);
+  if (current()) await onReferenceFactsReady?.();
+  if (current() && semanticProviders.some((provider) => provider.replacesControllerContexts)) {
+    // Progressive background preparation and a Twig request must share the
+    // candidate scan. A separate full provider request supersedes the scoped
+    // request even when both describe the same unchanged source.
+    if (indexingMode === 'progressive') await ensureOnDemandControllerContexts(root, () => !current());
+    else await runControllerContextProvider(root, generation, workspace, current);
   }
 }
 
@@ -1288,19 +1417,19 @@ function symfonyEnvironmentForRoot(root: string): string | undefined {
   return symfonyRouteProviders.filter((entry) => pathWithin(entry.path, root))
     .sort((left, right) => right.path.length - left.path.length)[0]?.environment;
 }
-async function reconcileSemanticProviderChange(previous: readonly SemanticProviderDescriptor[]): Promise<void> {
-  if (shuttingDown || JSON.stringify(previous) === JSON.stringify(semanticProviders)) return;
-  invalidateSemanticProviderRequests();
-  const currentIds = new Set(semanticProviders.map((provider) => provider.providerId.toLowerCase()));
-  const removed = previous.filter((provider) => !currentIds.has(provider.providerId.toLowerCase()));
-  if (removed.some((provider) => provider.replacesEventRelations)) externalSymfonyEventsByRoot.clear();
-  if (removed.length) for (const candidate of semanticWorkspaces.values()) {
+async function clearChangedSemanticProviderFacts(previous: readonly SemanticProviderDescriptor[],
+  next: readonly SemanticProviderDescriptor[]): Promise<void> {
+  if (shuttingDown) return;
+  const nextById = new Map(next.map(provider => [provider.providerId.toLowerCase(), provider]));
+  const changed = previous.filter(provider => JSON.stringify(provider) !== JSON.stringify(nextById.get(provider.providerId.toLowerCase())));
+  if (changed.some((provider) => provider.replacesEventRelations)) externalSymfonyEventsByRoot.clear();
+  if (changed.length) for (const candidate of semanticWorkspaces.values()) {
     const workspace = await candidate;
     if (shuttingDown) return;
-    for (const provider of removed) workspace.removeExternalFacts(provider.providerId);
+    for (const provider of changed) workspace.removeExternalFacts(provider.providerId);
   }
   const capabilityChanged = (select: (provider: SemanticProviderDescriptor) => boolean): boolean =>
-    JSON.stringify(previous.filter(select)) !== JSON.stringify(semanticProviders.filter(select));
+    JSON.stringify(previous.filter(select)) !== JSON.stringify(next.filter(select));
   const containerChanged = capabilityChanged((provider) => provider.replacesContainerServices === true);
   const eventsChanged = capabilityChanged((provider) => provider.replacesEventRelations === true);
   const contextsChanged = capabilityChanged((provider) => provider.replacesControllerContexts === true);
@@ -1315,15 +1444,33 @@ async function reconcileSemanticProviderChange(previous: readonly SemanticProvid
       controllerContextScanTasks.get(root)?.waiters.clear(); controllerContextScanTasks.delete(root);
     }
   }
-  if (workspaceFolderRoots.length && (indexingMode === 'experimental' || indexingMode === 'progressive')) await startIndexWorkspace('semantic-provider-change');
-  await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 }
 let semanticProviderReconciliation = Promise.resolve();
+let semanticProviderQueryReadiness = Promise.resolve();
+let semanticProviderConfigurationRevision = 0;
 function enqueueSemanticProviderChange(update: () => void): Promise<void> {
   if (shuttingDown) return Promise.resolve();
+  // Publish configuration immediately and retire previous facts before serving
+  // source queries. Rebuilding project/provider facts remains separate work.
+  const previous = [...semanticProviders]; update();
+  const next = [...semanticProviders];
+  if (JSON.stringify(previous) === JSON.stringify(next)) return semanticProviderReconciliation;
+  invalidateSemanticProviderRequests();
+  const revision = ++semanticProviderConfigurationRevision;
+  const ready = semanticProviderQueryReadiness.then(() => clearChangedSemanticProviderFacts(previous, next));
+  semanticProviderQueryReadiness = ready.catch((error: unknown) => connection.console.error(outputMessage(clientDiagnosticLanguage, 'semanticReconciliationFailed', String(error))));
   const work = semanticProviderReconciliation.then(async () => {
+    await ready;
+    if (shuttingDown || revision !== semanticProviderConfigurationRevision) return;
+    if (workspaceFolderRoots.length && (indexingMode === 'experimental' || indexingMode === 'progressive')) {
+      // Let the previous index release its resources, then prepare the newest
+      // configuration once. Ordinary declared members do not wait for this.
+      if (activeIndexing) await activeIndexing;
+      if (shuttingDown || revision !== semanticProviderConfigurationRevision) return;
+      await startIndexWorkspace('semantic-provider-change');
+    }
     if (shuttingDown) return;
-    const previous = [...semanticProviders]; update(); await reconcileSemanticProviderChange(previous);
+    await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
   });
   semanticProviderReconciliation = work.catch((error: unknown) => connection.console.error(outputMessage(clientDiagnosticLanguage, 'semanticReconciliationFailed', String(error))));
   return work;
@@ -1354,13 +1501,15 @@ connection.onNotification('phpCompanion/bundledSemanticProviders', (params: { pr
 connection.onNotification('phpCompanion/frameworkDocumentSnapshots', async (params: unknown) => {
   if (shuttingDown) return;
   if (!setFrameworkDocumentSnapshots(params)) return;
+  const frameworkSnapshot = frameworkDocumentSnapshots;
+  const current = (): boolean => !shuttingDown && frameworkSnapshot === frameworkDocumentSnapshots;
   const running = activeIndexing; if (running) await running;
   for (const root of workspaceRoots) {
-    if (shuttingDown) return;
+    if (!current()) return;
     if (!projectCompleteRoots.has(root)) continue;
     const workspace = await semanticForRoot(root);
-    if (shuttingDown) return;
-    await refreshSemanticProviders(root, indexingGeneration, workspace, () => !shuttingDown);
+    if (!current()) return;
+    await refreshSemanticProviders(root, indexingGeneration, workspace, current);
   }
   await Promise.all(documents.all().filter((document) => document.languageId === 'php').map((document) => publishDocumentDiagnostics(document)));
 });
@@ -1833,6 +1982,8 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     if (facts.doctrineProperties.length) doctrinePropertyFiles.set(uri, facts.doctrineProperties);
     if (facts.doctrineRepositoryLookups.length) doctrineRepositoryLookupFiles.set(uri, facts.doctrineRepositoryLookups);
   };
+  const pausedSourceScan = testMode && testPauseNextQueries.has('indexSourceScan');
+  if (pausedSourceScan) await pauseTestQuery('indexSourceScan');
   const result = await indexComposerSources(root, {
     project,
     limits: indexLimits,
@@ -1959,9 +2110,21 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     projectCompleteRoots.add(root);
     for (const resolveReady of projectCompleteWaiters.get(root) ?? []) resolveReady();
     projectCompleteWaiters.delete(root);
-    for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);
-    indexedUrisByRoot.set(root, current);
-    interopContextsByRoot.delete(root);
+    const pausedFinalization = testMode && testPauseNextQueries.has('indexSourceFinalization');
+    if (pausedFinalization) await pauseTestQuery('indexSourceFinalization');
+    if (sourceOnly) {
+      // Project sources were pruned at onProjectComplete. Queries can hydrate
+      // vendor implementations while the source cache finishes writing; those
+      // files are outside this scan and must survive its final publication.
+      indexedUrisByRoot.set(root, new Set([...current, ...(indexedUrisByRoot.get(root) ?? [])]));
+    } else {
+      for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);
+      indexedUrisByRoot.set(root, current);
+    }
+    if (pausedFinalization) connection.console.info(`[test-index-finalization-completed] root=${root}`);
+    // Progressive preparation shares the bounded context scan with queries;
+    // clearing here could discard its publication after the source cache commit.
+    if (indexingMode !== 'progressive') interopContextsByRoot.delete(root);
     if (sourceOnly) await sourceReadyTask;
     else {
       doctrineMethodsByRoot.set(root, doctrineFiles);
@@ -1979,6 +2142,10 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:
     if (result.complete && continueIndexing()) completeRoots.add(root);
     await Promise.all(documents.all().filter((candidate) => rootForUri(candidate.uri) === root).map((document) => publishDocumentDiagnostics(document)));
   }
+  if (pausedSourceScan) connection.console.info(`[test-index-scan-completed] root=${root} warnings=${result.warnings.length}`);
+  // Shutdown or a newer scan can invalidate the result while indexing awaits I/O.
+  // Keep active-scan warnings, but do not publish abandoned results to the client.
+  if (shuttingDown || generation !== indexingGeneration) return;
   connection.console.info(outputMessage(clientDiagnosticLanguage, 'phpFilesIndexed', String(result.files), String(result.bytes), String(result.cached), root, String(result.complete), String(workspace.deferredImplementationCount())));
   if (testMode) connection.console.info(`[index:restore-timing] ${JSON.stringify(restoreTiming)}`);
   for (const warning of result.warnings) connection.console.warn(warning);
@@ -3320,7 +3487,8 @@ function scheduleProgressiveReferenceRefresh(root: string): void {
   progressiveRefreshTimers.set(root, timer);
 }
 async function ripgrepCandidatePaths(project: ComposerProject, names: string[], executable: string,
-  includeDependencies = false, minNameLength = 8, rootsOverride?: readonly string[], maxPaths?: number): Promise<(CandidatePaths & { complete: boolean }) | undefined> {
+  includeDependencies = false, minNameLength = 8, rootsOverride?: readonly string[], maxPaths?: number,
+  wholeIdentifiers = false): Promise<(CandidatePaths & { complete: boolean }) | undefined> {
   if (!names.length || names.length > 16 || names.some((name) => name.length < minNameLength || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) return undefined;
   const paths = rootsOverride ?? (includeDependencies ? allAutoloadPaths(project) : projectAutoloadPaths(project));
   if (!paths.length) return undefined;
@@ -3329,8 +3497,10 @@ async function ripgrepCandidatePaths(project: ComposerProject, names: string[], 
   // a small candidate budget before any matching source is read.
   const startedAt = Date.now();
   return new Promise((done) => {
-    const child = spawn(executable, ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case', '--fixed-strings',
-      '--glob', '*.[pP][hH][pP]', ...names.flatMap((name) => ['-e', name]), '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const child = spawn(executable, ['--no-config', '--no-ignore', '--hidden', '--follow', '--text', '--files-with-matches', '--null', '--ignore-case',
+      ...(wholeIdentifiers ? [] : ['--fixed-strings']), '--glob', '*.[pP][hH][pP]',
+      ...names.flatMap((name) => ['-e', wholeIdentifiers ? `(?:^|[^A-Za-z0-9_])${name}(?:$|[^A-Za-z0-9_])` : name]),
+      '--', ...paths], { stdio: ['ignore', 'pipe', 'ignore'] });
     const chunks: Buffer[] = []; let size = 0; let failed = false; let truncated = false; let pathCount = 0;
     const timer = setTimeout(() => { failed = true; child.kill(); }, 1_500);
     child.stdout.on('data', (chunk: Buffer) => {
@@ -3350,6 +3520,140 @@ async function ripgrepCandidatePaths(project: ComposerProject, names: string[], 
         .slice(0, maxPaths).map((path) => resolve(path))), startedAt, complete: !truncated });
     });
   });
+}
+
+function statReferenceSource(path: string): Promise<Stats> {
+  return new Promise((done, reject) => statCallback(path, (error, info) => error ? reject(error) : done(info)));
+}
+
+function readReferenceSource(path: string): Promise<string> {
+  return new Promise((done, reject) => readFileCallback(path, 'utf8', (error, source) => error ? reject(error) : done(source)));
+}
+
+/** Prepared facts avoid reparsing unchanged sources, but do not prove that the
+ * current disk candidate set still matches the completed background scan. */
+async function preparedReferenceCandidatesUnchanged(workspace: SemanticWorkspace, root: string,
+  names: ReadonlySet<string>, cancelled: () => boolean): Promise<boolean> {
+  const epoch = projectEpochs.get(root) ?? 0;
+  const current = (): boolean => !shuttingDown && !cancelled() && (projectEpochs.get(root) ?? 0) === epoch
+    && referenceSourceReadyRoots.get(root) === epoch;
+  const project = await composerProjectForRoot(root);
+  if (!project || !current()) return false;
+  let reusable = false;
+  try {
+    const normalizedNames = [...names].sort();
+    const sourceRoots = projectAutoloadPaths(project);
+    // Keep non-ASCII names on the existing substring fallback. ASCII boundaries
+    // also retain quoted names and conservatively include Unicode neighbours.
+    const identifierPattern = normalizedNames.length && normalizedNames.every((name) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(name))
+      ? new RegExp(`(?<![A-Za-z0-9_])(?:${normalizedNames.join('|')})(?![A-Za-z0-9_])`, 'i') : undefined;
+    const searched = referenceRipgrepMode === 'off' || referenceRipgrepMode === 'portable' ? undefined
+      : await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg',
+        false, 1, undefined, indexLimits.maxFiles + 1, true);
+    const candidates = searched?.complete ? searched : await portableCandidatePaths(sourceRoots,
+      normalizedNames, project, current, Math.max(50_000, indexLimits.maxFiles));
+    if (!candidates || !current()) return false;
+    const projectPaths = new Map<string, boolean>();
+    const projectPath = (path: string): boolean => {
+      const normalized = resolve(path);
+      const cached = projectPaths.get(normalized); if (cached !== undefined) return cached;
+      const included = sourceRoots.some((sourceRoot) => pathWithin(sourceRoot, normalized))
+        && !isAutoloadPathExcluded(project, normalized);
+      projectPaths.set(normalized, included);
+      return included;
+    };
+    const paths = new Map([...candidates.paths].filter(projectPath).map((path) => [path, indexedUriForPath(root, path)]));
+    // A previous candidate can lose the spelling or disappear entirely before
+    // a watcher runs. Refresh that old source too, so a filtered scan cannot
+    // leave its obsolete references in the semantic workspace.
+    for (const uri of workspace.documentUris()) {
+      const path = pathForUri(uri); if (!path || !projectPath(path)) continue;
+      const source = workspace.source(uri);
+      const searchableSource = identifierPattern ? source : source?.toLowerCase();
+      if (searchableSource && (identifierPattern ? identifierPattern.test(searchableSource)
+        : normalizedNames.some((name) => searchableSource.includes(name)))) paths.set(resolve(path), uri);
+    }
+    if (paths.size > indexLimits.maxFiles) return false;
+    let unchanged = true; let bytes = 0;
+    let openDocuments: readonly TextDocument[] = [];
+    let openLocations: typeof workspaceFolderLocations | undefined;
+    const openUrisByPath = new Map<string, string>();
+    const pathKeys = new Map<string, string>();
+    const openAt = (path: string): TextDocument | undefined => {
+      const currentDocuments = documents.all();
+      if (openLocations !== workspaceFolderLocations || currentDocuments.length !== openDocuments.length
+        || currentDocuments.some((document, index) => document.uri !== openDocuments[index]?.uri)) {
+        if (openLocations !== workspaceFolderLocations) pathKeys.clear();
+        openDocuments = currentDocuments; openLocations = workspaceFolderLocations;
+        openUrisByPath.clear();
+        for (const document of currentDocuments) {
+          const documentPath = pathForUri(document.uri); if (!documentPath) continue;
+          const key = filesystemPathKey(workspaceAliasPath(documentPath));
+          if (!openUrisByPath.has(key)) openUrisByPath.set(key, document.uri);
+        }
+      }
+      let key = pathKeys.get(path);
+      if (key === undefined) { key = filesystemPathKey(workspaceAliasPath(path)); pathKeys.set(path, key); }
+      const uri = openUrisByPath.get(key);
+      // Cache membership only. Text and document identity always come from
+      // the live store, including buffers whose publication is still pending.
+      return uri ? documents.get(uri) : undefined;
+    };
+    const entries = [...paths];
+    // Bound both filesystem work and retained source to eight candidates.
+    // All reads finish before publication, which stays ordered and rechecks
+    // cancellation, budgets and any buffer opened during the batch.
+    for (let start = 0; start < entries.length; start += 8) {
+      if (!current()) return false;
+      const checked = await Promise.all(entries.slice(start, start + 8).map(async ([path, uri]) => {
+        if (!current()) return { kind: 'invalid' as const, path, uri };
+        if (openAt(path)) return { kind: 'open' as const, path, uri };
+        try {
+          const info = await statReferenceSource(path);
+          return info.isFile() && info.size <= indexLimits.maxFileSizeBytes
+            ? { kind: 'source' as const, path, uri, size: info.size }
+            : { kind: 'invalid' as const, path, uri };
+        } catch (error) {
+          return { kind: (error as NodeJS.ErrnoException).code === 'ENOENT' ? 'missing' as const : 'invalid' as const, path, uri };
+        }
+      }));
+      let reservedBytes = bytes;
+      for (const entry of checked) {
+        if (!current() || entry.kind === 'invalid') return false;
+        if (entry.kind === 'source') reservedBytes += entry.size;
+        if (reservedBytes > indexLimits.maxTotalBytes) return false;
+      }
+      const snapshots = await Promise.all(checked.map(async (entry) => {
+        if (entry.kind !== 'source') return { ...entry, source: undefined };
+        if (!current()) return { ...entry, kind: 'invalid' as const, source: undefined };
+        try { return { ...entry, source: await readReferenceSource(entry.path) }; }
+        catch { return { ...entry, kind: 'invalid' as const, source: undefined }; }
+      }));
+      for (const { kind, path, uri, source } of snapshots) {
+        if (!current() || kind === 'invalid') return false;
+        if (kind === 'open') continue;
+        if (kind === 'missing') {
+          if (!openAt(path) && workspace.source(uri) !== undefined) { workspace.remove(uri); unchanged = false; }
+          continue;
+        }
+        if (source === undefined) return false;
+        bytes += Buffer.byteLength(source);
+        if (bytes > indexLimits.maxTotalBytes || Buffer.byteLength(source) > indexLimits.maxFileSizeBytes) return false;
+        if (openAt(path)) continue;
+        const previous = workspace.source(uri);
+        if (previous !== source) {
+          unchanged = false;
+          if (previous !== undefined) workspace.update(uri, source);
+        }
+      }
+    }
+    reusable = unchanged && current();
+    return reusable;
+  } finally {
+    // A subsequent candidate scan must search again rather than reuse a path
+    // filter that predates this newly observed disk state.
+    if (!reusable) candidatePathSearches.delete(project);
+  }
 }
 
 async function methodCandidatePathsUnchanged(workspace: SemanticWorkspace, root: string, key: string,
@@ -3782,8 +4086,16 @@ function scheduleReferencePrewarm(document: TextDocument, root: string, workspac
       const open = documents.get(uri);
       if (!open || open.version !== version || querySequence !== sequence || (projectEpochs.get(root) ?? 0) !== epoch) return;
       const request = activeReferenceRequest;
-      if (position && request?.uri === uri && request.version === version
-        && sameReferenceToken(open, position, request.position)) return;
+      if (request?.uri === uri && request.version === version
+        && (!position || sameReferenceToken(open, position, request.position))) return;
+      const restored = restoredReferenceResults.get(workspace);
+      // The open publisher can finish after References restores its proof.
+      // Its idle warm-up must not scan that same unchanged query again. This
+      // only suppresses background work; requests still validate every input.
+      if (!position && restored?.epoch === epoch && restored.generation === indexingGeneration
+        && restored.revision === referenceDocumentRevision() && restored.proof.queryHint?.uri === uri
+        && restored.proof.loaded.some((source) => source.uri === uri
+          && source.hash === referenceSourceHash(open.getText()))) return;
       const selected = position ? await selectedReferenceHint(open, root, workspace, position) : undefined;
       const proofs = selected || !reusableProofs ? [] : await (recentReferenceProofs ??= new ReferenceResultStore(cacheDirectory!).recent());
       const sourceHash = selected ? undefined : referenceSourceHash(open.getText());
@@ -4003,7 +4315,8 @@ async function ensureOnDemandControllerContexts(root: string, cancelled: () => b
       const timer = setInterval(() => { if (cancelled()) { clearInterval(timer); done(false); } }, 50);
       void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error) => { clearInterval(timer); fail(error); });
     });
-    if (!ready && !cancelled() && retries > 0 && (projectEpochs.get(root) ?? 0) !== epoch) {
+    if (!ready && !cancelled() && retries > 0
+      && ((projectEpochs.get(root) ?? 0) !== epoch || task.generation !== indexingGeneration)) {
       return ensureOnDemandControllerContexts(root, cancelled, retries - 1);
     }
     return ready && !cancelled();
@@ -4215,7 +4528,16 @@ async function hydrateReferenceReceivers(workspace: SemanticWorkspace, root: str
     await hydrate(parents);
     frontier = parents.filter((name) => workspace.typeByFqcn(name));
   }
-  const returnedTypes = methods.flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []);
+  // Keep every owner spelling for case-sensitive PSR lookup above. Once the
+  // hierarchy is hydrated, native return lookup depends only on PHP's
+  // case-insensitive owner/method identity, not on the individual call site.
+  const uniqueMethods = new Map<string, AssignedReceiverMethod>();
+  for (const item of methods) {
+    const key = `${item.owner.toLowerCase()}::${item.method.toLowerCase()}`;
+    if (!uniqueMethods.has(key)) uniqueMethods.set(key, item);
+  }
+  const returnedTypes = [...uniqueMethods.values()]
+    .flatMap((item) => workspace.nativeMethodReturnTypeName(item.owner, item.method) ?? []);
   await hydrate(returnedTypes);
   for (const name of new Set(returnedTypes)) {
     if (cancelled()) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
@@ -4306,7 +4628,7 @@ connection.onInitialize(async (params: InitializeParams): Promise<InitializeResu
   testPauseNextQueries.clear();
   if (testMode && Array.isArray(initialization?.testPauseNextQueries)) {
     for (const method of initialization.testPauseNextQueries) {
-      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'hoverValueSources', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource', 'constructorDiagnostics'].includes(method)) testPauseNextQueries.add(method);
+      if (typeof method === 'string' && ['completion', 'typeCompletionCandidates', 'hover', 'hoverValueSources', 'signatureHelp', 'definition', 'refactorExtract', 'indexDependencySource', 'indexProjectSource', 'indexSourceFinalization', 'constructorDiagnostics'].includes(method)) testPauseNextQueries.add(method);
     }
   }
   experimentalReferenceClosure = testMode && initialization?.experimentalReferenceClosure === true;
@@ -4385,7 +4707,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument', 'startupWarmup', 'declarationFacts'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'moveMemberDiskRefresh', 'moveMemberValidationResult', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument', 'startupWarmup', 'declarationFacts', 'indexSourceScan', 'indexSourceFinalization'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -4632,10 +4954,21 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
     || token.isCancellationRequested) return [];
   const root = rootForUri(uri); const sourcePath = pathForUri(uri);
   if (!root || !sourcePath) return [];
-  if (!await ensureSymfonyContainerFactsForQuery(root, () => token.isCancellationRequested)) return [];
   const sourceIsPhp = /\.php$/i.test(uri);
   const sourceDocument = TextDocument.create(uri, sourceIsPhp ? 'php' : 'xml', typeof params.textDocument?.version === 'number' ? params.textDocument.version : 0, params.source);
   const offset = sourceDocument.offsetAt({ line: Number(position.line), character: Number(position.character) });
+  if (sourceIsPhp) {
+    // Ordinary PHP names cannot refer to service IDs. Check the supplied snapshot
+    // before preparing container facts; Configurator IDs can also be Foo::class.
+    const tree = (await parser()).parseTree(params.source, undefined, uri);
+    try {
+      let candidate: PhpSyntaxNode | null = tree.rootNode.descendantForIndex(offset);
+      while (candidate && !['string', 'encapsed_string', 'class_constant_access_expression'].includes(candidate.type)) candidate = candidate.parent;
+      // Keep the existing recovery behavior when unfinished syntax is ambiguous.
+      if (!candidate && !tree.rootNode.hasError) return [];
+    } finally { tree.delete(); }
+  }
+  if (!await ensureSymfonyContainerFactsForQuery(root, () => token.isCancellationRequested)) return [];
   const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
   if (!sourceIsPhp && !configSource) return [];
   if (configSource) {
@@ -5181,7 +5514,7 @@ connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?:
   const workspace = await semanticForRoot(root);
   const ready = indexingMode === 'experimental'
     ? await ensureCompleteRoot(root, () => token.isCancellationRequested)
-    : indexingMode === 'onDemand'
+    : indexingMode === 'onDemand' || indexingMode === 'progressive'
       ? await ensureOnDemandControllerContexts(root, () => token.isCancellationRequested)
       : false;
   if (!ready) return null;
@@ -5236,6 +5569,77 @@ connection.onRequest('phpCompanion/addImport', async (params: {
   const result = { changes: { [uri as string]: plan.textEdits.map((edit) => ({ range: { start: document.positionAt(edit.start), end: document.positionAt(edit.end) }, newText: edit.newText })) } };
   if (testPauseNextQueries.has('addImport')) await pauseTestQuery('addImport');
   return result;
+});
+
+async function checkedMoveMember(document: TextDocument, position: { line: number; character: number },
+  targetClass: string, cancelled: () => boolean): Promise<{
+    changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>>;
+    phpCompanion: { sourceHashes: Record<string, string>; moveMember: { targetClass: string; callable: string; planHash: string } };
+  } | null> {
+  const uri = document.uri, version = document.version, sourceText = document.getText(), phpVersion = phpVersionForUri(uri), root = rootForUri(uri);
+  if (!root || cancelled() || !Number.isSafeInteger(position.line) || !Number.isSafeInteger(position.character)
+    || position.line < 0 || position.character < 0) return null;
+  const offset = document.offsetAt(position), actual = document.positionAt(offset);
+  if (actual.line !== position.line || actual.character !== position.character
+    || !await ensureProjectCompleteRoot(root, cancelled)) return null;
+  const workspace = await semanticForUri(uri);
+  let plan: ReturnType<SemanticWorkspace['moveStaticMethod']>;
+  const ready = await refreshRefactorDiskSources(workspace, root, cancelled, 'moveMemberDiskRefresh', undefined, () => {
+    plan = workspace.moveStaticMethod(uri, offset, targetClass);
+  });
+  if (!ready || !plan || cancelled() || documents.get(uri) !== document || document.version !== version || document.getText() !== sourceText
+    || rootForUri(uri) !== root || phpVersionForUri(uri) !== phpVersion
+    || plan.edits.some(edit => rootForUri(edit.uri) !== root)) return null;
+  const uris = [...new Set(plan.edits.map(edit => edit.uri))].sort();
+  const sources = new Map<string, string>();
+  const snapshots = uris.flatMap(target => {
+    const source = documents.get(target)?.getText() ?? workspace.source(target);
+    if (source === undefined) return [];
+    sources.set(target, source);
+    return [{ uri: target, version: documents.get(target)?.version ?? null, length: source.length }];
+  });
+  if (snapshots.length !== uris.length) return null;
+  const editPlan = createEditPlan(`Move ${plan.callable} to ${plan.targetClass}`, snapshots, plan.edits);
+  const changes: Record<string, Array<{ range: { start: { line: number; character: number }; end: { line: number; character: number } }; newText: string }>> = {};
+  for (const edit of editPlan.textEdits) {
+    const target = documents.get(edit.uri) ?? TextDocument.create(edit.uri, 'php', 0, sources.get(edit.uri)!);
+    (changes[edit.uri] ??= []).push({ range: { start: target.positionAt(edit.start), end: target.positionAt(edit.end) }, newText: edit.newText });
+  }
+  const sourceHashes = Object.fromEntries([...sources].map(([target, source]) =>
+    [target, createHash('sha256').update(source).digest('hex')]));
+  const orderedEdits = [...editPlan.textEdits].sort((left, right) => left.uri.localeCompare(right.uri)
+    || left.start - right.start || left.end - right.end || left.newText.localeCompare(right.newText));
+  const planHash = createHash('sha256').update(JSON.stringify({ callable: plan.callable, targetClass: plan.targetClass,
+    phpVersion, edits: orderedEdits, sourceHashes })).digest('hex');
+  return { changes, phpCompanion: { sourceHashes, moveMember: { targetClass: plan.targetClass, callable: plan.callable, planHash } } };
+}
+
+connection.onRequest('phpCompanion/moveMember', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: { line?: unknown; character?: unknown }; targetClass?: unknown;
+}, token) => {
+  const uri = params?.textDocument?.uri, position = params?.position;
+  const document = typeof uri === 'string' ? documents.get(uri) : undefined;
+  if (!document || params.textDocument?.version !== document.version || (typeof params.targetClass !== 'string' || !params.targetClass || params.targetClass.length > 1024)
+    || !position || typeof position.line !== 'number' || typeof position.character !== 'number') return null;
+  return checkedMoveMember(document, position as { line: number; character: number }, params.targetClass, () => token.isCancellationRequested);
+});
+
+connection.onRequest('phpCompanion/validateMoveMember', async (params: {
+  textDocument?: { uri?: unknown; version?: unknown }; position?: { line?: unknown; character?: unknown };
+  targetClass?: unknown; planHash?: unknown;
+}, token) => {
+  const uri = params?.textDocument?.uri, position = params?.position;
+  const document = typeof uri === 'string' ? documents.get(uri) : undefined;
+  if (!document || params.textDocument?.version !== document.version || (typeof params.targetClass !== 'string' || !params.targetClass || params.targetClass.length > 1024)
+    || typeof params.planHash !== 'string' || !/^[a-f0-9]{64}$/u.test(params.planHash)
+    || !position || typeof position.line !== 'number' || typeof position.character !== 'number') return false;
+  const plan = await checkedMoveMember(document, position as { line: number; character: number },
+    params.targetClass, () => token.isCancellationRequested);
+  const valid = Boolean(plan && plan.phpCompanion.moveMember.planHash === params.planHash);
+  // Test-only response latency after the genuine replan and verification complete.
+  // A document can change in the editor before a previously valid reply arrives.
+  if (testPauseNextQueries.has('moveMemberValidationResult')) await pauseTestQuery('moveMemberValidationResult');
+  return valid;
 });
 
 connection.onRequest('phpCompanion/addMethodParameter', async (params: {
@@ -5755,7 +6159,7 @@ async function processWatchedFileChanges(changes: readonly { uri: string; type: 
       if (path.toLowerCase().endsWith('.php')) invalidateTypeNameSearch(root);
       invalidateContainerFacts();
       const extension = path.toLowerCase().slice(path.lastIndexOf('.'));
-      if (extension !== '.php' || phpPathMayAffectSymfonyRoutes(root, path)) invalidateRouteProviderCache(root);
+      if (extension !== '.php' || phpPathMayAffectSymfonyRoutes(root, path) || routeProviderPathIsInput(root, path)) invalidateRouteProviderCache(root);
       else {
         const workspace = await semanticWorkspaces.get(`root:${root}`);
         const previousSource = workspace?.source(change.uri) ?? workspace?.source(indexedUriForPath(root, path));
@@ -5805,12 +6209,49 @@ connection.onDidChangeWatchedFiles(({ changes }) => {
 const openingContentVersions = new Map<string, number>();
 const documentSourcesByUri = new Map<string, string>();
 const openContentSequences = new Map<string, number>();
-const pendingOpenSourcePublications = new Map<string, { ready: Promise<void>; finish: () => void }>();
+type OpenSourcePublication = {
+  version: number;
+  ready: Promise<void>;
+  finish: () => void;
+  queryUpdates: Map<SemanticWorkspace, { previousSource: string | undefined; update: SemanticUpdateResult }>;
+};
+const pendingOpenSourcePublications = new Map<string, OpenSourcePublication>();
+
+function combineOpenSourceUpdates(first: SemanticUpdateResult, second: SemanticUpdateResult): SemanticUpdateResult {
+  return {
+    incremental: first.incremental || second.incremental,
+    changedRanges: first.changedRanges + second.changedRanges,
+    kind: first.kind === 'declaration' || second.kind === 'declaration' ? 'declaration'
+      : first.kind === 'implementation' || second.kind === 'implementation' ? 'implementation' : 'none',
+    changedCallables: [...new Set([...first.changedCallables, ...second.changedCallables])].sort(),
+    changedTypes: [...new Set([...first.changedTypes, ...second.changedTypes])].sort(),
+  };
+}
+
+function refreshOpenDocumentSourceForQuery(workspace: SemanticWorkspace, document: TextDocument): void {
+  const previousSource = workspace.source(document.uri), source = document.getText();
+  if (previousSource === source) return;
+  const update = workspace.update(document.uri, source, true);
+  const publication = pendingOpenSourcePublications.get(document.uri);
+  if (publication?.version !== document.version) return;
+  const earlier = publication.queryUpdates.get(workspace);
+  // The regular publisher must still refresh dependents and interop after the
+  // query consumes this source change. Reapplying identical text yields none.
+  publication.queryUpdates.set(workspace, {
+    previousSource: earlier ? earlier.previousSource : previousSource,
+    update: earlier ? combineOpenSourceUpdates(earlier.update, update) : update,
+  });
+}
 
 function trackOpenSourcePublication(document: TextDocument, update: (published: () => void) => Promise<void>): Promise<void> {
   if (document.languageId !== 'php') return update(() => {});
   let resolveReady!: () => void;
-  const publication = { ready: new Promise<void>((resolve) => { resolveReady = resolve; }), finish: (): void => {
+  const publication: OpenSourcePublication = {
+    version: document.version,
+    // An abandoned publisher may already have installed source for a query.
+    // Keep its unconsumed changes until the current version publishes them.
+    queryUpdates: new Map(pendingOpenSourcePublications.get(document.uri)?.queryUpdates),
+    ready: new Promise<void>((resolve) => { resolveReady = resolve; }), finish: (): void => {
     resolveReady();
     if (pendingOpenSourcePublications.get(document.uri) === publication) pendingOpenSourcePublications.delete(document.uri);
   } };
@@ -5951,7 +6392,7 @@ documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async
   const prewarmRevision = referencePrewarmRevisions.get(document.uri);
   const workspace = await semanticForUri(document.uri);
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
-  const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const root = rootForUri(document.uri); let previousSource = workspace.source(document.uri);
   if (root) {
     if (mayDeclareCompactFunction(document.getText())) compactFunctionDocumentUris.add(document.uri);
     else compactFunctionDocumentUris.delete(document.uri);
@@ -5960,7 +6401,12 @@ documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async
   if (root && hasPossibleOpenPhysicalAlias(document, root)
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
-  const update = workspace.update(document.uri, document.getText(), true);
+  const publication = pendingOpenSourcePublications.get(document.uri);
+  const queryUpdate = publication?.version === openedVersion ? publication.queryUpdates.get(workspace) : undefined;
+  if (queryUpdate) previousSource = queryUpdate.previousSource;
+  const currentUpdate = workspace.update(document.uri, document.getText(), true);
+  const update = queryUpdate ? combineOpenSourceUpdates(queryUpdate.update, currentUpdate) : currentUpdate;
+  if (queryUpdate) publication!.queryUpdates.delete(workspace);
   published();
   // A disk-identical first open can add a class that the current on-demand
   // container snapshot has never seen. Refresh before its first References query.
@@ -6012,12 +6458,17 @@ documents.onDidChangeContent(({ document }) => trackOpenSourcePublication(docume
   if (!opening && sourceChanged) invalidateCandidates(document.uri, indexingMode === 'progressive');
   const workspace = await semanticForUri(document.uri);
   if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
-  const root = rootForUri(document.uri); const previousSource = workspace.source(document.uri);
+  const root = rootForUri(document.uri); let previousSource = workspace.source(document.uri);
   if (opening && root) retainedClosedDocumentsByRoot.get(root)?.delete(document.uri);
   if (root && hasPossibleOpenPhysicalAlias(document, root)
     && !await supersedeOpenPhysicalAliases(document, root, workspace, sequence)) return;
   if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
-  const update = workspace.update(document.uri, document.getText(), true);
+  const publication = pendingOpenSourcePublications.get(document.uri);
+  const queryUpdate = publication?.version === contentVersion ? publication.queryUpdates.get(workspace) : undefined;
+  if (queryUpdate) previousSource = queryUpdate.previousSource;
+  const currentUpdate = workspace.update(document.uri, document.getText(), true);
+  const update = queryUpdate ? combineOpenSourceUpdates(queryUpdate.update, currentUpdate) : currentUpdate;
+  if (queryUpdate) publication!.queryUpdates.delete(workspace);
   published();
   if (opening) {
     const diskPath = pathForUri(document.uri);
@@ -6249,7 +6700,14 @@ function routeProviderDocuments(root: string): { complete: boolean; documents: R
   return { complete: true, documents: snapshots };
 }
 
-async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Promise<RouteFact[]> {
+function routeProviderDocumentsSignature(snapshots: ReturnType<typeof routeProviderDocuments>): string {
+  return JSON.stringify({ complete: snapshots.complete, documents: snapshots.documents.map(document => ({
+    uri: document.uri, languageId: document.languageId, snapshotVersion: document.snapshotVersion,
+    sourceHash: createHash('sha256').update(document.source).digest('hex'),
+  })) });
+}
+
+async function providedSymfonyRoutes(root: string, cancelled: () => boolean, refreshesRemaining = 1): Promise<RouteFact[]> {
   const inputRevision = routeProviderCacheRevision;
   const querySequence = ++routeSnapshotQuerySequence;
   routeSnapshotLatestQueryByRoot.set(root, querySequence);
@@ -6261,6 +6719,7 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     inputUris?: readonly string[]; inputDirectoryUris?: readonly string[]; inputEvidenceComplete?: boolean }> = [];
   const environment = symfonyRouteProvider(indexedUriForPath(root, root))?.environment;
   const snapshots = routeProviderDocuments(root);
+  const documentsSignature = routeProviderDocumentsSignature(snapshots);
   const authoritative = routeProviders.filter((descriptor) => descriptor.replacesStaticRoutes);
   if (authoritative.length > 1) {
     connection.console.warn(outputMessage(clientDiagnosticLanguage, 'routeProvidersConflict'));
@@ -6271,7 +6730,9 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
   for (const descriptor of active) {
     if (cancelled()) return [];
     const cacheKey = descriptor.providerId.toLowerCase();
-    const cacheSignature = JSON.stringify({ descriptor, environment });
+    // Documents already contains the newest buffers even when their semantic
+    // publication has not yet reached the invalidation handler.
+    const cacheSignature = JSON.stringify({ descriptor, environment, documentsSignature });
     const cached = descriptor.cacheUntilInvalidated ? routeProviderCacheByRoot.get(root)?.get(cacheKey) : undefined;
     if (cached?.signature === cacheSignature) { contributions.push({ descriptor, ...cached }); continue; }
     if (descriptor.replacesStaticRoutes && !snapshots.complete) {
@@ -6288,7 +6749,11 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
     if (cancelled()) return [];
     if (result.ok) {
       contributions.push({ descriptor, ...result.contribution });
-      if (descriptor.cacheUntilInvalidated && result.contribution.complete && cacheRevision === routeProviderCacheRevision) {
+      // An incomplete result remains unavailable. Only a complete, local input
+      // inventory proves when that unavailable state must be retried.
+      if (descriptor.cacheUntilInvalidated
+        && (result.contribution.complete || routeContributionHasLocalInputs(root, result.contribution))
+        && cacheRevision === routeProviderCacheRevision) {
         const rootCache = routeProviderCacheByRoot.get(root) ?? new Map<string, { signature: string; complete: boolean; routes: readonly RouteFact[];
           inputUris?: readonly string[]; inputDirectoryUris?: readonly string[]; inputEvidenceComplete?: boolean }>();
         rootCache.set(cacheKey, { signature: cacheSignature, complete: result.contribution.complete, routes: [...result.contribution.routes],
@@ -6315,6 +6780,17 @@ async function providedSymfonyRoutes(root: string, cancelled: () => boolean): Pr
   }
   if (!cancelled() && inputRevision === routeProviderCacheRevision) routeProviderInputsByRoot.set(root,
     { revision: inputRevision, files, directories, complete: inputEvidenceComplete });
+  if (cancelled()) return [];
+  // The first provider response can discover an imported file that was already
+  // open but had no route spelling. Its disk result cannot describe that buffer.
+  // Also recheck live content after asynchronous providers; version numbers can
+  // repeat after close/reopen. Retry once, then refuse an unstable snapshot.
+  if (inputRevision !== routeProviderCacheRevision
+    || routeProviderDocumentsSignature(routeProviderDocuments(root)) !== documentsSignature) {
+    if (refreshesRemaining > 0) return providedSymfonyRoutes(root, cancelled, refreshesRemaining - 1);
+    publishCurrentStatus(true);
+    return [];
+  }
   const owner = authoritative[0] && contributions.find((entry) => entry.descriptor === authoritative[0]);
   if (authoritative.length === 1) {
     if (!owner?.complete) {
@@ -6586,18 +7062,31 @@ async function hydrateOnDemandSymbolImports(workspace: SemanticWorkspace, root: 
   }
   for (const path of paths) {
     if (cancelled()) return false;
-    if (workspace.source(indexedUriForPath(root, path)) !== undefined) continue;
+    const uri = indexedUriForPath(root, path);
+    const source = workspace.source(uri);
+    if (source !== undefined) {
+      // A removed function has no declaration identity to refresh by name.
+      // Reuse this Composer file only after applying its current open buffer;
+      // the asynchronous didChange publication may still be pending.
+      const opened = documents.get(uri);
+      if (opened) refreshOpenDocumentSourceForQuery(workspace, opened);
+      continue;
+    }
     if (!await hydrateNonPsr4TypeSource(workspace, root, path, project)) complete = false;
   }
   return complete;
 }
 
 function refreshStaleOpenFunctionSourceAt(workspace: SemanticWorkspace, uri: string, offset: number): void {
+  // Resolve the call at the current buffer offset. A pending didChange can
+  // leave this caller's indexed text shorter or longer than the open document.
+  const caller = documents.get(uri);
+  if (caller) refreshOpenDocumentSourceForQuery(workspace, caller);
   const names = [...new Set([...workspace.directCallFunctionNamesAt(uri, offset),
     ...workspace.variableValueFunctionNamesAt(uri, offset), ...workspace.memberReceiverFunctionNamesAt(uri, offset)])];
   for (const target of workspace.functionSourceUrisForNames(names)) {
     const opened = documents.get(target);
-    if (opened && workspace.source(target) !== opened.getText()) workspace.update(target, opened.getText(), true);
+    if (opened) refreshOpenDocumentSourceForQuery(workspace, opened);
   }
 }
 
@@ -7049,10 +7538,15 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
   if (testPauseNextQueries.has('completion')) await pauseTestQuery('completion');
-  await semanticProviderReconciliation;
+  await semanticProviderQueryReadiness;
   const workspace = await semanticForOpenQuery(document);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
+  const initialContext = workspace.completionContext(document.uri, offset, Number(phpVersionForUri(document.uri)) >= 8);
+  if (initialContext.kind !== 'member' && initialContext.kind !== 'variable') {
+    await semanticProviderReconciliation;
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+  }
   const deprecation = (location: SemanticLocation): Pick<CompletionItem, 'tags' | 'deprecated'> =>
     workspace.symbolDeprecation(location, phpVersionForUri(document.uri))
       ? { tags: [CompletionItemTag.Deprecated], deprecated: true } : {};
@@ -7298,6 +7792,13 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
         ...candidates.flatMap((fqcn) => workspace.directDeclarationDependencies(fqcn))];
     }
     if (!currentQueryDocument(document, token, queryVersion)) return [];
+  }
+  if (completionContext.kind === 'member' && !resolvedMembers.length) {
+    // An unresolved member may require a provider's synthetic facts. Retain
+    // that dependency instead of treating an empty pending list as final.
+    await semanticProviderReconciliation;
+    if (!currentQueryDocument(document, token, queryVersion)) return [];
+    resolvedMembers = workspace.completeMembers(document.uri, offset);
   }
   const memberPrefix = /(?:\?->|->|::)\s*\$?([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)?$/u
     .exec(document.getText().slice(0, offset))?.[1] ?? '';
@@ -8007,8 +8508,15 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const namedTarget = closedPromotedTarget?.name ?? type?.name ?? member?.name;
     const candidateNames = new Set(namedTarget ? [namedTarget.toLowerCase()] : []);
     if (type || member?.kind === 'method') candidateNames.add('dispatch');
-    const sourcePrepared = Boolean(root && referenceSourceMode()
+    const preparedSourceReady = Boolean(root && referenceSourceMode()
       && referenceSourceReadyRoots.get(root) === (projectEpochs.get(root) ?? 0));
+    const sourcePrepared = Boolean(root && preparedSourceReady
+      && (!namedTarget || await preparedReferenceCandidatesUnchanged(workspace, root, candidateNames,
+        () => token.isCancellationRequested)));
+    if (root && namedTarget && preparedSourceReady && !sourcePrepared) {
+      const candidateKey = `${root}:${closedPromotedTarget ? 'named-argument' : 'symbol'}:${member?.kind === 'method' ? 'declarations' : 'full'}:${experimentalReferenceClosure && member?.kind === 'method' ? 'exact:' : ''}${[...candidateNames].sort().join(',')}`;
+      candidateQueries.delete(candidateKey);
+    }
     const methodCandidateKey = root && member?.kind === 'method'
       ? `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}` : undefined;
     if (root && methodCandidateKey && !await methodCandidatePathsUnchanged(workspace, root, methodCandidateKey,
@@ -8948,6 +9456,11 @@ connection.onCodeAction(async (params, token) => {
 
 connection.onShutdown(async () => {
   shuttingDown = true;
+  const pendingContainers = [...containerProviderTasks.values()].map((task) => task.promise);
+  for (const task of containerProviderTasks.values()) { task.waiters.clear(); task.abortController.abort(); }
+  containerProviderTasks.clear();
+  for (const abortController of pendingSemanticProviderRuns.keys()) abortController.abort();
+  await Promise.allSettled([...pendingContainers, ...pendingSemanticProviderRuns.values()]);
   builtinSnapshotService.dispose();
   for (const publication of pendingOpenSourcePublications.values()) publication.finish();
   await Promise.allSettled(builtinRefreshesByRoot.values());

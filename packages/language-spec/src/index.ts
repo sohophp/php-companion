@@ -738,8 +738,8 @@ final class Generator implements Iterator {
   public function next(): void {}
   public function rewind(): void {}
   /** @param TSend $value
-   * @return mixed */ public function send($value) {}
-  /** @return mixed */ public function throw(Throwable $exception) {}
+   * @return TValue|null */ public function send($value) {}
+  /** @return TValue|null */ public function throw(Throwable $exception) {}
   public function valid(): bool {}
   ${!php74 ? '/** @return void */ public function __wakeup() {}' : ''}
   ${php84 ? 'public function __debugInfo(): array {}' : ''}
@@ -3667,6 +3667,15 @@ const FEATURE_VERSIONS: Record<string, { feature: string; version: SupportedPhpV
   bottom_type: { feature: 'never type', version: '8.1' },
 };
 const versionNumber = (version: SupportedPhpVersion): number => Number(version.replace('.', ''));
+const SYNTAX_FEATURE_NODE_TYPES = [...new Set([
+  ...Object.keys(FEATURE_VERSIONS),
+  'argument', 'arguments', 'augmented_assignment_expression', 'integer', 'float', 'property_declaration',
+  'primitive_type', 'named_type', 'optional_type', 'visibility_modifier', 'anonymous_function',
+  'variadic_placeholder', 'final_modifier', 'abstract_modifier', 'binary_expression',
+  'function_call_expression', 'clone_expression', 'class_constant_access_expression',
+  'object_creation_expression', 'readonly_modifier', 'const_declaration',
+  'formal_parameters', 'anonymous_function_use_clause', 'catch_clause',
+])];
 
 const syntaxField = (node: SyntaxNodeLike, name: string): SyntaxNodeLike | null | undefined =>
   (node as SyntaxNodeLike & { childForFieldName?: (field: string) => SyntaxNodeLike | null }).childForFieldName?.(name);
@@ -3747,7 +3756,14 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
   const targetVersion = versionNumber(target);
   const output: UnsupportedSyntax[] = [];
   const reportedVoidCasts = new Set<string>();
-  const visit = (node: SyntaxNodeLike): void => {
+  // Void recovery can use arbitrary node kinds. Preserve the complete walk
+  // whenever its source pattern exists or the caller has no source/native query.
+  const nativeQuery = (root as SyntaxNodeLike & {
+    descendantsOfType?: (types: string[]) => SyntaxNodeLike[];
+  }).descendantsOfType;
+  const candidates = source !== undefined && !/\(\s*void\s*\)/i.test(source) && nativeQuery
+    ? nativeQuery.call(root, SYNTAX_FEATURE_NODE_TYPES) : undefined;
+  const visit = (node: SyntaxNodeLike, descend = true): void => {
     // Tree-sitter type getters cross the WASM boundary. Read once per visited node.
     const nodeType = node.type;
     if (targetVersion < versionNumber('8.5') && /^\(\s*void\s*\)$/i.test(node.text)) {
@@ -3767,13 +3783,21 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
       const name = fieldNode('name');
       if (name) { rule = { feature: 'named argument', version: '8.0' }; range = name; }
     }
-    if (nodeType === 'arguments') {
+    if (nodeType === 'arguments' || nodeType === 'formal_parameters' || nodeType === 'anonymous_function_use_clause') {
       const significant = node.children?.filter((child) => child.type !== 'comment');
       const comma = significant?.at(-2);
-      if (significant?.at(-1)?.type === ')' && comma?.type === ',') {
-        rule = { feature: 'trailing comma in a call', version: '7.3' };
+      const close = significant?.at(-1);
+      if (close?.type === ')' && comma?.type === ',' && (nodeType === 'arguments' || close.text === ')')) {
+        rule = nodeType === 'arguments' ? { feature: 'trailing comma in a call', version: '7.3' }
+          : { feature: nodeType === 'formal_parameters' ? 'trailing comma in parameters' : 'trailing comma in closure captures', version: '8.0' };
         range = comma;
       }
+    }
+    if (nodeType === 'catch_clause' && !fieldNode('name')
+      && node.namedChildren.some(child => child.type === 'type_list' && child.text.trim().length > 0)
+      && node.children?.some(child => child.type === ')' && child.text === ')')) {
+      rule = { feature: 'non-capturing catch', version: '8.0' };
+      range = node.children.find(child => child.type === 'catch') ?? node;
     }
     if (nodeType === 'augmented_assignment_expression') {
       const operator = fieldNode('operator');
@@ -3782,7 +3806,8 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
         range = operator;
       }
     }
-    if (nodeType === 'integer' && node.text.includes('_')) rule = { feature: 'numeric literal separator', version: '7.4' };
+    if ((nodeType === 'integer' || nodeType === 'float') && node.text.includes('_') && !/^0[oO](?:$|_)/u.test(node.text)) rule = { feature: 'numeric literal separator', version: '7.4' };
+    if (nodeType === 'integer' && /^0[oO][0-7](?:_?[0-7])*$/u.test(node.text)) rule = { feature: 'explicit octal literal', version: '8.1' };
     if (nodeType === 'property_declaration' && fieldNode('type')) rule = { feature: 'typed property', version: '7.4' };
     if (nodeType === 'disjunctive_normal_form_type') rule = { feature: 'DNF type', version: '8.2' };
     if (nodeType === 'primitive_type') {
@@ -3851,7 +3876,9 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
       : { feature: node.parent?.type === 'class_declaration' ? 'readonly class' : 'readonly property', version: node.parent?.type === 'class_declaration' ? '8.2' : '8.1' };
     if (nodeType === 'const_declaration' && fieldNode('type')) rule = { feature: 'typed class constant', version: '8.3' };
     if (rule && targetVersion < versionNumber(rule.version)) output.push({ feature: rule.feature, minimumVersion: rule.version, start: range.startIndex, end: range.endIndex });
-    for (const child of node.namedChildren) visit(child);
+    if (descend) for (const child of node.namedChildren) visit(child);
   };
-  visit(root); return output;
+  if (candidates) for (const node of candidates) visit(node, false);
+  else visit(root);
+  return output;
 }

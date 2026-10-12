@@ -13,25 +13,75 @@ export type PhpDocType =
   | ({ kind: 'shape'; shapeKind: 'array' | 'object'; fields: PhpDocShapeField[] } & SourceRange);
 
 export interface PhpDocShapeField extends SourceRange { key?: string; optional: boolean; type: PhpDocType; }
-export interface PhpDocCallableParameter extends SourceRange { type: PhpDocType; name?: string; optional: boolean; variadic: boolean; }
+export interface PhpDocCallableParameter extends SourceRange { type: PhpDocType; name?: string; optional: boolean; variadic: boolean; defaultValue?: string; }
 export interface PhpDocMethodTemplate extends SourceRange { name: string; bound?: PhpDocType; defaultType?: PhpDocType; }
 export type PhpDocTagName = 'param' | 'param-out' | 'return' | 'var' | 'throws' | 'template' | 'extends' | 'implements' | 'use' | 'mixin' | 'assert' | 'assert-if-true' | 'assert-if-false' | 'property' | 'property-read' | 'property-write' | 'method' | 'deprecated';
 export type PhpDocDialect = 'phpdoc' | 'phpstan' | 'psalm';
 export type PhpDocTemplateVariance = 'covariant' | 'contravariant' | 'invariant';
-export interface PhpDocTag extends SourceRange { name: PhpDocTagName; dialect: PhpDocDialect; type?: PhpDocType; variable?: string; propertyPath?: string[]; description: string; variance?: PhpDocTemplateVariance; parameters?: PhpDocCallableParameter[]; templates?: PhpDocMethodTemplate[]; static?: boolean; }
+export interface PhpDocTag extends SourceRange { name: PhpDocTagName; dialect: PhpDocDialect; type?: PhpDocType; variable?: string; propertyPath?: string[]; description: string; variance?: PhpDocTemplateVariance; parameters?: PhpDocCallableParameter[]; templates?: PhpDocMethodTemplate[]; static?: boolean; invalid?: true; }
 export interface PhpDocError extends SourceRange { message: string; }
 export interface ParsedPhpDoc { tags: PhpDocTag[]; errors: PhpDocError[]; }
 
 const TAGS = new Set<PhpDocTagName>(['param', 'param-out', 'return', 'var', 'throws', 'template', 'extends', 'implements', 'use', 'mixin', 'assert', 'assert-if-true', 'assert-if-false', 'property', 'property-read', 'property-write', 'method', 'deprecated']);
+const MAX_TYPE_DEPTH = 64;
+const MAX_TYPE_NODES = 4096;
 
 class TypeParser {
   position = 0;
   readonly errors: PhpDocError[] = [];
-  constructor(private readonly text: string, private readonly base: number) {}
+  private callableNesting = 0;
+  private typeDepth = 0;
+  private remainingWork = MAX_TYPE_NODES * 2;
+  private limitExceeded = false;
+  constructor(private readonly text: string, private readonly base: number, private readonly methodDefaults = false) {}
   private skip(): void { while (/\s/.test(this.text[this.position] ?? '')) this.position += 1; }
   private error(message: string): void { this.errors.push({ start: this.base + this.position, end: this.base + Math.min(this.position + 1, this.text.length), message }); }
-  parse(): PhpDocType | undefined { this.skip(); return this.conditional(); }
+  parse(): PhpDocType | undefined {
+    this.skip(); const type = this.conditional();
+    if (this.limitExceeded) return undefined;
+    if (type && !this.treeWithinBudget(type)) { this.exceedLimit(); return undefined; }
+    return type;
+  }
+  private exceedLimit(): void {
+    if (!this.limitExceeded) this.error('PHPDoc type complexity exceeds the parsing limit.');
+    this.limitExceeded = true; this.position = this.text.length;
+  }
+  private consumeWork(): boolean {
+    if (this.limitExceeded) return false;
+    if (this.remainingWork-- <= 0) { this.exceedLimit(); return false; }
+    return true;
+  }
+  private enterType(): boolean {
+    if (!this.consumeWork()) return false;
+    if (this.typeDepth >= MAX_TYPE_DEPTH * 2) { this.exceedLimit(); return false; }
+    this.typeDepth += 1; return true;
+  }
+  private treeWithinBudget(type: PhpDocType): boolean {
+    const pending = [{ type, depth: 1 }]; let remaining = MAX_TYPE_NODES;
+    while (pending.length) {
+      const current = pending.pop()!;
+      if (--remaining < 0 || current.depth > MAX_TYPE_DEPTH) return false;
+      const node = current.type; let children: PhpDocType[];
+      switch (node.kind) {
+        case 'name': case 'literal': children = []; break;
+        case 'nullable': case 'negated': children = [node.type]; break;
+        case 'array': children = [node.element]; break;
+        case 'conditional': children = [node.subject, node.target, node.ifTrue, node.ifFalse]; break;
+        case 'union': case 'intersection': children = node.types; break;
+        case 'generic': children = [node.base, ...node.arguments]; break;
+        case 'shape': children = node.fields.map(field => field.type); break;
+        case 'callable': children = node.parameters.map(parameter => parameter.type);
+          if (node.returnType) children.push(node.returnType); break;
+      }
+      for (const child of children) pending.push({ type: child, depth: current.depth + 1 });
+    }
+    return true;
+  }
   private conditional(): PhpDocType | undefined {
+    if (!this.enterType()) return undefined;
+    try { return this.conditionalBody(); } finally { this.typeDepth -= 1; }
+  }
+  private conditionalBody(): PhpDocType | undefined {
     const subject = this.union(); if (!subject) return undefined;
     this.skip(); const operator = /^(is\s+not|is)\b/i.exec(this.text.slice(this.position));
     if (!operator) return subject;
@@ -63,10 +113,17 @@ class TypeParser {
   }
   private postfix(): PhpDocType | undefined {
     let value = this.primary(); if (!value) return undefined; this.skip();
-    while (this.text.slice(this.position, this.position + 2) === '[]') { this.position += 2; value = { kind: 'array', element: value, start: value.start, end: this.base + this.position }; this.skip(); }
+    while (this.text.slice(this.position, this.position + 2) === '[]') {
+      if (!this.consumeWork()) return undefined;
+      this.position += 2; value = { kind: 'array', element: value, start: value.start, end: this.base + this.position }; this.skip();
+    }
     return value;
   }
   private primary(): PhpDocType | undefined {
+    if (!this.enterType()) return undefined;
+    try { return this.primaryBody(); } finally { this.typeDepth -= 1; }
+  }
+  private primaryBody(): PhpDocType | undefined {
     this.skip(); const start = this.position;
     if (this.text[this.position] === '!') {
       this.position += 1; const type = this.primary();
@@ -118,6 +175,8 @@ class TypeParser {
     return { kind: 'generic', base: baseType, arguments: args, start: this.base + start, end: this.base + this.position };
   }
   private callable(start: number, callableName: string): PhpDocType {
+    const concreteDefaults = this.methodDefaults && this.callableNesting === 0;
+    this.callableNesting += 1;
     this.position += 1; const parameters: PhpDocCallableParameter[] = []; this.skip();
     while (this.position < this.text.length && this.text[this.position] !== ')') {
       const parameterStart = this.position; let variadic = false;
@@ -129,8 +188,16 @@ class TypeParser {
       const nameMatch = /^\$([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)/.exec(this.text.slice(this.position));
       const name = nameMatch?.[1]; if (nameMatch) { this.position += nameMatch[0].length; this.skip(); }
       const optional = this.text[this.position] === '=';
-      if (optional) this.position += 1;
-      parameters.push({ type, name, optional, variadic, start: this.base + parameterStart, end: this.base + this.position });
+      let defaultValue: string | undefined;
+      if (optional) {
+        this.position += 1;
+        if (concreteDefaults) {
+          this.skip(); const defaultStart = this.position;
+          if (this.methodDefault()) defaultValue = this.text.slice(defaultStart, this.position).trimEnd();
+        }
+      }
+      parameters.push({ type, name, optional, variadic, ...(defaultValue === undefined ? {} : { defaultValue }),
+        start: this.base + parameterStart, end: this.base + this.position });
       this.skip(); if (this.text[this.position] !== ',') break; this.position += 1; this.skip();
       if (this.text[this.position] === ')') this.error('Expected a callable parameter type.');
     }
@@ -140,7 +207,56 @@ class TypeParser {
       this.position += 1; returnType = this.conditional();
       if (!returnType) this.error('Expected a callable return type.');
     }
+    this.callableNesting -= 1;
     return { kind: 'callable', callableName, parameters, returnType, start: this.base + start, end: returnType?.end ?? this.base + this.position };
+  }
+  private methodDefault(depth = 0): boolean {
+    this.skip();
+    if (depth >= 64) { this.error('Method default nesting exceeds the parsing limit.'); return false; }
+    const quote = this.text[this.position];
+    if (quote === "'" || quote === '"') {
+      this.position += 1;
+      while (this.position < this.text.length) {
+        const character = this.text[this.position++]!;
+        if (character === quote) return true;
+        if (character === '\\' && this.position < this.text.length) this.position += 1;
+      }
+      this.error('Expected a closing quote in a method default.'); return false;
+    }
+    const number = /^[+-]?(?:0[xX][0-9a-fA-F](?:_?[0-9a-fA-F])*|0[bB][01](?:_?[01])*|0[oO][0-7](?:_?[0-7])*|(?:[0-9](?:_?[0-9])*(?:\.(?:[0-9](?:_?[0-9])*)?)?|\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?)/.exec(this.text.slice(this.position));
+    if (number) { this.position += number[0].length; return true; }
+    const identifier = /^\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/.exec(this.text.slice(this.position));
+    let close: string | undefined;
+    if (identifier) {
+      this.position += identifier[0].length; this.skip();
+      if (identifier[0].toLowerCase() === 'array') {
+        if (this.text[this.position] !== '(') { this.error('Expected ( in a method array default.'); return false; }
+        this.position += 1; close = ')';
+      } else {
+        if (this.text.slice(this.position, this.position + 2) === '::') {
+          this.position += 2; this.skip();
+          const member = /^[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*/.exec(this.text.slice(this.position));
+          if (!member) { this.error('Expected a class constant in a method default.'); return false; }
+          this.position += member[0].length;
+        }
+        return true;
+      }
+    } else if (this.text[this.position] === '[') { this.position += 1; close = ']'; }
+    else { this.error('Expected a constant value in a method default.'); return false; }
+    this.skip();
+    while (this.position < this.text.length && this.text[this.position] !== close) {
+      if (!this.methodDefault(depth + 1)) return false;
+      this.skip();
+      if (this.text.slice(this.position, this.position + 2) === '=>') {
+        this.position += 2;
+        if (!this.methodDefault(depth + 1)) return false;
+        this.skip();
+      }
+      if (this.text[this.position] !== ',') break;
+      this.position += 1; this.skip();
+    }
+    if (this.text[this.position] !== close) { this.error('Expected a closing delimiter in a method array default.'); return false; }
+    this.position += 1; return true;
   }
   private shape(shapeKind: 'array' | 'object', start: number): PhpDocType {
     this.position += 1; const fields: PhpDocShapeField[] = []; this.skip();
@@ -166,10 +282,17 @@ export function parsePhpDocType(text: string, baseOffset = 0): { type?: PhpDocTy
 
 export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
   const tags: PhpDocTag[] = []; const errors: PhpDocError[] = [];
+  const commentEnd = source.indexOf('*/');
+  const contentEnd = commentEnd < 0 ? source.length : commentEnd;
+  // A new tag starts a new body even when its name is unsupported. Preserve
+  // decoration widths so every nested type still points into the original text.
+  const bodyBoundaries = [...source.slice(0, contentEnd).matchAll(/(?:\r\n?|\n)[\t ]*\*?[\t ]*(?=@[A-Za-z])/g)]
+    .map(match => match.index);
+  let boundaryIndex = 0;
   // Longer unsupported extensions are distinct tags, not shorter supported tags
   // with a malformed type. Do not let a shorter alternative consume them.
   const pattern = /@(?:(phpstan|psalm)-)?(param(?:-out)?|return|var|throws|property(?:-(?:read|write))?|method|deprecated|mixin|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|use|template(?:-covariant|-contravariant)?)\b(?![-\w])/g;
-  for (const match of source.matchAll(pattern)) {
+  for (const match of source.slice(0, contentEnd).matchAll(pattern)) {
     const previous = tags.at(-1);
     const protectedEnd = previous ? Math.max(previous.type?.end ?? 0,
       ...previous.parameters?.map(parameter => parameter.end) ?? [],
@@ -183,14 +306,20 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
       ? rawName.endsWith('-covariant') ? 'covariant' : rawName.endsWith('-contravariant') ? 'contravariant' : 'invariant'
       : undefined;
     if (!TAGS.has(name)) continue;
+    const initialErrors = errors.length;
+    const pushTag = (tag: PhpDocTag): void => {
+      if (errors.length > initialErrors) tag.invalid = true;
+      tags.push(tag);
+    };
     const bodyOffset = match.index + match[0].length;
-    const endOfLine = source.slice(bodyOffset).search(/[\r\n]/);
-    const body = source.slice(bodyOffset, endOfLine < 0 ? source.length : bodyOffset + endOfLine);
+    while (bodyBoundaries[boundaryIndex] !== undefined && bodyBoundaries[boundaryIndex]! < bodyOffset) boundaryIndex += 1;
+    const body = source.slice(bodyOffset, bodyBoundaries[boundaryIndex] ?? contentEnd)
+      .replace(/(?:\r\n?|\n)[\t ]*\*(?!\/)/g, prefix => prefix.replace(/[^\r\n]/g, ' '));
     const leading = body.length - body.trimStart().length;
     const bodyStart = baseOffset + bodyOffset + leading;
-    const clean = body.trimStart().replace(/\s*\*\/\s*$/, '');
+    const clean = body.trim();
     if (name === 'deprecated') {
-      tags.push({ name, dialect, description: clean, start: baseOffset + match.index, end: bodyStart + clean.length });
+      pushTag({ name, dialect, description: clean, start: baseOffset + match.index, end: bodyStart + clean.length });
       continue;
     }
     if (name === 'property' || name === 'property-read' || name === 'property-write') {
@@ -199,7 +328,7 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
       const property = /^(\$[A-Za-z_][A-Za-z0-9_]*)/.exec(rest);
       if (!parsed.type || !property) errors.push({ start: bodyStart, end: bodyStart + clean.length, message: 'Expected a type and property name for @property.' });
       if (property) rest = rest.slice(property[0].length).trimStart();
-      tags.push({ name, dialect, type: parsed.type, variable: property?.[1], description: rest,
+      pushTag({ name, dialect, type: parsed.type, variable: property?.[1], description: rest,
         start: baseOffset + match.index, end: bodyStart + clean.length });
       continue;
     }
@@ -229,7 +358,7 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
             if ((character === ',' && nested === 0) || index === templateText.length) { parts.push({ text: templateText.slice(partStart, index), start: partStart }); partStart = index + 1; }
           }
           for (const part of parts) {
-            const declaration = /^\s*([A-Za-z_][A-Za-z0-9_]*)(?:\s+(?:of|as)\s+(.+?))?(?:\s*=\s*(.+))?\s*$/.exec(part.text);
+            const declaration = /^\s*([A-Za-z_][A-Za-z0-9_]*)(?:\s+(?:of|as)\s+(.+?))?(?:\s*=\s*(.+))?\s*$/s.exec(part.text);
             if (!declaration) { errors.push({ start: methodBodyStart + templateStart + part.start, end: methodBodyStart + templateStart + part.start + part.text.length, message: 'Expected an @method template declaration.' }); continue; }
             const boundText = declaration[2]; const defaultText = declaration[3];
             const bound = boundText ? parsePhpDocType(boundText, methodBodyStart + templateStart + part.start + part.text.indexOf(boundText)) : undefined;
@@ -254,17 +383,26 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
         }
       }
       const parameterText = parametersStart >= 0 && close >= 0 ? methodBody.slice(parametersStart, close) : undefined;
-      const callable = parameterText === undefined ? undefined : parsePhpDocType(`callable(${parameterText}): mixed`).type;
+      const parameterParser = parameterText === undefined ? undefined : new TypeParser(`callable(${parameterText}): mixed`,
+        methodBodyStart + parametersStart - 'callable('.length, true);
+      const callable = parameterParser?.parse();
+      if (parameterParser) {
+        const parameterEnd = methodBodyStart + close;
+        errors.push(...parameterParser.errors.map(error => ({ ...error,
+          start: Math.min(error.start, parameterEnd), end: Math.min(error.end, parameterEnd) })));
+      }
       if (!parsed.type || !methodName || callable?.kind !== 'callable') errors.push({ start: bodyStart, end: bodyStart + clean.length, message: 'Expected a return type and callable signature for @method.' });
-      tags.push({ name, dialect, type: parsed.type, variable: methodName?.[1], parameters: callable?.kind === 'callable' ? callable.parameters : undefined,
+      pushTag({ name, dialect, type: parsed.type, variable: methodName?.[1], parameters: callable?.kind === 'callable' ? callable.parameters : undefined,
         templates, static: isStatic, description: close >= 0 ? methodBody.slice(close + 1).trimStart() : '', start: baseOffset + match.index, end: bodyStart + clean.length });
       continue;
     }
     if (name === 'template') {
-      const template = /^([A-Za-z_][A-Za-z0-9_]*)(?:\s+(?:of|as)\s+(.+?))?(?:\s+(.+))?$/.exec(clean);
-      const typeText = template?.[2]; const parsed = typeText ? parsePhpDocType(typeText, bodyStart + clean.indexOf(typeText)) : undefined;
+      const template = /^([A-Za-z_][A-Za-z0-9_]*)(?:\s+(of|as)\b)?/.exec(clean);
+      const remainder = template ? clean.slice(template[0].length) : '';
+      const parsed = template?.[2] ? parsePhpDocType(remainder, bodyStart + template[0].length) : undefined;
       if (parsed) errors.push(...parsed.errors);
-      tags.push({ name, dialect, type: parsed?.type, variable: template?.[1], description: template?.[3] ?? '', variance, start: baseOffset + match.index, end: bodyStart + clean.length });
+      pushTag({ name, dialect, type: parsed?.type, variable: template?.[1],
+        description: remainder.slice(parsed?.consumed ?? 0).trim(), variance, start: baseOffset + match.index, end: bodyStart + clean.length });
       continue;
     }
     const assertion = name === 'assert' || name === 'assert-if-true' || name === 'assert-if-false';
@@ -284,7 +422,7 @@ export function parsePhpDoc(source: string, baseOffset = 0): ParsedPhpDoc {
       rest = rest.slice(variableMatch[0].length).trimStart();
     }
     if (!parsed.type) errors.push({ start: bodyStart, end: bodyStart + clean.length, message: `Expected a type for @${name}.` });
-    tags.push({ name, dialect, type: parsed.type, variable, propertyPath: propertyPath?.length ? propertyPath : undefined,
+    pushTag({ name, dialect, type: parsed.type, variable, propertyPath: propertyPath?.length ? propertyPath : undefined,
       description: rest, start: baseOffset + match.index, end: bodyStart + clean.length });
   }
   for (let index = 0; index < tags.length - 1; index += 1) {

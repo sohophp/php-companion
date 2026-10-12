@@ -1,0 +1,1406 @@
+{
+  "schemaVersion": 1,
+  "productChanged": false,
+  "qualification": false,
+  "decision": "Inspect a separate private shared-prototype candidate; no projected RSS benefit.",
+  "analysis": {
+    "schemaVersion": 1,
+    "productChanged": false,
+    "qualification": false,
+    "createdAtUtc": "2026-10-07T13:46:25.551921+00:00",
+    "scope": "Read-only direct outgoing storage analysis of the existing historical 079ffa1b full-GC warm-before-dispose heap. No new capture, GC, test, benchmark or current RSS measurement. Structural matches and shallow node sizes only; not dominator retained sizes or projected memory savings.",
+    "snapshotPath": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/warm-before-dispose.heapsnapshot",
+    "snapshotSha256": "099b71e2113203ca5b67688b01c842fbb7a6cd4a1413e9bcdb9c8e06e9b952a8",
+    "snapshotBytes": 171728448,
+    "snapshotReviewDeadlineUtc": "2026-10-09T12:20:43.649Z",
+    "nodeCount": 2044945,
+    "edgeCount": 7367979,
+    "currentCoreSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+    "currentStorageHelpersMatchHistoricalSource": {
+      "semanticFileSnapshot": "c261139f9db6de9da3facf614d2323d0e2365cdf0d73703deac6a8abf62e5211",
+      "deferredSemanticFile": "bce71c3a08672bf424ceb7883c16d5d305073e63d398a51a75ff3d049dabe2d6",
+      "deferredImplementationGetter": "c0eb9b21c034be20638463942310a10aae0af7c600faefd39a8fd0f2b89107cb"
+    },
+    "semanticFiles": 10000,
+    "fileSelfBytes": 240192,
+    "directInternalTargets": {
+      "properties": {
+        "uniqueNodes": 9999,
+        "selfBytes": 15998400,
+        "types": {
+          "array": 9999
+        },
+        "names": {
+          "(object properties)": 9999
+        }
+      },
+      "map": {
+        "uniqueNodes": 2,
+        "selfBytes": 144,
+        "types": {
+          "object shape": 2
+        },
+        "names": {
+          "system / Map": 2
+        }
+      },
+      "27 / part of key (Object @1680669) -> value (Array @1680731) pair in WeakMap (table @3721303)": {
+        "uniqueNodes": 1,
+        "selfBytes": 32,
+        "types": {
+          "object": 1
+        },
+        "names": {
+          "Array": 1
+        }
+      },
+      "28 / part of key (Object @2116897) -> value (Array @1679959) pair in WeakMap (table @3721303)": {
+        "uniqueNodes": 1,
+        "selfBytes": 32,
+        "types": {
+          "object": 1
+        },
+        "names": {
+          "Array": 1
+        }
+      },
+      "28 / part of key (Object @2116923) -> value (Array @1679431) pair in WeakMap (table @3721303)": {
+        "uniqueNodes": 1,
+        "selfBytes": 32,
+        "types": {
+          "object": 1
+        },
+        "names": {
+          "Array": 1
+        }
+      }
+    },
+    "implementationFieldTargets": [
+      {
+        "field": "assignments",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "assignments",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "calls",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "calls",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "commentRanges",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "commentRanges",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "memberAccesses",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "memberAccesses",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "narrowings",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "narrowings",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "rawNames",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "rawNames",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "returns",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "returns",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "scopes",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "scopes",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "stringRanges",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "stringRanges",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "syntaxErrors",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "syntaxErrors",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "typeReferences",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "typeReferences",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      },
+      {
+        "field": "variableReferences",
+        "targetType": "hidden",
+        "targetName": "system / AccessorPair",
+        "edgeCount": 9996,
+        "uniqueNodes": 9996,
+        "selfBytes": 239904,
+        "types": {
+          "hidden": 9996
+        },
+        "names": {
+          "system / AccessorPair": 9996
+        }
+      },
+      {
+        "field": "variableReferences",
+        "targetType": "object",
+        "targetName": "Array",
+        "edgeCount": 4,
+        "uniqueNodes": 4,
+        "selfBytes": 128,
+        "types": {
+          "object": 4
+        },
+        "names": {
+          "Array": 4
+        }
+      }
+    ],
+    "accessorNodes": {
+      "uniqueNodes": 119952,
+      "selfBytes": 2878848,
+      "types": {
+        "hidden": 119952
+      },
+      "names": {
+        "system / AccessorPair": 119952
+      }
+    },
+    "accessorDirectClosureTargets": {
+      "uniqueNodes": 12,
+      "selfBytes": 768,
+      "types": {
+        "closure": 12
+      },
+      "names": {
+        "": 12
+      }
+    },
+    "propertiesStorageStrongIncomingMultiplicity": {
+      "1": 9999
+    },
+    "accessorStrongIncomingMultiplicity": {
+      "2": 119952
+    },
+    "fileExamples": [
+      {
+        "file": {
+          "id": 922063,
+          "type": "object",
+          "name": "Object",
+          "selfBytes": 24
+        },
+        "outgoing": [
+          {
+            "edgeType": "property",
+            "edgeName": "namespace",
+            "target": {
+              "id": 34359,
+              "type": "string",
+              "name": "Benchmark",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "typeReferences",
+            "target": {
+              "id": 922065,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get typeReferences",
+            "target": {
+              "id": 922067,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "stringRanges",
+            "target": {
+              "id": 922069,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get stringRanges",
+            "target": {
+              "id": 922071,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "rawNames",
+            "target": {
+              "id": 922073,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get rawNames",
+            "target": {
+              "id": 922075,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "mixins",
+            "target": {
+              "id": 922077,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "magicMembers",
+            "target": {
+              "id": 922079,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "uri",
+            "target": {
+              "id": 922081,
+              "type": "string",
+              "name": "file:///tmp/php-companion-persistent-index-10000-SFj48t/src/Fixture000695.php",
+              "selfBytes": 96
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "assignments",
+            "target": {
+              "id": 922083,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get assignments",
+            "target": {
+              "id": 922085,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "genericParents",
+            "target": {
+              "id": 922087,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "memberAccesses",
+            "target": {
+              "id": 922089,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get memberAccesses",
+            "target": {
+              "id": 922091,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "commentRanges",
+            "target": {
+              "id": 922093,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get commentRanges",
+            "target": {
+              "id": 922095,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "properties",
+            "target": {
+              "id": 922097,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "callables",
+            "target": {
+              "id": 922099,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "returns",
+            "target": {
+              "id": 922101,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get returns",
+            "target": {
+              "id": 922103,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "imports",
+            "target": {
+              "id": 922105,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "constants",
+            "target": {
+              "id": 922107,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "scopes",
+            "target": {
+              "id": 922109,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get scopes",
+            "target": {
+              "id": 922111,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "calls",
+            "target": {
+              "id": 922113,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get calls",
+            "target": {
+              "id": 922115,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "declarations",
+            "target": {
+              "id": 922117,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "source",
+            "target": {
+              "id": 922119,
+              "type": "string",
+              "name": "<?php\ndeclare(strict_types=1);\nnamespace Benchmark;\nfinal class Fixture000695 { public function id(): int { return 695; ",
+              "selfBytes": 192
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "variableReferences",
+            "target": {
+              "id": 922121,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get variableReferences",
+            "target": {
+              "id": 922123,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "syntaxErrors",
+            "target": {
+              "id": 922125,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get syntaxErrors",
+            "target": {
+              "id": 922127,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "narrowings",
+            "target": {
+              "id": 922129,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get narrowings",
+            "target": {
+              "id": 922131,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "templates",
+            "target": {
+              "id": 922133,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "__proto__",
+            "target": {
+              "id": 43551,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 56
+            }
+          },
+          {
+            "edgeType": "internal",
+            "edgeName": "properties",
+            "target": {
+              "id": 922135,
+              "type": "array",
+              "name": "(object properties)",
+              "selfBytes": 1600
+            }
+          },
+          {
+            "edgeType": "internal",
+            "edgeName": "map",
+            "target": {
+              "id": 59843,
+              "type": "object shape",
+              "name": "system / Map",
+              "selfBytes": 72
+            }
+          }
+        ]
+      },
+      {
+        "file": {
+          "id": 931677,
+          "type": "object",
+          "name": "Object",
+          "selfBytes": 24
+        },
+        "outgoing": [
+          {
+            "edgeType": "property",
+            "edgeName": "namespace",
+            "target": {
+              "id": 34359,
+              "type": "string",
+              "name": "Benchmark",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "typeReferences",
+            "target": {
+              "id": 931679,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get typeReferences",
+            "target": {
+              "id": 922067,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "stringRanges",
+            "target": {
+              "id": 931681,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get stringRanges",
+            "target": {
+              "id": 922071,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "rawNames",
+            "target": {
+              "id": 931683,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get rawNames",
+            "target": {
+              "id": 922075,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "mixins",
+            "target": {
+              "id": 931685,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "magicMembers",
+            "target": {
+              "id": 931687,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "uri",
+            "target": {
+              "id": 931689,
+              "type": "string",
+              "name": "file:///tmp/php-companion-persistent-index-10000-SFj48t/src/Fixture000696.php",
+              "selfBytes": 96
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "assignments",
+            "target": {
+              "id": 931691,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get assignments",
+            "target": {
+              "id": 922085,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "genericParents",
+            "target": {
+              "id": 931693,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "memberAccesses",
+            "target": {
+              "id": 931695,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get memberAccesses",
+            "target": {
+              "id": 922091,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "commentRanges",
+            "target": {
+              "id": 931697,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get commentRanges",
+            "target": {
+              "id": 922095,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "properties",
+            "target": {
+              "id": 931699,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "callables",
+            "target": {
+              "id": 931701,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "returns",
+            "target": {
+              "id": 931703,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get returns",
+            "target": {
+              "id": 922103,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "imports",
+            "target": {
+              "id": 931705,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "constants",
+            "target": {
+              "id": 931707,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "scopes",
+            "target": {
+              "id": 931709,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get scopes",
+            "target": {
+              "id": 922111,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "calls",
+            "target": {
+              "id": 931711,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get calls",
+            "target": {
+              "id": 922115,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "declarations",
+            "target": {
+              "id": 931713,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "source",
+            "target": {
+              "id": 931715,
+              "type": "string",
+              "name": "<?php\ndeclare(strict_types=1);\nnamespace Benchmark;\nfinal class Fixture000696 { public function id(): int { return 696; ",
+              "selfBytes": 192
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "variableReferences",
+            "target": {
+              "id": 931717,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get variableReferences",
+            "target": {
+              "id": 922123,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "syntaxErrors",
+            "target": {
+              "id": 931719,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get syntaxErrors",
+            "target": {
+              "id": 922127,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "narrowings",
+            "target": {
+              "id": 931721,
+              "type": "hidden",
+              "name": "system / AccessorPair",
+              "selfBytes": 24
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "get narrowings",
+            "target": {
+              "id": 922131,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "templates",
+            "target": {
+              "id": 931723,
+              "type": "object",
+              "name": "Array",
+              "selfBytes": 32
+            }
+          },
+          {
+            "edgeType": "property",
+            "edgeName": "__proto__",
+            "target": {
+              "id": 43551,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 56
+            }
+          },
+          {
+            "edgeType": "internal",
+            "edgeName": "properties",
+            "target": {
+              "id": 931725,
+              "type": "array",
+              "name": "(object properties)",
+              "selfBytes": 1600
+            }
+          },
+          {
+            "edgeType": "internal",
+            "edgeName": "map",
+            "target": {
+              "id": 59843,
+              "type": "object shape",
+              "name": "system / Map",
+              "selfBytes": 72
+            }
+          }
+        ]
+      }
+    ],
+    "accessorExamples": [
+      {
+        "accessor": {
+          "id": 2500953,
+          "type": "hidden",
+          "name": "system / AccessorPair",
+          "selfBytes": 24
+        },
+        "outgoing": [
+          {
+            "edgeType": "internal",
+            "edgeName": "getter",
+            "target": {
+              "id": 922111,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "internal",
+            "edgeName": "map",
+            "target": {
+              "id": 1397,
+              "type": "hidden",
+              "name": "system / Map",
+              "selfBytes": 72
+            }
+          }
+        ]
+      },
+      {
+        "accessor": {
+          "id": 1042065,
+          "type": "hidden",
+          "name": "system / AccessorPair",
+          "selfBytes": 24
+        },
+        "outgoing": [
+          {
+            "edgeType": "internal",
+            "edgeName": "getter",
+            "target": {
+              "id": 922131,
+              "type": "closure",
+              "name": "",
+              "selfBytes": 64
+            }
+          },
+          {
+            "edgeType": "internal",
+            "edgeName": "map",
+            "target": {
+              "id": 1397,
+              "type": "hidden",
+              "name": "system / Map",
+              "selfBytes": 72
+            }
+          }
+        ]
+      }
+    ],
+    "boundaries": [
+      "Matching uri/source/namespace/declarations identifies the same structural class used by D301, not a public constructor identity.",
+      "Unique directly referenced targets can have other retainers. Incoming multiplicity excludes explicitly weak edges only and is not a dominator computation.",
+      "Shared closure targets are separated from per-object storage; shallow bytes cannot be added to RSS or extrapolated as a guaranteed benefit.",
+      "The three relevant source helper bodies match the archived normal 079ffa1b source exactly, but this remains historical synthetic full-GC evidence, not a new f026f9cd memory qualification."
+    ]
+  },
+  "run": {
+    "status": "exited",
+    "parentPid": 750332,
+    "childPid": 750479,
+    "startedAtUtc": "2026-10-07T13:46:11.651559+00:00",
+    "command": [
+      "python3",
+      ".vscode-test/d328-analyze-semantic-storage.py"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d328-semantic-storage-input.json",
+    "exitCode": 0,
+    "durationSeconds": 15.353666924998834,
+    "finishedAtUtc": "2026-10-07T13:46:27.004226+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "logSha256": "9d5b056ea2b67523975db463ef345246d928cd6cfd4f8b0d1d4d6c52cae77a95"
+  },
+  "inputCount": 4245,
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d328-semantic-storage-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/00-d328-semantic-storage-input.json",
+      "bytes": 692143,
+      "sha256": "88c4933688a4697c2bf4684ee20b5c480ba8f83086323396201a59db4a9926a5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d328-semantic-storage-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/01-d328-semantic-storage-run.json",
+      "bytes": 548,
+      "sha256": "85d8ef599192b976c296b54eb26e3bc8d861fdcfaaf7d12fdc5819883bbc8ff8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d328-semantic-storage-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/02-d328-semantic-storage-result.json",
+      "bytes": 31497,
+      "sha256": "6f513c412809d349a945bf18491f513bbd624c9f132bfb12813457423d8bcf2b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d328-semantic-storage.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/03-d328-semantic-storage.log",
+      "bytes": 1217,
+      "sha256": "9d5b056ea2b67523975db463ef345246d928cd6cfd4f8b0d1d4d6c52cae77a95"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d328-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/04-d328-run.py",
+      "bytes": 3853,
+      "sha256": "33e25fdde902e0eaaf52871739aa0315ddf4fe97d52e3f168567a6da7d4286f0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d328-analyze-semantic-storage.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/05-d328-analyze-semantic-storage.py",
+      "bytes": 7400,
+      "sha256": "66ebde7bd7feaf17658c1efe6b45feb9d67d0f7eefd7b9e2f0efd76287acbd4b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d329-record-semantic-storage.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/06-d329-record-semantic-storage.py",
+      "bytes": 4355,
+      "sha256": "78e23823919d3367bbb60c924f7f235f1ef0beb0ff77ce5245605f3961c65256"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-analysis.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/07-d301-retained-heap-analysis.json",
+      "bytes": 114322,
+      "sha256": "f4ac8e2eccd3b118045e968dc37869db10efe3dbb053490e0aeafa9379199eab"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/capture.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/08-capture.json",
+      "bytes": 2633,
+      "sha256": "83b095f0e9545546dc91e72aafbe5d48487983ee1c9d07ccc99d2da457e9c0d7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d310-validator-baseline-assets/packages/semantic/src/index.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/09-index.ts",
+      "bytes": 1388556,
+      "sha256": "0ffc442a0f61106a711d98d9da3c1c5d2c155241adc7dcb6993e696cc965acef"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic/src/index.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d329-semantic-storage-evidence/10-index.ts",
+      "bytes": 1388891,
+      "sha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6"
+    }
+  ],
+  "rawSnapshot": {
+    "path": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/warm-before-dispose.heapsnapshot",
+    "sha256": "099b71e2113203ca5b67688b01c842fbb7a6cd4a1413e9bcdb9c8e06e9b952a8",
+    "bytes": 171728448,
+    "expiresAtUtc": "2026-10-09T12:20:43.649Z",
+    "duplicated": false
+  }
+}

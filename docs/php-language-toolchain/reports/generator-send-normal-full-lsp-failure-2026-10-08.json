@@ -1,0 +1,700 @@
+{
+  "recordedAtUtc": "2026-10-08T12:36:21.774498+00:00",
+  "normalFullLsp": {
+    "status": "exited",
+    "parentPid": 2267156,
+    "startedAtUtc": "2026-10-08T11:53:28.445894+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+      "run",
+      "--reporter=json",
+      "--outputFile=/var/www/node/php-companion/.vscode-test/d876-normal-generator-send-full-lsp-result.json"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d876-normal-generator-send-full-lsp-input.json",
+    "normalSourceAdopted": true,
+    "fullObjectiveComplete": false,
+    "childPid": 2267758,
+    "exitCode": 1,
+    "durationSeconds": 2148.2733293269994,
+    "finishedAtUtc": "2026-10-08T12:29:16.719506+00:00",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "logSha256": "5c5b93d885446be14bb3dfe864a09a6b81695a830821b54c31cc0e4aa1f96d2e",
+    "result": {
+      "success": false,
+      "numTotalTests": 1375,
+      "numPassedTests": 1374,
+      "numFailedTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "caseMultiplicityPreserved": true,
+    "missingCases": [],
+    "extraCases": [],
+    "actualFiles": 108,
+    "resultSha256": "dc14d4703c6230ff03233e63be69a38081b50648d223f4acc249d03d41413cea",
+    "evidenceValid": true,
+    "qualified": false
+  },
+  "failedCases": [
+    {
+      "ancestorTitles": [],
+      "fullName": "withdraws an interrupted constructor diagnostic after a Trait contract changes at PHP 8.5",
+      "status": "failed",
+      "title": "withdraws an interrupted constructor diagnostic after a Trait contract changes at PHP 8.5",
+      "duration": 20026.457555,
+      "failureMessages": [
+        "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2027:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts:222:23\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+      ],
+      "meta": {},
+      "tags": []
+    }
+  ],
+  "normalFocusedQualification": {
+    "status": "exited",
+    "parentPid": 2230406,
+    "startedAtUtc": "2026-10-08T11:37:27.503514+00:00",
+    "steps": [
+      {
+        "name": "lint",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/eslint/bin/eslint.js",
+          "packages/semantic/src/index.ts",
+          "packages/language-spec/src/index.ts",
+          "packages/language-server/src/server.ts",
+          "test/extension/suite/c2.ts",
+          "packages/semantic/test/generator-send-contract.test.ts",
+          "packages/semantic/test/generator-send-ownership.test.ts",
+          "packages/semantic/test/generator-send-integration-consumers.test.ts",
+          "packages/semantic/test/generator-send-anonymous-template.test.ts",
+          "packages/language-server/test/generator-send-stdio.test.ts",
+          "packages/language-server/test/prepared-source-fresh-references-stdio.test.ts",
+          "packages/language-server/test/prepared-source-changed-references-stdio.test.ts",
+          "test/extension/suite/generatorSend.ts",
+          "test/extension/suite/generatorSendFixture.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "childPid": 2230432,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 10.739157389994944,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "production-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+          "build"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "childPid": 2230895,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 88.19226979000086,
+        "logSha256": "7bcc34ebb5a1d57c59574d93c9b954d3f90146c5c107db9c9319ee825d8464d6"
+      },
+      {
+        "name": "extension-types",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/lib/tsc.js",
+          "-p",
+          "tsconfig.json",
+          "--noEmit"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "childPid": 2232829,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 4.487445085003856,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "editor-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/lib/tsc.js",
+          "-p",
+          "test/extension/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "childPid": 2232862,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 12.536210741003742,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "language-spec",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d874-normal-generator-send-language-spec-result.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-spec",
+        "childPid": 2233035,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 14.601414329008549,
+        "logSha256": "767b42c7c577218d3dd487fe01427770f7939c770ce2e8265446183fd0564b8a",
+        "passedCases": 312,
+        "files": 16,
+        "exactCaseMultiplicityPreserved": true,
+        "resultSha256": "8acd6060eb034729a3a7dcbe04e2794dbb47f3b0104188837f53ae70f7a6a5e2"
+      },
+      {
+        "name": "semantic",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=verbose",
+          "--reporter=json",
+          "--reporter=/var/www/node/php-companion/.vscode-test/d874-observe-semantic-errors.mjs",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d874-normal-generator-send-semantic-result.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/semantic",
+        "childPid": 2233626,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 78.33038667199435,
+        "logSha256": "c467873f9752b2ee4855a75b01249f6d53d4ea08ca35772a03c1edbda0b0fd71",
+        "passedCases": 23475,
+        "files": 165,
+        "exactCaseMultiplicityPreserved": true,
+        "resultSha256": "ffc85601c88c589b75161790cbf3d85a1969516cf1f98c582c7e35c9b5181d9d"
+      },
+      {
+        "name": "unit",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d874-normal-generator-send-unit-result.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "childPid": 2236266,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 6.474129276000895,
+        "logSha256": "6ec5d2daf3630ad8c7593a8c844490fa28cee3efb5a9bd8ab9de5d52098c3c42",
+        "passedCases": 113,
+        "files": 21,
+        "exactCaseMultiplicityPreserved": true,
+        "resultSha256": "8ca1333b7178a5784bbc1967331e0d8f8b4dc4c131a0f4a09ce6690596c7fd3b"
+      },
+      {
+        "name": "stdio",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/prepared-source-fresh-references-stdio.test.ts",
+          "test/prepared-source-changed-references-stdio.test.ts",
+          "test/generator-send-stdio.test.ts",
+          "test/generator-delegation-stdio.test.ts",
+          "test/template-parameter-member-bounds-stdio.test.ts",
+          "test/move-member-stdio.test.ts",
+          "test/move-member-stack-observer-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d874-normal-generator-send-stdio-result.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "childPid": 2236558,
+        "status": "exited",
+        "exitCode": 0,
+        "durationSeconds": 50.37039844600076,
+        "logSha256": "1a33f6e1857da660b15d6c006026178347350b0387f0f3eb105d581714f22498",
+        "passedCases": 38,
+        "files": 7,
+        "exactCaseMultiplicityPreserved": true,
+        "resultSha256": "a5f3370bc9d6b65495baa1b4a3ff86166dc8e05a52827d1a65594651b0679e7a"
+      }
+    ],
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "fullLspQualified": false,
+    "runtimeFiles": [
+      {
+        "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+        "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+        "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/extension.js",
+        "sha256": "fff56ad1dfe6d33ce24452629a9d32a016c72796f9094809caf23542675ee44d"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/language-server.js",
+        "sha256": "3a9f0cbafae16361ee623ab24243d44c4cc40fb3d467e15f755806405043ff51"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      }
+    ],
+    "exitCode": 0,
+    "verified": true,
+    "allEightRuntimeFilesByteIdenticalToQualifiedPrivateIntegration": true,
+    "all88CurrentEditorJavaScriptFilesByteIdenticalToQualifiedPrivateIntegration": true,
+    "allSevenPreexistingGeneratedExtrasPreserved": true,
+    "generatedExtras": [
+      "runCallTrivia.js",
+      "runConstructionTrivia.js",
+      "runInheritanceList.js",
+      "runInheritanceTrivia.js",
+      "runInheritanceValidity.js",
+      "runMagicDeclaration.js",
+      "runReadonlyAnonymous.js"
+    ],
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "finishedAtUtc": "2026-10-08T11:41:55.085317+00:00"
+  },
+  "normalEditorQualification": {
+    "status": "exited",
+    "parentPid": 2237967,
+    "upstreamPid": 2230406,
+    "createdAtUtc": "2026-10-08T11:41:55.175415+00:00",
+    "steps": [
+      {
+        "name": "d875-generator-full-c3-progressive",
+        "suite": "c3",
+        "mode": "progressive",
+        "status": "exited",
+        "childPid": 2237974,
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d875-generator-full-c3-progressive-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 226.38834526999563,
+        "logSha256": "68812b465b0717c4800087b886e94522829159ce7072176432b64ec1fec82503",
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "acceptanceProofExists": true,
+        "observerEvidence": [
+          {
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return \\debug_backtrace()[1]['class'] === C3MemberObserverSource::class ? $value + 1 : $value + 2;}}",
+            "helperVersion": 2
+          }
+        ],
+        "operatorEvidence": [
+          {
+            "name": "echo",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {echo new C3MemberObserverProbe(); return $value + 1;}} final class C3MemberObserverProbe {public function __toString(): string {return \\debug_backtrace()[2]['class'];}}"
+          },
+          {
+            "name": "clone",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return (clone new C3MemberObserverProbe())->result;}} final class C3MemberObserverProbe {public int $result=3; public function __clone() {$this->result=\\debug_backtrace()[2]['class'] === C3MemberObserverSource::class ? 3 : 4;}}"
+          },
+          {
+            "name": "isset",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return isset((new C3MemberObserverProbe())->result) ? 3 : 4;}} /** @property-read int $result */ final class C3MemberObserverProbe {public function __isset($name): bool {return \\debug_backtrace()[2]['class'] === C3MemberObserverSource::class;}}"
+          },
+          {
+            "name": "count",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return count(new C3MemberObserverProbe());}} final class C3MemberObserverProbe implements \\Countable {public function count(): int {return \\array_column(\\debug_backtrace(), 'class')[2] === C3MemberObserverSource::class ? 3 : 4;}}"
+          },
+          {
+            "name": "serialize",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(serialize(new C3MemberObserverProbe()), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __serialize(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+          },
+          {
+            "name": "json",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return json_encode(new C3MemberObserverProbe()) === json_encode(C3MemberObserverSource::class) ? 3 : 4;}} final class C3MemberObserverProbe implements \\JsonSerializable {public function jsonSerialize(): string {return \\array_column(\\debug_backtrace(), 'class')[2];}}"
+          },
+          {
+            "name": "debug",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(print_r(new C3MemberObserverProbe(), true), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __debugInfo(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+          }
+        ],
+        "generatorEvidence": [],
+        "generatorSendEvidence": [],
+        "qualified": true
+      },
+      {
+        "name": "d875-generator-full-c1-onDemand",
+        "suite": "c1",
+        "mode": "onDemand",
+        "status": "exited",
+        "childPid": 2249334,
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d875-generator-full-c1-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 105.99030136100191,
+        "logSha256": "e1a3ce730e9dcacf6de94ceaa874e2e5b73e2b3df78501c1c88442275e2ed53a",
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "acceptanceProofExists": true,
+        "observerEvidence": [],
+        "operatorEvidence": [],
+        "generatorEvidence": [],
+        "generatorSendEvidence": [],
+        "qualified": true
+      },
+      {
+        "name": "d875-generator-full-c2-onDemand",
+        "suite": "c2",
+        "mode": "onDemand",
+        "status": "exited",
+        "childPid": 2255343,
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d875-generator-full-c2-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 109.17074511198734,
+        "logSha256": "4c16b184d21de588c154f17800771a6b7be69f923f2152f6a332b7e9834c8542",
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "acceptanceProofExists": true,
+        "observerEvidence": [],
+        "operatorEvidence": [],
+        "generatorEvidence": [
+          [
+            {
+              "state": "result",
+              "version": 1,
+              "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Result>",
+              "mismatchLines": [
+                13
+              ]
+            },
+            {
+              "state": "other",
+              "version": 2,
+              "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Other>",
+              "mismatchLines": [
+                12
+              ]
+            },
+            {
+              "state": "array",
+              "version": 3,
+              "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, null>",
+              "mismatchLines": [
+                12,
+                13
+              ]
+            },
+            {
+              "state": "unknown",
+              "version": 4,
+              "signature": "delegated(): \\Generator",
+              "mismatchLines": []
+            },
+            {
+              "state": "result",
+              "version": 5,
+              "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Result>",
+              "mismatchLines": [
+                13
+              ]
+            },
+            {
+              "state": "unknown",
+              "version": 6,
+              "signature": "delegated(): \\Generator",
+              "mismatchLines": []
+            },
+            {
+              "state": "result",
+              "version": 7,
+              "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Result>",
+              "mismatchLines": [
+                13
+              ]
+            }
+          ]
+        ],
+        "generatorSendEvidence": [
+          [
+            {
+              "state": "command",
+              "version": 1,
+              "signature": "send(App\\Service\\C2GeneratorSend\\Command $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": [
+                13,
+                19
+              ]
+            },
+            {
+              "state": "other",
+              "version": 2,
+              "signature": "send(App\\Service\\C2GeneratorSend\\Other $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": [
+                12,
+                18
+              ]
+            },
+            {
+              "state": "null",
+              "version": 3,
+              "signature": "send(null $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": [
+                12,
+                13,
+                18,
+                19
+              ]
+            },
+            {
+              "state": "mixed",
+              "version": 4,
+              "signature": "send(mixed $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": []
+            },
+            {
+              "state": "command",
+              "version": 5,
+              "signature": "send(App\\Service\\C2GeneratorSend\\Command $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": [
+                13,
+                19
+              ]
+            },
+            {
+              "state": "mixed",
+              "version": 6,
+              "signature": "send(mixed $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": []
+            },
+            {
+              "state": "command",
+              "version": 7,
+              "signature": "send(App\\Service\\C2GeneratorSend\\Command $value): App\\Service\\C2GeneratorSend\\Item|null",
+              "mismatchLines": [
+                13,
+                19
+              ]
+            }
+          ]
+        ],
+        "qualified": true
+      },
+      {
+        "name": "d875-generator-full-c3-onDemand",
+        "suite": "c3",
+        "mode": "onDemand",
+        "status": "exited",
+        "childPid": 2257829,
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d875-generator-full-c3-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 239.52417292099562,
+        "logSha256": "ab82b6efd1c498675eafedae39d6243b38a2c7a269a23fb84ad423dc2021ab85",
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "acceptanceProofExists": true,
+        "observerEvidence": [
+          {
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return \\debug_backtrace()[1]['class'] === C3MemberObserverSource::class ? $value + 1 : $value + 2;}}",
+            "helperVersion": 2
+          }
+        ],
+        "operatorEvidence": [
+          {
+            "name": "echo",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {echo new C3MemberObserverProbe(); return $value + 1;}} final class C3MemberObserverProbe {public function __toString(): string {return \\debug_backtrace()[2]['class'];}}"
+          },
+          {
+            "name": "clone",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return (clone new C3MemberObserverProbe())->result;}} final class C3MemberObserverProbe {public int $result=3; public function __clone() {$this->result=\\debug_backtrace()[2]['class'] === C3MemberObserverSource::class ? 3 : 4;}}"
+          },
+          {
+            "name": "isset",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return isset((new C3MemberObserverProbe())->result) ? 3 : 4;}} /** @property-read int $result */ final class C3MemberObserverProbe {public function __isset($name): bool {return \\debug_backtrace()[2]['class'] === C3MemberObserverSource::class;}}"
+          },
+          {
+            "name": "count",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return count(new C3MemberObserverProbe());}} final class C3MemberObserverProbe implements \\Countable {public function count(): int {return \\array_column(\\debug_backtrace(), 'class')[2] === C3MemberObserverSource::class ? 3 : 4;}}"
+          },
+          {
+            "name": "serialize",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(serialize(new C3MemberObserverProbe()), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __serialize(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+          },
+          {
+            "name": "json",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return json_encode(new C3MemberObserverProbe()) === json_encode(C3MemberObserverSource::class) ? 3 : 4;}} final class C3MemberObserverProbe implements \\JsonSerializable {public function jsonSerialize(): string {return \\array_column(\\debug_backtrace(), 'class')[2];}}"
+          },
+          {
+            "name": "debug",
+            "result": false,
+            "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+            "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+            "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+            "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(print_r(new C3MemberObserverProbe(), true), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __debugInfo(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+          }
+        ],
+        "generatorEvidence": [],
+        "generatorSendEvidence": [],
+        "qualified": true
+      }
+    ],
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "qualified": true,
+    "lastObservedAtUtc": "2026-10-08T11:41:55.176055+00:00",
+    "upstreamStatus": "exited",
+    "verifiedLiveUpstreamPid": null,
+    "startedAtUtc": "2026-10-08T11:41:58.442797+00:00",
+    "originalFullC2BodyPreserved": true,
+    "qualifiedPrivateCompiledEditorFilesMatched": 88,
+    "exitCode": 0,
+    "originalFullC3ModesQualified": [
+      "onDemand",
+      "progressive"
+    ],
+    "originalC1C2Qualified": true,
+    "generatorSevenStateEditorWorkflowQualified": true,
+    "generatorSendSevenStateEditorWorkflowQualified": true,
+    "finishedAtUtc": "2026-10-08T11:53:19.557943+00:00"
+  },
+  "singlePhaseTrace": {
+    "input": {
+      "purpose": "Single phase/message trace of the original interrupted-constructor sequence; original assertions, ordering and 15s/20s budgets retained. Does not replace failed full run.",
+      "originalTestSha256": "d56a1ed35fc86fa3cc89d53e5430af2a902ba51d4d64f692ba1af19940115bca",
+      "observedTestSha256": "6c56a54a75e43aeff41d992766776b86cc2228d5726b1e043edb7110dbad3c0f",
+      "normalServerSha256": "5624be3c6ecd9ef01f627b0fb4e594e2b307e22b348088a5943453f2092de8cb",
+      "fullFailureResultSha256": "dc14d4703c6230ff03233e63be69a38081b50648d223f4acc249d03d41413cea",
+      "normalProductSourceChanged": false,
+      "fullObjectiveComplete": false
+    },
+    "passedCases": 2,
+    "resultSha256": "d1b92ea7c94abd4acfa21d3a3bae4c92626cdf2031dd6adc5d4bd64b77562d17",
+    "traceHashes": {
+      "7.2": "f520d7b6ba3c18899ef8593ab15841ea8f7256875a166cda46d10a0b0c1f0d25",
+      "8.5": "876e3a61158c582ac7551b718550ff8b40b738b34ec1069ccad603b28a7b1ef7"
+    },
+    "doesNotReplaceOriginalFailure": true,
+    "causeUnproven": true
+  },
+  "independentGenerationBoundary": {
+    "baselineCases": 80,
+    "baselinePassed": 50,
+    "baselineFailed": 30,
+    "privateCandidateCases": 80,
+    "privateCandidatePassed": 80,
+    "privateCandidateFullSemanticNotYetRun": true,
+    "normalSourceAdopted": false
+  },
+  "downstreamQualifiedReportWritten": false,
+  "referenceCostPilotExecuted": false,
+  "fixtureMappingsApplied": false,
+  "normalProductSourceChanged": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false
+}

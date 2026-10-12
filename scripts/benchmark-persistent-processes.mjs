@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
@@ -33,7 +35,7 @@ async function worker(root, mode) {
   let peakRssMb = process.memoryUsage().rss / 1024 / 1024;
   const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);
   const cacheDirectory = join(root, '.cache'); const started = performance.now();
-  let parsed = 0; let doctrineProperties = 0;
+  let parsed = 0; let doctrineProperties = 0; let outcome;
   try {
     const result = await indexComposerSources(root, {
       limits: { maxFiles: files, maxFileSizeBytes: 512 * 1024, maxTotalBytes: Math.max(128 * 1024 * 1024, files * 512) },
@@ -71,9 +73,17 @@ async function worker(root, mode) {
     workspace.update(baseUri, base(false));
     assert.equal(workspace.readonlyPropertyAssignments(consumerUri).length, 0);
     peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024);
-    return { mode, pid: process.pid, parsed, restored: result.cached, callableFacts, indexDurationMs,
-      peakRssMb, crossFileCompletion: true, derivedFactInvalidated: true };
-  } finally { clearInterval(sampler); workspace.dispose(); parser.dispose(); }
+    outcome = { mode, pid: process.pid, parsed, restored: result.cached, callableFacts, indexDurationMs,
+      sampledPeakRssMb: peakRssMb, peakRssMb, crossFileCompletion: true, derivedFactInvalidated: true };
+    return outcome;
+  } finally {
+    clearInterval(sampler); workspace.dispose(); parser.dispose();
+    if (outcome) {
+      outcome.wholeProcessPeakRssMb = process.resourceUsage().maxRSS / 1024;
+      outcome.peakRssMb = Math.max(outcome.sampledPeakRssMb, outcome.wholeProcessPeakRssMb);
+      outcome.peakMeasuredAfterDisposal = true;
+    }
+  }
 }
 
 async function runWorker(root, mode) {
@@ -94,9 +104,29 @@ async function corrupt(root, kind) {
   assert.ok(name); const path = join(directory, name);
   const data = JSON.parse(await readFile(path, 'utf8'));
   const entry = data.entries[sourcePath(root, 0)]; assert.ok(entry);
-  if (kind === 'layerRecovery') entry.payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];
-  else entry.payload.semantic.implementation.callables[0].facts.rawNames.push({ text: 'corrupt', start: 0, end: 1, context: 'code' });
+  let payload = entry.payload;
+  const originalPayloadHash = entry.payloadHash;
+  if (data.schema === 2) {
+    assert.equal(typeof data.generation, 'string'); assert.equal(Object.hasOwn(entry, 'payload'), false);
+    assert.match(entry.payloadHash, /^[a-f0-9]{64}$/u);
+    const bytes = await readFile(join(path + '.entries', data.generation, entry.payloadHash + '.json'));
+    assert.equal(bytes.length, entry.payloadBytes);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.payloadHash);
+    payload = JSON.parse(bytes.toString('utf8'));
+  }
+  if (kind === 'layerRecovery') payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];
+  else payload.semantic.implementation.callables[0].facts.rawNames.push({ text: 'corrupt', start: 0, end: 1, context: 'code' });
+  if (data.schema === 2) {
+    const serialized = JSON.stringify(payload); const hash = createHash('sha256').update(serialized).digest('hex');
+    const blob = join(path + '.entries', data.generation, hash + '.json');
+    try { await writeFile(blob, serialized, { flag: 'wx' }); }
+    catch (error) { if (error.code !== 'EEXIST') throw error; assert.equal(await readFile(blob, 'utf8'), serialized); }
+    entry.payloadHash = hash; entry.payloadBytes = Buffer.byteLength(serialized);
+    assert.notEqual(entry.payloadHash, originalPayloadHash);
+  }
   await writeFile(path, JSON.stringify(data));
+  return { kind, manifestSchema: data.schema, sourcePath: sourcePath(root, 0),
+    originalPayloadHash, corruptedPayloadHash: entry.payloadHash, immutableEnvelopePreserved: data.schema === 2 && !Object.hasOwn(entry, 'payload') };
 }
 
 if (workerMode) {
@@ -111,16 +141,17 @@ if (workerMode) {
       writeFile(sourcePath(root, 2), '<?php namespace Benchmark; class Child extends Middle { public function childMethod(): void {} } function outer(): Child { return middle(); }'),
       writeFile(sourcePath(root, 3), consumer),
     ]);
-    const results = [];
+    const results = []; const corruptions = [];
     for (const mode of ['cold', 'warm', 'layerRecovery', 'callableRecovery']) {
-      if (mode.endsWith('Recovery')) await corrupt(root, mode);
+      if (mode.endsWith('Recovery')) corruptions.push(await corrupt(root, mode));
       results.push(await runWorker(root, mode));
     }
     assert.equal(new Set(results.map(item => item.pid)).size, 4);
     const frozenPeakRssMb = R1_PERFORMANCE_BUDGETS.peakRssMb[`files${files}`] ?? null;
     const memoryWithinBudget = frozenPeakRssMb === null || results.every(item => item.peakRssMb <= frozenPeakRssMb);
     process.stdout.write(JSON.stringify({ files, platform: process.platform, runtime: process.version,
-      sampledIntervalMs: 10, frozenPeakRssMb, memoryWithinBudget, results }, null, 2) + '\n');
+      sampledIntervalMs: 10, peakRssMethod: 'max of sampled RSS and process.resourceUsage().maxRSS after disposal',
+      frozenPeakRssMb, memoryWithinBudget, corruptions, results }, null, 2) + '\n');
     if (!memoryWithinBudget) process.exitCode = 1;
   } finally { await rm(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }); }
 }

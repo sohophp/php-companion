@@ -1,0 +1,101 @@
+{
+  "qualified": true,
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "0f7fb48a2e60d9855be92402920a457091b1a6b44ea93e933ea055d313e7873d",
+  "normalSourceAdopted": true,
+  "normalFullSemanticPassed": 23866,
+  "normalFullSemanticFiles": 182,
+  "original23862CaseIdentitiesPreserved": true,
+  "newRegressionCases": 4,
+  "normalQualityGateCount": 7,
+  "rootTestsPassed": 113,
+  "componentTypechecksPassed": 24,
+  "publicSemanticDeclarationsUnchanged": true,
+  "normalRuntimeExactlyMatchesFinalPrivateCandidate": true,
+  "frozenInputsRechecked": 30150,
+  "allOwnedProcessesGone": true,
+  "checkedPids": [
+    8731,
+    8737,
+    8802,
+    9324,
+    9378,
+    9405,
+    9430,
+    9450,
+    10008,
+    10424,
+    12763
+  ],
+  "privateFirstGeneratorAndSnapshotCacheFailuresRetained": true,
+  "firstHarnessAndCompiledSuiteFailuresRetained": true,
+  "pairedDiagnosticMedianRatio": 0.9444461496924501,
+  "fullCurrentLspQualified": true,
+  "fullPerformanceQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "fullEditorQualified": true,
+  "full12ExtensionProfileQualified": true,
+  "ordinaryEditingQualified": false,
+  "ordinaryEditingCorrectnessQualified": true,
+  "ordinaryEditingPassedBudgets": 20,
+  "ordinaryEditingTotalRuns": 25,
+  "ordinaryEditingFailures": [
+    {
+      "case": "real-large-controller",
+      "round": 2,
+      "p95Ms": 203.86
+    },
+    {
+      "case": "fixed-7.2",
+      "round": 3,
+      "p95Ms": 150.89
+    },
+    {
+      "case": "fixed-8.5",
+      "round": 3,
+      "p95Ms": 156.9
+    },
+    {
+      "case": "fixed-7.2",
+      "round": 5,
+      "p95Ms": 152.4
+    },
+    {
+      "case": "fixed-8.5",
+      "round": 5,
+      "p95Ms": 157.31
+    }
+  ],
+  "currentBuildMultiHourQualified": false,
+  "previousBuildMultiHourCorrectnessQualified": true,
+  "previousBuildMultiHourBuildId": "ac1147152e71b18967f9db0d05524262d0e25d79f937f0e4b57c87ea400af062",
+  "previousBuildMultiHourCycles": 1217,
+  "remainingMajorRoadmapItems": 26,
+  "currentWorkflowEvidence": {
+    "lsp": {
+      "path": ".vscode-test/d2119-current-full-lsp-terminal-audit.json",
+      "sha256": "4455468f66c1d601121d3f23af35c9fb39ee26524321f9df82a87e24e929af64"
+    },
+    "references": {
+      "path": ".vscode-test/d2151-current-reference-terminal-audit.json",
+      "sha256": "cab597f27e3aa1464fbc028fa2ca2b71d2848cad633b9b9ecb7de328a9a15f68"
+    },
+    "editor": {
+      "path": ".vscode-test/d2134-current-editor-terminal-audit.json",
+      "sha256": "fdb707c918f85d148ffcc02b79753691aa89cb90d94f6b56587d4a30e62e79c8"
+    },
+    "profile": {
+      "path": ".vscode-test/d2139-current-full-profile-terminal-audit.json",
+      "sha256": "903dbc155ad74113ffa56308351b794d2c5ab82ee67436ed6c22b737741a7934"
+    },
+    "ordinary": {
+      "path": ".vscode-test/d2142-current-fixed-ordinary-terminal-audit.json",
+      "sha256": "038eb8f8de60a89694fd9488767ac6be1c24af26ecf6ba272c8dbb8790cdce73"
+    },
+    "previousBuildLongSession": {
+      "path": ".vscode-test/d2061-real-editor-7200-terminal-audit.json",
+      "sha256": "0a88b2b1e96158e6036828e79b2b6887f8f9c4d3cc66f43476b00d23e3082a02"
+    }
+  }
+}

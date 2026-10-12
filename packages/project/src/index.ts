@@ -131,13 +131,13 @@ function exclusionPattern(pattern: string): RegExp {
 }
 
 type ExclusionScope = { root: string; comparableRoot: string; comparablePrefix: string; patterns: RegExp[] };
-const exclusionScopes = new WeakMap<ComposerProject, ExclusionScope[]>();
+const exclusionScopes = new WeakMap<ComposerProject, Map<string, ExclusionScope[]>>();
 
 function comparablePath(path: string): string {
   return process.platform === 'win32' ? path.toLowerCase() : path;
 }
 
-function compiledExclusionScopes(project: ComposerProject): ExclusionScope[] {
+function compiledExclusionScopes(project: ComposerProject): Map<string, ExclusionScope[]> {
   const cached = exclusionScopes.get(project); if (cached) return cached;
   const scopes = [{ root: project.root, patterns: project.excludeFromClassmap },
     ...project.dependencies.map((dependency) => ({ root: dependency.root, patterns: dependency.excludeFromClassmap }))]
@@ -147,7 +147,12 @@ function compiledExclusionScopes(project: ComposerProject): ExclusionScope[] {
       const comparablePrefix = comparableRoot.endsWith(sep) ? comparableRoot : `${comparableRoot}${sep}`;
       return compiled.length ? [{ root: resolvedRoot, comparableRoot, comparablePrefix, patterns: compiled }] : [];
     });
-  exclusionScopes.set(project, scopes); return scopes;
+  const byRoot = new Map<string, ExclusionScope[]>();
+  for (const scope of scopes) {
+    const owned = byRoot.get(scope.comparableRoot) ?? [];
+    owned.push(scope); byRoot.set(scope.comparableRoot, owned);
+  }
+  exclusionScopes.set(project, byRoot); return byRoot;
 }
 
 function excludedInScope(resolvedFilePath: string, comparableFilePath: string, scope: ExclusionScope): boolean {
@@ -161,7 +166,16 @@ function excludedInScope(resolvedFilePath: string, comparableFilePath: string, s
 export function isAutoloadPathExcluded(project: ComposerProject, filePath: string): boolean {
   const resolvedFilePath = resolve(filePath);
   const comparableFilePath = comparablePath(resolvedFilePath);
-  return compiledExclusionScopes(project).some((scope) => excludedInScope(resolvedFilePath, comparableFilePath, scope));
+  const scopes = compiledExclusionScopes(project);
+  if (!scopes.size) return false;
+  // Only ancestor package roots can exclude this path. Keep every scope for
+  // duplicate install roots and visit all ancestors, including the project
+  // root, rather than scanning unrelated dependency scopes for every file.
+  for (let candidate = comparableFilePath; ; ) {
+    if (scopes.get(candidate)?.some(scope => excludedInScope(resolvedFilePath, comparableFilePath, scope))) return true;
+    const parent = dirname(candidate); if (parent === candidate) return false;
+    candidate = parent;
+  }
 }
 
 export function resolvePsr4Class(fqcn: string, mappings: Psr4Mapping[]): string[] {

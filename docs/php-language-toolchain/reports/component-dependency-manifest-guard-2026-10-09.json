@@ -1,0 +1,66 @@
+{
+  "recordedAtUtc": "2026-10-09T01:57:56.620784+00:00",
+  "qualifiedForComponentBoundaryGuard": true,
+  "problem": "Layer violations declared only in runtime dependencies were not rejected until an actual source import existed",
+  "previousControlsRetained": 18,
+  "newManifestOnlyCases": 3,
+  "baseline": {
+    "passed": 18,
+    "failed": 3
+  },
+  "corrected": {
+    "passed": 21,
+    "failed": 0,
+    "pending": 0
+  },
+  "allBeforeAndAfterCaseIdentitiesPreserved": true,
+  "realProject": {
+    "components": 24,
+    "sourceFiles": 200,
+    "imports": 511,
+    "violations": 0,
+    "evidence": "/var/www/node/php-companion/.vscode-test/d1160-manifest-boundary-current-project.json",
+    "sha256": "2a2f0c279993d7fa3b8b7bfb3e1f02c984526c4950bd26e55cfab675225e4fe9"
+  },
+  "lintPassed": true,
+  "sourceSha256": "04a938020b9aa39bef80c729c0964f1eb06a59126569d655a6102833dfc15d03",
+  "testSha256": "e3f6e1a424b0287a032fe3f6b0f9613c11447b4193e7b5b52ed7f9364cedbd69",
+  "rawControls": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1160-manifest-boundary-before.tap",
+      "sha256": "6973621626837e58a6731e5f9609c0a77f53f7023cd8bde40d15400103709e2d"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1160-manifest-boundary-after.tap",
+      "sha256": "e556e69cc12c9b5bc8ce268475da853cec47f9c674c57eba316095bb3fbbc182"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1153-package-controls.log",
+      "sha256": "1fa531b0b1397bc407897ffd4773e6cdd02e4761f46237e4d1e2d19204ee1680"
+    }
+  ],
+  "normalAssetsUnchanged": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "normalQualificationReport": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/commented-return-normal-qualification-2026-10-09.json",
+    "sha256": "7fe7a6c929ad62d7bfdb44a59abce2a46a65e4e0768f540c95f4a29c649aa6de"
+  },
+  "noProductBuildOrQualificationRerun": true,
+  "fullP0Complete": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false
+}

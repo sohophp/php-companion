@@ -1,0 +1,40 @@
+{
+  "qualified": true,
+  "auditedAtUtc": "2026-10-11T02:08:35.437758+00:00",
+  "normalBundleSha256": "762362525977cfa6d81d99ca1766ddc256bb7638d95655b0bb01cd7886aa401e",
+  "semanticCases": 63,
+  "normalProtocolCases": 20,
+  "actualPhpVersions": 9,
+  "runtimeScenarios": 90,
+  "acceptedEquivalent": 66,
+  "rejectedWithoutEdit": 24,
+  "actualPhpExecutions": 156,
+  "freshCompiledEditorFiles": 97,
+  "semanticPublicDeclarationsUnchanged": true,
+  "numberedFixtures": 173,
+  "fixtureFamilies": 14,
+  "remainingMajorItems": 26,
+  "fullCurrentEditorQualified": true,
+  "fullCurrentLspQualified": true,
+  "fullCurrentSemanticQualified": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "sourceInputs": {
+    "packages/semantic/src/index.ts": "76b3cef8c78d639187161e449ed7ae6a0ea1a846b55f3f404a9e10bd0e47da2a",
+    "packages/semantic/dist/index.js": "d15bfc753cc3bbf40d18f8dcffd2aa9d5dc8521ba3a630c61b35a4f919ba64a0",
+    "dist/language-server.js": "762362525977cfa6d81d99ca1766ddc256bb7638d95655b0bb01cd7886aa401e"
+  },
+  "currentC3CoverageIntegratedIntoFocusedAndFullFlows": true,
+  "oldFullLspAndSemanticQualificationTransferred": false,
+  "oldCoverageFailurePreserved": "d1864-current-editor-terminal-audit.json",
+  "counterexamplesPreserved": [
+    "d1872-default-initializer-order/result.json",
+    "d1876-line-order/result.json",
+    "d1877-default-order-protocol-red.json"
+  ],
+  "fullCurrentNativeWindowsC3Qualified": true,
+  "fullCurrent12ExtensionProfileQualified": true,
+  "fullPerformanceQualified": false,
+  "fullQualificationReport": "reorder-default-full-qualification-2026-10-11.json",
+  "fullQualificationReportSha256": "dee1d92264100ebcf4c370ef8c980c5ccadfab77a169c0a89e2f8cfcc95436ab"
+}

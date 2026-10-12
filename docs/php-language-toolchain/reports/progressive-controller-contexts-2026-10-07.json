@@ -1,0 +1,1056 @@
+{
+  "milestone": "D258",
+  "date": "2026-10-07",
+  "recordedAtUtc": "2026-10-07T08:07:28.925672+00:00",
+  "baseCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "includesUncommittedSource": true,
+  "coreSha256": "0680ad5acb7a06ed62619755aa98ee045e915068370a6015b16e5bc71757cc4e",
+  "sourceHashes": {
+    "packages/language-server/src/server.ts": "e36c81493ef6d2d9f4953163fc6b457a60c9500181473694c48582543172783a",
+    "packages/language-server/test/controller-context-progressive-stdio.test.ts": "cd3a05a069170872deaccaf77c23cb09c778a2e8cc97fa2a655c862a32a11f2e",
+    ".changeset/progressive-controller-contexts.md": "7fd3f82cb3b501578e72b608f1c5368531e253cc11c8519ab1115e89e456c9ce"
+  },
+  "productionPatch": "diff --git a/packages/language-server/src/server.ts b/packages/language-server/src/server.ts\nindex 13891727..bd5687d2 100644\n--- a/packages/language-server/src/server.ts\n+++ b/packages/language-server/src/server.ts\n@@ -1225,7 +1225,11 @@ async function refreshSemanticProviders(root: string, generation: number, worksp\n   }\n   if (shouldContinue()) await onReferenceFactsReady?.();\n   if (shouldContinue() && semanticProviders.some((provider) => provider.replacesControllerContexts)) {\n-    await runControllerContextProvider(root, generation, workspace, shouldContinue);\n+    // Progressive background preparation and a Twig request must share the\n+    // candidate scan. A separate full provider request supersedes the scoped\n+    // request even when both describe the same unchanged source.\n+    if (indexingMode === 'progressive') await ensureOnDemandControllerContexts(root, () => !shouldContinue());\n+    else await runControllerContextProvider(root, generation, workspace, shouldContinue);\n   }\n }\n \n@@ -1961,7 +1965,9 @@ async function indexRoot(workspace: SemanticWorkspace, root: string, generation:\n     projectCompleteWaiters.delete(root);\n     for (const stale of indexedUrisByRoot.get(root) ?? []) if (!current.has(stale) && !documents.get(stale)) workspace.remove(stale);\n     indexedUrisByRoot.set(root, current);\n-    interopContextsByRoot.delete(root);\n+    // Progressive preparation shares the bounded context scan with queries;\n+    // clearing here could discard its publication after the source cache commit.\n+    if (indexingMode !== 'progressive') interopContextsByRoot.delete(root);\n     if (sourceOnly) await sourceReadyTask;\n     else {\n       doctrineMethodsByRoot.set(root, doctrineFiles);\n@@ -5181,7 +5187,7 @@ connection.onRequest('phpCompanion/interop/contexts', async (params: { rootUri?:\n   const workspace = await semanticForRoot(root);\n   const ready = indexingMode === 'experimental'\n     ? await ensureCompleteRoot(root, () => token.isCancellationRequested)\n-    : indexingMode === 'onDemand'\n+    : indexingMode === 'onDemand' || indexingMode === 'progressive'\n       ? await ensureOnDemandControllerContexts(root, () => token.isCancellationRequested)\n       : false;\n   if (!ready) return null;\n",
+  "qualification": {
+    "progressiveControllerContextProtocol": true,
+    "ordinaryC1Host": true,
+    "completeCurrentLsp": false,
+    "realWslAcceptance": false,
+    "fullRoadmap": false
+  },
+  "targetPhpVersions": [
+    "7.2",
+    "8.5"
+  ],
+  "focused": {
+    "result": {
+      "numTotalTests": 50,
+      "numPassedTests": 50,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "files": 3,
+    "existingCasesRetained": 42,
+    "newCases": 8,
+    "collectionMatch": true,
+    "run": {
+      "status": "exited",
+      "name": "focused",
+      "parentPid": 123367,
+      "childPid": 123442,
+      "startedAtUtc": "2026-10-07T08:01:25.286942+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d258-focused-input.json",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/controller-context-progressive-stdio.test.ts",
+        "test/controller-context-concurrency-stdio.test.ts",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d258-progressive-focused-final.json"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 175.9822258969998,
+      "finishedAtUtc": "2026-10-07T08:04:21.268068+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "nodeChanged": false,
+      "runtimeChanges": [],
+      "logSha256": "f2caf4ee5a258394f55a1ce6141155a889890ecf5eed2535f981ed5c6f781c6b"
+    },
+    "inputs": 4918,
+    "budgetChanges": false
+  },
+  "modeProbe": {
+    "run": {
+      "status": "exited",
+      "name": "mode-probe",
+      "parentPid": 134630,
+      "childPid": 135072,
+      "startedAtUtc": "2026-10-07T08:04:32.592605+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d258-mode-probe-input.json",
+      "command": [
+        "node",
+        ".vscode-test/d257-progressive-interop-probe.mjs"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 10.99512131299889,
+      "finishedAtUtc": "2026-10-07T08:04:43.586766+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "nodeChanged": false,
+      "runtimeChanges": [],
+      "logSha256": "49aaaa83fb1209d1a4b9ba9177378ef3510253ac5ca1171fcf9666738544f038"
+    },
+    "inputs": 4918,
+    "observations": [
+      {
+        "indexingMode": "onDemand",
+        "stage": "first-query",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-TGZhxZ",
+            "snapshotVersion": "0",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-TGZhxZ/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "0"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-TGZhxZ/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "0"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-TGZhxZ/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "0"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-TGZhxZ/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "0"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-TGZhxZ/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "0"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "progressive",
+        "stage": "first-query",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-rhAOah",
+            "snapshotVersion": "1",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "1"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "1"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "progressive",
+        "stage": "after-background-index",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-rhAOah",
+            "snapshotVersion": "1",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "1"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-rhAOah/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "1"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "experimental",
+        "stage": "first-query",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-a1ZcDg",
+            "snapshotVersion": "1",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "1"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "1"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "experimental",
+        "stage": "after-background-index",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-a1ZcDg",
+            "snapshotVersion": "1",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "1"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-a1ZcDg/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "1"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "off",
+        "stage": "first-query",
+        "exact": true,
+        "result": null,
+        "stderr": ""
+      }
+    ]
+  },
+  "ordinaryC1": {
+    "run": {
+      "status": "exited",
+      "name": "c1",
+      "parentPid": 137276,
+      "childPid": 137379,
+      "startedAtUtc": "2026-10-07T08:05:02.534024+00:00",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d258-c1-input.json",
+      "command": [
+        "env",
+        "PHP_COMPANION_TEST_C1_ONLY=1",
+        "PHP_COMPANION_TEST_C1_UI=1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP=/opt/remi/php72/root/usr/bin/php",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR=/var/www/node/php-companion/.vscode-test/d258-c1-failures",
+        "D152_HOST_LOG_ARCHIVE=/var/www/node/php-companion/.vscode-test/d258-c1-log-archive",
+        "NODE_OPTIONS=--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "scripts/run-extension-test.mjs",
+        "./dist-test/runTest.js"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 123.72136803699868,
+      "finishedAtUtc": "2026-10-07T08:07:06.253601+00:00",
+      "changedInputs": [],
+      "headChanged": false,
+      "worktreeChanged": false,
+      "nodeChanged": false,
+      "runtimeChanges": [],
+      "logSha256": "8eb3bbf108bcb4e462da2d6a9c4840b1b5e5e28c7bdb4e7891e03e77a72491ac"
+    },
+    "inputs": 4918,
+    "lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "visibleObservations": {
+      "local": {
+        "samplesMs": [
+          239,
+          244,
+          260,
+          251,
+          258,
+          261
+        ],
+        "inputSamplesMs": [
+          40,
+          30,
+          33,
+          40,
+          77,
+          37
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791360387644,
+            "input": 1791360387684,
+            "visible": 1791360387883
+          },
+          {
+            "started": 1791360388069,
+            "input": 1791360388099,
+            "visible": 1791360388313
+          },
+          {
+            "started": 1791360388632,
+            "input": 1791360388665,
+            "visible": 1791360388892
+          },
+          {
+            "started": 1791360389114,
+            "input": 1791360389154,
+            "visible": 1791360389365
+          },
+          {
+            "started": 1791360389617,
+            "input": 1791360389693,
+            "visible": 1791360389875
+          },
+          {
+            "started": 1791360390079,
+            "input": 1791360390116,
+            "visible": 1791360390341
+          }
+        ],
+        "medianMs": 255,
+        "maxMs": 261,
+        "labels": [
+          "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+        ],
+        "serverCompletionMs": [
+          2.440202000005229,
+          2.4500669999979436,
+          2.275160999997752,
+          2.858867000002647,
+          2.696688999996695,
+          5.450016999995569
+        ]
+      },
+      "crossNamespace": {
+        "samplesMs": [
+          318,
+          298,
+          257,
+          286,
+          237,
+          307
+        ],
+        "inputSamplesMs": [
+          41,
+          47,
+          33,
+          30,
+          65,
+          28
+        ],
+        "medianMs": 292,
+        "maxMs": 318,
+        "labels": [
+          "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+        ]
+      },
+      "vendor": {
+        "samplesMs": [
+          279,
+          259,
+          230,
+          235,
+          224,
+          270
+        ],
+        "inputSamplesMs": [
+          31,
+          34,
+          30,
+          28,
+          30,
+          41
+        ],
+        "phaseEpochMs": [
+          {
+            "started": 1791360394137,
+            "input": 1791360394168,
+            "visible": 1791360394416
+          },
+          {
+            "started": 1791360394633,
+            "input": 1791360394667,
+            "visible": 1791360394892
+          },
+          {
+            "started": 1791360395069,
+            "input": 1791360395099,
+            "visible": 1791360395299
+          },
+          {
+            "started": 1791360395507,
+            "input": 1791360395535,
+            "visible": 1791360395742
+          },
+          {
+            "started": 1791360395967,
+            "input": 1791360395997,
+            "visible": 1791360396192
+          },
+          {
+            "started": 1791360396410,
+            "input": 1791360396451,
+            "visible": 1791360396679
+          }
+        ],
+        "medianMs": 247,
+        "maxMs": 279,
+        "labels": [
+          "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+        ]
+      },
+      "unsavedReceiverSwitch": {
+        "beforeMs": 259,
+        "afterMs": 223,
+        "restoredMs": 219,
+        "beforeLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ],
+        "afterLabels": [
+          "renderBetaApp\\C1\\ChoiceB::renderBeta(): void"
+        ],
+        "restoredLabels": [
+          "renderAlphaApp\\C1\\ChoiceA::renderAlpha(): void"
+        ]
+      }
+    },
+    "hostLogs": [
+      {
+        "path": ".vscode-test/d258-c1-log-archive/php-companion-extension-yzqjAC/logs/20261007T160515/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "sha256": "98526aa20be8ad6fe6e085d3b17ac08ecea94e7bbdd7251d71bbaffb5453d005",
+        "bytes": 271591
+      }
+    ],
+    "detectedFailures": [],
+    "logPreservationHelper": {
+      "path": ".vscode-test/d152-preserve-host-logs.cjs",
+      "checkedAtUtc": "2026-10-07T08:05:59.281624+00:00",
+      "sha256": "03a06b0c94565179a0c161eab334e144b8fee6f5ce0561307cd1146ed705553d",
+      "priorD254Sha256": "03a06b0c94565179a0c161eab334e144b8fee6f5ce0561307cd1146ed705553d",
+      "matchesPriorD254": true,
+      "modifiedAtUtc": "2026-10-06T09:51:46.370165+00:00",
+      "scope": "Read-only log preservation helper, checked during the C1 run against prior frozen input; not part of the 4918 current pre-run engineering inputs.",
+      "afterSha256": "03a06b0c94565179a0c161eab334e144b8fee6f5ce0561307cd1146ed705553d",
+      "afterCheckedAtUtc": "2026-10-07T08:07:28.797066+00:00"
+    },
+    "scope": "Original ordinary C1 host. The historical log-preservation helper was separately checked during and after the run against D254, not included in the 4918 pre-run engineering inputs. Not real WSL or TwigPlus combined acceptance."
+  },
+  "historicalFailures": {
+    "D257": "Original progressive null responses retained.",
+    "permanentRed": {
+      "passed": 2,
+      "failed": 2
+    },
+    "firstDispatchOnlyFix": {
+      "passed": 2,
+      "failed": 2,
+      "diagnosticOnly": true
+    },
+    "firstSharedScanRevision": {
+      "passed": 50,
+      "failed": 0,
+      "coreSha256": "25b8a51299262d658cf9df857e8da4a4488b92952cfa08ffdad7c68126cc4910",
+      "diagnosticOnly": true
+    }
+  },
+  "checks": {
+    "normalLanguageServerBuild": true,
+    "normalProductionBundle": true,
+    "languageServerTypecheck": true,
+    "focusedEslint": true
+  },
+  "evidenceArtifacts": [
+    {
+      "originalPath": "/var/www/node/php-companion/packages/language-server/src/server.ts",
+      "archivePath": ".vscode-test/d258-evidence/000-server.ts",
+      "sha256": "e36c81493ef6d2d9f4953163fc6b457a60c9500181473694c48582543172783a",
+      "bytes": 631033
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/controller-context-progressive-stdio.test.ts",
+      "archivePath": ".vscode-test/d258-evidence/001-controller-context-progressive-stdio.test.ts",
+      "sha256": "cd3a05a069170872deaccaf77c23cb09c778a2e8cc97fa2a655c862a32a11f2e",
+      "bytes": 13115
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.changeset/progressive-controller-contexts.md",
+      "archivePath": ".vscode-test/d258-evidence/002-progressive-controller-contexts.md",
+      "sha256": "7fd3f82cb3b501578e72b608f1c5368531e253cc11c8519ab1115e89e456c9ce",
+      "bytes": 321
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/dist/language-server.js",
+      "archivePath": ".vscode-test/d258-evidence/003-language-server.js",
+      "sha256": "0680ad5acb7a06ed62619755aa98ee045e915068370a6015b16e5bc71757cc4e",
+      "bytes": 4254281
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "archivePath": ".vscode-test/d258-evidence/004-web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "bytes": 201037
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "archivePath": ".vscode-test/d258-evidence/005-tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "bytes": 1058041
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/packages/provider-symfony-controller-contexts/dist/cli.js",
+      "archivePath": ".vscode-test/d258-evidence/006-cli.js",
+      "sha256": "cbfa1bf2084d4bd2320f3f72d22213c336ec5f3df88381a6fc98c6a4d51f5cda",
+      "bytes": 2363
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-frozen-run.py",
+      "archivePath": ".vscode-test/d258-evidence/007-d258-frozen-run.py",
+      "sha256": "c5f05729a5ab149899af3b8c89ed880d565edbd2da537d4878ae4d55df636a41",
+      "bytes": 3357
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-audit.py",
+      "archivePath": ".vscode-test/d258-evidence/008-d258-audit.py",
+      "sha256": "ba71cfc62b0e12681669163bc56c435ddd9bcba0c569cb10113196ad2dc93797",
+      "bytes": 7756
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d257-progressive-interop-probe.mjs",
+      "archivePath": ".vscode-test/d258-evidence/009-d257-progressive-interop-probe.mjs",
+      "sha256": "b8b3628ef2014aa8119c23a743f43be9911621f04393558a5de2c0d7f2bc8762",
+      "bytes": 6308
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs",
+      "archivePath": ".vscode-test/d258-evidence/010-d152-preserve-host-logs.cjs",
+      "sha256": "03a06b0c94565179a0c161eab334e144b8fee6f5ce0561307cd1146ed705553d",
+      "bytes": 974
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-c1-log-helper-input.json",
+      "archivePath": ".vscode-test/d258-evidence/011-d258-c1-log-helper-input.json",
+      "sha256": "80b62c41604d5a5b9a28850f3535d75f486e441561429f6d00375e19c0970440",
+      "bytes": 523
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-c1-log-helper-audit.json",
+      "archivePath": ".vscode-test/d258-evidence/012-d258-c1-log-helper-audit.json",
+      "sha256": "c6194935fc7c7ff7557b539333a4c8ee51645ff0878d495d1adf9c4daae1b7ff",
+      "bytes": 667
+    },
+    {
+      "originalPath": "/tmp/sophp-d258-progressive-focused-final.json",
+      "archivePath": ".vscode-test/d258-evidence/013-sophp-d258-progressive-focused-final.json",
+      "sha256": "809e46c50504c99b541a5f7149338b2dbd03645bd0651a679dc922845aeacbbf",
+      "bytes": 16343
+    },
+    {
+      "originalPath": "/tmp/sophp-d258-focused-collection.json",
+      "archivePath": ".vscode-test/d258-evidence/014-sophp-d258-focused-collection.json",
+      "sha256": "a09b6a1c67777ff22d6bd494bb1e6b789b42ffc1427d22b8e4a1d391f50b76c6",
+      "bytes": 12452
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-focused-run.json",
+      "archivePath": ".vscode-test/d258-evidence/015-d258-focused-run.json",
+      "sha256": "eea12227b8b9eac24b79d9966b889834545ae6bbf1cc310d23bd98a01e9bcd6f",
+      "bytes": 868
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-focused-input.json",
+      "archivePath": ".vscode-test/d258-evidence/016-d258-focused-input.json",
+      "sha256": "9e15198d081680c46f7d96a1ffd7f278767d824a079d79a326971c505527c6b1",
+      "bytes": 696963
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-focused.log",
+      "archivePath": ".vscode-test/d258-evidence/017-d258-focused.log",
+      "sha256": "f2caf4ee5a258394f55a1ce6141155a889890ecf5eed2535f981ed5c6f781c6b",
+      "bytes": 70
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-mode-probe-run.json",
+      "archivePath": ".vscode-test/d258-evidence/018-d258-mode-probe-run.json",
+      "sha256": "0c6230605916bc59b59dfe424c6d2e2891f1ed592121a1acffca000fae78f0a1",
+      "bytes": 637
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-mode-probe-input.json",
+      "archivePath": ".vscode-test/d258-evidence/019-d258-mode-probe-input.json",
+      "sha256": "0e02bb358223b2c74455c1e690847f15a78680901936256b5c53e2f4cf20e8d5",
+      "bytes": 696704
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-mode-probe.log",
+      "archivePath": ".vscode-test/d258-evidence/020-d258-mode-probe.log",
+      "sha256": "49aaaa83fb1209d1a4b9ba9177378ef3510253ac5ca1171fcf9666738544f038",
+      "bytes": 15638
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-c1-run.json",
+      "archivePath": ".vscode-test/d258-evidence/021-d258-c1-run.json",
+      "sha256": "9359f68d4e2fd9351a012f46679356174db600f05e9566b65fe3f9cecdadc156",
+      "bytes": 1123
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-c1-input.json",
+      "archivePath": ".vscode-test/d258-evidence/022-d258-c1-input.json",
+      "sha256": "961d74019f79940ffa6815a5ad2a748b060c31149cabc02f40837e493fc13036",
+      "bytes": 697197
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-c1.log",
+      "archivePath": ".vscode-test/d258-evidence/023-d258-c1.log",
+      "sha256": "8eb3bbf108bcb4e462da2d6a9c4840b1b5e5e28c7bdb4e7891e03e77a72491ac",
+      "bytes": 28443
+    },
+    {
+      "originalPath": "/tmp/sophp-d258-progressive-permanent-red.json",
+      "archivePath": ".vscode-test/d258-evidence/024-sophp-d258-progressive-permanent-red.json",
+      "sha256": "9841ed26085f222bf884923148d6d4197bf27889a640321c314f7e73d8621e28",
+      "bytes": 2879
+    },
+    {
+      "originalPath": "/tmp/sophp-d258-progressive-lifecycle-first.json",
+      "archivePath": ".vscode-test/d258-evidence/025-sophp-d258-progressive-lifecycle-first.json",
+      "sha256": "1f5feede799f7688c56c1c3807e7e0f22a2a6cf6ed2ac9b4bf8e2f9a11cdaa83",
+      "bytes": 2880
+    },
+    {
+      "originalPath": "/tmp/sophp-d258-progressive-first-trace.json",
+      "archivePath": ".vscode-test/d258-evidence/026-sophp-d258-progressive-first-trace.json",
+      "sha256": "d2d11a95881dcfac33c5cfacbe9f47ee2a10e15d904a07f8bf717c0783e5c1f2",
+      "bytes": 3151
+    },
+    {
+      "originalPath": "/tmp/sophp-d258-progressive-focused-first.json",
+      "archivePath": ".vscode-test/d258-evidence/027-sophp-d258-progressive-focused-first.json",
+      "sha256": "44498c367bb48121d753453f2f1c1cd4d5ab3a7486942f64b0d6ae446733567f",
+      "bytes": 16433
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d258-c1-log-archive/php-companion-extension-yzqjAC/logs/20261007T160515/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "archivePath": ".vscode-test/d258-evidence/028-SoPHP.log",
+      "sha256": "98526aa20be8ad6fe6e085d3b17ac08ecea94e7bbdd7251d71bbaffb5453d005",
+      "bytes": 271591
+    }
+  ],
+  "remaining": [
+    "New Core complete LSP combination",
+    "F10 full TwigPlus two-repository and real VSIX combination",
+    "Ordinary large Controller P95 173.01 ms above 150 ms",
+    "10k/50k persistent-cache RSS",
+    "Other platform/version combinations and long-session/real WSL acceptance"
+  ],
+  "actionsNotPerformed": [
+    "Profile update",
+    "Packaging",
+    "Push",
+    "Publish"
+  ],
+  "goalStatus": "active"
+}

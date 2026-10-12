@@ -1,0 +1,68 @@
+{
+  "auditedAtUtc": "2026-10-10T22:06:54.428514+00:00",
+  "terminalAuditQualified": true,
+  "performanceQualified": false,
+  "cases": [
+    {
+      "prefix": "d1802",
+      "profiled": false,
+      "references": 188,
+      "referencesMs": 3258,
+      "definitionMs": 31,
+      "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c",
+      "allFourAnchorsIndependentlyVerified": true,
+      "original1000msGatePassed": false,
+      "reloadExecuted": false,
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "prefix": "d1801",
+      "profiled": false,
+      "references": 188,
+      "referencesMs": 2015,
+      "definitionMs": 25,
+      "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c",
+      "allFourAnchorsIndependentlyVerified": true,
+      "original1000msGatePassed": false,
+      "reloadExecuted": false,
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "prefix": "d1803",
+      "profiled": true,
+      "references": 188,
+      "referencesMs": 1944,
+      "definitionMs": 27,
+      "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c",
+      "allFourAnchorsIndependentlyVerified": true,
+      "original1000msGatePassed": false,
+      "reloadExecuted": false,
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    }
+  ],
+  "normalBundleSha256": "7933c0b3d80349ddf42090b4d86950e3487fea5060c3f3a056760e70965d3cc8",
+  "originalCheckerByteIdentical": true,
+  "unchangedInputsVerified": 66453,
+  "targetedInputs": 361,
+  "originalChangedAndNewConsumerTestsPassed": 10,
+  "initialSuitePassed": 13,
+  "initialSuiteFailed": 1,
+  "initialFailure": "Test observation file JSON was read during a non-atomic write; original log and fixture source retained.",
+  "correctedBatchRaceTestsPassed": 4,
+  "fixtureCount": 167,
+  "roadmapOpenItems": 26,
+  "fullNewLspQualified": false,
+  "fullSixModeQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "limits": [
+    "3258 to 2015ms is one unprofiled before/after control, not percentile or statistical qualification.",
+    "Current CPU-observed request1944ms still fails1000ms; its1658 main-thread samples and six worker profiles are diagnostic only.",
+    "Current source guards verified in PHP7.2/8.5 progressive/experimental stdio; editor/Remote, other platforms, complete budget and acceptance matrices remain open."
+  ],
+  "archiveFiles": 78,
+  "archiveManifestSha256": "649a2710a3bc4e25df7d41942085f073f7c260009ae55fe10f929e7369086bc9"
+}

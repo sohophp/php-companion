@@ -1,0 +1,80 @@
+{
+  "qualified": true,
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "169e923bda8dd948a37d65f4c78c74c733a63789350966c5b66babafdce0a9fe",
+  "normalSourceAdopted": true,
+  "normalFullParserPassed": 200,
+  "normalFullSemanticPassed": 23866,
+  "normalFullSemanticFiles": 182,
+  "caseIdentitiesAndMultiplicityPreserved": true,
+  "qualityGatesPassed": 7,
+  "rootTestsPassed": 113,
+  "componentTypechecksPassed": 24,
+  "publicParserDeclarationsUnchanged": true,
+  "normalEightRuntimeAssetsExactlyMatchMeasuredCandidate": true,
+  "ordinaryEditingPerformanceReusedByExactRuntimeIdentity": true,
+  "ordinaryEditingRunsPassed": 25,
+  "queriesPerRun": 100,
+  "maximumHotP95Ms": 144.24,
+  "originalBudgetMs": 150,
+  "baseline20Of25FailuresRetained": true,
+  "privateArchivedFilesRechecked": 86,
+  "frozenInputsRechecked": 30156,
+  "frozenSymlinksRechecked": 184,
+  "allOwnedProcessesGone": true,
+  "checkedPids": [
+    30700,
+    30701,
+    30726,
+    30760,
+    30990,
+    31012,
+    31218,
+    31243,
+    31250,
+    31279,
+    31290,
+    31782,
+    32116,
+    34248
+  ],
+  "fullCurrentLspQualified": true,
+  "fullCurrentEditorQualified": true,
+  "fullCurrent12ProfileQualified": true,
+  "fullPerformanceQualified": false,
+  "currentLongSessionQualified": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "currentWorkflowEvidence": {
+    "d2169-current-full-lsp-terminal-audit.json": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2169-current-full-lsp-terminal-audit.json",
+      "sha256": "1ef1bc918e22a78617f420c9368e187b91be9dbf03fbb5958aaf329ff81ffc7a",
+      "qualified": true
+    },
+    "d2172-current-reference-terminal-audit.json": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2172-current-reference-terminal-audit.json",
+      "sha256": "a3267d3b9434823d70613222947df8ce0cdebf38e3073c2cd44fa4e75c383b11",
+      "qualified": true
+    },
+    "d2174-current-editor-terminal-audit.json": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2174-current-editor-terminal-audit.json",
+      "sha256": "db55d27f11945f24fb1fc68cbe92d6b075a1a016b19da2706d0b4c23703d6128",
+      "qualified": true
+    },
+    "d2177-current-full-profile-terminal-audit.json": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2177-current-full-profile-terminal-audit.json",
+      "sha256": "75f7ba8227c9db9e0cae1aa0e2fc4359610fd9a6e499a84cb99b1c4df59c99c0",
+      "qualified": true
+    }
+  },
+  "currentFullLspCases": 1530,
+  "currentReferenceModesPassed": 6,
+  "currentLinuxEditorWorkflowsPassed": 4,
+  "currentFull12ProfileQualified": true,
+  "currentProfileP95Ms": {
+    "scalar": 97,
+    "union-shape": 105
+  },
+  "remainingUncheckedRoadmapMajorItems": 26
+}

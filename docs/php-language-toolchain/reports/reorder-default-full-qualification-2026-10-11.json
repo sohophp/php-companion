@@ -1,0 +1,237 @@
+{
+  "qualified": true,
+  "recordedAtUtc": "2026-10-11T03:18:25.084908+00:00",
+  "normalBundleSha256": "762362525977cfa6d81d99ca1766ddc256bb7638d95655b0bb01cd7886aa401e",
+  "fullSemanticFiles": 179,
+  "fullSemanticCases": 23776,
+  "fullLspFiles": 125,
+  "fullLspCases": 1526,
+  "rootUnitCases": 113,
+  "componentsTypechecked": 24,
+  "fullFourLinuxEditorWorkflowsQualified": true,
+  "fullTwoNativeWindowsC3ModesQualified": true,
+  "full12LinuxExtensionProfileQualified": true,
+  "freshStrictCompiledEditorFiles": 97,
+  "linuxC3GenerationBoundaryObservations": 80,
+  "nativeWindowsC3GenerationBoundaryObservations": 80,
+  "nativeWindowsModes": [
+    {
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 257.8652988510439,
+      "originalDeadlineMs": 300000,
+      "frozenInputs": 30238
+    },
+    {
+      "mode": "experimental",
+      "qualified": true,
+      "durationSeconds": 282.11287939100293,
+      "originalDeadlineMs": 300000,
+      "frozenInputs": 30238
+    }
+  ],
+  "compositeFeedback": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 60,
+      "p95Ms": 79,
+      "maxMs": 1093,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        66,
+        12,
+        6,
+        6,
+        6,
+        5
+      ],
+      "slowRounds": [
+        {
+          "round": 1,
+          "elapsedMs": 1093,
+          "applyEditMs": 5,
+          "diagnosticReadyMs": 146,
+          "hoverReadyMs": 1093
+        }
+      ],
+      "firstCompositeHoverCallMs": 947,
+      "firstRoundServerTimings": {
+        "generationDiskRefresh": {
+          "count": 3,
+          "maxMs": 113,
+          "firstMs": [
+            113,
+            59,
+            97
+          ]
+        },
+        "candidateInvalidatedOpen": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "generationDiskRefreshEpochRetry": {
+          "count": 1,
+          "maxMs": 59,
+          "firstMs": [
+            59
+          ]
+        },
+        "diagnostics": {
+          "count": 4,
+          "maxMs": 84,
+          "firstMs": [
+            7,
+            84,
+            9,
+            9
+          ]
+        },
+        "documentChangeDiagnostics": {
+          "count": 1,
+          "maxMs": 85,
+          "firstMs": [
+            85
+          ]
+        },
+        "hoverWorkspace": {
+          "count": 1,
+          "maxMs": 914,
+          "firstMs": [
+            914
+          ]
+        },
+        "hoverFrameworkContext": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hoverMemberLookup": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hover": {
+          "count": 1,
+          "maxMs": 920,
+          "firstMs": [
+            920
+          ]
+        }
+      },
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 77,
+      "p95Ms": 100,
+      "maxMs": 469,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        221,
+        221,
+        221,
+        221,
+        221,
+        221,
+        221
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "compositeP95BudgetMs": 150,
+  "fullQualityWrapperExecuted": false,
+  "numberedFixtures": 173,
+  "fixtureFamilies": 14,
+  "remainingRoadmapMajorItems": 26,
+  "existingAdvancedTypeCasesMapped": 12,
+  "advancedTypeHistorical23475QualificationReconstructed": false,
+  "currentReferenceSixModeQualificationExecuted": false,
+  "historicalReferenceSixModesPassed": 5,
+  "fullPerformanceQualified": false,
+  "realWslRemoteQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "released": false,
+  "audits": {
+    "d1887-current-full-lsp-terminal-audit": {
+      "path": ".vscode-test/d1887-current-full-lsp-terminal-audit.json",
+      "sha256": "85cc798253a8648c6114c745e19ce25f2f92b178ef5323b5431169ac91dddb5f"
+    },
+    "d1888-current-editor-terminal-audit": {
+      "path": ".vscode-test/d1888-current-editor-terminal-audit.json",
+      "sha256": "51c81cd39ac1217e0e0bcd34e94f7f64977d3436a752fb0287446836a6dd216c"
+    },
+    "d1889-quality-semantic-terminal-audit": {
+      "path": ".vscode-test/d1889-quality-semantic-terminal-audit.json",
+      "sha256": "ce3ed206918ac3317cb60c102f94ef1ee7a6836869f4d32a2b3e790b8741177a"
+    },
+    "d1893-current-native-c3-terminal-audit": {
+      "path": ".vscode-test/d1893-current-native-c3-terminal-audit.json",
+      "sha256": "85c3289071204a8954da7ad3379a95562a4821a4c432d7b47d500892f78282f6"
+    },
+    "d1901-current-full-profile-terminal-audit": {
+      "path": ".vscode-test/d1901-current-full-profile-terminal-audit.json",
+      "sha256": "a57ebc6955f7f358587c56c5a9c39426217187b37cce0907e2f67a3812d3002b"
+    }
+  },
+  "archives": {
+    "d1887-current-full-lsp-archive": {
+      "manifest": ".vscode-test/d1887-current-full-lsp-archive/manifest.json",
+      "sha256": "9e9dd059206063c7bdff2463fe203a36f074ba3070a6b9e83c2ca2da172a281a",
+      "verifiedFiles": 188
+    },
+    "d1888-current-editor-archive": {
+      "manifest": ".vscode-test/d1888-current-editor-archive/manifest.json",
+      "sha256": "ea8e2b77db7c66b72e87c9e6897e85a93be471dc12e4f5c82f827dd6f0a5050d",
+      "verifiedFiles": 373
+    },
+    "d1889-quality-semantic-archive": {
+      "manifest": ".vscode-test/d1889-quality-semantic-archive/manifest.json",
+      "sha256": "d0238ce3e974fdebf5a241bb218b3c63cf4f056639e287694761886d5cde717a",
+      "verifiedFiles": 243
+    },
+    "d1893-current-native-c3-archive": {
+      "manifest": ".vscode-test/d1893-current-native-c3-archive/manifest.json",
+      "sha256": "08a58d3255593c408eff803e3b0a4c66f4fc3e5711935914585426e365b0122e",
+      "verifiedFiles": 391
+    },
+    "d1901-current-full-profile-evidence": {
+      "manifest": ".vscode-test/d1901-current-full-profile-evidence/manifest.json",
+      "sha256": "695856ad947b0133045427ac659b8a970f75a4ac4c0c1a9cd8703f697721594a",
+      "verifiedFiles": 87
+    }
+  },
+  "sourceInputs": {
+    "packages/semantic/src/index.ts": "76b3cef8c78d639187161e449ed7ae6a0ea1a846b55f3f404a9e10bd0e47da2a",
+    "packages/semantic/dist/index.js": "d15bfc753cc3bbf40d18f8dcffd2aa9d5dc8521ba3a630c61b35a4f919ba64a0",
+    "dist/language-server.js": "762362525977cfa6d81d99ca1766ddc256bb7638d95655b0bb01cd7886aa401e",
+    "test/extension/suite/c3.ts": "eb905a007d8ecf36bd059c9b36882dba6cb1971791c046bb2f7638efa937834c",
+    "test/extension/suite/reorderDefaults.ts": "6168d30f703d256f47349650d4edd281b5420ce2a1ab355f7891daeca002d21b",
+    "test/extension/suite/reorderEffects.ts": "7ac67efa9303bc133cfb29c7ec2bf3a6356227b0191f747df0173024d31e914c"
+  }
+}

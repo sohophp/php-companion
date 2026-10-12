@@ -1,0 +1,102 @@
+{
+  "recordedAtUtc": "2026-10-09T00:57:13.716712+00:00",
+  "scope": "Commented return statements in shared Generator/closure inference",
+  "baseline": {
+    "total": 38,
+    "passed": 18,
+    "failed": 20,
+    "preliminaryMetadataAssertionResultExcludedFromProductFailureCount": true
+  },
+  "semantic": {
+    "files": 168,
+    "passed": 23645,
+    "failed": 0,
+    "pending": 0,
+    "existingCaseIdentitiesRetained": 23607,
+    "newCases": 38
+  },
+  "existingProductionGeneratorProtocolPassed": 12,
+  "newProductionSignatureObservations": 32,
+  "newProductionServersExited": 4,
+  "rootUnitPassed": 113,
+  "nativePhpRuntimes": 9,
+  "nativeObservations": 144,
+  "checksObservedExitZero": [
+    "semantic TypeScript build",
+    "root strict TypeScript",
+    "ESLint for semantic source and new test",
+    "normal production bundle",
+    "full semantic suite",
+    "existing Generator delegation/return/send protocol suites",
+    "root unit suite",
+    "focused normal-bundle commented-return stdio checks"
+  ],
+  "runtime": {
+    "packages/semantic/src/index.ts": "05607495fb144b14fc6d59fffc5574f61b0a580fffa04556c073d57b013e3f16",
+    "packages/semantic/test/commented-return-inference.test.ts": "6c3b93ab9118f05ee018c804b02f2934c80291dc02f0526597e2b965d016b1a6",
+    "packages/semantic/dist/index.js": "ecb7d92730cd712696dc0430c34ca8267a06efe1b15b5ae8cbd48e605c5d552c",
+    "dist/language-server.js": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+    "dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c"
+  },
+  "evidence": [
+    {
+      "path": ".vscode-test/d1139-generator-return-comment-probe.mjs",
+      "sha256": "95d1aa9748ca26d756ee6aae47f12b6107f04fd93f6f1eedc8daaf43a4e8bac0"
+    },
+    {
+      "path": ".vscode-test/d1139-generator-return-comment-probe.json",
+      "sha256": "9f7e812be6be85b9bb24070ae6438a495a58df52652ec1754a76baf181648f04"
+    },
+    {
+      "path": ".vscode-test/d1141-commented-return-before.json",
+      "sha256": "7baae2d8e54045b41421b0cf95f2646b63f073b1ff17d86a28cc91d2c32151a3"
+    },
+    {
+      "path": ".vscode-test/d1141-commented-return-baseline.json",
+      "sha256": "364b9dfb2407596f15566504e1bff7567f8f81d8605588ccf4b532534fc2c39b"
+    },
+    {
+      "path": ".vscode-test/d1142-commented-return-native.mjs",
+      "sha256": "679c96147df5496b3b59c5b899ea94c1d8ad5e6a8277e78f510b4dfeae3d3909"
+    },
+    {
+      "path": ".vscode-test/d1142-commented-return-native.php",
+      "sha256": "505eff8e52280e2b1fc1f1bc4779bc21c43ce96daf772c2883c8923b06b3c4f7"
+    },
+    {
+      "path": ".vscode-test/d1142-commented-return-native.json",
+      "sha256": "785e1011ba6a161cd5badc6dbe14e847daf8b32b74248364dce7b974e0d2e007"
+    },
+    {
+      "path": ".vscode-test/d1143-commented-return-full-semantic.json",
+      "sha256": "a778744eca125a9e357d26b30ee678a00f84b5f6da73141e9911d73b4e56079a"
+    },
+    {
+      "path": ".vscode-test/d1143-commented-return-generator-protocol.json",
+      "sha256": "47b3ac59d095a6f22ddac328e6feec5d92a888b07ca228ae4d4cb4db5217eb72"
+    },
+    {
+      "path": ".vscode-test/d1143-commented-return-generator-send.json",
+      "sha256": "a522a8c0397651aa610bc67d3ba95f019011144c22151256652f33866b7ea75a"
+    },
+    {
+      "path": ".vscode-test/d1143-commented-return-root-unit.json",
+      "sha256": "8e9269f48564edc2aa4e254b4f0b5fc3de082880c0439a7d51d20bb700b384b3"
+    },
+    {
+      "path": ".vscode-test/d1144-commented-return-stdio.mjs",
+      "sha256": "33e9d8115128cc530b3f2f0630e2201ab21d2562f9aeea397980bb8dd108a5de"
+    },
+    {
+      "path": ".vscode-test/d1144-commented-return-stdio.json",
+      "sha256": "8412679249752e31a0f4521022a5090dde140465e74ccd82f66edf10b0caf092"
+    }
+  ],
+  "fullLspQualifiedForNewBundle": false,
+  "fullEditorQualifiedForNewBundle": false,
+  "fullPerformanceQualifiedForNewBundle": false,
+  "windowsFirstFailureStillOpen": true,
+  "profileUpdated": false,
+  "packaged": false,
+  "fullObjectiveComplete": false
+}

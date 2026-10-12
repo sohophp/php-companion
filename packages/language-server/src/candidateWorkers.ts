@@ -65,39 +65,40 @@ export class CandidateWorkers {
   constructor(private readonly paths?: PhpParserPaths, private readonly maxWorkers = 4) {}
 
   private start(): void {
-    if (this.slots.length || this.disabled) return;
+    // Start only when every live worker is busy. A single small scan should
+    // not allocate the full pool, while concurrent work can still use its cap.
+    if (this.disabled || this.slots.some((slot) => slot.alive && slot.pending === 0)
+      || this.slots.length >= Math.min(this.maxWorkers, availableParallelism())) return;
     const path = resolve(dirname(process.argv[1] ?? ''), 'candidateWorker.js');
-    for (let index = 0; index < Math.min(this.maxWorkers, availableParallelism()); index += 1) {
-      try {
-        const worker = new Worker(path, { workerData: { paths: this.paths } });
-        worker.unref();
-        const slot: WorkerSlot = { worker, pending: 0, alive: true };
-        worker.on('message', (message: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore> | Partial<PreparedCandidateCompression> | SerializedPreparedCandidate) & { id: number }) => {
-          slot.pending = Math.max(0, slot.pending - 1);
-          const resolve = this.waiting.get(message.id); this.waiting.delete(message.id); this.owners.delete(message.id);
-          let result: unknown = message;
-          if ('json' in message) {
-            try { result = JSON.parse(message.json); } catch { result = undefined; }
-          }
-          const valid = result !== null && typeof result === 'object' && 'id' in result && result.id === message.id
-            && (('kind' in result && (result.kind === 'restored' || result.kind === 'compressed'))
-              || 'facts' in result || 'summary' in result);
-          resolve?.(valid ? result : undefined);
-        });
-        const fail = (): void => {
-          if (!slot.alive) return;
-          slot.alive = false;
-          // A worker cannot be trusted after an error. Pending tasks fall back
-          // to the ordinary source parser when that worker exits.
-          for (const [id, resolve] of this.waiting) {
-            if (this.owners.get(id) !== slot) continue;
-            this.waiting.delete(id); this.owners.delete(id); resolve(undefined);
-          }
-        };
-        worker.on('error', (error) => { this.warn(error); fail(); }); worker.on('exit', fail);
-        this.slots.push(slot);
-      } catch (error) { this.warn(error); this.disabled = true; break; }
-    }
+    try {
+      const worker = new Worker(path, { workerData: { paths: this.paths } });
+      worker.unref();
+      const slot: WorkerSlot = { worker, pending: 0, alive: true };
+      worker.on('message', (message: (Partial<PreparedCandidate> | Partial<PreparedCandidateRestore> | Partial<PreparedCandidateCompression> | SerializedPreparedCandidate) & { id: number }) => {
+        slot.pending = Math.max(0, slot.pending - 1);
+        const resolve = this.waiting.get(message.id); this.waiting.delete(message.id); this.owners.delete(message.id);
+        let result: unknown = message;
+        if ('json' in message) {
+          try { result = JSON.parse(message.json); } catch { result = undefined; }
+        }
+        const valid = result !== null && typeof result === 'object' && 'id' in result && result.id === message.id
+          && (('kind' in result && (result.kind === 'restored' || result.kind === 'compressed'))
+            || 'facts' in result || 'summary' in result);
+        resolve?.(valid ? result : undefined);
+      });
+      const fail = (): void => {
+        if (!slot.alive) return;
+        slot.alive = false;
+        // A worker cannot be trusted after an error. Pending tasks fall back
+        // to the ordinary source parser when that worker exits.
+        for (const [id, resolve] of this.waiting) {
+          if (this.owners.get(id) !== slot) continue;
+          this.waiting.delete(id); this.owners.delete(id); resolve(undefined);
+        }
+      };
+      worker.on('error', (error) => { this.warn(error); fail(); }); worker.on('exit', fail);
+      this.slots.push(slot);
+    } catch (error) { this.warn(error); this.disabled = true; }
   }
 
   private owners = new Map<number, WorkerSlot>();

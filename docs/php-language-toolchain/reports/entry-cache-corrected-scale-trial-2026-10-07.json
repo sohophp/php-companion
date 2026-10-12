@@ -1,0 +1,1110 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "decision": "single-run-scale-gate-failed-not-adopted",
+  "adopted": false,
+  "productChanged": false,
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "candidateSourceHashes": {
+    "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9",
+    "d353-entry-store.mjs": "23d20b1e5d1527b51345856c920c1b39938649bdd932112bd7c92515ff5c7847",
+    "d353-index.mjs": "38731a21e6b95733237d4a45e724828b3ab6e7f2046fa29c630bf3686fbc2017",
+    "d353-entry-store-controls.mjs": "74745c94ef92041bc3cb66e65a782febd8d22799c563552f9146677fbc32b67d",
+    "d353-entry-store-edge-controls.mjs": "f017b3cd5ac881aadd700fced26ad25736a13c1e479d4e598c21bbd6f02ee05d"
+  },
+  "normalSourceBuildParity": {
+    "schemaVersion": 1,
+    "status": "passed",
+    "run": {
+      "status": "exited",
+      "parentPid": 883512,
+      "childPid": 883602,
+      "startedAtUtc": "2026-10-07T15:17:10.912627+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "-p",
+        "packages/index/tsconfig.json",
+        "--outDir",
+        "/var/www/node/php-companion/.vscode-test/d361-index-build"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d361-index-source-build-input.json",
+      "exitCode": 0,
+      "durationSeconds": 3.1430517750050058,
+      "finishedAtUtc": "2026-10-07T15:17:14.054324+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pairs": [
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.d.ts",
+        "normal": "/var/www/node/php-companion/packages/index/dist/dependency.d.ts",
+        "sha256": "03d69e2e3d1a59074571327597ac47bd67c72f96834959ea7786b98abb5c8e10",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.d.ts.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/dependency.d.ts.map",
+        "freshSha256": "9829369b01d3c384b6d708dbe164249cffdd47f03042dc2d0cf565347509f7d6",
+        "normalSha256": "dc2112d1e73cdb8069df615bdfcfc09c35a12e2453eca626609db399c331a217",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.js",
+        "normal": "/var/www/node/php-companion/packages/index/dist/dependency.js",
+        "sha256": "26a10484cf25fa3643367cff6067cc5ab934b8d132406e110b85704a8199ceec",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.js.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/dependency.js.map",
+        "freshSha256": "74f0751de4f0aade6c15255dc746fd0198f1e9cdb7b855a51abb7eccf1c7e8bc",
+        "normalSha256": "5b5edc2775952c8c7911685df2c66d14e1838e20e1f1f0da6be8a823280b547d",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.d.ts",
+        "normal": "/var/www/node/php-companion/packages/index/dist/index.d.ts",
+        "sha256": "f66448e4b3abff7c771bd01b4e21c97261d9839d276eae79a5b0d71120ab6d24",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.d.ts.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/index.d.ts.map",
+        "freshSha256": "6e33ed53379362f886ea890f487434973b8a83c4bc5fad4681daffb04b009289",
+        "normalSha256": "efa8ba2f7b1f00d7a4f4fba505b7a0cbe7a60204a680c075de19e613254ea1ab",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.js",
+        "normal": "/var/www/node/php-companion/packages/index/dist/index.js",
+        "sha256": "e85942d00d51da71eba98e1fc4bf7864ee33667bfaed6655e4cdb12548532790",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.js.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/index.js.map",
+        "freshSha256": "1e86a24c50e33da1ab3822c6693dc3ed183f68bc09875850b79085f93f60abe9",
+        "normalSha256": "ec43413dab255ba5441932d157bcc2dae123b9be285fdc848096988c2daa1281",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.d.ts",
+        "normal": "/var/www/node/php-companion/packages/index/dist/inverted.d.ts",
+        "sha256": "e000f7d98bc7dfa008daf2e535f02fde1bf15f89d0e4ab4a10d5a5aee8d4c05a",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.d.ts.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/inverted.d.ts.map",
+        "freshSha256": "ac7f3fd9c61cef953678a8c57801cff92674a6ecbf673f98a3a303d85215ea0c",
+        "normalSha256": "eb3c948cf32022e464efe047cc38c9a97ca95600d24286bc025a5d294c247e3d",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.js",
+        "normal": "/var/www/node/php-companion/packages/index/dist/inverted.js",
+        "sha256": "5c61447462422773c17d13eca40efbfbf262f70c6b397158e3c2bc763b4dabd9",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.js.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/inverted.js.map",
+        "freshSha256": "be826c86b17ff73ec5b13ee2f8bdb5eebc4e683df9957cdbe2c78702f6edc87b",
+        "normalSha256": "b71e96de0899f2c00fa7a560d62f6860bfb6851494d31535a88eed15cfda1178",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.d.ts",
+        "normal": "/var/www/node/php-companion/packages/index/dist/pending.d.ts",
+        "sha256": "dab115384b64198dec9fe31335e1cd97a51ac9a8ce53b2293ccd2460ed74c334",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.d.ts.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/pending.d.ts.map",
+        "freshSha256": "5b10e6d6fa0d5dafe8dd99465be99d52e61429d5bc4e86bd9704982f94517313",
+        "normalSha256": "0630714e199c4c9ca436b6f47afe79addd5f9a6b3192419eff68522295003045",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.js",
+        "normal": "/var/www/node/php-companion/packages/index/dist/pending.js",
+        "sha256": "76d16b9dd72920d936ce8f75ebb0633b4ab3a4536da427f1167363d74dccbb5e",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.js.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/pending.js.map",
+        "freshSha256": "4036c269126ea30a5e6eb344f3ff091c1a7d252961459e66d2e991202340f30b",
+        "normalSha256": "6bcc50f8626c0386ab41c0eb5f064d4e8db7add0a5b2871c6d2386209c7c3ac2",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.d.ts",
+        "normal": "/var/www/node/php-companion/packages/index/dist/source-candidates.d.ts",
+        "sha256": "c5b518f45c86b03b958907d60b779226365c3bae620ae1b41531985eb288f103",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.d.ts.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/source-candidates.d.ts.map",
+        "freshSha256": "804cef84d0b9dcf8a9b20651162fc08125251e41d144aa227f0e864620b20f4c",
+        "normalSha256": "082386d077f09f2c39dab677c873b3aa46fce8b2d0fcbaf6856dd60728e56ff9",
+        "equalExceptResolvedSourcePath": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.js",
+        "normal": "/var/www/node/php-companion/packages/index/dist/source-candidates.js",
+        "sha256": "cd543b7f8a5c840945dd0baa1f5cd8e7350655b91043236ca848758879adc5b0",
+        "byteIdentical": true
+      },
+      {
+        "fresh": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.js.map",
+        "normal": "/var/www/node/php-companion/packages/index/dist/source-candidates.js.map",
+        "freshSha256": "1878d3eadfd10e4f9f30a2246eff9d56d2267686819eacb449c00c6c11f826fa",
+        "normalSha256": "ee1e9ede1b6904fdb716e1fff74e526a5a7afe78f100bbd74561a5a15f02c53e",
+        "equalExceptResolvedSourcePath": true
+      }
+    ],
+    "outputs": 20,
+    "javascriptByteIdentical": 5,
+    "declarationsByteIdentical": 5,
+    "mapMappingsAndResolvedSourcesIdentical": 10,
+    "candidateChanged": false,
+    "normalBuildChanged": false,
+    "sourceAuditSha256": "a2e341a38e67c7f4cd26c3824405aeb184d8207534e889e6cccc9c7b9b5782df",
+    "scope": "Independent normal tsc build redirected to private output. All five JS and five declarations byte-identical; ten maps differ only by relative output-location paths resolving to the same source. No candidate or normal source/build edits."
+  },
+  "sourceAndBenchmarkAudit": {
+    "schemaVersion": 1,
+    "status": "static-parity-passed-build-parity-pending",
+    "candidateUnchanged": true,
+    "normalIndexSha256": "e85942d00d51da71eba98e1fc4bf7864ee33667bfaed6655e4cdb12548532790",
+    "normalIndexSourceSha256": "caff9d34193523598200e1c8df1ff62f14ee8d188483b016b344065f8c98e7be",
+    "candidateSourceHashes": {
+      "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9",
+      "d353-entry-store.mjs": "23d20b1e5d1527b51345856c920c1b39938649bdd932112bd7c92515ff5c7847",
+      "d353-index.mjs": "38731a21e6b95733237d4a45e724828b3ab6e7f2046fa29c630bf3686fbc2017",
+      "d353-entry-store-controls.mjs": "74745c94ef92041bc3cb66e65a782febd8d22799c563552f9146677fbc32b67d",
+      "d353-entry-store-edge-controls.mjs": "f017b3cd5ac881aadd700fced26ad25736a13c1e479d4e598c21bbd6f02ee05d"
+    },
+    "originalIndexSha256": "b8967dcf0929cd50b4c67415d5890120ca24923b0602df885db942a127f0a0bc",
+    "privateCandidateMatchesOriginalPlusEnumeratedSafetyChanges": true,
+    "indexDiff": [
+      {
+        "tag": "insert",
+        "normalStart": 1,
+        "normalEnd": 0,
+        "candidateStart": 1,
+        "candidateEnd": 1,
+        "normal": "",
+        "candidate": "import { EntryStore } from './d353-entry-store.mjs';\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 5,
+        "normalEnd": 8,
+        "candidateStart": 6,
+        "candidateEnd": 9,
+        "normal": "import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '@php-companion/project';\nexport { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS } from './inverted.js';\nexport { DocumentDependencyGraph, DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS } from './dependency.js';\nexport { createSourceCandidateSummary, sourceCandidateSummaryDecision } from './source-candidates.js';\n",
+        "candidate": "import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '../packages/project/dist/index.js';\nexport { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS } from '../packages/index/dist/inverted.js';\nexport { DocumentDependencyGraph, DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS } from '../packages/index/dist/dependency.js';\nexport { createSourceCandidateSummary, sourceCandidateSummaryDecision } from '../packages/index/dist/source-candidates.js';\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 54,
+        "normalEnd": 76,
+        "candidateStart": 55,
+        "candidateEnd": 58,
+        "normal": "    const previous = new Map();\n    if (cachePath && options.cache) {\n        try {\n            const data = JSON.parse(await readFile(cachePath, 'utf8'));\n            if (data.schema === 1 && data.version === options.cache.version && data.root === root\n                && data.entries && typeof data.entries === 'object' && !Array.isArray(data.entries)) {\n                for (const [path, entry] of Object.entries(data.entries)) {\n                    if (entry && typeof entry === 'object' && !Array.isArray(entry)\n                        && Number.isSafeInteger(entry.size) && entry.size >= 0\n                        && Number.isFinite(entry.mtimeMs)\n                        && (entry.ctimeMs === undefined || Number.isFinite(entry.ctimeMs))\n                        && typeof entry.hash === 'string' && /^[a-f0-9]{64}$/.test(entry.hash))\n                        previous.set(path, entry);\n                    else\n                        warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);\n                }\n            }\n        }\n        catch (error) {\n            if (error.code !== 'ENOENT')\n                warnings.push('Persistent index cache was unreadable and will be rebuilt.');\n        }\n    }\n",
+        "candidate": "    const store = cachePath && options.cache ? await EntryStore.load(cachePath, root, options.cache.version) : undefined;\n    const previous = store?.previous ?? new Map();\n    warnings.push(...store?.warnings ?? []);\n    try {\n"
+      },
+      {
+        "tag": "insert",
+        "normalStart": 103,
+        "normalEnd": 102,
+        "candidateStart": 85,
+        "candidateEnd": 85,
+        "normal": "",
+        "candidate": "    let cacheWriteFailed = false;\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 172,
+        "normalEnd": 172,
+        "candidateStart": 155,
+        "candidateEnd": 155,
+        "normal": "                    return { info, hash: verifiedHash, preparedRestore: await options.cache.prepareRestore(old.payload, { uri, path, bytes: info.size, hash: old.hash }) };\n",
+        "candidate": "                    return { info, hash: verifiedHash, preparedRestore: await options.cache.prepareRestore(await store.payload(old), { uri, path, bytes: info.size, hash: old.hash }) };\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 294,
+        "normalEnd": 294,
+        "candidateStart": 277,
+        "candidateEnd": 277,
+        "normal": "                    const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);\n",
+        "candidate": "                    const decision = await options.cache.restore(await store.payload(old), { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 317,
+        "normalEnd": 317,
+        "candidateStart": 300,
+        "candidateEnd": 300,
+        "normal": "                    restored = await options.cache.restore(old.payload, { uri, path, bytes: size, hash }) === true;\n",
+        "candidate": "                    restored = await options.cache.restore(await store.payload(old), { uri, path, bytes: size, hash }) === true;\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 339,
+        "normalEnd": 340,
+        "candidateStart": 322,
+        "candidateEnd": 324,
+        "normal": "            if (payload !== undefined) {\n                const entry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload };\n",
+        "candidate": "            if (payload !== undefined && store) {\n                cacheChanged = true;\n                const entry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash };\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 342,
+        "normalEnd": 352,
+        "candidateStart": 326,
+        "candidateEnd": 333,
+        "normal": "                cacheChanged = true;\n                if (options.cache?.finalizePayload) {\n                    const finish = Promise.resolve().then(() => options.cache.finalizePayload(payload))\n                        .then((finalized) => { if (finalized === undefined)\n                        next.delete(path);\n                    else\n                        entry.payload = finalized; })\n                        .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n                        .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });\n                    pendingPayloads.add(finish);\n                }\n",
+        "candidate": "                const finish = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)\n                    .then(async (finalized) => {\n                        if (finalized === undefined) next.delete(path);\n                        else Object.assign(entry, await store.stage(finalized));\n                    })\n                    .catch(() => { cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n                    .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });\n                pendingPayloads.add(finish);\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 381,
+        "normalEnd": 381,
+        "candidateStart": 362,
+        "candidateEnd": 363,
+        "normal": "        if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry))\n",
+        "candidate": "        if (cacheWriteFailed) { warnings.push('Persistent index cache could not be written.'); return true; }\n        if (!cacheChanged && store.readonlyGeneration !== undefined && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry))\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 383,
+        "normalEnd": 413,
+        "candidateStart": 365,
+        "candidateEnd": 366,
+        "normal": "        const temporary = `${cachePath}.${process.pid}.tmp`;\n        try {\n            await mkdir(options.cache.directory, { recursive: true });\n            const file = await open(temporary, 'w');\n            try {\n                // Serialize bounded batches instead of holding a second full-project JSON string.\n                let batch = `{\"schema\":1,\"version\":${JSON.stringify(options.cache.version)},\"root\":${JSON.stringify(root)},\"entries\":{`;\n                let separator = '';\n                for (const [path, entry] of next) {\n                    batch += `${separator}${JSON.stringify(path)}:${JSON.stringify(entry)}`;\n                    separator = ',';\n                    if (batch.length >= 256 * 1024) {\n                        await file.writeFile(batch);\n                        batch = '';\n                    }\n                }\n                await file.writeFile(`${batch}}}`);\n            }\n            finally {\n                await file.close();\n            }\n            if (options.shouldContinue?.() === false)\n                return false;\n            await rename(temporary, cachePath);\n        }\n        catch {\n            warnings.push('Persistent index cache could not be written.');\n        }\n        finally {\n            await rm(temporary, { force: true }).catch(() => undefined);\n        }\n",
+        "candidate": "        try { return await store.commit(next, options.shouldContinue); }\n        catch { warnings.push('Persistent index cache could not be written.'); }\n"
+      },
+      {
+        "tag": "insert",
+        "normalStart": 461,
+        "normalEnd": 460,
+        "candidateStart": 414,
+        "candidateEnd": 415,
+        "normal": "",
+        "candidate": "    } finally { await store?.dispose(); }\n\n"
+      },
+      {
+        "tag": "replace",
+        "normalStart": 462,
+        "normalEnd": 462,
+        "candidateStart": 417,
+        "candidateEnd": 417,
+        "normal": "export { PendingChanges } from './pending.js';\n",
+        "candidate": "export { PendingChanges } from '../packages/index/dist/pending.js';\n"
+      }
+    ],
+    "completeIndexDiff": "--- /var/www/node/php-companion/packages/index/dist/index.js\n+++ /var/www/node/php-companion/.vscode-test/d353-index.mjs\n@@ -1,11 +1,12 @@\n+import { EntryStore } from './d353-entry-store.mjs';\n import { mkdir, open, readdir, readFile, rename, rm, stat } from 'node:fs/promises';\n import { join } from 'node:path';\n import { pathToFileURL } from 'node:url';\n import { createHash } from 'node:crypto';\n-import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '@php-companion/project';\n-export { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS } from './inverted.js';\n-export { DocumentDependencyGraph, DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS } from './dependency.js';\n-export { createSourceCandidateSummary, sourceCandidateSummaryDecision } from './source-candidates.js';\n+import { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '../packages/project/dist/index.js';\n+export { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS } from '../packages/index/dist/inverted.js';\n+export { DocumentDependencyGraph, DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS } from '../packages/index/dist/dependency.js';\n+export { createSourceCandidateSummary, sourceCandidateSummaryDecision } from '../packages/index/dist/source-candidates.js';\n export const DEFAULT_INDEX_LIMITS = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };\n function validateLimits(limits) {\n     for (const [name, value] of Object.entries(limits)) {\n@@ -51,29 +52,10 @@\n     const warnings = [...project.warnings];\n     const cacheIdentity = options.cache?.key === undefined ? root : `${root}\\0${options.cache.key}`;\n     const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(cacheIdentity).digest('hex')}.json`) : undefined;\n-    const previous = new Map();\n-    if (cachePath && options.cache) {\n-        try {\n-            const data = JSON.parse(await readFile(cachePath, 'utf8'));\n-            if (data.schema === 1 && data.version === options.cache.version && data.root === root\n-                && data.entries && typeof data.entries === 'object' && !Array.isArray(data.entries)) {\n-                for (const [path, entry] of Object.entries(data.entries)) {\n-                    if (entry && typeof entry === 'object' && !Array.isArray(entry)\n-                        && Number.isSafeInteger(entry.size) && entry.size >= 0\n-                        && Number.isFinite(entry.mtimeMs)\n-                        && (entry.ctimeMs === undefined || Number.isFinite(entry.ctimeMs))\n-                        && typeof entry.hash === 'string' && /^[a-f0-9]{64}$/.test(entry.hash))\n-                        previous.set(path, entry);\n-                    else\n-                        warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);\n-                }\n-            }\n-        }\n-        catch (error) {\n-            if (error.code !== 'ENOENT')\n-                warnings.push('Persistent index cache was unreadable and will be rebuilt.');\n-        }\n-    }\n+    const store = cachePath && options.cache ? await EntryStore.load(cachePath, root, options.cache.version) : undefined;\n+    const previous = store?.previous ?? new Map();\n+    warnings.push(...store?.warnings ?? []);\n+    try {\n     const inventoryLimit = options.skipSourceOutsideBudget ? Math.max(50_000, limits.maxFiles) : limits.maxFiles;\n     const projectCandidates = new Set();\n     const include = (path) => !isAutoloadPathExcluded(project, path);\n@@ -100,6 +82,7 @@\n     let chargedFiles = 0;\n     let cached = 0;\n     let cacheChanged = false;\n+    let cacheWriteFailed = false;\n     const next = new Map();\n     const pendingPayloads = new Set();\n     // The sequential producer needs one notification, without adding handlers to slow tasks.\n@@ -169,7 +152,7 @@\n                     return { info, hash: verifiedHash };\n                 try {\n                     const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();\n-                    return { info, hash: verifiedHash, preparedRestore: await options.cache.prepareRestore(old.payload, { uri, path, bytes: info.size, hash: old.hash }) };\n+                    return { info, hash: verifiedHash, preparedRestore: await options.cache.prepareRestore(await store.payload(old), { uri, path, bytes: info.size, hash: old.hash }) };\n                 }\n                 catch {\n                     return { info, hash: verifiedHash };\n@@ -291,7 +274,7 @@\n                 && (prefetched?.hash === undefined ? !options.verifyCachedSourceHash : prefetched.hash === old.hash)) {\n                 restoreAttempted = true;\n                 try {\n-                    const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);\n+                    const decision = await options.cache.restore(await store.payload(old), { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);\n                     if (decision === true) {\n                         next.set(path, old);\n                         cached += 1;\n@@ -314,7 +297,7 @@\n             let restored = false;\n             if (!restoreAttempted && old && old.size === size && old.hash === hash && options.cache) {\n                 try {\n-                    restored = await options.cache.restore(old.payload, { uri, path, bytes: size, hash }) === true;\n+                    restored = await options.cache.restore(await store.payload(old), { uri, path, bytes: size, hash }) === true;\n                 }\n                 catch {\n                     warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);\n@@ -336,20 +319,18 @@\n             if (pendingPayloads.size >= readConcurrency && !await waitForPayloads(readConcurrency))\n                 return 'cancelled';\n             const payload = await options.onSource({ uri, path, source, bytes: size, hash, prepared: prefetched?.prepared });\n-            if (payload !== undefined) {\n-                const entry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload };\n+            if (payload !== undefined && store) {\n+                cacheChanged = true;\n+                const entry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash };\n                 next.set(path, entry);\n-                cacheChanged = true;\n-                if (options.cache?.finalizePayload) {\n-                    const finish = Promise.resolve().then(() => options.cache.finalizePayload(payload))\n-                        .then((finalized) => { if (finalized === undefined)\n-                        next.delete(path);\n-                    else\n-                        entry.payload = finalized; })\n-                        .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n-                        .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });\n-                    pendingPayloads.add(finish);\n-                }\n+                const finish = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)\n+                    .then(async (finalized) => {\n+                        if (finalized === undefined) next.delete(path);\n+                        else Object.assign(entry, await store.stage(finalized));\n+                    })\n+                    .catch(() => { cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n+                    .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });\n+                pendingPayloads.add(finish);\n             }\n             bytes += size;\n             indexed += 1;\n@@ -378,39 +359,11 @@\n             return true;\n         if (!await waitForPayloads(1))\n             return false;\n-        if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry))\n+        if (cacheWriteFailed) { warnings.push('Persistent index cache could not be written.'); return true; }\n+        if (!cacheChanged && store.readonlyGeneration !== undefined && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry))\n             return true;\n-        const temporary = `${cachePath}.${process.pid}.tmp`;\n-        try {\n-            await mkdir(options.cache.directory, { recursive: true });\n-            const file = await open(temporary, 'w');\n-            try {\n-                // Serialize bounded batches instead of holding a second full-project JSON string.\n-                let batch = `{\"schema\":1,\"version\":${JSON.stringify(options.cache.version)},\"root\":${JSON.stringify(root)},\"entries\":{`;\n-                let separator = '';\n-                for (const [path, entry] of next) {\n-                    batch += `${separator}${JSON.stringify(path)}:${JSON.stringify(entry)}`;\n-                    separator = ',';\n-                    if (batch.length >= 256 * 1024) {\n-                        await file.writeFile(batch);\n-                        batch = '';\n-                    }\n-                }\n-                await file.writeFile(`${batch}}}`);\n-            }\n-            finally {\n-                await file.close();\n-            }\n-            if (options.shouldContinue?.() === false)\n-                return false;\n-            await rename(temporary, cachePath);\n-        }\n-        catch {\n-            warnings.push('Persistent index cache could not be written.');\n-        }\n-        finally {\n-            await rm(temporary, { force: true }).catch(() => undefined);\n-        }\n+        try { return await store.commit(next, options.shouldContinue); }\n+        catch { warnings.push('Persistent index cache could not be written.'); }\n         return true;\n     };\n     if (options.includeDependencies === false) {\n@@ -458,6 +411,8 @@\n         return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete,\n             warnings: [...warnings, 'Project indexing was cancelled.'] };\n     return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };\n+    } finally { await store?.dispose(); }\n+\n }\n-export { PendingChanges } from './pending.js';\n+export { PendingChanges } from '../packages/index/dist/pending.js';\n //# sourceMappingURL=index.js.map",
+    "normalBenchmarkSha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+    "benchmarkSha256": "ff621a9673a5e737ed8394e31b089f9bb480d7cc85d8607de6b37735e3f6fe73",
+    "benchmarkExactReverseToOriginal": true,
+    "preparationFailureRetained": "First static preparation attempt stopped before creating candidate/audit outputs: hand-written expected diff line offsets were wrong (import at 5 rather than 6 and split changes at 342/383/462). Corrected from the already inspected full diff; no candidate, benchmark, test or production change.",
+    "benchmarkDifferences": [
+      "Import current unchanged private D353 index instead of normal index.",
+      "For schema 2 only, fetch first file payload blob, run unchanged original mutation callback, update outer blob digest/size; inner semantic checksums intentionally remain stale.",
+      "Schema 1 mutation unchanged. No semantic adapter, budget, sampler, functional assertion, stage, fixture, cleanup, output or exit behavior changed."
+    ],
+    "indexDifferenceScope": [
+      "Current scan, budgets, prepared sources/restores, dependencies, skip semantics, hash checks, callbacks and progress preserved outside explicit storage replacement blocks.",
+      "No-cache onSource still runs; its unused return value is no longer retained in a Map. No cache finalizer exists in this branch, and next is never externally observable.",
+      "Schema 1 migrates; schema 2 uses per-payload bounded checksum validation and metadata-only Map. Cache finalizer/write rejection preserves old manifest.",
+      "Current source-to-normal-build parity must pass independently before any scale benchmark.",
+      "Static correspondence and 25 controls do not establish full API, platform or product integration qualification."
+    ],
+    "gates": {
+      "order": [
+        1000,
+        10000,
+        50000
+      ],
+      "onlyAdvanceAfterPreviousOriginalBudgetPasses": true,
+      "rssMiB": {
+        "1000": 384,
+        "10000": 768,
+        "50000": 1536
+      },
+      "fullFourStageFunctionalAssertionsRequired": true
+    },
+    "adopted": false,
+    "productionChanged": false
+  },
+  "budgets": {
+    "hotQueryMs": 150,
+    "localDiagnosticsMs": 500,
+    "cancellationMs": 100,
+    "coldIndexMs": {
+      "files1000": 8000,
+      "files10000": 60000,
+      "files50000": 300000
+    },
+    "peakRssMb": {
+      "files1000": 384,
+      "files10000": 768,
+      "files50000": 1536
+    },
+    "warmCacheMb": {
+      "files1000": 64,
+      "files10000": 512,
+      "files50000": 2560
+    }
+  },
+  "budgetSource": "@php-companion/testkit R1_PERFORMANCE_BUDGETS; imported from current normal compiled module",
+  "runs": {
+    "1000": {
+      "status": "exited",
+      "parentPid": 884129,
+      "childPid": 884218,
+      "startedAtUtc": "2026-10-07T15:18:04.495868+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d360-benchmark-entry-store.mjs",
+        "1000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-1000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 10.241259483998874,
+      "finishedAtUtc": "2026-10-07T15:18:14.736003+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "21ed1b9e2a21000592dc359f70cb4b3847a201526a68f6dea5d089e570e95032"
+    },
+    "10000": {
+      "status": "exited",
+      "parentPid": 884423,
+      "childPid": 884516,
+      "startedAtUtc": "2026-10-07T15:18:32.863600+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d360-benchmark-entry-store.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-10000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 91.34294423999381,
+      "finishedAtUtc": "2026-10-07T15:20:04.205114+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3f5d76463a84242a33732ef7299193df0a4b64be9c4f8a01a98fa4f6255781e5"
+    },
+    "50000": {
+      "status": "exited",
+      "parentPid": 885556,
+      "childPid": 885660,
+      "startedAtUtc": "2026-10-07T15:20:57.690702+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d360-benchmark-entry-store.mjs",
+        "50000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-50000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 460.55526710399863,
+      "finishedAtUtc": "2026-10-07T15:28:38.244205+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3941bbd14059c6b1eceae6062b8c8b9ca8fa7e954c8e38afb3515b3871013c49"
+    }
+  },
+  "results": {
+    "1000": {
+      "schema": 1,
+      "files": 1000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 2779.2,
+        "parsed": 1000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 1568.05,
+        "parsed": 0,
+        "restored": 1000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.5642,
+      "cache": {
+        "cold": {
+          "files": 1002,
+          "bytes": 5818880,
+          "mebibytes": 5.55
+        },
+        "warm": {
+          "files": 1002,
+          "bytes": 5818880,
+          "mebibytes": 5.55
+        },
+        "frozenBudgetMb": 64
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 134.66,
+        "warmPeakRssMb": 134.25,
+        "layerRecoveryPeakRssMb": 147.65,
+        "callableRecoveryPeakRssMb": 149.46,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 384,
+        "processPeakRssMb": 240.89,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 1000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 1999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "10000": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 23174.15,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 15994.17,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6902,
+      "cache": {
+        "cold": {
+          "files": 10002,
+          "bytes": 58174902,
+          "mebibytes": 55.48
+        },
+        "warm": {
+          "files": 10002,
+          "bytes": 58174902,
+          "mebibytes": 55.48
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 233.33,
+        "warmPeakRssMb": 307.69,
+        "layerRecoveryPeakRssMb": 404.7,
+        "callableRecoveryPeakRssMb": 416.61,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 422.3,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "50000": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 118099.59,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 78961.89,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6686,
+      "cache": {
+        "cold": {
+          "files": 50002,
+          "bytes": 290870910,
+          "mebibytes": 277.4
+        },
+        "warm": {
+          "files": 50002,
+          "bytes": 290870910,
+          "mebibytes": 277.4
+        },
+        "frozenBudgetMb": 2560
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 706.6,
+        "warmPeakRssMb": 1310.06,
+        "layerRecoveryPeakRssMb": 1702.25,
+        "callableRecoveryPeakRssMb": 1747.82,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 1536,
+        "processPeakRssMb": 1762.08,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    }
+  },
+  "singleRunGates": {
+    "1000": {
+      "functional": true,
+      "coldLoadBudgetMs": 8000,
+      "coldLoadBudgetPassed": true,
+      "processRssBudgetPassed": true,
+      "warmCacheBudgetPassed": true,
+      "singleRunGatesPassed": true
+    },
+    "10000": {
+      "functional": true,
+      "coldLoadBudgetMs": 60000,
+      "coldLoadBudgetPassed": true,
+      "processRssBudgetPassed": true,
+      "warmCacheBudgetPassed": true,
+      "singleRunGatesPassed": true
+    },
+    "50000": {
+      "functional": true,
+      "coldLoadBudgetMs": 300000,
+      "coldLoadBudgetPassed": true,
+      "processRssBudgetPassed": false,
+      "warmCacheBudgetPassed": true,
+      "singleRunGatesPassed": false
+    }
+  },
+  "singleRunsPerScale": 1,
+  "fullFiveRunQualification": false,
+  "unchangedCandidateSafetyControls": {
+    "checks": 25,
+    "sourceHashesMatch": true,
+    "controlledNegativeRetained": true,
+    "report": "/var/www/node/php-companion/docs/php-language-toolchain/reports/entry-cache-safety-private-trial-2026-10-07.json",
+    "reportSha256": "724e10cd9d2941a7b490014681f9ec6f255c1e8793629492a2eb4d48c2115a74"
+  },
+  "apiFixtureStaticAudit": {
+    "schemaVersion": 1,
+    "kind": "read-only-api-test-fixture-audit",
+    "source": "/var/www/node/php-companion/packages/index/test/index.test.ts",
+    "sourceSha256": "ff5e746d32959c6b1f1cc94d77a2874ae8a307d2cb270105fb9c794b1de204be",
+    "formatAssumptions": [
+      {
+        "line": 441,
+        "text": "const cacheFile = join(directory, (await readdir(directory))[0]!);"
+      },
+      {
+        "line": 501,
+        "text": "const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');"
+      },
+      {
+        "line": 515,
+        "text": "const names = await readdir(directory); expect(names).toHaveLength(1);"
+      },
+      {
+        "line": 539,
+        "text": "const cacheFile = join(directory, (await readdir(directory))[0]!);"
+      },
+      {
+        "line": 540,
+        "text": "const original = JSON.parse(await readFile(cacheFile, 'utf8'));"
+      },
+      {
+        "line": 551,
+        "text": "for (const override of [{ schema: 2 }, { version: 'metadata-v0' }, { entries: [] }]) {"
+      },
+      {
+        "line": 568,
+        "text": "const cacheFile = join(cache, (await readdir(cache))[0]!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);"
+      },
+      {
+        "line": 581,
+        "text": "const cacheFile = join(directory, (await readdir(directory))[0]!);"
+      },
+      {
+        "line": 582,
+        "text": "const manifest = JSON.parse(await readFile(cacheFile, 'utf8')) as { entries: Record<string, { mtimeMs: number; ctimeMs: number }> };"
+      }
+    ],
+    "candidateChanged": false,
+    "testsExecuted": false,
+    "findings": [
+      "Most existing tests exercise public scan/restore callbacks independently of cache representation.",
+      "Unicode serialization test requires exactly one cache-directory entry; schema-2 per-file storage adds an owned directory. Preserve its complete prior-manifest/staging cleanup assertions when adapting format expectations.",
+      "Malformed-metadata test repeatedly restores one saved manifest; immutable generation pruning means its saved schema-2 blobs must also be restored, or the fixture must explicitly seed equivalent legacy inline payloads.",
+      "The schema:2 unsupported-format mutation is now a supported format only when a valid generation exists; distinguish version rejection from missing/invalid generation.",
+      "No test body or assertion has been changed. This static audit is not full API acceptance, a candidate failure or a passed test."
+    ],
+    "next": "If scale gate passes, run the complete API suite with explicitly audited format-only fixture changes and all original behavior assertions retained; independently cover schema-2 native corruption and migration. If scale fails, do not run repeated scale attempts to seek green."
+  },
+  "historicalSameNormalCore10k": {
+    "report": "/var/www/node/php-companion/docs/php-language-toolchain/reports/deferred-validator-source-trial-2026-10-07.json",
+    "reportSha256": "a96b3d6505cca616a243d156ff3c8139e48254780a6c1237bd92224105ec56c6",
+    "result": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 18939.05,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6200.28,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3274,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57266849,
+          "mebibytes": 54.61
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57266849,
+          "mebibytes": 54.61
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 322.47,
+        "warmPeakRssMb": 443.14,
+        "layerRecoveryPeakRssMb": 749.29,
+        "callableRecoveryPeakRssMb": 862.98,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 920.54,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "scope": "Prior same normal f026 Core single run, not a fresh paired or statistical comparison. Candidate warm-load latency must be reviewed alongside RSS before adoption."
+  },
+  "retainedFailures": {
+    "normal10kRssMiB": 920.54,
+    "normal10kBudgetMiB": 768,
+    "normalControllerP95Ms": 157.74,
+    "normalControllerBudgetMs": 150,
+    "originalPrivate50kRssMiB": 1753.45,
+    "originalPrivate50kBudgetMiB": 1536
+  },
+  "scope": [
+    "Same private candidate source as 25 passed safety controls; no product source or bundle integration.",
+    "Current index source independently compiled to private output: five JS and five declarations byte-identical, ten maps equivalent except output-relative paths.",
+    "Existing private index differs from current normal index only in enumerated storage hooks/imports; exact reverse of benchmark adapter reproduces original benchmark SHA.",
+    "Full original four-stage sequence per process, actual semantic/parser/facts modules, complete fixture count, both original inner corruptions, functional assertions and process maxRSS after cleanup retained.",
+    "Cold-load, RSS and cache-volume budgets retained. One run at each reached scale; not five-round qualification, first usable editor result, UI latency or whole-product memory acceptance.",
+    "Build runner tightened predecessor cold/cache/function gates after terminal build and before first scale; exact build-time version archived by its original frozen hash.",
+    "Static preparation offset error retained in source audit; no candidate or original benchmark change was made to correct it.",
+    "No concurrent tests/builds/hosts/benchmarks, forced GC, process splitting, reduced assertions, skipped stage or raised budget.",
+    "Full API compatibility, real WSL, other versions/platforms/full combinations/long sessions, advanced capabilities and original C1-C4/R4/P0-P9/F01-F14 remain open."
+  ],
+  "next": "Preserve the failed full sequence and stop scale retries. Inspect retained production/reference lifetime at the failed stage without reducing original benchmark scope; do not adopt or rerun equivalent failed candidates.",
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-1000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-1000-input.json",
+      "bytes": 716447,
+      "sha256": "3996c9a9ebeef810a102590b85a5155791a67e99b57157e8538bd24888581d6a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-1000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-1000-run.json",
+      "bytes": 583,
+      "sha256": "ff4dcf655c61ed20da06c9093bce87639e391462d10f046946c1c225688f20d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-1000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-1000.log",
+      "bytes": 1671,
+      "sha256": "21ed1b9e2a21000592dc359f70cb4b3847a201526a68f6dea5d089e570e95032"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-10000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-10000-input.json",
+      "bytes": 716448,
+      "sha256": "72c9a8a2a093cf3cdf8ea019b51d9e8618056642e2127471a7b22b593de7281e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-10000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-10000-run.json",
+      "bytes": 584,
+      "sha256": "57ec659265dd7f31c3357dda7eb1a765d794ae7ea72c313b136cce8235e8972c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-10000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-10000.log",
+      "bytes": 1684,
+      "sha256": "3f5d76463a84242a33732ef7299193df0a4b64be9c4f8a01a98fa4f6255781e5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-50000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-50000-input.json",
+      "bytes": 716448,
+      "sha256": "d4b76c64467573f572c77cbf062186fa7098e5a1c1f109b4372bea571ccd7cb0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-50000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-50000-run.json",
+      "bytes": 585,
+      "sha256": "a4b64ba23edafdcb7b48c386ab34b89915ea32206f8f061d75ff4d21f6e24710"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d362-entry-scale-50000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d362-entry-scale-50000.log",
+      "bytes": 1695,
+      "sha256": "3941bbd14059c6b1eceae6062b8c8b9ca8fa7e954c8e38afb3515b3871013c49"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d360-prepare-entry-scale.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d360-prepare-entry-scale.py",
+      "bytes": 6588,
+      "sha256": "00dc7880a91eac940c66d0cd97667f7ead6724acefa3ffe638148c63afb0badc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d360-entry-scale-source-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d360-entry-scale-source-audit.json",
+      "bytes": 23480,
+      "sha256": "a2e341a38e67c7f4cd26c3824405aeb184d8207534e889e6cccc9c7b9b5782df"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d360-benchmark-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d360-benchmark-entry-store.mjs",
+      "bytes": 15454,
+      "sha256": "ff621a9673a5e737ed8394e31b089f9bb480d7cc85d8607de6b37735e3f6fe73"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-run.py",
+      "bytes": 6871,
+      "sha256": "c3a3eb0446a718681c9e95855056d1a4d1fa4ba645e7d3562ca1c0a868eb5681"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-run-build-version.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-run-build-version.py",
+      "bytes": 6455,
+      "sha256": "e1311e66035b480708782139ebdcfd775f4fb8a69f5470da9fabad3cabbdac0b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-compare-build.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-compare-build.py",
+      "bytes": 2547,
+      "sha256": "cc447da3d2ed27dd80d34b5b65ab02c4e7ab5bee44669d5af75097bd4e22e58f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-source-build-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-index-source-build-input.json",
+      "bytes": 713086,
+      "sha256": "433ad453240cfdd70c284db30074337d6ca8caa0bca27a68d646434fcf95cb8b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-source-build-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-index-source-build-run.json",
+      "bytes": 644,
+      "sha256": "e2b9cf5d43ac80c8447d95dad2b50a2376ccacda26a82daa7a0e5f30cdce2855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-source-build.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-index-source-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build-parity.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d361-index-build-parity.json",
+      "bytes": 8419,
+      "sha256": "933be9c33b2cd5ead408c4c47e60f32def63cbda30545e4fd90a07b510677f9a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d353-preparation.json",
+      "bytes": 1508,
+      "sha256": "7608e5c5843b41c627e3da3e31c61a45d1817f3eff642f9027a0e37738b18e62"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d353-index.mjs",
+      "bytes": 22104,
+      "sha256": "38731a21e6b95733237d4a45e724828b3ab6e7f2046fa29c630bf3686fbc2017"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d353-entry-store.mjs",
+      "bytes": 7767,
+      "sha256": "23d20b1e5d1527b51345856c920c1b39938649bdd932112bd7c92515ff5c7847"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d353-owned-cache-lock.mjs",
+      "bytes": 4321,
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d364-index-api-fixture-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d364-index-api-fixture-audit.json",
+      "bytes": 2730,
+      "sha256": "98ff772154d36bebac5dcf65edb7c0dfcf0d7ee2f1c3b31f7859dd7a084cba65"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d363-record-entry-scale.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/d363-record-entry-scale.py",
+      "bytes": 13831,
+      "sha256": "a4f3f6777eb4003591515535d05ed65c7677cbe58a5a72e73c9577033b4a37a2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/index.d.ts.map",
+      "bytes": 2789,
+      "sha256": "6e33ed53379362f886ea890f487434973b8a83c4bc5fad4681daffb04b009289"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/pending.js",
+      "bytes": 1089,
+      "sha256": "76d16b9dd72920d936ce8f75ebb0633b4ab3a4536da427f1167363d74dccbb5e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/dependency.d.ts.map",
+      "bytes": 963,
+      "sha256": "9829369b01d3c384b6d708dbe164249cffdd47f03042dc2d0cf565347509f7d6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/pending.d.ts",
+      "bytes": 371,
+      "sha256": "dab115384b64198dec9fe31335e1cd97a51ac9a8ce53b2293ccd2460ed74c334"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/inverted.d.ts.map",
+      "bytes": 770,
+      "sha256": "ac7f3fd9c61cef953678a8c57801cff92674a6ecbf673f98a3a303d85215ea0c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/inverted.d.ts",
+      "bytes": 934,
+      "sha256": "e000f7d98bc7dfa008daf2e535f02fde1bf15f89d0e4ab4a10d5a5aee8d4c05a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/index.js",
+      "bytes": 23871,
+      "sha256": "e85942d00d51da71eba98e1fc4bf7864ee33667bfaed6655e4cdb12548532790"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/pending.d.ts.map",
+      "bytes": 443,
+      "sha256": "5b10e6d6fa0d5dafe8dd99465be99d52e61429d5bc4e86bd9704982f94517313"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/pending.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/pending.js.map",
+      "bytes": 1230,
+      "sha256": "4036c269126ea30a5e6eb344f3ff091c1a7d252961459e66d2e991202340f30b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/index.d.ts",
+      "bytes": 3304,
+      "sha256": "f66448e4b3abff7c771bd01b4e21c97261d9839d276eae79a5b0d71120ab6d24"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/source-candidates.js.map",
+      "bytes": 2634,
+      "sha256": "1878d3eadfd10e4f9f30a2246eff9d56d2267686819eacb449c00c6c11f826fa"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/inverted.js.map",
+      "bytes": 2559,
+      "sha256": "be826c86b17ff73ec5b13ee2f8bdb5eebc4e683df9957cdbe2c78702f6edc87b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/source-candidates.d.ts.map",
+      "bytes": 641,
+      "sha256": "804cef84d0b9dcf8a9b20651162fc08125251e41d144aa227f0e864620b20f4c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/dependency.js.map",
+      "bytes": 3967,
+      "sha256": "74f0751de4f0aade6c15255dc746fd0198f1e9cdb7b855a51abb7eccf1c7e8bc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/source-candidates.js",
+      "bytes": 2433,
+      "sha256": "cd543b7f8a5c840945dd0baa1f5cd8e7350655b91043236ca848758879adc5b0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/dependency.js",
+      "bytes": 4002,
+      "sha256": "26a10484cf25fa3643367cff6067cc5ab934b8d132406e110b85704a8199ceec"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/dependency.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/dependency.d.ts",
+      "bytes": 1170,
+      "sha256": "03d69e2e3d1a59074571327597ac47bd67c72f96834959ea7786b98abb5c8e10"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/index.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/index.js.map",
+      "bytes": 22907,
+      "sha256": "1e86a24c50e33da1ab3822c6693dc3ed183f68bc09875850b79085f93f60abe9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/inverted.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/inverted.js",
+      "bytes": 2491,
+      "sha256": "5c61447462422773c17d13eca40efbfbf262f70c6b397158e3c2bc763b4dabd9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d361-index-build/source-candidates.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/fresh-index-build/source-candidates.d.ts",
+      "bytes": 750,
+      "sha256": "c5b518f45c86b03b958907d60b779226365c3bae620ae1b41531985eb288f103"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/src/index.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/normal-baseline/packages/index/src/index.ts",
+      "bytes": 24087,
+      "sha256": "caff9d34193523598200e1c8df1ff62f14ee8d188483b016b344065f8c98e7be"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/tsconfig.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/normal-baseline/packages/index/tsconfig.json",
+      "bytes": 272,
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/normal-baseline/packages/index/dist/index.js",
+      "bytes": 23871,
+      "sha256": "e85942d00d51da71eba98e1fc4bf7864ee33667bfaed6655e4cdb12548532790"
+    },
+    {
+      "source": "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/normal-baseline/scripts/benchmark-persistent-index.mjs",
+      "bytes": 14788,
+      "sha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/testkit/src/index.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/normal-baseline/packages/testkit/src/index.ts",
+      "bytes": 5979,
+      "sha256": "e97d56260533b2bf000ad71f0d2d87132bf1d418f57c3ac40d469913cb67eb39"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/testkit/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/normal-baseline/packages/testkit/dist/index.js",
+      "bytes": 5636,
+      "sha256": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f"
+    },
+    {
+      "source": "/var/www/node/php-companion/docs/php-language-toolchain/reports/entry-cache-safety-private-trial-2026-10-07.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/entry-cache-safety-private-trial-2026-10-07.json",
+      "bytes": 30869,
+      "sha256": "724e10cd9d2941a7b490014681f9ec6f255c1e8793629492a2eb4d48c2115a74"
+    },
+    {
+      "source": "/var/www/node/php-companion/docs/php-language-toolchain/reports/deferred-validator-source-trial-2026-10-07.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d363-entry-scale-evidence/deferred-validator-source-trial-2026-10-07.json",
+      "bytes": 90650,
+      "sha256": "a96b3d6505cca616a243d156ff3c8139e48254780a6c1237bd92224105ec56c6"
+    }
+  ]
+}

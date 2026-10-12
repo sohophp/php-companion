@@ -1,0 +1,99 @@
+{
+  "recordedAtUtc": "2026-10-10T04:55:33.213915+00:00",
+  "engineBuildId": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+  "fullLspQualified": true,
+  "files": 117,
+  "cases": 1464,
+  "passedCases": 1464,
+  "failedCases": 0,
+  "pendingCases": 0,
+  "todoCases": 0,
+  "baseline1458CaseIdentitiesAndMultiplicityPreserved": true,
+  "newControlCases": 6,
+  "frozenInputsVerified": 29932,
+  "frozenLinksVerified": 184,
+  "repositoryChanges": [],
+  "normalRuntimeAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "37f9cfe038aae4c30d95eeeae355694ac81e22ad25bd8d39e8f9f1d1be03f0dc",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "onlyChangedNormalRuntimeAsset": "language-server.js",
+  "actualFullLspProcessesGone": true,
+  "remainingOwnedProcessGroupPids": [],
+  "constructorPhaseTraces": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1551-provider-readiness-full-lsp-constructor-traces/constructor-8.5.jsonl",
+      "sha256": "42bddf730183a76b028ea74a10b9f2bda80d8e4588cf8b5cfa5641014188020a"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1551-provider-readiness-full-lsp-constructor-traces/constructor-7.2.jsonl",
+      "sha256": "f3532fcb04f734565eb8a48ed2943f860eefb789a8601519727a804b84209514"
+    }
+  ],
+  "originalFullLspCommandAndEnvironmentRetained": true,
+  "actualPhpCliInventory": {
+    "7.2": {
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34"
+    },
+    "7.3": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php73",
+      "sha256": "5564207ec9f30fa67f822b031ce74ab701805e9506d5db953faed50d12149be6",
+      "version": "7.3.33"
+    },
+    "7.4": {
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33"
+    },
+    "8.0": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+      "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958",
+      "version": "8.0.30"
+    },
+    "8.1": {
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34"
+    },
+    "8.2": {
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32"
+    },
+    "8.3": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+      "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae",
+      "version": "8.3.35"
+    },
+    "8.4": {
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23"
+    },
+    "8.5": {
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9"
+    }
+  },
+  "archivedFiles": 23,
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1553-provider-readiness-full-lsp-evidence/manifest.json",
+  "manifestSha256": "bf0930148e43f1451ff11de40e9827a2900e587300c8ebc2250918fb30f58c7c",
+  "priorPilotManifest": "/var/www/node/php-companion/.vscode-test/d1552-provider-readiness-pilot-evidence/manifest.json",
+  "priorPilotManifestSha256": "875a573197132c36ed002c34e7e5e58f697640ee7ddbe134f64cb7add2276cc8",
+  "priorPilotArchiveFilesVerified": 70,
+  "oldFirstCompletionMs": 39856.813321999995,
+  "newFirstCompletionMs": 2977.135826,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false
+}

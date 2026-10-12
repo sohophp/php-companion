@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import process from 'node:process';
 import { URL, pathToFileURL } from 'node:url';
 
@@ -33,13 +33,43 @@ const symfonyProfile = process.env.PHP_COMPANION_CHECK_REFERENCE_SYMFONY !== '0'
 const file = join(workspace, 'src/Security/AdminPasswordChangeGuard.php');
 const cache = await mkdtemp(join(tmpdir(), 'php-companion-references-'));
 const locationsPath = join(cache, 'reference-locations.json');
+const referenceBaseline = { results: 188, locationSha256: '150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c' };
 const expected = new Map([
   ['textDocument/definition', { results: 1, locationSha256: fixtureDefinitionSha256 ?? '62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1' }],
-  ['textDocument/references', { results: 174, locationSha256: fixtureSha256 ?? 'cdabb48f611946a59a3dc1be56c167caa83f65dafb84b3853c68b5c9c5ba88d4' }],
+  ['textDocument/references', { results: referenceBaseline.results, locationSha256: fixtureSha256 ?? referenceBaseline.locationSha256 }],
 ]);
 
 try {
+  let evidenceDirectory;
+  if (process.env.PHP_COMPANION_REFERENCE_EVIDENCE_DIR) {
+    const evidenceRoot = resolve(process.env.PHP_COMPANION_REFERENCE_EVIDENCE_DIR);
+    const fromWorkspace = relative(workspace, evidenceRoot);
+    if (!fromWorkspace || fromWorkspace !== '..' && !fromWorkspace.startsWith(`..${sep}`) && !isAbsolute(fromWorkspace)) {
+      throw new Error('Reference evidence must be outside the audited workspace.');
+    }
+    const physicalWorkspace = await realpath(workspace);
+    const missingSegments = [];
+    let ancestor = evidenceRoot;
+    let physicalAncestor;
+    while (physicalAncestor === undefined) {
+      try { physicalAncestor = await realpath(ancestor); }
+      catch (error) {
+        if (error.code !== 'ENOENT' || dirname(ancestor) === ancestor) throw error;
+        missingSegments.unshift(basename(ancestor));
+        ancestor = dirname(ancestor);
+      }
+    }
+    const physicalEvidenceRoot = resolve(physicalAncestor, ...missingSegments);
+    const fromPhysicalWorkspace = relative(physicalWorkspace, physicalEvidenceRoot);
+    if (!fromPhysicalWorkspace || fromPhysicalWorkspace !== '..' && !fromPhysicalWorkspace.startsWith(`..${sep}`) && !isAbsolute(fromPhysicalWorkspace)) {
+      throw new Error('Reference evidence must be outside the audited workspace.');
+    }
+    await mkdir(physicalEvidenceRoot, { recursive: true });
+    evidenceDirectory = await mkdtemp(join(physicalEvidenceRoot, 'reference-baseline-'));
+    process.stderr.write(`[reference-evidence] ${evidenceDirectory}\n`);
+  }
   for (const phase of checkReload ? ['cold', 'reload'] : ['cold']) {
+    if (evidenceDirectory) await rm(locationsPath, { force: true });
     const waitReferenceReady = sourceOnly && !immediateSourceOnly && !(primeThenImmediate && phase === 'reload');
     const child = spawn(process.execPath, [
       'scripts/benchmark-language-queries.mjs', workspace, file, 'get', 'last', cache, 'once', serverBundle,
@@ -61,6 +91,18 @@ try {
       child.once('error', reject);
       child.once('exit', done);
     });
+    if (evidenceDirectory) {
+      await writeFile(join(evidenceDirectory, `${phase}.stdout.jsonl`), output, { flag: 'wx' });
+      await writeFile(join(evidenceDirectory, `${phase}.stderr.log`), logs, { flag: 'wx' });
+      let locations;
+      try { locations = await readFile(locationsPath); }
+      catch (error) { if (error.code !== 'ENOENT') throw error; }
+      if (locations) await writeFile(join(evidenceDirectory, `${phase}.locations.json`), locations, { flag: 'wx' });
+      await writeFile(join(evidenceDirectory, `${phase}.run.json`), JSON.stringify({
+        phase, exitCode: code, benchmarkPid: child.pid, workspace, serverBundle,
+        locationsRetained: locations !== undefined,
+      }, null, 2) + '\n', { flag: 'wx' });
+    }
     if (code !== 0) throw new Error(`Benchmark exited with code ${code}`);
     if (checkReload && !sourceOnly && !(phase === 'reload' ? logs.includes('[reference-cache] restored') : logs.includes('[reference-cache] stored'))) {
       throw new Error(`Expected verified reference persistence during ${phase}`);
@@ -69,7 +111,7 @@ try {
       if (checkEarlyReloadPrewarm && !logs.includes('[reference-prewarm] persistent proof verified')) {
         throw new Error('Reload selection did not suppress the candidate prewarm scan.');
       }
-      if (checkEarlyReload && (!logs.includes('[reference-cache] restored count=174 beforeProviders=true')
+      if (checkEarlyReload && (!logs.includes(`[reference-cache] restored count=${referenceBaseline.results} beforeProviders=true`)
         || logs.includes('[named-candidates]') || logs.includes('Semantic provider ')
         || logs.includes('Authoritative route provider '))) {
         throw new Error('Reload did not restore the proven result before candidates and framework providers.');
@@ -106,7 +148,7 @@ try {
     if (selected) {
       const prewarmCount = /\[reference-prewarm\] semantic count=(\d+)/.exec(logs);
       const semanticMs = Number(/\[references:\d+\] semantic count=\d+ elapsedMs=(\d+)/.exec(logs)?.[1] ?? NaN);
-      if (Number(prewarmCount?.[1]) !== 174 || !Number.isFinite(semanticMs) || semanticMs > 100
+      if (Number(prewarmCount?.[1]) !== referenceBaseline.results || !Number.isFinite(semanticMs) || semanticMs > 100
         || results[0].elapsedMs > 1_000 || logs.includes('[named-candidates]')) {
         throw new Error(`Selected References did not reuse its prepared semantic result during ${phase}`);
       }

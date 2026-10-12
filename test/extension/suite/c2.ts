@@ -1,3 +1,8 @@
+import { verifyForeachAssertions } from './foreachAssertions.js';
+import { verifyGeneratorReturnFlow } from './generatorReturnFlow.js';
+import { verifyGeneratorSend } from './generatorSend.js';
+import { verifyGeneratorDelegation } from './generatorDelegation.js';
+import { verifyTemplateParameterBounds } from './templateParameterBounds.js';
 import { arrayAccessCases } from './arrayAccessFixture.js';
 import { quotedPrefixCases } from './quotedPrefixFixture.js';
 import * as assert from 'node:assert';
@@ -1685,6 +1690,8 @@ export async function run(): Promise<void> {
     await verifyParseUrlContractFeedback(root.uri);
     return;
   }
+  await verifyTemplateParameterBounds(root.uri);
+  await verifyForeachAssertions(root.uri);
   await verifyVersionedBuiltinConstructors(root.uri);
   const missingDelimiterUri = vscode.Uri.joinPath(root.uri, 'src', 'Service', 'C2MissingDelimiter.php');
   const validDelimiterSource = '<?php function c2MissingDelimiter(): void {}';
@@ -2743,4 +2750,7 @@ return array(
   await verifyUnfinishedShapeCompletion(root.uri);
   await verifyQuotedPrefixCompletion(root.uri);
   await verifyArrayAccessKeyCompletion(root.uri);
+  await verifyGeneratorDelegation(root.uri);
+  await verifyGeneratorSend(root.uri);
+  await verifyGeneratorReturnFlow(root.uri);
 }

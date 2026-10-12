@@ -1,0 +1,642 @@
+{
+  "qualified": true,
+  "scope": "Reviewed current Winstar fixed-source cold References/Definition baseline, all original inherited/vendor anchors; not live workspace/editor or reload/selection/whole-project qualification",
+  "historicalSourceCommit": "15fef7b7d5d00bff8a7cdd2e967638100db68712",
+  "currentSourceCommitAtFixedCopy": "9d92adbc983811c5f98d9f79eb0ef04526266a51",
+  "historicalReferences": 174,
+  "historicalFullHash": "cdabb48f611946a59a3dc1be56c167caa83f65dafb84b3853c68b5c9c5ba88d4",
+  "historicalResultReproducedWithSameCurrentVendorAndTool": true,
+  "currentReferences": 188,
+  "currentFullHash": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c",
+  "definitionOriginalFullHashUnchanged": true,
+  "historicalSourceControlReview": {
+    "verified": true,
+    "historical174AndFullHashMatched": true,
+    "sameCurrentVendorAndCompiledMetadata": true,
+    "current188MembershipReviewQualified": true,
+    "oldCount": 174,
+    "currentCount": 188,
+    "unchangedExact": 81,
+    "unchangedLinesShifted": 76,
+    "oldUnmatched": 17,
+    "currentUnmatched": 31,
+    "netDifference": 14,
+    "sourceCountChange": -1,
+    "testCountChange": 15,
+    "vendorCountChange": 0,
+    "newLocationsReviewed": [
+      {
+        "path": "src/Bridge/SchemaAddressCredentialPrivacySubscriber.php",
+        "range": {
+          "start": {
+            "line": 27,
+            "character": 55
+          },
+          "end": {
+            "line": 27,
+            "character": 58
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native RequestEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "f0c4ed5af824d49a31599e8f349fe68a1acfb362fd7b4872901005260bbcf96c"
+      },
+      {
+        "path": "src/Components/Pagination/PaginationUrlGenerator.php",
+        "range": {
+          "start": {
+            "line": 33,
+            "character": 38
+          },
+          "end": {
+            "line": 33,
+            "character": 41
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "006831c37163dc14ca973df8d3f8cef7dc74bdf379f73f6ab43aed8cd8f2251d"
+      },
+      {
+        "path": "src/Components/Pagination/PaginationUrlGenerator.php",
+        "range": {
+          "start": {
+            "line": 33,
+            "character": 86
+          },
+          "end": {
+            "line": 33,
+            "character": 89
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "006831c37163dc14ca973df8d3f8cef7dc74bdf379f73f6ab43aed8cd8f2251d"
+      },
+      {
+        "path": "src/Modules/Admin/Component/AdminAddDefaultsProvider.php",
+        "range": {
+          "start": {
+            "line": 28,
+            "character": 95
+          },
+          "end": {
+            "line": 28,
+            "character": 98
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "03431a138f44bd1dafbe7510f74870fad8f6dc2e68006701f50cacd88e097c4d"
+      },
+      {
+        "path": "src/Modules/Admin/Component/AdminNavCardFactory.php",
+        "range": {
+          "start": {
+            "line": 73,
+            "character": 54
+          },
+          "end": {
+            "line": 73,
+            "character": 57
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "69f9db1b609d0aad7f4749448a2dfa202282beb636d756f5a24e68346549011c"
+      },
+      {
+        "path": "src/Modules/Admin/Controller/AppController.php",
+        "range": {
+          "start": {
+            "line": 109,
+            "character": 47
+          },
+          "end": {
+            "line": 109,
+            "character": 50
+          }
+        },
+        "receiver": "$this->request",
+        "origin": "Inherited typed SymfonyRequest property via Controller -> AppController -> NativeRecordController",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a4cb33c1c396cc2130ec0ed26b3f8c445d3720e3ed45522e266918f913b96e37"
+      },
+      {
+        "path": "src/Modules/Admin/Controller/AppController.php",
+        "range": {
+          "start": {
+            "line": 182,
+            "character": 47
+          },
+          "end": {
+            "line": 182,
+            "character": 50
+          }
+        },
+        "receiver": "$this->request",
+        "origin": "Inherited typed SymfonyRequest property via Controller -> AppController -> NativeRecordController",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a4cb33c1c396cc2130ec0ed26b3f8c445d3720e3ed45522e266918f913b96e37"
+      },
+      {
+        "path": "src/Modules/Admin/Controller/AppController.php",
+        "range": {
+          "start": {
+            "line": 188,
+            "character": 47
+          },
+          "end": {
+            "line": 188,
+            "character": 50
+          }
+        },
+        "receiver": "$this->request",
+        "origin": "Inherited typed SymfonyRequest property via Controller -> AppController -> NativeRecordController",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a4cb33c1c396cc2130ec0ed26b3f8c445d3720e3ed45522e266918f913b96e37"
+      },
+      {
+        "path": "src/Modules/Admin/Controller/AppController.php",
+        "range": {
+          "start": {
+            "line": 195,
+            "character": 47
+          },
+          "end": {
+            "line": 195,
+            "character": 50
+          }
+        },
+        "receiver": "$this->request",
+        "origin": "Inherited typed SymfonyRequest property via Controller -> AppController -> NativeRecordController",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a4cb33c1c396cc2130ec0ed26b3f8c445d3720e3ed45522e266918f913b96e37"
+      },
+      {
+        "path": "src/Modules/BannerComponent/Admin/Component/GenericBannerAdminPresentation.php",
+        "range": {
+          "start": {
+            "line": 49,
+            "character": 67
+          },
+          "end": {
+            "line": 49,
+            "character": 70
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "3323508b715824ffb083d94a757d9cb1476937c5d2998c8704da4e33c796223f"
+      },
+      {
+        "path": "src/Modules/BannerComponent/Admin/Component/GenericBannerAdminPresentation.php",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 71
+          },
+          "end": {
+            "line": 52,
+            "character": 74
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "3323508b715824ffb083d94a757d9cb1476937c5d2998c8704da4e33c796223f"
+      },
+      {
+        "path": "src/Modules/BannerComponent/Admin/Component/GenericBannerAdminPresentation.php",
+        "range": {
+          "start": {
+            "line": 53,
+            "character": 71
+          },
+          "end": {
+            "line": 53,
+            "character": 74
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "3323508b715824ffb083d94a757d9cb1476937c5d2998c8704da4e33c796223f"
+      },
+      {
+        "path": "src/Modules/BannerComponent/Admin/Component/GenericBannerAdminPresentation.php",
+        "range": {
+          "start": {
+            "line": 54,
+            "character": 72
+          },
+          "end": {
+            "line": 54,
+            "character": 75
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "3323508b715824ffb083d94a757d9cb1476937c5d2998c8704da4e33c796223f"
+      },
+      {
+        "path": "src/Modules/Captcha/Controller/CaptchaController.php",
+        "range": {
+          "start": {
+            "line": 131,
+            "character": 39
+          },
+          "end": {
+            "line": 131,
+            "character": 42
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a598c1949f94f86b7a9420355cd439741a16f62b29e01168698615d861d9f479"
+      },
+      {
+        "path": "src/Modules/Captcha/Controller/CaptchaController.php",
+        "range": {
+          "start": {
+            "line": 131,
+            "character": 74
+          },
+          "end": {
+            "line": 131,
+            "character": 77
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a598c1949f94f86b7a9420355cd439741a16f62b29e01168698615d861d9f479"
+      },
+      {
+        "path": "src/Modules/Forms/Admin/Controller/FormDefinitionController.php",
+        "range": {
+          "start": {
+            "line": 65,
+            "character": 47
+          },
+          "end": {
+            "line": 65,
+            "character": 50
+          }
+        },
+        "receiver": "$this->request",
+        "origin": "Inherited typed SymfonyRequest property via Controller -> AppController -> NativeRecordController",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "3cc224efa96f7f1bc4ef8895e57a4aa1be5df2dc2ce950dc098297d4b99518dc"
+      },
+      {
+        "path": "tests/Bridge/AdminAttributeVotersHttpTest.php",
+        "range": {
+          "start": {
+            "line": 59,
+            "character": 50
+          },
+          "end": {
+            "line": 59,
+            "character": 53
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "2de4dbacfcce859bb77fcbf1114cd927ef08464a1d701ce8567a1f336fc76c22"
+      },
+      {
+        "path": "tests/Bridge/AdminAuthorizationHttpBaselineTest.php",
+        "range": {
+          "start": {
+            "line": 38,
+            "character": 50
+          },
+          "end": {
+            "line": 38,
+            "character": 53
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "488dfbc84500b8b9e51f4c91e1ce6a452427d2a750a57471a213a0447994a874"
+      },
+      {
+        "path": "tests/Bridge/AdminContentAuthorizationShadowHttpTest.php",
+        "range": {
+          "start": {
+            "line": 58,
+            "character": 50
+          },
+          "end": {
+            "line": 58,
+            "character": 53
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerArgumentsEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "097ffddde9d268372fdcc5c7b585d3a8f278f497e2e1728ac8639aef2c979fd0"
+      },
+      {
+        "path": "tests/Bridge/AdminExcludedAclHttpBaselineTest.php",
+        "range": {
+          "start": {
+            "line": 29,
+            "character": 75
+          },
+          "end": {
+            "line": 29,
+            "character": 78
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "a79062ff557a981aae8162cc410a367a3595c15881c33b3d96c169f8fb236369"
+      },
+      {
+        "path": "tests/Bridge/AdminFiveIdentityHttpBaselineTest.php",
+        "range": {
+          "start": {
+            "line": 41,
+            "character": 55
+          },
+          "end": {
+            "line": 41,
+            "character": 58
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "70517b5274214a296e6e6ceb4fe72e346af675af8e622ed37e4ac97024b38e39"
+      },
+      {
+        "path": "tests/Bridge/AdminGroupAclDelegationHttpTest.php",
+        "range": {
+          "start": {
+            "line": 38,
+            "character": 50
+          },
+          "end": {
+            "line": 38,
+            "character": 53
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "e35efcd153f0ffea4486885e9a7e2fa2c3fbfa463a2191392f4ae3e80401e130"
+      },
+      {
+        "path": "tests/Bridge/AdminMediaAuthorizationHttpBaselineTest.php",
+        "range": {
+          "start": {
+            "line": 47,
+            "character": 50
+          },
+          "end": {
+            "line": 47,
+            "character": 53
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "521c719f4a4fe063517da777632861008f853c8ff3109515e9ede012e6b0a803"
+      },
+      {
+        "path": "tests/Bridge/AdminRuntimeAclRequirementTest.php",
+        "range": {
+          "start": {
+            "line": 39,
+            "character": 65
+          },
+          "end": {
+            "line": 39,
+            "character": 68
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "19e383b49afe743697dfcc45e16e86b947a5df682d92f9d7dcd01541b0ff5e4a"
+      },
+      {
+        "path": "tests/Bridge/AdminRuntimeAclRequirementTest.php",
+        "range": {
+          "start": {
+            "line": 43,
+            "character": 58
+          },
+          "end": {
+            "line": 43,
+            "character": 61
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "19e383b49afe743697dfcc45e16e86b947a5df682d92f9d7dcd01541b0ff5e4a"
+      },
+      {
+        "path": "tests/Bridge/DavinciModuleDelegationHttpBaselineTest.php",
+        "range": {
+          "start": {
+            "line": 32,
+            "character": 50
+          },
+          "end": {
+            "line": 32,
+            "character": 53
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "e479f5593b4b3cf73e01e3ba54c60a1124709ca2df25cf854facb2984fae68c3"
+      },
+      {
+        "path": "tests/Bridge/ImageLinkNativeHttpTest.php",
+        "range": {
+          "start": {
+            "line": 61,
+            "character": 72
+          },
+          "end": {
+            "line": 61,
+            "character": 75
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerArgumentsEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "7e4e8673da34b31935270cbcfb63fe2301b6f9a486124698d90dae3bf0a7d8e8"
+      },
+      {
+        "path": "tests/Bridge/SocialLinksNativeHttpTest.php",
+        "range": {
+          "start": {
+            "line": 37,
+            "character": 55
+          },
+          "end": {
+            "line": 37,
+            "character": 58
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerArgumentsEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "56fc357917594b09ee6d97a24890b1c3a23fa113144acd9926abbc6e35d3c771"
+      },
+      {
+        "path": "tests/Bridge/SubmittedFormLifecycleHttpTest.php",
+        "range": {
+          "start": {
+            "line": 80,
+            "character": 69
+          },
+          "end": {
+            "line": 80,
+            "character": 72
+          }
+        },
+        "receiver": "$event->getRequest()",
+        "origin": "Native ControllerArgumentsEvent parameter -> inherited KernelEvent::getRequest(): Request",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "439a1e552dce77254878d1e6079a93a7e7d517ebc1fb7d84c0b3741ebd0f1b62"
+      },
+      {
+        "path": "tests/Unit/Modules/Admin/AdminLocaleContextTest.php",
+        "range": {
+          "start": {
+            "line": 52,
+            "character": 51
+          },
+          "end": {
+            "line": 52,
+            "character": 54
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "19f8485f043f83865efdbae7ce8afed8c6314e628e3a851342048f2554e988a1"
+      },
+      {
+        "path": "tests/Unit/Modules/Admin/AdminLocaleContextTest.php",
+        "range": {
+          "start": {
+            "line": 57,
+            "character": 56
+          },
+          "end": {
+            "line": 57,
+            "character": 59
+          }
+        },
+        "receiver": "$request",
+        "origin": "Native Symfony Request parameter or Request::create local",
+        "attributesDeclaration": "Symfony Request::$attributes: ParameterBag",
+        "targetIdentity": "Symfony ParameterBag::get",
+        "sourceSha256": "19f8485f043f83865efdbae7ce8afed8c6314e628e3a851342048f2554e988a1"
+      }
+    ],
+    "rootCauseScope": "Current business source/config/Composer-metadata snapshot differs from historical baseline; same current tool/vendor reproduces old full174 result. No claim about reconstructed historical vendor or arbitrary projects.",
+    "normalAssetsUnchanged": 8,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "sourceVerification": {
+    "verified": true,
+    "onlyReviewedCountHashAndCountDependentProofFieldsChanged": true,
+    "restoresPriorCheckerByteExactly": true,
+    "priorCheckerSha256": "c8b086d0cf9d8208dc03bf7a1f17640b4dafea0c43a21074dac08dfdf3d4aaa0",
+    "currentCheckerSha256": "14a4bb5144c02eea90ae76e9c49f02a1946b2c8442a4630cf7950f8ff11ce8e7",
+    "currentTestSha256": "9a56eadcab15e17ac8a4ad051b71e8c859106f37b99285fb5d5a568b03cded20",
+    "subprocessTests": 11,
+    "testsExitCode": 0,
+    "testsTerminalToolChunk": "c7f159",
+    "lintExitCode": 0,
+    "lintTerminalToolChunk": "3d3a2e",
+    "strictCurrentFixedCheckerExitCode": 0,
+    "strictCurrentTerminalToolChunk": "aa232e",
+    "historical174ControlAndCompleteLocationsPreserved": true,
+    "sameCountChangedFullHashRejected": true,
+    "normalAssetsUnchanged": 8,
+    "packageDistJsUnchanged": 209,
+    "fullObjectiveComplete": false
+  },
+  "currentFixedInputFiles": 66079,
+  "historicalControlInputFiles": 65874,
+  "historicalTrackedGitBlobFiles": 2687,
+  "sharedVendorAndDevFiles": 63187,
+  "currentProjectInputsUnchangedAtTerminal": true,
+  "toolInputsUnchangedAtTerminal": 233,
+  "privateUriFixtureHashesUsedForStrictChecker": true,
+  "logicalSourceUriHashesAlsoMatched": true,
+  "inheritedAnchorsAndBothVendorAnchorsPassed": true,
+  "strictCheckerExitCode": 0,
+  "subprocessTests": 11,
+  "lintExitCode": 0,
+  "previousReal188MismatchEvidenceRetained": true,
+  "baselineUpdateJustifiedBySourceReviewNotCountOnly": true,
+  "normalAssetsUnchanged": 8,
+  "packageDistJsUnchanged": 209,
+  "currentArchive": "/var/www/node/php-companion/.vscode-test/d1786-reference-baseline-refresh-archive",
+  "currentArchiveFiles": 19,
+  "currentArchiveManifestSha256": "0e7f07a4412c6272de9015a65a2b8adea4873343349a91d4657b6ab73fdfd0c2",
+  "historicalArchive": "/var/www/node/php-companion/.vscode-test/d1783-historical-reference-source-control-archive",
+  "historicalArchiveFiles": 20,
+  "historicalArchiveManifestSha256": "6614d0a2af8e7e539efab53f881c6832128039a17ec9414b053093590de0399e",
+  "routeProviderIncompleteSnapshotStillIgnored": true,
+  "reloadAndSelectionNotQualifiedByThisRun": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "numberedFixtures": 166,
+  "families": 14,
+  "openMajorItems": 26,
+  "observedAtUtc": "2026-10-10T21:20:05.656653+00:00"
+}

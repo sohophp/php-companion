@@ -1,0 +1,159 @@
+{
+  "status": "passed-for-declared-normal-scope",
+  "recordedAtUtc": "2026-10-08T03:54:48.896975+00:00",
+  "normalSemanticPassed": 22933,
+  "normalFullLspFiles": 102,
+  "normalFullLspPassed": 1341,
+  "failed": 0,
+  "skipped": 0,
+  "todo": 0,
+  "normalFullLspDurationSeconds": 2171.8066463740106,
+  "allOriginal1337PlusNew4CasesPreserved": true,
+  "normalOriginalFullLinuxHosts": [
+    {
+      "suite": "c1",
+      "durationSeconds": 103.86946842700127,
+      "manifest": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c1-input.json",
+      "run": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c1-run.json"
+    },
+    {
+      "suite": "c2",
+      "durationSeconds": 98.53665458499745,
+      "manifest": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c2-input.json",
+      "run": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c2-run.json"
+    },
+    {
+      "suite": "c3",
+      "durationSeconds": 213.69285258400487,
+      "manifest": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c3-input.json",
+      "run": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c3-run.json"
+    }
+  ],
+  "normalTemplateEditorSevenStatesQualified": true,
+  "normalTemplateEditorCompiledFiles": 84,
+  "unchangedOriginalOutputs": 82,
+  "currentRuntimeFiles": [
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "49ac9d6676b1677eaaa8a60544d727300625c01fc709615cf820088f49fd03b4"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "productionRuntimeChangedByAddedEditorTest": false,
+  "moveMemberIsolatedSemanticPassed": 23019,
+  "originalMoveNativeGateQualified": false,
+  "originalMoveNativeFailureRetained": true,
+  "boundedNineVersionNativeScenarioQualified": true,
+  "boundedNativeCommands": 90,
+  "boundedNativeCaseDurationMs": 2492.2925410000003,
+  "constructorCasesPassed": 2,
+  "nativeConstructorVersionObservations": 18,
+  "moveMemberAdopted": false,
+  "ordinaryEditingRemeasured": false,
+  "historicalOrdinaryEditingCorrectRounds": 25,
+  "historicalOrdinaryEditingWithinBudgetRounds": 23,
+  "otherPlatformsModesFullVersionMatrixLongSessionAndHumanWslStillOpen": true,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "artifacts": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d581-template-bounds-verification.json",
+      "sha256": "ba28f3818dbab77797719aea11703673c0889040753895e4ebb9bbdd921d4475"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d585-normal-template-bounds-full-lsp-run.json",
+      "sha256": "4677673a81ad3858342a0516a66298479df39c7296c7121a1d1864bfe6c44ced"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d585-normal-template-bounds-full-lsp-input.json",
+      "sha256": "90875dcec1a0809c0c8b0d00064d6eff5d47ffef6950254f54a6fef5c6085585"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d585-normal-template-bounds-full-lsp-result.json",
+      "sha256": "f0645b05bf82f6f1cf15255576f1a24e5e80d559f17914692daae14ec457aff6"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d611-normal-template-full-lsp-terminal-audit.json",
+      "sha256": "5e82d899c38071fbe15c02495360a86dbae2813c972b8bf511ef7e518f1f4b96"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-host-matrix.json",
+      "sha256": "f446bdcd1a5dbd57b06badc3e9a9b9fc3966e2a826f812a849c54503a945c570"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d640-normal-template-editor-qualification.json",
+      "sha256": "e5bca6f5142dfdd6b5b8d1b05de1e58ec59289f36caabd8a8f5b7b11cb23f3fd"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d640-normal-template-editor-host-input.json",
+      "sha256": "def1bf2cb5fbe2f9c4947d47b450a71ed1f469fde3f20eb8dd9c0c941cf5b85f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d596-deferred-move-member-qualification.json",
+      "sha256": "39ab1c66c00750301ed78b09b4961b2ca6bef1b4f0e747b95f5823e3e15a0ed5"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d596-move-member-native-general-result.json",
+      "sha256": "1459ac956846914fea3ddad973230afb900db51cf82ab6aa7cdb3059f8d19021"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d641-move-member-native-audit.json",
+      "sha256": "724f081e61445f6cf64740faa207d249d336b1213db47c182c14175b7c1537d5"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d624-bounded-native-result.json",
+      "sha256": "52214630d19eaa5f84d3624a377eb58a371c1a752b7556480ca27c6f957c25d8"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d624-bounded-native-observations.json",
+      "sha256": "9bad724aa199a7f596126191503ef994572ae1b2ad8b8cb88bfa6391e1c7dcbd"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d616-native-constructors-result.json",
+      "sha256": "ed08df150498153b68ef7abecbee0e7678ab0eb8c01115eb292466dd9c00f23b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d616-native-constructor-observations.json",
+      "sha256": "d49c9dafdad4618e71aa3535a84756e5a6840f0cdfdc9d39409398b21b162ba2"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c1-run.json",
+      "sha256": "a0cb15bbae812df23a9bdd00ac92bc3338a8deca400ccf8bbf36eb20c826e634"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c2-run.json",
+      "sha256": "6db2f899b464087689b2330daf286d40363aa15fedeac78569a6fbc032d62bd6"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d603-normal-template-bounds-full-c3-run.json",
+      "sha256": "671d90dacdb72aa34c3e448f5448b9960ff732c91b70ba3e8d743f2f3dbc60d1"
+    }
+  ]
+}

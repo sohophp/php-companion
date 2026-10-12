@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestone": "D284",
+  "qualified": false,
+  "coreBundleSha256": "a6e9f6502f27c39697ed6f6b815ee42dfd4206cecc389f5ed48085998ac48506",
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "run": {
+    "status": "exited",
+    "phase": "lsp",
+    "parentPid": 528231,
+    "childPid": 528235,
+    "startedAtUtc": "2026-10-07T10:21:53.389850+00:00",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d284-current-lsp-full.json"
+    ],
+    "cwd": "/var/www/node/php-companion/packages/language-server",
+    "exitCode": 1,
+    "durationSeconds": 2170.320052479001,
+    "finishedAtUtc": "2026-10-07T10:58:03.708054+00:00"
+  },
+  "audit": {
+    "twigChanged": false,
+    "inputs": 5433,
+    "changedInputs": [],
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "headChanged": false,
+    "worktreeChanged": false,
+    "collectionChanged": false,
+    "expectedCases": 1321,
+    "actualCases": 1321,
+    "expectedFiles": 99,
+    "actualFiles": 99,
+    "missing": [],
+    "extra": [],
+    "preexistingDuplicateLabels": [],
+    "duplicateMultiplicityPreserved": true
+  },
+  "result": {
+    "numTotalTests": 1321,
+    "numPassedTests": 1320,
+    "numFailedTests": 1,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "failuresOrSkipped": [
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "name": "cancels waiting reference selections cleanly in progressive mode",
+      "status": "failed",
+      "durationMs": 3740.034010000003,
+      "failureMessages": [
+        "AssertionError: expected [ { jsonrpc: '2.0', …(2) } ] to deeply equal []\n    at /var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts:263:77\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    }
+  ],
+  "archive": ".vscode-test/d284-current-lsp-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/d284-current-lsp-input.json",
+      "sha256": "99dbee613fd7912235ee50717ca1b9b45f29c74c5e76adf09b4ce578fa1ad305"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/d284-current-lsp-run.json",
+      "sha256": "2017eb53e46e0b12f03ddad182bdc0748674b61039dd13313a16d425b2f2abc2"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/sophp-d284-current-lsp-full.json",
+      "sha256": "7e79252c5b7341d6b142c4dcca17452d5678155615b027808a7b227f60429d31"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/sophp-d284-current-lsp-collection.json",
+      "sha256": "0be86ee2008f305aeb2c651b26324f531983043903d2a573f797f4b7d13ce09e"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/sophp-d284-current-lsp-full.log",
+      "sha256": "a0d9f91e861bf2a339b0709a12f83ce1a2b1726e7e59308de0bce573d756df77"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/d284-current-full-run.py",
+      "sha256": "d2a2dcff0bfd11d4ff29d43f1da50700b9eb2f48d43ee17daf82e11185d41dda"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/d284-current-audit.py",
+      "sha256": "cc02a29951be390c4cd50d9b1feda6b6bca318fe2edf6c0ee52ae5cdbedc5158"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/d284-current-freeze.py",
+      "sha256": "cf185b94fdc2dcac8892c0e624a94660394887430cbbdcd0370abc6bf87e0c8d"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/output-completion-progressive.json",
+      "sha256": "e8585cba99ae1d14f1f33c708c17a57c02039bace045ce426983d112b724d5de"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "ee56ed9fb6db41f74d90b5fa9052cceccd788864128a1206c1204e179ae93213"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/onDemand-true.json",
+      "sha256": "91e1fc340e31eb79767b23972b069bdf1057e3080f453b49a97b45c9591cac19"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "12da84cc9b1dea1f016929be4caa6952e74c13d638c101cc05d28eefb3b50f42"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/progressive-false.json",
+      "sha256": "0788a92c5bdaec2a19da5b627da81bbb2ba6bc6348f50b0437b2ba54ea7ae5c1"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/progressive-true.json",
+      "sha256": "ea3c822be398d872af1c2a1253e7ee266f65a8d3e6bf96b0a80eab49e0eaa8fb"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "8ddf0df7f24a1daa97f6f92f434b69cee0945b907ad46c229f701fd37f3a5c4f"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/onDemand-false.json",
+      "sha256": "9070fd7c5d011bd44da75017d01a0599cef5675661af66bcee84b907e922fe50"
+    },
+    {
+      "path": ".vscode-test/d284-current-lsp-evidence/d284-current-lsp-audit.json",
+      "sha256": "413f2e96d96a4817f61795d6642a41f1e0f39052ec5b35709e36d3110174b64a"
+    }
+  ],
+  "boundaries": [
+    "All 99 original files and 1321 original cases retained; no filtered selection or relaxed budgets.",
+    "One full Linux LSP suite with nine real PHP CLI syntax parameters; not nine complete suites or a complete PHP/platform matrix.",
+    "Current source/built assets, both repositories, Node and PHP binaries frozen and audited separately from historical runs.",
+    "Original D225 14 timeouts remain recorded; this result does not prove their historical root cause.",
+    "22,826 semantic cases, ordinary C1 and 25 three-extension checks belong to the separate D278-D283 evidence.",
+    "Original uninstrumented 10k RSS remains 1003.52/768 MiB failure. Current Controller, 50k, complete platforms/tool combinations, long sessions and real WSL acceptance remain open.",
+    "No commit, push, VSIX packaging, user Profile change or publication. Full C1-C4/R4/P0-P9/F01-F14 scope remains active."
+  ],
+  "dependentMemoryDiagnostic": {
+    "status": "skipped-after-regression-failure",
+    "parentPid": 546996,
+    "dependencyPid": 526875,
+    "dependencyStartIdentity": "1717594",
+    "startedAtUtc": "2026-10-07T10:28:17.190735+00:00",
+    "profile": "One instrumented complete 10k sequence, only after full regression and frozen-input audit pass.",
+    "fullRun": {
+      "status": "exited",
+      "phase": "lsp",
+      "parentPid": 528231,
+      "childPid": 528235,
+      "startedAtUtc": "2026-10-07T10:21:53.389850+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/tmp/sophp-d284-current-lsp-full.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/language-server",
+      "exitCode": 1,
+      "durationSeconds": 2170.320052479001,
+      "finishedAtUtc": "2026-10-07T10:58:03.708054+00:00"
+    },
+    "qualified": false
+  }
+}

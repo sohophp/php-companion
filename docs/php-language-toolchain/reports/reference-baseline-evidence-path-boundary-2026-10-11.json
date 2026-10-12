@@ -1,0 +1,71 @@
+{
+  "verified": true,
+  "scope": "Optional reference evidence filesystem boundary; actual Node subprocess controls, no new PHP/LSP or editor qualification",
+  "beforeTests": {
+    "pass": 7,
+    "fail": 3,
+    "exitCode": 1,
+    "terminalToolChunk": "7ad14e"
+  },
+  "afterTests": {
+    "pass": 10,
+    "fail": 0,
+    "exitCode": 0,
+    "terminalToolChunk": "ef60af"
+  },
+  "scopedLint": {
+    "exitCode": 0,
+    "terminalToolChunk": "2cafa6"
+  },
+  "fix": "Resolve nearest existing destination ancestor and physical workspace before mkdir; create through resolved external path",
+  "controls": [
+    "outside symlink points into project",
+    "nonexistent descendants through project symlink",
+    "workspace itself is symlink",
+    "allowed external evidence symlink"
+  ],
+  "originalCheckerByteExactAfterRemovingOptionalEvidenceCode": true,
+  "original174AndBothFullHashesUnchanged": true,
+  "defaultBehaviorRetained": true,
+  "scriptSha256": "c8b086d0cf9d8208dc03bf7a1f17640b4dafea0c43a21074dac08dfdf3d4aaa0",
+  "testSha256": "ad798260abd349a734c355e5b5ffb8ffb39a3096873512641688c737d5c85411",
+  "normalAssetsUnchanged": 8,
+  "packageDistJsUnchanged": 209,
+  "ongoingMatrixInputsUnchanged": 222,
+  "liveJobs": [
+    {
+      "state": "d1746-long-session-driver.json",
+      "parentPid": 1815025,
+      "status": "running",
+      "observedCommand": "/home/jason/.pyenv/versions/3.11.9/bin/python3 .vscode-test/d1746-run-long-session.py "
+    },
+    {
+      "state": "d1752-whole-process-cache-matrix-run.json",
+      "parentPid": 1825851,
+      "status": "running",
+      "observedCommand": "/home/jason/.pyenv/versions/3.11.9/bin/python3 .vscode-test/d1752-run-whole-process-cache.py matrix "
+    },
+    {
+      "state": "d1764-fixed-real-project-preparation.json",
+      "parentPid": 1855592,
+      "status": "waiting-for-existing-benchmarks",
+      "observedCommand": "/home/jason/.pyenv/versions/3.11.9/bin/python3 .vscode-test/d1764-prepare-fixed-real-project.py "
+    },
+    {
+      "state": "d1765-fixed-real-reference-run.json",
+      "parentPid": 1857023,
+      "status": "waiting-for-fixed-project",
+      "observedCommand": "/home/jason/.pyenv/versions/3.11.9/bin/python3 .vscode-test/d1765-run-fixed-real-reference.py "
+    }
+  ],
+  "realProjectProbeNotRepeated": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "numberedFixtures": 166,
+  "families": 14,
+  "openMajorItems": 26,
+  "observedAtUtc": "2026-10-10T20:24:06.191639+00:00",
+  "archive": "/var/www/node/php-companion/.vscode-test/d1767-reference-evidence-path-archive",
+  "archiveFiles": 8,
+  "archiveManifestSha256": "47e062a1b7877e8d1d3d1476956968d9dd84d2840baed60c5c6b70715df2801b"
+}

@@ -1,0 +1,916 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "completed",
+  "decision": "native-runtime-original-five-case-editing-control-budget-passed",
+  "correctnessPassed": true,
+  "ordinaryFiveCaseBudgetPassed": true,
+  "correctCases": 5,
+  "budgetPassedCases": 5,
+  "cases": 5,
+  "queriesPerCase": 100,
+  "runtime": {
+    "engineBuildId": "0ae42772dab6921d819c1e618eef1834d8d157a046dc6fd5658042da48973cb2",
+    "files": [
+      {
+        "name": "extension.js",
+        "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950",
+        "bytes": 3301706
+      },
+      {
+        "name": "language-server.js",
+        "sha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04",
+        "bytes": 4263941
+      },
+      {
+        "name": "candidateWorker.js",
+        "sha256": "1efb2e17609524b0cbe7f3bb5d36c2a36d1052d85eabda5ca0158e3a07f79a34",
+        "bytes": 148852
+      },
+      {
+        "name": "portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+        "bytes": 3004
+      },
+      {
+        "name": "sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "bytes": 1098
+      },
+      {
+        "name": "builtinSnapshotWorker.js",
+        "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e",
+        "bytes": 130211
+      },
+      {
+        "name": "web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "bytes": 201037
+      },
+      {
+        "name": "tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "bytes": 1058041
+      }
+    ]
+  },
+  "run": {
+    "status": "exited",
+    "parentPid": 1126093,
+    "startedAtUtc": "2026-10-07T21:04:09.644743+00:00",
+    "manifest": "/var/www/node/php-companion/.vscode-test/d460-native-editing-input.json",
+    "cases": [
+      {
+        "label": "fixed-7.2",
+        "version": "7.2",
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "aExpected": "shapePickZ",
+        "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "bExpected": "shapePickA",
+        "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "sourceUnchangedFromBaseline": true,
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "environmentOverrides": {
+          "SOPHP_BENCHMARK_EXPECT_FIRST": "1",
+          "SOPHP_BENCHMARK_SHARED_CANDIDATES": "1",
+          "SOPHP_BENCHMARK_RSS": "1",
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.2",
+          "SOPHP_BENCHMARK_SERVER_ENTRY": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "SOPHP_BENCHMARK_PARSER_CORE_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+          "SOPHP_BENCHMARK_PHP_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+        },
+        "startedAtUtc": "2026-10-07T21:04:09.645178+00:00",
+        "childPid": 1126194,
+        "actualServer": {
+          "pid": 1126205,
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+            "--stdio",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "observedAtUtc": "2026-10-07T21:04:09.709159+00:00"
+        },
+        "exitCode": 0,
+        "durationSeconds": 12.50606194500142,
+        "finishedAtUtc": "2026-10-07T21:04:22.151247+00:00",
+        "stdoutSha256": "7c984b436189668cf32e4bd0e4504b56fb0bcab52f192b72f0b14d5dd0917729",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "correctnessPassed": true,
+        "budgetPassed": true,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 328.73,
+          "all": {
+            "p50Ms": 89.5,
+            "p95Ms": 138.71,
+            "maxMs": 328.73
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 89.72,
+            "p95Ms": 129.35,
+            "maxMs": 328.73,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 88.57,
+            "p95Ms": 143.15,
+            "maxMs": 154.79,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 209.36
+              },
+              {
+                "round": 50,
+                "rssMiB": 280.39
+              },
+              {
+                "round": 100,
+                "rssMiB": 325.76
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "serverGoneAfterBenchmark": true
+      },
+      {
+        "label": "fixed-8.5",
+        "version": "8.5",
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "aExpected": "shapePickZ",
+        "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "bExpected": "shapePickA",
+        "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "sourceUnchangedFromBaseline": true,
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "environmentOverrides": {
+          "SOPHP_BENCHMARK_EXPECT_FIRST": "1",
+          "SOPHP_BENCHMARK_SHARED_CANDIDATES": "1",
+          "SOPHP_BENCHMARK_RSS": "1",
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.5",
+          "SOPHP_BENCHMARK_SERVER_ENTRY": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "SOPHP_BENCHMARK_PARSER_CORE_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+          "SOPHP_BENCHMARK_PHP_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+        },
+        "startedAtUtc": "2026-10-07T21:04:22.154010+00:00",
+        "childPid": 1126293,
+        "actualServer": {
+          "pid": 1126304,
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+            "--stdio",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "observedAtUtc": "2026-10-07T21:04:22.231676+00:00"
+        },
+        "exitCode": 0,
+        "durationSeconds": 13.112212122003257,
+        "finishedAtUtc": "2026-10-07T21:04:35.266226+00:00",
+        "stdoutSha256": "09c9af99fc5f518f95ca9afa9520f71453aa73f6555ad76b785bfa7ae1dc3424",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "correctnessPassed": true,
+        "budgetPassed": true,
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 202.2,
+          "all": {
+            "p50Ms": 94.15,
+            "p95Ms": 144.91,
+            "maxMs": 202.2
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 92.26,
+            "p95Ms": 144.91,
+            "maxMs": 202.2,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 101.6,
+            "p95Ms": 148.04,
+            "maxMs": 154.53,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 243.5
+              },
+              {
+                "round": 50,
+                "rssMiB": 342.44
+              },
+              {
+                "round": 100,
+                "rssMiB": 378.84
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "serverGoneAfterBenchmark": true
+      },
+      {
+        "label": "real-data-service",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 82773,
+        "sourceSha256": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+        "sourceUnchangedFromBaseline": true,
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+          "/var/www/php/8.5/winstar2024",
+          "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueZ",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueA",
+          "100"
+        ],
+        "environmentOverrides": {
+          "SOPHP_BENCHMARK_EXPECT_FIRST": "1",
+          "SOPHP_BENCHMARK_SHARED_CANDIDATES": "1",
+          "SOPHP_BENCHMARK_RSS": "1",
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.5",
+          "SOPHP_BENCHMARK_SERVER_ENTRY": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "SOPHP_BENCHMARK_PARSER_CORE_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+          "SOPHP_BENCHMARK_PHP_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+        },
+        "startedAtUtc": "2026-10-07T21:04:35.267910+00:00",
+        "childPid": 1126405,
+        "actualServer": {
+          "pid": 1126416,
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+            "--stdio",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "observedAtUtc": "2026-10-07T21:04:35.342778+00:00"
+        },
+        "exitCode": 0,
+        "durationSeconds": 9.422326174993941,
+        "finishedAtUtc": "2026-10-07T21:04:44.690240+00:00",
+        "stdoutSha256": "1e35a182bb8934de0c8f5abf1cb59fb7349421a99673315b1ab449f2d2040029",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "correctnessPassed": true,
+        "budgetPassed": true,
+        "result": {
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+          "serverEntry": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 163.71,
+          "all": {
+            "p50Ms": 59.07,
+            "p95Ms": 87.48,
+            "maxMs": 163.71
+          },
+          "a": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueZ",
+            "p50Ms": 59.78,
+            "p95Ms": 88.84,
+            "maxMs": 163.71,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueA",
+            "p50Ms": 58.52,
+            "p95Ms": 87.48,
+            "maxMs": 95.71,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 237.52
+              },
+              {
+                "round": 50,
+                "rssMiB": 289.35
+              },
+              {
+                "round": 100,
+                "rssMiB": 322.92
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "serverGoneAfterBenchmark": true
+      },
+      {
+        "label": "real-large-controller",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 46144,
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "sourceUnchangedFromBaseline": true,
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+          "/var/www/php/8.5/winstar2024",
+          "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueZ",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueA",
+          "100"
+        ],
+        "environmentOverrides": {
+          "SOPHP_BENCHMARK_EXPECT_FIRST": "1",
+          "SOPHP_BENCHMARK_SHARED_CANDIDATES": "1",
+          "SOPHP_BENCHMARK_RSS": "1",
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.5",
+          "SOPHP_BENCHMARK_SERVER_ENTRY": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "SOPHP_BENCHMARK_PARSER_CORE_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+          "SOPHP_BENCHMARK_PHP_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+        },
+        "startedAtUtc": "2026-10-07T21:04:44.692191+00:00",
+        "childPid": 1126494,
+        "actualServer": {
+          "pid": 1126505,
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+            "--stdio",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "observedAtUtc": "2026-10-07T21:04:44.756742+00:00"
+        },
+        "exitCode": 0,
+        "durationSeconds": 14.530027082997549,
+        "finishedAtUtc": "2026-10-07T21:04:59.222223+00:00",
+        "stdoutSha256": "aa409452af302ebdf1204b46c9ae900a5924468acf60d068cdacbad8079f7641",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "correctnessPassed": true,
+        "budgetPassed": true,
+        "result": {
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "serverEntry": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 210.87,
+          "all": {
+            "p50Ms": 111.34,
+            "p95Ms": 147.95,
+            "maxMs": 210.87
+          },
+          "a": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueZ",
+            "p50Ms": 110.82,
+            "p95Ms": 154.37,
+            "maxMs": 210.87,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueA",
+            "p50Ms": 111.34,
+            "p95Ms": 147.95,
+            "maxMs": 153.02,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 255.68
+              },
+              {
+                "round": 50,
+                "rssMiB": 465.49
+              },
+              {
+                "round": 100,
+                "rssMiB": 475.79
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "serverGoneAfterBenchmark": true
+      },
+      {
+        "label": "real-blog-controller",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 13815,
+        "sourceSha256": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+        "sourceUnchangedFromBaseline": true,
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+          "/var/www/php/8.5/winstar2024",
+          "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueZ",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueA",
+          "100"
+        ],
+        "environmentOverrides": {
+          "SOPHP_BENCHMARK_EXPECT_FIRST": "1",
+          "SOPHP_BENCHMARK_SHARED_CANDIDATES": "1",
+          "SOPHP_BENCHMARK_RSS": "1",
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.5",
+          "SOPHP_BENCHMARK_SERVER_ENTRY": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "SOPHP_BENCHMARK_PARSER_CORE_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+          "SOPHP_BENCHMARK_PHP_WASM": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+        },
+        "startedAtUtc": "2026-10-07T21:04:59.225620+00:00",
+        "childPid": 1126605,
+        "actualServer": {
+          "pid": 1126616,
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+            "--stdio",
+            "--parser-core-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "--php-wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "observedAtUtc": "2026-10-07T21:04:59.301978+00:00"
+        },
+        "exitCode": 0,
+        "durationSeconds": 7.933994870996685,
+        "finishedAtUtc": "2026-10-07T21:05:07.159616+00:00",
+        "stdoutSha256": "76440088ec61d5f5d56a76aff8e0a4b51ddb0f0249521eb68f1b38df6d7750e0",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "correctnessPassed": true,
+        "budgetPassed": true,
+        "result": {
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+          "serverEntry": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 132.85,
+          "all": {
+            "p50Ms": 47.86,
+            "p95Ms": 70.66,
+            "maxMs": 132.85
+          },
+          "a": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueZ",
+            "p50Ms": 48.13,
+            "p95Ms": 70.66,
+            "maxMs": 132.85,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueA",
+            "p50Ms": 47.43,
+            "p95Ms": 70.74,
+            "maxMs": 78.47,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 241.78
+              },
+              {
+                "round": 50,
+                "rssMiB": 294.73
+              },
+              {
+                "round": 100,
+                "rssMiB": 339.66
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "serverGoneAfterBenchmark": true
+      }
+    ],
+    "hotQueryBudgetMs": 150,
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "fullPerformanceQualified": false,
+    "finishedAtUtc": "2026-10-07T21:05:07.161440+00:00",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "newFixtureDirectoriesRemaining": [],
+    "loadAverageAfter": [
+      1.25,
+      1.08,
+      1.3
+    ],
+    "correctnessPassed": true,
+    "ordinaryFiveCaseBudgetPassed": true,
+    "evidenceValid": true,
+    "exitCode": 0
+  },
+  "preparation": {
+    "status": "passed",
+    "workspace": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace",
+    "benchmark": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+    "originalBenchmark": "/var/www/node/php-companion/scripts/benchmark-project-completion.mjs",
+    "benchmarkSha256": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1",
+    "benchmarkByteExact": true,
+    "originalCaseDefinitionsUnchanged": true,
+    "baselinePath": "/var/www/node/php-companion/.vscode-test/d319-validator-project-editing-run.json",
+    "baselineSha256": "07728ec26a278d6caef06b2ab10bc4b493e1291d1d782bda2cf87a11255a76ad",
+    "cases": [
+      {
+        "label": "fixed-7.2",
+        "version": "7.2",
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "aExpected": "shapePickZ",
+        "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "bExpected": "shapePickA",
+        "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "sourceUnchangedFromBaseline": true
+      },
+      {
+        "label": "fixed-8.5",
+        "version": "8.5",
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "aExpected": "shapePickZ",
+        "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "bExpected": "shapePickA",
+        "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "sourceUnchangedFromBaseline": true
+      },
+      {
+        "label": "real-data-service",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 82773,
+        "sourceSha256": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+        "sourceUnchangedFromBaseline": true
+      },
+      {
+        "label": "real-large-controller",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 46144,
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "sourceUnchangedFromBaseline": true
+      },
+      {
+        "label": "real-blog-controller",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 13815,
+        "sourceSha256": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+        "sourceUnchangedFromBaseline": true
+      }
+    ],
+    "roundsPerCase": 100,
+    "freshProcesses": 5,
+    "hotQueryBudgetMs": 150,
+    "externalInputHashes": {
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/composer.json": "cea789276c58625c4d03724af8120f41f74a104e9d888849c08de6d931d2114c",
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "/var/www/php/8.5/winstar2024/composer.json": "8873b8535cabbf5e709bbc9dfc0e810acf7d0f195b526dfaec4a9733a350ba0b",
+      "/var/www/php/8.5/winstar2024/composer.lock": "1d962d468e8a05cb7f58eff8f326798b850eacabb25c18ce601a921c1d77b5e3",
+      "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+      "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+      "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "/var/www/php/8.5/winstar2024/vendor/autoload.php": "bb27b3efa02d02e18bdf03ec55067e6b419e289c184504c9c386a62843085dee",
+      "/var/www/php/8.5/winstar2024/vendor/composer/ClassLoader.php": "d4b2313e562edf942838ec316d983c1a3459ca67da3e5658e861200b0b3693c2",
+      "/var/www/php/8.5/winstar2024/vendor/composer/InstalledVersions.php": "1e4525198301d1ed1f87ac3df2a8555a6f139f8df30a703d0b775a61963c96e4",
+      "/var/www/php/8.5/winstar2024/vendor/composer/autoload_classmap.php": "0d7f31fc1f9c55ce5f9c9ba1549736c6003838786265d119e6dc7022027c54b7",
+      "/var/www/php/8.5/winstar2024/vendor/composer/autoload_files.php": "0ce6896d3c8ebf64ebe8ba142f39298b254fe83dcef16750b335ae4a3ab05d42",
+      "/var/www/php/8.5/winstar2024/vendor/composer/autoload_namespaces.php": "650ac311ac44c2f2e65d4768d868b122b0e76a6f6904c0cb35dcdfad61acd07a",
+      "/var/www/php/8.5/winstar2024/vendor/composer/autoload_psr4.php": "dd56da18953ccb56a288874d237061ab893f79f37e860032dd45402a77688e3c",
+      "/var/www/php/8.5/winstar2024/vendor/composer/autoload_real.php": "15cdfd39ca8a8b5893ffef6cd5a8cfcf0e4c88019f320c950b30a91afd011463",
+      "/var/www/php/8.5/winstar2024/vendor/composer/autoload_static.php": "c30f55f20dc1d419140fb811f6291852873a2bbe384e6092e12bad2709e1a7d2",
+      "/var/www/php/8.5/winstar2024/vendor/composer/installed.json": "30a38fb65b9a37de598390023a5fcfec5abc55cb2b10fdbe851ce588f80d73c2",
+      "/var/www/php/8.5/winstar2024/vendor/composer/installed.php": "838d1ebf4661087a3d032d10c5e7260911268a67058be06009aa6ea758cc139c",
+      "/var/www/php/8.5/winstar2024/vendor/composer/platform_check.php": "8022ce6d7e0cd1832a0436ac8533029d1b9dc41d437088584a7779e7beb110ad"
+    },
+    "baselineExternalInputDifferences": [],
+    "runtimeFiles": [
+      {
+        "name": "extension.js",
+        "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950",
+        "bytes": 3301706
+      },
+      {
+        "name": "language-server.js",
+        "sha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04",
+        "bytes": 4263941
+      },
+      {
+        "name": "candidateWorker.js",
+        "sha256": "1efb2e17609524b0cbe7f3bb5d36c2a36d1052d85eabda5ca0158e3a07f79a34",
+        "bytes": 148852
+      },
+      {
+        "name": "portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+        "bytes": 3004
+      },
+      {
+        "name": "sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "bytes": 1098
+      },
+      {
+        "name": "builtinSnapshotWorker.js",
+        "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e",
+        "bytes": 130211
+      },
+      {
+        "name": "web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "bytes": 201037
+      },
+      {
+        "name": "tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "bytes": 1058041
+      }
+    ],
+    "engineBuildId": "0ae42772dab6921d819c1e618eef1834d8d157a046dc6fd5658042da48973cb2",
+    "scope": "Original five unsaved-edit/immediate-completion cases, one fresh server and 100 queries including first per case; exact first/shared-candidate assertions, original onDemand mode and 150 ms budget. Actual native server bundle and WASMs; no profiler/forced GC/testMode. Explicit external files and Composer metadata frozen, not an exhaustive business-project snapshot. Configured PHP versions are not PHP CLI execution qualification. Periodic server RSS is not a process-peak or whole-project memory gate. No statistical comparison to historical single runs, no adoption or general performance qualification.",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "fullObjectiveComplete": false
+  },
+  "frozenInputCount": 7410,
+  "artifacts": [
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d319-validator-project-editing-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d319-validator-project-editing-run.json",
+      "sha256": "07728ec26a278d6caef06b2ab10bc4b493e1291d1d782bda2cf87a11255a76ad"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/benchmark-project-completion.mjs",
+      "sha256": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d458-native-performance-final-validation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d458-native-performance-final-validation.json",
+      "sha256": "9771047b9bd20f4fb1af8659461ae40423c4f26e158b4c1cd8e2d8b114680901"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d459-native-editing-preparation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d459-native-editing-preparation.json",
+      "sha256": "4a08b9c5517ef70f6d154fd08ae27cf32d7873facafb3563c4fb8bdfd94f9a22"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d459-prepare-native-editing.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d459-prepare-native-editing.py",
+      "sha256": "40ee13a5fc70287894f92e2ea8809a4dc5bed1b124e4748333ba9d499c32f4ae"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/fixed-7.2.stderr",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/fixed-7.2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/fixed-7.2.stdout",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/fixed-7.2.stdout",
+      "sha256": "7c984b436189668cf32e4bd0e4504b56fb0bcab52f192b72f0b14d5dd0917729"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/fixed-8.5.stderr",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/fixed-8.5.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/fixed-8.5.stdout",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/fixed-8.5.stdout",
+      "sha256": "09c9af99fc5f518f95ca9afa9520f71453aa73f6555ad76b785bfa7ae1dc3424"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/real-blog-controller.stderr",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/real-blog-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/real-blog-controller.stdout",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/real-blog-controller.stdout",
+      "sha256": "76440088ec61d5f5d56a76aff8e0a4b51ddb0f0249521eb68f1b38df6d7750e0"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/real-data-service.stderr",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/real-data-service.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/real-data-service.stdout",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/real-data-service.stdout",
+      "sha256": "1e35a182bb8934de0c8f5abf1cb59fb7349421a99673315b1ab449f2d2040029"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/real-large-controller.stderr",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/real-large-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-evidence/real-large-controller.stdout",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-evidence/real-large-controller.stdout",
+      "sha256": "aa409452af302ebdf1204b46c9ae900a5924468acf60d068cdacbad8079f7641"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-input.json",
+      "sha256": "c6a06b7e8ed66e7c15af1b8c5010d2cde86796c514e04faa6655624f55c1c518"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-native-editing-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-native-editing-run.json",
+      "sha256": "85463d828eebe9524c41ccb74496e39f62495c624287c198c70cf2b2e5c18bb4"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d460-run-native-editing.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d460-run-native-editing.py",
+      "sha256": "0e9389070a271103da2540b6877b376723a5e25eaba1d3ecbb20bf4f94bee01f"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/d461-record-native-editing.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d461-record-native-editing.py",
+      "sha256": "0619285939942819e76b7c9d1093c603516003bd09f0dccb2b832d097cbc118a"
+    },
+    {
+      "path": ".vscode-test/d461-native-editing-evidence/normal-inputs/scripts/benchmark-project-completion.mjs",
+      "originalPath": "/var/www/node/php-companion/scripts/benchmark-project-completion.mjs",
+      "sha256": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1"
+    }
+  ],
+  "artifactCount": 20,
+  "evidenceDirectory": ".vscode-test/d461-native-editing-evidence",
+  "priorReport": {
+    "path": "docs/php-language-toolchain/reports/native-cache-five-round-scale-2026-10-08.json",
+    "sha256": "68fd66a8016306e773f3d5fd2fbd979cfc16dc93c1f1fe87556b3e48525ad7c3",
+    "artifactCount": 81
+  },
+  "nextStep": "This single five-case control does not qualify general editing performance. Continue actual server/worker scale memory and warm-restore waiting-cost diagnostics before adoption.",
+  "normalProductChanged": false,
+  "candidateAdopted": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "profileUpdated": false,
+  "published": false,
+  "limitations": [
+    "Original five unsaved-edit/immediate-completion cases, one fresh server and 100 queries including first per case; exact first/shared-candidate assertions, original onDemand mode and 150 ms budget. Actual native server bundle and WASMs; no profiler/forced GC/testMode. Explicit external files and Composer metadata frozen, not an exhaustive business-project snapshot. Configured PHP versions are not PHP CLI execution qualification. Periodic server RSS is not a process-peak or whole-project memory gate. No statistical comparison to historical single runs, no adoption or general performance qualification.",
+    "The byte-exact original benchmark stops the server using its original cleanup, rather than a separately qualified graceful-shutdown workflow.",
+    "Independent historical full LSP and Linux hosts and the fifteen complete persistence processes remain separately scoped evidence.",
+    "Single controls are not a paired statistical performance comparison, even when the explicit external source and Composer hashes match.",
+    "Normal Controller 157.74/150 ms and complete 10k 920.54/768 MiB remain open until product adoption and corresponding actual-current qualification.",
+    "Remaining platforms, modes, complete tool combinations, advanced semantic/refactoring capabilities, long sessions and human WSL acceptance remain open."
+  ]
+}

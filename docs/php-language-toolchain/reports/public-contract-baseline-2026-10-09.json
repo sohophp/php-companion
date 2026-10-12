@@ -1,0 +1,890 @@
+{
+  "scope": "Source-bound public type and serialization baseline; does not claim complete runtime contract or migration acceptance",
+  "recordedAtUtc": "2026-10-09T01:22:17.086Z",
+  "inputs": {
+    "packages/parser/src/index.ts": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+    "packages/refactor/src/index.ts": "9fe9c0e71b195caffdda74cccf2c43c90475b10d5a2ccb2abd6255947f5a802b",
+    "packages/semantic/src/index.ts": "05607495fb144b14fc6d59fffc5574f61b0a580fffa04556c073d57b013e3f16",
+    "packages/index/src/index.ts": "df1a0c8352b0dea96a9ac77533c2cccbdb8fa8e0e985aa5116b3ccff21ad5562",
+    "packages/type-system/src/index.ts": "35a10f684d46a7cbacf9397843d24c04c7da64885509f5666a4a4c1ba4b34532",
+    "packages/runtime-probe/src/index.ts": "79dfbab5542eb995a1e2982549fda6ea9dcdfebb68b3e0f7e37648f47d85b744",
+    "packages/semantic-provider/src/index.ts": "9ce3092b9feb0b64453348d7c17fdc903a3bd51bfc189501aa2925a160185103",
+    "packages/route-provider/src/index.ts": "6ca1b6ea591ebad8be197722ae62407afbc57fd6caa12b0e9049cc8de621fdff",
+    "packages/plugin-api/src/index.ts": "da8ad66ed177fb7e74f8c85312b9ced114a46ce12c0c3d4b7015adc1381aad3b",
+    "packages/interop/src/index.ts": "86e1026f00ff6f3299cad389fa10031e3bf1ae7237635990707147baf6c36802",
+    "packages/language-server/src/cacheVersion.ts": "4e27ceb6dac85772108428a233a5ac589f5beb0860a2322b4f801d1f78df34e9",
+    "packages/language-server/src/callableFactsCache.ts": "8b3c9ee0bf80411a7ce57ead53a04cc712c719a09c1665907c8b8b903a04e90a",
+    "packages/index/src/entry-store.ts": "e0fbe216a02aca327a3f5bef10ac99b17262fdaa07014627adf2bcf01d68f71f",
+    "packages/language-server/src/referenceResultStore.ts": "e791e2f71100d02b96ba2d32afa883b177b5adaaaeed7c7529156fee789cf61f",
+    "packages/language-server/src/referenceEngineIdentity.ts": "f25171ecc1dc681a310c3e1414381c423030f83aa128c54fb1e973c7e398420a",
+    "packages/language-server/src/projectFacts.ts": "5d3dd3757b003fbb8212dd283856ce3b6f001faf2c5bffe6e9404af34a351613",
+    "src/extension/languageServerPolicy.ts": "d73b5eb11511d62278603bd7115797466daf9c018c8db3c8964a096fca97d29e",
+    "src/extension/legacySettings.ts": "acaf1690ee7983ffab3d1a9e7e0b35da41d41d162fd22963158b280ba9f4b749"
+  },
+  "contracts": [
+    {
+      "file": "packages/parser/src/index.ts",
+      "line": 7,
+      "name": "SourceRange",
+      "kind": "interface",
+      "definition": "export interface SourceRange {\n  start: number;\n  end: number;\n}",
+      "definitionSha256": "fe8f0e247026dafbfa7c91062fd3fb9d364b6ebf78e93ad5745a2ce49fd5025e",
+      "fields": [
+        "start",
+        "end"
+      ]
+    },
+    {
+      "file": "packages/parser/src/index.ts",
+      "line": 12,
+      "name": "ParsedDeclaration",
+      "kind": "interface",
+      "definition": "export interface ParsedDeclaration extends SourceRange {\n  name: string;\n  fqcn: string;\n  kind: PhpSymbolKind;\n  anonymous: boolean;\n  declarationStart: number;\n  declarationEnd: number;\n  extendsNames: string[];\n  implementsNames: string[];\n  traitNames: string[];\n  traitUses?: Array<SourceRange & { names: string[] }>;\n  attributeNames?: string[];\n  attributeMarkers?: Array<{ name: string; arguments?: string }>;\n  traitAdaptations: ParsedTraitAdaptation[];\n  readonlyClass: boolean;\n  abstractClass: boolean;\n  finalClass?: boolean;\n  enumBackingType?: 'int' | 'string';\n}",
+      "definitionSha256": "f2fb65282a10908f372b2c103edd65ea5cf8c75a9e0c62d08e05053a05c68844",
+      "fields": [
+        "name",
+        "fqcn",
+        "kind",
+        "anonymous",
+        "declarationStart",
+        "declarationEnd",
+        "extendsNames",
+        "implementsNames",
+        "traitNames",
+        "traitUses",
+        "attributeNames",
+        "attributeMarkers",
+        "traitAdaptations",
+        "readonlyClass",
+        "abstractClass",
+        "finalClass",
+        "enumBackingType"
+      ]
+    },
+    {
+      "file": "packages/parser/src/index.ts",
+      "line": 49,
+      "name": "ParsedCallableDeclaration",
+      "kind": "interface",
+      "definition": "export interface ParsedCallableDeclaration extends SourceRange {\n  name: string;\n  fqcn: string;\n  kind: 'function' | 'method';\n  containerFqcn?: string;\n  parameters: ParsedParameter[];\n  returnType?: string;\n  /** Parser-native return type before any downstream PHPDoc refinement. */\n  nativeReturnType?: string;\n  declarationStart: number;\n  declarationEnd: number;\n  visibility: 'public' | 'protected' | 'private';\n  static: boolean;\n  finalMethod?: boolean;\n}",
+      "definitionSha256": "40f36940422ea002efb662a50614fec88492d086ca83118b4c5752fe184216aa",
+      "fields": [
+        "name",
+        "fqcn",
+        "kind",
+        "containerFqcn",
+        "parameters",
+        "returnType",
+        "nativeReturnType",
+        "declarationStart",
+        "declarationEnd",
+        "visibility",
+        "static",
+        "finalMethod"
+      ]
+    },
+    {
+      "file": "packages/parser/src/index.ts",
+      "line": 216,
+      "name": "ParsedPhpDocument",
+      "kind": "interface",
+      "definition": "export interface ParsedPhpDocument {\n  namespace: string;\n  declarations: ParsedDeclaration[];\n  callables: ParsedCallableDeclaration[];\n  assignments: ParsedAssignment[];\n  scopes: ParsedScope[];\n  variableReferences: ParsedVariableReference[];\n  returns: ParsedReturnStatement[];\n  narrowings: ParsedTypeNarrowing[];\n  properties: ParsedPropertyDeclaration[];\n  constants: ParsedConstantDeclaration[];\n  imports: ParsedImport[];\n  typeReferences: ParsedTypeReference[];\n  rawNames: RawName[];\n  memberAccesses: ParsedMemberAccess[];\n  calls: ParsedCall[];\n  errors: SourceRange[];\n  commentRanges: SourceRange[];\n  stringRanges: SourceRange[];\n  tree: Tree;\n}",
+      "definitionSha256": "bcdbf9adaf434077fc3909230703292a17a9b0163aea3c7fff14b799cfadb5e2",
+      "fields": [
+        "namespace",
+        "declarations",
+        "callables",
+        "assignments",
+        "scopes",
+        "variableReferences",
+        "returns",
+        "narrowings",
+        "properties",
+        "constants",
+        "imports",
+        "typeReferences",
+        "rawNames",
+        "memberAccesses",
+        "calls",
+        "errors",
+        "commentRanges",
+        "stringRanges",
+        "tree"
+      ]
+    },
+    {
+      "file": "packages/parser/src/index.ts",
+      "line": 238,
+      "name": "ParsedPhpDeclarationDocument",
+      "kind": "type",
+      "definition": "export type ParsedPhpDeclarationDocument = Pick<ParsedPhpDocument,\n  'namespace' | 'declarations' | 'callables' | 'properties' | 'constants' | 'imports' | 'commentRanges' | 'tree'>;",
+      "definitionSha256": "c9ac5a3e5502eff090477a646f11089122bb5584ee21de40191e8991ee7af399"
+    },
+    {
+      "file": "packages/parser/src/index.ts",
+      "line": 263,
+      "name": "PreparedPhpDocument",
+      "kind": "type",
+      "definition": "export type PreparedPhpDocument = (\n  | { kind: 'full'; facts: Omit<ParsedPhpDocument, 'tree'>; controlFlowAssignments: number[] }\n  | { kind: 'declarations'; facts: Omit<ParsedPhpDeclarationDocument, 'tree'>; controlFlowAssignments: [] }\n) & { namespaceScopes?: ParsedNamespaceScope[] };",
+      "definitionSha256": "9ce83556dc1f29869f8668f4101e6509ec2387d342e6eb338932c6bc1e0755bd"
+    },
+    {
+      "file": "packages/refactor/src/index.ts",
+      "line": 1,
+      "name": "DocumentSnapshot",
+      "kind": "interface",
+      "definition": "export interface DocumentSnapshot {\n  uri: string;\n  version: number | null;\n  length: number;\n  textHash?: string;\n}",
+      "definitionSha256": "4d7078fda21bfd20e42cd7f5663cd09e8fe776d0c0f22b69b350157220e03f39",
+      "fields": [
+        "uri",
+        "version",
+        "length",
+        "textHash"
+      ]
+    },
+    {
+      "file": "packages/refactor/src/index.ts",
+      "line": 8,
+      "name": "PlannedTextEdit",
+      "kind": "interface",
+      "definition": "export interface PlannedTextEdit {\n  uri: string;\n  start: number;\n  end: number;\n  newText: string;\n  expectedVersion: number | null;\n  expectedLength: number;\n  expectedTextHash?: string;\n}",
+      "definitionSha256": "ff513975ba7e129f07c37d714de315196bd0b4ee750985a61c328eac33a68763",
+      "fields": [
+        "uri",
+        "start",
+        "end",
+        "newText",
+        "expectedVersion",
+        "expectedLength",
+        "expectedTextHash"
+      ]
+    },
+    {
+      "file": "packages/refactor/src/index.ts",
+      "line": 18,
+      "name": "PlannedFileOperation",
+      "kind": "type",
+      "definition": "export type PlannedFileOperation =\n  | { kind: 'create'; uri: string; overwrite?: boolean }\n  | { kind: 'rename'; oldUri: string; newUri: string; overwrite?: boolean }\n  | { kind: 'delete'; uri: string; recursive?: boolean };",
+      "definitionSha256": "95c48047487f7ea2055b1f14d8e8cc3ee95db7a35c09d3a2157bfd90b905d3a6"
+    },
+    {
+      "file": "packages/refactor/src/index.ts",
+      "line": 23,
+      "name": "EditPlan",
+      "kind": "interface",
+      "definition": "export interface EditPlan {\n  schema: 1;\n  label: string;\n  textEdits: PlannedTextEdit[];\n  fileOperations: PlannedFileOperation[];\n}",
+      "definitionSha256": "adfa900f728350ea77e1562498fe9f20b7981eccab34c5a1f8a115ca25d813d3",
+      "fields": [
+        "schema",
+        "label",
+        "textEdits",
+        "fileOperations"
+      ]
+    },
+    {
+      "file": "packages/refactor/src/index.ts",
+      "line": 30,
+      "name": "EditPlanIssue",
+      "kind": "interface",
+      "definition": "export interface EditPlanIssue { code: 'missing-snapshot' | 'invalid-range' | 'overlapping-edits' | 'file-operation-conflict' | 'stale-version' | 'stale-content'; uri: string; message: string; }",
+      "definitionSha256": "d39b32406ec90418eda5eb68fad4c1f1d914df8e37094bef35f5acb6bf9c457e",
+      "fields": [
+        "code",
+        "uri",
+        "message"
+      ]
+    },
+    {
+      "file": "packages/semantic/src/index.ts",
+      "line": 28,
+      "name": "SemanticFileSnapshot",
+      "kind": "interface",
+      "definition": "export interface SemanticFileSnapshot {\n  uri: string;\n  source: string;\n  namespace: string;\n  declarations: ParsedDeclaration[];\n  callables: ParsedCallableDeclaration[];\n  imports: ParsedImport[];\n  typeReferences: ParsedTypeReference[];\n  assignments: ParsedAssignment[];\n  properties: ParsedPropertyDeclaration[];\n  constants: ParsedConstantDeclaration[];\n  rawNames: RawName[];\n  memberAccesses: ParsedMemberAccess[];\n  calls: ParsedCall[];\n  scopes: ParsedScope[];\n  variableReferences: ParsedVariableReference[];\n  returns: ParsedReturnStatement[];\n  narrowings: ParsedTypeNarrowing[];\n  templates: SemanticTemplate[];\n  genericParents: SemanticGenericParent[];\n  mixins: SemanticMixin[];\n  magicMembers: SemanticMagicMember[];\n  syntaxErrors: SourceRange[];\n  commentRanges: SourceRange[];\n  stringRanges: SourceRange[];\n}",
+      "definitionSha256": "be38df9d9a4c835d5badc439551329484db89a9c8b2eebe98e0d72b85726dd9f",
+      "fields": [
+        "uri",
+        "source",
+        "namespace",
+        "declarations",
+        "callables",
+        "imports",
+        "typeReferences",
+        "assignments",
+        "properties",
+        "constants",
+        "rawNames",
+        "memberAccesses",
+        "calls",
+        "scopes",
+        "variableReferences",
+        "returns",
+        "narrowings",
+        "templates",
+        "genericParents",
+        "mixins",
+        "magicMembers",
+        "syntaxErrors",
+        "commentRanges",
+        "stringRanges"
+      ]
+    },
+    {
+      "file": "packages/semantic/src/index.ts",
+      "line": 54,
+      "name": "SemanticDeclarationSnapshot",
+      "kind": "interface",
+      "definition": "export interface SemanticDeclarationSnapshot {\n  uri: string;\n  namespace: string;\n  declarations: ParsedDeclaration[];\n  callables: ParsedCallableDeclaration[];\n  properties: ParsedPropertyDeclaration[];\n  constants: ParsedConstantDeclaration[];\n  imports: ParsedImport[];\n  templates: SemanticTemplate[];\n  genericParents: SemanticGenericParent[];\n  mixins: SemanticMixin[];\n  magicMembers: SemanticMagicMember[];\n}",
+      "definitionSha256": "935ada1c321afcb6a2c7add7bae6376365f6de975359722f85d8b5b4bcd82ee1",
+      "fields": [
+        "uri",
+        "namespace",
+        "declarations",
+        "callables",
+        "properties",
+        "constants",
+        "imports",
+        "templates",
+        "genericParents",
+        "mixins",
+        "magicMembers"
+      ]
+    },
+    {
+      "file": "packages/semantic/src/index.ts",
+      "line": 67,
+      "name": "SemanticSourceDeclarationSnapshot",
+      "kind": "interface",
+      "definition": "export interface SemanticSourceDeclarationSnapshot {\n  schema: 7;\n  source: string;\n  declaration: SemanticDeclarationSnapshot;\n}",
+      "definitionSha256": "e9030dc7966c66093855f1732cfa7ffc2c1f7dc5f2455da5473bc70aa34186f8",
+      "fields": [
+        "schema",
+        "source",
+        "declaration"
+      ]
+    },
+    {
+      "file": "packages/semantic/src/index.ts",
+      "line": 99,
+      "name": "SemanticImplementationSnapshot",
+      "kind": "interface",
+      "definition": "export interface SemanticImplementationSnapshot {\n  uri: string;\n  source: string;\n  file: SemanticImplementationFacts;\n  callables: SemanticCallableImplementationRecord[];\n}",
+      "definitionSha256": "19c0697cc97d61063d0895f636933098fa217f4b19e674b5f57c7910a9fd9c8f",
+      "fields": [
+        "uri",
+        "source",
+        "file",
+        "callables"
+      ]
+    },
+    {
+      "file": "packages/semantic/src/index.ts",
+      "line": 109,
+      "name": "SemanticSnapshot",
+      "kind": "interface",
+      "definition": "export interface SemanticSnapshot {\n  schema: 89;\n  layers: {\n    referenceCandidates: { indexed: boolean; keys: string[] };\n    typeDependencies: { indexed: boolean; nodes: Array<{ key: string; dependencies: string[] }> };\n  };\n  declaration: SemanticDeclarationSnapshot;\n  implementation: SemanticImplementationSnapshot;\n}",
+      "definitionSha256": "f44fe3bd677d9b42ac5536f999584defe63242e6a2c206cf43fd3d88326c8ab0",
+      "fields": [
+        "schema",
+        "layers",
+        "declaration",
+        "implementation"
+      ]
+    },
+    {
+      "file": "packages/semantic/src/index.ts",
+      "line": 143,
+      "name": "SemanticUpdateResult",
+      "kind": "interface",
+      "definition": "export interface SemanticUpdateResult {\n  incremental: boolean;\n  changedRanges: number;\n  /** The broadest semantic layer changed by this update. */\n  kind: SemanticUpdateKind;\n  /** Stable lowercase callable identities whose implementation may have changed. */\n  changedCallables: string[];\n  /** Stable lowercase type identities whose declaration surface may have changed. */\n  changedTypes: string[];\n}",
+      "definitionSha256": "4ef0542c0f101ea96f757eb80f05d8ddf7f95a1d6cf9b6f477b868816ee87570",
+      "fields": [
+        "incremental",
+        "changedRanges",
+        "kind",
+        "changedCallables",
+        "changedTypes"
+      ]
+    },
+    {
+      "file": "packages/index/src/index.ts",
+      "line": 16,
+      "name": "ProjectIndexResult",
+      "kind": "interface",
+      "definition": "export interface ProjectIndexResult { files: number; bytes: number; cached: number; complete: boolean; projectComplete: boolean; warnings: string[]; }",
+      "definitionSha256": "d49235e80eb2b7a082dcab6eae86e90d91d8e9e64b1278bcf4db53c703d1e60e",
+      "fields": [
+        "files",
+        "bytes",
+        "cached",
+        "complete",
+        "projectComplete",
+        "warnings"
+      ]
+    },
+    {
+      "file": "packages/index/src/index.ts",
+      "line": 17,
+      "name": "IndexedSource",
+      "kind": "interface",
+      "definition": "export interface IndexedSource { uri: string; path: string; source: string; bytes: number; hash: string; prepared?: unknown; }",
+      "definitionSha256": "df78a6811144456774c1f71428ca9d5c9c117b7ac17e4b3d98bc1265b714f0a2",
+      "fields": [
+        "uri",
+        "path",
+        "source",
+        "bytes",
+        "hash",
+        "prepared"
+      ]
+    },
+    {
+      "file": "packages/index/src/index.ts",
+      "line": 19,
+      "name": "ProjectIndexCacheOptions",
+      "kind": "interface",
+      "definition": "export interface ProjectIndexCacheOptions { directory: string; version: string; key?: string; prepareRestore?: (payload: unknown, source: Omit<IndexedSource, 'source'>) => unknown | Promise<unknown>; finalizePayload?: (payload: unknown) => unknown | Promise<unknown>; restore: (payload: unknown, source: Omit<IndexedSource, 'source'>, prepared?: unknown) => ProjectIndexCacheRestoreResult | Promise<ProjectIndexCacheRestoreResult>; }",
+      "definitionSha256": "36409ff19180d4f1b16da1a4e5d897e90b59acf4f00d8d4c47cbe1354a8f92e4",
+      "fields": [
+        "directory",
+        "version",
+        "key",
+        "prepareRestore",
+        "finalizePayload",
+        "restore"
+      ]
+    },
+    {
+      "file": "packages/index/src/index.ts",
+      "line": 21,
+      "name": "ProjectIndexOptions",
+      "kind": "interface",
+      "definition": "export interface ProjectIndexOptions { onProgress?: (progress: IndexProgress) => void; limits?: ProjectIndexLimits; shouldContinue?: () => boolean; uriForPath?: (path: string) => string; onSource: (source: IndexedSource) => unknown | Promise<unknown>; prepareSource?: (source: IndexedSource) => unknown | Promise<unknown>;\n  /** Hash every cached source before restoring facts, even when file metadata is unchanged. */\n  verifyCachedSourceHash?: boolean;\n  /** Use only with a conservative, complete source prefilter. */\n  skipSource?: (path: string, info: { size: number; mtimeMs: number; ctimeMs: number }) => boolean;\n  /** Charge only candidate files to read budgets; inspect at most 50,000 PHP paths by default. Requires skipSource. */\n  skipSourceOutsideBudget?: boolean;\n  /** Optional bounded inspector. It may supply current source text to avoid a second read. Failures make the scan incomplete. */\n  inspectSource?: (path: string) => Promise<{ size: number; mtimeMs: number; ctimeMs: number; source?: string }>;\n  onProjectComplete?: () => unknown | Promise<unknown>; includeDependencies?: boolean; yieldEvery?: number; readConcurrency?: number; cache?: ProjectIndexCacheOptions; project?: ComposerProject; }",
+      "definitionSha256": "db8e593f6dd8ce1849b308faf787519f379e5ac515346af0d5cd485d46d57c31",
+      "fields": [
+        "onProgress",
+        "limits",
+        "shouldContinue",
+        "uriForPath",
+        "onSource",
+        "prepareSource",
+        "verifyCachedSourceHash",
+        "skipSource",
+        "skipSourceOutsideBudget",
+        "inspectSource",
+        "onProjectComplete",
+        "includeDependencies",
+        "yieldEvery",
+        "readConcurrency",
+        "cache",
+        "project"
+      ]
+    },
+    {
+      "file": "packages/type-system/src/index.ts",
+      "line": 2,
+      "name": "PhpType",
+      "kind": "type",
+      "definition": "export type PhpType =\n  | { kind: 'primitive'; name: PrimitiveName }\n  | { kind: 'named'; name: string }\n  | { kind: 'literal'; value: string | number | boolean }\n  | { kind: 'integer-range'; min: number | null; max: number | null }\n  | { kind: 'class-string'; of?: PhpType }\n  | { kind: 'list'; valueType: PhpType; nonEmpty: boolean }\n  | { kind: 'array'; keyType: PhpType; valueType: PhpType; nonEmpty: boolean }\n  | { kind: 'shape'; fields: ShapeField[]; sealed: boolean }\n  | { kind: 'generic'; base: PhpType; arguments: PhpType[] }\n  | { kind: 'callable'; parameters: CallableParameter[]; returnType: PhpType }\n  | { kind: 'union'; types: PhpType[] }\n  | { kind: 'intersection'; types: PhpType[] }\n  | { kind: 'unknown'; reason?: string };",
+      "definitionSha256": "b52c3656375141b8a4543b0f0ce97c4b3c4f85b15eb6671efa09b576e80c60f0"
+    },
+    {
+      "file": "packages/runtime-probe/src/index.ts",
+      "line": 40,
+      "name": "PhpRuntime",
+      "kind": "interface",
+      "definition": "export interface PhpRuntime {\n  command: string;\n  path: string;\n  version: string;\n  versionId: number;\n  minor: string;\n  sapi: string;\n  loadedExtensions: string[];\n  availableFunctions?: string[];\n  readlineLib?: string;\n  intlCharConstants?: IntlCharRuntimeConstants;\n  intlCalendarFieldCount?: number;\n  intlCurrencyAccountingAvailable?: boolean;\n  zipRuntime?: ZipRuntimeFacts;\n  zlibRuntime?: ZlibRuntimeFacts;\n  socketsRuntime?: SocketsRuntimeFacts;\n  pcntlRuntime?: PcntlRuntimeFacts;\n  pgsqlRuntime?: PgsqlRuntimeFacts;\n  xslRuntime?: XslRuntimeFacts;\n  redisRuntime?: RedisRuntimeFacts;\n  imagickRuntime?: ImagickRuntimeFacts;\n  curlRuntime?: CurlRuntimeFacts;\n  gdRuntime?: GdRuntimeFacts;\n  tokenizerRuntime?: TokenizerRuntimeFacts;\n  apcuRuntime?: ApcuRuntimeFacts;\n  openSslRuntime?: OpenSslRuntimeFacts;\n  mysqliRuntime?: MysqliRuntimeFacts;\n  pdoRuntime?: PdoRuntimeFacts;\n  sodiumRuntime?: SodiumRuntimeFacts;\n  pcreRuntime?: PcreRuntimeConstants;\n  sysvMsgConstants?: SysvMsgRuntimeConstants;\n  posixConstants?: PosixRuntimeConstants;\n  mbOnigurumaVersion?: string;\n  getrusageRuntime?: GetrusageRuntimeFacts;\n  loadedConfigurationFile?: string;\n  scannedConfigurationFiles: string[];\n}",
+      "definitionSha256": "f5c15b4ae006c9f154309d5ac0306440400608d247dbf28eb641503fa2f8e87a",
+      "fields": [
+        "command",
+        "path",
+        "version",
+        "versionId",
+        "minor",
+        "sapi",
+        "loadedExtensions",
+        "availableFunctions",
+        "readlineLib",
+        "intlCharConstants",
+        "intlCalendarFieldCount",
+        "intlCurrencyAccountingAvailable",
+        "zipRuntime",
+        "zlibRuntime",
+        "socketsRuntime",
+        "pcntlRuntime",
+        "pgsqlRuntime",
+        "xslRuntime",
+        "redisRuntime",
+        "imagickRuntime",
+        "curlRuntime",
+        "gdRuntime",
+        "tokenizerRuntime",
+        "apcuRuntime",
+        "openSslRuntime",
+        "mysqliRuntime",
+        "pdoRuntime",
+        "sodiumRuntime",
+        "pcreRuntime",
+        "sysvMsgConstants",
+        "posixConstants",
+        "mbOnigurumaVersion",
+        "getrusageRuntime",
+        "loadedConfigurationFile",
+        "scannedConfigurationFiles"
+      ]
+    },
+    {
+      "file": "packages/semantic-provider/src/index.ts",
+      "line": 7,
+      "name": "SemanticProviderDescriptor",
+      "kind": "interface",
+      "definition": "export interface SemanticProviderDescriptor {\n  providerId: string;\n  command: string;\n  args?: readonly string[];\n  timeoutMs?: number;\n  maxOutputBytes?: number;\n  requiresProjectTypes?: boolean;\n  acceptsDocumentSnapshots?: boolean;\n  replacesContainerServices?: boolean;\n  requiresContainerServices?: boolean;\n  replacesEventRelations?: boolean;\n  replacesControllerContexts?: boolean;\n}",
+      "definitionSha256": "75911405b796de1928049fdc7966b3976a6a13a5a42dfadf3be59263b763b5e4",
+      "fields": [
+        "providerId",
+        "command",
+        "args",
+        "timeoutMs",
+        "maxOutputBytes",
+        "requiresProjectTypes",
+        "acceptsDocumentSnapshots",
+        "replacesContainerServices",
+        "requiresContainerServices",
+        "replacesEventRelations",
+        "replacesControllerContexts"
+      ]
+    },
+    {
+      "file": "packages/semantic-provider/src/index.ts",
+      "line": 46,
+      "name": "SemanticProviderRequest",
+      "kind": "interface",
+      "definition": "export interface SemanticProviderRequest {\n  protocolVersion: typeof SEMANTIC_PROVIDER_PROTOCOL_VERSION;\n  id: string;\n  method: 'facts';\n  params: { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string;\n    documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[];\n    containerServices?: readonly ExternalContainerServiceFact[] };\n}",
+      "definitionSha256": "e2516b1eee87ed3eac678790dc501ec3b9a6bfaeea83958a37b540f904bf32d9",
+      "fields": [
+        "protocolVersion",
+        "id",
+        "method",
+        "params"
+      ]
+    },
+    {
+      "file": "packages/semantic-provider/src/index.ts",
+      "line": 55,
+      "name": "SemanticProviderResponse",
+      "kind": "interface",
+      "definition": "export interface SemanticProviderResponse {\n  protocolVersion: typeof SEMANTIC_PROVIDER_PROTOCOL_VERSION;\n  id: string;\n  result?: SemanticFactsContribution;\n  error?: { code: string; message: string };\n}",
+      "definitionSha256": "75f0cdbecd2ac00e2abff28b5568f52a102a8f3b7fa0d5c9fdae2a7034d64e56",
+      "fields": [
+        "protocolVersion",
+        "id",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "file": "packages/semantic-provider/src/index.ts",
+      "line": 111,
+      "name": "SemanticFactsContribution",
+      "kind": "interface",
+      "definition": "export interface SemanticFactsContribution {\n  schema: typeof SEMANTIC_FACTS_SCHEMA;\n  providerId: string;\n  generation: string;\n  complete: boolean;\n  methods: readonly ExternalMethodFact[];\n  properties: readonly ExternalPropertyFact[];\n  literalMethodReturns: readonly ExternalLiteralMethodReturnFact[];\n  containerServices?: readonly ExternalContainerServiceFact[];\n  containerParameters?: readonly ExternalContainerParameterFact[];\n  containerMethodArguments?: readonly ExternalContainerMethodArgumentFact[];\n  containerPropertyArguments?: readonly ExternalContainerPropertyArgumentFact[];\n  containerConfigurationUris?: readonly string[];\n  /** Attempted file inputs from an authoritative container provider, including absent paths. */\n  containerInputUris?: readonly string[];\n  containerInputEvidenceComplete?: boolean;\n  eventSubscriptions?: readonly ExternalEventSubscriptionFact[];\n  eventDispatches?: readonly ExternalEventDispatchFact[];\n  controllerContexts?: readonly ControllerTemplateContext[];\n}",
+      "definitionSha256": "2d1f220553777c9dc971d91ce3c02e0f2019436420bafb6a7dfbc20086505e1c",
+      "fields": [
+        "schema",
+        "providerId",
+        "generation",
+        "complete",
+        "methods",
+        "properties",
+        "literalMethodReturns",
+        "containerServices",
+        "containerParameters",
+        "containerMethodArguments",
+        "containerPropertyArguments",
+        "containerConfigurationUris",
+        "containerInputUris",
+        "containerInputEvidenceComplete",
+        "eventSubscriptions",
+        "eventDispatches",
+        "controllerContexts"
+      ]
+    },
+    {
+      "file": "packages/route-provider/src/index.ts",
+      "line": 23,
+      "name": "RouteProviderRequest",
+      "kind": "interface",
+      "definition": "export interface RouteProviderRequest {\n  protocolVersion: typeof ROUTE_PROVIDER_PROTOCOL_VERSION;\n  id: string;\n  method: 'routes';\n  params: { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string; documents?: readonly RouteProviderDocument[] };\n}",
+      "definitionSha256": "11198face025dae5e459d52dfeb49d09dc94359e21c2cb09d17cbae5b0dbf5e1",
+      "fields": [
+        "protocolVersion",
+        "id",
+        "method",
+        "params"
+      ]
+    },
+    {
+      "file": "packages/route-provider/src/index.ts",
+      "line": 42,
+      "name": "RouteFactsContribution",
+      "kind": "interface",
+      "definition": "export interface RouteFactsContribution {\n  schema: typeof ROUTE_FACTS_SCHEMA;\n  providerId: string;\n  generation: string;\n  complete: boolean;\n  routes: readonly RouteFact[];\n  /** Attempted file inputs, including paths that did not exist. */\n  inputUris?: readonly string[];\n  /** Directories enumerated while expanding wildcard and attribute imports. */\n  inputDirectoryUris?: readonly string[];\n  inputEvidenceComplete?: boolean;\n}",
+      "definitionSha256": "1a9eb0ab2b5941dd9e30d9c1b5d174a2e1f1fcdb8938e756a980edd9dc2301cf",
+      "fields": [
+        "schema",
+        "providerId",
+        "generation",
+        "complete",
+        "routes",
+        "inputUris",
+        "inputDirectoryUris",
+        "inputEvidenceComplete"
+      ]
+    },
+    {
+      "file": "packages/route-provider/src/index.ts",
+      "line": 54,
+      "name": "RouteProviderResponse",
+      "kind": "interface",
+      "definition": "export interface RouteProviderResponse {\n  protocolVersion: typeof ROUTE_PROVIDER_PROTOCOL_VERSION;\n  id: string;\n  result?: RouteFactsContribution;\n  error?: { code: string; message: string };\n}",
+      "definitionSha256": "15f9a052f3845e6f1dcedeefe0765261ee3a5ad03ae2f37f17336b8c51ca663f",
+      "fields": [
+        "protocolVersion",
+        "id",
+        "result",
+        "error"
+      ]
+    },
+    {
+      "file": "packages/plugin-api/src/index.ts",
+      "line": 8,
+      "name": "PhpCompanionIntegrationContribution",
+      "kind": "interface",
+      "definition": "export interface PhpCompanionIntegrationContribution {\n  integrationId: string;\n  semanticProviders?: readonly SemanticProviderDescriptor[];\n  routeProviders?: readonly RouteProviderDescriptor[];\n}",
+      "definitionSha256": "cd6f48d5d12116b7672c470530223688b87ec2cffaf2103bcca986dfc3cdef78",
+      "fields": [
+        "integrationId",
+        "semanticProviders",
+        "routeProviders"
+      ]
+    },
+    {
+      "file": "packages/plugin-api/src/index.ts",
+      "line": 14,
+      "name": "PhpCompanionPluginRegistration",
+      "kind": "interface",
+      "definition": "export interface PhpCompanionPluginRegistration {\n  /** Atomically replace this integration without exposing a withdrawn interval. */\n  update?(contribution: PhpCompanionIntegrationContribution): void;\n  dispose(): void;\n}",
+      "definitionSha256": "5ffc6a7d6e422e500d56200e8af515cd2b2cb45f72ab0d77ceaa7231dc9daf31",
+      "fields": [
+        "update",
+        "dispose"
+      ]
+    },
+    {
+      "file": "packages/plugin-api/src/index.ts",
+      "line": 20,
+      "name": "PhpCompanionPluginApi",
+      "kind": "interface",
+      "definition": "export interface PhpCompanionPluginApi {\n  version: typeof PHP_COMPANION_PLUGIN_API_VERSION;\n  registerIntegration(contribution: PhpCompanionIntegrationContribution): PhpCompanionPluginRegistration;\n  /** Send a namespaced feature request through the core language-server lifecycle. Added compatibly to API v1. */\n  requestLanguageServer?<T>(method: string, params: unknown): Promise<T>;\n}",
+      "definitionSha256": "44e93df2814cfcd46afc07ee5ea9bf6057eb8cfa8259f34ce3c4209e817609fd",
+      "fields": [
+        "version",
+        "registerIntegration",
+        "requestLanguageServer"
+      ]
+    },
+    {
+      "file": "packages/interop/src/index.ts",
+      "line": 4,
+      "name": "InteropHello",
+      "kind": "interface",
+      "definition": "export interface InteropHello {\n  protocolVersion: typeof INTEROP_PROTOCOL_VERSION;\n  providerId: string;\n  projectId: string;\n  snapshotVersion: string;\n  capabilities: InteropCapability[];\n}",
+      "definitionSha256": "2c298da39e9a9233f12da2a21b39772a823a776ed6e361c1b957c21d02120154",
+      "fields": [
+        "protocolVersion",
+        "providerId",
+        "projectId",
+        "snapshotVersion",
+        "capabilities"
+      ]
+    },
+    {
+      "file": "packages/interop/src/index.ts",
+      "line": 13,
+      "name": "SerializedPhpType",
+      "kind": "type",
+      "definition": "export type SerializedPhpType =\n  | { kind: 'unknown'; reason?: string }\n  | { kind: 'primitive'; name: 'bool' | 'int' | 'float' | 'string' | 'array' | 'object' | 'callable' | 'iterable' | 'resource' | 'null' | 'void' | 'never' | 'mixed' }\n  | { kind: 'named'; name: string }\n  | { kind: 'union' | 'intersection'; types: SerializedPhpType[] };",
+      "definitionSha256": "5329bae0af95fa3e8959dd9351f09f01ed4242e7345135f39fd42e3397921da7"
+    }
+  ],
+  "versionEvidence": [
+    {
+      "file": "packages/language-server/src/cacheVersion.ts",
+      "line": 2,
+      "text": "return `semantic-v80-php-${phpVersion}`;"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 6,
+      "text": "interface FactEnvelope { schema: 1; uri: string; facts: CallableConstructionFact[]; checksum: string; }"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 8,
+      "text": "interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CacheEntry>; }"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 11,
+      "text": "const CACHE_VERSION = 'callable-facts-v1';"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 35,
+      "text": "return { schema: 1, uri, facts, checksum: checksum({ uri, facts }) };"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 39,
+      "text": "if (!envelope || envelope.schema !== 1 || envelope.uri !== uri || !digest(envelope.checksum)"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 45,
+      "text": "return { schema: 1, version: CACHE_VERSION, root,"
+    },
+    {
+      "file": "packages/language-server/src/callableFactsCache.ts",
+      "line": 64,
+      "text": "if (parsed?.schema === 1 && parsed.version === CACHE_VERSION && parsed.root === root && entries"
+    },
+    {
+      "file": "packages/index/src/entry-store.ts",
+      "line": 45,
+      "text": "|| !record(data.entries) || data.schema === 2 && !validGeneration(data.generation)) return store;"
+    },
+    {
+      "file": "packages/index/src/entry-store.ts",
+      "line": 46,
+      "text": "store.readonlyGeneration = data.schema === 2 ? data.generation as string : undefined;"
+    },
+    {
+      "file": "packages/index/src/entry-store.ts",
+      "line": 50,
+      "text": "&& (data.schema === 1 || validDigest(entry.payloadHash) && Number.isSafeInteger(entry.payloadBytes)"
+    },
+    {
+      "file": "packages/language-server/src/referenceResultStore.ts",
+      "line": 8,
+      "text": "schema: 1;"
+    },
+    {
+      "file": "packages/language-server/src/referenceResultStore.ts",
+      "line": 39,
+      "text": "return Boolean(proof && proof.schema === 1 && digest(proof.key) && digest(proof.fingerprint)"
+    },
+    {
+      "file": "packages/language-server/src/referenceEngineIdentity.ts",
+      "line": 19,
+      "text": "context: JSON.stringify({ schema: 2, buildId: inputs.buildId, runtime: inputs.runtime, paths }),"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 9,
+      "text": "schema: 7;"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 16,
+      "text": "schema: 13;"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 34,
+      "text": "export function compressCachedProjectPhpFile(payload: CachedProjectPhpFile): { schema: 1; bytes: number; data: string } {"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 38,
+      "text": "function compressCachePayload(payload: unknown): { schema: 1; bytes: number; data: string } {"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 43,
+      "text": "return { schema: 1, bytes: source.length, data: compressed.toString('base64') };"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 47,
+      "text": "if (!isRecord(value) || value.schema !== 1 || !Number.isSafeInteger(value.bytes)"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 66,
+      "text": "export function compressCachedSourceDeclaration(snapshot: SemanticSourceDeclarationSnapshot, hash: string): { schema: 1; bytes: number; data: string } {"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 67,
+      "text": "return compressCachePayload({ schema: 1, snapshot, hash, checksum: recordChecksum(snapshot) });"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 72,
+      "text": "if (!isRecord(payload) || payload.schema !== 1 || payload.hash !== hash || !isChecksum(payload.checksum)"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 73,
+      "text": "|| !isRecord(payload.snapshot) || payload.snapshot.schema !== 7 || typeof payload.snapshot.source !== 'string'"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 136,
+      "text": "schema: 7,"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 158,
+      "text": "return { schema: 13, semantic, facts, checksums, checksum: payloadChecksum(checksums) };"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 163,
+      "text": "if (!isRecord(value) || value.schema !== 13 || !isRecord(value.semantic) || !isRecord(value.facts) || !isRecord(value.checksums)"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 171,
+      "text": "if (semantic.schema !== 89 || !declaration || !implementation || !layers || declaration.uri !== expectedUri || implementation.uri !== expectedUri"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 186,
+      "text": "|| facts.schema !== 7 || !Array.isArray(facts.doctrineMethods) || facts.doctrineMethods.length > 10_000"
+    },
+    {
+      "file": "packages/language-server/src/projectFacts.ts",
+      "line": 193,
+      "text": "return { schema: 13, semantic, checksums: checksums as unknown as CachedProjectPhpFile['checksums'], checksum: value.checksum, facts };"
+    }
+  ],
+  "migrationTests": [
+    {
+      "file": "/var/www/node/php-companion/test/unit/language-server-policy.test.ts",
+      "fullName": "language server restart policy allows three restarts in a minute and stops a crash loop",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/language-server-policy.test.ts",
+      "fullName": "Symfony project detection recognizes framework projects without treating individual components as full Symfony applications",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/language-server-policy.test.ts",
+      "fullName": "language server activation policy starts by default when SoPHP is the only general PHP language server",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/language-server-policy.test.ts",
+      "fullName": "language server activation policy preserves an existing Intelephense workflow until the user makes an explicit choice",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/language-server-policy.test.ts",
+      "fullName": "language server activation policy honors an explicit disabled setting regardless of installed extensions",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Rename setting migration keeps the default file Rename preview when neither setting is explicit",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Rename setting migration honors the legacy never and whenMatched values",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Rename setting migration lets an explicit new value override a legacy value",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Rename setting migration uses the effective language-specific value when present",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Paste setting migration uses prompt by default",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Paste setting migration translates all published legacy modes",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Paste setting migration lets the explicit new mode override the legacy mode",
+      "status": "passed"
+    },
+    {
+      "file": "/var/www/node/php-companion/test/unit/rename-settings-migration.test.ts",
+      "fullName": "F14 Paste setting migration uses the effective language override",
+      "status": "passed"
+    }
+  ],
+  "unitEvidence": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1158-post-gate-root-unit.json",
+    "sha256": "db8c34aa226293ac7e9d2ef39c4a55c7e500d1f852e4e32e595a701d9ec5bc41"
+  },
+  "conceptualContracts": {
+    "DocumentSnapshot": [
+      "refactor.DocumentSnapshot",
+      "parser.ParsedPhpDocument",
+      "parser.SourceRange"
+    ],
+    "SymbolId": {
+      "representation": "Domain-specific declaration names, scope identities and indexed keys",
+      "unifiedExportedTypeProven": false
+    },
+    "Declaration": [
+      "parser.ParsedDeclaration",
+      "parser.ParsedCallableDeclaration",
+      "semantic.SemanticDeclarationSnapshot"
+    ],
+    "Type": [
+      "type-system.PhpType"
+    ],
+    "AnalysisResult": {
+      "representation": [
+        "index.ProjectIndexResult",
+        "semantic.SemanticUpdateResult"
+      ],
+      "unifiedQueryCompletenessContractProven": false
+    },
+    "PhpRuntime": [
+      "runtime-probe.PhpRuntime"
+    ],
+    "SemanticFactsContribution": [
+      "semantic-provider.SemanticFactsContribution"
+    ],
+    "SemanticProviderRequestResponse": [
+      "semantic-provider.SemanticProviderRequest",
+      "semantic-provider.SemanticProviderResponse"
+    ],
+    "EditPlan": [
+      "refactor.EditPlan",
+      "refactor.PlannedTextEdit",
+      "refactor.EditPlanIssue"
+    ]
+  },
+  "fullDataContractAuditComplete": false,
+  "fullMigrationAcceptanceComplete": false,
+  "fullP0ContractGateComplete": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "repositoryFilesChangedDuringCollection": false,
+  "publishedAtUtc": "2026-10-09T01:49:06.311899+00:00"
+}

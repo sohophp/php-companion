@@ -143,6 +143,33 @@ return array('Legacy\\\\Invoice' => executeProjectCode());
     expect(isAutoloadPathExcluded(project, join(dependency, 'src', 'Internal', 'Hidden.php'))).toBe(true);
     expect(isAutoloadPathExcluded(project, join(root, 'src', 'Internal', 'Visible.php'))).toBe(false);
   });
+  it('preserves parent and shared package exclusions among unrelated roots', async () => {
+    root = await mkdtemp(join(tmpdir(), 'php-companion-exclusion-ancestors-'));
+    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'exclude-from-classmap': ['/vendor/shared/ParentOnly/'] } }));
+    const project = (await loadComposerProject(root))!;
+    const dependency = (name: string, path: string, patterns: string[]): typeof project.dependencies[number] => ({
+      name, root: path, development: false, psr4: [], psr0: [], classmap: [], files: [], excludeFromClassmap: patterns,
+    });
+    const shared = join(root, 'vendor', 'shared');
+    project.dependencies = [
+      ...Array.from({ length: 64 }, (_, index) => dependency(`other${index}`, join(root!, 'vendor', `other${index}`), ['/Private/'])),
+      dependency('first', shared, ['/First/']), dependency('second', shared, ['/Second/']),
+      dependency('nested', join(shared, 'Nested'), ['/Hidden/']),
+    ];
+    for (const path of ['ParentOnly/Item.php', 'First/Item.php', 'Second/Item.php', 'Nested/Hidden/Item.php']) {
+      expect(isAutoloadPathExcluded(project, join(shared, path))).toBe(true);
+    }
+    for (const path of ['Public/Item.php', 'FirstExtra/Item.php', 'Nested/Public/Item.php']) {
+      expect(isAutoloadPathExcluded(project, join(shared, path))).toBe(false);
+    }
+    expect(isAutoloadPathExcluded(project, join(root, 'vendor', 'shared-sibling', 'First', 'Item.php'))).toBe(false);
+    expect(isAutoloadPathExcluded(project, join(root, 'vendor', 'other40', 'Private', 'Item.php'))).toBe(true);
+    // Windows package-root matching stays case-insensitive, while the relative
+    // exclusion pattern is evaluated with its original case as before.
+    if (process.platform === 'win32') {
+      expect(isAutoloadPathExcluded(project, join(shared.toUpperCase(), 'First', 'Item.php'))).toBe(true);
+    }
+  });
   it('returns every namespace candidate for overlapping PSR-4 mappings', () => {
     const directory = join('/workspace', 'src'); const file = join(directory, 'Model', 'User.php');
     expect(resolvePsr4Namespaces(file, [

@@ -1,0 +1,402 @@
+{
+  "status": "exited",
+  "qualified": true,
+  "functionalQualified": true,
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "full12ExtensionProfileRetained": true,
+  "existingPersistentF11FailureRecoveryPassed": true,
+  "existingPersistentPhpAndTwigSaveUndoRedoPassed": true,
+  "formatterSaveProofs": [
+    {
+      "language": "php",
+      "formatterId": "junstyle.php-cs-fixer",
+      "originalText": "<?php\nclass  ProfileFormat{public function run( ):void{}}\n",
+      "formattedText": "<?php\n\nclass ProfileFormat\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "actualFormatDocumentCommand": true,
+      "savePersistedExactBuffer": true,
+      "undoRestoredExactSource": true,
+      "redoRestoredExactFormat": true,
+      "undoAndRedoKeptSavedDisk": true,
+      "dirtyStates": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "language": "twig",
+      "formatterId": "sohophp.twig-plus",
+      "originalText": "{%if true%}{{ value }}{%endif%}\n",
+      "formattedText": "{% if true %}\n  {{ value }}{% endif %}\n",
+      "actualFormatDocumentCommand": true,
+      "savePersistedExactBuffer": true,
+      "undoRestoredExactSource": true,
+      "redoRestoredExactFormat": true,
+      "undoAndRedoKeptSavedDisk": true,
+      "dirtyStates": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    }
+  ],
+  "addedPersistentFormatOnSavePassed": true,
+  "formatOnSaveProofs": [
+    {
+      "language": "php",
+      "uri": "file:///tmp/php-companion-packaged-0A3KSs/workspace/src/ProfileAutoSave.php",
+      "formatter": "junstyle.php-cs-fixer",
+      "raw": "<?php\nclass  ProfileAutoSave{public function run( ):void{}}\n\n",
+      "formatted": "<?php\n\nclass ProfileAutoSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "saveAutomaticallyFormatted": true,
+      "undoRestoredPreSaveBuffer": true,
+      "redoRestoredSavedBuffer": true,
+      "undoAndRedoKeptDisk": true
+    },
+    {
+      "language": "twig",
+      "uri": "file:///tmp/php-companion-packaged-0A3KSs/workspace/ProfileAutoSave.html.twig",
+      "formatter": "sohophp.twig-plus",
+      "raw": "{%if true%}{{ value }}{%endif%}\n\n",
+      "formatted": "{% if true %}\n  {{ value }}{% endif %}\n\n",
+      "saveAutomaticallyFormatted": true,
+      "undoRestoredPreSaveBuffer": true,
+      "redoRestoredSavedBuffer": true,
+      "undoAndRedoKeptDisk": true
+    }
+  ],
+  "failedFormatOnSaveRecoveryProofs": [
+    {
+      "language": "php",
+      "uri": "file:///tmp/php-companion-packaged-0A3KSs/workspace/src/ProfileFailedSave.php",
+      "raw": "<?php\nclass  ProfileFailedSave{public function run( ):void{}}\n// user edit before failed save\n",
+      "recovered": "<?php\n\nclass ProfileRecoveredSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "witness": {
+        "message": "SoPHP intentional format-on-save failure",
+        "config": "/tmp/php-companion-packaged-0A3KSs/workspace/.php-cs-fixer.dist.php",
+        "phpVersion": "8.5.9",
+        "phpBinary": "/opt/remi/php85/root/usr/bin/php"
+      },
+      "failedFormatterSaveKeptBufferAndVersion": true,
+      "userInputSavedExactly": true,
+      "recoveredSaveAutomaticallyFormatted": true
+    },
+    {
+      "language": "twig",
+      "uri": "file:///tmp/php-companion-packaged-0A3KSs/workspace/ProfileFailedSave.html.twig",
+      "raw": "<script>for (let i, i < 3; i++) {}</script>\n{# user edit before failed save #}\n",
+      "recovered": "{% if true %}\n  {{ recovered }}{% endif %}\n",
+      "failedFormatterSaveKeptBufferAndVersion": true,
+      "userInputSavedExactly": true,
+      "recoveredSaveAutomaticallyFormatted": true
+    }
+  ],
+  "twigServerRejectedAndRecovered": {
+    "uri": "file:///tmp/php-companion-packaged-0A3KSs/workspace/ProfileFailedSave.html.twig",
+    "outputLog": "/var/www/node/php-companion/.vscode-test/d1725-mixed-html-profile-evidence/host-logs/20261011T021538/window1/exthost/output_logging_20261011T021542/4-TwigPlus.log",
+    "logSha256": "785f05d884165e81ebd7cd62a0a1424c00c0f98d244fa721eea575805a9faeb9",
+    "failed": "[format 1781533-4] complete failed 32.6ms: TwigPlus did not modify this document: embedded JavaScript syntax error at 1:23. ',' expected. (file:///tmp/php-companion-packaged-0A3KSs/workspace/ProfileFailedSave.html.twig)",
+    "recoveryNotifications": [
+      "[format 1781533-5] complete completed 0.7ms (file:///tmp/php-companion-packaged-0A3KSs/workspace/ProfileFailedSave.html.twig)",
+      "[format 1781533-5] complete completed 1.3ms (file:///tmp/php-companion-packaged-0A3KSs/workspace/ProfileFailedSave.html.twig)"
+    ],
+    "failedRequestIds": [
+      "1781533-4"
+    ],
+    "recoveredRequestIds": [
+      "1781533-5"
+    ]
+  },
+  "languageOverridesRestored": true,
+  "addedExistingRealXdebugSuitePassed": true,
+  "addedPhpunitEditorTasksPassed": true,
+  "phpunitEditorTasksProof": {
+    "results": [
+      {
+        "scenario": "pass",
+        "exitCode": 0,
+        "processId": 1782157
+      },
+      {
+        "scenario": "assertion-failure",
+        "exitCode": 1,
+        "processId": 1782207
+      },
+      {
+        "scenario": "recovery",
+        "exitCode": 0,
+        "processId": 1782216
+      }
+    ],
+    "witnesses": [
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-0A3KSs/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 1782162
+      },
+      {
+        "value": 41,
+        "cwd": "/tmp/php-companion-packaged-0A3KSs/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 1782209
+      },
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-0A3KSs/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 1782218
+      }
+    ],
+    "argumentPathWithSpaces": true,
+    "realProcessExecution": true,
+    "expectedAssertionFailureExitCode": 1,
+    "recoveryPassed": true,
+    "workingDirectoryAndRuntimeMatched": true,
+    "taskAndProcessEndObserved": true,
+    "noActiveOwnedTasks": true
+  },
+  "taskAndRuntimeChildProcessesGone": true,
+  "testExplorerQualified": false,
+  "realXdebugProof": {
+    "platform": "linux",
+    "debuggerVersion": "1.40.1",
+    "breakpointLine": 3,
+    "stepLine": 4,
+    "before": "40",
+    "after": "42",
+    "scopeVariable": true,
+    "programResult": 42,
+    "workingDirectoryMatches": true,
+    "sessionTerminated": true,
+    "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+  },
+  "realDebugRuntime": {
+    "version": "8.5.9",
+    "binary": "/opt/remi/php85/root/usr/bin/php",
+    "xdebugVersion": "3.5.3",
+    "mode": [
+      "debug"
+    ],
+    "extensionDir": "/opt/remi/php85/root/usr/lib64/php/modules",
+    "ini": "/etc/opt/remi/php85/php.ini",
+    "scannedIni": "/etc/opt/remi/php85/php.d/10-opcache.ini,\n/etc/opt/remi/php85/php.d/15-xdebug.ini,\n/etc/opt/remi/php85/php.d/20-bz2.ini,\n/etc/opt/remi/php85/php.d/20-calendar.ini,\n/etc/opt/remi/php85/php.d/20-ctype.ini,\n/etc/opt/remi/php85/php.d/20-curl.ini,\n/etc/opt/remi/php85/php.d/20-dom.ini,\n/etc/opt/remi/php85/php.d/20-exif.ini,\n/etc/opt/remi/php85/php.d/20-fileinfo.ini,\n/etc/opt/remi/php85/php.d/20-ftp.ini,\n/etc/opt/remi/php85/php.d/20-gd.ini,\n/etc/opt/remi/php85/php.d/20-gettext.ini,\n/etc/opt/remi/php85/php.d/20-iconv.ini,\n/etc/opt/remi/php85/php.d/20-intl.ini,\n/etc/opt/remi/php85/php.d/20-mbstring.ini,\n/etc/opt/remi/php85/php.d/20-mysqlnd.ini,\n/etc/opt/remi/php85/php.d/20-pdo.ini,\n/etc/opt/remi/php85/php.d/20-pgsql.ini,\n/etc/opt/remi/php85/php.d/20-phar.ini,\n/etc/opt/remi/php85/php.d/20-posix.ini,\n/etc/opt/remi/php85/php.d/20-shmop.ini,\n/etc/opt/remi/php85/php.d/20-simplexml.ini,\n/etc/opt/remi/php85/php.d/20-sodium.ini,\n/etc/opt/remi/php85/php.d/20-sqlite3.ini,\n/etc/opt/remi/php85/php.d/20-sysvmsg.ini,\n/etc/opt/remi/php85/php.d/20-sysvsem.ini,\n/etc/opt/remi/php85/php.d/20-sysvshm.ini,\n/etc/opt/remi/php85/php.d/20-tokenizer.ini,\n/etc/opt/remi/php85/php.d/20-xml.ini,\n/etc/opt/remi/php85/php.d/20-xmlwriter.ini,\n/etc/opt/remi/php85/php.d/20-xsl.ini,\n/etc/opt/remi/php85/php.d/30-mcrypt.ini,\n/etc/opt/remi/php85/php.d/30-mysqli.ini,\n/etc/opt/remi/php85/php.d/30-pdo_mysql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_pgsql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_sqlite.ini,\n/etc/opt/remi/php85/php.d/30-xmlreader.ini,\n/etc/opt/remi/php85/php.d/30-zip.ini,\n/etc/opt/remi/php85/php.d/40-apcu.ini,\n/etc/opt/remi/php85/php.d/40-igbinary.ini,\n/etc/opt/remi/php85/php.d/40-imagick.ini,\n/etc/opt/remi/php85/php.d/40-msgpack.ini,\n/etc/opt/remi/php85/php.d/40-yaml.ini,\n/etc/opt/remi/php85/php.d/50-redis.ini,\n/etc/opt/remi/php85/php.d/99-xdebug-switch.ini\n",
+    "extensionSha256": "88990f04bc0dc35950121e43c74953a7fd3eb73c1e083a4f657a5b8e83d6f78b"
+  },
+  "realDebugProgramResult": {
+    "value": 42,
+    "cwd": "/tmp/php-companion-packaged-0A3KSs/workspace"
+  },
+  "debugBranchActuallyEnabled": true,
+  "allOwnedDebugFixtureProcessesGone": true,
+  "originalAuditToolFailurePreserved": true,
+  "twigCompletionNotificationsCountedByRequestId": true,
+  "failureWitness": {
+    "message": "SoPHP Profile intentional formatter configuration failure",
+    "config": "/tmp/php-companion-packaged-0A3KSs/workspace/.php-cs-fixer.dist.php",
+    "phpVersion": "8.5.9",
+    "phpBinary": "/opt/remi/php85/root/usr/bin/php",
+    "failureResult": "empty",
+    "edits": 0,
+    "bufferUnchanged": true,
+    "versionUnchanged": true,
+    "diskUnchanged": true,
+    "dirtyStateUnchanged": true
+  },
+  "intentionalFormatterExitCode": 1,
+  "intentionalFormatterExitCodes": [
+    1,
+    1
+  ],
+  "testSourceChangesOnly": true,
+  "normalRuntimeAssetsUnchanged": 8,
+  "original165MsFailurePreserved": true,
+  "precompileFrozenInputsChecked": 31470,
+  "feedbackMetrics": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 71,
+      "p95Ms": 87,
+      "maxMs": 190,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        932,
+        21,
+        9,
+        5,
+        11,
+        8
+      ],
+      "slowRounds": [],
+      "firstCompositeHoverCallMs": 56,
+      "firstRoundServerTimings": {
+        "candidateInvalidatedOpen": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "generationDiskRefresh": {
+          "count": 2,
+          "maxMs": 138,
+          "firstMs": [
+            32,
+            138
+          ]
+        },
+        "generationDiskRefreshEpochRetry": {
+          "count": 1,
+          "maxMs": 32,
+          "firstMs": [
+            32
+          ]
+        },
+        "diagnostics": {
+          "count": 2,
+          "maxMs": 32,
+          "firstMs": [
+            4,
+            32
+          ]
+        },
+        "documentChangeDiagnostics": {
+          "count": 1,
+          "maxMs": 33,
+          "firstMs": [
+            33
+          ]
+        },
+        "hoverWorkspace": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hoverFrameworkContext": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hoverMemberLookup": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hover": {
+          "count": 1,
+          "maxMs": 2,
+          "firstMs": [
+            2
+          ]
+        }
+      },
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 85,
+      "p95Ms": 111,
+      "maxMs": 534,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        220,
+        220,
+        220,
+        220,
+        220,
+        220,
+        220
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "compositeP95BudgetMs": 150,
+  "frozenInputsChecked": 31472,
+  "frozenLinksChecked": 185,
+  "inputsAndRepositoriesUnchanged": true,
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    1780036,
+    1780122,
+    1780124,
+    1780128,
+    1780997,
+    1781533,
+    1780618,
+    1780618,
+    1782157,
+    1782207,
+    1782216,
+    1782162,
+    1782209,
+    1782218
+  ],
+  "qualifiedCompiledTests": 95,
+  "previousQualifiedCompiledTestsRetained": 94,
+  "previousQualifiedCompiledTestsUnchanged": 93,
+  "copiedInputsChecked": 2482,
+  "originalHostLogDirectory": "/var/www/node/php-companion/.vscode-test/d1725-mixed-html-profile-evidence/host-logs/20261011T021538",
+  "currentHostLogsVerifiedByExactFixture": "/tmp/php-companion-packaged-0A3KSs/workspace",
+  "fullLspPassed": 1488,
+  "fullLspManifestSha256": "0c552ad429d7d919b431bd071761c532430cbf93347d3affb54e0c1f1398a9d9",
+  "fullLspArchiveFilesVerified": 18,
+  "fullC3EditorOriginalFailurePreserved": true,
+  "fullFourEditorWorkflowQualification": false,
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "recordedAtUtc": "2026-10-10T18:17:50.057402+00:00",
+  "audit": "/var/www/node/php-companion/.vscode-test/d1726-mixed-html-profile-terminal-audit.json",
+  "auditSha256": "c9874b21e530208e6a55a26eea3fc69e7fe7e2188b59453928aa69040712c90d",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1726-mixed-html-profile-evidence/manifest.json",
+  "manifestSha256": "c0a754d78183254c7d8ee0c5717808a8e1eb7f9e4ea06461506e4c45187d8bcc",
+  "archivedFiles": 84,
+  "numberedFixturesBefore": 163,
+  "numberedFixturesAfter": 164,
+  "familiesWithNumberedInput": 14,
+  "openMajorRoadmapItems": 26,
+  "testSourceChanged": true,
+  "productSourceChanged": false,
+  "runtimeChanged": false,
+  "packaged": false,
+  "thisProfileRunPerformanceBudgetPassed": true,
+  "performanceRootCauseProvenOrFixed": false,
+  "limitations": [
+    "Linux automated VS Code ProcessExecution Tasks only; not manual UI, native Windows, macOS or WSL Remote qualification",
+    "PHP8.5.9/PHPUnit11.5.56 only; full runtime and test runner matrix remains open",
+    "No Test Explorer provider or custom project Core test runner is qualified by these Tasks",
+    "Whole F12/P0-P9/F01-F14/C1-C4/R4 and original C3/Windows/createFile/165ms/long-session scope remain open"
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "auditedAtUtc": "2026-10-11T00:14:27.017346+00:00",
+  "terminalAuditQualified": true,
+  "matrixQualified": false,
+  "passedModes": 5,
+  "totalModes": 6,
+  "engineSha256": "8b42a3680a8af156a07b7636a3637537997e66f8e8b4fd0edac4015237ff45f9",
+  "uniqueFrozenInputsVerified": 66320,
+  "changedInputs": [],
+  "cases": [
+    {
+      "mode": "normal_reload",
+      "qualified": true,
+      "exitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 16091,
+          "definitionMs": 12,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 1931,
+          "definitionMs": 649,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "checkerFailure": [],
+      "projectFiles": 66079,
+      "toolInputs": 241,
+      "recordedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "early_reload",
+      "qualified": true,
+      "exitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 16168,
+          "definitionMs": 13,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 1967,
+          "definitionMs": 649,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "checkerFailure": [],
+      "projectFiles": 66079,
+      "toolInputs": 241,
+      "recordedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "early_reload_prewarm",
+      "qualified": true,
+      "exitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 16237,
+          "definitionMs": 13,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 1407,
+          "definitionMs": 19,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "checkerFailure": [],
+      "projectFiles": 66079,
+      "toolInputs": 241,
+      "recordedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "source_reload",
+      "qualified": true,
+      "exitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 5977,
+          "definitionMs": 25,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 6911,
+          "definitionMs": 39,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "checkerFailure": [],
+      "projectFiles": 66079,
+      "toolInputs": 241,
+      "recordedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "source_selection_reload",
+      "qualified": false,
+      "exitCode": 1,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 1172,
+          "definitionMs": 38,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "checkerFailure": [
+        "Error: Selected References did not reuse its prepared semantic result during cold"
+      ],
+      "projectFiles": 66079,
+      "toolInputs": 241,
+      "recordedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "source_prime_immediate",
+      "qualified": true,
+      "exitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 6269,
+          "definitionMs": 25,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 15933,
+          "definitionMs": 23,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+          "fourInheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "checkerFailure": [],
+      "projectFiles": 66079,
+      "toolInputs": 241,
+      "recordedProcessesGone": true,
+      "ownedCacheRemoved": true
+    }
+  ],
+  "originalThresholdsAndCheckerUnchanged": true,
+  "full12ArchiveFilesVerified": 90,
+  "fullLspPassed": 1514,
+  "fullFourEditorWorkflowQualification": true,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "scope": "Original strict six-mode reference checker in its original benchmark test-RPC mode against the same read-only fixed real project; single run per mode, not P95, production mode, editor, Remote or full F13/P9/R4 qualification.",
+  "archiveFiles": 349,
+  "fixtureCount": 171,
+  "fixtureFamilies": 14,
+  "roadmapOpenItems": 26,
+  "referencePositionHashVerifiedForAll11Phases": true,
+  "historicalFailuresPreserved": true
+}

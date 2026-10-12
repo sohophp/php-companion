@@ -14,7 +14,8 @@ import {
 export interface SemanticProviderContext { rootUri: string; rootPath: string; generation: string; phpVersion: string; environment?: string;
   documents?: readonly SemanticProviderDocument[]; projectTypes?: readonly SemanticProviderProjectType[];
   containerServices?: readonly ExternalContainerServiceFact[]; }
-export type SemanticProviderFailureCode = 'spawn' | 'timeout' | 'output-limit' | 'exit' | 'protocol' | 'provider';
+export interface SemanticProviderRunOptions { signal?: AbortSignal; }
+export type SemanticProviderFailureCode = 'cancelled' | 'spawn' | 'timeout' | 'output-limit' | 'exit' | 'protocol' | 'provider';
 export interface SemanticProviderContainerInputEvidence {
   uris: readonly string[];
   configurationUris: readonly string[];
@@ -24,7 +25,8 @@ export type SemanticProviderRunResult = { ok: true; contribution: SemanticFactsC
   | { ok: false; code: SemanticProviderFailureCode; message: string;
     containerInputEvidence?: SemanticProviderContainerInputEvidence };
 
-export async function runSemanticProvider(descriptor: SemanticProviderDescriptor, context: SemanticProviderContext): Promise<SemanticProviderRunResult> {
+export async function runSemanticProvider(descriptor: SemanticProviderDescriptor, context: SemanticProviderContext,
+  options: SemanticProviderRunOptions = {}): Promise<SemanticProviderRunResult> {
   const request: SemanticProviderRequest = {
     protocolVersion: SEMANTIC_PROVIDER_PROTOCOL_VERSION,
     id: `${descriptor.providerId}:${context.generation}`,
@@ -40,23 +42,46 @@ export async function runSemanticProvider(descriptor: SemanticProviderDescriptor
           : !validWith({ containerServices: context.containerServices }) ? 'container services' : 'combined input';
     return { ok: false, code: 'protocol', message: `Invalid semantic-provider request: ${invalidPart}.` };
   }
+  if (options.signal?.aborted) return { ok: false, code: 'cancelled', message: 'Provider was cancelled.' };
   const timeoutMs = descriptor.timeoutMs ?? 5_000;
   const outputLimit = descriptor.maxOutputBytes ?? 4 * 1024 * 1024;
   return new Promise((resolveRun) => {
     let settled = false; let stdoutBytes = 0; let stderrBytes = 0;
+    let stopping: Extract<SemanticProviderRunResult, { ok: false }> | undefined;
+    let forceTimer: ReturnType<typeof setTimeout> | undefined;
     const stdout: Buffer[] = []; const stderr: Buffer[] = [];
-    const finish = (result: SemanticProviderRunResult): void => { if (settled) return; settled = true; clearTimeout(timer); resolveRun(result); };
+    const finish = (result: SemanticProviderRunResult): void => {
+      if (settled) return;
+      settled = true; clearTimeout(timer); clearTimeout(forceTimer);
+      options.signal?.removeEventListener('abort', abort);
+      resolveRun(result);
+    };
     const child = spawn(descriptor.command, [...(descriptor.args ?? [])], { cwd: context.rootPath, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
-    const timer = setTimeout(() => { child.kill(); finish({ ok: false, code: 'timeout', message: `Provider exceeded ${timeoutMs} ms.` }); }, timeoutMs);
-    child.on('error', (error) => finish({ ok: false, code: 'spawn', message: error.message }));
+    const stop = (failure: Extract<SemanticProviderRunResult, { ok: false }>): void => {
+      if (settled || stopping) return;
+      stopping = failure; clearTimeout(timer);
+      child.kill('SIGTERM');
+      forceTimer = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      }, 25);
+    };
+    const abort = (): void => stop({ ok: false, code: 'cancelled', message: 'Provider was cancelled.' });
+    const timer = setTimeout(() => stop({ ok: false, code: 'timeout', message: `Provider exceeded ${timeoutMs} ms.` }), timeoutMs);
+    child.on('error', (error) => {
+      if (child.pid === undefined) finish({ ok: false, code: 'spawn', message: error.message });
+      else stop({ ok: false, code: 'spawn', message: error.message });
+    });
+    child.stdin.on('error', (error: Error) => stop({ ok: false, code: 'spawn', message: error.message }));
     child.stdout.on('data', (chunk: Buffer) => {
+      if (settled || stopping) return;
       stdoutBytes += chunk.length;
-      if (stdoutBytes > outputLimit) { child.kill(); finish({ ok: false, code: 'output-limit', message: `Provider stdout exceeded ${outputLimit} bytes.` }); }
+      if (stdoutBytes > outputLimit) stop({ ok: false, code: 'output-limit', message: `Provider stdout exceeded ${outputLimit} bytes.` });
       else stdout.push(chunk);
     });
     child.stderr.on('data', (chunk: Buffer) => { if (stderrBytes < 8192) { const kept = chunk.subarray(0, 8192 - stderrBytes); stderr.push(kept); stderrBytes += kept.length; } });
     child.on('close', (code, signal) => {
       if (settled) return;
+      if (stopping) return finish(stopping);
       const detail = Buffer.concat(stderr).toString('utf8').trim();
       if (code !== 0) return finish({ ok: false, code: 'exit', message: `Provider exited with ${code ?? signal ?? 'unknown'}.${detail ? ` ${detail}` : ''}` });
       let response: unknown;
@@ -83,6 +108,8 @@ export async function runSemanticProvider(descriptor: SemanticProviderDescriptor
       }
       finish({ ok: true, contribution });
     });
-    child.stdin.end(`${JSON.stringify(request)}\n`);
+    options.signal?.addEventListener('abort', abort, { once: true });
+    if (options.signal?.aborted) abort();
+    if (!stopping) child.stdin.end(`${JSON.stringify(request)}\n`);
   });
 }

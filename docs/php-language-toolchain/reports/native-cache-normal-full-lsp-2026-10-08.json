@@ -1,0 +1,840 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "completed",
+  "decision": "normal-native-complete-original-lsp-passed",
+  "normalFullLspQualified": true,
+  "normalSourceAdopted": true,
+  "fullObjectiveComplete": false,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "profileUpdated": false,
+  "published": false,
+  "audit": {
+    "status": "passed",
+    "qualified": true,
+    "auditedAtUtc": "2026-10-07T22:40:52.067318+00:00",
+    "run": {
+      "status": "exited",
+      "parentPid": 1153740,
+      "startedAtUtc": "2026-10-07T22:05:53.558465+00:00",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d480-normal-native-full-lsp-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d480-normal-native-full-lsp-input.json",
+      "normalSourceAdopted": true,
+      "fullObjectiveComplete": false,
+      "childPid": 1154266,
+      "exitCode": 0,
+      "durationSeconds": 2082.3549210779966,
+      "finishedAtUtc": "2026-10-07T22:40:35.913608+00:00",
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "repositoryChanges": [],
+      "logSha256": "12b6be2672bb0949cf2b5401b3c6c0dfd0a7581bd9627e80151907e511e1f17c",
+      "result": {
+        "success": true,
+        "numTotalTests": 1321,
+        "numPassedTests": 1321,
+        "numFailedTests": 0,
+        "numPendingTests": 0,
+        "numTodoTests": 0
+      },
+      "caseMultiplicityPreserved": true,
+      "missingCases": [],
+      "extraCases": [],
+      "actualFiles": 99,
+      "resultSha256": "5bf2187589a1fead35943d2c9c539cd40b63670935df6ca9c4c5e4ded86fcd58",
+      "evidenceValid": true,
+      "qualified": true
+    },
+    "result": {
+      "success": true,
+      "numTotalTests": 1321,
+      "numPassedTests": 1321,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "files": 99,
+    "expectedCases": 1321,
+    "actualCases": 1321,
+    "caseMultiplicityPreserved": true,
+    "missingCases": [],
+    "extraCases": [],
+    "failuresOrSkipped": [],
+    "inputCount": 18687,
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "runtimeChanges": [],
+    "warnings": [],
+    "timings": [
+      {
+        "category": "PHP_COMPANION_TEST_OUTPUT_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-timings/output-completion-onDemand.json",
+        "sha256": "1d089fd7abc0376d3cae6bf6f2b2d5b4a6591e25a3117a62e9f79b3d8126d802",
+        "data": {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "firstQueryMs": 217.57356599999912,
+          "warmSamples": 20,
+          "p95Ms": 9.11990700000024,
+          "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_OUTPUT_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-timings/output-completion-progressive.json",
+        "sha256": "f6e426603d085a5e68cb6c511cad625d6b61a28964bec80247151a6951ae9250",
+        "data": {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "firstQueryMs": 220.63141499999983,
+          "warmSamples": 20,
+          "p95Ms": 19.75882900000215,
+          "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-false.json",
+        "sha256": "e1084bca19498c3fbd9333ecec93890bcdbd59c5d9ac2db812f2b5326a7fabdb",
+        "data": {
+          "indexingMode": "onDemand",
+          "waitingCompletion": false,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 13.035294999999678
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+        "sha256": "777c77802a936f8e1020da168c42cd9b7777aa275d970e2cdd20554075323d6c",
+        "data": {
+          "indexingMode": "onDemand",
+          "waitingCompletion": true,
+          "gapMs": 5,
+          "roots": 5,
+          "elapsedMs": 14.530651000000944
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-true.json",
+        "sha256": "02c9e6c87b4d44f3fdea19a1eac7da173d4b87f94987e6dd35a48bc7c169113d",
+        "data": {
+          "indexingMode": "onDemand",
+          "waitingCompletion": true,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 17.457776000002923
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-false.json",
+        "sha256": "613474c905085457fcb6373df303856a182f5b68a38dcf1329a1a9a36ece03ad",
+        "data": {
+          "indexingMode": "progressive",
+          "waitingCompletion": false,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 12.238696999998865
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+        "sha256": "05eb69f2e6837bb7fb2d68136785543838c5e608e826432391480c9b52718abd",
+        "data": {
+          "indexingMode": "progressive",
+          "waitingCompletion": true,
+          "gapMs": 5,
+          "roots": 5,
+          "elapsedMs": 49.79809400000522
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-true.json",
+        "sha256": "d0112b7647d4b988617df05e0e92f6f5e1e91bea4dd5bed5fecb52a5504ab723",
+        "data": {
+          "indexingMode": "progressive",
+          "waitingCompletion": true,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 10.358694000002288
+        }
+      }
+    ],
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-false.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-false.json",
+      "sha256": "e1084bca19498c3fbd9333ecec93890bcdbd59c5d9ac2db812f2b5326a7fabdb"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+      "sha256": "777c77802a936f8e1020da168c42cd9b7777aa275d970e2cdd20554075323d6c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-true.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/onDemand-true.json",
+      "sha256": "02c9e6c87b4d44f3fdea19a1eac7da173d4b87f94987e6dd35a48bc7c169113d"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-false.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-false.json",
+      "sha256": "613474c905085457fcb6373df303856a182f5b68a38dcf1329a1a9a36ece03ad"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+      "sha256": "05eb69f2e6837bb7fb2d68136785543838c5e608e826432391480c9b52718abd"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-true.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-full-shutdown-timings/progressive-true.json",
+      "sha256": "d0112b7647d4b988617df05e0e92f6f5e1e91bea4dd5bed5fecb52a5504ab723"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-timings/output-completion-onDemand.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-timings/output-completion-onDemand.json",
+      "sha256": "1d089fd7abc0376d3cae6bf6f2b2d5b4a6591e25a3117a62e9f79b3d8126d802"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/timings/sophp-d480-normal-native-full-lsp-timings/output-completion-progressive.json",
+      "originalPath": "/tmp/sophp-d480-normal-native-full-lsp-timings/output-completion-progressive.json",
+      "sha256": "f6e426603d085a5e68cb6c511cad625d6b61a28964bec80247151a6951ae9250"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d478-normal-native-runtime-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d478-normal-native-runtime-audit.json",
+      "sha256": "64e14ee497666348741b80dc956d6081abe080c876e89f08d4a186e447bb1319"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d479-normal-adoption-final-validation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d479-normal-adoption-final-validation.json",
+      "sha256": "418da13a61049dfdb1ec0cd984ddb5da858d5edcd0e4095ab589811ff107e581"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d480-normal-native-full-lsp-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d480-normal-native-full-lsp-input.json",
+      "sha256": "ec9311af80a5be894237b5555d95098a20f26e683e9cb9ab36c6d7e7d08e7da9"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d480-normal-native-full-lsp-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d480-normal-native-full-lsp-result.json",
+      "sha256": "5bf2187589a1fead35943d2c9c539cd40b63670935df6ca9c4c5e4ded86fcd58"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d480-normal-native-full-lsp-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d480-normal-native-full-lsp-run.json",
+      "sha256": "6d428ab12c0d48c7d85f370d7c39245ad23ac30d93f95d1d2df0063c97c200d6"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d480-normal-native-full-lsp.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d480-normal-native-full-lsp.log",
+      "sha256": "12b6be2672bb0949cf2b5401b3c6c0dfd0a7581bd9627e80151907e511e1f17c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d480-run-normal-full-lsp.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d480-run-normal-full-lsp.py",
+      "sha256": "c3d86575db69c9346937b88d3fada2f68437e195d5d9a7d8ec8baec927f00f8c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d481-normal-full-lsp-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d481-normal-full-lsp-audit.json",
+      "sha256": "7efc76ae5c68725061d17c6d7f86bce45f5b6a4e67fe348172ad5fc9a785d580"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/d481-record-normal-full-lsp.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d481-record-normal-full-lsp.py",
+      "sha256": "020fc3e459c05381f0f133784e441c0bba115a3fc71b8b1da93dd0ae64f9d748"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/package.json",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/package.json",
+      "sha256": "73e62616459b15885ebc1d3703f749db6c1e876a2f7cea3dd2b26b30dd97ca66"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+      "sha256": "aca0f9af0b21f1cb68e8cdad3100c5489be84863ae01478291d0b3cb806ba5e7"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/analysis.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/analysis.test.ts",
+      "sha256": "9d1daa301814eaebf0bc8f9c386be47b1e5e4e2a955c996efa9f688e04c9c6e0"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-column-return-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-column-return-stdio.test.ts",
+      "sha256": "5f16e40eb970174d57a2cd06fb534366235e111ac509517266bd4c91fdd5b304"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-combine-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-combine-stdio.test.ts",
+      "sha256": "72904694991ff8efe60c3be66633e1d2436c8ee1a751c5c17182571378b6c8e3"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-count-values-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-count-values-stdio.test.ts",
+      "sha256": "131d54e6f3d322fec56f9e2ee299a9eb4eea449321712237ab688d7004c9b542"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-fill-keys-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-fill-keys-stdio.test.ts",
+      "sha256": "528ed0790bf2e26c1d72a17952ab2f09e40c6e981b25d1c254375e96349c6a2f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-flip-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-flip-stdio.test.ts",
+      "sha256": "da66507a32918c87b02ac79d620c060a3beec5f648950d8bfb40c5b3f2587d39"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-inline-doc-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-inline-doc-stdio.test.ts",
+      "sha256": "50712b0004be279665843aaeb98ceaba9664adfd1d2a68ddd6547e8c5b902c7a"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-key-preservation-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-key-preservation-stdio.test.ts",
+      "sha256": "cf5d3baad06631dc246c5b3c31ae8ed51a9a46c89c22731e6b7229de1e9f982f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts",
+      "sha256": "ed812d8c36a99f07f8d88ed9887ac86b7206323e098cce0eef65429f4d0baff6"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+      "sha256": "7a5070ec9e6b1202ed1f5baa9fbf08136243915a69472947f2c492002df6288f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/assignment-target-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/assignment-target-completion-stdio.test.ts",
+      "sha256": "15c9473fd2e7cc7fccadb093154e6a8e0e8b42b0cd2fc37528acf6658c8339e0"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/cacheFixtureEnvelope.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/cacheFixtureEnvelope.ts",
+      "sha256": "c0b2c9b59360bf645300592fc0dd2944a90ce2bf73ebb01ffaceef52d05fbda3"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/call-trivia-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/call-trivia-stdio.test.ts",
+      "sha256": "59dfee6235e6a3367ef5b341010168216ad3e7dda2f5eb651a2e3adb1fa8ff09"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/callable-facts-cache.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/callable-facts-cache.test.ts",
+      "sha256": "0c8dbcaa6064ce04f10f9a10f8f04d3c9558f372d67045942369a6e46202c91b"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/candidate-worker-project-facts.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/candidate-worker-project-facts.test.ts",
+      "sha256": "9dd125fbd8140776ceec32b7150f32371f153d2e2c6ed3fa0f2245e16b9903b4"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/candidate-workers.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/candidate-workers.test.ts",
+      "sha256": "f75e0eb5bb2ed9184b539c7ab0d0abedf065eab7897a31c17f0f59b58edae9db"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "cb5159d118eafadefec8f4b2a7f9e8550b6ce93350e5bc7abe8f61861c825ca6"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/captured-array-values-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/captured-array-values-stdio.test.ts",
+      "sha256": "adfdda24cdf185ad1fe4eed92e0b07cd44184687488ac40211edaeb2cbe98138"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/class-relative-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/class-relative-construction-stdio.test.ts",
+      "sha256": "2305fca03088c079bc87cd2cbf7d730931e26128301659ff49b9a04f9ec348be"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/code-action-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/code-action-messages.test.ts",
+      "sha256": "df6cd92d886b00925d0a234c723df760f1b8403fae0f671a3353d4729f16b002"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+      "sha256": "25929a0ba5a81a103f74efb443d156905a78fd17c09b55624cbe77c51d4033e8"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/completion-call-trivia.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/completion-call-trivia.test.ts",
+      "sha256": "90feacd0e918e39a00d4485c5b246faf5ab9efd284b6bd92b9b77a9e3fa7b4f2"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+      "sha256": "b7b9945f24de60cd0ea28fb3153f8a968119fa2982e8d9467b0bdbd13d424e3b"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/construction-trivia-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/construction-trivia-stdio.test.ts",
+      "sha256": "ec323c9bedb972ae3af866a1edf108552db61bd6192490568537540341ba28df"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+      "sha256": "775afae31682a4cd489212798cec2ae94522af7cef28a0cef6d051d09d486fe9"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/controller-context-progressive-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/controller-context-progressive-stdio.test.ts",
+      "sha256": "63b586d14848db391d8753b417ff79be845d1b25f0e0874544cda1752b9cb84d"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/csv-fields-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/csv-fields-stdio.test.ts",
+      "sha256": "788fd3f0bdec1c66a75c6fc3b867409527dfa6c39f9c63be70b76e6ed294b7e7"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+      "sha256": "3a0144c4fae6b5bcf7277ce964dd0b50c51df83b6dc8d5dbef26e62ec0d06abe"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/diagnostic-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/diagnostic-messages.test.ts",
+      "sha256": "08a741195d3d5026a0acf0cb6b5d41837dcf3e47fcd73aa144bc6782dc0f4b4c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/direct-function-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/direct-function-queries-stdio.test.ts",
+      "sha256": "3a25b03b087bcc2372b791a69fda4ceb5111684c855500cc462454e04904b4a3"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+      "sha256": "739fd541c58d5d1ba0aba80bdf3eeb0f49bfb35e212f718b6bd920ad3d8f5042"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/documented-method-overloads-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/documented-method-overloads-stdio.test.ts",
+      "sha256": "1821b60f409e802ffa113d86df4cc1364703435b8ffe7a90ba372f223d5da2c2"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+      "sha256": "82da92e5964e1a6d2791b980441064cc36563fea438f981a66ae9ff0e184c33c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/flow-value-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/flow-value-completion-stdio.test.ts",
+      "sha256": "2fccdc415b7db8d4948a50b523640f95da974558937b04304846c26762363847"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/getrusage-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/getrusage-stdio.test.ts",
+      "sha256": "c4ef67b452ee4dcae9bdbdd8704c3369a8edf5fd0fa209b98966033b7fe7c24f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/headers-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/headers-stdio.test.ts",
+      "sha256": "685ea75c135b155dcb415c4f6c5591176c09589ba561201f5c377e17dd8a6b93"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/highlight-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/highlight-stdio.test.ts",
+      "sha256": "7b90cd9fde52b1ac4284caf00e85b2f542a56d2d4d3088228ce42e149fac2f5f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/image-size-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/image-size-stdio.test.ts",
+      "sha256": "e877b7ff04044a9ba14570bd7fa5f8fca7fa591bf4cd2d40a99c5853a1192e42"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/implicit-nullable-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/implicit-nullable-stdio.test.ts",
+      "sha256": "5aec1aae976f34d640ebcd97be9cd7663d5bb87986a4667d20c84a0b6eb2f21f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/inheritance-list-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/inheritance-list-stdio.test.ts",
+      "sha256": "7ac9f97568b8aff4ca748aa041db65e6b1eea61fac0f946d68d542f4159b7305"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/inheritance-trivia-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/inheritance-trivia-stdio.test.ts",
+      "sha256": "245b229c26cfff2918e9520002b8fbe2c06baee714152a330c72f8e1d81d4a38"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/inheritance-validity-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/inheritance-validity-stdio.test.ts",
+      "sha256": "9fa9025c6fc6781383ee2dbe362fe3fb66d19e8edfa1c0df41f07c9098f66be0"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+      "sha256": "7609ca598e4ac61e3d898a5c267a6b493ae55f6a34b01f14ab7a0763938811ab"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/inherited-final-magic-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/inherited-final-magic-stdio.test.ts",
+      "sha256": "debae89b8f85af5c12e837ebe524bd9c5a18ca76e2376d91e05960b52b047991"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/iterator-apply-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/iterator-apply-stdio.test.ts",
+      "sha256": "fa24c4b1d80a6141909637d0f039d12cbe8de2dc85e70ae541b85e4bec292834"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/large-candidate-ranking-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/large-candidate-ranking-stdio.test.ts",
+      "sha256": "59b661effb60053a0be3a4c3af876cee2cf6324657d5f7d2348c26a446c6b63f"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/large-local-ranking-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/large-local-ranking-stdio.test.ts",
+      "sha256": "a96f26e41880880fa55c5bd7c7f80e90f78852e1a7a295024fcf6662b99f87c0"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/legacy-constructor-rename-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/legacy-constructor-rename-stdio.test.ts",
+      "sha256": "da643376fe0540cf539137629a36b04493840088cc27b7216fa58a0316bd3392"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+      "sha256": "f96f1ac7fc702135ce865fedded8dab8186eec0ed24a6574e3a8093004a273c3"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/magic-declaration-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/magic-declaration-stdio.test.ts",
+      "sha256": "0fdcd590cffc4d4f65a2126ace2a76757e0f0b85602c22f5438b2a1d923c5b26"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/magic-modifier-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/magic-modifier-stdio.test.ts",
+      "sha256": "8e8bf75c0922243554b56ca1cd4636dfb430a4ecf2de1e69682e9b139f362cc3"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/match-condition-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/match-condition-completion-stdio.test.ts",
+      "sha256": "74a8df600b4364ee3478333366a1c3b073ae0153a8d5099e3e463ded7b3c083d"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/native-array-template-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/native-array-template-stdio.test.ts",
+      "sha256": "7c23695f572f426fb193cb97e680f307a5a7b49057cdb5641645e580afbddf1e"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/native-boundary-diagnostics-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/native-boundary-diagnostics-stdio.test.ts",
+      "sha256": "6f2e18c1179afc54bd18959f91d21bb466a074d92e361aedf14574a95824c625"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/native-clone-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/native-clone-stdio.test.ts",
+      "sha256": "df53c8519bfe16e508509c1c9cdf17a25e10d28968628425e33bd81a6c441ed4"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/native-pipe-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/native-pipe-stdio.test.ts",
+      "sha256": "e1346b20652143054550e0e03a5ee9dc3dd78f27fd22aa92a4c440e3c77b17f5"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/output-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/output-messages.test.ts",
+      "sha256": "63d9f95d6e97f5744b2796fc2a0e5d366fbbd57b61349d14a0dbed508be8d1d9"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/php-runtime-syntax.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/php-runtime-syntax.test.ts",
+      "sha256": "bd0f5a12ea85c40264d290807d67b7eea8d62a744142df8c5df97261367fa64c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+      "sha256": "596ad8e6ea08d8fa78c42412f594f355f483ebab153e6c5ea417589bf4d31414"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-native-conditional-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-conditional-stdio.test.ts",
+      "sha256": "e496dae26027f2ef7ef39ff86c6f3c1c419c3296bcbcdb981cd002dc5e6d309a"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-native-default-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-default-stdio.test.ts",
+      "sha256": "9d0ffa70ff06cddef2e7ee68b55125a8ea62adb11a02713807ee0ad8c92e696e"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-native-numeric-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-native-numeric-stdio.test.ts",
+      "sha256": "43420be37a4e4e9a1752d054bce82aa190da2e7c393be153eaebf3cd3d263141"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "sha256": "1d0965805fbc3f14f7724555da5684f8a1d9648400971d17dcfcea0adbfe9e44"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+      "sha256": "faf64024a896fd56ee7e4ccaf989a514c6b4ec72d76c59b0799e3f6369b01e12"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+      "sha256": "ed80814e408c082d9b9a3432df16c0b0cbe4d56b5e635629d3318d17b705010c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/portableCandidatePaths.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/portableCandidatePaths.test.ts",
+      "sha256": "b4bf51b24492e2b9fdb04a03468abc87f683fc1c134e5595d78423fcdf6bbc24"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/progress-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/progress-messages.test.ts",
+      "sha256": "8f2142942dee76e7ca2f038f2f2fe37c83c022f54ee09b1390099cd5929f6ecc"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/project-facts.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/project-facts.test.ts",
+      "sha256": "596edd1265dcdb6cb0542939a9566904ef0336ad0016e4e0d1c453057be5bac3"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/project-index.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/project-index.test.ts",
+      "sha256": "9ada31138cf27d1883acb2f71190feb83f84cdb6d0914e8d8f11cbeb2f092c64"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/projectless-version-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/projectless-version-stdio.test.ts",
+      "sha256": "be65480e202dd3a3c511e4f75c1ba193f2a690ae4c7b3a77197099b669f30aaf"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/property-case-rename-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/property-case-rename-stdio.test.ts",
+      "sha256": "e8c3da52fe01263610e600d62b322b4e1fdf40ea7ae8414abd6af098d4e3693a"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/property-hook-keywords-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/property-hook-keywords-stdio.test.ts",
+      "sha256": "d5bce59d3064623175f6f816517096b200b53d9ddfdba28afcf93eb9acfe7c13"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/protocol-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/protocol-messages.test.ts",
+      "sha256": "fb3906a986891f821752ca8544e7420fa4e6ade8e9b4d060990164d7006df05b"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/readonly-anonymous-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/readonly-anonymous-stdio.test.ts",
+      "sha256": "440e878799e5626c405fa8177149c9a6f6cf1ccea1e066980753709406aa6d58"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/readonly-anonymous.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/readonly-anonymous.test.ts",
+      "sha256": "a81a5961e56be100f3079a948a2cc8631769e9c62eab419be9108286cd813348"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reassigned-parameter-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reassigned-parameter-completion-stdio.test.ts",
+      "sha256": "72e2f3504363c1ddeed7e5bd17e327bf66359d92a3ac3ed160e5a9d7351ceeac"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reference-candidate-evidence.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-candidate-evidence.test.ts",
+      "sha256": "64dc4e0b340f34aaaa478c085b13dd8354ea941fe34f8734043abe94b72ec893"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reference-dependency-evidence.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-dependency-evidence.test.ts",
+      "sha256": "28c8545d4e8d403f92157506c156b8cd5ea580082ebb459954bac6985f24f38d"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reference-engine-identity.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-engine-identity.test.ts",
+      "sha256": "6e15ebaf9bb1e779b7cd63ac6f52b1afccfdbd70638dccb10f1bc707bd023f93"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reference-input-snapshot.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-input-snapshot.test.ts",
+      "sha256": "a071f5ac082d2c4e54e8595a6e2376215639a4128ddf6c8b333eb42005b1f87a"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "sha256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reference-result-store.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-result-store.test.ts",
+      "sha256": "8cac29674d91db0cabb378e7f5fc3f33734dcd94e1f2b37662ba5d8b3db3d0bd"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/reflection-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reflection-construction-stdio.test.ts",
+      "sha256": "205f588c1931c71df011fa31f2d6067667ba2ed084ad2a61619843ff9ddeedcf"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/root-import-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/root-import-stdio.test.ts",
+      "sha256": "7338af0c5fd1735816c678ff92f8af5c7393f0463c0824b47cd2a8a2bca3e828"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "sha256": "6220d237973175fb99c1296e46ed019d196072e9026d503f7471702605b5e9f0"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/sourceStatBatches.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/sourceStatBatches.test.ts",
+      "sha256": "f0904a4a382f074ba28e6fe758481e1fa63eaaf5081b5466d6f66d45d301b9f6"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/static-property-value-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/static-property-value-completion-stdio.test.ts",
+      "sha256": "0984a860b0169e4f6250ecc0f094a3ced6e4767f2255328107513ea3428a7aaf"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "sha256": "167fc00c53ce6ac5922ba425b72dbf9e1c8c5d391573ea7c32003f0ef7e39d07"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/string-replacement-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/string-replacement-stdio.test.ts",
+      "sha256": "36cf510eed9ba209ab3547f1b49975f138c74dd6acb73536a5ad6212ecc614c5"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+      "sha256": "8e05726b6b5073b607b3919d6d117bbcc3c97baa6b924ff0ca7d75d14c9bd57d"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/switch-condition-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/switch-condition-completion-stdio.test.ts",
+      "sha256": "924929bf28b110ff235ec9c7fd0a4c568f66ee38f1c7cda503c7171fc3273bb2"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/trait-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/trait-construction-stdio.test.ts",
+      "sha256": "8d2007c23756f221beb8b236cfb6d27c102c1aea598ea60e42d94c1b7e1edfec"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+      "sha256": "d49d93d37abf3dedd69de9ea83f85068d9fc501db365ca47dda6beee21699a0e"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "sha256": "a65d607de8f2a91825793a9c72480575a6779844269387337c52c2670f60b798"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+      "sha256": "0d69052fb90c7138e72675121880f8acb108ecd3d9a563a658847ab688f3972b"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/trait-use-generics-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/trait-use-generics-stdio.test.ts",
+      "sha256": "598042d0190c9e6b1bec6d64c233bfa2d8cce7bfc48467b4fc60f6aca0841dd2"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+      "sha256": "2f6c8107863f472c183561a1014e2918e3992908e25a69b5d3b672591a72f315"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/variable-value-hover-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/variable-value-hover-stdio.test.ts",
+      "sha256": "3d4b007ce4cfff1cbdb8fab6f3e09be793b614f802094aed3c4d7bccb18c8e74"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/test/xmlreader-invocation-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/xmlreader-invocation-stdio.test.ts",
+      "sha256": "f936a1e9de20f92b3a18a34c19920850d1581631129ca0c846114a25e6430f7c"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/tsconfig.json",
+      "sha256": "92439242903c65b4412cb66e2dd644c32698b3bbc5ce47c9201fd64038684306"
+    },
+    {
+      "path": ".vscode-test/d481-normal-full-lsp-evidence/normal-inputs/packages/language-server/vitest.config.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/vitest.config.ts",
+      "sha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad"
+    }
+  ],
+  "artifactCount": 120,
+  "priorReports": [
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-source-runtime-integration-2026-10-08.json",
+      "sha256": "fac2bae3ce2c3ec935fc053afc368437004e697dcf842b345e1ad791e921a08f",
+      "artifactCount": 237
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-full-lsp-2026-10-08.json",
+      "sha256": "c4867fa07e1d9943028ef96af61933a6c77f1eb01d4660d1183d5c2e52ee86ba",
+      "artifactCount": 235
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-linux-hosts-2026-10-08.json",
+      "sha256": "69692fb5fc9475b4b6784bf40d82739004ffb573b6756b08ebad48eea4e38ecb",
+      "artifactCount": 1565
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-five-round-scale-2026-10-08.json",
+      "sha256": "68fd66a8016306e773f3d5fd2fbd979cfc16dc93c1f1fe87556b3e48525ad7c3",
+      "artifactCount": 81
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-ordinary-editing-2026-10-08.json",
+      "sha256": "d92412e41e0bde24ba701d3d5c0e9a0df9adab84f04b61b3b06795eabc61478a",
+      "artifactCount": 20
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-server-observer-failure-2026-10-08.json",
+      "sha256": "979480edc0c2f1799ddaaf0378e5c3294c5cff8a6d008382fe8c70614d254bc7",
+      "artifactCount": 77
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-production-server-scale-2026-10-08.json",
+      "sha256": "9483a03c3cd1d96a531a7e2d61f76b3bc47fa560239459e6e8e5d2a8524c6e12",
+      "artifactCount": 233
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-editing-recovery-2026-10-08.json",
+      "sha256": "e5269fd68d9887db0cf70170179a150dff4cd414e22f3d7c93076e587c21b5a9",
+      "artifactCount": 28
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-normal-source-adoption-2026-10-08.json",
+      "sha256": "79c16206ce691ea8d8eab08fd81c124a1e93c51c3fa031f6dee467366e10e87d",
+      "artifactCount": 108
+    }
+  ],
+  "nextStep": "Run the original full normal Linux C1/C2/C3 editor workflows and current performance controls.",
+  "limitations": [
+    "Current normal Linux package/server combination only. Nine CLIs parameterize the original syntax test, not nine full LSP runs.",
+    "Original full suite configuration, 20s default timeout, concurrency and final performance-stage order preserved. All 99 test files matched the qualified private copy before execution.",
+    "Frozen dependency evidence contains direct/scoped links, metadata, actual Vitest entry/package and the captured real files; it is not a claim of every transitive dependency being enumerated.",
+    "Small output/shutdown measurements do not substitute for ordinary editing, scale RSS, long sessions, editor-visible results, Remote or all platform/tool combinations.",
+    "Previous warning/body gap and historical timeouts remain recorded; a passing current run does not determine their causes.",
+    "User Profile is unchanged and all original C1-C4/R4, P0-P9/F01-F14 requirements remain active."
+  ]
+}

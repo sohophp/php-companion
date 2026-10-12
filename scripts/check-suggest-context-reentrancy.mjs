@@ -1,6 +1,7 @@
 // Diagnostic only: control mode uses an isolated synthetic provider, never an installed Profile.
 import process from 'node:process';
 import assert from 'node:assert/strict';
+import console from 'node:console';
 import { URL, fileURLToPath } from 'node:url';
 import {mkdtemp,readFile,writeFile,rm,mkdir} from 'node:fs/promises';import {spawn} from 'node:child_process';import {build} from 'esbuild';
 const root=fileURLToPath(new URL('..',import.meta.url));const mode=process.argv[2];if(!['core','control','coreKeys'].includes(mode))throw new Error('Choose core/control');const scratch=await mkdtemp(root+'/.vscode-test/suggest-context-');

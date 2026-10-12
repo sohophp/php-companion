@@ -62,5 +62,6 @@
   "config.rename.phpDoc": "Update semantic PHPDoc type references during Rename.",
   "config.rename.stringReferences": "Reserved for future string-reference support. SoPHP 0.3 never changes ordinary strings.",
   "config.routeProviders.cacheUntilInvalidated": "Reuse a complete route snapshot until provider, environment, watched PHP/YAML, or open-document invalidation.",
-  "config.indexing.onStartup.deprecation": "Use phpCompanion.indexing.mode. Startup indexing is no longer supported."
+  "config.indexing.onStartup.deprecation": "Use phpCompanion.indexing.mode. Startup indexing is no longer supported.",
+  "command.moveMember": "Move PHP Member with Preview"
 }

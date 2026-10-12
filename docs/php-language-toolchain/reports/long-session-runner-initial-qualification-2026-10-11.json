@@ -1,0 +1,677 @@
+{
+  "shortControlPassed": true,
+  "shortControl": {
+    "status": "passed",
+    "parentPid": 1813538,
+    "root": "/tmp/sophp-long-session-a443WM",
+    "seconds": 60,
+    "intervalMs": 0,
+    "assets": {
+      "/var/www/node/php-companion/dist/language-server.js": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    "platform": "linux",
+    "node": "v22.14.0",
+    "phpTarget": "8.5",
+    "indexingMode": "onDemand",
+    "fixtureFiles": 1000,
+    "editorAcceptance": false,
+    "multiHourQualified": false,
+    "qualified": true,
+    "cycles": 989,
+    "checkedResults": 4945,
+    "staleResults": 0,
+    "serverPids": [
+      1813549,
+      1813691,
+      1813782
+    ],
+    "faults": [
+      {
+        "kind": "forced-process-exit",
+        "previousPid": 1813549,
+        "replacementPid": 1813691,
+        "recoveryMs": 4080.3873300000014,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      },
+      {
+        "kind": "cache-manifest-corruption",
+        "path": "/tmp/sophp-long-session-a443WM/.cache/336718b54fd590e29c31d20511ba6e3c529db99ff7d44514f78fc53b4ad0d306.json",
+        "originalSha256": "f27ccb3bfec24ef1d715a40b2bd5764c716fca296a7df3eb2a48d52747bfd630",
+        "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+        "recoveryProbe": {
+          "uri": "file:///tmp/sophp-long-session-a443WM/src/Noise997.php",
+          "method": "textDocument/references",
+          "declarationReturned": true
+        },
+        "rebuiltSha256": "cba648313469f23e01a35efa25cf1d3751c79621a8997a6521f04c15e1a4851c",
+        "replacementPid": 1813782,
+        "recoveryMs": 4351.372362000002,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      }
+    ],
+    "samples": [
+      {
+        "elapsedMs": 348.5955200000003,
+        "cycle": 1,
+        "pid": 1813549,
+        "rssMiB": 264.00390625,
+        "highWaterMiB": 283.25,
+        "cacheMiB": 3.1433820724487305,
+        "cacheFiles": 922
+      },
+      {
+        "elapsedMs": 5647.50669,
+        "cycle": 100,
+        "pid": 1813549,
+        "rssMiB": 279.7421875,
+        "highWaterMiB": 283.25,
+        "cacheMiB": 3.690361976623535,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 10708.665834,
+        "cycle": 200,
+        "pid": 1813549,
+        "rssMiB": 291.77734375,
+        "highWaterMiB": 291.77734375,
+        "cacheMiB": 3.690361976623535,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 15844.396471999999,
+        "cycle": 300,
+        "pid": 1813549,
+        "rssMiB": 311.9921875,
+        "highWaterMiB": 311.9921875,
+        "cacheMiB": 3.690361976623535,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 20219.341661000002,
+        "cycle": 385,
+        "pid": 1813549,
+        "rssMiB": 318.2265625,
+        "highWaterMiB": 318.2265625,
+        "cacheMiB": 3.690361976623535,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 25287.024898000003,
+        "cycle": 400,
+        "pid": 1813691,
+        "rssMiB": 276.421875,
+        "highWaterMiB": 310.546875,
+        "cacheMiB": 5.329151153564453,
+        "cacheFiles": 1483
+      },
+      {
+        "elapsedMs": 30450.059497,
+        "cycle": 500,
+        "pid": 1813691,
+        "rssMiB": 282.80078125,
+        "highWaterMiB": 310.546875,
+        "cacheMiB": 3.6840591430664062,
+        "cacheFiles": 1000
+      },
+      {
+        "elapsedMs": 35513.755467999996,
+        "cycle": 600,
+        "pid": 1813691,
+        "rssMiB": 291.2578125,
+        "highWaterMiB": 310.546875,
+        "cacheMiB": 3.6840591430664062,
+        "cacheFiles": 1000
+      },
+      {
+        "elapsedMs": 40215.502213,
+        "cycle": 693,
+        "pid": 1813691,
+        "rssMiB": 291.9140625,
+        "highWaterMiB": 310.546875,
+        "cacheMiB": 3.6840591430664062,
+        "cacheFiles": 1000
+      },
+      {
+        "elapsedMs": 45024.726053,
+        "cycle": 700,
+        "pid": 1813782,
+        "rssMiB": 250.36328125,
+        "highWaterMiB": 268.5546875,
+        "cacheMiB": 3.684149742126465,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 50317.854985,
+        "cycle": 800,
+        "pid": 1813782,
+        "rssMiB": 270.203125,
+        "highWaterMiB": 270.203125,
+        "cacheMiB": 3.684149742126465,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 55556.414641999996,
+        "cycle": 900,
+        "pid": 1813782,
+        "rssMiB": 271.9375,
+        "highWaterMiB": 271.9375,
+        "cacheMiB": 3.684149742126465,
+        "cacheFiles": 1001
+      },
+      {
+        "elapsedMs": 60222.122658,
+        "cycle": 989,
+        "pid": 1813782,
+        "rssMiB": 287,
+        "highWaterMiB": 287,
+        "cacheMiB": 3.684149742126465,
+        "cacheFiles": 1001
+      }
+    ],
+    "windows": [
+      {
+        "cycle": 110,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.52221599999939,
+            "p95": 29.827299999999923,
+            "maximum": 31.855561000000307
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.129001000000244,
+            "p95": 2.7853299999997034,
+            "maximum": 3.8317619999997987
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.958264999999301,
+            "p95": 3.4022269999986747,
+            "maximum": 5.276551999999356
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 2.099277000001166,
+            "p95": 2.6730990000005477,
+            "maximum": 4.158617000000049
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 2.1146029999999882,
+            "p95": 2.9230850000003556,
+            "maximum": 4.292378999999528
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 4.5373600000002625,
+            "p95": 6.108496000000741,
+            "maximum": 9.251102000000174
+          }
+        }
+      },
+      {
+        "cycle": 210,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.128974999999627,
+            "p95": 30.058006999999634,
+            "maximum": 31.68618400000014
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 1.8991580000001704,
+            "p95": 2.357332999999926,
+            "maximum": 4.303884000000835
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.7555700000011711,
+            "p95": 2.198182000000088,
+            "maximum": 3.534501000000091
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.8443500000012136,
+            "p95": 2.862048999999388,
+            "maximum": 3.8186450000011973
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 1.9619739999998274,
+            "p95": 2.5174430000006396,
+            "maximum": 3.836913999999524
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 3.988916000000245,
+            "p95": 5.206634000000122,
+            "maximum": 6.11243099999956
+          }
+        }
+      },
+      {
+        "cycle": 310,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.570114000000103,
+            "p95": 30.64259200000015,
+            "maximum": 31.641560999998546
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.0498659999975644,
+            "p95": 3.197705999999016,
+            "maximum": 4.342007000001104
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.8049969999992754,
+            "p95": 2.3011009999972885,
+            "maximum": 3.4598039999982575
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.8381079999999201,
+            "p95": 2.3774539999976696,
+            "maximum": 3.493382999999085
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 1.9242680000024848,
+            "p95": 2.4491689999995288,
+            "maximum": 3.5049720000006346
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 4.177683000001707,
+            "p95": 7.397849999997561,
+            "maximum": 11.653822000000218
+          }
+        }
+      },
+      {
+        "cycle": 410,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.50431699999899,
+            "p95": 30.532854000000953,
+            "maximum": 30.9486109999998
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.0166099999987637,
+            "p95": 3.7249059999994643,
+            "maximum": 6.7595590000019
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.7521400000005087,
+            "p95": 3.288079000001744,
+            "maximum": 8.461613999999827
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.8121610000016517,
+            "p95": 3.0050310000005993,
+            "maximum": 6.187848999998096
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 1.9098229999981413,
+            "p95": 3.5580970000009984,
+            "maximum": 5.081978999998682
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 3.808675000000221,
+            "p95": 7.163244000003033,
+            "maximum": 11.547720999999001
+          }
+        }
+      },
+      {
+        "cycle": 510,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.442795999999362,
+            "p95": 29.2277150000009,
+            "maximum": 31.763804000001983
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.078390999999101,
+            "p95": 2.6336630000005243,
+            "maximum": 3.730761999999231
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.8599169999979495,
+            "p95": 3.1468280000008235,
+            "maximum": 4.666782000000239
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.9768610000028275,
+            "p95": 2.5201540000052773,
+            "maximum": 4.097517999998672
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 2.1269290000018373,
+            "p95": 3.5396249999976135,
+            "maximum": 4.594921000003524
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 4.285008999999263,
+            "p95": 5.342613000000711,
+            "maximum": 8.323004999998375
+          }
+        }
+      },
+      {
+        "cycle": 610,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.518301999996766,
+            "p95": 29.515776000000187,
+            "maximum": 31.230445000001055
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 1.9557429999986198,
+            "p95": 2.407117000002472,
+            "maximum": 3.957890999998199
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.7151949999970384,
+            "p95": 2.1711660000000848,
+            "maximum": 3.3809540000002016
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.8320220000023255,
+            "p95": 2.502948000001197,
+            "maximum": 3.71643999999651
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 1.8945670000030077,
+            "p95": 2.4338649999990594,
+            "maximum": 3.6037490000016987
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 3.9658679999993183,
+            "p95": 5.053371000001789,
+            "maximum": 8.440817000002426
+          }
+        }
+      },
+      {
+        "cycle": 710,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.51829999999609,
+            "p95": 30.27668299999641,
+            "maximum": 37.17018800000369
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.015514999999141,
+            "p95": 3.488772999997309,
+            "maximum": 8.591126999999688
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.756742999998096,
+            "p95": 2.5753480000057607,
+            "maximum": 11.7208810000011
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.8087579999992158,
+            "p95": 2.878538999997545,
+            "maximum": 9.39465100000234
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 1.9721969999955036,
+            "p95": 3.612471000000369,
+            "maximum": 23.644607000001997
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 3.8114480000003823,
+            "p95": 6.294270999998844,
+            "maximum": 19.76180000000022
+          }
+        }
+      },
+      {
+        "cycle": 810,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.61555199999566,
+            "p95": 29.559588999996777,
+            "maximum": 30.824822000002314
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.2296759999953792,
+            "p95": 2.6637049999990268,
+            "maximum": 4.9838309999977355
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 2.021429000000353,
+            "p95": 3.529728999994404,
+            "maximum": 5.480693000004976
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 2.0955419999954756,
+            "p95": 2.780855999997584,
+            "maximum": 4.659655000003113
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 2.167931000003591,
+            "p95": 3.8081550000060815,
+            "maximum": 4.802820999997493
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 4.5273139999990235,
+            "p95": 6.135692000003473,
+            "maximum": 8.965017999995325
+          }
+        }
+      },
+      {
+        "cycle": 910,
+        "timings": {
+          "change": {
+            "samples": 100,
+            "p50": 28.476340000001073,
+            "p95": 30.085085999999137,
+            "maximum": 31.42425500000536
+          },
+          "betaCompletion": {
+            "samples": 100,
+            "p50": 2.065904999995837,
+            "p95": 4.0419459999975516,
+            "maximum": 4.525156000003335
+          },
+          "betaHover": {
+            "samples": 100,
+            "p50": 1.7922949999992852,
+            "p95": 3.4383659999948577,
+            "maximum": 3.9275930000003427
+          },
+          "betaDefinition": {
+            "samples": 100,
+            "p50": 1.8099569999976666,
+            "p95": 3.240545000000566,
+            "maximum": 3.9605420000007143
+          },
+          "alphaCompletion": {
+            "samples": 100,
+            "p50": 1.9439649999985704,
+            "p95": 3.5186780000003637,
+            "maximum": 3.8891379999986384
+          },
+          "alphaDefinition": {
+            "samples": 100,
+            "p50": 4.133247999998275,
+            "p95": 8.03218200000265,
+            "maximum": 10.115977999994357
+          }
+        }
+      }
+    ],
+    "budgets": {
+      "hotQueryMs": 150,
+      "localDiagnosticsMs": 500,
+      "cancellationMs": 100,
+      "coldIndexMs": {
+        "files1000": 8000,
+        "files10000": 60000,
+        "files50000": 300000
+      },
+      "peakRssMb": {
+        "files1000": 384,
+        "files10000": 768,
+        "files50000": 1536
+      },
+      "warmCacheMb": {
+        "files1000": 64,
+        "files10000": 512,
+        "files50000": 2560
+      }
+    },
+    "clientMessageHistoryLimit": 32,
+    "runnerSha256": "0cc11f154b3a15f06ed38c031130a7eee871d5a810ccac2f9f090ce30e2df810",
+    "referencePreparations": 3,
+    "cacheEnumerationRaces": 265,
+    "serverPidsGone": true,
+    "allTimings": {
+      "change": {
+        "samples": 979,
+        "p50": 28.48840200000268,
+        "p95": 30.189091999993252,
+        "maximum": 37.17018800000369
+      },
+      "betaCompletion": {
+        "samples": 979,
+        "p50": 2.053564000001643,
+        "p95": 3.6862639999962994,
+        "maximum": 8.591126999999688
+      },
+      "betaHover": {
+        "samples": 979,
+        "p50": 1.827251000000615,
+        "p95": 3.138263000000734,
+        "maximum": 11.7208810000011
+      },
+      "betaDefinition": {
+        "samples": 979,
+        "p50": 1.8932659999991301,
+        "p95": 3.0996699999996054,
+        "maximum": 9.39465100000234
+      },
+      "alphaCompletion": {
+        "samples": 979,
+        "p50": 2.0001140000022133,
+        "p95": 3.5003649999998743,
+        "maximum": 23.644607000001997
+      },
+      "alphaDefinition": {
+        "samples": 979,
+        "p50": 4.1728149999980815,
+        "p95": 6.679250000001048,
+        "maximum": 19.76180000000022
+      }
+    },
+    "elapsedMs": 60288.129638,
+    "ownedFixtureRemoved": true
+  },
+  "runner": "/var/www/node/php-companion/scripts/benchmark-long-session.mjs",
+  "runnerSha256": "0cc11f154b3a15f06ed38c031130a7eee871d5a810ccac2f9f090ce30e2df810",
+  "normalRuntimeAssets": [
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "b7acdb1b9534900f66ab9e5d4966429725dc0f9718d30f02dc14ae0fede2e093"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "78a6ad4dd502dc86cbdf39b2a18983a65caf6c5c0fb9f6908437ade4168773e3"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "33d5aef1aa9762205015bf158a4ceec34aa3ce74ef34eacef9b8f66c569ea446"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "normalProductChanged": false,
+  "longRunStarted": true,
+  "longRunTerminal": false,
+  "longRunQualified": false,
+  "longRunState": "/var/www/node/php-companion/.vscode-test/d1746-long-session-driver.json",
+  "longRunEvidence": "/var/www/node/php-companion/.vscode-test/d1746-long-session-evidence/run.json",
+  "longRunObservedAtUtc": "2026-10-10T19:00:08.859168+00:00",
+  "observedLiveProcessIdentities": {
+    "1815025": "/home/jason/.pyenv/versions/3.11.9/bin/python3 .vscode-test/d1746-run-long-session.py ",
+    "1815040": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/.vscode-test/d1746-long-session-workspace/scripts/benchmark-long-session.mjs 7200 250 ",
+    "1815052": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/.vscode-test/d1746-long-session-workspace/dist/language-server.js --stdio --parser-core-wasm /var/www/node/php-companion/.vscode-test/d1746-long-session-workspace/dist/web-tree-sitter.wasm --php-wasm /var/www/node/php-companion/.vscode-test/d1746-long-session-workspace/dist/tree-sitter-php.wasm "
+  },
+  "snapshotInputs": 1302,
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "numberedFixturesBefore": 165,
+  "numberedFixturesAfter": 166,
+  "families": 14,
+  "openMajorItems": 26,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "limitations": [
+    "60 second control is not multi-hour qualification; the separate 7200 second process is still running",
+    "Linux real LSP process and synthetic 1000-file Composer corpus; not editor UI, WSL Remote or real-project qualification",
+    "Unsaved input is explicitly resent by the protocol client after replacement; not automatic editor buffer recovery",
+    "Cache volumes are live enumeration samples; atomic rename races are recorded, and RSS includes /proc VmHWM checkpoints",
+    "Cancellation, other versions/platforms/scale, original C3/Windows/createFile/165ms and whole F13/R4 remain open"
+  ]
+}

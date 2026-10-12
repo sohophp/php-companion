@@ -1,0 +1,595 @@
+{
+  "date": "2026-10-09",
+  "sourceAdopted": true,
+  "sourceScope": {
+    "sourceAdopted": true,
+    "beforeSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+    "afterSha256": "52b373752705a1d723b16bfa6bc7df2ed77503d8af30294d3a6f595c171d5dcf",
+    "singleContainingTypeReplacement": true,
+    "reverseToOriginalExact": true,
+    "privateCandidateSourceByteExact": true,
+    "permanentTests": "/var/www/node/php-companion/packages/parser/test/containing-type-cache.test.ts",
+    "permanentTestSha256": "cdd56b543fef58cd53466f35a545a2ce5e09d759db5e97136d32cdf2445ff905",
+    "privatePilotQualified": true,
+    "privatePilotCases": 5,
+    "privatePilotRoundsPerCase": 1,
+    "privatePilotIsNotNormalFiveRoundQualification": true,
+    "fullLspQualified": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "scope": {
+      "normalSource": "/var/www/node/php-companion/packages/parser/src/index.ts",
+      "normalSourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "candidate": "/var/www/node/php-companion/.vscode-test/d1189-parser-owner-candidate.ts",
+      "candidateSha256": "52b373752705a1d723b16bfa6bc7df2ed77503d8af30294d3a6f595c171d5dcf",
+      "singleFunctionReplacement": true,
+      "reverseRestoresNormalSourceExactly": true,
+      "normalSourceAdopted": false,
+      "normalRuntimeChanged": false,
+      "cacheLifetime": "One parseDocument call; cache only positive owner resolution; original first matching declaration and undefined fallback preserved",
+      "old": "    const containingType = (node: SyntaxNode): ParsedDeclaration | undefined => {\n      let current = node.parent;\n      while (current) {\n        if (DECLARATION_TYPES[current.type] || current.type === 'anonymous_class') {\n          if (current.type === 'anonymous_class') return declarations.find((item) => item.anonymous && item.declarationStart === current!.startIndex);\n          const name = current.childForFieldName('name')?.text;\n          if (!name) return undefined;\n          const fqcn = [namespaceAt(current.startIndex), name].filter(Boolean).join('\\\\');\n          return declarations.find((item) => item.fqcn === fqcn);\n        }\n        current = current.parent;\n      }\n      return undefined;\n    };",
+      "new": "    const containingTypesByAncestor = new Map<number, ParsedDeclaration>();\n    const containingType = (node: SyntaxNode): ParsedDeclaration | undefined => {\n      let current = node.parent;\n      const ancestors: number[] = [];\n      while (current) {\n        const cached = containingTypesByAncestor.get(current.id);\n        if (cached) {\n          for (const id of ancestors) containingTypesByAncestor.set(id, cached);\n          return cached;\n        }\n        ancestors.push(current.id);\n        if (DECLARATION_TYPES[current.type] || current.type === 'anonymous_class') {\n          let declaration: ParsedDeclaration | undefined;\n          if (current.type === 'anonymous_class') {\n            declaration = declarations.find((item) => item.anonymous && item.declarationStart === current!.startIndex);\n          } else {\n            const name = current.childForFieldName('name')?.text;\n            if (!name) return undefined;\n            const fqcn = [namespaceAt(current.startIndex), name].filter(Boolean).join('\\\\');\n            declaration = declarations.find((item) => item.fqcn === fqcn);\n          }\n          if (declaration) for (const id of ancestors) containingTypesByAncestor.set(id, declaration);\n          return declaration;\n        }\n        current = current.parent;\n      }\n      return undefined;\n    };"
+    }
+  },
+  "runtime": {
+    "/var/www/node/php-companion/dist/extension.js": "1a7dd6c6376a6cd3075d9f62c916845afec40c8d059f8e79c8b5f14e3875b651",
+    "/var/www/node/php-companion/dist/language-server.js": "1177fea231e47c5d44bfa7cff3906e5f341cf0ca353e4cbfb79670bb64e1ff8b",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b68243f255b0631ec1f5ce14836ea807453d66bb93184de794b73dc59975828a",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "c26aa4550070f1895cafefedd5a565d168be6c21088067acba397080cd0206a7",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "1a7dd6c6376a6cd3075d9f62c916845afec40c8d059f8e79c8b5f14e3875b651",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b68243f255b0631ec1f5ce14836ea807453d66bb93184de794b73dc59975828a",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "1177fea231e47c5d44bfa7cff3906e5f341cf0ca353e4cbfb79670bb64e1ff8b",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "c26aa4550070f1895cafefedd5a565d168be6c21088067acba397080cd0206a7",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "engineBuildId": "2b81c109358f16bc9b811be464f3dc25fb04a9f29e7a551ed13aafeb3c2eb294",
+  "normalPrivateRuntimeByteExact": true,
+  "validation": {
+    "status": "exited",
+    "parentPid": 3256230,
+    "qualified": true,
+    "sourceAdopted": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "fullLspQualified": false,
+    "fullPerformanceQualified": false,
+    "steps": [
+      {
+        "label": "parser-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "-p",
+          "packages/parser/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256336,
+        "exitCode": 0,
+        "durationSeconds": 2.5527192059962545,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "production-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "esbuild.mjs",
+          "--production"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256386,
+        "exitCode": 0,
+        "durationSeconds": 0.6259094220004044,
+        "logSha256": "e13bfb283f7ae864d3620a1b6a97a1b18a0a05a5ae240e43e3402ce7a7f96e1c"
+      },
+      {
+        "label": "component-boundaries",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/check-component-boundaries.mjs"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256535,
+        "exitCode": 0,
+        "durationSeconds": 2.9196858080103993,
+        "logSha256": "282a0cb5ce617fcb6020ca2af25d737b9609a38794171d17d3b82e0ad14a7664"
+      },
+      {
+        "label": "root-typecheck",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256568,
+        "exitCode": 0,
+        "durationSeconds": 4.552545955986716,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "new-test-typecheck",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--strict",
+          "--noUncheckedIndexedAccess",
+          "--skipLibCheck",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--target",
+          "ES2022",
+          "--types",
+          "node,vitest/globals",
+          "packages/parser/test/containing-type-cache.test.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256603,
+        "exitCode": 0,
+        "durationSeconds": 2.200304119993234,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "range-eslint",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/eslint/bin/eslint.js",
+          "packages/parser/src/index.ts",
+          "packages/parser/test/containing-type-cache.test.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256623,
+        "exitCode": 0,
+        "durationSeconds": 2.2497811799985357,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "root-unit",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1194-parser-owner-root-unit.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3256654,
+        "exitCode": 0,
+        "durationSeconds": 6.318845319998218,
+        "logSha256": "d6c39b99b55a3a1e4281b22fd080b1ed73dbb61e57e39e51b52fed0aafbebbd1"
+      },
+      {
+        "label": "full-parser",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1194-parser-owner-full-parser.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/parser",
+        "status": "exited",
+        "pid": 3257004,
+        "exitCode": 0,
+        "durationSeconds": 1.571007294987794,
+        "logSha256": "3346097c900dfe5a4537e784edb823ea02c0f84fc690ddb55f469d877888c3f3"
+      },
+      {
+        "label": "full-semantic",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1194-parser-owner-full-semantic.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/semantic",
+        "status": "exited",
+        "pid": 3257164,
+        "exitCode": 0,
+        "durationSeconds": 96.02202042497811,
+        "logSha256": "32d3d7681775b47505c55ad4b769e843ab6c797103b804dbaf1cbb6dcb23ad7a"
+      },
+      {
+        "label": "generator-protocol",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/generator-delegation-stdio.test.ts",
+          "test/generator-return-control-flow-stdio.test.ts",
+          "test/generator-send-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1194-parser-owner-generator-protocol.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "status": "exited",
+        "pid": 3259699,
+        "exitCode": 0,
+        "durationSeconds": 19.256519268004922,
+        "logSha256": "2a7329db0840b10e4d4cffe62311615174e42697daa78dd5becb40a3bb8922aa"
+      },
+      {
+        "label": "cross-file-protocol",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/stdio.test.ts",
+          "--testNamePattern",
+          "language\\ server\\ stdio\\ updates\\ an\\ open\\ consumer\\ diagnostic\\ after\\ an\\ unsaved\\ declaration\\ changes\\ in\\ another\\ file\\ \\(versioned=false\\)|language\\ server\\ stdio\\ updates\\ an\\ open\\ consumer\\ diagnostic\\ after\\ an\\ unsaved\\ declaration\\ changes\\ in\\ another\\ file\\ \\(versioned=true\\)|language\\ server\\ stdio\\ refreshes\\ consumer\\ type\\ feedback\\ after\\ an\\ unsaved\\ cross\\-file\\ PHPDoc\\ return\\ changes\\ \\(experimental\\)|language\\ server\\ stdio\\ refreshes\\ consumer\\ type\\ feedback\\ after\\ an\\ unsaved\\ cross\\-file\\ PHPDoc\\ return\\ changes\\ \\(onDemand\\)|language\\ server\\ stdio\\ keeps\\ onDemand\\ union\\-shape\\ completion,\\ hover\\ and\\ definition\\ aligned\\ with\\ an\\ unsaved\\ source\\ edit",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1194-parser-owner-cross-file-protocol.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "status": "exited",
+        "pid": 3260025,
+        "exitCode": 0,
+        "durationSeconds": 19.79215651898994,
+        "logSha256": "01bc6d26d4ddeea2cac267c48d4cef33c1f215efbfcfb59755d2439a519a0fa0"
+      }
+    ],
+    "previousNormalAssets": {
+      "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/language-server.js": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    "previousGoalTurnClassification": "no progress: requested status report only; source adoption and normal build are revalidated here before the next authorized gate",
+    "normalAssets": {
+      "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "/var/www/node/php-companion/dist/extension.js": "1a7dd6c6376a6cd3075d9f62c916845afec40c8d059f8e79c8b5f14e3875b651",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "b68243f255b0631ec1f5ce14836ea807453d66bb93184de794b73dc59975828a",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/language-server.js": "1177fea231e47c5d44bfa7cff3906e5f341cf0ca353e4cbfb79670bb64e1ff8b",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "c26aa4550070f1895cafefedd5a565d168be6c21088067acba397080cd0206a7",
+      "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    "changedRuntimeAssets": [
+      "/var/www/node/php-companion/dist/extension.js",
+      "/var/www/node/php-companion/dist/candidateWorker.js",
+      "/var/www/node/php-companion/dist/language-server.js",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js"
+    ],
+    "engineBuildId": "2b81c109358f16bc9b811be464f3dc25fb04a9f29e7a551ed13aafeb3c2eb294",
+    "normalPrivateRuntimeByteExact": true,
+    "runtime": {
+      "/var/www/node/php-companion/dist/extension.js": "1a7dd6c6376a6cd3075d9f62c916845afec40c8d059f8e79c8b5f14e3875b651",
+      "/var/www/node/php-companion/dist/language-server.js": "1177fea231e47c5d44bfa7cff3906e5f341cf0ca353e4cbfb79670bb64e1ff8b",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "b68243f255b0631ec1f5ce14836ea807453d66bb93184de794b73dc59975828a",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "c26aa4550070f1895cafefedd5a565d168be6c21088067acba397080cd0206a7",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    "inputCount": 29828,
+    "root-unit": {
+      "files": 21,
+      "passed": 113,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "f99e53319c634664444e5dea1541f4fd8e9e19d3f408d6774851b9c8d55a0012"
+    },
+    "full-parser": {
+      "files": 9,
+      "passed": 172,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "d45e6c08c5a17743650c83015da32df0e9ac39fe7e5cadc95776101018b3b77d"
+    },
+    "allOriginalParserCaseIdentitiesPreserved": true,
+    "full-semantic": {
+      "files": 169,
+      "passed": 23673,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "a4cb2e3dd3f18f23047531d041e534ee64d4a5fec5548e946649d2da1ea5d655"
+    },
+    "allOriginalSemanticCaseIdentitiesPreserved": true,
+    "generator-protocol": {
+      "files": 3,
+      "passed": 12,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "48d4f15a737cab58ee174af409a686fbc99d45ad76453c40975e7a3a278c3670"
+    },
+    "cross-file-protocol": {
+      "passed": 5,
+      "failed": 0,
+      "otherCasesNotSelected": 539,
+      "sha256": "b54acb59b9898f0e809e0d2db67bf47689869498293ed9977d86a400269871ec"
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryScopeUnchanged": true,
+    "exitCode": 0
+  },
+  "semantic": {
+    "files": 169,
+    "passed": 23673,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "a4cb2e3dd3f18f23047531d041e534ee64d4a5fec5548e946649d2da1ea5d655"
+  },
+  "parser": {
+    "files": 9,
+    "passed": 172,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "d45e6c08c5a17743650c83015da32df0e9ac39fe7e5cadc95776101018b3b77d"
+  },
+  "rootUnit": {
+    "files": 21,
+    "passed": 113,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "f99e53319c634664444e5dea1541f4fd8e9e19d3f408d6774851b9c8d55a0012"
+  },
+  "generatorProtocol": {
+    "files": 3,
+    "passed": 12,
+    "failed": 0,
+    "pending": 0,
+    "sha256": "48d4f15a737cab58ee174af409a686fbc99d45ad76453c40975e7a3a278c3670"
+  },
+  "crossFileProtocol": {
+    "passed": 5,
+    "failed": 0,
+    "otherCasesNotSelected": 539,
+    "sha256": "b54acb59b9898f0e809e0d2db67bf47689869498293ed9977d86a400269871ec"
+  },
+  "normalFullProfile": {
+    "status": "exited",
+    "parentPid": 3260371,
+    "qualified": true,
+    "diagnosticOnly": false,
+    "privateRuntimeCandidate": false,
+    "normalSourceChanged": false,
+    "normalRuntimeChanged": false,
+    "equivalentRetryForGreen": false,
+    "originalWorkflowAndBudgetsPreserved": true,
+    "inputCount": 31221,
+    "command": [
+      "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+      "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+      "--evidence",
+      "/var/www/node/php-companion/.vscode-test/d1195-parser-owner-profile-owned-display",
+      "--",
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/.vscode-test/d1195-parser-owner-profile-workspace/dist-test/runPackagedTest.js"
+    ],
+    "environment": {
+      "PHP_COMPANION_TEST_PROFILE_SOURCE": "1",
+      "PHP_COMPANION_TEST_EXTENSIONS_DIR": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions",
+      "PHP_COMPANION_TEST_TWIG_PLUS_PATH": "/var/www/node/twig-plus/packages/vscode",
+      "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+      "PHP_COMPANION_PHP_EXECUTABLE": "/opt/remi/php85/root/usr/bin/php",
+      "PHP_COMPANION_PHP_CS_FIXER": "/tmp/sophp-gate-tools-99420b4/vendor/bin/php-cs-fixer",
+      "PHP_COMPANION_PHPUNIT_EXECUTABLE": "/tmp/sophp-gate-tools-99420b4/vendor/bin/phpunit",
+      "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE": "9100",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS": "50",
+      "PHP_COMPANION_TEST_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1195-parser-owner-profile-evidence/host-logs",
+      "D1195_PROFILE_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1195-parser-owner-profile-evidence",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1195-full-profile-preload.cjs"
+    },
+    "childPid": 3260609,
+    "exitCode": 0,
+    "durationSeconds": 93.29929971302045,
+    "logSha256": "e62cfc26e938f3742d665d0c08b4c407fb6bb22c427936fe499ccc6c04b3bdd8",
+    "proofSha256": "6e7b39bcfec3cd76446ba2cd18c6c9fd97fca804fcd1fe2c20b743e28103763d",
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 70,
+        "p95Ms": 82,
+        "maxMs": 1533,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          86,
+          8,
+          10,
+          10,
+          11,
+          8
+        ],
+        "slowRounds": [
+          {
+            "round": 1,
+            "elapsedMs": 1533,
+            "applyEditMs": 30,
+            "diagnosticReadyMs": 152,
+            "hoverReadyMs": 1533
+          }
+        ],
+        "firstCompositeHoverCallMs": 1381,
+        "firstRoundServerTimings": {
+          "generationDiskRefresh": {
+            "count": 3,
+            "maxMs": 165,
+            "firstMs": [
+              165,
+              75,
+              93
+            ]
+          },
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 75,
+            "firstMs": [
+              75
+            ]
+          },
+          "diagnostics": {
+            "count": 4,
+            "maxMs": 75,
+            "firstMs": [
+              11,
+              75,
+              11,
+              11
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 77,
+            "firstMs": [
+              77
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 1336,
+            "firstMs": [
+              1336
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 1345,
+            "firstMs": [
+              1345
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 68,
+        "p95Ms": 95,
+        "maxMs": 493,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          213,
+          212,
+          213,
+          213,
+          213,
+          213,
+          213
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "actualServerPids": [
+      3261613,
+      3262061
+    ],
+    "actualServersGone": true,
+    "ownedDisplayGone": true,
+    "compositeP95BudgetMs": 150,
+    "compositeP95BudgetsPassed": true,
+    "functionalQualified": true,
+    "compositeFeedbackQualified": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "permanentControls": {
+    "beforePassed": 6,
+    "beforeFailed": 2,
+    "afterPassed": 8,
+    "allOriginal164ParserCasesPreserved": true
+  },
+  "privatePilot": {
+    "cases": 5,
+    "roundsPerCase": 1,
+    "qualified": true,
+    "normalFiveRoundQualification": false,
+    "sourceRuntimeByteExactAfterAdoption": true
+  },
+  "compositeFeedbackQualified": true,
+  "fullLspQualified": false,
+  "fourLinuxWorkflowsQualified": false,
+  "ordinaryFiveRoundQualified": false,
+  "nativeWindowsQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "remaining": [
+    "Current parser normal engine original full LSP and four original Linux workflows",
+    "Current engine original five-round ordinary edits, production scales and recovery",
+    "Cold first hover, native Windows / WSL Remote / long sessions / human acceptance",
+    "All remaining original C1-C4/R4, P0-P9/F01-F14 requirements"
+  ],
+  "archive": "/var/www/node/php-companion/.vscode-test/d1196-parser-owner-adoption-evidence/manifest.json"
+}

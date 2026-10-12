@@ -1,0 +1,210 @@
+{
+  "qualified": true,
+  "scope": "Original complete formatter suite with isolated candidate1948676a; current normal Core/Symfony; Linux VSCode1.140.0, PHP8.5.9/8.4.23",
+  "fullFormatterSuiteRetained": true,
+  "acceptance": {
+    "platform": "linux",
+    "node": "v24.21.0",
+    "formatterVersion": "0.3.21",
+    "candidateHash": "1948676a0542f7a323410f7814b7653e96e5df81f980dc5314b4e045608bf04d",
+    "formatDocument": true,
+    "undo": true,
+    "redo": true,
+    "formatOnSave": true,
+    "diskMatches": true,
+    "idempotent": true,
+    "multiRootDistinctConfig": true,
+    "concurrentFormatting": true,
+    "distinctExecutableWithSpaces": true,
+    "distinctPhpRuntimes": true,
+    "actualRuntimes": [
+      "8.5.9",
+      "8.4.23"
+    ],
+    "original": "<?php\nclass  ProfileFormat{public function value( ):int{return 1234;}}\n",
+    "formatted": "<?php\n\nclass ProfileFormat\n{\n    public function value(): int\n    {\n        return 1234;\n    }\n}\n",
+    "autoFixState": {
+      "tested": true,
+      "backgroundIgnored": true,
+      "disabledFolderIgnored": true,
+      "deferredCliResults": [
+        {
+          "state": "new-version",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 17,
+          "source": "<?php\n$value=1; // later input"
+        },
+        {
+          "state": "focus-changed",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 2,
+          "source": "<?php\n$value=1;"
+        },
+        {
+          "state": "selection-changed",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 2,
+          "source": "<?php\n$value=1;"
+        },
+        {
+          "state": "current",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 3,
+          "source": "<?php\n$value = 1;"
+        }
+      ],
+      "bracketCurrentFormatted": true,
+      "deferredBracketCliResults": [
+        {
+          "state": "new-version",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 17,
+          "source": "<?php\nclass AutoBracket{\npublic function value(){return 1234;}\n} // later input",
+          "selectionsAtRelease": [
+            [
+              3,
+              16,
+              3,
+              16
+            ]
+          ]
+        },
+        {
+          "state": "focus-changed",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 2,
+          "source": "<?php\nclass AutoBracket{\npublic function value(){return 1234;}\n}",
+          "selectionsAtRelease": [
+            [
+              1,
+              9,
+              1,
+              9
+            ]
+          ]
+        },
+        {
+          "state": "selection-changed",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 2,
+          "source": "<?php\nclass AutoBracket{\npublic function value(){return 1234;}\n}",
+          "selectionsAtRelease": [
+            [
+              2,
+              0,
+              2,
+              6
+            ]
+          ]
+        },
+        {
+          "state": "current",
+          "actualCliExit": 0,
+          "requestedVersion": 2,
+          "finalVersion": 3,
+          "source": "<?php\nclass AutoBracket\n{\n    public function value()\n    {\n        return 1234;\n    }\n}",
+          "selectionsAtRelease": [
+            [
+              3,
+              1,
+              3,
+              1
+            ]
+          ]
+        }
+      ],
+      "scope": "Actual isolated VS Code and pinned CLI; not real WSL human acceptance"
+    }
+  },
+  "runtimeTraces": [
+    "8.5.9",
+    "8.4.23"
+  ],
+  "runtimeProbes": [
+    {
+      "version": "8.5.9",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "ini": "/etc/opt/remi/php85/php.ini",
+      "executable": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    },
+    {
+      "version": "8.4.23",
+      "binary": "/opt/remi/php84/root/usr/bin/php",
+      "ini": "/etc/opt/remi/php84/php.ini",
+      "executable": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+    }
+  ],
+  "isolatedFormatterCandidateOnly": true,
+  "formatterCandidateSha256": "1948676a0542f7a323410f7814b7653e96e5df81f980dc5314b4e045608bf04d",
+  "originalFormatterSourceUnchanged": true,
+  "normalRuntimeAssetsUnchanged": 8,
+  "normalLanguageServerSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "qualifiedCompiledTestsUnchanged": 94,
+  "copiedInputsChecked": 2483,
+  "frozenInputsChecked": 32822,
+  "frozenLinksChecked": 186,
+  "inputsAndRepositoriesUnchanged": true,
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    1765304,
+    1765460,
+    1765466,
+    1765469,
+    1765987,
+    1766345
+  ],
+  "ownedFixtureRemoved": true,
+  "actualInventoryPresent": 12,
+  "currentUnchangedRuntimeFullLspCases": 1488,
+  "priorFull12SourceProfileQualified": true,
+  "priorFull12ProfileManifestSha256": "9256ead3f593e5d3335a678d2192e872c013da569d7772258b3a0ac4011df408",
+  "full12ProfileQualificationFromThisRun": false,
+  "originalC3And165MsFailuresStillOpen": true,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "recordedAtUtc": "2026-10-10T17:56:24.255571+00:00",
+  "fixtures": [
+    "F11-FORMAT-10",
+    "F11-FORMAT-11",
+    "F11-FORMAT-12"
+  ],
+  "sourceAndCompiledHashes": {
+    "/var/www/node/php-companion/test/extension/suite/formatterCandidateAcceptance.ts": "ec578c17b0e267f51db14356e8afc9e28413866c5590994e4c3d72b60a684715",
+    "/var/www/node/php-companion/test/extension/suite/formatterAutoFixAcceptance.ts": "c39398871b78aa31d40eb465c7ddb687587e7fb133dbf910195d4089e071e7ee",
+    "/var/www/node/php-companion/test/extension/suite/formatterCliFixture.ts": "172334472967958c29857f5b90135af7a424fafe80019305bf1a9972a3f32b49",
+    "/var/www/node/php-companion/dist-test/suite/formatterCandidateAcceptance.js": "b2a97fe91d710743ae08921b29d301b1b1cd8c783bb88e4b68aafac90d132574",
+    "/var/www/node/php-companion/dist-test/suite/formatterAutoFixAcceptance.js": "b77f4e87b73a70b69b011a6d1b0883a11876d1d5efc190f9fe80c99d127121d9",
+    "/var/www/node/php-companion/dist-test/suite/formatterCliFixture.js": "813301426541fe76cffb4fa4c581d179d448e6a7d4e7cec4f9beb066a99eed67",
+    "/var/www/node/php-companion/scripts/prepare-formatter-no-change-candidate.mjs": "a4ccd0e0aad4631a5c68dd5631c0c2dfa5eca66a51a4602b4c57f82a527fb1b8"
+  },
+  "newSourceOrTestAdded": false,
+  "strictCompileReusedFor94ExactCompiledDependencies": true,
+  "audit": "/var/www/node/php-companion/.vscode-test/d1718-dual-runtime-formatter-terminal-audit.json",
+  "auditSha256": "ab830c8b1283acdb5215e5ffcff6f89ef7d4cb954d820f1e5651f9ae97b3de0e",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1718-dual-runtime-formatter-evidence/manifest.json",
+  "manifestSha256": "95df1154073f060514940b3aa81d5458ec598170e11f7621aeee74727930b03c",
+  "archivedFiles": 219,
+  "numberedFixturesBefore": 159,
+  "numberedFixturesAfter": 162,
+  "familiesWithNumberedInput": 14,
+  "openMajorRoadmapItems": 26,
+  "limitations": [
+    "Isolated reviewed formatter candidate1948676a only; default upstream formatter remains unchanged",
+    "Linux / VSCode1.140.0 / actual PHP8.5.9 and8.4.23 only; other versions and platforms remain open",
+    "Distinct PHP runtimes proved for concurrent multi-project formatting; automatic typing controls use first runtime and are not proved under both runtimes",
+    "Original complete formatter suite executed; this is not a rerun of the full12 functional source Profile",
+    "Normal Core/Symfony and94 compiled dependencies unchanged; prior full12/1488 qualification retained by identity",
+    "Original C3/Windows/createFile/165ms and wholeF11/P0-P9/F01-F14/C1-C4/R4/realWSL/long-session scope stays open"
+  ],
+  "packaged": false
+}

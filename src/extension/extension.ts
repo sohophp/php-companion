@@ -156,7 +156,7 @@ type ProtocolTextEdit = { range: { start: { line: number; character: number }; e
 type ProtocolDocumentChange = { kind: 'rename'; oldUri: string; newUri: string; options?: { overwrite?: boolean } }
   | { textDocument: { uri: string; version: number | null }; edits: ProtocolTextEdit[] };
 type ProtocolWorkspaceEdit = { changes?: Record<string, ProtocolTextEdit[]>; documentChanges?: ProtocolDocumentChange[];
-  phpCompanion?: { sourceHashes?: Record<string, string>; workspaceMethodFamily?: boolean } };
+  phpCompanion?: { sourceHashes?: Record<string, string>; workspaceMethodFamily?: boolean; moveMember?: { targetClass: string; callable: string; planHash: string } } };
 
 async function verifyRenameSources(result: ProtocolWorkspaceEdit): Promise<void> {
   const hashes = result.phpCompanion?.sourceHashes;
@@ -557,7 +557,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     request: { edit: vscode.WorkspaceEdit; title: string; sourceUri: vscode.Uri; sourceVersion: number; sourceText: string;
       sourceDiskHash?: string; targetHashes?: Record<string, string>; sourcePhpVersion?: string; sourceVersionSetting?: string; sourceExecutableSetting?: string | null;
       generation?: { classFqcn: string; sourcesHash: string };
-      interfaceExtraction?: { position: { line: number; character: number }; planHash: string } },
+      interfaceExtraction?: { position: { line: number; character: number }; planHash: string };
+      moveMember?: { position: { line: number; character: number }; targetClass: string; planHash: string } },
     options?: { testPreviewAction?: () => Promise<'apply' | 'cancel'>; testBeforeApply?: () => Promise<void>;
       testBeforeOpen?: () => Promise<void>; testApplyEdit?: (edit: vscode.WorkspaceEdit) => Thenable<boolean> },
   ): Promise<boolean> => {
@@ -620,25 +621,18 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         && (request.sourcePhpVersion === undefined || ((setting === 'auto' || setting === request.sourcePhpVersion)
           && effective === request.sourcePhpVersion));
     };
-    const unchanged = async (): Promise<boolean> => {
-      if (!await environmentUnchanged()) return false;
+    const documentsUnchanged = (): boolean => {
       if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
-      if (!await sameDiskHash(sourceUri, sourceDiskHash)) return false;
       for (const [uriText, existing] of existingTargets) {
-        const uri = vscode.Uri.parse(uriText);
         const current = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uriText);
         if (current && current.getText() !== existing.text) return false;
         if (existing.document && (existing.document.isClosed || existing.document.version !== existing.version
           || existing.document.getText() !== existing.text)) return false;
-        if (!await sameDiskHash(uri, existing.diskHash)) return false;
       }
-      for (const [uri] of targets) {
-        if (existingTargets.has(uri.toString())) continue;
-        try { await vscode.workspace.fs.stat(uri); return false; }
-        catch (error) {
-          if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
-        }
-      }
+      return true;
+    };
+    const unchanged = async (): Promise<boolean> => {
+      if (!await environmentUnchanged() || !documentsUnchanged()) return false;
       if (request.generation) {
         try {
           const client = await languageServer;
@@ -655,15 +649,38 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           }) !== true) return false;
         } catch { return false; }
       }
-      return await environmentUnchanged() && !source.isClosed && source.version === sourceVersion && source.getText() === sourceText;
+      if (request.moveMember) {
+        try {
+          const client = await languageServer;
+          if (!client || await client.sendRequest<boolean>('phpCompanion/validateMoveMember', {
+            textDocument: { uri: sourceUri.toString(), version: sourceVersion }, ...request.moveMember,
+          }) !== true) return false;
+        } catch { return false; }
+      }
+      // A verified response can arrive after the user changes another participant.
+      // Check disk snapshots after the server reply, then all open buffers after
+      // the final asynchronous environment check and immediately before applying.
+      if (!await sameDiskHash(sourceUri, sourceDiskHash)) return false;
+      for (const [uriText, existing] of existingTargets) {
+        if (!await sameDiskHash(vscode.Uri.parse(uriText), existing.diskHash)) return false;
+      }
+      for (const [uri] of targets) {
+        if (existingTargets.has(uri.toString())) continue;
+        try { await vscode.workspace.fs.stat(uri); return false; }
+        catch (error) {
+          if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
+        }
+      }
+      return await environmentUnchanged() && documentsUnchanged();
     };
     if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
     const previewUris = new Set<string>();
     try {
       const showDiff = async (uri: vscode.Uri, previous: string, next: string): Promise<void> => {
         const baseline = await openRenamePreviewSnapshot(uri, previous);
+        previewUris.add(baseline.uri.toString());
         const preview = await openRenamePreviewSnapshot(uri, next);
-        previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+        previewUris.add(preview.uri.toString());
         await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri,
           t('extractDiff', request.title, vscode.workspace.asRelativePath(uri)), { preview: false });
       };
@@ -863,8 +880,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           const originalUri = uri.toString() === target.toString() ? source : uri;
           const original = participants.find((participant) => participant.uri.toString() === originalUri.toString())!;
           const baseline = await openRenamePreviewSnapshot(originalUri, original.text);
+          previewUris.add(baseline.uri.toString());
           const preview = await openRenamePreviewSnapshot(originalUri, applyTextEdits(original.text, edits));
-          previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+          previewUris.add(preview.uri.toString());
           const title = `${t('safeMoveDiff', vscode.workspace.asRelativePath(originalUri))}${originalUri.toString() === source.toString()
             ? ` → ${vscode.workspace.asRelativePath(target)}` : ''}`;
           await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri, title, { preview: false });
@@ -873,8 +891,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         if (!sourceShown) {
           const original = participants.find((participant) => participant.uri.toString() === source.toString())!;
           const baseline = await openRenamePreviewSnapshot(source, original.text);
+          previewUris.add(baseline.uri.toString());
           const preview = await openRenamePreviewSnapshot(source, original.text);
-          previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+          previewUris.add(preview.uri.toString());
           await vscode.commands.executeCommand('vscode.diff', baseline.uri, preview.uri,
             `${t('safeMoveDiff', vscode.workspace.asRelativePath(source))} → ${vscode.workspace.asRelativePath(target)}`, { preview: false });
         }
@@ -1203,6 +1222,47 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       }
     },
   };
+  register('phpCompanion.moveMember', async (options?: { uri?: vscode.Uri; position?: vscode.Position; targetClass?: string;
+    testBeforePreview?: () => Promise<void>; testBeforeApply?: () => Promise<void>;
+    testPreviewAction?: () => Promise<'apply' | 'cancel'> }): Promise<boolean> => {
+    if (!selfLanguageServer) { void vscode.window.showWarningMessage(t('safeRenameUnavailable')); return false; }
+    const uri = options?.uri ?? vscode.window.activeTextEditor?.document.uri;
+    const position = options?.position ?? vscode.window.activeTextEditor?.selection.active;
+    if (!uri || !position) return false;
+    const document = await vscode.workspace.openTextDocument(uri);
+    if (document.languageId !== 'php') return false;
+    const sourceVersion = document.version, sourceText = document.getText(), sourceDiskHash = await sourceDiskSnapshot(uri);
+    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+    const testOptions = context.extensionMode === vscode.ExtensionMode.Test ? options : undefined;
+    const targetClass = testOptions?.targetClass ?? await vscode.window.showInputBox({ prompt: t('moveMemberTarget') });
+    if (!targetClass) return false;
+    const client = await languageServer; if (!client) return false;
+    let cancelled = false;
+    const result = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification,
+      title: t('moveMemberPreparing'), cancellable: true }, async (_progress, token): Promise<ProtocolWorkspaceEdit | null> => {
+      const cancellation = token.onCancellationRequested(() => { cancelled = true; });
+      try {
+        return await client.sendRequest<ProtocolWorkspaceEdit | null>('phpCompanion/moveMember', {
+          textDocument: { uri: uri.toString(), version: sourceVersion }, position, targetClass,
+        }, token);
+      } catch (error) {
+        if (token.isCancellationRequested) return null;
+        throw error;
+      } finally { cancelled ||= token.isCancellationRequested; cancellation.dispose(); }
+    });
+    if (cancelled) return false;
+    const edit = fromProtocolWorkspaceEdit(result), moveMember = result?.phpCompanion?.moveMember;
+    if (!edit || !moveMember || !result?.phpCompanion?.sourceHashes) {
+      void vscode.window.showWarningMessage(t('moveMemberUnavailable')); return false;
+    }
+    if (context.extensionMode === vscode.ExtensionMode.Test) await testOptions?.testBeforePreview?.();
+    return await vscode.commands.executeCommand<boolean>('phpCompanion.applyPreviewedExtract', {
+      edit, title: t('moveMemberPreviewTitle', moveMember.callable, moveMember.targetClass), sourceUri: uri,
+      sourceVersion, sourceText, sourceDiskHash, targetHashes: result.phpCompanion.sourceHashes,
+      moveMember: { position, targetClass: moveMember.targetClass, planHash: moveMember.planHash },
+    }, { testPreviewAction: testOptions?.testPreviewAction, testBeforeApply: testOptions?.testBeforeApply }) ?? false;
+  });
+
   register('phpCompanion.addMethodParameter', async (options?: { uri?: vscode.Uri; position?: vscode.Position;
     name?: string; type?: string; value?: string; testPreviewAction?: () => Promise<'apply' | 'cancel'>;
     testBeforePreview?: () => Promise<void> }): Promise<boolean> => {
@@ -1387,11 +1447,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const textEdits = changes.map((change) => new vscode.TextEdit(new vscode.Range(
           change.range.start.line, change.range.start.character, change.range.end.line, change.range.end.character), change.newText));
         const baseline = await openRenamePreviewSnapshot(target, source);
+        previewUris.add(baseline.uri.toString());
         const expected = applyTextEdits(source, textEdits);
         if (expected !== source) hasExpectedTextChange = true;
         expectedResults.set(fileRename?.oldUri === targetUri ? fileRename.newUri : targetUri, expected);
         const preview = await openRenamePreviewSnapshot(target, expected);
-        previewUris.add(baseline.uri.toString()); previewUris.add(preview.uri.toString());
+        previewUris.add(preview.uri.toString());
         const destination = fileRename?.oldUri === targetUri ? vscode.workspace.asRelativePath(vscode.Uri.parse(fileRename.newUri)) : undefined;
         const title = `SoPHP Rename: ${vscode.workspace.asRelativePath(target)}${destination ? ` → ${destination}` : ''}`;
         previewResources.push({ label: target, original: baseline.uri, modified: preview.uri, title });

@@ -1,0 +1,555 @@
+{
+  "source": {
+    "terminalAuditQualified": true,
+    "normalBundleSha256": "f140fbdbf7b69e6aed58e1143170f06371365ca38976f2a7e25f58300fcdab86",
+    "beforeSemanticFailures": 8,
+    "beforeNormalProtocolFailures": 4,
+    "fullSemanticPassed": 24114,
+    "fullSemanticFiles": 188,
+    "previous24098IdentitiesPreserved": true,
+    "normalProtocolPassed": 22,
+    "newProtocolCases": 4,
+    "newVersionUpdates": 40,
+    "observations": [
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "onDemand",
+        "observations": [
+          {
+            "state": "return tail",
+            "version": 1,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "throw tail",
+            "version": 2,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "reference call tail",
+            "version": 3,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "nested block tail",
+            "version": 4,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "continuing call",
+            "version": 5,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "conditional return",
+            "version": 6,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "live finally",
+            "version": 7,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "goto reentry",
+            "version": 8,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "return tail",
+            "version": 9,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "return tail",
+            "version": 10,
+            "narrowed": true,
+            "mismatches": 0
+          }
+        ],
+        "normalExit": true
+      },
+      {
+        "phpVersion": "7.2",
+        "indexingMode": "progressive",
+        "observations": [
+          {
+            "state": "return tail",
+            "version": 1,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "throw tail",
+            "version": 2,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "reference call tail",
+            "version": 3,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "nested block tail",
+            "version": 4,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "continuing call",
+            "version": 5,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "conditional return",
+            "version": 6,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "live finally",
+            "version": 7,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "goto reentry",
+            "version": 8,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "return tail",
+            "version": 9,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "return tail",
+            "version": 10,
+            "narrowed": true,
+            "mismatches": 0
+          }
+        ],
+        "normalExit": true
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "onDemand",
+        "observations": [
+          {
+            "state": "return tail",
+            "version": 1,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "throw tail",
+            "version": 2,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "reference call tail",
+            "version": 3,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "nested block tail",
+            "version": 4,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "continuing call",
+            "version": 5,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "conditional return",
+            "version": 6,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "live finally",
+            "version": 7,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "goto reentry",
+            "version": 8,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "return tail",
+            "version": 9,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "return tail",
+            "version": 10,
+            "narrowed": true,
+            "mismatches": 0
+          }
+        ],
+        "normalExit": true
+      },
+      {
+        "phpVersion": "8.5",
+        "indexingMode": "progressive",
+        "observations": [
+          {
+            "state": "return tail",
+            "version": 1,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "throw tail",
+            "version": 2,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "reference call tail",
+            "version": 3,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "nested block tail",
+            "version": 4,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "continuing call",
+            "version": 5,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "conditional return",
+            "version": 6,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "live finally",
+            "version": 7,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "goto reentry",
+            "version": 8,
+            "narrowed": false,
+            "mismatches": 1
+          },
+          {
+            "state": "return tail",
+            "version": 9,
+            "narrowed": true,
+            "mismatches": 0
+          },
+          {
+            "state": "return tail",
+            "version": 10,
+            "narrowed": true,
+            "mismatches": 0
+          }
+        ],
+        "normalExit": true
+      }
+    ],
+    "currentWarmClosedFileReferencesPassed": true,
+    "publicPackageDeclarationsUnchanged": 202,
+    "cacheVersionUnchanged": "semantic-v82",
+    "fullCurrentLspQualified": false,
+    "currentEditorsQualified": false,
+    "currentPerformanceQualified": false,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false
+  },
+  "ordinary": {
+    "recordedAtUtc": "2026-10-12T01:42:55.935837+00:00",
+    "engineBuildId": "f140fbdbf7b69e6aed58e1143170f06371365ca38976f2a7e25f58300fcdab86",
+    "qualified": true,
+    "boundFull12ExtensionProfileQualified": false,
+    "boundProfileArchiveFilesVerified": 0,
+    "boundFullLspCases": null,
+    "boundCurrentSemanticCases": 24114,
+    "boundCurrentFocusedProtocolCases": 22,
+    "allOriginal25RunsExecuted": true,
+    "actualServers": 25,
+    "allOriginalProcessesGone": true,
+    "checkedProcessIds": [
+      81035,
+      81179,
+      81190,
+      81226,
+      81237,
+      81280,
+      81291,
+      81329,
+      81340,
+      81384,
+      81395,
+      81428,
+      81442,
+      81489,
+      81500,
+      81542,
+      81553,
+      81589,
+      81600,
+      81653,
+      81664,
+      81688,
+      81702,
+      81750,
+      81761,
+      81807,
+      81818,
+      81854,
+      81865,
+      81915,
+      81926,
+      81953,
+      81964,
+      82010,
+      82024,
+      82069,
+      82080,
+      82116,
+      82127,
+      82177,
+      82188,
+      82212,
+      82223,
+      82277,
+      82288,
+      82331,
+      82342,
+      82379,
+      82390,
+      82438,
+      82449
+    ],
+    "frozenInputsChecked": 96324,
+    "frozenInputsUnchanged": true,
+    "maximumHotP95Ms": 142.35,
+    "originalBudgetMs": 150,
+    "performanceFailuresPreserved": true,
+    "originalThreeBusinessSourceBytesPreserved": true,
+    "privateBusinessRootUrisChanged": true,
+    "originalInputDriftPreflightFailurePreserved": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "realWslAcceptance": false,
+    "profileUpdated": false,
+    "manifest": "/var/www/node/php-companion/.vscode-test/d2403-current-fixed-ordinary-evidence/manifest.json",
+    "manifestSha256": "ed086f1175d86da270d869cb3ffbc3bbb13a9f754758dd38cfe964d7e35d92bf",
+    "archivedFiles": 67,
+    "frozenLinksChecked": 184,
+    "queriesPerRun": 100,
+    "roundsPerCase": 5,
+    "caseResults": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 129.64,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 1,
+        "p95Ms": 132.73,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 1,
+        "p95Ms": 95.89,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 1,
+        "p95Ms": 134.72,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 1,
+        "p95Ms": 61.76,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 2,
+        "p95Ms": 140.93,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 2,
+        "p95Ms": 132.82,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 2,
+        "p95Ms": 101.85,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 2,
+        "p95Ms": 137.16,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 2,
+        "p95Ms": 69.21,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 3,
+        "p95Ms": 125.32,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 3,
+        "p95Ms": 142.35,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 3,
+        "p95Ms": 96.51,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 3,
+        "p95Ms": 140.71,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 3,
+        "p95Ms": 62.35,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 132.9,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 4,
+        "p95Ms": 130.76,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 4,
+        "p95Ms": 83.91,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 4,
+        "p95Ms": 134.2,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 4,
+        "p95Ms": 65.66,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 5,
+        "p95Ms": 137.03,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 5,
+        "p95Ms": 133.57,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 5,
+        "p95Ms": 93.3,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 5,
+        "p95Ms": 131.53,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 5,
+        "p95Ms": 61.7,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      }
+    ]
+  },
+  "fullObjectiveComplete": false,
+  "profileUpdated": false
+}

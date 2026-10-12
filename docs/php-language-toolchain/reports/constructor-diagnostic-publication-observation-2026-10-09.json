@@ -1,0 +1,533 @@
+{
+  "recordedAtUtc": "2026-10-08T19:14:28.104086+00:00",
+  "status": "constructor-observation-qualified",
+  "fullObjectiveComplete": false,
+  "currentFullLspQualified": false,
+  "normalProductionSourcesChanged": false,
+  "normalTestObserverAdopted": true,
+  "allEightAssetsUnchanged": true,
+  "priorFullLsp": {
+    "files": 112,
+    "passed": 1403,
+    "failed": 1,
+    "evidenceValid": true
+  },
+  "controlledReview": {
+    "recordedAtUtc": "2026-10-08T19:12:48.506711+00:00",
+    "qualified": true,
+    "correctedFullCases": 16,
+    "originalControlledTimeouts": 2,
+    "revisionGuardNegativeCases": 2,
+    "negativeProofs": [
+      {
+        "phpVersion": "7.2",
+        "message": "[test-constructor-proof] revision=8 current=9 proven=1",
+        "trace": "/var/www/node/php-companion/.vscode-test/d1042-revision-guard-removed-traces/constructor-7.2.jsonl",
+        "sha256": "010a1c66d98ae872049a11615ea9e6dbfbea44eafb256787eb7b14fc4f8e0ef9"
+      },
+      {
+        "phpVersion": "8.5",
+        "message": "[test-constructor-proof] revision=11 current=12 proven=1",
+        "trace": "/var/www/node/php-companion/.vscode-test/d1042-revision-guard-removed-traces/constructor-8.5.jsonl",
+        "sha256": "9fad345af8ff7ef2bf2e2b7f4aed5aed5d2a7a29384d9affae8d285a9572fd63"
+      }
+    ],
+    "allActualServersGone": true,
+    "changedFrozenPaths": [
+      "/var/www/node/php-companion/.vscode-test/d1035-related-current-state/packages/language-server/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json"
+    ],
+    "expectedGeneratedResultChanges": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1035-related-current-state/packages/language-server/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json",
+        "beforeSha256": "6bba3cd9e9ae2031466e98000c55d64357bb04e5e90268774aea3ad32ef6877c",
+        "afterSha256": "61a3766654a76801cc5469ae1f347e603df3a0ff190002af1d77a820862f55a3",
+        "reason": "Vitest generated results.json run-history output was mistakenly inventoried as an input by private workspace rglob; it is not source, configuration or transform input."
+      }
+    ],
+    "changedSourceRuntimeDependencyInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "inputCount": 29753,
+    "normalProductChanged": false,
+    "currentFullLspQualified": false,
+    "fullObjectiveComplete": false,
+    "verifierCorrection": "D1042 required proven=1 in truncated Vitest failure text. Actual preserved protocol traces prove proven=1 for both assertion failures. No test rerun.",
+    "scope": "Current constructor publication-observation race only; unrelated historical timeouts remain open"
+  },
+  "validation": {
+    "recordedAtUtc": "2026-10-08T19:14:24.779505+00:00",
+    "qualified": true,
+    "testSha256": "fefbd7b0629f573a2c88729cd4dcd4f2ae73ddd4085dba3fe31a25c5e71de1ae",
+    "strictExitCode": 0,
+    "lintExitCode": 0,
+    "strictCommand": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "--strict",
+      "--skipLibCheck",
+      "--target",
+      "ES2022",
+      "--module",
+      "NodeNext",
+      "--moduleResolution",
+      "NodeNext",
+      "--types",
+      "node",
+      "packages/language-server/test/canonical-construction-stdio.test.ts"
+    ],
+    "lintCommand": [
+      "node",
+      "node_modules/eslint/bin/eslint.js",
+      "packages/language-server/test/canonical-construction-stdio.test.ts"
+    ],
+    "correctedFull16ReusedByExactSourceRuntimeIdentity": true,
+    "normalProductionSourcesAndEightAssetsUnchanged": true,
+    "currentFullLspQualified": false,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false
+  },
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "artifactCount": 87,
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp-constructor-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp-constructor-traces/constructor-7.2.jsonl",
+      "sha256": "358df7ec4b0e0faf59ac395a38b4fa61cf15b6edf1e16c90d787a54527ca35a9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp-constructor-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp-constructor-traces/constructor-8.5.jsonl",
+      "sha256": "e8930021107086fb98288816badd9cc37cb91b99aed72371568f6c910cbdda48"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp-controller.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp-controller.log",
+      "sha256": "d8259c172ec9cdbf3e48182259eab8032c13700dceae90f2ebe9a3a55a28a2b9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp-input.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp-input.json",
+      "sha256": "0b87554ab612961588f3f6ff4e1a8316e42922d37c6b321be78657fa36da288d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp-result.json",
+      "sha256": "ac26cf91faa6cebb1ff99e05f1875f0beb6526b6b491c6976836ecb816cd6d78"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp-run.json",
+      "sha256": "1697cdd630fbf3b6acfed2ea97ef1cb3ffffaa6710150af6aeff27ee4a799c97"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1016-normal-shared-container-full-lsp.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1016-normal-shared-container-full-lsp.log",
+      "sha256": "560eee5d26fb1e5ed8e6296e44d346b57577400566325c04c09ef500f8ed4fc4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1017-normal-shared-container-editor-qualification.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1017-normal-shared-container-editor-qualification.json",
+      "sha256": "cbbe24946b4a0d4635ee0d3bcbd03df71777bb05d151df6d1e23d369a80cda16"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1019-normal-shared-container-profile-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1019-normal-shared-container-profile-run.json",
+      "sha256": "ad3bc57411b2127347ec63f14aa1193fd8d191bfd57a0c9403ffb31d20b13b62"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1024-normal-editing-recovery-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1024-normal-editing-recovery-run.json",
+      "sha256": "423696d8b5343c07019864248cf912920374e6e487c0400ce0c7aec2b5aa5ae3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1025-normal-ordinary-editing-five-rounds-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1025-normal-ordinary-editing-five-rounds-run.json",
+      "sha256": "05d6bc91a680d5c340187aced76523313842b8fccd3e58904c6ad4f501a008d2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1027-constructor-ordered-original/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1027-constructor-ordered-original/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "f6f295d78c90a67c4d62dee2a1838f6d8b695896c087487b4122d22d633fd74e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1027-constructor-publication-controls-preparation.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1027-constructor-publication-controls-preparation.json",
+      "sha256": "1e4371007e247f4f9ff3e739532cb784b14f77a724504fda1cb3d4d0a04b17b1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1028-constructor-current-state/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1028-constructor-current-state/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "d4ff904e53ac4beec802f9d4c6d9ff5986b852608fba9857e174c8a558da9886"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1029-constructor-revision-guard-control/server.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1029-constructor-revision-guard-control/server.js",
+      "sha256": "07573fabfd5a71981b2fe217bacf433bb46cc6c39e4a4b6b12f999413d097f48"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-constructor-publication-controller.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-constructor-publication-controller.log",
+      "sha256": "13a4006d820712ac9870b1f7f2237c51fc0e2686f24c627f786c60e2ab6a7804"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-constructor-publication-controls-input.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-constructor-publication-controls-input.json",
+      "sha256": "734201ad68dc5852dc4c52e017bb3ab86dadc2dabc0e0c9d24fc27e6f417f46b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-constructor-publication-controls-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-constructor-publication-controls-run.json",
+      "sha256": "e4de0701b362b9c6d5e4b948828ae844965dd4760eeae2a981bfd13f2fa96eb5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-corrected-full-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-corrected-full-result.json",
+      "sha256": "d8b89be52d1340dc5e6e14d9a9a9c995bdab91b92596175ddade35b510efcbb8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-corrected-full-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-corrected-full-traces/constructor-7.2.jsonl",
+      "sha256": "8003967e14172b0567bb9c583dcad655c10ab8db7d2b7d0e67316cde59006f05"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-corrected-full-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-corrected-full-traces/constructor-8.5.jsonl",
+      "sha256": "d496e696b3d873698fb750b53c3ea0224f3c3f01609d1eb01b513dbf7ba80ed3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-corrected-full.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-corrected-full.log",
+      "sha256": "b8ca4987c196dc6e115df1bcd54bca75c1b5a00e04bbe79af2c31aefb929679b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-ordered-original-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-ordered-original-result.json",
+      "sha256": "abed07e5a68a6f8608470f60adf6a981544be0963d8121584b8a97367910bbee"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-ordered-original-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-ordered-original-traces/constructor-7.2.jsonl",
+      "sha256": "0398bc5c325c16b0f59e68646acee1f1a2b8498d926a0774f1b9f122290910ed"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-ordered-original-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-ordered-original-traces/constructor-8.5.jsonl",
+      "sha256": "4b2e7464ac246e83522c5188f1fccf0f7f0d95973d4db54242a20724641b8c95"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-ordered-original.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-ordered-original.log",
+      "sha256": "8af69e42894fadb5473871dd99bd363384185018e3b74d8f14b3344bc01233f5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1030-run-constructor-publication-controls.py",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1030-run-constructor-publication-controls.py",
+      "sha256": "db7eb58a40fad01ec4420a44600ede4bfbddfc2d8962821b03e59f79bf3ff556"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1031-current-constructor-timeout-trace-analysis.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1031-current-constructor-timeout-trace-analysis.json",
+      "sha256": "a9cef92f1991fb1c161df7fd0f79e213a2b77302fd7522cec9c8d26ca8519cc9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1032-constructor-publication-controls-preparation.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1032-constructor-publication-controls-preparation.json",
+      "sha256": "bef4fb985a4dd78480a8de33c1a01e0919bdbc481e2f58749dadc28f189dd397"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1032-related-ordered-original/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1032-related-ordered-original/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "f27eb119da390388171cd140a27597206d203656bb555c7a3bb819269676db1a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1033-canonical-construction-corrected.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1033-canonical-construction-corrected.test.ts",
+      "sha256": "fefbd7b0629f573a2c88729cd4dcd4f2ae73ddd4085dba3fe31a25c5e71de1ae"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1034-constructor-publication-controller.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1034-constructor-publication-controller.log",
+      "sha256": "30d66a494973dc795c84f10d1e5f88ad18a55d15f4f867d482a29666088cf19c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1034-constructor-publication-controls-input.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1034-constructor-publication-controls-input.json",
+      "sha256": "5091812509ed4b4f3a304c748af0f89b39589c845a3ee057c72358ad850c29f5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1034-constructor-publication-controls-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1034-constructor-publication-controls-run.json",
+      "sha256": "210da8897629600cb847c23f9d1cbd67910f0cf0fa33efdc27fb6e6e280739ef"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1034-run-constructor-publication-controls.py",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1034-run-constructor-publication-controls.py",
+      "sha256": "4aed941d50eb7ea9deb97d06a6c1b6e6b4889043edcd4d1fd8e594ee2fe376e1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1035-constructor-publication-controls-preparation.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1035-constructor-publication-controls-preparation.json",
+      "sha256": "bab1e06ab82cb447ba04c8356139e1434d1b62f831c523f3d76696c67bc4db79"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1035-related-current-state/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1035-related-current-state/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "fefbd7b0629f573a2c88729cd4dcd4f2ae73ddd4085dba3fe31a25c5e71de1ae"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-constructor-publication-controller.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-constructor-publication-controller.log",
+      "sha256": "77b04275b20ca2f7b39cc4c96228b5cce40fe0d2cd4f545f78a432dea0fe63a3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-constructor-publication-controls-input.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-constructor-publication-controls-input.json",
+      "sha256": "f1e315182df7d73427a7a6a5919bee272af5f9aa583dbb6efe2389b3028d693d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-constructor-publication-controls-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-constructor-publication-controls-run.json",
+      "sha256": "ea5b06049f090eb81292348beaf58b08360f762aa7324a3d5a3bf9ec271a4202"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-corrected-full-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-corrected-full-result.json",
+      "sha256": "6b9285cafc3746cb670d57a064330d0ec8c158fd2fb4971c44148870759993b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-corrected-full-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-corrected-full-traces/constructor-7.2.jsonl",
+      "sha256": "2a232169ef3ab45cc44b383bacc7c2578c86c5f517be16a1086793ef132e9da1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-corrected-full-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-corrected-full-traces/constructor-8.5.jsonl",
+      "sha256": "d00edd651a00729d48cf63662ef9dc54f33eff1c126aa35f2e98dfe7483972d1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-corrected-full.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-corrected-full.log",
+      "sha256": "fb0276fef27f6f4182274c415066ec3ce346468b283f85a364fb514f00a99d55"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-ordered-original-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-ordered-original-result.json",
+      "sha256": "f349ac3b241205bed23a23b7929349ad7a2469a0725ce03b05a6e0ec66cc03a5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-ordered-original.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-ordered-original.log",
+      "sha256": "841a2e9df92bb565713245b5f6da2eedf5f0b714d883010799d24f68284911c0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1036-run-constructor-publication-controls.py",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1036-run-constructor-publication-controls.py",
+      "sha256": "2727f87e3f20c3a163f8c687f79c60c1a4e161c45897ee46fd707f037df794f4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1038-constructor-publication-controls-preparation.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1038-constructor-publication-controls-preparation.json",
+      "sha256": "43e6d0ede39b41193b6389230a454abd0667c5002a1b8ff09c57b5020a0e9597"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1038-related-ordered-original/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1038-related-ordered-original/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "5f4016d8d4685ad0cd6dc0a1d560541d22f17fb5c1e4222b7d5c1b84208ec83a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-constructor-publication-controller.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-constructor-publication-controller.log",
+      "sha256": "5b01d34ebecfbde7c3406e687f7044aa2c03e6640322763853f88e5f21d4644c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-constructor-publication-controls-input.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-constructor-publication-controls-input.json",
+      "sha256": "6bc93d39cd1950648e16760ffa661321cc1897f8da3ab672c414e4812b308ab7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-constructor-publication-controls-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-constructor-publication-controls-run.json",
+      "sha256": "70a005726f642feb46d3b3b0efd3582e867b5980191704db42cd681ed1ca6ab7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-ordered-original-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-ordered-original-result.json",
+      "sha256": "4a143eb16218e8c9b4fb8ab493632bd981ec3bfd4864c7ec18074d10e07ecd50"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-ordered-original-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-ordered-original-traces/constructor-7.2.jsonl",
+      "sha256": "d1359c6337dfe3bcc4da92ab65a8eeb0da44be0605e41548a274a2dcdd0006fb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-ordered-original-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-ordered-original-traces/constructor-8.5.jsonl",
+      "sha256": "15a284264778dd175d2d5fec57420d81a870fe3687af1df060739c2516e146d3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-ordered-original.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-ordered-original.log",
+      "sha256": "069bc7b6180b28ee97931e936b30f36b77fcfaf3446f3cc57aa2a683d1d8050d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-revision-guard-removed-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-revision-guard-removed-result.json",
+      "sha256": "42f62798385fa47e841d11276a0edb7878db1bf990ea9919aacd13f1358626af"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-revision-guard-removed-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-revision-guard-removed-traces/constructor-7.2.jsonl",
+      "sha256": "05b6e3982dea5552fd3a3969087db5a2c0675bf198c23fd66845b5c4e8ec5895"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-revision-guard-removed-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-revision-guard-removed-traces/constructor-8.5.jsonl",
+      "sha256": "cbecb3bc9e4d826980ee6d9a48c307c421de85c8a5cd329092b3b7a452e7b387"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-revision-guard-removed.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-revision-guard-removed.log",
+      "sha256": "34f569e1967ca0ce4b0d901cfd6e5997cda6f7ad12ada67ad90fe06f1c4290ad"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1040-run-constructor-publication-controls.py",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1040-run-constructor-publication-controls.py",
+      "sha256": "67cf32a918f43a98bee82d8a6f5604a0d23d9502a43f6d9ac3a7884d292d042b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1041-constructor-publication-controls-preparation.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1041-constructor-publication-controls-preparation.json",
+      "sha256": "4c9ba480b02bcfec3652ed2916d0d087caf72adc433be80000cbe656c875305e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1041-constructor-revision-guard-control/server.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1041-constructor-revision-guard-control/server.js",
+      "sha256": "07573fabfd5a71981b2fe217bacf433bb46cc6c39e4a4b6b12f999413d097f48"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-constructor-publication-controller.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-constructor-publication-controller.log",
+      "sha256": "5b3e8a8698b1787d3d79d98ffce65f1220ad68a20e59bbd1eae3f70fe4275281"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-constructor-publication-controls-input.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-constructor-publication-controls-input.json",
+      "sha256": "c6156acebf69555cfc42ea73c3a32fd2de9fee5989da3c5064087cbfbbb5635d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-constructor-publication-controls-run.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-constructor-publication-controls-run.json",
+      "sha256": "833eff3a18a0b2b91d5a5ec6283e80dcae1b36f7d3d8a1db47be4cd8f4cc4e8e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-revision-guard-removed-result.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-revision-guard-removed-result.json",
+      "sha256": "b4f4f36b7e261a10c1fd5546034899c7182cfc38954ee8cca4c99cf2dd23aa30"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-revision-guard-removed-traces/constructor-7.2.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-revision-guard-removed-traces/constructor-7.2.jsonl",
+      "sha256": "010a1c66d98ae872049a11615ea9e6dbfbea44eafb256787eb7b14fc4f8e0ef9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-revision-guard-removed-traces/constructor-8.5.jsonl",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-revision-guard-removed-traces/constructor-8.5.jsonl",
+      "sha256": "9fad345af8ff7ef2bf2e2b7f4aed5aed5d2a7a29384d9affae8d285a9572fd63"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-revision-guard-removed.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-revision-guard-removed.log",
+      "sha256": "18f4f4c70cb7ccd0fb4b4d082c5b86929fab9b61f42f73bb989a491dc46ef663"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1042-run-constructor-publication-controls.py",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1042-run-constructor-publication-controls.py",
+      "sha256": "d9ad89edcab3569f0d00f273002da669299e82669e0cc0175f5ec00c7029bccd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1043-constructor-publication-terminal-review.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1043-constructor-publication-terminal-review.json",
+      "sha256": "3feae92ff1daabdf4ab9f1bb0b28c1c9f4aef7243135d92b3a8c55a74aa38587"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1044-constructor-observer-adoption/adoption.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1044-constructor-observer-adoption/adoption.json",
+      "sha256": "7cb42b48b708926cd0400f26bb432d7046492fd1ff4173ca3dbf675250b7f168"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1044-constructor-observer-adoption/after.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1044-constructor-observer-adoption/after.test.ts",
+      "sha256": "fefbd7b0629f573a2c88729cd4dcd4f2ae73ddd4085dba3fe31a25c5e71de1ae"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1044-constructor-observer-adoption/before.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1044-constructor-observer-adoption/before.test.ts",
+      "sha256": "6f60f7cbff45a8ef5ffcb6c3d62757d66cd9a4a2732c8f5268034ad51d471f7f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1045-constructor-observer-lint.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1045-constructor-observer-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1045-constructor-observer-strict.log",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1045-constructor-observer-strict.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1045-constructor-observer-validation.json",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/.vscode-test/d1045-constructor-observer-validation.json",
+      "sha256": "5e00db6a202c27dffd896ecd4d658223fc7f639623aae9e08f887ccbac27f973"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/extension.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/extension.js",
+      "sha256": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/language-server.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/language-server.js",
+      "sha256": "0ca5b0dfbd4b52f76898faf92343dd914b9b05cd060997bcfd724d47720f004a"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "copy": "/var/www/node/php-companion/.vscode-test/d1046-constructor-publication-evidence/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "fefbd7b0629f573a2c88729cd4dcd4f2ae73ddd4085dba3fe31a25c5e71de1ae"
+    }
+  ],
+  "reportSha256": "8d5c87ffb4b2476e5e40530397f95a81431b7763be470a2f5ae708d8d4fe706b"
+}

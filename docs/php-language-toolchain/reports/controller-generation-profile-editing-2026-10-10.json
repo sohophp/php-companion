@@ -1,0 +1,466 @@
+{
+  "qualified": true,
+  "engineBuildId": "0ae33e9b04c83f12ccbb8dd086a8f3c547818978acb383700b27e8a3f6a131d0",
+  "fullProfile": {
+    "recordedAtUtc": "2026-10-10T13:43:43.599508+00:00",
+    "qualified": true,
+    "engineBuildId": "0ae33e9b04c83f12ccbb8dd086a8f3c547818978acb383700b27e8a3f6a131d0",
+    "originalFull12ExtensionProfilePassed": true,
+    "scalarP95Ms": 88,
+    "unionP95Ms": 98,
+    "firstPostEditHoverCallMs": 37,
+    "allOriginalProcessesGone": true,
+    "checkedProcessIds": [
+      1548746,
+      1548794,
+      1548796,
+      1549301,
+      1549639,
+      1550187
+    ],
+    "frozenInputsChecked": 31373,
+    "inputsUnchanged": true,
+    "realWslAcceptance": false,
+    "profileUpdated": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "priorFullLspCases": 1476,
+    "priorFullLspManifest": "/var/www/node/php-companion/.vscode-test/d1623-controller-generation-evidence/manifest.json",
+    "priorFullLspManifestSha256": "45c011fd49851d85895e4e4a2dfcb8737c0816117f88c8761afedfb7b2d3d7ba",
+    "priorFullLspFilesVerified": 52,
+    "frozenLinksChecked": 185,
+    "compiledTestsUnchanged": 91,
+    "manifest": "/var/www/node/php-companion/.vscode-test/d1629-controller-generation-profile-evidence/manifest.json",
+    "manifestSha256": "333e8ee671fb478715d9462ec30c51c47914118c2117a4e2a559e9b85cb63b0e",
+    "archivedFiles": 59,
+    "scalarRounds": 50,
+    "unionRounds": 30,
+    "noiseFiles": 9100,
+    "compositeP95BudgetMs": 150,
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 66,
+        "p95Ms": 88,
+        "maxMs": 161,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          946,
+          13,
+          7,
+          20,
+          8,
+          7
+        ],
+        "slowRounds": [],
+        "firstCompositeHoverCallMs": 37,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 2,
+            "maxMs": 86,
+            "firstMs": [
+              86,
+              39
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 86,
+            "firstMs": [
+              86
+            ]
+          },
+          "diagnostics": {
+            "count": 2,
+            "maxMs": 30,
+            "firstMs": [
+              5,
+              30
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 31,
+            "firstMs": [
+              31
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 2,
+            "firstMs": [
+              2
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 73,
+        "p95Ms": 98,
+        "maxMs": 515,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          212,
+          212,
+          212,
+          212,
+          212,
+          213,
+          213
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "normalRuntimeAssets": [
+      {
+        "path": "/var/www/node/php-companion/dist/extension.js",
+        "sha256": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/language-server.js",
+        "sha256": "0ae33e9b04c83f12ccbb8dd086a8f3c547818978acb383700b27e8a3f6a131d0"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+        "sha256": "d0f703c47110f05277886a7e89ba48e3bc4335dac659a996c8e2009b8dce254d"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+        "sha256": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      }
+    ]
+  },
+  "ordinaryEditing": {
+    "recordedAtUtc": "2026-10-10T13:49:21.054937+00:00",
+    "engineBuildId": "0ae33e9b04c83f12ccbb8dd086a8f3c547818978acb383700b27e8a3f6a131d0",
+    "qualified": true,
+    "boundFull12ExtensionProfileQualified": true,
+    "boundProfileArchiveFilesVerified": 59,
+    "boundFullLspCases": 1476,
+    "allOriginal25RunsExecuted": true,
+    "actualServers": 25,
+    "allOriginalProcessesGone": true,
+    "checkedProcessIds": [
+      1552176,
+      1552212,
+      1552223,
+      1552328,
+      1552339,
+      1552416,
+      1552427,
+      1552444,
+      1552455,
+      1552599,
+      1552610,
+      1552662,
+      1552673,
+      1552731,
+      1552745,
+      1552872,
+      1552883,
+      1552936,
+      1552947,
+      1553059,
+      1553070,
+      1553114,
+      1553125,
+      1553255,
+      1553266,
+      1553330,
+      1553341,
+      1553460,
+      1553471,
+      1553697,
+      1553716,
+      1553845,
+      1553856,
+      1553965,
+      1553976,
+      1554045,
+      1554056,
+      1554112,
+      1554123,
+      1554196,
+      1554207,
+      1554246,
+      1554257,
+      1554442,
+      1554453,
+      1554507,
+      1554518,
+      1554644,
+      1554655,
+      1554798,
+      1554809
+    ],
+    "frozenInputsChecked": 31397,
+    "frozenInputsUnchanged": true,
+    "maximumHotP95Ms": 149.91,
+    "originalBudgetMs": 150,
+    "performanceFailuresPreserved": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "realWslAcceptance": false,
+    "profileUpdated": false,
+    "manifest": "/var/www/node/php-companion/.vscode-test/d1631-controller-generation-ordinary-evidence/manifest.json",
+    "manifestSha256": "4e19903503f9cf6f951e7dd17c1f694b1792acd97ee0873c9e922694c02e54fd",
+    "archivedFiles": 66,
+    "frozenLinksChecked": 185,
+    "queriesPerRun": 100,
+    "roundsPerCase": 5,
+    "caseResults": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 140.55,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 1,
+        "p95Ms": 140.02,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 1,
+        "p95Ms": 100.41,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 1,
+        "p95Ms": 146.24,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 1,
+        "p95Ms": 63.46,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 2,
+        "p95Ms": 143.12,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 2,
+        "p95Ms": 127.68,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 2,
+        "p95Ms": 104.47,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 2,
+        "p95Ms": 135.79,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 2,
+        "p95Ms": 74.5,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 3,
+        "p95Ms": 137.03,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 3,
+        "p95Ms": 126.67,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 3,
+        "p95Ms": 114.99,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 3,
+        "p95Ms": 142.28,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 3,
+        "p95Ms": 63.9,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 140.23,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 4,
+        "p95Ms": 136.13,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 4,
+        "p95Ms": 99.55,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 4,
+        "p95Ms": 138.56,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 4,
+        "p95Ms": 67.75,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 5,
+        "p95Ms": 149.91,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 5,
+        "p95Ms": 130.75,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 5,
+        "p95Ms": 95.11,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 5,
+        "p95Ms": 145.62,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 5,
+        "p95Ms": 69.81,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      }
+    ]
+  },
+  "fullLspCases": 1476,
+  "fullLspCurrentAtQualification": true,
+  "originalFourLinuxEditorWorkflowsPassed": true,
+  "ordinaryCases": 25,
+  "queriesPerCase": 100,
+  "totalOrdinaryQueries": 2500,
+  "openRoadmapItems": 26,
+  "profileUpdated": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "knownLimitations": [
+    "Original Windows C2 Undo failure retained",
+    "createFile fallback Redo remains unproven",
+    "Full activation/platform/long-term and real Windows/WSL Remote acceptance remain incomplete"
+  ],
+  "preparationObservation": "Inherited historical host log directory; current unique timestamp log directory independently recovered, fixture matched, 57-file historical archive verified unchanged; no repeated execution."
+}

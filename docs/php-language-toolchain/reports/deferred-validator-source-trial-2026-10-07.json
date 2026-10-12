@@ -1,0 +1,1883 @@
+{
+  "schemaVersion": 1,
+  "milestones": "D308-D320",
+  "date": "2026-10-07",
+  "productChanged": true,
+  "decision": "retain indexed validator traversal and corruption regressions; no RSS or ordinary-editing qualification",
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "semanticSourceSha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+  "semanticDistSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+  "changedBaselineAssets": [
+    {
+      "path": "packages/semantic/src/index.ts",
+      "before": "0ffc442a0f61106a711d98d9da3c1c5d2c155241adc7dcb6993e696cc965acef",
+      "after": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6"
+    },
+    {
+      "path": "packages/semantic/dist/index.d.ts.map",
+      "before": "1bfb2456754e1df066592d3847029e6571dc02014efa70ebde1a89ea097e41f7",
+      "after": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "path": "packages/semantic/dist/index.js",
+      "before": "1b7ec969dd081459d74bba631b365d2b50d775e003535a13a52e7add3decf045",
+      "after": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+    },
+    {
+      "path": "packages/semantic/dist/index.js.map",
+      "before": "d868392edad4afad1548a13d17d766ebed430ba64356366ca15791b09dd9bc5e",
+      "after": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "path": "dist/language-server.js",
+      "before": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+      "after": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46"
+    }
+  ],
+  "tests": {
+    "d308-validator-contract-baseline": {
+      "success": true,
+      "numTotalTests": 12,
+      "numPassedTests": 12,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "files": 1
+    },
+    "d311-validator-semantic-full": {
+      "success": true,
+      "numTotalTests": 22836,
+      "numPassedTests": 22836,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "files": 146
+    },
+    "d315-validator-contract-final": {
+      "success": true,
+      "numTotalTests": 12,
+      "numPassedTests": 12,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "files": 1
+    },
+    "d316-validator-cache-protocol": {
+      "success": true,
+      "numTotalTests": 2,
+      "numPassedTests": 2,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "files": 2
+    }
+  },
+  "runs": {
+    "d308-validator-contract-baseline": {
+      "status": "exited",
+      "parentPid": 666866,
+      "childPid": 667037,
+      "startedAtUtc": "2026-10-07T12:39:48.653459+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/deferred-implementation-isolation.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d308-validator-contract-baseline-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d308-validator-contract-baseline-input.json",
+      "exitCode": 0,
+      "durationSeconds": 4.262903547998576,
+      "finishedAtUtc": "2026-10-07T12:39:52.915126+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "c3e38a159bb659b7ad721557f361096b9c428487b657e398a0b5fd71dedf0365"
+    },
+    "d309-validator-cache-baseline": {
+      "status": "exited",
+      "parentPid": 667190,
+      "childPid": 667277,
+      "startedAtUtc": "2026-10-07T12:40:00.804470+00:00",
+      "command": [
+        "node",
+        "scripts/benchmark-persistent-index.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d309-validator-cache-baseline-input.json",
+      "exitCode": 1,
+      "durationSeconds": 45.54046503000063,
+      "finishedAtUtc": "2026-10-07T12:40:46.343519+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "17fbbeb7ef20875421d741a83ca19aa6091f10307adbd4d9fb33d7c87c7093a8"
+    },
+    "d310-validator-contract-typecheck": {
+      "status": "exited",
+      "parentPid": 667809,
+      "childPid": 668015,
+      "startedAtUtc": "2026-10-07T12:41:21.403038+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--strict",
+        "--noUncheckedIndexedAccess",
+        "--skipLibCheck",
+        "packages/semantic/test/deferred-implementation-isolation.test.ts"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d310-validator-contract-typecheck-input.json",
+      "exitCode": 0,
+      "durationSeconds": 9.258368007001991,
+      "finishedAtUtc": "2026-10-07T12:41:30.660328+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "d311-validator-semantic-full": {
+      "status": "exited",
+      "parentPid": 668286,
+      "childPid": 668432,
+      "startedAtUtc": "2026-10-07T12:42:03.053484+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d311-validator-semantic-full-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d311-validator-semantic-full-input.json",
+      "exitCode": 0,
+      "durationSeconds": 73.4419145690008,
+      "finishedAtUtc": "2026-10-07T12:43:16.494127+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "79915f71990323475e286362abb3019e75b5a691605c02a1a7429f3247fafee6"
+    },
+    "d314-validator-cache-candidate": {
+      "status": "exited",
+      "parentPid": 671977,
+      "childPid": 672119,
+      "startedAtUtc": "2026-10-07T12:45:20.663969+00:00",
+      "command": [
+        "node",
+        "scripts/benchmark-persistent-index.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d314-validator-cache-candidate-input.json",
+      "exitCode": 1,
+      "durationSeconds": 43.95018991700272,
+      "finishedAtUtc": "2026-10-07T12:46:04.612633+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "5c1fd416219828d2ee37b2063b2ced07a35403504244a154bad2779afe9ce307"
+    },
+    "d315-validator-contract-final": {
+      "status": "exited",
+      "parentPid": 672877,
+      "childPid": 672987,
+      "startedAtUtc": "2026-10-07T12:47:23.994700+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/deferred-implementation-isolation.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d315-validator-contract-final-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d315-validator-contract-final-input.json",
+      "exitCode": 0,
+      "durationSeconds": 4.236363853000512,
+      "finishedAtUtc": "2026-10-07T12:47:28.229261+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "b31b1458d9ed12a022fc09b193cca69949fa41f59a889e35192fb70df1db24b7"
+    },
+    "d316-validator-cache-protocol": {
+      "status": "exited",
+      "parentPid": 673199,
+      "childPid": 673297,
+      "startedAtUtc": "2026-10-07T12:47:53.169966+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/trait-final-cache-stdio.test.ts",
+        "test/callable-facts-cache.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d316-validator-cache-protocol-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d316-validator-cache-protocol-input.json",
+      "exitCode": 0,
+      "durationSeconds": 16.33383770400178,
+      "finishedAtUtc": "2026-10-07T12:48:09.502038+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "8c03107a126a04772d00621a6a0e277ec6edb34b0e699a8e447d2d1407d031fc"
+    },
+    "d317-validator-c1": {
+      "status": "exited",
+      "parentPid": 673799,
+      "childPid": 673826,
+      "startedAtUtc": "2026-10-07T12:48:37.340686+00:00",
+      "command": [
+        "env",
+        "PHP_COMPANION_TEST_C1_ONLY=1",
+        "PHP_COMPANION_TEST_C1_UI=1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP=/opt/remi/php72/root/usr/bin/php",
+        "PHP_COMPANION_TEST_VSCODE_EXECUTABLE=/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR=/var/www/node/php-companion/.vscode-test/d317-c1-failures",
+        "D152_HOST_LOG_ARCHIVE=/var/www/node/php-companion/.vscode-test/d317-c1-log-archive",
+        "NODE_OPTIONS=--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs",
+        "node",
+        "scripts/run-extension-test.mjs",
+        "./dist-test/runTest.js"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d317-validator-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 104.0193739009992,
+      "finishedAtUtc": "2026-10-07T12:50:21.358613+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "8210fe61d0bfdae2378c888bec1f07ae5b68c82eda823f5fa448cf851e6ea31e"
+    },
+    "d318-validator-twig": {
+      "status": "exited",
+      "parentPid": 679486,
+      "childPid": 679527,
+      "startedAtUtc": "2026-10-07T12:54:39.026214+00:00",
+      "command": [
+        "env",
+        "TWIG_PLUS_TEST_PHP_CORE_PATH=/var/www/node/php-companion",
+        "TWIG_PLUS_TEST_PHP_SYMFONY_PATH=/var/www/node/php-companion/packages/php-companion-symfony",
+        "TWIG_PLUS_TEST_VSCODE_EXECUTABLE=/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "TWIG_PLUS_PHP_DEFINITION_REPORT=/var/www/node/php-companion/.vscode-test/d318-validator-twig-result.json",
+        "xvfb-run",
+        "-a",
+        "node",
+        "packages/vscode/test/extension/runPhpContextTest.js"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d318-validator-twig-input.json",
+      "exitCode": 0,
+      "durationSeconds": 16.978308483998262,
+      "finishedAtUtc": "2026-10-07T12:54:56.002978+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "dd199e21fee760eb470362c606251c9e8d1070fc7e1cf65af07f1bf82ecdd4c8"
+    }
+  },
+  "firstBuild": {
+    "startedAtUtc": "2026-10-07T12:43:39.577924+00:00",
+    "status": "failed",
+    "sourceSha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+    "steps": [
+      {
+        "label": "semantic-build",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/semantic",
+          "build"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 11.130634400997224,
+        "log": "/var/www/node/php-companion/.vscode-test/d312-semantic-build.log",
+        "logSha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+      },
+      {
+        "label": "test-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit",
+          "--target",
+          "ES2022",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--strict",
+          "--noUncheckedIndexedAccess",
+          "--skipLibCheck",
+          "packages/semantic/test/deferred-implementation-isolation.test.ts"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 9.276863459999731,
+        "log": "/var/www/node/php-companion/.vscode-test/d312-test-typecheck.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "semantic-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/src/index.ts",
+          "packages/semantic/test/deferred-implementation-isolation.test.ts"
+        ],
+        "exitCode": 1,
+        "durationSeconds": 8.881179284999234,
+        "log": "/var/www/node/php-companion/.vscode-test/d312-semantic-lint.log",
+        "logSha256": "82f83e1a4967944b190aa212a07e038954e557e8379388e8e23574573f224a59"
+      }
+    ]
+  },
+  "finalBuild": {
+    "startedAtUtc": "2026-10-07T12:44:49.379981+00:00",
+    "status": "exited",
+    "sourceSha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+    "steps": [
+      {
+        "label": "test-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit",
+          "--target",
+          "ES2022",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--strict",
+          "--noUncheckedIndexedAccess",
+          "--skipLibCheck",
+          "packages/semantic/test/deferred-implementation-isolation.test.ts"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 9.014615030999266,
+        "log": "/var/www/node/php-companion/.vscode-test/d313-test-typecheck.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "semantic-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/src/index.ts",
+          "packages/semantic/test/deferred-implementation-isolation.test.ts"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 8.454945834000682,
+        "log": "/var/www/node/php-companion/.vscode-test/d313-semantic-lint.log",
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "core-build",
+        "command": [
+          "node",
+          "esbuild.mjs",
+          "--production"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 0.6847038900014013,
+        "log": "/var/www/node/php-companion/.vscode-test/d313-core-build.log",
+        "logSha256": "9a0ab71809a9abfb753100e0470404742f06401228589b4144fce9ccda126159"
+      }
+    ],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-07T12:45:07.548633+00:00",
+    "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+    "semanticDistSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+    "changedBaselineAssets": [
+      {
+        "path": "packages/semantic/src/index.ts",
+        "before": "0ffc442a0f61106a711d98d9da3c1c5d2c155241adc7dcb6993e696cc965acef",
+        "after": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6"
+      },
+      {
+        "path": "packages/semantic/dist/index.d.ts.map",
+        "before": "1bfb2456754e1df066592d3847029e6571dc02014efa70ebde1a89ea097e41f7",
+        "after": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+      },
+      {
+        "path": "packages/semantic/dist/index.js",
+        "before": "1b7ec969dd081459d74bba631b365d2b50d775e003535a13a52e7add3decf045",
+        "after": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+      },
+      {
+        "path": "packages/semantic/dist/index.js.map",
+        "before": "d868392edad4afad1548a13d17d766ebed430ba64356366ca15791b09dd9bc5e",
+        "after": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+      },
+      {
+        "path": "dist/language-server.js",
+        "before": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+        "after": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46"
+      }
+    ]
+  },
+  "normalCompiledParity": {
+    "normalCompiledValidatorMatchesPrivateCandidate": true,
+    "normalSemanticSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+    "privateCandidateSha256": "68f0f8fa12cc9efb390a78cea662e6353a34ceb96f01ce8b1e1822031e413a6d",
+    "coreSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46"
+  },
+  "cacheSequence": {
+    "baseline": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 19410.96,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6399.49,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3297,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57274849,
+          "mebibytes": 54.62
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57274849,
+          "mebibytes": 54.62
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 316.64,
+        "warmPeakRssMb": 439.46,
+        "layerRecoveryPeakRssMb": 741.7,
+        "callableRecoveryPeakRssMb": 860.1,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 915.03,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "candidate": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 18939.05,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6200.28,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3274,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57266849,
+          "mebibytes": 54.61
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57266849,
+          "mebibytes": 54.61
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 322.47,
+        "warmPeakRssMb": 443.14,
+        "layerRecoveryPeakRssMb": 749.29,
+        "callableRecoveryPeakRssMb": 862.98,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 920.54,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    }
+  },
+  "ordinaryEditing": {
+    "status": "exited",
+    "parentPid": 680907,
+    "startedAtUtc": "2026-10-07T12:55:02.264981+00:00",
+    "node": {
+      "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "version": "v22.14.0"
+    },
+    "head": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+    "worktreeStatus": " M docs/php-language-toolchain/acceptance.md\n M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n M packages/language-server/test/shutdown-version-refresh-stdio.test.ts\n M packages/parser/src/index.ts\n M packages/parser/test/parser.test.ts\n M packages/semantic/src/index.ts\n?? .changeset/indexed-deferred-validation.md\n?? .changeset/progressive-controller-contexts.md\n?? .changeset/scalar-reference-fact-copy.md\n?? .changeset/shared-deferred-accessors.md\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.json\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-079ffa1b-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-079ffa1b-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a6e9f650-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a6e9f650-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/deferred-validator-allocation-trial-2026-10-07.json\n?? docs/php-language-toolchain/reports/deferred-validator-allocation-trial-2026-10-07.md\n?? docs/php-language-toolchain/reports/parser-fact-copy-normal-editing-trial-2026-10-07.json\n?? docs/php-language-toolchain/reports/parser-fact-copy-normal-editing-trial-2026-10-07.md\n?? docs/php-language-toolchain/reports/parser-fact-copy-prototype-2026-10-07.json\n?? docs/php-language-toolchain/reports/parser-fact-copy-prototype-2026-10-07.md\n?? docs/php-language-toolchain/reports/parser-scalar-fact-copy-2026-10-07.json\n?? docs/php-language-toolchain/reports/parser-scalar-fact-copy-2026-10-07.md\n?? docs/php-language-toolchain/reports/persistent-cache-allocation-stacks-2026-10-07.json\n?? docs/php-language-toolchain/reports/persistent-cache-allocation-stacks-2026-10-07.md\n?? docs/php-language-toolchain/reports/persistent-cache-memory-diagnostic-2026-10-07.json\n?? docs/php-language-toolchain/reports/persistent-cache-memory-diagnostic-2026-10-07.md\n?? docs/php-language-toolchain/reports/persistent-cache-retained-heap-2026-10-07.json\n?? docs/php-language-toolchain/reports/persistent-cache-retained-heap-2026-10-07.md\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.json\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/reference-selection-warning-triage-2026-10-07.json\n?? docs/php-language-toolchain/reports/reference-selection-warning-triage-2026-10-07.md\n?? docs/php-language-toolchain/reports/semantic-deferred-allocation-2026-10-07.json\n?? docs/php-language-toolchain/reports/semantic-deferred-allocation-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.md\n?? packages/language-server/test/controller-context-progressive-stdio.test.ts\n?? packages/semantic/test/deferred-implementation-isolation.test.ts\n",
+    "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+    "inputCount": 5456,
+    "inputsDigest": "a20b55a9b8f86ece90587058bb137d816e165e73babdc2de4adbcac5614de1e7",
+    "externalInputHashes": {
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+      "/tmp/sophp-d74-declaration-edit-zv4y4wcp/composer.json": "cea789276c58625c4d03724af8120f41f74a104e9d888849c08de6d931d2114c",
+      "/var/www/php/8.5/winstar2024/composer.json": "8873b8535cabbf5e709bbc9dfc0e810acf7d0f195b526dfaec4a9733a350ba0b",
+      "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+      "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6"
+    },
+    "hotQueryBudgetMs": 150,
+    "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.28",
+    "loadAverageAtStart": [
+      0.89,
+      1.1,
+      1.47
+    ],
+    "roundsPerCase": 100,
+    "cases": [
+      {
+        "label": "fixed-7.2",
+        "version": "7.2",
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "aExpected": "shapePickZ",
+        "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "bExpected": "shapePickA",
+        "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "childPid": 680990,
+        "exitCode": 0,
+        "durationSeconds": 13.599084049001249,
+        "stdoutSha256": "4691a76369fa6a2a5a6d99ac8c4737f1b53aca86a8afdb9800c0c5845d0d84aa",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 354.06,
+          "all": {
+            "p50Ms": 105.5,
+            "p95Ms": 144.02,
+            "maxMs": 354.06
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 101.32,
+            "p95Ms": 149.44,
+            "maxMs": 354.06,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 108.26,
+            "p95Ms": 143.45,
+            "maxMs": 191.21,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 225.1
+              },
+              {
+                "round": 50,
+                "rssMiB": 302.27
+              },
+              {
+                "round": 100,
+                "rssMiB": 354.07
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "version": "8.5",
+        "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+        "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+        "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "aExpected": "shapePickZ",
+        "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+        "bExpected": "shapePickA",
+        "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+        "sourceBytes": 242801,
+        "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/benchmark-project-completion.mjs",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickZ",
+          "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "shapePickA",
+          "100"
+        ],
+        "childPid": 681080,
+        "exitCode": 0,
+        "durationSeconds": 13.934536755001318,
+        "stdoutSha256": "a5c80eb546306ab851eb907a79fb329064c879138f701fb1747f60408cdb91b6",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 328.58,
+          "all": {
+            "p50Ms": 96.49,
+            "p95Ms": 139.65,
+            "maxMs": 328.58
+          },
+          "a": {
+            "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickZ",
+            "p50Ms": 96.84,
+            "p95Ms": 132.38,
+            "maxMs": 328.58,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "expected": "shapePickA",
+            "p50Ms": 94.22,
+            "p95Ms": 148.82,
+            "maxMs": 163.01,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 240.54
+              },
+              {
+                "round": 50,
+                "rssMiB": 326.29
+              },
+              {
+                "round": 100,
+                "rssMiB": 381.71
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 82773,
+        "sourceSha256": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/benchmark-project-completion.mjs",
+          "/var/www/php/8.5/winstar2024",
+          "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueZ",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueA",
+          "100"
+        ],
+        "childPid": 681223,
+        "exitCode": 0,
+        "durationSeconds": 9.660591066000052,
+        "stdoutSha256": "43a188012c2ba621d3ff65baee9d6eae47573a8f0efc2473f7d528184ff7eb62",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 213.44,
+          "all": {
+            "p50Ms": 64.07,
+            "p95Ms": 83.11,
+            "maxMs": 213.44
+          },
+          "a": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueZ",
+            "p50Ms": 62.22,
+            "p95Ms": 81.39,
+            "maxMs": 213.44,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueA",
+            "p50Ms": 65.11,
+            "p95Ms": 84.5,
+            "maxMs": 100.9,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 237.35
+              },
+              {
+                "round": 50,
+                "rssMiB": 282.52
+              },
+              {
+                "round": 100,
+                "rssMiB": 316.2
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 46144,
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/benchmark-project-completion.mjs",
+          "/var/www/php/8.5/winstar2024",
+          "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueZ",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueA",
+          "100"
+        ],
+        "childPid": 681290,
+        "exitCode": 0,
+        "durationSeconds": 15.410535326001991,
+        "stdoutSha256": "810606486736d9455f48f0d0fcc2b228c27a23745c27aa00f3e177c8c9836383",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 232.03,
+          "all": {
+            "p50Ms": 122.88,
+            "p95Ms": 157.74,
+            "maxMs": 232.03
+          },
+          "a": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueZ",
+            "p50Ms": 125.12,
+            "p95Ms": 160.91,
+            "maxMs": 232.03,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueA",
+            "p50Ms": 119.87,
+            "p95Ms": 157.74,
+            "maxMs": 164.41,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 229.97
+              },
+              {
+                "round": 50,
+                "rssMiB": 398.7
+              },
+              {
+                "round": 100,
+                "rssMiB": 402.5
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "budgetPassed": false
+      },
+      {
+        "label": "real-blog-controller",
+        "version": "8.5",
+        "root": "/var/www/php/8.5/winstar2024",
+        "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+        "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "aExpected": "sophpPerfValueZ",
+        "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+        "bExpected": "sophpPerfValueA",
+        "sourceKind": "existing real project file; appended input remains unsaved only",
+        "sourceBytes": 13815,
+        "sourceSha256": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+        "status": "exited",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/benchmark-project-completion.mjs",
+          "/var/www/php/8.5/winstar2024",
+          "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueZ",
+          "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "sophpPerfValueA",
+          "100"
+        ],
+        "childPid": 681706,
+        "exitCode": 0,
+        "durationSeconds": 8.15474649600219,
+        "stdoutSha256": "8bb283016223b38e1369d68197ecf70f2d9ce7aace44944ffba2de94685d16b3",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": {
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+          "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+          "rounds": 100,
+          "expectFirst": true,
+          "expectEmptyForDash": false,
+          "sharedCandidates": true,
+          "resolveDetails": false,
+          "firstMs": 135.31,
+          "all": {
+            "p50Ms": 50.16,
+            "p95Ms": 73.51,
+            "maxMs": 135.31
+          },
+          "a": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueZ",
+            "p50Ms": 51.65,
+            "p95Ms": 74.42,
+            "maxMs": 135.31,
+            "incomplete": 50
+          },
+          "b": {
+            "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "expected": "sophpPerfValueA",
+            "p50Ms": 49.15,
+            "p95Ms": 73.51,
+            "maxMs": 78.84,
+            "incomplete": 50
+          },
+          "memory": {
+            "collectedGc": false,
+            "metric": "process RSS; not retained heap",
+            "samples": [
+              {
+                "round": 1,
+                "rssMiB": 208.68
+              },
+              {
+                "round": 50,
+                "rssMiB": 268.44
+              },
+              {
+                "round": 100,
+                "rssMiB": 309.32
+              }
+            ]
+          },
+          "readOnly": true,
+          "diskUnchanged": true
+        },
+        "budgetPassed": true
+      }
+    ],
+    "qualified": false,
+    "scope": "Normally built indexed deferred-implementation validator candidate; original five cases and 150 ms budget unchanged. Normal candidate Core with same-file dynamic-property diagnostics enabled; fresh Composer and real-project hashes; previous D202 baseline is retained and is comparable only where external inputs match; original production-bundle serial unsaved-edit plus immediate completion benchmark, no CPU profiler/forced GC/testMode. Two configured PHP-version controls and three read-only real-project files, 100 requests each including first query; first and P50/P95/max reported separately. onDemand only; not UI latency, diagnostic/hover/definition qualification, whole-project or long-session/per-platform acceptance. External RSS samples are not retained heap or 50k-cache qualification.",
+    "finishedAtUtc": "2026-10-07T12:56:03.101446+00:00",
+    "changedInputs": [],
+    "changedExternalInputs": [],
+    "nodeUnchanged": true,
+    "headUnchanged": true,
+    "worktreeUnchanged": true,
+    "correctnessCaptured": true
+  },
+  "ordinaryEditingSummary": [
+    {
+      "label": "fixed-7.2",
+      "previousBuild": {
+        "p50Ms": 108.29,
+        "p95Ms": 149.15,
+        "maxMs": 437.43
+      },
+      "currentBuild": {
+        "p50Ms": 105.5,
+        "p95Ms": 144.02,
+        "maxMs": 354.06
+      },
+      "currentBudgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "previousBuild": {
+        "p50Ms": 98.82,
+        "p95Ms": 131.76,
+        "maxMs": 334.41
+      },
+      "currentBuild": {
+        "p50Ms": 96.49,
+        "p95Ms": 139.65,
+        "maxMs": 328.58
+      },
+      "currentBudgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "previousBuild": {
+        "p50Ms": 65.07,
+        "p95Ms": 90.59,
+        "maxMs": 186.08
+      },
+      "currentBuild": {
+        "p50Ms": 64.07,
+        "p95Ms": 83.11,
+        "maxMs": 213.44
+      },
+      "currentBudgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "previousBuild": {
+        "p50Ms": 123.37,
+        "p95Ms": 150.3,
+        "maxMs": 236.77
+      },
+      "currentBuild": {
+        "p50Ms": 122.88,
+        "p95Ms": 157.74,
+        "maxMs": 232.03
+      },
+      "currentBudgetPassed": false
+    },
+    {
+      "label": "real-blog-controller",
+      "previousBuild": {
+        "p50Ms": 51.59,
+        "p95Ms": 73.57,
+        "maxMs": 156.98
+      },
+      "currentBuild": {
+        "p50Ms": 50.16,
+        "p95Ms": 73.51,
+        "maxMs": 135.31
+      },
+      "currentBudgetPassed": true
+    }
+  ],
+  "twigPrecision": {
+    "vscodeVersion": "1.140.0",
+    "status": "passed",
+    "checks": [
+      "explicit PHP 8.5 target setting",
+      "plain exact render key",
+      "namespace exact render key",
+      "plain exact getter",
+      "namespace exact getter",
+      "plain person completion",
+      "plain name completion",
+      "namespace person completion",
+      "namespace name completion",
+      "unsaved PHP source shift",
+      "unsaved namespace source shift",
+      "PHP source Undo",
+      "PHP source Redo",
+      "unsaved source never wrote disk",
+      "no PHP target for unknown receiver",
+      "no PHP target for string",
+      "no PHP target for comment",
+      "no PHP target for HTML",
+      "no PHP target for filter",
+      "no PHP target for local receiver",
+      "cross-language Rename applies once",
+      "cross-language Rename Undo",
+      "cross-language Rename Redo",
+      "post-Rename source precision",
+      "cross-language Rename never wrote disk"
+    ]
+  },
+  "originalTwigFilesPreserved": {
+    "packages/parser/src/hybridAst.ts": true,
+    "packages/parser/test/hybridAst.test.ts": true,
+    "packages/vscode/test/extension/suite/index.js": true,
+    "tests/integration/vscodeIntegration.test.ts": true
+  },
+  "fullCurrentLspQualification": "pending; previous 079ffa1b passed 1321 cases and does not qualify f026f9cd",
+  "archive": ".vscode-test/d320-validator-source-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d308-validator-contract-baseline-input.json",
+      "sha256": "a173b170d344971be87dc61694b17d32effe98431aeb2abad8abf0f58aad7239"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d308-validator-contract-baseline-run.json",
+      "sha256": "3ed102a308cedfaa4d7b5a08a8264329e4f310e4a026f0e476000a942f8883c0"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d308-validator-contract-baseline-result.json",
+      "sha256": "9ffd8305305ffe5acee60593b31957d47cd9c7e61c69b37ffe20b2b385720260"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d308-validator-contract-baseline.log",
+      "sha256": "c3e38a159bb659b7ad721557f361096b9c428487b657e398a0b5fd71dedf0365"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d309-validator-cache-baseline-input.json",
+      "sha256": "52d78d86078f44d32783d7ab3e7f8d08d7e1b7dffcb152ef6ca0e4ec372294d7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d309-validator-cache-baseline-run.json",
+      "sha256": "3396b29f3b398c630066a27112a786f564d6012f4653ffddb134a01434106696"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d309-validator-cache-baseline.log",
+      "sha256": "17fbbeb7ef20875421d741a83ca19aa6091f10307adbd4d9fb33d7c87c7093a8"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d310-validator-contract-typecheck-input.json",
+      "sha256": "b7093685e4e685ce6d5382cceb50384c1719114aeecb8fa0389a491e61cf6e25"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d310-validator-contract-typecheck-run.json",
+      "sha256": "44f3f3f2ae224fd8438f6c1f8ad2c91117f12cc3750a46059a5f9f418306365b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d310-validator-contract-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d311-validator-semantic-full-input.json",
+      "sha256": "dea9a46b25ef6b04ae266574c3e0518974ed657f03ba58976b0c1016bcf6d529"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d311-validator-semantic-full-run.json",
+      "sha256": "d554e0393a8ffff8b69398da36122af453f0ddb1ce2882c1f2e980a02d059d88"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d311-validator-semantic-full-result.json",
+      "sha256": "53dee7f3f01ad957ac5db7ccf956f03e000ba249a358e72558e7ada715fc200c"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d311-validator-semantic-full.log",
+      "sha256": "79915f71990323475e286362abb3019e75b5a691605c02a1a7429f3247fafee6"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d314-validator-cache-candidate-input.json",
+      "sha256": "8ac582f09c1e67252590b9bed45860664481a17f5981d71eedf8f3cf11ef7448"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d314-validator-cache-candidate-run.json",
+      "sha256": "5845c778a6f350051a5b0180e97820d1c023980c7e1ca4daad227073f489546a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d314-validator-cache-candidate.log",
+      "sha256": "5c1fd416219828d2ee37b2063b2ced07a35403504244a154bad2779afe9ce307"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d315-validator-contract-final-input.json",
+      "sha256": "286697efb9e5c8c9d6602cc7a162ec7096f2e18bf041ac5049bf67bd937ada08"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d315-validator-contract-final-run.json",
+      "sha256": "42a060bc7fda95e93ccc4b771d62e9acc37b3e5fd697f61361ee3973698ac8dc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d315-validator-contract-final-result.json",
+      "sha256": "aaf5973490e00ec2502eb1171ba010a62f2f021496d27576b1e674edd0dfeb5e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d315-validator-contract-final.log",
+      "sha256": "b31b1458d9ed12a022fc09b193cca69949fa41f59a889e35192fb70df1db24b7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d316-validator-cache-protocol-input.json",
+      "sha256": "e6377caaf88af5549536157f4463ab9af680e4cd576c6244ff95aebe760b5fcf"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d316-validator-cache-protocol-run.json",
+      "sha256": "32fd6155574c489707b4f433e6eb47942929d8a9b91ded7edbfbf1a9a2c1e1f4"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d316-validator-cache-protocol-result.json",
+      "sha256": "629a21ee280521f9db4554973ac16a7fe454cfa4d37b0b145dc70f85bbdd3488"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d316-validator-cache-protocol.log",
+      "sha256": "8c03107a126a04772d00621a6a0e277ec6edb34b0e699a8e447d2d1407d031fc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d317-validator-c1-input.json",
+      "sha256": "767cdd6e77befbe0f8090bc243c6bf8b7d0ab71609748fecd96aaa15bba092dc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d317-validator-c1-run.json",
+      "sha256": "b36eb0d259e58c617087d870f96a3a9b14502e5a058c641b6c4da01ef175ef59"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d317-validator-c1.log",
+      "sha256": "8210fe61d0bfdae2378c888bec1f07ae5b68c82eda823f5fa448cf851e6ea31e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d318-validator-twig-input.json",
+      "sha256": "2f54e257fcc44550d82c5526eaee8875fd14f64b1c5c09cb39b3ed9f0ebc8331"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d318-validator-twig-run.json",
+      "sha256": "06e619dc52c821ea2f54d6f7053df2ebf826d3ed0d25258fbcc4f07fac804576"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d318-validator-twig-result.json",
+      "sha256": "dbc81f805f4169fe5b87ad16e23b7b6a84ad07143ebbaacb1a4078970e2fb062"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d318-validator-twig.log",
+      "sha256": "dd199e21fee760eb470362c606251c9e8d1070fc7e1cf65af07f1bf82ecdd4c8"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d308-run.py",
+      "sha256": "13733f0b0243344ab5cefdcaa0cacb7e113903579137cb9e3557126abdf6da7e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d311-validator-source-diff.patch",
+      "sha256": "138253869544f7fef126713f6c4d6c5cb7bf37c356d580c8338959fbdb5b5bdb"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d312-build-validator.py",
+      "sha256": "ad86b706a513bbca34ddcd54d2038826c3d94f3e9224f775dd3715544e11f47d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d313-build-validator.py",
+      "sha256": "9cc07a3b5709ea7fa78324e47a3306e5ba98af5e854b4e291bdb6efeb809e2c5"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d312-validator-build.json",
+      "sha256": "859516fdc51cb50dec18e14eb6c9573e0ad0a88f48ca9b9c4a2e3f0cf4500922"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d313-validator-build.json",
+      "sha256": "47eef44f84b98303d9da585639eb3c2eee18c2fdec23d72ec40c328d13848716"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d314-validator-normal-parity.json",
+      "sha256": "f205e73ca2a727b4251f219ca3c290c9ade398c161405e82e8ebdb869adaaa8e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d318-validator-twig-command.json",
+      "sha256": "bee4ac914f8cc09cc2dfb171564e66aaaeb24b9055a83a6ecee0b7c59ad8e72b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d319-validator-project-editing-run.json",
+      "sha256": "07728ec26a278d6caef06b2ab10bc4b493e1291d1d782bda2cf87a11255a76ad"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d312-semantic-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d312-test-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d312-semantic-lint.log",
+      "sha256": "82f83e1a4967944b190aa212a07e038954e557e8379388e8e23574573f224a59"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d313-test-typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d313-semantic-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d313-core-build.log",
+      "sha256": "9a0ab71809a9abfb753100e0470404742f06401228589b4144fce9ccda126159"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/src/index.ts",
+      "sha256": "0ffc442a0f61106a711d98d9da3c1c5d2c155241adc7dcb6993e696cc965acef"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/src/index.ts",
+      "sha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/index.d.ts.map",
+      "sha256": "1bfb2456754e1df066592d3847029e6571dc02014efa70ebde1a89ea097e41f7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/index.d.ts.map",
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/index.js",
+      "sha256": "1b7ec969dd081459d74bba631b365d2b50d775e003535a13a52e7add3decf045"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/index.js",
+      "sha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/d188-baseline-index.js",
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/d188-baseline-index.js",
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/index.js.map",
+      "sha256": "d868392edad4afad1548a13d17d766ebed430ba64356366ca15791b09dd9bc5e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/index.js.map",
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/packages/semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/candidateWorker.js.map",
+      "sha256": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/candidateWorker.js.map",
+      "sha256": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/sourceStatWorker.js.map",
+      "sha256": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/sourceStatWorker.js.map",
+      "sha256": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/extension.js",
+      "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/extension.js",
+      "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/candidateWorker.js",
+      "sha256": "0ffff7d9e378e15b2f28937a31828098be898d937670ef832befe188fd852cd0"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/candidateWorker.js",
+      "sha256": "0ffff7d9e378e15b2f28937a31828098be898d937670ef832befe188fd852cd0"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/language-server.js",
+      "sha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/language-server.js",
+      "sha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/builtinSnapshotWorker.js",
+      "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/builtinSnapshotWorker.js",
+      "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/extension.js.map",
+      "sha256": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/extension.js.map",
+      "sha256": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/portableCandidateSearchWorker.js.map",
+      "sha256": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/portableCandidateSearchWorker.js.map",
+      "sha256": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/language-server.js.map",
+      "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/language-server.js.map",
+      "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/dist/node_modules/web-tree-sitter/index.js",
+      "sha256": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/dist/node_modules/web-tree-sitter/index.js",
+      "sha256": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/baseline/manifest.json",
+      "sha256": "d44545247736c330e66fb7d1a2486238d5cd173ec1f4c69b870d185772056ad3"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/packages/semantic/test/deferred-implementation-isolation.test.ts",
+      "sha256": "cff44ed76319350e67f9ee43ab8ef55080ef5dc5322928e379252344b6a7ee65"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/candidate/.changeset/indexed-deferred-validation.md",
+      "sha256": "de1101891adc01dfc14fdaba0213cf30554f5facd8c7e061225a104cab56209a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/fixed-8.5.stdout",
+      "sha256": "a5c80eb546306ab851eb907a79fb329064c879138f701fb1747f60408cdb91b6"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/real-data-service.stdout",
+      "sha256": "43a188012c2ba621d3ff65baee9d6eae47573a8f0efc2473f7d528184ff7eb62"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/real-blog-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/d319-validator-project-editing.py",
+      "sha256": "0f4bf1db083c319f86a6d718ac195617705e68822cf211fea470c829d20d60e8"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/fixed-7.2.stdout",
+      "sha256": "4691a76369fa6a2a5a6d99ac8c4737f1b53aca86a8afdb9800c0c5845d0d84aa"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/fixed-7.2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/real-large-controller.stdout",
+      "sha256": "810606486736d9455f48f0d0fcc2b228c27a23745c27aa00f3e177c8c9836383"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/d319-validator-project-editing-run.json",
+      "sha256": "07728ec26a278d6caef06b2ab10bc4b493e1291d1d782bda2cf87a11255a76ad"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/real-blog-controller.stdout",
+      "sha256": "8bb283016223b38e1369d68197ecf70f2d9ce7aace44944ffba2de94685d16b3"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/real-large-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/benchmark-project-completion.mjs",
+      "sha256": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/real-data-service.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/fixed-8.5.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/ordinary-editing/input-snapshot.json",
+      "sha256": "6a9ea18fac27b756cdb726ca1163e587401649247ff37a7d2fb8989f079bd5ed"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/c1.code-workspace",
+      "sha256": "72cd98eccce4af814b65afeb9339fbd5fa69072baa240a27b7e837c0b6dc8ada"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/agenthost.log",
+      "sha256": "a37e846f1029a53080e3dc20e593f69e9528bfff3645f94fdcc36abbcb62912b"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/userDataSync.log",
+      "sha256": "6e91f124896717e1198338f4fef118671a4fa874fb0503d0467fd01ac0611c5c"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/main.log",
+      "sha256": "29246c33c6b50cb951b40aa132f8a7b6209574c4200a49ec116fe5fa03c0a0b9"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/editSessions.log",
+      "sha256": "dac36dcb84ab9e964b281f460f668f7c5dd9d359ea6f909354d65d7337f083e9"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/mcpGateway.log",
+      "sha256": "9c29f155fa775d848ac4581c6faf4bff71fdb46af31cf652233d609751321639"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/renderer.log",
+      "sha256": "62e96ccd25d19e6345bfa0d844df0350e7d92e774e66c20cbe210fe3e5142432"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/output_20261007T204846/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/output_20261007T204846/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/exthost.log",
+      "sha256": "8990618c28bbf78ec93fb1e25d526eed54191edc6853f23a5cca70c89193f047"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "bbe1d1a4978878237b2bf01a4eabeed709ff154ea21bd973ffb21faef79e49ef"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/vscode.git/Git.log",
+      "sha256": "54f79deafbceed81a6e4d3368aac8a4e40fbb6576649aa639495eb9cbe098f80"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "789b4f9b782f217649d456b7d0dc7102e4053d792915193b21b8dcbbee22de1a"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "70cbc88d26c0d572d8653787ec854047dc325bd877039869d346bc8f2dde99a4"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/c1-host-logs/php-companion-extension-g5HOn5/logs/20261007T204842/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d320-validator-source-evidence/d320-record-validator.py",
+      "sha256": "a61e411a546d4223c6cf39d79ab6366bdfbb390b3b57804de101547c4152f4fe"
+    }
+  ],
+  "boundaries": [
+    "Validation predicates, ownership, ordering, unique assignment offsets, schema 89 and persistence format are unchanged. Existing D278/D292 work is preserved.",
+    "Twelve contract cases already passed before the production edit. Ten new rejection cases also prove invalid restore preserves previously accepted state and does not mutate the invalid input.",
+    "Full semantic suite binds the current production source before a test-only explicit return type lint correction. Strict test typecheck, lint and final 12-case suite passed after the correction; the full suite was not falsely rerun or relabeled.",
+    "Baseline and candidate uninstrumented original four-stage 10k sequences each ran once with no forced GC or heap flags. Functional controls pass, RSS 915.03 and 920.54 MiB both exceed 768 MiB. Private 30.80 percent sampled cumulative allocation reduction does not prove RSS or latency gains.",
+    "All five original ordinary-editing cases ran once, 100 serial edits each including first query. Correctness passes, four budgets pass; no statistical improvement or repeated measurement to select green.",
+    "Original cache protocol files executed two complete tests, not an inflated count of substeps. Actual C1 and actual three-extension host are not full platform, long-session or real WSL acceptance.",
+    "Historical 1003.52 MiB failure, rejected storage/copy candidates, original D284 warning and D225 timeout root causes remain recorded. No Profile, VSIX, commit, push or release. All original C1-C4/R4/P0-P9/F01-F14 scope remains active."
+  ]
+}

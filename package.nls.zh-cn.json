@@ -62,5 +62,6 @@
   "config.rename.phpDoc": "重命名时更新 PHPDoc 中经语义证明的类型引用。",
   "config.rename.stringReferences": "保留给未来的字符串引用支持。SoPHP 目前不会修改普通字符串。",
   "config.routeProviders.cacheUntilInvalidated": "复用完整路由快照，直到提供器、环境、受监视的 PHP/YAML 文件或打开的文档使其失效。",
-  "config.indexing.onStartup.deprecation": "请使用 phpCompanion.indexing.mode；启动时索引已不再受支持。"
+  "config.indexing.onStartup.deprecation": "请使用 phpCompanion.indexing.mode；启动时索引已不再受支持。",
+  "command.moveMember": "预览并移动 PHP 成员"
 }

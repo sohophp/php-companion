@@ -1,0 +1,331 @@
+{
+  "qualified": true,
+  "scope": "Negative by-value foreach assertion subset, complete Semantic and focused production protocol, original Linux PHP8.5/onDemand C2",
+  "normalBundleSha256": "568e259d271aac8f337e9451b6811145c27788a5be8b0c0a295e4bc8537d3923",
+  "baseline": {
+    "passed": 24,
+    "failed": 28,
+    "tests": 52
+  },
+  "focusedSemantic": {
+    "passed": 82
+  },
+  "completeSemantic": {
+    "files": 184,
+    "passed": 23948,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0
+  },
+  "productionProtocol": {
+    "passed": 8,
+    "newNegativeCases": 4,
+    "phpVersions": [
+      "7.2",
+      "8.5"
+    ],
+    "indexingModes": [
+      "onDemand",
+      "progressive"
+    ],
+    "assertedDocumentVersionsPerCase": 11
+  },
+  "firstProtocolFixtureFailureRetained": true,
+  "firstProtocolFixtureError": "nullable elements were passed to nonnullable assertion function parameters; corrected the three fixture parameters to ?Base",
+  "editor": {
+    "status": "exited",
+    "parentPid": 88112,
+    "qualified": true,
+    "normalBundleSha256": "568e259d271aac8f337e9451b6811145c27788a5be8b0c0a295e4bc8537d3923",
+    "compiledFiles": 98,
+    "sourceInputs": 138,
+    "command": [
+      "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+      "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+      "--evidence",
+      "/var/www/node/php-companion/.vscode-test/d2253-current-negative-c2-display",
+      "--",
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/dist-test/runTest.js"
+    ],
+    "scope": "Original full Linux C2 PHP8.5 onDemand only",
+    "fullCurrentLspQualified": false,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "childPid": 88113,
+    "exitCode": 0,
+    "durationSeconds": 132.95260832097847,
+    "changedInputs": [],
+    "observations": [
+      [
+        {
+          "version": 1,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 2,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 3,
+          "method": "onlyReady"
+        },
+        {
+          "version": 4,
+          "method": "onlyReady"
+        },
+        {
+          "version": 5,
+          "method": "onlyReady"
+        },
+        {
+          "version": 6,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 7,
+          "method": "onlyReady"
+        },
+        {
+          "version": 8,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 9,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 10,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 11,
+          "method": "onlyReady"
+        },
+        {
+          "version": 12,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        },
+        {
+          "version": 13,
+          "method": "onlyReady"
+        },
+        {
+          "version": 14,
+          "method": "onlyReady",
+          "expectedOwner": "Ready"
+        }
+      ]
+    ],
+    "actualLanguageServers": [
+      {
+        "pid": 88976,
+        "argv": [
+          "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "/var/www/node/php-companion/dist/language-server.js",
+          "--parser-core-wasm",
+          "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+          "--php-wasm",
+          "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+          "--stdio",
+          "--clientProcessId=88626"
+        ]
+      }
+    ],
+    "actualLanguageServersGone": true,
+    "ownedDisplayGone": true
+  },
+  "oldSemanticTestInputsUnchanged": 203,
+  "publicDeclarationsUnchanged": 9,
+  "archive": [
+    {
+      "source": "/var/www/node/php-companion/packages/semantic/src/index.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/packages/semantic/src/index.ts",
+      "sha256": "6e6dae87a4a458c94960b98e57cc137ad81ca7f8f730efb7fd6dcd8802f0c020"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic/test/foreach-negative-assertions.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/packages/semantic/test/foreach-negative-assertions.test.ts",
+      "sha256": "86f281b7d464281e9396f10dee2fe24dc0dc53c449b1dfc4b213f18ca875b616"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/language-server/test/foreach-negative-assertions-stdio.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/packages/language-server/test/foreach-negative-assertions-stdio.test.ts",
+      "sha256": "9e4f21bb5321fef9aeb301791b3b15d870786e29a16cea7f4956cf40922e9b14"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/language-server.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/dist/language-server.js",
+      "sha256": "568e259d271aac8f337e9451b6811145c27788a5be8b0c0a295e4bc8537d3923"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "source": "/var/www/node/php-companion/test/extension/suite/foreachAssertions.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/test/extension/suite/foreachAssertions.ts",
+      "sha256": "206994d69ca4716006af6348be4fe82d55d1e1dca41c8aa8c18323524c8c70b8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.changeset/foreach-negative-assertions.md",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.changeset/foreach-negative-assertions.md",
+      "sha256": "e57e090b237ad1705c3f486c9081d4f934a4a03b62dde4583e39dd56b547a13b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2247-foreach-negative-baseline.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2247-foreach-negative-baseline.json",
+      "sha256": "6740af4b5c73ed47817c4d0e659528152f8ab11e74f5411e55f439d8eba2da6c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2247-foreach-negative-baseline.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2247-foreach-negative-baseline.log",
+      "sha256": "ef2dbf57c197fd798298382f7ec87a5d8b8e9c2521a4f6d1f4278400230656fc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2248-foreach-negative-focused.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2248-foreach-negative-focused.json",
+      "sha256": "6d1182872dd719681976cf8ff12a984edcb11409134d8e74710d575a5ec59797"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2248-foreach-negative-focused.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2248-foreach-negative-focused.log",
+      "sha256": "d4a5d6e42e12e5e8a7e8943ddb38d192f09111b2a73c44b7295fdeb359042580"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2248-semantic-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2248-semantic-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2249-semantic-full.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2249-semantic-full.json",
+      "sha256": "125c2b1288d0f0243149284b09eb683b966fb86234cefa681fea645860b8436a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2249-semantic-full.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2249-semantic-full.log",
+      "sha256": "00514d9696511ff744049950fb1d1c4e0e506ecce8dc803c6455144512c890b0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2249-language-server-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2249-language-server-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2249-foreach-negative-lint.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2249-foreach-negative-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2249-foreach-negative-normal-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2249-foreach-negative-normal-build.log",
+      "sha256": "67df500c9ba6dd7c5453bdaf5347fc77f2b2cb246ca45b35fac5160960157d39"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2250-foreach-negative-normal-protocol.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2250-foreach-negative-normal-protocol.json",
+      "sha256": "befd89c2fac4b3acbae8a14769a1603c638eeefabfec26cccf9bdf64e307734c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2250-foreach-negative-normal-protocol.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2250-foreach-negative-normal-protocol.log",
+      "sha256": "33606c8457e8eb1dcced4d995374b720ab7a653da468ab7a013ebcce6274f799"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2250-failed-foreach-negative-fixture.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2250-failed-foreach-negative-fixture.ts",
+      "sha256": "52e0fd2a47e18935263f6bca3202603060e9e1e27d2e8e429f24bc0d05b8856d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2251-foreach-negative-normal-protocol.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2251-foreach-negative-normal-protocol.json",
+      "sha256": "c01b41b4e424dd4cf6f8b0ce75d8d885feea37c3b4b4980d1795fdd8bfbc0419"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2251-foreach-negative-normal-protocol.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2251-foreach-negative-normal-protocol.log",
+      "sha256": "7f3450b10d39eb6ffc5f67eca82ec92135e85f9e3eab24c50a02a55fc7356c91"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2252-editor-compile/compile.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2252-editor-compile/compile.log",
+      "sha256": "823658e5f70cc1d7f454d7d67fb98f752517995919e47c7177052b5f6b66dccf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2252-editor-lint.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2252-editor-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-current-negative-editor.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-current-negative-editor.json",
+      "sha256": "c7b3266c9a3bfae6721f1f4b75603f5e6e0023c6099109ea90753c650105dca8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-current-negative-editor-input.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-current-negative-editor-input.json",
+      "sha256": "ed2389ac20c41696f04b50d183f5c9d04d88eba4beea480ce79fcc4b6cef148e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-current-negative-c2.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-current-negative-c2.log",
+      "sha256": "5f9f9a86056a6517e3f7c34566d4fc457124791dd53012943b2b62f00771f1fc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-observer-host-preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-observer-host-preparation.json",
+      "sha256": "5a5caf91ea7ce61904fc802e9afa9483e6c841125a9d2c1a9e156c180656bb44"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-private-host-observer.cjs",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-private-host-observer.cjs",
+      "sha256": "6f402aafbd9ab9f076dbe825f58cbc5ab0e7dff9ddba00cea944f8ca19acf16e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-observed-private-host.cjs",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-observed-private-host.cjs",
+      "sha256": "ece8e132c9096c00ce4bc17537ad6f8e99854f66791071df5ff2ba0c959521cb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-current-negative-c2-evidence/acceptance-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-current-negative-c2-evidence/acceptance-proof.json",
+      "sha256": "2c703e96424e8e2b319e26a25a0bfbe8dcc6915a68db5b5d52160e50c269fbde"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-current-negative-c2-evidence/runtime-proof.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-current-negative-c2-evidence/runtime-proof.json",
+      "sha256": "111798606ef010f4a34712095f0c3798320b801ea9fd35c4d0fc909258afe4d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2253-current-negative-c2-display/display-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2253-current-negative-c2-display/display-run.json",
+      "sha256": "8f57e41b85f498731acdfa0b94fcfd3c90d6776d97dfe25828689be40bdb386d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-current-inputs.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2254-foreach-negative-archive/.vscode-test/d2254-foreach-negative-current-inputs.json",
+      "sha256": "ec595cd90d779d3fd7f4acd0cddbc1c5d9385436b1ffb0bb910214c8dfc6d999"
+    }
+  ],
+  "archiveFilesRechecked": 35,
+  "fullCurrentLspQualified": false,
+  "allCurrentEditorsQualified": false,
+  "performanceQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "openMajorItems": 26
+}

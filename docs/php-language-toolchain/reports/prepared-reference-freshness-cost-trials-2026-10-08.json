@@ -1,0 +1,187 @@
+{
+  "recordedAtUtc": "2026-10-08T14:37:01.606239+00:00",
+  "normalSinglePilot": [
+    {
+      "noise": "sparse",
+      "hotP95Ms": 39.19697300000007,
+      "firstReferenceMs": 57.01850099999956,
+      "freshnessPassed": true,
+      "hotBudgetPassed": true,
+      "resultSha256": "141487cdacb37fbb8ef2e3c79d14c52419232839aad64bbef93da27b32294bd4"
+    },
+    {
+      "noise": "dispatch",
+      "hotP95Ms": 1031.3750109999964,
+      "firstReferenceMs": 1097.093213,
+      "freshnessPassed": true,
+      "hotBudgetPassed": false,
+      "resultSha256": "db5f7a116b026041b7055e6c13748dd2f7281ad5cd6870e9afbebe57cf8d6972"
+    }
+  ],
+  "instrumentedFreshnessMetrics": {
+    "totalMs": {
+      "samples": 100,
+      "p50": 964.7152299999871,
+      "p95": 1035.6471220000021,
+      "maximum": 1065.383646000002
+    },
+    "searchMs": {
+      "samples": 100,
+      "p50": 31.6563890000034,
+      "p95": 38.6058469999989,
+      "maximum": 39.88810999999987
+    },
+    "oldCandidatesMs": {
+      "samples": 100,
+      "p50": 8.460166999999274,
+      "p95": 20.23898099998769,
+      "maximum": 26.75739500000782
+    },
+    "statMs": {
+      "samples": 100,
+      "p50": 183.65175299998737,
+      "p95": 200.8838900000046,
+      "maximum": 207.9437629999229
+    },
+    "readMs": {
+      "samples": 100,
+      "p50": 686.2331019999892,
+      "p95": 739.2835420002084,
+      "maximum": 764.1400960000028
+    },
+    "receiversMs": {
+      "samples": 100,
+      "p50": 2.10198500000115,
+      "p95": 4.458582999999635,
+      "maximum": 4.860805000000255
+    }
+  },
+  "cpuProfileScopeReview": {
+    "originalSummarySha256": "7f4c0f1513391e755a67ebee905cc7c5f234d7ace764573968bc2ed7ca2ba146",
+    "profileRuntimeUrls": [
+      "file:///var/www/node/php-companion/.vscode-test/d939-reference-observed-runtime/candidateWorker.js"
+    ],
+    "profileStartEndSeconds": 12.581007,
+    "cpuArtifactCannotProveMainThreadAttribution": true,
+    "fixedProfileFilenameSharedAcrossWorkerThreads": true,
+    "mainThreadCpuUnavailable": true,
+    "noEquivalentDiagnosticRerun": true,
+    "stageMeasurementsValid": true,
+    "freshnessHotP95Ms": 1035.6471220000021,
+    "statHotP95Ms": 200.8838900000046,
+    "readHotP95Ms": 739.2835420002084,
+    "receiverHotP95Ms": 4.458582999999635,
+    "scope": "Actual stage instrumentation isolates serial filesystem freshness cost; the retained CPU file is a worker profile, not language-server main-thread evidence."
+  },
+  "boundedAsyncCandidate": [
+    {
+      "noise": "sparse",
+      "hotP95Ms": 42.527288999999655,
+      "firstReferenceMs": 76.11584800000037,
+      "freshnessPassed": true,
+      "hotBudgetPassed": true,
+      "resultSha256": "4a5fd85ec6627e7d35ff3a93d71e60c0625ea4174ee72f7ab45797ba17ad4ab9"
+    },
+    {
+      "noise": "dispatch",
+      "hotP95Ms": 488.840952999999,
+      "firstReferenceMs": 517.1722710000004,
+      "freshnessPassed": true,
+      "hotBudgetPassed": false,
+      "resultSha256": "a5338c56e3a4ca6a8d1ea22005b785f92895dfbfd607b2c85115935aca027708"
+    }
+  ],
+  "workerHashCandidate": [
+    {
+      "noise": "sparse",
+      "hotP95Ms": 42.65039100000013,
+      "firstReferenceMs": 50.90878699999939,
+      "freshnessPassed": true,
+      "hotBudgetPassed": true,
+      "resultSha256": "4dd5903b2d05bae278f779090c7a9f9404bae298ad396179261a47f73c6a475e"
+    },
+    {
+      "noise": "dispatch",
+      "hotP95Ms": 216.9116750000012,
+      "firstReferenceMs": 269.17587600000024,
+      "freshnessPassed": true,
+      "hotBudgetPassed": false,
+      "resultSha256": "7d908ead1faa38ad0a5028178d6d58464b6e04dbb278b765983cfe26db919999"
+    }
+  ],
+  "normalSourceSha256": "22620aa541df2712e87b091d0009055f11f9c42e9ab1158b01bfd1e8c47eec38",
+  "normalProductionBundleSha256": "3fd68029584cbbda0ae1c51f4bda6cb5f10c10998105ac10a07dbf0892135192",
+  "workerCandidateSourceSha256": "7c975beea9851412a568a101241aab5b53f5c0a7021871702053096040cc9522",
+  "workerCandidateRuntimeEngineId": "b5effb5519b9ab0b0681100e5fcb1b51e445d67e7724383c817f57795f85db6f",
+  "originalProbeAndBudgetsUnchanged": true,
+  "filesPerProcess": 1000,
+  "hotQueriesPerProcess": 100,
+  "diskMutationsPerProcess": 5,
+  "freshnessProtocolCasesPerCandidate": 10,
+  "newUniqueProtocolCasesAdded": 0,
+  "workerCandidateStrictTypecheckDiagnostics": 0,
+  "workerCandidateEslintExitCode": 0,
+  "workerCandidateBothPilotHotBudgetsPassed": false,
+  "controlledExecutionsValid": true,
+  "normalSourceAdopted": false,
+  "fullPerformanceQualified": false,
+  "queryCancellationAndConcurrentBufferControlsStillRequired": true,
+  "workerFailureAndGrowthAndByteBudgetControlsStillRequired": true,
+  "fullCurrentLspAndEditorQualificationStillRequiredBeforeNormalAdoption": true,
+  "originalParallelCandidateOverBudgetPreserved": true,
+  "initialCpuFilenameCollisionRetained": true,
+  "preflightWorkerSizeGuardReviewPreserved": true,
+  "initialEslintMissingReturnTypePreserved": true,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "evidence": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d940-reference-stage-diagnostic-run.json",
+      "sha256": "f1de2aa5d9fb49876c997f3e35d1d40261ddfffad2d25dab490e4a252c40b291"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d941-reference-stage-diagnostic-summary.json",
+      "sha256": "7f4c0f1513391e755a67ebee905cc7c5f234d7ace764573968bc2ed7ca2ba146"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d943-reference-diagnostic-cpu-scope-review.json",
+      "sha256": "adadb5be0ed9fe780530f29f66bab7221f319e5e7f3033204b0ff72f55ce9ac1"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d944-parallel-freshness-preparation.json",
+      "sha256": "1be0ceefdbd802a918e385231700d2a7789416ebec89ce222c0829c6773bf274"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d945-private-reference-protocol-result.json",
+      "sha256": "ae53aa962c74515bb94f737077ab5a54e38caf94e1f8ad3204839263c6ad5392"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d946-parallel-freshness-pilot-run.json",
+      "sha256": "78d0ddf5a847819911fb3e8167c1b9d1576b6aebcd304822e0f4bac4b91db24b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d948-worker-freshness-lint.log",
+      "sha256": "12ba630554e84871ee70df0e5ba3ffc1b8c6d1096eb8cdfe858a634f31fa8164"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d951-worker-freshness-preflight-review.json",
+      "sha256": "4f0ddaef0d37bc1a6d72b7eebc1e9ebd50837341e9709c5db018ca3226405b66"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d954-worker-freshness-preparation.json",
+      "sha256": "a2d1a69924db083e44e4b2c5ca704a233ed3cdc7be23c8122fdf51e5f3bb56ae"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d954-worker-freshness-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d955-private-reference-protocol-result.json",
+      "sha256": "a62622bacd4e021fcaf8cc3c872cdbd12d43b9c538a744b1b86ffd3b859f11e5"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d956-worker-freshness-pilot-run.json",
+      "sha256": "a4a7c62b8c54cf415b72fe4f10737592ada0a477bf9ad22f31f70bc7dbf2f06a"
+    }
+  ]
+}

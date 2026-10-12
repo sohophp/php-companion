@@ -1,0 +1,542 @@
+{
+  "recordedAtUtc": "2026-10-09T02:59:31.460136+00:00",
+  "status": "source-and-package-behavior-audit-qualified",
+  "sourceFiles": 9,
+  "testFiles": 12,
+  "inputs": {
+    "/var/www/node/php-companion/packages/index/src/bounded-cache-removal.ts": "77138e8c14b9a123180eeb889e3b769e6e77aeeb4fe650e12b95f11827685902",
+    "/var/www/node/php-companion/packages/index/src/dependency.ts": "b7da88262a7c581b17262a9c27b19352eb51e4b2887e1505e74a941b6f473415",
+    "/var/www/node/php-companion/packages/index/src/entry-store.ts": "e0fbe216a02aca327a3f5bef10ac99b17262fdaa07014627adf2bcf01d68f71f",
+    "/var/www/node/php-companion/packages/index/src/index.ts": "df1a0c8352b0dea96a9ac77533c2cccbdb8fa8e0e985aa5116b3ccff21ad5562",
+    "/var/www/node/php-companion/packages/index/src/inverted.ts": "d1b6fc7982b41c3a59c522558a5ba8f5f01eb529e622fb861d0be8fae543565b",
+    "/var/www/node/php-companion/packages/index/src/owned-cache-lock.ts": "de1778b14ad533c242f097f58ed51ef0c05ee77f09fb87c52ef11f2447201101",
+    "/var/www/node/php-companion/packages/index/src/pending.ts": "97e16b33badc081205285e385c458e080c4aba9cfacec446994eec76a85b9b8b",
+    "/var/www/node/php-companion/packages/index/src/source-candidates.ts": "937ff588b61d9c750e9b7508aeaf7608b3ce5a64955cace7168875e5108b2c29",
+    "/var/www/node/php-companion/packages/parser/src/index.ts": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+    "/var/www/node/php-companion/packages/index/test/dependency.test.ts": "8d421b47db4e67fd8433ff71c5311f01f85bd75434bf4c7a84a276387149aaae",
+    "/var/www/node/php-companion/packages/index/test/entry-store.test.ts": "d2e23bcc80f68a18237771ec02a8454fa44464857dead4503f36fd9c3f8561e3",
+    "/var/www/node/php-companion/packages/index/test/index.test.ts": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+    "/var/www/node/php-companion/packages/index/test/pending.test.ts": "2bbc5dbe6101a87058b6f9bbe639daabf273feb4c0d9c60d88481e53aaabd808",
+    "/var/www/node/php-companion/packages/parser/test/bare-construction.test.ts": "c6d5432488284a914289e8e94fff1d7b0df184f402d19c61b74f90aae6872411",
+    "/var/www/node/php-companion/packages/parser/test/clone-with-recovery.test.ts": "83e2a00ea7ef6e71a5250ef2aaa33e75737bc2ef66e8c2b414f5a2071e033cab",
+    "/var/www/node/php-companion/packages/parser/test/incomplete-document-errors.test.ts": "6139b441ea1929aa7b61c3b03dbd921f4916d06730c05f070824b6931a517d08",
+    "/var/www/node/php-companion/packages/parser/test/parser.test.ts": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+    "/var/www/node/php-companion/packages/parser/test/readonly-anonymous.test.ts": "5055f2ba8465b2b2c675f597a0a2dc3f42d6fff67ab92bd9eb266c6ff275a012",
+    "/var/www/node/php-companion/packages/parser/test/trait-final-adaptation.test.ts": "39180e8ddacffdfc827886b78e23f7ea16fdc16487b879e9ce3657aadffcd3b8",
+    "/var/www/node/php-companion/packages/parser/test/trait-precedence-names.test.ts": "ae341bc5d6c08c66a48974cbeef5aa76e62e68c950e4371aef7a2581c5574c5d",
+    "/var/www/node/php-companion/packages/parser/test/tree-only-cache.test.ts": "3173f568280f98dd958853e9745cffc100e9d12c5953331c15f1acf7ae31366d",
+    "/var/www/node/php-companion/packages/index/dist/index.js": "4a0575e81868005595799ee7a4942601050c79ba20417be7d5d02266ebbef277",
+    "/var/www/node/php-companion/packages/project/src/index.ts": "16511c30399a07a090ae017be806bfee0053dbc8ed3982ed4c84ac92b6bfc1bd",
+    "/var/www/node/php-companion/packages/project/dist/index.js": "3a0b20f826e6bee4b64e3040d64b6bbaecee2673c500666d52ab78c48c476e46",
+    "/var/www/node/php-companion/.vscode-test/d1178-index-completeness-observation.json": "a1249f1d4c0eaffadf14f1e1a22166ce552b33a37c11cf6975d240893bd70ded",
+    "/var/www/node/php-companion/.vscode-test/d1178-observe-index-completeness.mjs": "d299b92b3bd3d5f4c1c3b3501b415b937625fa4b72fd388b2862df4f6cc75faa"
+  },
+  "entries": [
+    {
+      "id": "parser-tree",
+      "reuseDecision": "复用parseTree、parse和createIncrementalEdit；调用者拥有返回的树。语法恢复后的名称读取原始源码，范围保持。",
+      "source": "packages/parser/src/index.ts",
+      "sourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sourceAnchor": "parseTree(source: string",
+      "sourceLine": 560,
+      "testFile": "packages/parser/test/parser.test.ts",
+      "testSourceSha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "originalTestTitle": "keeps tree-only query ranges and incremental recovery identical with %j",
+      "testLine": 240,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser keeps tree-only query ranges and incremental recovery identical with \"\\n\"",
+          "status": "passed"
+        },
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser keeps tree-only query ranges and incremental recovery identical with \"\\r\\n\"",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-parser-result.json",
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e"
+    },
+    {
+      "id": "parser-cache",
+      "reuseDecision": "复用按源码及文档身份匹配的单文档缓存和事实克隆；该缓存不定义全项目或符号身份。",
+      "source": "packages/parser/src/index.ts",
+      "sourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sourceAnchor": "private lastDocument?",
+      "sourceLine": 543,
+      "testFile": "packages/parser/test/parser.test.ts",
+      "testSourceSha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "originalTestTitle": "keeps repeated document parses independent through mutation, deletion and edits",
+      "testLine": 21,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser keeps repeated document parses independent through mutation, deletion and edits",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-parser-result.json",
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e"
+    },
+    {
+      "id": "parser-prepared",
+      "reuseDecision": "复用无树的完整/声明worker负载；接收方负责来源新鲜度和语义水合。",
+      "source": "packages/parser/src/index.ts",
+      "sourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sourceAnchor": "export type PreparedPhpDocument",
+      "sourceLine": 263,
+      "testFile": "packages/parser/test/parser.test.ts",
+      "testSourceSha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "originalTestTitle": "prepares transferable full and declaration facts with the same source positions",
+      "testLine": 207,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser prepares transferable full and declaration facts with the same source positions",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-parser-result.json",
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e"
+    },
+    {
+      "id": "parser-declarations",
+      "reuseDecision": "复用声明提取，包括实现体内的嵌套声明；声明结果不包含完整实现事实。",
+      "source": "packages/parser/src/index.ts",
+      "sourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sourceAnchor": "parseDeclarations(source: string",
+      "sourceLine": 648,
+      "testFile": "packages/parser/test/parser.test.ts",
+      "testSourceSha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "originalTestTitle": "extracts the same complete declarations without implementation facts: %s",
+      "testLine": 230,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser extracts the same complete declarations without implementation facts: <?php namespace App; /** @template T */ class C { public function __construct(public readonly int $id) {} public function run(): void { if (true) { function nested(): int { return 1; } class Nested extends C {} } $obj = new class extends C { public function own(): string { return \"ok\"; } }; } }",
+          "status": "passed"
+        },
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser extracts the same complete declarations without implementation facts: <?php namespace A { use X\\Y; trait T { public string $value { get => \"x\"; set { $this->value = $value; } } } } namespace B { enum E: string { case A = \"a\"; } }",
+          "status": "passed"
+        },
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser extracts the same complete declarations without implementation facts: <?php namespace App; class C { public function broken( { return new class { public const KEY = 1; }; }",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-parser-result.json",
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e"
+    },
+    {
+      "id": "parser-ranges",
+      "reuseDecision": "复用namespace及UTF-16范围，保留注释和分隔符；语法恢复仍按具体已支持规则限定。",
+      "source": "packages/parser/src/index.ts",
+      "sourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sourceAnchor": "export function createIncrementalEdit",
+      "sourceLine": 314,
+      "testFile": "packages/parser/test/parser.test.ts",
+      "testSourceSha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "originalTestTitle": "creates an exact UTF-16 incremental edit across multiple lines",
+      "testLine": 256,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser creates an exact UTF-16 incremental edit across multiple lines",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-parser-result.json",
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e"
+    },
+    {
+      "id": "parser-scopes",
+      "reuseDecision": "复用词法作用域事实作为语义输入；不能据此证明完整控制流或跨文件类型推断。",
+      "source": "packages/parser/src/index.ts",
+      "sourceSha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sourceAnchor": "export interface ParsedScope",
+      "sourceLine": 92,
+      "testFile": "packages/parser/test/parser.test.ts",
+      "testSourceSha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "originalTestTitle": "keeps closure and arrow variables in their smallest lexical scope",
+      "testLine": 856,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/parser/test/parser.test.ts",
+          "fullName": "@php-companion/parser keeps closure and arrow variables in their smallest lexical scope",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-parser-result.json",
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e"
+    },
+    {
+      "id": "index-source",
+      "reuseDecision": "复用独立于语义消费者的来源回调，保留适配器指定的Remote URI。",
+      "source": "packages/index/src/index.ts",
+      "sourceSha256": "df1a0c8352b0dea96a9ac77533c2cccbdb8fa8e0e985aa5116b3ccff21ad5562",
+      "sourceAnchor": "export async function indexComposerSources",
+      "sourceLine": 53,
+      "testFile": "packages/index/test/index.test.ts",
+      "testSourceSha256": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+      "originalTestTitle": "lets an adapter preserve its remote document URI scheme",
+      "testLine": 195,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/index.test.ts",
+          "fullName": "bounded project source index lets an adapter preserve its remote document URI scheme",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-completeness",
+      "reuseDecision": "区分projectComplete与complete；依赖省略、超大项目源跳过和取消分别处理。",
+      "source": "packages/index/src/index.ts",
+      "sourceSha256": "df1a0c8352b0dea96a9ac77533c2cccbdb8fa8e0e985aa5116b3ccff21ad5562",
+      "sourceAnchor": "if (options.includeDependencies === false)",
+      "sourceLine": 279,
+      "testFile": "packages/index/test/index.test.ts",
+      "testSourceSha256": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+      "originalTestTitle": "can stop after the complete project phase for on-demand indexing",
+      "testLine": 281,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/index.test.ts",
+          "fullName": "bounded project source index can stop after the complete project phase for on-demand indexing",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-preparation",
+      "reuseDecision": "复用有界预取和按序语义回调及取消检查；并发参数保持1至128。",
+      "source": "packages/index/src/index.ts",
+      "sourceSha256": "df1a0c8352b0dea96a9ac77533c2cccbdb8fa8e0e985aa5116b3ccff21ad5562",
+      "sourceAnchor": "const preparedSources = async function*",
+      "sourceLine": 148,
+      "testFile": "packages/index/test/index.test.ts",
+      "testSourceSha256": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+      "originalTestTitle": "stops ordered commits after cancellation with speculative preparations still in flight",
+      "testLine": 345,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/index.test.ts",
+          "fullName": "bounded project source index stops ordered commits after cancellation with speculative preparations still in flight",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-cache",
+      "reuseDecision": "复用按root/key/version隔离的缓存适配及不可变代际；语义有效性仍由恢复适配器校验。",
+      "source": "packages/index/src/index.ts",
+      "sourceSha256": "df1a0c8352b0dea96a9ac77533c2cccbdb8fa8e0e985aa5116b3ccff21ad5562",
+      "sourceAnchor": "const cacheIdentity =",
+      "sourceLine": 61,
+      "testFile": "packages/index/test/index.test.ts",
+      "testSourceSha256": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+      "originalTestTitle": "rebuilds a cache entry when its restore adapter rejects the payload",
+      "testLine": 613,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/index.test.ts",
+          "fullName": "bounded project source index rebuilds a cache entry when its restore adapter rejects the payload",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-postings",
+      "reuseDecision": "复用精确的调用方候选键和原子替换；posting本身不证明SymbolId或声明唯一性。",
+      "source": "packages/index/src/inverted.ts",
+      "sourceSha256": "d1b6fc7982b41c3a59c522558a5ba8f5f01eb529e622fb861d0be8fae543565b",
+      "sourceAnchor": "export class DocumentKeyIndex",
+      "sourceLine": 21,
+      "testFile": "packages/index/test/index.test.ts",
+      "testSourceSha256": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+      "originalTestTitle": "rejects oversized replacement atomically and validates limits",
+      "testLine": 24,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/index.test.ts",
+          "fullName": "incremental document-key inverted index rejects oversized replacement atomically and validates limits",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-dependencies",
+      "reuseDecision": "复用按文档贡献的反向依赖图；相同逻辑节点的多个声明保持独立贡献。",
+      "source": "packages/index/src/dependency.ts",
+      "sourceSha256": "b7da88262a7c581b17262a9c27b19352eb51e4b2887e1505e74a941b6f473415",
+      "sourceAnchor": "export class DocumentDependencyGraph",
+      "sourceLine": 30,
+      "testFile": "packages/index/test/dependency.test.ts",
+      "testSourceSha256": "8d421b47db4e67fd8433ff71c5311f01f85bd75434bf4c7a84a276387149aaae",
+      "originalTestTitle": "replaces document contributions without removing another declaration of the same node",
+      "testLine": 5,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/dependency.test.ts",
+          "fullName": "DocumentDependencyGraph replaces document contributions without removing another declaration of the same node",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-prefilter",
+      "reuseDecision": "复用保守词法预筛及rebuild/source回退；命名参数完整性独立，摘要不证明精确符号身份。",
+      "source": "packages/index/src/source-candidates.ts",
+      "sourceSha256": "937ff588b61d9c750e9b7508aeaf7608b3ce5a64955cace7168875e5108b2c29",
+      "sourceAnchor": "export function sourceCandidateSummaryDecision",
+      "sourceLine": 41,
+      "testFile": "packages/index/test/index.test.ts",
+      "testSourceSha256": "12e1c32e78ecfb6f58b6626316aee3f9221a26e5d6e6895cdfa4d11433a29394",
+      "originalTestTitle": "never treats a symbol-only summary as proof that a named argument is absent",
+      "testLine": 52,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/index.test.ts",
+          "fullName": "bounded source candidate summaries never treats a symbol-only summary as proof that a named argument is absent",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    },
+    {
+      "id": "index-events",
+      "reuseDecision": "复用drain期间事件合并和失败事件重试；不覆盖更新的事件。",
+      "source": "packages/index/src/pending.ts",
+      "sourceSha256": "97e16b33badc081205285e385c458e080c4aba9cfacec446994eec76a85b9b8b",
+      "sourceAnchor": "export class PendingChanges",
+      "sourceLine": 2,
+      "testFile": "packages/index/test/pending.test.ts",
+      "testSourceSha256": "2bbc5dbe6101a87058b6f9bbe639daabf273feb4c0d9c60d88481e53aaabd808",
+      "originalTestTitle": "retains a failed event for retry without replacing a newer event",
+      "testLine": 12,
+      "behaviorQualified": true,
+      "currentPassedBindings": [
+        {
+          "file": "packages/index/test/pending.test.ts",
+          "fullName": "retains a failed event for retry without replacing a newer event",
+          "status": "passed"
+        }
+      ],
+      "result": "/var/www/node/php-companion/.vscode-test/d1177-index-result.json",
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037"
+    }
+  ],
+  "limitations": [
+    {
+      "id": "no-unified-symbol-id",
+      "finding": "公开解析声明使用name、fqcn和scope身份；posting及依赖键为调用方字符串。尚未建立统一且包含项目边界的SymbolId合同。",
+      "source": "packages/parser/src/index.ts",
+      "anchor": "export interface ParsedDeclaration",
+      "sourceLine": 12
+    },
+    {
+      "id": "no-global-query-completeness",
+      "finding": "ProjectIndexResult记录项目与依赖遍历结果，不覆盖逐查询的新鲜度、歧义和类型预算完整性，不能代替所有查询的AnalysisResult。",
+      "source": "packages/index/src/index.ts",
+      "anchor": "export interface ProjectIndexResult",
+      "sourceLine": 16
+    },
+    {
+      "id": "unreadable-composer-policy",
+      "finding": "读不到Composer项目时，当前返回零文件、complete/projectComplete为true并附警告；不能据此证明真实项目已扫描。错误政策与消费者行为仍须独立核对。",
+      "source": "packages/index/src/index.ts",
+      "anchor": "if (!project) return { files: 0, bytes: 0, cached: 0, complete: true",
+      "sourceLine": 59
+    },
+    {
+      "id": "discovery-io-policy",
+      "finding": "目录readdir失败返回true，autoload路径stat失败被跳过；本次未证明不可访问路径会体现在最终完整性中。",
+      "source": "packages/index/src/index.ts",
+      "anchor": "let entries; try { entries = await readdir",
+      "sourceLine": 42
+    },
+    {
+      "id": "hash-verification-policy",
+      "finding": "元数据相同的缓存仅在verifyCachedSourceHash或已提供预取源码要求时核对内容；消费者须明确新鲜度要求，元数据命中不证明字节一致。",
+      "source": "packages/index/src/index.ts",
+      "anchor": "const verifySource = options.verifyCachedSourceHash",
+      "sourceLine": 117
+    },
+    {
+      "id": "prepared-freshness-owner",
+      "finding": "Prepared负载包含无树事实及可选namespace范围；来源身份、哈希、版本和generation校验由接收方承担，类型本身不证明这些守卫。",
+      "source": "packages/parser/src/index.ts",
+      "anchor": "export type PreparedPhpDocument",
+      "sourceLine": 263
+    }
+  ],
+  "normalSourceChanged": false,
+  "runtimeChanged": false,
+  "packageTestsRunForThisAudit": true,
+  "fullP0Complete": false,
+  "fullObjectiveComplete": false,
+  "requiredUpstream": "d1175-indexed-callable-qualification-finalization.json",
+  "completenessApiObservations": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1178-index-completeness-observation.json",
+    "sha256": "a1249f1d4c0eaffadf14f1e1a22166ce552b33a37c11cf6975d240893bd70ded",
+    "temporaryFixturesRemoved": true,
+    "observations": [
+      {
+        "name": "absent-composer",
+        "composer": null,
+        "sourceCallbacks": 0,
+        "result": {
+          "files": 0,
+          "bytes": 0,
+          "cached": 0,
+          "complete": true,
+          "projectComplete": true,
+          "warnings": [
+            "composer.json was not readable."
+          ]
+        }
+      },
+      {
+        "name": "malformed-composer",
+        "composer": "{",
+        "sourceCallbacks": 0,
+        "result": {
+          "files": 0,
+          "bytes": 0,
+          "cached": 0,
+          "complete": true,
+          "projectComplete": true,
+          "warnings": [
+            "composer.json was not readable."
+          ]
+        }
+      },
+      {
+        "name": "valid-empty-project",
+        "composer": "{}",
+        "sourceCallbacks": 0,
+        "result": {
+          "files": 0,
+          "bytes": 0,
+          "cached": 0,
+          "complete": true,
+          "projectComplete": true,
+          "warnings": [
+            "No PSR-4 autoload mappings found."
+          ]
+        }
+      },
+      {
+        "name": "valid-missing-autoload-directory",
+        "composer": "{\"autoload\":{\"psr-4\":{\"App\\\\\":\"src/\"}}}",
+        "sourceCallbacks": 0,
+        "result": {
+          "files": 0,
+          "bytes": 0,
+          "cached": 0,
+          "complete": true,
+          "projectComplete": true,
+          "warnings": []
+        }
+      }
+    ],
+    "meaning": "API当前事实；未将零文件的complete=true当作真实项目扫描成功，也未改动合同政策。"
+  },
+  "packageResults": [
+    {
+      "package": "parser",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d1177-parser-result.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/parser",
+      "status": "exited",
+      "childPid": 3235188,
+      "exitCode": 0,
+      "durationSeconds": 6.562112616986269,
+      "resultSha256": "db3ce77f930adbf53dbcb1254da988371a24d5281249451205d04d02e32d054e",
+      "logSha256": "784293a4cd807daa7e5d36c31a522291b53017bd5fd820f61a82ff1bbbc2ee75",
+      "files": 8,
+      "total": 164,
+      "passed": 164,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "repositoryChanges": [],
+      "remainingOwnedProcessGroupPids": [],
+      "qualified": true
+    },
+    {
+      "package": "index",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d1177-index-result.json"
+      ],
+      "cwd": "/var/www/node/php-companion/packages/index",
+      "status": "exited",
+      "childPid": 3235376,
+      "exitCode": 0,
+      "durationSeconds": 8.564385839010356,
+      "resultSha256": "d1aa0ad9d6aad7c5ebf8eccb293c8016d4bfeec7cfa2daba5154b0f0bc3ec037",
+      "logSha256": "9f8be4b79f0862bde2f36fabc516337cf351b3510efaba1c5abe29ea2fc9fbe9",
+      "files": 4,
+      "total": 68,
+      "passed": 68,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "repositoryChanges": [],
+      "remainingOwnedProcessGroupPids": [],
+      "qualified": true
+    }
+  ],
+  "normalQualification": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1175-indexed-callable-qualification-finalization.json",
+    "sha256": "a367c5a12df231a96f18d3aeff56bd748307c9cfc65acf043c03eef9cda337ff"
+  },
+  "freeze": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1177-parser-index-reuse-input.json",
+    "sha256": "153275f5934c61a838b27b46ff0d5577ddde05106c0bc1ffd4b4e2fc5f65225a"
+  },
+  "publishedAtUtc": "2026-10-09T03:45:02.037178+00:00"
+}

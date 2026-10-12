@@ -386,7 +386,7 @@ export function analyzeSymfonyKernelRouteImports(parser: PhpSyntaxParser, uri: s
 /** Locate a direct literal argument; semantic ownership and the formal route parameter are checked by the caller. */
 export function symfonyRouteCallAt(parser: PhpSyntaxParser, uri: string, source: string, offset: number): SymfonyRouteCall | undefined {
   if (!/(?:generateUrl|redirectToRoute|generate)\s*\(/i.test(source.slice(0, offset))) return undefined;
-  const parsed = parser.parse(source, undefined, uri);
+  const tree = parser.parseTree(source, undefined, uri);
   try {
     let result: SymfonyRouteCall | undefined;
     const visit = (node: SyntaxNode): void => {
@@ -420,15 +420,15 @@ export function symfonyRouteCallAt(parser: PhpSyntaxParser, uri: string, source:
       }
       for (const child of node.namedChildren) visit(child);
     };
-    visit(parsed.tree.rootNode as unknown as SyntaxNode);
+    visit(tree.rootNode as unknown as SyntaxNode);
     return result;
-  } finally { parsed.tree.delete(); }
+  } finally { tree.delete(); }
 }
 
 /** Locate a direct string key inside the direct route-parameters array; semantic ownership and formal parameters are checked by the caller. */
 export function symfonyRouteParameterCallAt(parser: PhpSyntaxParser, uri: string, source: string, offset: number): SymfonyRouteParameterCall | undefined {
   if (!/(?:generateUrl|redirectToRoute|generate)\s*\(/i.test(source.slice(0, offset))) return undefined;
-  const parsed = parser.parse(source, undefined, uri);
+  const tree = parser.parseTree(source, undefined, uri);
   try {
     let result: SymfonyRouteParameterCall | undefined;
     const visit = (node: SyntaxNode): void => {
@@ -472,8 +472,8 @@ export function symfonyRouteParameterCallAt(parser: PhpSyntaxParser, uri: string
       }
       for (const child of node.namedChildren) visit(child);
     };
-    visit(parsed.tree.rootNode as unknown as SyntaxNode); return result;
-  } finally { parsed.tree.delete(); }
+    visit(tree.rootNode as unknown as SyntaxNode); return result;
+  } finally { tree.delete(); }
 }
 
 /** Escape a route name as PHP string contents, preserving its runtime value. */

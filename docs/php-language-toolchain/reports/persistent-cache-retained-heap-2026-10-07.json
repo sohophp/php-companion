@@ -1,0 +1,4425 @@
+{
+  "schemaVersion": 1,
+  "milestone": "D300-D302",
+  "date": "2026-10-07",
+  "kind": "retained-heap-diagnostic",
+  "qualification": false,
+  "productChanged": false,
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "coreBundleSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+  "inputCount": 4234,
+  "changedInputs": [],
+  "failedHarnessRun": {
+    "status": "exited",
+    "parentPid": 649492,
+    "childPid": 649579,
+    "startedAtUtc": "2026-10-07T12:17:21.856020+00:00",
+    "command": [
+      "env",
+      "SOPHP_RETAINED_HEAP_DIRECTORY=/var/www/node/php-companion/.vscode-test/d300-retained-heap-snapshots",
+      "node",
+      ".vscode-test/d300-retained-heap-diagnostic.mjs",
+      "10000"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d300-retained-heap-input.json",
+    "exitCode": 13,
+    "durationSeconds": 42.98453490999964,
+    "finishedAtUtc": "2026-10-07T12:18:04.838442+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "logSha256": "8dcd5eb9ba96b93d7acab60462cdf7b2da39f03e41a776bd53e23951547e3ce9"
+  },
+  "correctedDiagnosticRun": {
+    "status": "exited",
+    "parentPid": 651355,
+    "childPid": 651436,
+    "startedAtUtc": "2026-10-07T12:20:43.146190+00:00",
+    "command": [
+      "env",
+      "SOPHP_RETAINED_HEAP_DIRECTORY=/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots",
+      "node",
+      ".vscode-test/d301-retained-heap-diagnostic.mjs",
+      "10000"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-input.json",
+    "exitCode": 1,
+    "durationSeconds": 65.75915173700196,
+    "finishedAtUtc": "2026-10-07T12:21:48.904052+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "logSha256": "6aaa77a949dcdfb57d8ad1b8c59e859184ffd8d06db5e02839d28d7aa6032dff"
+  },
+  "heapWriterProbe": {
+    "status": "passed",
+    "completeJson": true,
+    "closedFileBytes": 5645368,
+    "mode": "0600",
+    "hardByteCapRejected": true,
+    "overwriteRejected": true,
+    "sourceCloseNotRequired": true
+  },
+  "analysis": {
+    "scope": "Private synthetic retained-heap diagnostic after explicit full GC. Counts and shallow sizes only, not RSS/performance qualification or dominator retained sizes.",
+    "qualification": false,
+    "forcedGc": true,
+    "captureManifest": {
+      "kind": "retained-object-diagnostic-only",
+      "qualification": false,
+      "forcedGc": true,
+      "precedingLsp": {
+        "qualified": true,
+        "coreSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b"
+      },
+      "gcIntervention": "v8.queryObjects on a private zero-instance constructor before each heap snapshot",
+      "originalBenchmarkSha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+      "documentation": "https://nodejs.org/download/release/v22.14.0/docs/api/v8.html",
+      "node": "v22.14.0",
+      "v8": "12.4.254.21-node.22",
+      "maximumSnapshots": 2,
+      "maximumSnapshotBytes": 536870912,
+      "createdAtUtc": "2026-10-07T12:20:43.649Z",
+      "expiresAtUtc": "2026-10-09T12:20:43.649Z",
+      "retention": "At most two bounded synthetic snapshots, 48-hour review deadline; no automatic deletion of other artifacts.",
+      "captures": [
+        {
+          "label": "warm-before-dispose",
+          "path": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/warm-before-dispose.heapsnapshot",
+          "status": "captured",
+          "memoryBeforeGc": {
+            "rss": 316669952,
+            "heapTotal": 225206272,
+            "heapUsed": 194540840,
+            "external": 35536292,
+            "arrayBuffers": 42663
+          },
+          "startedAtUtc": "2026-10-07T12:21:10.934Z",
+          "memoryAfterGc": {
+            "rss": 355868672,
+            "heapTotal": 147570688,
+            "heapUsed": 129553792,
+            "external": 35519568,
+            "arrayBuffers": 25939
+          },
+          "bytes": 171728448,
+          "finishedAtUtc": "2026-10-07T12:21:23.939Z",
+          "memoryAfterSnapshot": {
+            "rss": 962879488,
+            "heapTotal": 139898880,
+            "heapUsed": 131707040,
+            "external": 207249152,
+            "arrayBuffers": 171754387
+          }
+        },
+        {
+          "label": "warm-after-dispose",
+          "path": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/warm-after-dispose.heapsnapshot",
+          "status": "captured",
+          "memoryBeforeGc": {
+            "rss": 962879488,
+            "heapTotal": 139898880,
+            "heapUsed": 131718424,
+            "external": 207249152,
+            "arrayBuffers": 171754387
+          },
+          "startedAtUtc": "2026-10-07T12:21:23.939Z",
+          "memoryAfterGc": {
+            "rss": 658804736,
+            "heapTotal": 15994880,
+            "heapUsed": 13637568,
+            "external": 35520504,
+            "arrayBuffers": 25739
+          },
+          "bytes": 13967591,
+          "finishedAtUtc": "2026-10-07T12:21:25.245Z",
+          "memoryAfterSnapshot": {
+            "rss": 659546112,
+            "heapTotal": 15732736,
+            "heapUsed": 14238248,
+            "external": 49488097,
+            "arrayBuffers": 13993332
+          }
+        }
+      ]
+    },
+    "snapshots": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/warm-before-dispose.heapsnapshot",
+        "sha256": "099b71e2113203ca5b67688b01c842fbb7a6cd4a1413e9bcdb9c8e06e9b952a8",
+        "snapshotBytes": 171728448,
+        "nodes": 2044945,
+        "edges": 7367979,
+        "metadata": {
+          "nodeFields": [
+            "type",
+            "name",
+            "id",
+            "self_size",
+            "edge_count",
+            "trace_node_id",
+            "detachedness"
+          ],
+          "edgeFields": [
+            "type",
+            "name_or_index",
+            "to_node"
+          ]
+        },
+        "nodesByType": {
+          "synthetic": 35,
+          "hidden": 130004,
+          "string": 478368,
+          "code": 31481,
+          "array": 192475,
+          "object shape": 7486,
+          "number": 124,
+          "symbol": 294,
+          "object": 1194867,
+          "closure": 8065,
+          "concatenated string": 1004,
+          "sliced string": 214,
+          "regexp": 63,
+          "native": 462,
+          "bigint": 3
+        },
+        "selfBytesByType": {
+          "synthetic": 3736,
+          "hidden": 3344056,
+          "string": 22604056,
+          "code": 5185160,
+          "array": 44820320,
+          "object shape": 721560,
+          "number": 1984,
+          "symbol": 7056,
+          "object": 53254000,
+          "closure": 476680,
+          "concatenated string": 32128,
+          "sliced string": 6848,
+          "regexp": 3528,
+          "native": 33600424,
+          "bigint": 64
+        },
+        "shapeCounts": {
+          "semanticFiles": 10000,
+          "declarationSnapshots": 10000,
+          "implementationSnapshots": 9996,
+          "indexCacheEntries": 0,
+          "cachedProjectPayloads": 0
+        },
+        "objectNames": [
+          [
+            "Array",
+            770235
+          ],
+          [
+            "Object",
+            371700
+          ],
+          [
+            "Set",
+            40133
+          ],
+          [
+            "Map",
+            10092
+          ],
+          [
+            "system / Context",
+            1022
+          ],
+          [
+            "BuiltinModule",
+            351
+          ],
+          [
+            "ArrayBuffer",
+            205
+          ],
+          [
+            "Error",
+            191
+          ],
+          [
+            "Global",
+            157
+          ],
+          [
+            "Promise",
+            105
+          ],
+          [
+            "TypeError",
+            93
+          ],
+          [
+            "Generator",
+            57
+          ],
+          [
+            "ModuleWrap",
+            40
+          ],
+          [
+            "ModuleJob",
+            39
+          ],
+          [
+            "AsyncWrap",
+            35
+          ],
+          [
+            "RangeError",
+            30
+          ],
+          [
+            "WeakMap",
+            29
+          ],
+          [
+            "WeakRef",
+            17
+          ],
+          [
+            "Float64Array",
+            16
+          ],
+          [
+            "WeakReference",
+            15
+          ],
+          [
+            "Channel",
+            15
+          ],
+          [
+            "Uint8Array",
+            12
+          ],
+          [
+            "SystemError",
+            12
+          ],
+          [
+            "TypedArray",
+            11
+          ],
+          [
+            "Uint32Array",
+            10
+          ],
+          [
+            "Buffer",
+            10
+          ],
+          [
+            "Zlib",
+            8
+          ],
+          [
+            "EventEmitter",
+            7
+          ],
+          [
+            "FinalizationRegistry",
+            6
+          ],
+          [
+            "LazyTransform",
+            6
+          ]
+        ],
+        "workspaceCount": 2,
+        "largestSelfNodes": [
+          {
+            "id": 1978305,
+            "type": "native",
+            "name": "system / JSArrayBufferData",
+            "selfBytes": 33554432
+          },
+          {
+            "id": 4035129,
+            "type": "string",
+            "name": "import { nativeScalarInput } from './nativeScalarInput.js';\nimport { bindPhpDocTypeNames } from './phpDocNameBinding.js';\nimport { compositeTypeCompletionTail }",
+            "selfBytes": 1503768
+          },
+          {
+            "id": 3721351,
+            "type": "array",
+            "name": "",
+            "selfBytes": 458792
+          },
+          {
+            "id": 3721349,
+            "type": "array",
+            "name": "",
+            "selfBytes": 458792
+          },
+          {
+            "id": 3721345,
+            "type": "array",
+            "name": "",
+            "selfBytes": 458792
+          },
+          {
+            "id": 3721265,
+            "type": "array",
+            "name": "",
+            "selfBytes": 458792
+          },
+          {
+            "id": 3721257,
+            "type": "array",
+            "name": "",
+            "selfBytes": 458792
+          },
+          {
+            "id": 1314055,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1314051,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313947,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313943,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313939,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313935,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313931,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313927,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          },
+          {
+            "id": 1313923,
+            "type": "array",
+            "name": "",
+            "selfBytes": 327720
+          }
+        ],
+        "selectedRoutes": [
+          {
+            "target": {
+              "id": 6593,
+              "type": "object",
+              "name": "SemanticWorkspace",
+              "selfBytes": 448
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "85",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6593,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 145677,
+              "type": "object",
+              "name": "SemanticWorkspace",
+              "selfBytes": 448
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 922063,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 24
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "files",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721159,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721257,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "10281",
+                "edgeType": "internal",
+                "node": {
+                  "id": 922063,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 931677,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 24
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "files",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721159,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721257,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "10284",
+                "edgeType": "internal",
+                "node": {
+                  "id": 931677,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 943305,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 24
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "files",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721159,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721257,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "10287",
+                "edgeType": "internal",
+                "node": {
+                  "id": 943305,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1116441,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 56
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "deferredImplementations",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721167,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721265,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "20031",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1116439,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "snapshot",
+                "edgeType": "property",
+                "node": {
+                  "id": 1116441,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 56
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1131313,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 56
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "deferredImplementations",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721167,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721265,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "13497",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1131311,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "snapshot",
+                "edgeType": "property",
+                "node": {
+                  "id": 1131313,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 56
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1131367,
+              "type": "object",
+              "name": "Object",
+              "selfBytes": 56
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "deferredImplementations",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721167,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721265,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "13500",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1131365,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "snapshot",
+                "edgeType": "property",
+                "node": {
+                  "id": 1131367,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 56
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313923,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8271",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313921,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313923,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313927,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8274",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313925,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313927,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313931,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8277",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313929,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313931,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313935,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8280",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313933,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313935,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313939,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8286",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313937,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313939,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313943,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8289",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313941,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313943,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1313947,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8295",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313945,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1313947,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1314051,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8376",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1314049,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1314051,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1314055,
+              "type": "array",
+              "name": "",
+              "selfBytes": 327720
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              },
+              {
+                "via": "8379",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1314053,
+                  "type": "object",
+                  "name": "Set",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1314055,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 327720
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1978305,
+              "type": "native",
+              "name": "system / JSArrayBufferData",
+              "selfBytes": 33554432
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "10",
+                "edgeType": "element",
+                "node": {
+                  "id": 23,
+                  "type": "synthetic",
+                  "name": "(Global handles)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "66",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6477,
+                  "type": "object",
+                  "name": "ModuleWrap",
+                  "selfBytes": 72
+                }
+              },
+              {
+                "via": "2",
+                "edgeType": "internal",
+                "node": {
+                  "id": 41129,
+                  "type": "hidden",
+                  "name": "system / SourceTextModule",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "4",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 2105947,
+                  "type": "object",
+                  "name": "Generator",
+                  "selfBytes": 160
+                }
+              },
+              {
+                "via": "context",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45365,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 416
+                }
+              },
+              {
+                "via": "C",
+                "edgeType": "context",
+                "node": {
+                  "id": 45813,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "HEAP8",
+                "edgeType": "property",
+                "node": {
+                  "id": 1494817,
+                  "type": "object",
+                  "name": "Int8Array",
+                  "selfBytes": 96
+                }
+              },
+              {
+                "via": "buffer",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1978303,
+                  "type": "object",
+                  "name": "ArrayBuffer",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "backing_store",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1978305,
+                  "type": "native",
+                  "name": "system / JSArrayBufferData",
+                  "selfBytes": 33554432
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3721257,
+              "type": "array",
+              "name": "",
+              "selfBytes": 458792
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "files",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721159,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721257,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3721265,
+              "type": "array",
+              "name": "",
+              "selfBytes": 458792
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "deferredImplementations",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721167,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721265,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3721345,
+              "type": "array",
+              "name": "",
+              "selfBytes": 458792
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "typeDependencies",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721179,
+                  "type": "object",
+                  "name": "DocumentDependencyGraph",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "nodesByDocument",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721275,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721345,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3721349,
+              "type": "array",
+              "name": "",
+              "selfBytes": 458792
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "keysByDocument",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721269,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721349,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3721351,
+              "type": "array",
+              "name": "",
+              "selfBytes": 458792
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "103",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "referenceCandidates",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721175,
+                  "type": "object",
+                  "name": "DocumentKeyIndex",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "documentsByKey",
+                "edgeType": "property",
+                "node": {
+                  "id": 3721271,
+                  "type": "object",
+                  "name": "Map",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3721351,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 458792
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 4035129,
+              "type": "string",
+              "name": "import { nativeScalarInput } from './nativeScalarInput.js';\nimport { bindPhpDocTypeNames } from './phpDocNameBinding.js';\nimport { compositeTypeCompletionTail }",
+              "selfBytes": 1503768
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "85",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6593,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "__proto__",
+                "edgeType": "property",
+                "node": {
+                  "id": 66253,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "constructor",
+                "edgeType": "property",
+                "node": {
+                  "id": 44747,
+                  "type": "closure",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3892933,
+                  "type": "code",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1144709,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "source",
+                "edgeType": "internal",
+                "node": {
+                  "id": 4035129,
+                  "type": "string",
+                  "name": "import { nativeScalarInput } from './nativeScalarInput.js';\nimport { bindPhpDocTypeNames } from './phpDocNameBinding.js';\nimport { compositeTypeCompletionTail }",
+                  "selfBytes": 1503768
+                }
+              }
+            ]
+          }
+        ],
+        "selfBytesTotal": 164061600
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d301-retained-heap-snapshots/warm-after-dispose.heapsnapshot",
+        "sha256": "5ba129b8cb56873db69e6fb5ee731632e183a2865ac073a3efda2a3200c8b5cd",
+        "snapshotBytes": 13967591,
+        "nodes": 126273,
+        "edges": 574532,
+        "metadata": {
+          "nodeFields": [
+            "type",
+            "name",
+            "id",
+            "self_size",
+            "edge_count",
+            "trace_node_id",
+            "detachedness"
+          ],
+          "edgeFields": [
+            "type",
+            "name_or_index",
+            "to_node"
+          ]
+        },
+        "nodesByType": {
+          "synthetic": 35,
+          "hidden": 10228,
+          "string": 38399,
+          "code": 32757,
+          "array": 2399,
+          "object shape": 7279,
+          "number": 137,
+          "symbol": 294,
+          "object": 24958,
+          "closure": 8073,
+          "concatenated string": 975,
+          "regexp": 63,
+          "sliced string": 214,
+          "native": 459,
+          "bigint": 3
+        },
+        "selfBytesByType": {
+          "synthetic": 3616,
+          "hidden": 469872,
+          "string": 3646024,
+          "code": 5455512,
+          "array": 1686784,
+          "object shape": 702440,
+          "number": 2192,
+          "symbol": 7056,
+          "object": 1259864,
+          "closure": 477008,
+          "concatenated string": 31200,
+          "regexp": 3528,
+          "sliced string": 6848,
+          "native": 33600132,
+          "bigint": 64
+        },
+        "shapeCounts": {
+          "semanticFiles": 0,
+          "declarationSnapshots": 0,
+          "implementationSnapshots": 0,
+          "indexCacheEntries": 0,
+          "cachedProjectPayloads": 0
+        },
+        "objectNames": [
+          [
+            "Object",
+            21718
+          ],
+          [
+            "system / Context",
+            1016
+          ],
+          [
+            "Array",
+            394
+          ],
+          [
+            "BuiltinModule",
+            351
+          ],
+          [
+            "ArrayBuffer",
+            203
+          ],
+          [
+            "Error",
+            190
+          ],
+          [
+            "Global",
+            157
+          ],
+          [
+            "Promise",
+            105
+          ],
+          [
+            "TypeError",
+            93
+          ],
+          [
+            "Map",
+            80
+          ],
+          [
+            "Set",
+            61
+          ],
+          [
+            "Generator",
+            57
+          ],
+          [
+            "ModuleWrap",
+            40
+          ],
+          [
+            "ModuleJob",
+            39
+          ],
+          [
+            "AsyncWrap",
+            36
+          ],
+          [
+            "RangeError",
+            30
+          ],
+          [
+            "WeakMap",
+            29
+          ],
+          [
+            "WeakRef",
+            17
+          ],
+          [
+            "Channel",
+            15
+          ],
+          [
+            "WeakReference",
+            15
+          ],
+          [
+            "Float64Array",
+            14
+          ],
+          [
+            "Uint8Array",
+            12
+          ],
+          [
+            "SystemError",
+            12
+          ],
+          [
+            "TypedArray",
+            11
+          ],
+          [
+            "Uint32Array",
+            10
+          ],
+          [
+            "Buffer",
+            10
+          ],
+          [
+            "Zlib",
+            8
+          ],
+          [
+            "EventEmitter",
+            7
+          ],
+          [
+            "LazyTransform",
+            6
+          ],
+          [
+            "Int8Array",
+            6
+          ]
+        ],
+        "workspaceCount": 2,
+        "largestSelfNodes": [
+          {
+            "id": 1978305,
+            "type": "native",
+            "name": "system / JSArrayBufferData",
+            "selfBytes": 33554432
+          },
+          {
+            "id": 4035129,
+            "type": "string",
+            "name": "import { nativeScalarInput } from './nativeScalarInput.js';\nimport { bindPhpDocTypeNames } from './phpDocNameBinding.js';\nimport { compositeTypeCompletionTail }",
+            "selfBytes": 1503768
+          },
+          {
+            "id": 1068651,
+            "type": "array",
+            "name": "",
+            "selfBytes": 262184
+          },
+          {
+            "id": 3893191,
+            "type": "array",
+            "name": "",
+            "selfBytes": 262184
+          },
+          {
+            "id": 1719,
+            "type": "array",
+            "name": "",
+            "selfBytes": 262160
+          },
+          {
+            "id": 4035131,
+            "type": "code",
+            "name": "(script line ends)",
+            "selfBytes": 185408
+          },
+          {
+            "id": 2513103,
+            "type": "array",
+            "name": "(object elements)",
+            "selfBytes": 180680
+          },
+          {
+            "id": 3638957,
+            "type": "string",
+            "name": "var __defProp = Object.defineProperty;\nvar __name = (target, value) => __defProp(target, \"name\", { value, configurable: true });\n\n// src/edit.ts\nvar Edit = clas",
+            "selfBytes": 153688
+          },
+          {
+            "id": 75837,
+            "type": "string",
+            "name": "import { createRequire } from 'node:module';\nimport { dirname, join } from 'node:path';\nimport { Edit, Language, Parser } from 'web-tree-sitter';\n// These recor",
+            "selfBytes": 127248
+          },
+          {
+            "id": 2079771,
+            "type": "code",
+            "name": "(instruction stream for visitNode)",
+            "selfBytes": 115200
+          },
+          {
+            "id": 4082793,
+            "type": "code",
+            "name": "",
+            "selfBytes": 85248
+          },
+          {
+            "id": 1495837,
+            "type": "array",
+            "name": "(object properties)",
+            "selfBytes": 49216
+          },
+          {
+            "id": 4082999,
+            "type": "code",
+            "name": "",
+            "selfBytes": 39040
+          },
+          {
+            "id": 2082501,
+            "type": "code",
+            "name": "system / BytecodeArray",
+            "selfBytes": 33880
+          },
+          {
+            "id": 2769951,
+            "type": "code",
+            "name": "(script line ends)",
+            "selfBytes": 32080
+          },
+          {
+            "id": 4035133,
+            "type": "code",
+            "name": "system / WeakFixedArray",
+            "selfBytes": 29952
+          }
+        ],
+        "selectedRoutes": [
+          {
+            "target": {
+              "id": 1719,
+              "type": "array",
+              "name": "",
+              "selfBytes": 262160
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "22",
+                "edgeType": "element",
+                "node": {
+                  "id": 47,
+                  "type": "synthetic",
+                  "name": "(Strong root list)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "number_string_cache",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1719,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 262160
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 6593,
+              "type": "object",
+              "name": "SemanticWorkspace",
+              "selfBytes": 448
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "87",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6593,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 75837,
+              "type": "string",
+              "name": "import { createRequire } from 'node:module';\nimport { dirname, join } from 'node:path';\nimport { Edit, Language, Parser } from 'web-tree-sitter';\n// These recor",
+              "selfBytes": 127248
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "70",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6571,
+                  "type": "object",
+                  "name": "PhpSyntaxParser",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "__proto__",
+                "edgeType": "property",
+                "node": {
+                  "id": 141953,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "constructor",
+                "edgeType": "property",
+                "node": {
+                  "id": 44541,
+                  "type": "closure",
+                  "name": "PhpSyntaxParser",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76029,
+                  "type": "code",
+                  "name": "PhpSyntaxParser",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 75835,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "source",
+                "edgeType": "internal",
+                "node": {
+                  "id": 75837,
+                  "type": "string",
+                  "name": "import { createRequire } from 'node:module';\nimport { dirname, join } from 'node:path';\nimport { Edit, Language, Parser } from 'web-tree-sitter';\n// These recor",
+                  "selfBytes": 127248
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1495837,
+              "type": "array",
+              "name": "(object properties)",
+              "selfBytes": 49216
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "10",
+                "edgeType": "element",
+                "node": {
+                  "id": 23,
+                  "type": "synthetic",
+                  "name": "(Global handles)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "30",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6411,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "properties",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1495837,
+                  "type": "array",
+                  "name": "(object properties)",
+                  "selfBytes": 49216
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 4035133,
+              "type": "code",
+              "name": "system / WeakFixedArray",
+              "selfBytes": 29952
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "67",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3893671,
+                  "type": "closure",
+                  "name": "dispose",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3894951,
+                  "type": "code",
+                  "name": "dispose",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1144709,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "1",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 4035133,
+                  "type": "code",
+                  "name": "system / WeakFixedArray",
+                  "selfBytes": 29952
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 2769951,
+              "type": "code",
+              "name": "(script line ends)",
+              "selfBytes": 32080
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "10",
+                "edgeType": "element",
+                "node": {
+                  "id": 23,
+                  "type": "synthetic",
+                  "name": "(Global handles)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "63",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6477,
+                  "type": "object",
+                  "name": "ModuleWrap",
+                  "selfBytes": 72
+                }
+              },
+              {
+                "via": "2",
+                "edgeType": "internal",
+                "node": {
+                  "id": 41129,
+                  "type": "hidden",
+                  "name": "system / SourceTextModule",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "4",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 2105947,
+                  "type": "object",
+                  "name": "Generator",
+                  "selfBytes": 160
+                }
+              },
+              {
+                "via": "function",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45355,
+                  "type": "closure",
+                  "name": "",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45363,
+                  "type": "code",
+                  "name": "(shared function info)",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2080089,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/web-tree-sitter.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "line_ends",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2769951,
+                  "type": "code",
+                  "name": "(script line ends)",
+                  "selfBytes": 32080
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3893191,
+              "type": "array",
+              "name": "",
+              "selfBytes": 262184
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "67",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3893671,
+                  "type": "closure",
+                  "name": "dispose",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "context",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2279289,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "previous",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45939,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 616
+                }
+              },
+              {
+                "via": "phpDocRangesByComments",
+                "edgeType": "context",
+                "node": {
+                  "id": 47923,
+                  "type": "object",
+                  "name": "WeakMap",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3893191,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 262184
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 4035129,
+              "type": "string",
+              "name": "import { nativeScalarInput } from './nativeScalarInput.js';\nimport { bindPhpDocTypeNames } from './phpDocNameBinding.js';\nimport { compositeTypeCompletionTail }",
+              "selfBytes": 1503768
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "67",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3893671,
+                  "type": "closure",
+                  "name": "dispose",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3894951,
+                  "type": "code",
+                  "name": "dispose",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1144709,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "source",
+                "edgeType": "internal",
+                "node": {
+                  "id": 4035129,
+                  "type": "string",
+                  "name": "import { nativeScalarInput } from './nativeScalarInput.js';\nimport { bindPhpDocTypeNames } from './phpDocNameBinding.js';\nimport { compositeTypeCompletionTail }",
+                  "selfBytes": 1503768
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 4035131,
+              "type": "code",
+              "name": "(script line ends)",
+              "selfBytes": 185408
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "67",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3893671,
+                  "type": "closure",
+                  "name": "dispose",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3894951,
+                  "type": "code",
+                  "name": "dispose",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1144709,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "line_ends",
+                "edgeType": "internal",
+                "node": {
+                  "id": 4035131,
+                  "type": "code",
+                  "name": "(script line ends)",
+                  "selfBytes": 185408
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 145677,
+              "type": "object",
+              "name": "SemanticWorkspace",
+              "selfBytes": 448
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "105",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6619,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 40
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 145677,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 2513103,
+              "type": "array",
+              "name": "(object elements)",
+              "selfBytes": 180680
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "81",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6581,
+                  "type": "object",
+                  "name": "Array",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "elements",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2513103,
+                  "type": "array",
+                  "name": "(object elements)",
+                  "selfBytes": 180680
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1978305,
+              "type": "native",
+              "name": "system / JSArrayBufferData",
+              "selfBytes": 33554432
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "10",
+                "edgeType": "element",
+                "node": {
+                  "id": 23,
+                  "type": "synthetic",
+                  "name": "(Global handles)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "63",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6477,
+                  "type": "object",
+                  "name": "ModuleWrap",
+                  "selfBytes": 72
+                }
+              },
+              {
+                "via": "2",
+                "edgeType": "internal",
+                "node": {
+                  "id": 41129,
+                  "type": "hidden",
+                  "name": "system / SourceTextModule",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "4",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 2105947,
+                  "type": "object",
+                  "name": "Generator",
+                  "selfBytes": 160
+                }
+              },
+              {
+                "via": "context",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45365,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 416
+                }
+              },
+              {
+                "via": "C",
+                "edgeType": "context",
+                "node": {
+                  "id": 45813,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "HEAP8",
+                "edgeType": "property",
+                "node": {
+                  "id": 1494817,
+                  "type": "object",
+                  "name": "Int8Array",
+                  "selfBytes": 96
+                }
+              },
+              {
+                "via": "buffer",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1978303,
+                  "type": "object",
+                  "name": "ArrayBuffer",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "backing_store",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1978305,
+                  "type": "native",
+                  "name": "system / JSArrayBufferData",
+                  "selfBytes": 33554432
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 3638957,
+              "type": "string",
+              "name": "var __defProp = Object.defineProperty;\nvar __name = (target, value) => __defProp(target, \"name\", { value, configurable: true });\n\n// src/edit.ts\nvar Edit = clas",
+              "selfBytes": 153688
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "10",
+                "edgeType": "element",
+                "node": {
+                  "id": 23,
+                  "type": "synthetic",
+                  "name": "(Global handles)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "63",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6477,
+                  "type": "object",
+                  "name": "ModuleWrap",
+                  "selfBytes": 72
+                }
+              },
+              {
+                "via": "2",
+                "edgeType": "internal",
+                "node": {
+                  "id": 41129,
+                  "type": "hidden",
+                  "name": "system / SourceTextModule",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "4",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 2105947,
+                  "type": "object",
+                  "name": "Generator",
+                  "selfBytes": 160
+                }
+              },
+              {
+                "via": "function",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45355,
+                  "type": "closure",
+                  "name": "",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 45363,
+                  "type": "code",
+                  "name": "(shared function info)",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "script",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2080089,
+                  "type": "code",
+                  "name": "file:///var/www/node/php-companion/node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/web-tree-sitter.js",
+                  "selfBytes": 144
+                }
+              },
+              {
+                "via": "source",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3638957,
+                  "type": "string",
+                  "name": "var __defProp = Object.defineProperty;\nvar __name = (target, value) => __defProp(target, \"name\", { value, configurable: true });\n\n// src/edit.ts\nvar Edit = clas",
+                  "selfBytes": 153688
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 1068651,
+              "type": "array",
+              "name": "",
+              "selfBytes": 262184
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "87",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6593,
+                  "type": "object",
+                  "name": "SemanticWorkspace",
+                  "selfBytes": 448
+                }
+              },
+              {
+                "via": "importScopeCache",
+                "edgeType": "property",
+                "node": {
+                  "id": 1068649,
+                  "type": "object",
+                  "name": "WeakMap",
+                  "selfBytes": 32
+                }
+              },
+              {
+                "via": "table",
+                "edgeType": "internal",
+                "node": {
+                  "id": 1068651,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 262184
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 2079771,
+              "type": "code",
+              "name": "(instruction stream for visitNode)",
+              "selfBytes": 115200
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "70",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6571,
+                  "type": "object",
+                  "name": "PhpSyntaxParser",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "__proto__",
+                "edgeType": "property",
+                "node": {
+                  "id": 141953,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "parseDocument",
+                "edgeType": "property",
+                "node": {
+                  "id": 3894671,
+                  "type": "closure",
+                  "name": "parseDocument",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76055,
+                  "type": "code",
+                  "name": "parseDocument",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "function_data",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76481,
+                  "type": "code",
+                  "name": "(code for parseDocument)",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "instruction_stream",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76483,
+                  "type": "code",
+                  "name": "(instruction stream for parseDocument)",
+                  "selfBytes": 24576
+                }
+              },
+              {
+                "via": "89",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 76107,
+                  "type": "code",
+                  "name": "visitNode",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "function_data",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2079769,
+                  "type": "code",
+                  "name": "(code for visitNode)",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "instruction_stream",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2079771,
+                  "type": "code",
+                  "name": "(instruction stream for visitNode)",
+                  "selfBytes": 115200
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 2082501,
+              "type": "code",
+              "name": "system / BytecodeArray",
+              "selfBytes": 33880
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "70",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6571,
+                  "type": "object",
+                  "name": "PhpSyntaxParser",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "__proto__",
+                "edgeType": "property",
+                "node": {
+                  "id": 141953,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "parseDocument",
+                "edgeType": "property",
+                "node": {
+                  "id": 3894671,
+                  "type": "closure",
+                  "name": "parseDocument",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "shared",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76055,
+                  "type": "code",
+                  "name": "parseDocument",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "function_data",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76481,
+                  "type": "code",
+                  "name": "(code for parseDocument)",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "instruction_stream",
+                "edgeType": "internal",
+                "node": {
+                  "id": 76483,
+                  "type": "code",
+                  "name": "(instruction stream for parseDocument)",
+                  "selfBytes": 24576
+                }
+              },
+              {
+                "via": "89",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 76107,
+                  "type": "code",
+                  "name": "visitNode",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "function_data",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2079769,
+                  "type": "code",
+                  "name": "(code for visitNode)",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "interpreter_data",
+                "edgeType": "internal",
+                "node": {
+                  "id": 2082501,
+                  "type": "code",
+                  "name": "system / BytecodeArray",
+                  "selfBytes": 33880
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 4082793,
+              "type": "code",
+              "name": "",
+              "selfBytes": 85248
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "10",
+                "edgeType": "element",
+                "node": {
+                  "id": 23,
+                  "type": "synthetic",
+                  "name": "(Global handles)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "28",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6407,
+                  "type": "object",
+                  "name": "process",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "getBuiltinModule",
+                "edgeType": "property",
+                "node": {
+                  "id": 59025,
+                  "type": "closure",
+                  "name": "getBuiltinModule",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "context",
+                "edgeType": "internal",
+                "node": {
+                  "id": 59733,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 352
+                }
+              },
+              {
+                "via": "$Module",
+                "edgeType": "context",
+                "node": {
+                  "id": 49499,
+                  "type": "closure",
+                  "name": "Module",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "register",
+                "edgeType": "property",
+                "node": {
+                  "id": 49505,
+                  "type": "closure",
+                  "name": "register",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "context",
+                "edgeType": "internal",
+                "node": {
+                  "id": 69475,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 416
+                }
+              },
+              {
+                "via": "defaultResolve",
+                "edgeType": "context",
+                "node": {
+                  "id": 67997,
+                  "type": "closure",
+                  "name": "defaultResolve",
+                  "selfBytes": 64
+                }
+              },
+              {
+                "via": "context",
+                "edgeType": "internal",
+                "node": {
+                  "id": 71309,
+                  "type": "object",
+                  "name": "system / Context",
+                  "selfBytes": 720
+                }
+              },
+              {
+                "via": "invalidSegmentRegEx",
+                "edgeType": "context",
+                "node": {
+                  "id": 71373,
+                  "type": "regexp",
+                  "name": "(^|\\\\|\\/)((\\.|%2e)(\\.|%2e)?|(n|%6e|%4e)(o|%6f|%4f)(d|%64|%44)(e|%65|%45)(_|%5f)(m|%6d|%4d)(o|%6f|%4f)(d|%64|%44)(u|%75|%55)(l|%6c|%4c)(e|%65|%45)(s|%73|%53))?(\\",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "2",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 72285,
+                  "type": "array",
+                  "name": "",
+                  "selfBytes": 112
+                }
+              },
+              {
+                "via": "3",
+                "edgeType": "internal",
+                "node": {
+                  "id": 72377,
+                  "type": "hidden",
+                  "name": "system / CodeWrapper",
+                  "selfBytes": 16
+                }
+              },
+              {
+                "via": "0",
+                "edgeType": "hidden",
+                "node": {
+                  "id": 3998319,
+                  "type": "code",
+                  "name": "(code)",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "instruction_stream",
+                "edgeType": "internal",
+                "node": {
+                  "id": 4082793,
+                  "type": "code",
+                  "name": "",
+                  "selfBytes": 85248
+                }
+              }
+            ]
+          },
+          {
+            "target": {
+              "id": 4082999,
+              "type": "code",
+              "name": "",
+              "selfBytes": 39040
+            },
+            "routeExcludingExplicitWeakEdges": [
+              {
+                "via": "1",
+                "edgeType": "element",
+                "node": {
+                  "id": 3,
+                  "type": "synthetic",
+                  "name": "(GC roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "19",
+                "edgeType": "element",
+                "node": {
+                  "id": 41,
+                  "type": "synthetic",
+                  "name": "(Stack roots)",
+                  "selfBytes": 0
+                }
+              },
+              {
+                "via": "70",
+                "edgeType": "internal",
+                "node": {
+                  "id": 6571,
+                  "type": "object",
+                  "name": "PhpSyntaxParser",
+                  "selfBytes": 120
+                }
+              },
+              {
+                "via": "__proto__",
+                "edgeType": "property",
+                "node": {
+                  "id": 141953,
+                  "type": "object",
+                  "name": "Object",
+                  "selfBytes": 24
+                }
+              },
+              {
+                "via": "parseDocument",
+                "edgeType": "property",
+                "node": {
+                  "id": 3894671,
+                  "type": "closure",
+                  "name": "parseDocument",
+                  "selfBytes": 56
+                }
+              },
+              {
+                "via": "code",
+                "edgeType": "internal",
+                "node": {
+                  "id": 3627837,
+                  "type": "code",
+                  "name": "(code)",
+                  "selfBytes": 88
+                }
+              },
+              {
+                "via": "instruction_stream",
+                "edgeType": "internal",
+                "node": {
+                  "id": 4082999,
+                  "type": "code",
+                  "name": "",
+                  "selfBytes": 39040
+                }
+              }
+            ]
+          }
+        ],
+        "selfBytesTotal": 47352140
+      }
+    ],
+    "completeBenchmarkResult": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 18787.79,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 5675.96,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3021,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57270849,
+          "mebibytes": 54.62
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57270849,
+          "mebibytes": 54.62
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 297.85,
+        "warmPeakRssMb": 382.48,
+        "layerRecoveryPeakRssMb": 1155.39,
+        "callableRecoveryPeakRssMb": 1156.02,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 1156.79,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "rawLogPrefix": "(node:651436) ExperimentalWarning: v8.queryObjects() is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+    "rawLogSuffix": "\n",
+    "shapeCountDeltas": {
+      "semanticFiles": -10000,
+      "declarationSnapshots": -10000,
+      "implementationSnapshots": -9996,
+      "indexCacheEntries": 0,
+      "cachedProjectPayloads": 0
+    },
+    "interpretationBoundaries": [
+      "Shape matching is structural, not a constructor identity or proof every matching record has the same role.",
+      "Routes exclude explicitly weak edges, but hidden/ephemeron relationships need manual interpretation. A shortest snapshot route is not an exclusive retainer or dominator.",
+      "Self sizes exclude retained subgraphs and cannot be added to external/RSS observations to infer memory savings.",
+      "Two GC interventions and snapshot serialization alter the original sequence memory behavior. Original uninstrumented budget failures remain unchanged."
+    ]
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-retained-heap-run.json",
+      "sha256": "a7d8dae775ec44dd41abc1c87b49a185284d69673e7fd24144d4580c8b7b1e37"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-retained-heap-input.json",
+      "sha256": "5638fe6f36bb949cbaf17f0990ab02c70b3c59fc96af4cfdc1acd1b4e862dac5"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-retained-heap.log",
+      "sha256": "6aaa77a949dcdfb57d8ad1b8c59e859184ffd8d06db5e02839d28d7aa6032dff"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-retained-heap-diagnostic.mjs",
+      "sha256": "8a5c37bf1e9a20f9ae500ff08f6874551fc87cf9c20a8d804af2cc138bfe2d7b"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-retained-heap-diagnostic-generation.json",
+      "sha256": "eacabfb91811d4501564f6130cb02a974080c4b12f1546df6b6d9236da000c97"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-prepare-retained-heap.py",
+      "sha256": "d49b76e4801c8982c110c5d7c31addf8f5a016ecb03b9a5706f68fdeb9d2698e"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-run.py",
+      "sha256": "cefabc01e4e280418c5c2911d05d6fb00a66c7e00f29fb81263444ce62aab055"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-analyze-retained-heap.py",
+      "sha256": "1b464b0d7ae7a99548a76b3e234febf782b3527f359274df623da327439e997c"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-retained-heap-analysis.json",
+      "sha256": "f4ac8e2eccd3b118045e968dc37869db10efe3dbb053490e0aeafa9379199eab"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-write-heap.mjs",
+      "sha256": "b27cfca557f27e02cb4f6855f8b2f9cf828fcaaea34901b2a81ca8c98424fbed"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-heap-writer-probe.json",
+      "sha256": "eb3e0e95c30a3c41195e689c8002c0bb80b2dad379d7a0aa3b3b8a9345c4db32"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/d301-heap-stream-failure-reproduction.json",
+      "sha256": "d828f8fcc181f923ef323e5b925215c2eadf8f3dc4d6626286205a7195143a42"
+    },
+    {
+      "path": ".vscode-test/d302-retained-heap-evidence/archive.json",
+      "sha256": "5aa0901db5103ea43a37ed9d9168c5a8839e0e865dc16ed91696b31f681b693d"
+    },
+    {
+      "path": ".vscode-test/d301-retained-heap-snapshots/warm-before-dispose.heapsnapshot",
+      "sha256": "099b71e2113203ca5b67688b01c842fbb7a6cd4a1413e9bcdb9c8e06e9b952a8",
+      "bytes": 171728448
+    },
+    {
+      "path": ".vscode-test/d301-retained-heap-snapshots/warm-after-dispose.heapsnapshot",
+      "sha256": "5ba129b8cb56873db69e6fb5ee731632e183a2865ac073a3efda2a3200c8b5cd",
+      "bytes": 13967591
+    },
+    {
+      "path": ".vscode-test/d300-retained-heap-evidence/warm-before-dispose.heapsnapshot.gz",
+      "sha256": "4065f8ea69198965a5759817e8170e9602fb1309c70a11a2eb0ed57ed57e792a",
+      "bytes": 30155639
+    }
+  ],
+  "inference": "In this synthetic sequence the inspected semantic/declaration/implementation shapes cease to appear after dispose and explicit GC. This shifts the next investigation to transient allocation and peak overlap during complete cache reads, restore and corruption recovery. It does not prove no other leaks or a unique RSS cause.",
+  "openGates": {
+    "ordinaryEditingP95Ms": 150.3,
+    "ordinaryEditingBudgetMs": 150,
+    "priorUninstrumented10kRssMiB": 1003.52,
+    "frozen10kRssBudgetMiB": 768,
+    "allOriginalScope": "C1-C4/R4/P0-P9/F01-F14 remains open"
+  },
+  "retention": {
+    "reviewDeadlineUtc": "2026-10-09T12:20:43.649Z",
+    "completeRawSnapshots": 2,
+    "failedRawSnapshotLosslesslyCompressed": true,
+    "totalHeapArtifactBytes": 215851678,
+    "noAutomaticDeletionOfOtherArtifacts": true
+  },
+  "nextAction": "Sample allocation stacks including collected objects in a separate original complete four-load diagnostic, without forced GC or heap serialization. Do not repeat failed per-file storage/compression or infer budget improvement from profiler runs."
+}

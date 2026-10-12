@@ -1,0 +1,69 @@
+{
+  "status": "exited",
+  "parentPid": 2286593,
+  "qualified": true,
+  "normalBundleSha256": "db1b1e6a01b305d009bf0437ee6aa2e6addc41579cfb098a545e4781a81687da",
+  "focusedResults": {
+    "d1925-supplementary-parser.json": {
+      "passedCases": 3,
+      "sha256": "94d15b83cd2b838f9df3a2f401ea1a9c5b1e130294a0f6f487bf63587c2a6690"
+    },
+    "d1927-unicode-method-tokens-green.json": {
+      "passedCases": 21,
+      "sha256": "40f7ec4606a270aa17d47170e8d5b4bee8670ab0b2107510a9f75a211690f391"
+    },
+    "d1929-full-parser.json": {
+      "passedCases": 200,
+      "sha256": "aa13f8b3061f965d4281a8ccae7a162d7e052debf6e6f23ea2879035f88cf37d"
+    },
+    "d1930-normal-identifier-protocol.json": {
+      "passedCases": 18,
+      "sha256": "8b952245644ccd06917c6d634e53ef08a633922bc98c910340f997d83178b51f"
+    }
+  },
+  "actualPhpVersions": 9,
+  "actualPhpExecutions": 36,
+  "actualPhpResultSha256": "1db957e503637971d39183ab3797ea256673286a4706e66a642864e9edf77afa",
+  "publicDeclarationsUnchanged": true,
+  "publicDeclarations": {
+    "/var/www/node/php-companion/packages/parser/dist/index.d.ts": "cca4017bb7230503e8599fda109ee680db560740536e392de3649046d9748377",
+    "/var/www/node/php-companion/packages/semantic/dist/index.d.ts": "7ea3923353f2fed203620bf6a648566c170474c41f90ec2040ee38e13e2a03b0"
+  },
+  "fullCurrentLspQualified": false,
+  "fullCurrentSemanticQualified": false,
+  "fullCurrentEditorQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "sourceInputs": {
+    "/var/www/node/php-companion/packages/parser/src/index.ts": "840958e5c86c1788fe12c42c7f7262f5163ce16695f642d02bd20d4fd62ae083",
+    "/var/www/node/php-companion/packages/parser/dist/index.js": "bd4a0f5f6dad099c9663221dc0d7909b00d89321567630175ca446c887c91306",
+    "/var/www/node/php-companion/packages/parser/test/supplementary-identifiers.test.ts": "292ed51ccdb2e234943ed07809603cb8f87fe88bff9a83ce68f2f6ae49ea0c07",
+    "/var/www/node/php-companion/packages/semantic/src/index.ts": "22a440863a9344319f43e75e8f753c3ac7bd3d92dced3ef86b8d1cadf342e3a5",
+    "/var/www/node/php-companion/packages/semantic/dist/index.js": "95fff8921f216436aaf28df9b6f2fa534de3d7305714d81b17eafbfd0cf5f965",
+    "/var/www/node/php-companion/packages/semantic/test/unicode-method-reference-tokens.test.ts": "1c1c215da69f5d085b5e735bcc81cb8964736a4241f54e8a76a4822b789f6bf7",
+    "/var/www/node/php-companion/packages/language-server/src/server.ts": "c4132a7fb02e6c61230d5b04fd0e557322d3f425584dbf62c885380fd26d1a3b",
+    "/var/www/node/php-companion/packages/language-server/dist/server.js": "055307b6453432542a2da84eb99b3a9b4af93bb05fc59c8051cd4b97b0ecb721",
+    "/var/www/node/php-companion/packages/language-server/test/prepared-reference-identifiers-stdio.test.ts": "42dc41a590a6b95706a94bc0c3b496df5628f16bc436009aafa35174581cbc2a",
+    "/var/www/node/php-companion/dist/language-server.js": "db1b1e6a01b305d009bf0437ee6aa2e6addc41579cfb098a545e4781a81687da"
+  },
+  "failuresPreserved": [
+    "d1912-identifier-boundaries-red.json",
+    "d1913-identifier-boundaries-red.json",
+    "d1914-identifier-boundaries-green.json",
+    "d1917-normal-identifier-protocol.json",
+    "d1920-unicode-method-tokens-red.json",
+    "d1921-unicode-method-tokens-word.json",
+    "d1922-unicode-method-tokens-green.json",
+    "d1923-unicode-method-tokens-result.json"
+  ],
+  "numberedFixtures": 175,
+  "fixtureFamilies": 14,
+  "remainingMajorItems": 26,
+  "expectedFullSemanticFiles": 180,
+  "expectedFullSemanticCases": 23782,
+  "expectedFullLspFiles": 126,
+  "expectedFullLspCases": 1530,
+  "wholeProjectLintPassed": true,
+  "auditSha256": "70888ab8dc2cb4dbfa0255d977bbc81c0b0c62dd652bd80e39a208500fb1d593"
+}

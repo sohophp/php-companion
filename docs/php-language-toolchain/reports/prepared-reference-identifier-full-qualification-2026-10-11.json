@@ -1,0 +1,251 @@
+{
+  "qualified": true,
+  "recordedAtUtc": "2026-10-11T05:16:44.304432+00:00",
+  "normalBundleSha256": "db1b1e6a01b305d009bf0437ee6aa2e6addc41579cfb098a545e4781a81687da",
+  "scope": "Same normal identifier-filtering and Unicode-method source/runtime snapshot. Current full regression, original six fixed-project reference modes, four Linux editor workflows, two native Windows C3 modes, original full12 Linux extension Profile. This does not qualify the entire original goal.",
+  "sourceInputs": {
+    "/var/www/node/php-companion/packages/parser/src/index.ts": "840958e5c86c1788fe12c42c7f7262f5163ce16695f642d02bd20d4fd62ae083",
+    "/var/www/node/php-companion/packages/parser/dist/index.js": "bd4a0f5f6dad099c9663221dc0d7909b00d89321567630175ca446c887c91306",
+    "/var/www/node/php-companion/packages/parser/test/supplementary-identifiers.test.ts": "292ed51ccdb2e234943ed07809603cb8f87fe88bff9a83ce68f2f6ae49ea0c07",
+    "/var/www/node/php-companion/packages/semantic/src/index.ts": "22a440863a9344319f43e75e8f753c3ac7bd3d92dced3ef86b8d1cadf342e3a5",
+    "/var/www/node/php-companion/packages/semantic/dist/index.js": "95fff8921f216436aaf28df9b6f2fa534de3d7305714d81b17eafbfd0cf5f965",
+    "/var/www/node/php-companion/packages/semantic/test/unicode-method-reference-tokens.test.ts": "1c1c215da69f5d085b5e735bcc81cb8964736a4241f54e8a76a4822b789f6bf7",
+    "/var/www/node/php-companion/packages/language-server/src/server.ts": "c4132a7fb02e6c61230d5b04fd0e557322d3f425584dbf62c885380fd26d1a3b",
+    "/var/www/node/php-companion/packages/language-server/dist/server.js": "055307b6453432542a2da84eb99b3a9b4af93bb05fc59c8051cd4b97b0ecb721",
+    "/var/www/node/php-companion/packages/language-server/test/prepared-reference-identifiers-stdio.test.ts": "42dc41a590a6b95706a94bc0c3b496df5628f16bc436009aafa35174581cbc2a",
+    "/var/www/node/php-companion/dist/language-server.js": "db1b1e6a01b305d009bf0437ee6aa2e6addc41579cfb098a545e4781a81687da"
+  },
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "bfcbaf007b5876748f417256152928cb27dc328e37581032a74d1c69988f7659",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "984925656d83ebf11eb94973707363be6bad366379bb817c4440b4dabccc32a9",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "496cd74d759ef5e1550dfe1edfe057c8e9b6a28bc0f4057c5824862f73c7ba39",
+    "/var/www/node/php-companion/dist/language-server.js": "db1b1e6a01b305d009bf0437ee6aa2e6addc41579cfb098a545e4781a81687da",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "82af4caff15430854fc4967e82cf68eea1307b51c6b3734b1f0310b25a81fdce",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "independentAudits": {
+    "d1940-current-full-lsp-terminal-audit.json": "737de65c481324b8a7fd2610696b75e9b15aefb011deccf1e96b1d46c2cd0d25",
+    "d1941-quality-semantic-terminal-audit.json": "6e044518dee2e19fed0b0501df80e1b6b43561a9ded7136722ae3891ba55a9a1",
+    "d1942-current-reference-terminal-audit.json": "ef8828e75f1d63ff1b5e0b7e82559a99064acbc86fdb2d1bca5a9cd60d381525",
+    "d1944-current-editor-terminal-audit.json": "7abbf028e03d8eb06d0b3ebae24ebf1ad130ff68f3d3d0e805e100e5051c6760",
+    "d1950-current-native-c3-terminal-audit.json": "6068ac47609d9e3712f82a314bcfbf7910b0e423f4eb11bef46a2a34d52a116e",
+    "d1951-current-full-profile-terminal-audit.json": "9425d34a424e3690bce53d3e10d487996bf6c2edd1a543acb909150bf41646da"
+  },
+  "fullParserCases": 200,
+  "fullSemanticFiles": 180,
+  "fullSemanticCases": 23782,
+  "fullLspFiles": 126,
+  "fullLspCases": 1530,
+  "rootTestsPassed": 113,
+  "componentsTypechecked": 24,
+  "sixReferenceModesPassed": true,
+  "selectedReferencesColdMs": 606,
+  "selectedReferencesReloadMs": 637,
+  "originalSelectedReferenceBudgetMs": 1000,
+  "referenceSamplesAreP95": false,
+  "allTwelveReferencePhasesCompletePositionsAndFourAnchorsMatched": true,
+  "fourLinuxEditorWorkflowsPassed": true,
+  "nativeWindowsC3ModesPassed": [
+    "onDemand",
+    "experimental"
+  ],
+  "nativeWindowsOriginalDeadlineMs": 300000,
+  "nativeWindowsDurationsSeconds": {
+    "onDemand": 264.21800967899617,
+    "experimental": 297.02928066201275
+  },
+  "full12LinuxExtensionProfilePassed": true,
+  "compositeP95BudgetMs": 150,
+  "compositeP95Ms": {
+    "scalar": 86,
+    "union-shape": 131
+  },
+  "compositeMeasurementRounds": {
+    "scalar": 50,
+    "union-shape": 30
+  },
+  "realXdebugPassed": true,
+  "phpunitTaskExitCodes": [
+    0,
+    1,
+    0
+  ],
+  "strictCompiledTestsReusedByExactIdentity": true,
+  "strictCompiledFiles": 97,
+  "strictCompileSourceInputs": 137,
+  "newEditorCompilationForThisRun": false,
+  "generationBoundaryObservations": 160,
+  "allRecordedProcessesCollected": true,
+  "fixtureCount": 175,
+  "fixtureFamilies": 14,
+  "roadmapOpenMajorItems": 26,
+  "fullPerformanceQualified": false,
+  "allPlatformsQualified": false,
+  "realWslRemoteQualified": false,
+  "realProjectMultiHourManualQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "pushed": false,
+  "aggregateEvidencePath": "/var/www/node/php-companion/.vscode-test/d1953-current-qualification-evidence.json",
+  "aggregateEvidenceSha256": "8445844c43064c9ddb8459e98f603fe9fc8a14c02499c8c60311ec309e7310ca",
+  "referenceModes": [
+    {
+      "mode": "normal_reload",
+      "qualified": true,
+      "originalCheckerExitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 16041
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 1916
+        }
+      ],
+      "allOwnedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "early_reload",
+      "qualified": true,
+      "originalCheckerExitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 15844
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 2159
+        }
+      ],
+      "allOwnedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "early_reload_prewarm",
+      "qualified": true,
+      "originalCheckerExitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 16219
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 1358
+        }
+      ],
+      "allOwnedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "source_reload",
+      "qualified": true,
+      "originalCheckerExitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 5658
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 6609
+        }
+      ],
+      "allOwnedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "source_selection_reload",
+      "qualified": true,
+      "originalCheckerExitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 606
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 637
+        }
+      ],
+      "allOwnedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "mode": "source_prime_immediate",
+      "qualified": true,
+      "originalCheckerExitCode": 0,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 5311
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definition": 1,
+          "completeLocationsVerified": true,
+          "fourAnchorsVerified": true,
+          "elapsedMs": 15978
+        }
+      ],
+      "allOwnedProcessesGone": true,
+      "ownedCacheRemoved": true
+    }
+  ]
+}

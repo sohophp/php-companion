@@ -1,0 +1,767 @@
+{
+  "auditedAtUtc": "2026-10-10T23:57:29.983092+00:00",
+  "terminalAuditQualified": true,
+  "fourCurrentLinuxEditorWorkflowsQualified": true,
+  "steps": [
+    {
+      "name": "d1833-mixed-html-full-c1-onDemand",
+      "suite": "c1",
+      "mode": "onDemand",
+      "exitCode": 0,
+      "qualified": true,
+      "actualLanguageServerPids": [
+        2018146
+      ],
+      "actualLanguageServersGone": true,
+      "ownedDisplayGone": true,
+      "generationBoundaryObservations": []
+    },
+    {
+      "name": "d1833-mixed-html-full-c2-onDemand",
+      "suite": "c2",
+      "mode": "onDemand",
+      "exitCode": 0,
+      "qualified": true,
+      "actualLanguageServerPids": [
+        2019059
+      ],
+      "actualLanguageServersGone": true,
+      "ownedDisplayGone": true,
+      "generationBoundaryObservations": []
+    },
+    {
+      "name": "d1833-mixed-html-full-c3-onDemand",
+      "suite": "c3",
+      "mode": "onDemand",
+      "exitCode": 0,
+      "qualified": true,
+      "actualLanguageServerPids": [
+        2021323
+      ],
+      "actualLanguageServersGone": true,
+      "ownedDisplayGone": true,
+      "generationBoundaryObservations": [
+        [
+          {
+            "operation": "constructor",
+            "variant": "complete class",
+            "offered": true,
+            "version": 2,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 7,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 12,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 17,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 22,
+            "undoRedo": false
+          },
+          {
+            "operation": "constructor",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 23,
+            "undoRedo": false
+          },
+          {
+            "operation": "constructor",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 24,
+            "undoRedo": false
+          },
+          {
+            "operation": "constructor",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 25,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "complete class",
+            "offered": true,
+            "version": 26,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 31,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 36,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 41,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 46,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 47,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 48,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 49,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "complete class",
+            "offered": true,
+            "version": 50,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 55,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 60,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 65,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 70,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 71,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 72,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 73,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "complete class",
+            "offered": true,
+            "version": 74,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 79,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 84,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 89,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 94,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 95,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 96,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 97,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "complete class",
+            "offered": true,
+            "version": 98,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 103,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 108,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 113,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 118,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 119,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 120,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 121,
+            "undoRedo": false
+          }
+        ]
+      ]
+    },
+    {
+      "name": "d1833-mixed-html-full-c3-progressive",
+      "suite": "c3",
+      "mode": "progressive",
+      "exitCode": 0,
+      "qualified": true,
+      "actualLanguageServerPids": [
+        2029689
+      ],
+      "actualLanguageServersGone": true,
+      "ownedDisplayGone": true,
+      "generationBoundaryObservations": [
+        [
+          {
+            "operation": "constructor",
+            "variant": "complete class",
+            "offered": true,
+            "version": 2,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 7,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 12,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 17,
+            "undoRedo": true
+          },
+          {
+            "operation": "constructor",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 22,
+            "undoRedo": false
+          },
+          {
+            "operation": "constructor",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 23,
+            "undoRedo": false
+          },
+          {
+            "operation": "constructor",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 24,
+            "undoRedo": false
+          },
+          {
+            "operation": "constructor",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 25,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "complete class",
+            "offered": true,
+            "version": 26,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 31,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 36,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 41,
+            "undoRedo": true
+          },
+          {
+            "operation": "accessor",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 46,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 47,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 48,
+            "undoRedo": false
+          },
+          {
+            "operation": "accessor",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 49,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "complete class",
+            "offered": true,
+            "version": 50,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 55,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 60,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 65,
+            "undoRedo": true
+          },
+          {
+            "operation": "interface",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 70,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 71,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 72,
+            "undoRedo": false
+          },
+          {
+            "operation": "interface",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 73,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "complete class",
+            "offered": true,
+            "version": 74,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 79,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 84,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 89,
+            "undoRedo": true
+          },
+          {
+            "operation": "abstract",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 94,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 95,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 96,
+            "undoRedo": false
+          },
+          {
+            "operation": "abstract",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 97,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "complete class",
+            "offered": true,
+            "version": 98,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "nested method braces",
+            "offered": true,
+            "version": 103,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "brace in comment",
+            "offered": true,
+            "version": 108,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "unrelated unfinished function",
+            "offered": true,
+            "version": 113,
+            "undoRedo": true
+          },
+          {
+            "operation": "override",
+            "variant": "missing class brace",
+            "offered": false,
+            "version": 118,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "line-comment brace",
+            "offered": false,
+            "version": 119,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "block-comment brace",
+            "offered": false,
+            "version": 120,
+            "undoRedo": false
+          },
+          {
+            "operation": "override",
+            "variant": "unfinished method",
+            "offered": false,
+            "version": 121,
+            "undoRedo": false
+          }
+        ]
+      ]
+    }
+  ],
+  "driverError": null,
+  "normalBundleSha256": "8b42a3680a8af156a07b7636a3637537997e66f8e8b4fd0edac4015237ff45f9",
+  "fullCurrentLspQualified": true,
+  "fullLspFiles": 123,
+  "fullLspPassed": 1514,
+  "editorFrozenInputsCheckedByRunner": 30082,
+  "editorFrozenSymlinksRechecked": 184,
+  "sourceInputsRecheckedAtAudit": 3347,
+  "rootTestsPassed": 113,
+  "componentsTypechecked": 24,
+  "fullLintPassed": true,
+  "rootAndSymfonyTypechecksPassed": true,
+  "recordedDriverAndServerProcessesGone": true,
+  "dedicatedProfileMarkersChecked": [
+    "/tmp/php-companion-extension-LvJ2n3/profile-user-data",
+    "/tmp/php-companion-extension-hozzSP/profile-user-data",
+    "/tmp/php-companion-extension-lXNgkp/profile-user-data",
+    "/tmp/php-companion-extension-vmyWm5/profile-user-data"
+  ],
+  "remainingDedicatedProfileProcesses": [],
+  "generationBoundaryObservations": 80,
+  "fullPerformanceQualified": false,
+  "realWslRemoteQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "lsp": {
+    "auditedAtUtc": "2026-10-10T23:42:42.775978+00:00",
+    "terminalAuditQualified": true,
+    "fullCurrentLspQualified": true,
+    "normalBundleSha256": "8b42a3680a8af156a07b7636a3637537997e66f8e8b4fd0edac4015237ff45f9",
+    "files": 123,
+    "totalCases": 1514,
+    "passedCases": 1514,
+    "failedCases": 0,
+    "pendingCases": 0,
+    "todoCases": 0,
+    "failures": [],
+    "original1487IdentitiesPreserved": true,
+    "originalRetryCaseExpandedToFiveEvidenceVariants": true,
+    "addedCaseIdentities": 27,
+    "frozenInputsCheckedByRunner": 30077,
+    "targetedInputsRecheckedAtAudit": 366,
+    "frozenSymlinksRechecked": 184,
+    "normalAssets": {
+      "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "/var/www/node/php-companion/dist/extension.js": "b7acdb1b9534900f66ab9e5d4966429725dc0f9718d30f02dc14ae0fede2e093",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "78a6ad4dd502dc86cbdf39b2a18983a65caf6c5c0fb9f6908437ade4168773e3",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "496cd74d759ef5e1550dfe1edfe057c8e9b6a28bc0f4057c5824862f73c7ba39",
+      "/var/www/node/php-companion/dist/language-server.js": "8b42a3680a8af156a07b7636a3637537997e66f8e8b4fd0edac4015237ff45f9",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "33d5aef1aa9762205015bf158a4ceec34aa3ce74ef34eacef9b8f66c569ea446",
+      "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "allOwnedProcessesGone": true,
+    "checkedProcessIds": [
+      1962460,
+      1963345
+    ],
+    "constructorPhaseTraces": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1830-current-full-lsp-constructor-traces/constructor-8.5.jsonl",
+        "sha256": "dd0079e9d8decc76a4cff58b3d07348c074568bdb65a587ee100d08d8e148fa1"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1830-current-full-lsp-constructor-traces/constructor-7.2.jsonl",
+        "sha256": "4082025e8fbab4d54f3928566c0f3ad258e813a3d8e955307322ed9843400cca"
+      }
+    ],
+    "fullPerformanceQualified": false,
+    "fullEditorQualified": false,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "rootQuality": {
+    "auditedAtUtc": "2026-10-10T23:11:35.406830+00:00",
+    "qualified": true,
+    "rootTestsPassed": 113,
+    "fullLintPassed": true,
+    "rootStrictTypecheckPassed": true,
+    "symfonyStrictTypecheckPassed": true,
+    "componentBoundaries": {
+      "components": 24,
+      "sourceFiles": 200,
+      "imports": 511,
+      "violations": 0
+    },
+    "publicContracts": {
+      "contracts": 43,
+      "sourceFiles": 12,
+      "violations": 0
+    },
+    "sourceInputsRechecked": 3347,
+    "normalBundleSha256": "8b42a3680a8af156a07b7636a3637537997e66f8e8b4fd0edac4015237ff45f9",
+    "allSixToolExitCodesCollected": {
+      "lint": 0,
+      "rootTypecheck": 0,
+      "symfonyTypecheck": 0,
+      "componentBoundaries": 0,
+      "publicContracts": 0,
+      "rootTests": 0
+    },
+    "fullPnPmTypecheckCommandExecuted": false,
+    "fullLspStillPending": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "componentTypes": {
+    "qualified": true,
+    "auditedAtUtc": "2026-10-10T23:18:16.389529+00:00",
+    "componentsTypechecked": 24,
+    "typecheckDoneMarkers": 24,
+    "exitCodeCollected": 0,
+    "command": [
+      "pnpm",
+      "-r",
+      "--workspace-concurrency=3",
+      "--filter",
+      "@php-companion/*",
+      "typecheck"
+    ],
+    "sourceInputsRechecked": 3347,
+    "inputManifestSha256": "59d9f0fea5e3572a5eb3a313218c4c933a6a08ea81fec6443f2fd9d2c3c52ad5",
+    "logSha256": "0ae191a3d42abf132b5f02bbde4faba27769d38d350d4964e8bdcdbcd8fa6507",
+    "normalBundleSha256": "8b42a3680a8af156a07b7636a3637537997e66f8e8b4fd0edac4015237ff45f9",
+    "fullLspStillPending": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "lspArchiveFiles": 188,
+  "editorArchiveFiles": 143,
+  "fixtureCount": 171,
+  "roadmapOpenItems": 26,
+  "historicalProgressiveFailureCauseProven": false,
+  "currentFull12ProfileQualified": false
+}

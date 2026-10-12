@@ -1,0 +1,339 @@
+{
+  "terminalAuditQualified": true,
+  "recordedAtUtc": "2026-10-11T03:30:05.388624+00:00",
+  "normalBundleSha256": "762362525977cfa6d81d99ca1766ddc256bb7638d95655b0bb01cd7886aa401e",
+  "normalSourceUnchanged": true,
+  "candidateAdopted": false,
+  "protocolCasesPassed": 14,
+  "originalProtocolAssertionsAndTimeoutsRetained": true,
+  "uniqueFrozenInputsVerified": 69629,
+  "checkerSha256": "14a4bb5144c02eea90ae76e9c49f02a1946b2c8442a4630cf7950f8ff11ce8e7",
+  "originalThresholdMs": 1000,
+  "singleRunPerDiagnosticVariant": true,
+  "initialCliFailurePreserved": true,
+  "correctedIdentifierCandidatePassedColdAndReload": true,
+  "runs": [
+    {
+      "run": "d1905",
+      "qualified": false,
+      "diagnosticOnly": true,
+      "exitCode": 1,
+      "bundleSha256": "988971c61883e7e30f22721c0082b8cec0cd2f0838166d0ea039dc46123789a6",
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definitionResults": 1,
+          "referencesElapsedMs": 1217,
+          "fullPositionHashesMatched": true,
+          "inheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "probes": [
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": null,
+          "totalMs": 806.3392810000005
+        },
+        {
+          "stage": "workspace",
+          "request": 1,
+          "totalMs": 0.08283300000039162
+        },
+        {
+          "function": "preparedReferenceCandidatesUnchanged",
+          "request": 1,
+          "totalMs": 968.6431870000015,
+          "searchMs": 41.2437310000023,
+          "membershipMs": 121.43255800000043,
+          "statMs": 187.3330790000109,
+          "readMs": 590.3122930000209,
+          "candidates": 1928
+        },
+        {
+          "stage": "prepared-freshness",
+          "request": 1,
+          "totalMs": 974.5642050000024
+        },
+        {
+          "function": "methodCandidatePathsUnchanged",
+          "request": 1,
+          "totalMs": 0.019215999996959
+        },
+        {
+          "stage": "method-freshness",
+          "request": 1,
+          "totalMs": 974.9983180000017
+        },
+        {
+          "stage": "candidate-scan",
+          "request": 1,
+          "totalMs": 975.2482830000008
+        },
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": 1,
+          "totalMs": 97.76738299999852
+        },
+        {
+          "stage": "receiver-hydration",
+          "request": 1,
+          "totalMs": 1073.1406590000006
+        },
+        {
+          "stage": "framework-complete",
+          "request": 1,
+          "totalMs": 1175.073088000001
+        },
+        {
+          "stage": "location-conversion",
+          "request": 1,
+          "totalMs": 1196.5161810000027
+        }
+      ],
+      "allInputsAndOwnedProcessesChecked": true,
+      "stateSha256": "6cb7fc3db04f2c52fb0e6157bb5668489a1878bae58fab9653ad7fa428fef361"
+    },
+    {
+      "run": "d1907",
+      "qualified": false,
+      "diagnosticOnly": true,
+      "exitCode": 1,
+      "bundleSha256": "b98f75902f1630ce1eebdb134da954a3a25f768314c869872865f2bb5226e320",
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definitionResults": 1,
+          "referencesElapsedMs": 1500,
+          "fullPositionHashesMatched": true,
+          "inheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "probes": [
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": null,
+          "totalMs": 800.0457960000022
+        },
+        {
+          "stage": "workspace",
+          "request": 1,
+          "totalMs": 0.08385199999975157
+        },
+        {
+          "function": "preparedReferenceCandidatesUnchanged",
+          "request": 1,
+          "totalMs": 1272.9326909999982,
+          "searchMs": 449.05875300000116,
+          "membershipMs": 101.8285219999998,
+          "statMs": 171.7198399999579,
+          "readMs": 524.5854930000169,
+          "candidates": 1928
+        },
+        {
+          "stage": "prepared-freshness",
+          "request": 1,
+          "totalMs": 1277.994496000003
+        },
+        {
+          "function": "methodCandidatePathsUnchanged",
+          "request": 1,
+          "totalMs": 0.029837999998562736
+        },
+        {
+          "stage": "method-freshness",
+          "request": 1,
+          "totalMs": 1278.5555010000026
+        },
+        {
+          "stage": "candidate-scan",
+          "request": 1,
+          "totalMs": 1278.7423780000026
+        },
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": 1,
+          "totalMs": 97.87418700000126
+        },
+        {
+          "stage": "receiver-hydration",
+          "request": 1,
+          "totalMs": 1376.7521960000013
+        },
+        {
+          "stage": "framework-complete",
+          "request": 1,
+          "totalMs": 1457.5303220000023
+        },
+        {
+          "stage": "location-conversion",
+          "request": 1,
+          "totalMs": 1480.5178360000027
+        }
+      ],
+      "allInputsAndOwnedProcessesChecked": true,
+      "stateSha256": "4414b5e435206c01ae75af9c81fba3b308a30ce30380a40f414bef9e1997dc1a"
+    },
+    {
+      "run": "d1909",
+      "qualified": true,
+      "diagnosticOnly": true,
+      "exitCode": 0,
+      "bundleSha256": "1b9ab1f3069f92f0ac9aabdbaab070fc0500150f8a98c37f78119c0d81f62c00",
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "definitionResults": 1,
+          "referencesElapsedMs": 558,
+          "fullPositionHashesMatched": true,
+          "inheritedAndVendorAnchorsMatched": true
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "definitionResults": 1,
+          "referencesElapsedMs": 677,
+          "fullPositionHashesMatched": true,
+          "inheritedAndVendorAnchorsMatched": true
+        }
+      ],
+      "probes": [
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": null,
+          "totalMs": 802.4999740000021
+        },
+        {
+          "stage": "workspace",
+          "request": 1,
+          "totalMs": 0.08256299999993644
+        },
+        {
+          "function": "preparedReferenceCandidatesUnchanged",
+          "request": 1,
+          "totalMs": 328.6613600000019,
+          "searchMs": 30.44210000000021,
+          "membershipMs": 92.84297800000058,
+          "statMs": 43.984575999995286,
+          "readMs": 153.00163699999757,
+          "candidates": 556
+        },
+        {
+          "stage": "prepared-freshness",
+          "request": 1,
+          "totalMs": 333.8046820000018
+        },
+        {
+          "function": "methodCandidatePathsUnchanged",
+          "request": 1,
+          "totalMs": 0.019445999998424668
+        },
+        {
+          "stage": "method-freshness",
+          "request": 1,
+          "totalMs": 334.3608659999991
+        },
+        {
+          "stage": "candidate-scan",
+          "request": 1,
+          "totalMs": 334.608317000002
+        },
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": 1,
+          "totalMs": 97.96263000000181
+        },
+        {
+          "stage": "receiver-hydration",
+          "request": 1,
+          "totalMs": 432.6870310000013
+        },
+        {
+          "stage": "framework-complete",
+          "request": 1,
+          "totalMs": 516.8695770000013
+        },
+        {
+          "stage": "location-conversion",
+          "request": 1,
+          "totalMs": 538.6688940000022
+        },
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": null,
+          "totalMs": 1711.589609999999
+        },
+        {
+          "stage": "workspace",
+          "request": 1,
+          "totalMs": 0.07991499999843654
+        },
+        {
+          "function": "preparedReferenceCandidatesUnchanged",
+          "request": 1,
+          "totalMs": 396.4527079999971,
+          "searchMs": 34.80923899999834,
+          "membershipMs": 111.01909499999965,
+          "statMs": 53.45886600000085,
+          "readMs": 186.0778160000009,
+          "candidates": 556
+        },
+        {
+          "stage": "prepared-freshness",
+          "request": 1,
+          "totalMs": 401.8602719999981
+        },
+        {
+          "function": "methodCandidatePathsUnchanged",
+          "request": 1,
+          "totalMs": 0.02077599999756785
+        },
+        {
+          "stage": "method-freshness",
+          "request": 1,
+          "totalMs": 402.39228699999876
+        },
+        {
+          "stage": "candidate-scan",
+          "request": 1,
+          "totalMs": 402.63433599999917
+        },
+        {
+          "function": "hydratePreparedReferenceReceivers",
+          "request": 1,
+          "totalMs": 110.79837100000077
+        },
+        {
+          "stage": "receiver-hydration",
+          "request": 1,
+          "totalMs": 513.5660810000008
+        },
+        {
+          "stage": "framework-complete",
+          "request": 1,
+          "totalMs": 608.8639440000006
+        },
+        {
+          "stage": "location-conversion",
+          "request": 1,
+          "totalMs": 641.7366929999989
+        }
+      ],
+      "allInputsAndOwnedProcessesChecked": true,
+      "stateSha256": "19cc1d77b2875bcf3bd7f1a870a0071d32d5ea2491ab59b9fa82ca1900653157"
+    }
+  ],
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "auditPath": ".vscode-test/d1911-reference-identifier-terminal-audit.json",
+  "auditSha256": "15cff003e0a9026734027e76bc8154b1ecea24f17f3ba858bdad6c2fbc8f2ba5",
+  "archiveManifest": ".vscode-test/d1911-reference-identifier-archive/manifest.json",
+  "archiveManifestSha256": "78e8b833bd419146f99c45a5ab92c37faa980132e5928bccba0d37eafdfd2224",
+  "archiveFiles": 85,
+  "numberedFixtures": 173,
+  "fixtureFamilies": 14,
+  "remainingRoadmapMajorItems": 26
+}

@@ -1,0 +1,611 @@
+{
+  "milestone": "D260",
+  "kind": "independent-actual-php-twig-definition-probe",
+  "date": "2026-10-07",
+  "recordedAtUtc": "2026-10-07T08:49:34.478575+00:00",
+  "phpCoreSha256": "0680ad5acb7a06ed62619755aa98ee045e915068370a6015b16e5bc71757cc4e",
+  "twigBundleSha256": "06f3cdc3792962b910e8cc7073c450583886981c938648fcfce792b41c264371",
+  "twigBundleSourceAlignment": "Not claimed: existing build is independently frozen; source/build equivalence requires a later normal build.",
+  "repositories": {
+    "/var/www/node/php-companion": {
+      "head": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+      "status": " M docs/php-language-toolchain/acceptance.md\n M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n?? .changeset/progressive-controller-contexts.md\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.md\n?? packages/language-server/test/controller-context-progressive-stdio.test.ts\n"
+    },
+    "/var/www/node/twig-plus": {
+      "head": "c3d1aa5323f621a71d8055e12b3578b0a1866e4b",
+      "status": " M packages/parser/src/hybridAst.ts\n M packages/parser/test/hybridAst.test.ts\n M packages/vscode/test/extension/suite/index.js\n M tests/integration/vscodeIntegration.test.ts\n"
+    }
+  },
+  "run": {
+    "status": "exited",
+    "name": "original",
+    "parentPid": 305404,
+    "childPid": 305885,
+    "startedAtUtc": "2026-10-07T08:47:33.771937+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/.vscode-test/d260-twig-definition-probe.mjs"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d260-original-input.json",
+    "exitCode": 1,
+    "durationSeconds": 3.281702681000752,
+    "finishedAtUtc": "2026-10-07T08:47:37.052959+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "nodeChanged": false,
+    "resultSha256": "767dd929905924ddc57a63553ce698e8ea3ba4c48552f8968ea49a01205d003a",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "inputCount": 4394,
+  "result": {
+    "observations": 15,
+    "passed": 3,
+    "failed": 12,
+    "qualified": false
+  },
+  "observations": [
+    {
+      "name": "actual-php-provider-exact-provenance",
+      "exact": true,
+      "actual": {
+        "hello": {
+          "protocolVersion": 1,
+          "providerId": "php-companion",
+          "projectId": "file:///tmp/sophp-twig-definition-4onqct",
+          "snapshotVersion": "0",
+          "capabilities": [
+            "controller-contexts",
+            "php-symbols",
+            "definitions",
+            "invalidation",
+            "rename-prepare"
+          ]
+        },
+        "contexts": [
+          {
+            "template": "plain.html.twig",
+            "complete": true,
+            "variables": [
+              {
+                "name": "person",
+                "type": {
+                  "kind": "named",
+                  "name": "App\\User"
+                },
+                "optional": false,
+                "sources": [
+                  {
+                    "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+                    "start": 141,
+                    "end": 147,
+                    "line": 4,
+                    "character": 43,
+                    "snapshotVersion": "0"
+                  }
+                ]
+              }
+            ],
+            "sources": [
+              {
+                "symbol": "App\\PageController::plain",
+                "location": {
+                  "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+                  "start": 70,
+                  "end": 75,
+                  "line": 3,
+                  "snapshotVersion": "0"
+                }
+              }
+            ]
+          },
+          {
+            "template": "@site/page.html.twig",
+            "complete": true,
+            "variables": [
+              {
+                "name": "person",
+                "type": {
+                  "kind": "named",
+                  "name": "App\\User"
+                },
+                "optional": false,
+                "sources": [
+                  {
+                    "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+                    "start": 265,
+                    "end": 271,
+                    "line": 7,
+                    "character": 48,
+                    "snapshotVersion": "0"
+                  }
+                ]
+              }
+            ],
+            "sources": [
+              {
+                "symbol": "App\\PageController::named",
+                "location": {
+                  "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+                  "start": 189,
+                  "end": 194,
+                  "line": 6,
+                  "snapshotVersion": "0"
+                }
+              }
+            ]
+          }
+        ],
+        "types": {
+          "App\\User": {
+            "name": "App\\User",
+            "members": [
+              {
+                "name": "getName",
+                "kind": "method",
+                "type": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "signature": "getName()",
+                "location": {
+                  "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+                  "start": 60,
+                  "end": 67,
+                  "line": 3,
+                  "character": 20,
+                  "snapshotVersion": "0"
+                }
+              },
+              {
+                "name": "name",
+                "kind": "property",
+                "type": {
+                  "kind": "primitive",
+                  "name": "string"
+                },
+                "location": {
+                  "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+                  "start": 60,
+                  "end": 67,
+                  "line": 3,
+                  "character": 20,
+                  "snapshotVersion": "0"
+                }
+              }
+            ],
+            "location": {
+              "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+              "start": 33,
+              "end": 37,
+              "snapshotVersion": "0"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "plain-root-variable-key",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 43
+            },
+            "end": {
+              "line": 4,
+              "character": 49
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "plain-getter-member",
+      "exact": true,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 20
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 20
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "namespace-root-variable-key",
+      "exact": false,
+      "actual": [],
+      "expected": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 48
+            },
+            "end": {
+              "line": 7,
+              "character": 54
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "namespace-getter-member",
+      "exact": false,
+      "actual": [],
+      "expected": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 20
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "unknown-member-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "string-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "comment-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "html-text-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "string-member-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 20
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "comment-member-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 20
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "html-member-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/User.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 20
+            },
+            "end": {
+              "line": 3,
+              "character": 27
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "hash-key-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "filter-token",
+      "exact": false,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/src/PageController.php",
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "local-twig-shadow",
+      "exact": true,
+      "actual": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/templates/plain.html.twig",
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 7
+            },
+            "end": {
+              "line": 0,
+              "character": 13
+            }
+          }
+        }
+      ],
+      "expected": [
+        {
+          "uri": "file:///tmp/sophp-twig-definition-4onqct/templates/plain.html.twig",
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 7
+            },
+            "end": {
+              "line": 0,
+              "character": 13
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "scope": "Original independent diagnostic: actual Core plus Symfony Provider plus existing bundled TwigPlus, exact fixture provenance and negatives. Not full TwigPlus source, VSIX/editor or real WSL acceptance.",
+  "sourceStatus": "Original diagnostic only; neither repository changed during the run. No claims of full TwigPlus source/build equivalence or editor acceptance.",
+  "evidenceArtifacts": [
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-original-result.json",
+      "archivePath": ".vscode-test/d260-original-evidence/000-d260-original-result.json",
+      "sha256": "767dd929905924ddc57a63553ce698e8ea3ba4c48552f8968ea49a01205d003a",
+      "bytes": 11328
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-original-run.json",
+      "archivePath": ".vscode-test/d260-original-evidence/001-d260-original-run.json",
+      "sha256": "89a1d0a3e9b75f7de28f92afd43cccef8d1671d269c3ba806c4b6f01b22d4202",
+      "bytes": 741
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-original-input.json",
+      "archivePath": ".vscode-test/d260-original-evidence/002-d260-original-input.json",
+      "sha256": "50f277299793c84e425b9e6a499909a49af2a03eccfa01021431afe37b757d48",
+      "bytes": 715743
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-original.stderr",
+      "archivePath": ".vscode-test/d260-original-evidence/003-d260-original.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-twig-definition-probe.mjs",
+      "archivePath": ".vscode-test/d260-original-evidence/004-d260-twig-definition-probe.mjs",
+      "sha256": "821e8fba677cf35cf9a8ddf52359ed4a5d0e88a915eb19ff2bdb0c37713ca158",
+      "bytes": 11055
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-twig-probe-run.py",
+      "archivePath": ".vscode-test/d260-original-evidence/005-d260-twig-probe-run.py",
+      "sha256": "6826a906896d5810e61b13a40818e8f4a41afb8de1b491aa968ac1c23102fbfa",
+      "bytes": 3589
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d259-then-d260.py",
+      "archivePath": ".vscode-test/d260-original-evidence/006-d259-then-d260.py",
+      "sha256": "a929eb68898744cd7d49ef96b7e09a20313bd15fb487e9985e27ad74c0ecca52",
+      "bytes": 1935
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d259-then-d260-run.json",
+      "archivePath": ".vscode-test/d260-original-evidence/007-d259-then-d260-run.json",
+      "sha256": "dd350342861d10adb9156f670a8eb77572ea942bd0ba5bc4c57419506a0a4ed3",
+      "bytes": 430
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d260-twig-definition-readonly-audit.json",
+      "archivePath": ".vscode-test/d260-original-evidence/008-d260-twig-definition-readonly-audit.json",
+      "sha256": "8ff27b1c5e55cd733982e17b5e2611f575f65c3cabd70726731a79e1141294be",
+      "bytes": 3177
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/dist/language-server.js",
+      "archivePath": ".vscode-test/d260-original-evidence/009-language-server.js",
+      "sha256": "0680ad5acb7a06ed62619755aa98ee045e915068370a6015b16e5bc71757cc4e",
+      "bytes": 4254281
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "archivePath": ".vscode-test/d260-original-evidence/010-web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "bytes": 201037
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "archivePath": ".vscode-test/d260-original-evidence/011-tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "bytes": 1058041
+    },
+    {
+      "originalPath": "/var/www/node/php-companion/packages/provider-symfony-controller-contexts/dist/cli.js",
+      "archivePath": ".vscode-test/d260-original-evidence/012-cli.js",
+      "sha256": "cbfa1bf2084d4bd2320f3f72d22213c336ec5f3df88381a6fc98c6a4d51f5cda",
+      "bytes": 2363
+    },
+    {
+      "originalPath": "/var/www/node/twig-plus/packages/vscode/dist/server.js",
+      "archivePath": ".vscode-test/d260-original-evidence/013-server.js",
+      "sha256": "06f3cdc3792962b910e8cc7073c450583886981c938648fcfce792b41c264371",
+      "bytes": 830772
+    },
+    {
+      "originalPath": "/var/www/node/twig-plus/packages/language-server/src/index.ts",
+      "archivePath": ".vscode-test/d260-original-evidence/014-index.ts",
+      "sha256": "dce8dfccba853e87813099b0aa53fd5e9bc14deccb1c9415c9051c83108a4b73",
+      "bytes": 81881
+    },
+    {
+      "originalPath": "/var/www/node/twig-plus/packages/language-server/src/projectContexts.ts",
+      "archivePath": ".vscode-test/d260-original-evidence/015-projectContexts.ts",
+      "sha256": "d15f78948a7241aa963ee3de5f4ca3505018b08240befcb330160f31bb5e18ae",
+      "bytes": 4917
+    }
+  ],
+  "next": "Permanent exact-range and negative regressions, then token-role/source-range and workspace-scoped namespace fixes, normal builds and actual editor combination.",
+  "goalStatus": "active"
+}

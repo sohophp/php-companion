@@ -1,0 +1,5567 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "decision": "private-bounded-cleanup-functional-controls-passed-scale-pending",
+  "adopted": false,
+  "normalProductChanged": false,
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "runs": {
+    "d368-entry-memory-smoke": {
+      "status": "exited",
+      "parentPid": 906727,
+      "childPid": 906808,
+      "startedAtUtc": "2026-10-07T15:34:35.452309+00:00",
+      "command": [
+        "env",
+        "SOPHP_CACHE_MEMORY_PROFILE=/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-memory.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d367-entry-memory-smoke.mjs",
+        "8"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.4692974880017573,
+      "finishedAtUtc": "2026-10-07T15:34:35.920421+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "69b0b35a489c01706e782582bf358a3d00874acd098b46f2bf2040b7ffb3eb9f"
+    },
+    "d369-entry-memory-50000": {
+      "status": "exited",
+      "parentPid": 907744,
+      "childPid": 907831,
+      "startedAtUtc": "2026-10-07T15:35:30.189475+00:00",
+      "command": [
+        "env",
+        "SOPHP_CACHE_MEMORY_PROFILE=/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-memory.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d367-entry-memory-diagnostic.mjs",
+        "50000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 458.6394011270022,
+      "finishedAtUtc": "2026-10-07T15:43:08.827572+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "1a9f178b18b9e484d25a1876feb238d42de2e3e74de4751e5744af468f33dcc8"
+    },
+    "d374-cleanup-boundaries": {
+      "status": "exited",
+      "parentPid": 922297,
+      "childPid": 922391,
+      "startedAtUtc": "2026-10-07T15:45:48.094614+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d373-cleanup-boundary-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.14741913699981524,
+      "finishedAtUtc": "2026-10-07T15:45:48.241005+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "4ac18ce921afc25170372fe49fce3857ab98f8ee5dc14f36988b53b9504f84f8"
+    },
+    "d374-cleanup-native-5000": {
+      "status": "exited",
+      "parentPid": 922632,
+      "childPid": 922720,
+      "startedAtUtc": "2026-10-07T15:46:29.057565+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d373-cleanup-operation-worker.mjs",
+        "native"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 1.5838863089957158,
+      "finishedAtUtc": "2026-10-07T15:46:30.640408+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "a2a3abb6b6bcff730098cfa77e21553fbd4390150e3b45c85c06eb51e236bdb8"
+    },
+    "d374-cleanup-bounded-5000": {
+      "status": "exited",
+      "parentPid": 923064,
+      "childPid": 923155,
+      "startedAtUtc": "2026-10-07T15:47:25.831792+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d373-cleanup-operation-worker.mjs",
+        "bounded"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 1.789383489995089,
+      "finishedAtUtc": "2026-10-07T15:47:27.620050+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "00302dde47ed59c03a3a523bf238636d84946d26c4f56370bf4a8377bc7bda69"
+    },
+    "d374-cleanup-negative-5000": {
+      "status": "exited",
+      "parentPid": 923353,
+      "childPid": 923440,
+      "startedAtUtc": "2026-10-07T15:48:04.135070+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d373-cleanup-operation-worker.mjs",
+        "negative"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 1.8284646149986656,
+      "finishedAtUtc": "2026-10-07T15:48:05.962423+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "c00fbc1ba798b2eb47637e3cd80bab635a3f9a8accf5084d6e9a0ebc516e9419"
+    },
+    "d375-entry-original-controls": {
+      "status": "exited",
+      "parentPid": 925238,
+      "childPid": 925325,
+      "startedAtUtc": "2026-10-07T15:48:47.530633+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_CONTROL_REPORT=/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d375-entry-store-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.4908697770006256,
+      "finishedAtUtc": "2026-10-07T15:48:48.019960+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    "d375-entry-edge-controls": {
+      "status": "exited",
+      "parentPid": 925361,
+      "childPid": 925445,
+      "startedAtUtc": "2026-10-07T15:48:52.855552+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_EDGE_REPORT=/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d375-entry-store-edge-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.22966045899374876,
+      "finishedAtUtc": "2026-10-07T15:48:53.083981+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    "d375-entry-transaction-controls": {
+      "status": "exited",
+      "parentPid": 925477,
+      "childPid": 925570,
+      "startedAtUtc": "2026-10-07T15:48:57.830672+00:00",
+      "command": [
+        "env",
+        "SOPHP_D356_TRANSACTION_REPORT=/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.23678590999770677,
+      "finishedAtUtc": "2026-10-07T15:48:58.065549+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    }
+  },
+  "diagnosticAnalysis": {
+    "schemaVersion": 1,
+    "status": "analyzed",
+    "diagnosticOnly": true,
+    "qualification": false,
+    "candidateChanged": false,
+    "forcedGc": false,
+    "heapSnapshots": false,
+    "completeOriginalBenchmarkResult": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 119372.64,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 77554.56,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6497,
+      "cache": {
+        "cold": {
+          "files": 50002,
+          "bytes": 290871902,
+          "mebibytes": 277.4
+        },
+        "warm": {
+          "files": 50002,
+          "bytes": 290871902,
+          "mebibytes": 277.4
+        },
+        "frozenBudgetMb": 2560
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 756.51,
+        "warmPeakRssMb": 825.46,
+        "layerRecoveryPeakRssMb": 1594.13,
+        "callableRecoveryPeakRssMb": 1605.71,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 1536,
+        "processPeakRssMb": 1605.71,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "run": {
+      "status": "exited",
+      "parentPid": 907744,
+      "childPid": 907831,
+      "startedAtUtc": "2026-10-07T15:35:30.189475+00:00",
+      "command": [
+        "env",
+        "SOPHP_CACHE_MEMORY_PROFILE=/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-memory.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d367-entry-memory-diagnostic.mjs",
+        "50000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 458.6394011270022,
+      "finishedAtUtc": "2026-10-07T15:43:08.827572+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "1a9f178b18b9e484d25a1876feb238d42de2e3e74de4751e5744af468f33dcc8"
+    },
+    "phaseMarks": [
+      {
+        "elapsedMs": 1.1214240000000189,
+        "phase": "setup:begin",
+        "rss": 63750144,
+        "heapTotal": 12451840,
+        "heapUsed": 8615568,
+        "external": 3795420,
+        "arrayBuffers": 1864499,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 4194304,
+            "space_used_size": 923400,
+            "space_available_size": 1138424,
+            "physical_space_size": 2162688
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 4988928,
+            "space_used_size": 4517144,
+            "space_available_size": 383264,
+            "physical_space_size": 5242880
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 262144,
+            "space_used_size": 236480,
+            "space_available_size": 9248,
+            "physical_space_size": 253952
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1064960,
+            "space_used_size": 1026776,
+            "space_available_size": 13896,
+            "physical_space_size": 1310720
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 159744,
+            "space_used_size": 153688,
+            "space_available_size": 1943464,
+            "physical_space_size": 159744
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 1781760,
+            "space_used_size": 1766352,
+            "space_available_size": 0,
+            "physical_space_size": 1781760
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 0,
+          "stageMs": 0,
+          "commitCalls": 0,
+          "commitMs": 0
+        }
+      },
+      {
+        "elapsedMs": 27.61949900000002,
+        "phase": "fixture:begin",
+        "rss": 70672384,
+        "heapTotal": 17694720,
+        "heapUsed": 9087976,
+        "external": 38525004,
+        "arrayBuffers": 3037194,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 8388608,
+            "space_used_size": 610928,
+            "space_available_size": 3512720,
+            "physical_space_size": 2547712
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 5513216,
+            "space_used_size": 5181136,
+            "space_available_size": 234696,
+            "physical_space_size": 5767168
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 524288,
+            "space_used_size": 270272,
+            "space_available_size": 221184,
+            "physical_space_size": 507904
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1327104,
+            "space_used_size": 1106760,
+            "space_available_size": 191640,
+            "physical_space_size": 1572864
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 4194304,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 1941504,
+            "space_used_size": 1920040,
+            "space_available_size": 0,
+            "physical_space_size": 1941504
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 0,
+          "stageMs": 0,
+          "commitCalls": 0,
+          "commitMs": 0
+        }
+      },
+      {
+        "elapsedMs": 5503.998033,
+        "phase": "fixture:generated",
+        "rss": 103575552,
+        "heapTotal": 45219840,
+        "heapUsed": 20321272,
+        "external": 36271817,
+        "arrayBuffers": 784007,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 9561272,
+            "space_available_size": 6933320,
+            "physical_space_size": 28983296
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 7872512,
+            "space_used_size": 7314336,
+            "space_available_size": 389224,
+            "physical_space_size": 8126464
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 524288,
+            "space_used_size": 395136,
+            "space_available_size": 96320,
+            "physical_space_size": 507904
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1327104,
+            "space_used_size": 1131544,
+            "space_available_size": 169016,
+            "physical_space_size": 1572864
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 1941504,
+            "space_used_size": 1920040,
+            "space_available_size": 0,
+            "physical_space_size": 1941504
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 0,
+          "stageMs": 0,
+          "commitCalls": 0,
+          "commitMs": 0
+        }
+      },
+      {
+        "elapsedMs": 5505.897515,
+        "phase": "load1:begin",
+        "rss": 103575552,
+        "heapTotal": 45219840,
+        "heapUsed": 20390032,
+        "external": 36273417,
+        "arrayBuffers": 785607,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 9619592,
+            "space_available_size": 6875000,
+            "physical_space_size": 28983296
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 7872512,
+            "space_used_size": 7321952,
+            "space_available_size": 381608,
+            "physical_space_size": 8126464
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 524288,
+            "space_used_size": 395136,
+            "space_available_size": 96320,
+            "physical_space_size": 507904
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1327104,
+            "space_used_size": 1134368,
+            "space_available_size": 166192,
+            "physical_space_size": 1572864
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 1941504,
+            "space_used_size": 1920040,
+            "space_available_size": 0,
+            "physical_space_size": 1941504
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 0,
+          "stageMs": 0,
+          "commitCalls": 0,
+          "commitMs": 0
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 5511.228918,
+        "phase": "store1:loaded",
+        "rss": 103575552,
+        "heapTotal": 45219840,
+        "heapUsed": 20506096,
+        "external": 36276738,
+        "arrayBuffers": 786880,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 9685488,
+            "space_available_size": 6809104,
+            "physical_space_size": 28983296
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 7872512,
+            "space_used_size": 7349752,
+            "space_available_size": 353800,
+            "physical_space_size": 8126464
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 524288,
+            "space_used_size": 395136,
+            "space_available_size": 96320,
+            "physical_space_size": 507904
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1327104,
+            "space_used_size": 1156736,
+            "space_available_size": 143824,
+            "physical_space_size": 1572864
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 1941504,
+            "space_used_size": 1920040,
+            "space_available_size": 0,
+            "physical_space_size": 1941504
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": true,
+            "disposed": false,
+            "published": false,
+            "previous": 0,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 0,
+          "stageMs": 0,
+          "commitCalls": 0,
+          "commitMs": 0
+        },
+        "inlinePayloads": 0
+      },
+      {
+        "elapsedMs": 124878.57148999999,
+        "phase": "store1:disposed",
+        "rss": 790380544,
+        "heapTotal": 669605888,
+        "heapUsed": 631310888,
+        "external": 39236327,
+        "arrayBuffers": 3738989,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 7718848,
+            "space_available_size": 8775744,
+            "physical_space_size": 31776768
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 552607744,
+            "space_used_size": 541375600,
+            "space_available_size": 771528,
+            "physical_space_size": 552861696
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 1835008,
+            "space_used_size": 1545536,
+            "space_available_size": 174560,
+            "physical_space_size": 1777664
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1607288,
+            "space_available_size": 208680,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3444736,
+            "space_used_size": 3341336,
+            "space_available_size": 13435880,
+            "physical_space_size": 3444736
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 76312576,
+            "space_used_size": 75723240,
+            "space_available_size": 0,
+            "physical_space_size": 76312576
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 0,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 124878.791199,
+        "phase": "load1:end",
+        "rss": 790380544,
+        "heapTotal": 669605888,
+        "heapUsed": 631317120,
+        "external": 39236327,
+        "arrayBuffers": 3738989,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 7724144,
+            "space_available_size": 8770448,
+            "physical_space_size": 31776768
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 552607744,
+            "space_used_size": 541376536,
+            "space_available_size": 770592,
+            "physical_space_size": 552861696
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 1835008,
+            "space_used_size": 1545536,
+            "space_available_size": 174560,
+            "physical_space_size": 1777664
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1607288,
+            "space_available_size": 208680,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3444736,
+            "space_used_size": 3341336,
+            "space_available_size": 13435880,
+            "physical_space_size": 3444736
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 76312576,
+            "space_used_size": 75723240,
+            "space_available_size": 0,
+            "physical_space_size": 76312576
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 0,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "workspaceMaps": {
+          "files": 50000,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 133947.722335,
+        "phase": "coldWorkspace:disposed",
+        "rss": 792391680,
+        "heapTotal": 675352576,
+        "heapUsed": 635639656,
+        "external": 36043681,
+        "arrayBuffers": 546343,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 6259712,
+            "space_available_size": 10234880,
+            "physical_space_size": 33046528
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 560209920,
+            "space_used_size": 548893792,
+            "space_available_size": 727064,
+            "physical_space_size": 560463872
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1683200,
+            "space_available_size": 282624,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1764904,
+            "space_available_size": 51064,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 77639680,
+            "space_used_size": 77039008,
+            "space_available_size": 0,
+            "physical_space_size": 77639680
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 0,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 133947.972657,
+        "phase": "load2:begin",
+        "rss": 792391680,
+        "heapTotal": 675352576,
+        "heapUsed": 635652728,
+        "external": 36043681,
+        "arrayBuffers": 546343,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 6272784,
+            "space_available_size": 10221808,
+            "physical_space_size": 33046528
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 560209920,
+            "space_used_size": 548893792,
+            "space_available_size": 727064,
+            "physical_space_size": 560463872
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1683200,
+            "space_available_size": 282624,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1764904,
+            "space_available_size": 51064,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 77639680,
+            "space_used_size": 77039008,
+            "space_available_size": 0,
+            "physical_space_size": 77639680
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 0,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 134326.890071,
+        "phase": "store2:loaded",
+        "rss": 854147072,
+        "heapTotal": 735744000,
+        "heapUsed": 700712136,
+        "external": 35629481,
+        "arrayBuffers": 132143,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 12649184,
+            "space_available_size": 3845408,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 578560000,
+            "space_used_size": 566767104,
+            "space_available_size": 894600,
+            "physical_space_size": 578813952
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1699584,
+            "space_available_size": 266240,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1769680,
+            "space_available_size": 46248,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 119681024,
+            "space_used_size": 117827544,
+            "space_available_size": 0,
+            "physical_space_size": 119681024
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 0,
+            "writes": 0
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": false,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 0,
+          "payloadMs": 0,
+          "payloadBytes": 0,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "inlinePayloads": 0
+      },
+      {
+        "elapsedMs": 211502.49333700002,
+        "phase": "store2:disposed",
+        "rss": 863989760,
+        "heapTotal": 740315136,
+        "heapUsed": 694024344,
+        "external": 36739504,
+        "arrayBuffers": 699959,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 879720,
+            "space_available_size": 15614872,
+            "physical_space_size": 30760960
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 627580928,
+            "space_used_size": 615817848,
+            "space_available_size": 894592,
+            "physical_space_size": 627834880
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1580416,
+            "space_available_size": 385408,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1072920,
+            "space_available_size": 743032,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 75231232,
+            "space_used_size": 74674400,
+            "space_available_size": 0,
+            "physical_space_size": 75231232
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 211502.667003,
+        "phase": "load2:end",
+        "rss": 863989760,
+        "heapTotal": 740315136,
+        "heapUsed": 694028920,
+        "external": 36739504,
+        "arrayBuffers": 699959,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 883768,
+            "space_available_size": 15610824,
+            "physical_space_size": 30760960
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 627580928,
+            "space_used_size": 615818376,
+            "space_available_size": 894064,
+            "physical_space_size": 627834880
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1580416,
+            "space_available_size": 385408,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1072920,
+            "space_available_size": 743032,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 75231232,
+            "space_used_size": 74674400,
+            "space_available_size": 0,
+            "physical_space_size": 75231232
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "workspaceMaps": {
+          "files": 50000,
+          "trees": 0,
+          "deferredImplementations": 50000,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 12,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 221255.123743,
+        "phase": "warmWorkspace:disposed",
+        "rss": 933212160,
+        "heapTotal": 812625920,
+        "heapUsed": 765114248,
+        "external": 36193788,
+        "arrayBuffers": 700159,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 489832,
+            "space_available_size": 16004760,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 684466176,
+            "space_used_size": 671862192,
+            "space_available_size": 775864,
+            "physical_space_size": 684720128
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1211464,
+            "space_available_size": 604488,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 2420736,
+            "space_used_size": 2384856,
+            "space_available_size": 14392360,
+            "physical_space_size": 2420736
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87973888,
+            "space_used_size": 87339984,
+            "space_available_size": 0,
+            "physical_space_size": 87973888
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 221256.164037,
+        "phase": "mutation1:before-read-parse",
+        "rss": 933212160,
+        "heapTotal": 812625920,
+        "heapUsed": 765141264,
+        "external": 36193988,
+        "arrayBuffers": 700359,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 511488,
+            "space_available_size": 15983104,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 684466176,
+            "space_used_size": 671866048,
+            "space_available_size": 772008,
+            "physical_space_size": 684720128
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1212968,
+            "space_available_size": 602984,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 2420736,
+            "space_used_size": 2384856,
+            "space_available_size": 14392360,
+            "physical_space_size": 2420736
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87973888,
+            "space_used_size": 87339984,
+            "space_available_size": 0,
+            "physical_space_size": 87973888
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 221387.70501900002,
+        "phase": "mutation1:after-read-parse",
+        "rss": 967344128,
+        "heapTotal": 845471744,
+        "heapUsed": 810583464,
+        "external": 36193788,
+        "arrayBuffers": 700159,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 13277320,
+            "space_available_size": 3217272,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 684466176,
+            "space_used_size": 671926584,
+            "space_available_size": 711464,
+            "physical_space_size": 684720128
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1212968,
+            "space_available_size": 602984,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3153920,
+            "space_used_size": 3145792,
+            "space_available_size": 13631424,
+            "physical_space_size": 3153920
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 120086528,
+            "space_used_size": 119194880,
+            "space_available_size": 0,
+            "physical_space_size": 120086528
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 221389.04320800002,
+        "phase": "mutation1:after-blob-read-parse",
+        "rss": 967344128,
+        "heapTotal": 845471744,
+        "heapUsed": 810645680,
+        "external": 36204822,
+        "arrayBuffers": 711193,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 13334792,
+            "space_available_size": 3159800,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 684466176,
+            "space_used_size": 671931328,
+            "space_available_size": 706720,
+            "physical_space_size": 684720128
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1212968,
+            "space_available_size": 602984,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3153920,
+            "space_used_size": 3145792,
+            "space_available_size": 13631424,
+            "physical_space_size": 3153920
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 120086528,
+            "space_used_size": 119194880,
+            "space_available_size": 0,
+            "physical_space_size": 120086528
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 221389.372569,
+        "phase": "mutation1:after-mutate",
+        "rss": 967344128,
+        "heapTotal": 845471744,
+        "heapUsed": 810654840,
+        "external": 36204822,
+        "arrayBuffers": 711193,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 13341352,
+            "space_available_size": 3153240,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 684466176,
+            "space_used_size": 671932656,
+            "space_available_size": 705392,
+            "physical_space_size": 684720128
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1214240,
+            "space_available_size": 601712,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3153920,
+            "space_used_size": 3145792,
+            "space_available_size": 13631424,
+            "physical_space_size": 3153920
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 120086528,
+            "space_used_size": 119194880,
+            "space_available_size": 0,
+            "physical_space_size": 120086528
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 221551.33676,
+        "phase": "mutation1:after-stringify-write",
+        "rss": 1010200576,
+        "heapTotal": 874774528,
+        "heapUsed": 826574600,
+        "external": 52127372,
+        "arrayBuffers": 16633743,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 132304,
+            "space_available_size": 16362288,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 697835520,
+            "space_used_size": 685134264,
+            "space_available_size": 647896,
+            "physical_space_size": 698089472
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1214240,
+            "space_available_size": 601712,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 15933440,
+            "space_used_size": 15927200,
+            "space_available_size": 850016,
+            "physical_space_size": 15933440
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 123240448,
+            "space_used_size": 122340672,
+            "space_available_size": 0,
+            "physical_space_size": 123240448
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        }
+      },
+      {
+        "elapsedMs": 221551.511524,
+        "phase": "load3:begin",
+        "rss": 1010200576,
+        "heapTotal": 874774528,
+        "heapUsed": 826587008,
+        "external": 52127372,
+        "arrayBuffers": 16633743,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 144648,
+            "space_available_size": 16349944,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 697835520,
+            "space_used_size": 685134328,
+            "space_available_size": 647832,
+            "physical_space_size": 698089472
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1826880,
+            "space_available_size": 384672,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1214240,
+            "space_available_size": 601712,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 15933440,
+            "space_used_size": 15927200,
+            "space_available_size": 850016,
+            "physical_space_size": 15933440
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 123240448,
+            "space_used_size": 122340672,
+            "space_available_size": 0,
+            "physical_space_size": 123240448
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 221870.67072,
+        "phase": "store3:loaded",
+        "rss": 1050914816,
+        "heapTotal": 914251776,
+        "heapUsed": 876758888,
+        "external": 36193788,
+        "arrayBuffers": 700159,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 11959960,
+            "space_available_size": 4534632,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 711204864,
+            "space_used_size": 698616776,
+            "space_available_size": 309288,
+            "physical_space_size": 711458816
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1837184,
+            "space_available_size": 374368,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1216736,
+            "space_available_size": 599216,
+            "physical_space_size": 2097152
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 165281792,
+            "space_used_size": 163129192,
+            "space_available_size": 0,
+            "physical_space_size": 165281792
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": true,
+            "disposed": true,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": false,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 50000,
+          "payloadMs": 51254.54912899624,
+          "payloadBytes": 274943244,
+          "stageCalls": 50000,
+          "stageMs": 68058.32901899941,
+          "commitCalls": 1,
+          "commitMs": 8827.976653000005
+        },
+        "inlinePayloads": 0
+      },
+      {
+        "elapsedMs": 336158.129028,
+        "phase": "store3:disposed",
+        "rss": 1072193536,
+        "heapTotal": 802361344,
+        "heapUsed": 742377936,
+        "external": 51981445,
+        "arrayBuffers": 16487816,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 4523352,
+            "space_available_size": 11971240,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 647770928,
+            "space_available_size": 16929200,
+            "physical_space_size": 675405824
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1742400,
+            "space_available_size": 714880,
+            "physical_space_size": 2281472
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1207544,
+            "space_available_size": 608408,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87732224,
+            "space_used_size": 87134672,
+            "space_available_size": 0,
+            "physical_space_size": 87732224
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        }
+      },
+      {
+        "elapsedMs": 336159.512884,
+        "phase": "load3:end",
+        "rss": 1072193536,
+        "heapTotal": 802361344,
+        "heapUsed": 742382072,
+        "external": 51981445,
+        "arrayBuffers": 16487816,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 4527424,
+            "space_available_size": 11967168,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 647770992,
+            "space_available_size": 16929136,
+            "physical_space_size": 675405824
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1742400,
+            "space_available_size": 714880,
+            "physical_space_size": 2281472
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1207544,
+            "space_available_size": 608408,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87732224,
+            "space_used_size": 87134672,
+            "space_available_size": 0,
+            "physical_space_size": 87732224
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        },
+        "workspaceMaps": {
+          "files": 50000,
+          "trees": 0,
+          "deferredImplementations": 49999,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 12,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 336337.517986,
+        "phase": "recoveredWorkspace:disposed",
+        "rss": 1078403072,
+        "heapTotal": 806793216,
+        "heapUsed": 752221600,
+        "external": 51981045,
+        "arrayBuffers": 16487416,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 6079688,
+            "space_available_size": 10414904,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 651576624,
+            "space_available_size": 13122248,
+            "physical_space_size": 676601856
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1223816,
+            "space_available_size": 592136,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 2826240,
+            "space_used_size": 2784872,
+            "space_available_size": 13992344,
+            "physical_space_size": 2826240
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 89337856,
+            "space_used_size": 88721592,
+            "space_available_size": 0,
+            "physical_space_size": 89337856
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 336337.686628,
+        "phase": "mutation2:before-read-parse",
+        "rss": 1078403072,
+        "heapTotal": 806793216,
+        "heapUsed": 752226960,
+        "external": 51981045,
+        "arrayBuffers": 16487416,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 6084776,
+            "space_available_size": 10409816,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 651576896,
+            "space_available_size": 13121976,
+            "physical_space_size": 676601856
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1223816,
+            "space_available_size": 592136,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 2826240,
+            "space_used_size": 2784872,
+            "space_available_size": 13992344,
+            "physical_space_size": 2826240
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 89337856,
+            "space_used_size": 88721592,
+            "space_available_size": 0,
+            "physical_space_size": 89337856
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        }
+      },
+      {
+        "elapsedMs": 336494.694493,
+        "phase": "mutation2:after-read-parse",
+        "rss": 1113063424,
+        "heapTotal": 839233536,
+        "heapUsed": 791982608,
+        "external": 51981045,
+        "arrayBuffers": 16487416,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 13296808,
+            "space_available_size": 3197784,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 651904696,
+            "space_available_size": 12793176,
+            "physical_space_size": 676601856
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1223816,
+            "space_available_size": 592136,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3153920,
+            "space_used_size": 3145792,
+            "space_available_size": 13631424,
+            "physical_space_size": 3153920
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 121450496,
+            "space_used_size": 120576488,
+            "space_available_size": 0,
+            "physical_space_size": 121450496
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        }
+      },
+      {
+        "elapsedMs": 336496.38208,
+        "phase": "mutation2:after-blob-read-parse",
+        "rss": 1113063424,
+        "heapTotal": 839233536,
+        "heapUsed": 792050664,
+        "external": 51992079,
+        "arrayBuffers": 16498450,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 13358240,
+            "space_available_size": 3136352,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 651911320,
+            "space_available_size": 12786552,
+            "physical_space_size": 676601856
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1223816,
+            "space_available_size": 592136,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3153920,
+            "space_used_size": 3145792,
+            "space_available_size": 13631424,
+            "physical_space_size": 3153920
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 121450496,
+            "space_used_size": 120576488,
+            "space_available_size": 0,
+            "physical_space_size": 121450496
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        }
+      },
+      {
+        "elapsedMs": 336496.666844,
+        "phase": "mutation2:after-mutate",
+        "rss": 1113063424,
+        "heapTotal": 839233536,
+        "heapUsed": 792057792,
+        "external": 51992079,
+        "arrayBuffers": 16498450,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 13364456,
+            "space_available_size": 3130136,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 676601856,
+            "space_used_size": 651911936,
+            "space_available_size": 12785936,
+            "physical_space_size": 676601856
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1224112,
+            "space_available_size": 591840,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 3153920,
+            "space_used_size": 3145792,
+            "space_available_size": 13631424,
+            "physical_space_size": 3153920
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 121450496,
+            "space_used_size": 120576488,
+            "space_available_size": 0,
+            "physical_space_size": 121450496
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        }
+      },
+      {
+        "elapsedMs": 336664.476665,
+        "phase": "mutation2:after-stringify-write",
+        "rss": 1161355264,
+        "heapTotal": 857788416,
+        "heapUsed": 807954424,
+        "external": 67914630,
+        "arrayBuffers": 32421001,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 132272,
+            "space_available_size": 16362320,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 679223296,
+            "space_used_size": 665113544,
+            "space_available_size": 2096208,
+            "physical_space_size": 679223296
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1224112,
+            "space_available_size": 591840,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 15933440,
+            "space_used_size": 15927208,
+            "space_available_size": 850008,
+            "physical_space_size": 15933440
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 124604416,
+            "space_used_size": 123722280,
+            "space_available_size": 0,
+            "physical_space_size": 124604416
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        }
+      },
+      {
+        "elapsedMs": 336664.704739,
+        "phase": "load4:begin",
+        "rss": 1161355264,
+        "heapTotal": 857788416,
+        "heapUsed": 807966464,
+        "external": 67914630,
+        "arrayBuffers": 32421001,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 144248,
+            "space_available_size": 16350344,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 679223296,
+            "space_used_size": 665113608,
+            "space_available_size": 2096144,
+            "physical_space_size": 679223296
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1835968,
+            "space_available_size": 621312,
+            "physical_space_size": 2314240
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1224112,
+            "space_available_size": 591840,
+            "physical_space_size": 1626112
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 15933440,
+            "space_used_size": 15927208,
+            "space_available_size": 850008,
+            "physical_space_size": 15933440
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 124604416,
+            "space_used_size": 123722280,
+            "space_available_size": 0,
+            "physical_space_size": 124604416
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 336959.476799,
+        "phase": "store4:loaded",
+        "rss": 1197690880,
+        "heapTotal": 897003520,
+        "heapUsed": 859192168,
+        "external": 51981045,
+        "arrayBuffers": 16487416,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 12990832,
+            "space_available_size": 3503760,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 692330496,
+            "space_used_size": 678605120,
+            "space_available_size": 1490896,
+            "physical_space_size": 692330496
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2621440,
+            "space_used_size": 1857152,
+            "space_available_size": 600128,
+            "physical_space_size": 2322432
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1229256,
+            "space_available_size": 586696,
+            "physical_space_size": 1634304
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 166645760,
+            "space_used_size": 164510816,
+            "space_available_size": 0,
+            "physical_space_size": 166645760
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          },
+          {
+            "id": 4,
+            "alive": true,
+            "disposed": false,
+            "published": false,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 100000,
+          "payloadMs": 102814.86579999747,
+          "payloadBytes": 549885850,
+          "stageCalls": 50001,
+          "stageMs": 68060.62226299942,
+          "commitCalls": 2,
+          "commitMs": 43988.855395000035
+        },
+        "inlinePayloads": 0
+      },
+      {
+        "elapsedMs": 451385.662119,
+        "phase": "store4:disposed",
+        "rss": 1050128384,
+        "heapTotal": 768544768,
+        "heapUsed": 724224048,
+        "external": 51255250,
+        "arrayBuffers": 15761621,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 3822672,
+            "space_available_size": 12671920,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 643309568,
+            "space_used_size": 630329200,
+            "space_available_size": 1574224,
+            "physical_space_size": 643309568
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1746176,
+            "space_available_size": 219648,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1192272,
+            "space_available_size": 623680,
+            "physical_space_size": 1650688
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87732224,
+            "space_used_size": 87134688,
+            "space_available_size": 0,
+            "physical_space_size": 87732224
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": false
+          },
+          {
+            "id": 4,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 150000,
+          "payloadMs": 155192.2100339866,
+          "payloadBytes": 824829148,
+          "stageCalls": 50002,
+          "stageMs": 68062.55766999943,
+          "commitCalls": 3,
+          "commitMs": 79267.67730300008
+        }
+      },
+      {
+        "elapsedMs": 451385.811049,
+        "phase": "load4:end",
+        "rss": 1050128384,
+        "heapTotal": 768544768,
+        "heapUsed": 724228248,
+        "external": 51255250,
+        "arrayBuffers": 15761621,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 3826808,
+            "space_available_size": 12667784,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 643309568,
+            "space_used_size": 630329264,
+            "space_available_size": 1574160,
+            "physical_space_size": 643309568
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2097152,
+            "space_used_size": 1746176,
+            "space_available_size": 219648,
+            "physical_space_size": 2031616
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1192272,
+            "space_available_size": 623680,
+            "physical_space_size": 1650688
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87732224,
+            "space_used_size": 87134688,
+            "space_available_size": 0,
+            "physical_space_size": 87732224
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": false
+          },
+          {
+            "id": 4,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 150000,
+          "payloadMs": 155192.2100339866,
+          "payloadBytes": 824829148,
+          "stageCalls": 50002,
+          "stageMs": 68062.55766999943,
+          "commitCalls": 3,
+          "commitMs": 79267.67730300008
+        },
+        "workspaceMaps": {
+          "files": 50000,
+          "trees": 0,
+          "deferredImplementations": 49999,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 12,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 451498.980268,
+        "phase": "callableRecoveredWorkspace:disposed",
+        "rss": 1058734080,
+        "heapTotal": 777285632,
+        "heapUsed": 744326600,
+        "external": 51255250,
+        "arrayBuffers": 15761621,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 15357992,
+            "space_available_size": 1136600,
+            "physical_space_size": 33554432
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 643309568,
+            "space_used_size": 630398040,
+            "space_available_size": 1505384,
+            "physical_space_size": 643309568
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1870528,
+            "space_available_size": 341024,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1211696,
+            "space_available_size": 604256,
+            "physical_space_size": 1658880
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 8478720,
+            "space_used_size": 8354616,
+            "space_available_size": 8422600,
+            "physical_space_size": 8478720
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 87732224,
+            "space_used_size": 87134688,
+            "space_available_size": 0,
+            "physical_space_size": 87732224
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": false
+          },
+          {
+            "id": 4,
+            "alive": true,
+            "disposed": true,
+            "published": true,
+            "previous": 50000,
+            "writes": 0
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 150000,
+          "payloadMs": 155192.2100339866,
+          "payloadBytes": 824829148,
+          "stageCalls": 50002,
+          "stageMs": 68062.55766999943,
+          "commitCalls": 3,
+          "commitMs": 79267.67730300008
+        },
+        "workspaceMaps": {
+          "files": 0,
+          "trees": 0,
+          "deferredImplementations": 0,
+          "deferredSources": 0,
+          "deferredImplementationGetters": 0,
+          "callableDependenciesByUri": 0,
+          "constructorInitializationSummaries": 0,
+          "factoryConstructionSummaries": 0,
+          "referenceResultCache": 0
+        }
+      },
+      {
+        "elapsedMs": 458320.743871,
+        "phase": "parser-and-fixture:disposed",
+        "rss": 1054179328,
+        "heapTotal": 143937536,
+        "heapUsed": 82523976,
+        "external": 52048780,
+        "arrayBuffers": 13304895,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 2642112,
+            "space_available_size": 13852480,
+            "physical_space_size": 28983296
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 99098624,
+            "space_used_size": 70029528,
+            "space_available_size": 586984,
+            "physical_space_size": 99098624
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1675904,
+            "space_available_size": 0,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1147216,
+            "space_available_size": 0,
+            "physical_space_size": 1658880
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 7073792,
+            "space_used_size": 7030176,
+            "space_available_size": 0,
+            "physical_space_size": 7073792
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": false
+          },
+          {
+            "id": 4,
+            "alive": false
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 150000,
+          "payloadMs": 155192.2100339866,
+          "payloadBytes": 824829148,
+          "stageCalls": 50002,
+          "stageMs": 68062.55766999943,
+          "commitCalls": 3,
+          "commitMs": 79267.67730300008
+        }
+      },
+      {
+        "elapsedMs": 458325.423162,
+        "phase": "process:exit",
+        "rss": 1054179328,
+        "heapTotal": 143937536,
+        "heapUsed": 82572784,
+        "external": 52048780,
+        "arrayBuffers": 13304895,
+        "spaces": [
+          {
+            "space_name": "read_only_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "new_space",
+            "space_size": 33554432,
+            "space_used_size": 2663600,
+            "space_available_size": 13830992,
+            "physical_space_size": 28983296
+          },
+          {
+            "space_name": "old_space",
+            "space_size": 99098624,
+            "space_used_size": 70046952,
+            "space_available_size": 569560,
+            "physical_space_size": 99098624
+          },
+          {
+            "space_name": "code_space",
+            "space_size": 2359296,
+            "space_used_size": 1675904,
+            "space_available_size": 0,
+            "physical_space_size": 2285568
+          },
+          {
+            "space_name": "shared_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_space",
+            "space_size": 1851392,
+            "space_used_size": 1157112,
+            "space_available_size": 658840,
+            "physical_space_size": 1658880
+          },
+          {
+            "space_name": "new_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 16777216,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "large_object_space",
+            "space_size": 7073792,
+            "space_used_size": 7030176,
+            "space_available_size": 0,
+            "physical_space_size": 7073792
+          },
+          {
+            "space_name": "code_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "shared_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          },
+          {
+            "space_name": "trusted_large_object_space",
+            "space_size": 0,
+            "space_used_size": 0,
+            "space_available_size": 0,
+            "physical_space_size": 0
+          }
+        ],
+        "stores": [
+          {
+            "id": 1,
+            "alive": false
+          },
+          {
+            "id": 2,
+            "alive": false
+          },
+          {
+            "id": 3,
+            "alive": false
+          },
+          {
+            "id": 4,
+            "alive": false
+          }
+        ],
+        "storeOperations": {
+          "payloadCalls": 150000,
+          "payloadMs": 155192.2100339866,
+          "payloadBytes": 824829148,
+          "stageCalls": 50002,
+          "stageMs": 68062.55766999943,
+          "commitCalls": 3,
+          "commitMs": 79267.67730300008
+        }
+      }
+    ],
+    "phaseSummaries": [
+      {
+        "phase": "fixture",
+        "startMs": 27.61949900000002,
+        "endMs": 5503.998033,
+        "intervalSampleCount": 105,
+        "startMemory": {
+          "rss": 70672384,
+          "heapUsed": 9087976,
+          "heapTotal": 17694720,
+          "external": 38525004,
+          "arrayBuffers": 3037194
+        },
+        "endMemory": {
+          "rss": 103575552,
+          "heapUsed": 20321272,
+          "heapTotal": 45219840,
+          "external": 36271817,
+          "arrayBuffers": 784007
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 4308.7184210000005,
+          "rss": 103575552,
+          "heapUsed": 14006264,
+          "heapTotal": 45219840,
+          "external": 35962505,
+          "arrayBuffers": 474695
+        },
+        "naturalGcCount": 52,
+        "gcKinds": {
+          "1": 50,
+          "8": 1,
+          "4": 1
+        },
+        "gcDurationMs": 145.62400800734758
+      },
+      {
+        "phase": "cold",
+        "startMs": 5505.897515,
+        "endMs": 124878.791199,
+        "intervalSampleCount": 2374,
+        "startMemory": {
+          "rss": 103575552,
+          "heapUsed": 20390032,
+          "heapTotal": 45219840,
+          "external": 36273417,
+          "arrayBuffers": 785607
+        },
+        "endMemory": {
+          "rss": 790380544,
+          "heapUsed": 631317120,
+          "heapTotal": 669605888,
+          "external": 39236327,
+          "arrayBuffers": 3738989
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 124808.536836,
+          "rss": 790921216,
+          "heapUsed": 633282936,
+          "heapTotal": 669945856,
+          "external": 39820689,
+          "arrayBuffers": 4330831
+        },
+        "naturalGcCount": 557,
+        "gcKinds": {
+          "1": 549,
+          "8": 4,
+          "4": 4
+        },
+        "gcDurationMs": 2603.5727520361543
+      },
+      {
+        "phase": "coldChecksAndDispose",
+        "startMs": 124878.791199,
+        "endMs": 133947.722335,
+        "intervalSampleCount": 179,
+        "startMemory": {
+          "rss": 790380544,
+          "heapUsed": 631317120,
+          "heapTotal": 669605888,
+          "external": 39236327,
+          "arrayBuffers": 3738989
+        },
+        "endMemory": {
+          "rss": 792391680,
+          "heapUsed": 635639656,
+          "heapTotal": 675352576,
+          "external": 36043681,
+          "arrayBuffers": 546343
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 125086.17128699999,
+          "rss": 792391680,
+          "heapUsed": 626945464,
+          "heapTotal": 670171136,
+          "external": 35631481,
+          "arrayBuffers": 134143
+        },
+        "naturalGcCount": 13,
+        "gcKinds": {
+          "1": 13
+        },
+        "gcDurationMs": 52.67733500152826
+      },
+      {
+        "phase": "warm",
+        "startMs": 133947.972657,
+        "endMs": 211502.667003,
+        "intervalSampleCount": 1536,
+        "startMemory": {
+          "rss": 792391680,
+          "heapUsed": 635652728,
+          "heapTotal": 675352576,
+          "external": 36043681,
+          "arrayBuffers": 546343
+        },
+        "endMemory": {
+          "rss": 863989760,
+          "heapUsed": 694028920,
+          "heapTotal": 740315136,
+          "external": 36739504,
+          "arrayBuffers": 699959
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 211496.27565,
+          "rss": 865558528,
+          "heapUsed": 708597344,
+          "heapTotal": 741183488,
+          "external": 36739504,
+          "arrayBuffers": 1245875
+        },
+        "naturalGcCount": 311,
+        "gcKinds": {
+          "1": 305,
+          "8": 3,
+          "4": 3
+        },
+        "gcDurationMs": 2003.262816041708
+      },
+      {
+        "phase": "warmChecksAndDispose",
+        "startMs": 211502.667003,
+        "endMs": 221255.123743,
+        "intervalSampleCount": 181,
+        "startMemory": {
+          "rss": 863989760,
+          "heapUsed": 694028920,
+          "heapTotal": 740315136,
+          "external": 36739504,
+          "arrayBuffers": 699959
+        },
+        "endMemory": {
+          "rss": 933212160,
+          "heapUsed": 765114248,
+          "heapTotal": 812625920,
+          "external": 36193788,
+          "arrayBuffers": 700159
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 221255.123743,
+          "rss": 933212160,
+          "heapUsed": 765114248,
+          "heapTotal": 812625920,
+          "external": 36193788,
+          "arrayBuffers": 700159
+        },
+        "naturalGcCount": 25,
+        "gcKinds": {
+          "1": 25
+        },
+        "gcDurationMs": 200.31786599755287
+      },
+      {
+        "phase": "layerRecovery",
+        "startMs": 221551.511524,
+        "endMs": 336159.512884,
+        "intervalSampleCount": 2240,
+        "startMemory": {
+          "rss": 1010200576,
+          "heapUsed": 826587008,
+          "heapTotal": 874774528,
+          "external": 52127372,
+          "arrayBuffers": 16633743
+        },
+        "endMemory": {
+          "rss": 1072193536,
+          "heapUsed": 742382072,
+          "heapTotal": 802361344,
+          "external": 51981445,
+          "arrayBuffers": 16487816
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 283359.672355,
+          "rss": 1671569408,
+          "heapUsed": 1481744608,
+          "heapTotal": 1531047936,
+          "external": 36942173,
+          "arrayBuffers": 1448544
+        },
+        "naturalGcCount": 371,
+        "gcKinds": {
+          "1": 367,
+          "8": 2,
+          "4": 2
+        },
+        "gcDurationMs": 3361.070152014494
+      },
+      {
+        "phase": "layerRecoveryChecksAndDispose",
+        "startMs": 336159.512884,
+        "endMs": 336337.517986,
+        "intervalSampleCount": 0,
+        "startMemory": {
+          "rss": 1072193536,
+          "heapUsed": 742382072,
+          "heapTotal": 802361344,
+          "external": 51981445,
+          "arrayBuffers": 16487816
+        },
+        "endMemory": {
+          "rss": 1078403072,
+          "heapUsed": 752221600,
+          "heapTotal": 806793216,
+          "external": 51981045,
+          "arrayBuffers": 16487416
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 336337.517986,
+          "rss": 1078403072,
+          "heapUsed": 752221600,
+          "heapTotal": 806793216,
+          "external": 51981045,
+          "arrayBuffers": 16487416
+        },
+        "naturalGcCount": 2,
+        "gcKinds": {
+          "1": 2
+        },
+        "gcDurationMs": 14.499987997114658
+      },
+      {
+        "phase": "callableRecovery",
+        "startMs": 336664.704739,
+        "endMs": 451385.811049,
+        "intervalSampleCount": 2250,
+        "startMemory": {
+          "rss": 1161355264,
+          "heapUsed": 807966464,
+          "heapTotal": 857788416,
+          "external": 67914630,
+          "arrayBuffers": 32421001
+        },
+        "endMemory": {
+          "rss": 1050128384,
+          "heapUsed": 724228248,
+          "heapTotal": 768544768,
+          "external": 51255250,
+          "arrayBuffers": 15761621
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 389780.479343,
+          "rss": 1683705856,
+          "heapUsed": 1387876440,
+          "heapTotal": 1441972224,
+          "external": 52293397,
+          "arrayBuffers": 16799768
+        },
+        "naturalGcCount": 373,
+        "gcKinds": {
+          "1": 367,
+          "8": 3,
+          "4": 3
+        },
+        "gcDurationMs": 2749.861785016954
+      },
+      {
+        "phase": "callableRecoveryChecksAndDispose",
+        "startMs": 451385.811049,
+        "endMs": 451498.980268,
+        "intervalSampleCount": 0,
+        "startMemory": {
+          "rss": 1050128384,
+          "heapUsed": 724228248,
+          "heapTotal": 768544768,
+          "external": 51255250,
+          "arrayBuffers": 15761621
+        },
+        "endMemory": {
+          "rss": 1058734080,
+          "heapUsed": 744326600,
+          "heapTotal": 777285632,
+          "external": 51255250,
+          "arrayBuffers": 15761621
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 451498.980268,
+          "rss": 1058734080,
+          "heapUsed": 744326600,
+          "heapTotal": 777285632,
+          "external": 51255250,
+          "arrayBuffers": 15761621
+        },
+        "naturalGcCount": 0,
+        "gcKinds": {},
+        "gcDurationMs": 0
+      },
+      {
+        "phase": "layerMutation",
+        "startMs": 221256.164037,
+        "endMs": 221551.33676,
+        "intervalSampleCount": 2,
+        "startMemory": {
+          "rss": 933212160,
+          "heapUsed": 765141264,
+          "heapTotal": 812625920,
+          "external": 36193988,
+          "arrayBuffers": 700359
+        },
+        "endMemory": {
+          "rss": 1010200576,
+          "heapUsed": 826574600,
+          "heapTotal": 874774528,
+          "external": 52127372,
+          "arrayBuffers": 16633743
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 221524.709636,
+          "rss": 1010200576,
+          "heapUsed": 826517904,
+          "heapTotal": 874774528,
+          "external": 52121172,
+          "arrayBuffers": 16627543
+        },
+        "naturalGcCount": 4,
+        "gcKinds": {
+          "1": 4
+        },
+        "gcDurationMs": 46.52039900422096
+      },
+      {
+        "phase": "callableMutation",
+        "startMs": 336337.686628,
+        "endMs": 336664.476665,
+        "intervalSampleCount": 3,
+        "startMemory": {
+          "rss": 1078403072,
+          "heapUsed": 752226960,
+          "heapTotal": 806793216,
+          "external": 51981045,
+          "arrayBuffers": 16487416
+        },
+        "endMemory": {
+          "rss": 1161355264,
+          "heapUsed": 807954424,
+          "heapTotal": 857788416,
+          "external": 67914630,
+          "arrayBuffers": 32421001
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 336631.350854,
+          "rss": 1161355264,
+          "heapUsed": 807897728,
+          "heapTotal": 857788416,
+          "external": 67908430,
+          "arrayBuffers": 32414801
+        },
+        "naturalGcCount": 4,
+        "gcKinds": {
+          "1": 4
+        },
+        "gcDurationMs": 32.867977015674114
+      },
+      {
+        "phase": "finalCleanup",
+        "startMs": 451498.980268,
+        "endMs": 458320.743871,
+        "intervalSampleCount": 73,
+        "startMemory": {
+          "rss": 1058734080,
+          "heapUsed": 744326600,
+          "heapTotal": 777285632,
+          "external": 51255250,
+          "arrayBuffers": 15761621
+        },
+        "endMemory": {
+          "rss": 1054179328,
+          "heapUsed": 82523976,
+          "heapTotal": 143937536,
+          "external": 52048780,
+          "arrayBuffers": 13304895
+        },
+        "sampledPeakRssMemory": {
+          "elapsedMs": 452890.88265,
+          "rss": 1078800384,
+          "heapUsed": 759646024,
+          "heapTotal": 800145408,
+          "external": 66747090,
+          "arrayBuffers": 31253461
+        },
+        "naturalGcCount": 19,
+        "gcKinds": {
+          "1": 15,
+          "8": 2,
+          "4": 2
+        },
+        "gcDurationMs": 221.58660600334406
+      }
+    ],
+    "intervalSamples": 8944,
+    "naturalGcEvents": 1733,
+    "gcKinds": {
+      "1": 1703,
+      "8": 15,
+      "4": 15
+    },
+    "storeOperations": {
+      "payloadCalls": 150000,
+      "payloadMs": 155192.2100339866,
+      "payloadBytes": 824829148,
+      "stageCalls": 50002,
+      "stageMs": 68062.55766999943,
+      "commitCalls": 3,
+      "commitMs": 79267.67730300008
+    },
+    "highestRssSamples": [
+      {
+        "elapsedMs": 389780.479343,
+        "phase": "store4:loaded",
+        "rss": 1683705856,
+        "heapTotal": 1441972224,
+        "heapUsed": 1387876440,
+        "external": 52293397,
+        "arrayBuffers": 16799768
+      },
+      {
+        "elapsedMs": 389677.837083,
+        "phase": "store4:loaded",
+        "rss": 1683435520,
+        "heapTotal": 1441972224,
+        "heapUsed": 1385393864,
+        "external": 52072431,
+        "arrayBuffers": 16578802
+      },
+      {
+        "elapsedMs": 389727.616248,
+        "phase": "store4:loaded",
+        "rss": 1683435520,
+        "heapTotal": 1441972224,
+        "heapUsed": 1387454008,
+        "external": 52260702,
+        "arrayBuffers": 16767073
+      },
+      {
+        "elapsedMs": 389527.642765,
+        "phase": "store4:loaded",
+        "rss": 1681813504,
+        "heapTotal": 1439875072,
+        "heapUsed": 1389430680,
+        "external": 52643743,
+        "arrayBuffers": 17150114
+      },
+      {
+        "elapsedMs": 389577.833646,
+        "phase": "store4:loaded",
+        "rss": 1681813504,
+        "heapTotal": 1439875072,
+        "heapUsed": 1392012816,
+        "external": 52871408,
+        "arrayBuffers": 17377779
+      },
+      {
+        "elapsedMs": 389627.937438,
+        "phase": "store4:loaded",
+        "rss": 1681813504,
+        "heapTotal": 1439875072,
+        "heapUsed": 1394335000,
+        "external": 53085675,
+        "arrayBuffers": 17592046
+      },
+      {
+        "elapsedMs": 389377.596129,
+        "phase": "store4:loaded",
+        "rss": 1681543168,
+        "heapTotal": 1439875072,
+        "heapUsed": 1382137872,
+        "external": 53080176,
+        "arrayBuffers": 16487816
+      },
+      {
+        "elapsedMs": 389427.994895,
+        "phase": "store4:loaded",
+        "rss": 1681543168,
+        "heapTotal": 1439875072,
+        "heapUsed": 1384584480,
+        "external": 52202011,
+        "arrayBuffers": 16708382
+      },
+      {
+        "elapsedMs": 389477.743092,
+        "phase": "store4:loaded",
+        "rss": 1681543168,
+        "heapTotal": 1439875072,
+        "heapUsed": 1386970976,
+        "external": 52416678,
+        "arrayBuffers": 16923049
+      },
+      {
+        "elapsedMs": 389216.605436,
+        "phase": "store4:loaded",
+        "rss": 1679650816,
+        "heapTotal": 1437253632,
+        "heapUsed": 1385181608,
+        "external": 52449573,
+        "arrayBuffers": 16955944
+      },
+      {
+        "elapsedMs": 389266.603627,
+        "phase": "store4:loaded",
+        "rss": 1679650816,
+        "heapTotal": 1437253632,
+        "heapUsed": 1387419336,
+        "external": 52651042,
+        "arrayBuffers": 17157413
+      },
+      {
+        "elapsedMs": 389317.02972,
+        "phase": "store4:loaded",
+        "rss": 1679650816,
+        "heapTotal": 1437253632,
+        "heapUsed": 1389796000,
+        "external": 52865309,
+        "arrayBuffers": 17371680
+      },
+      {
+        "elapsedMs": 389167.09974000003,
+        "phase": "store4:loaded",
+        "rss": 1679380480,
+        "heapTotal": 1437253632,
+        "heapUsed": 1383013536,
+        "external": 52254403,
+        "arrayBuffers": 16760774
+      },
+      {
+        "elapsedMs": 283359.672355,
+        "phase": "store3:loaded",
+        "rss": 1671569408,
+        "heapTotal": 1531047936,
+        "heapUsed": 1481744608,
+        "external": 36942173,
+        "arrayBuffers": 1448544
+      },
+      {
+        "elapsedMs": 283416.341788,
+        "phase": "store3:loaded",
+        "rss": 1671569408,
+        "heapTotal": 1531047936,
+        "heapUsed": 1483336344,
+        "external": 37084551,
+        "arrayBuffers": 1590922
+      },
+      {
+        "elapsedMs": 283465.753606,
+        "phase": "store3:loaded",
+        "rss": 1671569408,
+        "heapTotal": 1531047936,
+        "heapUsed": 1483627872,
+        "external": 37110547,
+        "arrayBuffers": 1616918
+      },
+      {
+        "elapsedMs": 283515.883264,
+        "phase": "store3:loaded",
+        "rss": 1671569408,
+        "heapTotal": 1531310080,
+        "heapUsed": 1483860440,
+        "external": 37136343,
+        "arrayBuffers": 1642714
+      },
+      {
+        "elapsedMs": 283566.396663,
+        "phase": "store3:loaded",
+        "rss": 1671569408,
+        "heapTotal": 1531310080,
+        "heapUsed": 1484150000,
+        "external": 37162339,
+        "arrayBuffers": 1668710
+      },
+      {
+        "elapsedMs": 283209.95530800003,
+        "phase": "store3:loaded",
+        "rss": 1671299072,
+        "heapTotal": 1531047936,
+        "heapUsed": 1474363552,
+        "external": 36278675,
+        "arrayBuffers": 785046
+      },
+      {
+        "elapsedMs": 283259.717652,
+        "phase": "store3:loaded",
+        "rss": 1671299072,
+        "heapTotal": 1531047936,
+        "heapUsed": 1476822096,
+        "external": 36499641,
+        "arrayBuffers": 1006012
+      }
+    ],
+    "allObservedWorkspaceContainersZeroAfterDispose": true,
+    "allFourStoreWeakReferencesClearedByFinalCleanup": true,
+    "metadataInlinePayloadsObserved": 0,
+    "pendingStoreWritesAfterDispose": 0,
+    "finalMemory": {
+      "rss": 1054179328,
+      "heapUsed": 82523976,
+      "heapTotal": 143937536,
+      "external": 52048780,
+      "arrayBuffers": 13304895
+    },
+    "sourceAudit": {
+      "schemaVersion": 1,
+      "kind": "read-only-runtime-source-audit",
+      "node": "v22.14.0",
+      "v8": "12.4.254.21-node.22",
+      "nodePath": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "nodeSha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+      "nativeModule": "internal/fs/rimraf",
+      "sourceSha256": "623cf9f1082c258014ea1d8d0e3ecf91f6edc1e462794e887e738c836396d363",
+      "source": "// This file is a modified version of the rimraf module on npm. It has been\n// modified in the following ways:\n// - Use of the assert module has been replaced with core's error system.\n// - All code related to the glob dependency has been removed.\n// - Bring your own custom fs module is not currently supported.\n// - Some basic code cleanup.\n'use strict';\n\nconst {\n  ArrayPrototypeForEach,\n  Promise,\n  SafeSet,\n} = primordials;\n\nconst { Buffer } = require('buffer');\nconst fs = require('fs');\nconst {\n  chmod,\n  chmodSync,\n  lstat,\n  lstatSync,\n  readdir,\n  readdirSync,\n  rmdir,\n  rmdirSync,\n  stat,\n  statSync,\n  unlink,\n  unlinkSync,\n} = fs;\nconst { sep } = require('path');\nconst { setTimeout } = require('timers');\nconst { sleep, isWindows } = require('internal/util');\nconst notEmptyErrorCodes = new SafeSet(['ENOTEMPTY', 'EEXIST', 'EPERM']);\nconst retryErrorCodes = new SafeSet(\n  ['EBUSY', 'EMFILE', 'ENFILE', 'ENOTEMPTY', 'EPERM']);\nconst epermHandler = isWindows ? fixWinEPERM : _rmdir;\nconst epermHandlerSync = isWindows ? fixWinEPERMSync : _rmdirSync;\nconst readdirEncoding = 'buffer';\nconst separator = Buffer.from(sep);\n\n\nfunction rimraf(path, options, callback) {\n  let retries = 0;\n\n  _rimraf(path, options, function CB(err) {\n    if (err) {\n      if (retryErrorCodes.has(err.code) && retries < options.maxRetries) {\n        retries++;\n        const delay = retries * options.retryDelay;\n        return setTimeout(_rimraf, delay, path, options, CB);\n      }\n\n      // The file is already gone.\n      if (err.code === 'ENOENT')\n        err = null;\n    }\n\n    callback(err);\n  });\n}\n\n\nfunction _rimraf(path, options, callback) {\n  // SunOS lets the root user unlink directories. Use lstat here to make sure\n  // it's not a directory.\n  lstat(path, (err, stats) => {\n    if (err) {\n      if (err.code === 'ENOENT')\n        return callback(null);\n\n      // Windows can EPERM on stat.\n      if (isWindows && err.code === 'EPERM')\n        return fixWinEPERM(path, options, err, callback);\n    } else if (stats.isDirectory()) {\n      return _rmdir(path, options, err, callback);\n    }\n\n    unlink(path, (err) => {\n      if (err) {\n        if (err.code === 'ENOENT')\n          return callback(null);\n        if (err.code === 'EISDIR')\n          return _rmdir(path, options, err, callback);\n        if (err.code === 'EPERM') {\n          return epermHandler(path, options, err, callback);\n        }\n      }\n\n      return callback(err);\n    });\n  });\n}\n\n\nfunction fixWinEPERM(path, options, originalErr, callback) {\n  chmod(path, 0o666, (err) => {\n    if (err)\n      return callback(err.code === 'ENOENT' ? null : originalErr);\n\n    stat(path, (err, stats) => {\n      if (err)\n        return callback(err.code === 'ENOENT' ? null : originalErr);\n\n      if (stats.isDirectory())\n        _rmdir(path, options, originalErr, callback);\n      else\n        unlink(path, callback);\n    });\n  });\n}\n\n\nfunction _rmdir(path, options, originalErr, callback) {\n  rmdir(path, (err) => {\n    if (err) {\n      if (notEmptyErrorCodes.has(err.code))\n        return _rmchildren(path, options, callback);\n      if (err.code === 'ENOTDIR')\n        return callback(originalErr);\n    }\n\n    callback(err);\n  });\n}\n\n\nfunction _rmchildren(path, options, callback) {\n  const pathBuf = Buffer.from(path);\n\n  readdir(pathBuf, readdirEncoding, (err, files) => {\n    if (err)\n      return callback(err);\n\n    let numFiles = files.length;\n\n    if (numFiles === 0)\n      return rmdir(path, callback);\n\n    let done = false;\n\n    const childPathPrefix = Buffer.concat([pathBuf, separator]);\n\n    for (let i = 0; i < files.length; i++) {\n      const childPath = Buffer.concat([childPathPrefix, files[i]]);\n\n      rimraf(childPath, options, (err) => {\n        if (done)\n          return;\n\n        if (err) {\n          done = true;\n          return callback(err);\n        }\n\n        numFiles--;\n        if (numFiles === 0)\n          rmdir(path, callback);\n      });\n    }\n  });\n}\n\n\nfunction rimrafPromises(path, options) {\n  return new Promise((resolve, reject) => {\n    rimraf(path, options, (err) => {\n      if (err)\n        return reject(err);\n\n      resolve();\n    });\n  });\n}\n\n\nfunction rimrafSync(path, options) {\n  let stats;\n\n  try {\n    stats = lstatSync(path);\n  } catch (err) {\n    if (err.code === 'ENOENT')\n      return;\n\n    // Windows can EPERM on stat.\n    if (isWindows && err.code === 'EPERM')\n      fixWinEPERMSync(path, options, err);\n  }\n\n  try {\n    // SunOS lets the root user unlink directories.\n    if (stats?.isDirectory())\n      _rmdirSync(path, options, null);\n    else\n      _unlinkSync(path, options);\n  } catch (err) {\n    if (err.code === 'ENOENT')\n      return;\n    if (err.code === 'EPERM')\n      return epermHandlerSync(path, options, err);\n    if (err.code !== 'EISDIR')\n      throw err;\n\n    _rmdirSync(path, options, err);\n  }\n}\n\n\nfunction _unlinkSync(path, options) {\n  const tries = options.maxRetries + 1;\n\n  for (let i = 1; i <= tries; i++) {\n    try {\n      return unlinkSync(path);\n    } catch (err) {\n      // Only sleep if this is not the last try, and the delay is greater\n      // than zero, and an error was encountered that warrants a retry.\n      if (retryErrorCodes.has(err.code) &&\n          i < tries &&\n          options.retryDelay > 0) {\n        sleep(i * options.retryDelay);\n      } else if (err.code === 'ENOENT') {\n        // The file is already gone.\n        return;\n      } else if (i === tries) {\n        throw err;\n      }\n    }\n  }\n}\n\n\nfunction _rmdirSync(path, options, originalErr) {\n  try {\n    rmdirSync(path);\n  } catch (err) {\n    if (err.code === 'ENOENT')\n      return;\n    if (err.code === 'ENOTDIR') {\n      throw originalErr || err;\n    }\n\n    if (notEmptyErrorCodes.has(err.code)) {\n      // Removing failed. Try removing all children and then retrying the\n      // original removal. Windows has a habit of not closing handles promptly\n      // when files are deleted, resulting in spurious ENOTEMPTY failures. Work\n      // around that issue by retrying on Windows.\n      const pathBuf = Buffer.from(path);\n\n      ArrayPrototypeForEach(readdirSync(pathBuf, readdirEncoding), (child) => {\n        const childPath = Buffer.concat([pathBuf, separator, child]);\n\n        rimrafSync(childPath, options);\n      });\n\n      const tries = options.maxRetries + 1;\n\n      for (let i = 1; i <= tries; i++) {\n        try {\n          return fs.rmdirSync(path);\n        } catch (err) {\n          // Only sleep if this is not the last try, and the delay is greater\n          // than zero, and an error was encountered that warrants a retry.\n          if (retryErrorCodes.has(err.code) &&\n              i < tries &&\n              options.retryDelay > 0) {\n            sleep(i * options.retryDelay);\n          } else if (err.code === 'ENOENT') {\n            // The file is already gone.\n            return;\n          } else if (i === tries) {\n            throw err;\n          }\n        }\n      }\n    }\n\n    throw originalErr || err;\n  }\n}\n\n\nfunction fixWinEPERMSync(path, options, originalErr) {\n  try {\n    chmodSync(path, 0o666);\n  } catch (err) {\n    if (err.code === 'ENOENT')\n      return;\n\n    throw originalErr;\n  }\n\n  let stats;\n\n  try {\n    stats = statSync(path, { throwIfNoEntry: false });\n  } catch {\n    throw originalErr;\n  }\n\n  if (stats === undefined) return;\n\n  if (stats.isDirectory())\n    _rmdirSync(path, options, originalErr);\n  else\n    _unlinkSync(path, options);\n}\n\n\nmodule.exports = { rimraf, rimrafPromises, rimrafSync };\n",
+      "finding": "Current async recursive removal enumerates a directory and immediately invokes rimraf for every child without a per-directory concurrency limit.",
+      "relevance": "Private EntryStore commit prunes old generations via async recursive rm; each complete generation contains one blob file per source. Original benchmark final recursive fixture cleanup also remains in scope.",
+      "boundary": "This proves runtime scheduling structure only; it does not establish its contribution to current RSS. A controlled owned-directory operation trace is needed after the live full diagnostic completes."
+    },
+    "interpretation": [
+      "Same unchanged private candidate through all four complete original stages. Instrumentation still exceeded the 1536 MiB budget; original uninstrumented 1762.08 MiB failure remains authoritative.",
+      "Nine observed workspace containers were zero after each dispose; all four weak store references cleared naturally by final cleanup. This sample does not prove whole-product absence of leaks.",
+      "Schema-2 metadata had zero inline payloads; no store writes remained pending after dispose. Store metadata survives dispose until its owner becomes unreachable, then can be naturally collected.",
+      "Final heapUsed/heapTotal/external and RSS are separate accounting views; their difference cannot be assigned to a unique native allocator or leak from these measurements.",
+      "Per-operation elapsed sums include asynchronous waiting and overlap other work. GC callback memory is sampled at delivery, not at the GC event itself.",
+      "Runtime source proves recursive rm schedules all children without a concurrency bound. Operation-level filesystem tracing must independently verify the scheduling difference before trying a bounded cleanup candidate."
+    ],
+    "profileSha256": "8a87ff2eb6aade5d878f344a9f67f6c197ba8297e98978482158d4ff95e05431"
+  },
+  "observerSmokeAudit": {
+    "schemaVersion": 1,
+    "status": "passed",
+    "diagnosticOnly": true,
+    "normalProductUnchanged": true,
+    "candidateUnchanged": true,
+    "completeEightFileSequencePassed": true,
+    "phaseMarks": 35,
+    "intervalSamples": 6,
+    "naturalGcEvents": 6,
+    "zeroWorkspaceMapsAfterEachDispose": true,
+    "metadataInlinePayloads": 0,
+    "storeWritesAfterDispose": 0,
+    "expectedOperations": {
+      "payloadCalls": 24,
+      "stageCalls": 10,
+      "commitCalls": 3
+    },
+    "sourceGenerationSha256": "6f8394c7729bfa63fd79c87a874dfe181ef818444dc604bf0dec055837979b7e",
+    "run": {
+      "status": "exited",
+      "parentPid": 906727,
+      "childPid": 906808,
+      "startedAtUtc": "2026-10-07T15:34:35.452309+00:00",
+      "command": [
+        "env",
+        "SOPHP_CACHE_MEMORY_PROFILE=/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-memory.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d367-entry-memory-smoke.mjs",
+        "8"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.4692974880017573,
+      "finishedAtUtc": "2026-10-07T15:34:35.920421+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "69b0b35a489c01706e782582bf358a3d00874acd098b46f2bf2040b7ffb3eb9f"
+    },
+    "profileSha256": "14761365e67243185f18ab1c163aeb1646f941c1ee16222b5dbb72aff07da61e",
+    "scope": "Observer smoke validates actual eight-file full original sequence and recording shape/phase/counters only. Not memory or performance qualification; GC delivery samples are not retained-object attribution."
+  },
+  "operationControls": {
+    "native": {
+      "schemaVersion": 1,
+      "mode": "native",
+      "files": 5000,
+      "concurrency": 16,
+      "durationMs": 442.6926119999998,
+      "peakActiveFsResources": 10000,
+      "resourceCounts": {
+        "FSREQCALLBACK": {
+          "initialized": 10005,
+          "destroyed": 10005,
+          "peak": 10000,
+          "active": 0
+        }
+      },
+      "targetRemoved": true,
+      "outsideRetained": true,
+      "boundPassed": true,
+      "scope": "Operation scheduling trace only. Actual async resource lifetimes, not complete-product RSS, running-thread count, scale qualification or statistical timing comparison."
+    },
+    "bounded": {
+      "schemaVersion": 1,
+      "mode": "bounded",
+      "files": 5000,
+      "concurrency": 16,
+      "durationMs": 674.4753089999999,
+      "peakActiveFsResources": 32,
+      "resourceCounts": {
+        "FSREQPROMISE": {
+          "initialized": 5002,
+          "destroyed": 5002,
+          "peak": 32,
+          "active": 0
+        },
+        "FSREQCALLBACK": {
+          "initialized": 160,
+          "destroyed": 160,
+          "peak": 2,
+          "active": 0
+        }
+      },
+      "cleanup": {
+        "filesRemoved": 5000,
+        "directoriesRemoved": 1,
+        "peakPending": 16,
+        "concurrency": 16
+      },
+      "targetRemoved": true,
+      "outsideRetained": true,
+      "boundPassed": true,
+      "scope": "Operation scheduling trace only. Actual async resource lifetimes, not complete-product RSS, running-thread count, scale qualification or statistical timing comparison."
+    },
+    "negative": {
+      "schemaVersion": 1,
+      "mode": "negative",
+      "files": 5000,
+      "concurrency": 16,
+      "durationMs": 662.3093289999999,
+      "peakActiveFsResources": 69,
+      "resourceCounts": {
+        "FSREQPROMISE": {
+          "initialized": 5002,
+          "destroyed": 5002,
+          "peak": 67,
+          "active": 0
+        },
+        "FSREQCALLBACK": {
+          "initialized": 160,
+          "destroyed": 160,
+          "peak": 2,
+          "active": 0
+        }
+      },
+      "cleanup": {
+        "filesRemoved": 5000,
+        "directoriesRemoved": 1,
+        "peakPending": 36,
+        "concurrency": 16
+      },
+      "targetRemoved": true,
+      "outsideRetained": true,
+      "boundPassed": false,
+      "scope": "Operation scheduling trace only. Actual async resource lifetimes, not complete-product RSS, running-thread count, scale qualification or statistical timing comparison."
+    },
+    "negativeExpectedFailureObserved": true,
+    "boundaries": {
+      "status": "passed",
+      "checks": [
+        "Unicode nested cleanup removes owned entries and never follows directory symlinks",
+        "Root symlink is unlinked while its target remains intact",
+        "Absent roots succeed and invalid limits leave existing content untouched",
+        "Files disappearing before unlink are tolerated",
+        "Leaf failure stops scheduling and waits for every already started operation"
+      ],
+      "candidateOnly": true,
+      "scaleQualification": false
+    },
+    "scope": "Actual owned synthetic 5000-file filesystem-operation scheduling. Not RSS, scale, thread concurrency or statistical timing qualification."
+  },
+  "candidate": {
+    "preparation": {
+      "schemaVersion": 1,
+      "status": "prepared-not-executed",
+      "candidateAdopted": false,
+      "normalProductChanged": false,
+      "difference": "Replace only three owned generation/staging recursive cleanup sites with streaming bounded removal; owner lock, manifest fence, payload validation, schema and whole index behavior unchanged.",
+      "storeReversesExactlyToD353": true,
+      "indexAndBenchmarkOnlyImportChanged": true,
+      "originalTestBodiesOnlyImportsChanged": true,
+      "candidateHashes": {
+        "d372-bounded-cache-removal.mjs": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d",
+        "d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+        "d375-index.mjs": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26",
+        "d375-benchmark-entry-store.mjs": "d1102a15937d4691e74dfd2d66d482ee477547a7f7984dd6536a591fa54887f6",
+        "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+      },
+      "priorOriginal50kFailureRetained": 1762.08,
+      "normal10kFailureRetained": 920.54,
+      "fullScaleMatrixPassed": false,
+      "diff": "--- d353-entry-store\n+++ d375-entry-store\n@@ -1,3 +1,4 @@\n+import { removeBoundedCacheDirectory } from './d372-bounded-cache-removal.mjs';\n import { acquireCacheCommitLock } from './d353-owned-cache-lock.mjs';\n import { mkdir, open, readFile, readdir, rename, rm, stat, link, copyFile, lstat } from 'node:fs/promises';\n import { dirname, join } from 'node:path';\n@@ -130,12 +131,12 @@\n       await rename(temporary, this.path); this.published = true;\n       // Only committed generations are pruned. Other writers' staging data is untouched.\n       for (const name of await readdir(this.directory)) {\n-        if (name !== this.generation && validGeneration(name)) await rm(join(this.directory, name), { recursive: true, force: true }).catch(() => undefined);\n+        if (name !== this.generation && validGeneration(name)) await removeBoundedCacheDirectory(join(this.directory, name)).catch(() => undefined);\n       }\n       return true;\n     } finally {\n       await rm(temporary, { force: true }).catch(() => undefined);\n-      if (renamedGeneration && !this.published) await rm(publishedDirectory, { recursive: true, force: true }).catch(() => undefined);\n+      if (renamedGeneration && !this.published) await removeBoundedCacheDirectory(publishedDirectory).catch(() => undefined);\n       await lock.release();\n     }\n   }\n@@ -143,6 +144,6 @@\n   async dispose() {\n     this.disposed = true;\n     await Promise.allSettled(this.writes);\n-    await rm(this.staging, { recursive: true, force: true }).catch(() => undefined);\n+    await removeBoundedCacheDirectory(this.staging).catch(() => undefined);\n   }\n }\n"
+    },
+    "sourceHashes": {
+      "d372-bounded-cache-removal.mjs": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d",
+      "d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+      "d375-index.mjs": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26",
+      "d375-benchmark-entry-store.mjs": "d1102a15937d4691e74dfd2d66d482ee477547a7f7984dd6536a591fa54887f6",
+      "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    "cacheFunctionalChecksPassed": 17,
+    "newCleanupBoundaryChecksPassed": 5,
+    "results": {
+      "d375-entry-original-controls": {
+        "status": "passed",
+        "checks": [
+          "cold Unicode entries are stored outside metadata and warm restore preserves path order",
+          "fully warm metadata and generation remain unchanged",
+          "payload checksum corruption rebuilds exactly one file and prunes replaced generation",
+          "adapter-level payload rejection rebuilds one file with outer hash kept valid",
+          "cancelled source production preserves manifest and leaves no staging directories",
+          "commit contention preserves published cache and cleans private staging",
+          "legacy schema 1 payloads migrate without reparsing source",
+          "unsafe payload identity is rejected before reads and rebuilds one entry",
+          "malformed manifest tail cannot partially restore",
+          "deleted source drops its payload from the committed generation",
+          "cancellation during cache commit preserves old manifest",
+          "concurrent commit contender cannot publish an incomplete generation"
+        ]
+      },
+      "d375-entry-edge-controls": {
+        "status": "passed",
+        "checks": [
+          {
+            "name": "serialization failure preserves the complete prior manifest (existing index contract)",
+            "passed": true
+          },
+          {
+            "name": "schema 2 metadata cannot bypass the payload checksum with an inline payload field",
+            "passed": true
+          },
+          {
+            "name": "a commit lock with a dead local owner is recoverable",
+            "passed": true
+          }
+        ]
+      },
+      "d375-entry-transaction-controls": {
+        "status": "passed",
+        "checks": [
+          {
+            "name": "late asynchronous finalizer rejection preserves all prior entries and successful source analysis",
+            "passed": true
+          },
+          {
+            "name": "a stale loaded writer cannot overwrite a later committed manifest even after its lock is released",
+            "passed": true
+          }
+        ]
+      }
+    },
+    "fullScaleQualified": false,
+    "fullApiQualified": false,
+    "previousOwnerLockSourceUnchanged": true,
+    "previousEightLockChecksNotRerunOrRecounted": true
+  },
+  "retainedFailures": {
+    "originalPrivate50kRssMiB": 1762.08,
+    "olderPrivate50kRssMiB": 1753.45,
+    "normal10kRssMiB": 920.54,
+    "normalControllerP95Ms": 157.74,
+    "diagnostic50kRssMiB": 1605.71
+  },
+  "scope": [
+    "Same original four-stage 50k diagnostic, 8944 samples and 1733 natural GC entries; no sample loss, explicit GC or heap snapshots.",
+    "All nine observed workspace containers zero after each dispose; all four weak cache-store references naturally cleared by final cleanup. No whole-product no-leak claim.",
+    "Native Node recursive deletion source and actual controlled trace show broad child scheduling: 10000 peak active FS async resources for 5000 files versus 32 with 16 pending removals.",
+    "Bounded cleanup handles nested Unicode directories, symlinks without following targets, absent roots, invalid limits, vanished files and settling started operations on failure.",
+    "Controlled copy removes only the await bound; same operation checker rejects its peakPending 36/16 and peak FS resources 69. This is expected, not a candidate regression.",
+    "Candidate replaces only three owned generation/staging cleanup sites. Original cache/index/benchmark/test logic and owner-lock code preserved; source/test bodies reverse exactly except declared imports and three cleanup calls.",
+    "Original 12+3+2 cache controls rerun on changed candidate, all 17 pass; five new cleanup boundary checks pass. Prior eight lock checks not rerun or recounted.",
+    "This establishes scheduling/function controls only. Candidate has no scale RSS, full API, platform or ordinary runtime integration qualification.",
+    "Original cleanup in the full benchmark is unchanged. Future full measurements must include all four stages and final fixture cleanup, with no forced GC or reduced budgets.",
+    "All original C1-C4/R4/P0-P9/F01-F14, advanced capabilities, ordinary latency, scales, versions/platforms/full combinations/long sessions/human WSL remain open."
+  ],
+  "next": "Run this distinct bounded-cleanup candidate through original complete 1k then 10k gates; proceed to 50k only if preceding cold/RSS/cache/functional budgets pass. Keep full original cleanup and assertions. Full API/integration and required five-round matrix remain prerequisites before adoption.",
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d368-entry-memory-smoke-input.json",
+      "bytes": 714586,
+      "sha256": "77459b78e135ca2d7b29f41668320092104d2ec0d68b274bd1d2141569a73862"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d368-entry-memory-smoke-run.json",
+      "bytes": 701,
+      "sha256": "cf6c99d91776bc9f538e1bc3acbc60933620edbd98bdff2595f75a31f2074f8d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d368-entry-memory-smoke.log",
+      "bytes": 1644,
+      "sha256": "69b0b35a489c01706e782582bf358a3d00874acd098b46f2bf2040b7ffb3eb9f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-smoke-memory.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d368-entry-memory-smoke-memory.json",
+      "bytes": 117601,
+      "sha256": "14761365e67243185f18ab1c163aeb1646f941c1ee16222b5dbb72aff07da61e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d369-entry-memory-50000-input.json",
+      "bytes": 715333,
+      "sha256": "475fcfca70cce9a47459e46794daf2b333dac5e5cc395de6f2aa704c3039d73d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d369-entry-memory-50000-run.json",
+      "bytes": 709,
+      "sha256": "867f68212c0128464e3a47775cae7a48720364cb7e36e8e44dfae9c3ba980901"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d369-entry-memory-50000.log",
+      "bytes": 1695,
+      "sha256": "1a9f178b18b9e484d25a1876feb238d42de2e3e74de4751e5744af468f33dcc8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d369-entry-memory-50000-memory.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d369-entry-memory-50000-memory.json",
+      "bytes": 2763761,
+      "sha256": "8a87ff2eb6aade5d878f344a9f67f6c197ba8297e98978482158d4ff95e05431"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-boundaries-input.json",
+      "bytes": 715205,
+      "sha256": "b98200eef153c0bd901cff703213098ec3544c15fd26067694fd984dfccf91f9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-boundaries-run.json",
+      "bytes": 578,
+      "sha256": "93f2b72e4ccb4bad9c0ff5408b621a86f6919d52824b94c88a7c23a98962f786"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-boundaries.log",
+      "bytes": 469,
+      "sha256": "4ac18ce921afc25170372fe49fce3857ab98f8ee5dc14f36988b53b9504f84f8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-native-5000-input.json",
+      "bytes": 715218,
+      "sha256": "4dfcc8b1059c23678229c4314ba2a643e76d3ab90733afa5b898b8d9dab80b48"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-native-5000-run.json",
+      "bytes": 591,
+      "sha256": "91b626d2f101e9bf2ae0931b9cd768635eb7c2179139816216cf827280996c2e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-native-5000.log",
+      "bytes": 558,
+      "sha256": "a2a3abb6b6bcff730098cfa77e21553fbd4390150e3b45c85c06eb51e236bdb8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-bounded-5000-input.json",
+      "bytes": 715219,
+      "sha256": "3cd94b75defc28e24e3dfeeb6d357c7c3a33c415b233de523ce478109e46cf29"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-bounded-5000-run.json",
+      "bytes": 592,
+      "sha256": "d72276bcd5f6a6ca2d4a9b782f5da4f22c3ec3c1399da8d34a1ae5d78c71faaf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-bounded-5000.log",
+      "bytes": 785,
+      "sha256": "00302dde47ed59c03a3a523bf238636d84946d26c4f56370bf4a8377bc7bda69"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-negative-5000-input.json",
+      "bytes": 715220,
+      "sha256": "ddce9da30699b2c14d62c0db5e5af438b7a8c3078e4d06e6b337076a211bbb10"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-negative-5000-run.json",
+      "bytes": 595,
+      "sha256": "e863b7a37b2642ead6bece4a6224d6bffcdda6fbcb8734cb857f9af4feab3e6f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d374-cleanup-negative-5000.log",
+      "bytes": 787,
+      "sha256": "c00fbc1ba798b2eb47637e3cd80bab635a3f9a8accf5084d6e9a0ebc516e9419"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-original-controls-input.json",
+      "bytes": 716329,
+      "sha256": "74453019b164f37af841054a539810101df40fbdbbd2d668237f5b1f5d428e5d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-original-controls-run.json",
+      "bytes": 704,
+      "sha256": "2ce9212b6ca73c0f96ddb052c3c4038094d143f6620e131933d2ac9a694bf8d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-original-controls.log",
+      "bytes": 879,
+      "sha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-original-controls-result.json",
+      "bytes": 945,
+      "sha256": "feb75faf3187721ec07d3fa264872571e9fa3b900b57a6e4964d22f2b97bd4b6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-edge-controls-input.json",
+      "bytes": 716327,
+      "sha256": "6ae3efff1e9d0c5356d151b5aa475624d68ed37cf183c640c999cb0d7e8cc760"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-edge-controls-run.json",
+      "bytes": 699,
+      "sha256": "34abff73f57a7eb912cf56e737a50efe0909c5c06609a65b2f2dd7414cdfa765"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-edge-controls.log",
+      "bytes": 417,
+      "sha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-edge-controls-result.json",
+      "bytes": 416,
+      "sha256": "84c351d42c3275dc770d50f26e481b60bc56001ba288a6c29fd65db2df4e2b7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-transaction-controls-input.json",
+      "bytes": 716341,
+      "sha256": "2f4d2e643e42a25c39def04f62c5c40f3a07a1a74d31dee588e603fe4f2978a9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-transaction-controls-run.json",
+      "bytes": 720,
+      "sha256": "cffb2e2d06993f32b1f41bcb0c8404b86417a81453a5bb7ba200fa0193d56e01"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-transaction-controls.log",
+      "bytes": 340,
+      "sha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-transaction-controls-result.json",
+      "bytes": 339,
+      "sha256": "def47d6d1e77eedaf6662db8e3ab77d1d92b3690f9a24f7ff049419248c5f967"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d367-prepare-entry-memory.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d367-prepare-entry-memory.py",
+      "bytes": 10216,
+      "sha256": "088d135043af6938b4b86c53ce8f4f3a078f87a96f28008e477bdd1ed1acb00d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d367-entry-memory-generation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d367-entry-memory-generation.json",
+      "bytes": 16079,
+      "sha256": "6f8394c7729bfa63fd79c87a874dfe181ef818444dc604bf0dec055837979b7e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d367-entry-memory-diagnostic.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d367-entry-memory-diagnostic.mjs",
+      "bytes": 21409,
+      "sha256": "3b6894ffae21d853935ccd2f517a9aeda34e1ca2d12ca7a1695f9afc255f37c3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d367-entry-memory-smoke.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d367-entry-memory-smoke.mjs",
+      "bytes": 21411,
+      "sha256": "dc12aebe924c742ac4fdd0a6c32bc027c29490eff93365fc386738f82ab29818"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d367-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d367-run.py",
+      "bytes": 6071,
+      "sha256": "0811c39a709e6d762fd117079d6af88de02feb6c004e5b6ea9ad671b0e028751"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d368-audit-observer.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d368-audit-observer.py",
+      "bytes": 3940,
+      "sha256": "91111b080de6f709f694079c89b56f97a0312c2dbb474faf4203fe537f75f2e9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d368-entry-memory-observer-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d368-entry-memory-observer-audit.json",
+      "bytes": 1605,
+      "sha256": "e206db4c7fe30d0ac86bd345b171d5c25df05037cf8900740da9f5bcca7354f0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d370-analyze-entry-memory.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d370-analyze-entry-memory.py",
+      "bytes": 7571,
+      "sha256": "416c7d8967064349c24654cb241f5977e8620bab8c57bc027f9622203abe8458"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d370-entry-memory-analysis.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d370-entry-memory-analysis.json",
+      "bytes": 140807,
+      "sha256": "08d83ec46564b84a4dffb3b9824bf7e97996d8524d84ecf48911387f39aebde0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d370-node-rimraf-source.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d370-node-rimraf-source.json",
+      "bytes": 8807,
+      "sha256": "48c7019d0d6936ef41f7d26d0eb8a01fca7866cf9d32a42dd4db662b1726be11"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d372-bounded-cache-removal.mjs",
+      "bytes": 2782,
+      "sha256": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d373-cleanup-operation-worker.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d373-cleanup-operation-worker.mjs",
+      "bytes": 2986,
+      "sha256": "65c4dd2a394ebb2dd0837af5295d50494f68e16302e614e61ba597ce31e05e7f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d373-cleanup-boundary-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d373-cleanup-boundary-controls.mjs",
+      "bytes": 3802,
+      "sha256": "dde478c7504554777af7cc2de049651924a7000b12c9bb65d62c07ae9ba4cdee"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d373-unbounded-removal-mutant.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d373-unbounded-removal-mutant.mjs",
+      "bytes": 2710,
+      "sha256": "9318d9febe898a648eeb7476d9af787ec40955676cef585659ad32b4a1c0e4b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d373-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d373-run.py",
+      "bytes": 6311,
+      "sha256": "83a359a434f0aebcc29f105abb69608e735eac85ff181044c02b06479d641309"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-preparation.json",
+      "bytes": 2765,
+      "sha256": "97e3ac3663c456f2c20f646abf4b13133b36cc03505d9c5ebf17af3165462205"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-store.mjs",
+      "bytes": 7820,
+      "sha256": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-index.mjs",
+      "bytes": 22104,
+      "sha256": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-benchmark-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-benchmark-entry-store.mjs",
+      "bytes": 15454,
+      "sha256": "d1102a15937d4691e74dfd2d66d482ee477547a7f7984dd6536a591fa54887f6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-store-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-store-controls.mjs",
+      "bytes": 8834,
+      "sha256": "ef350869f86c2460c1a7cba671c99749fa2cf0ae4f32fbb5c1fce6cb99eaa0c8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-store-edge-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-store-edge-controls.mjs",
+      "bytes": 3324,
+      "sha256": "b502090cb6160e8edc182eec79c0cecc73d0b7fb969d77ba76276ab77b205af8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-entry-transaction-controls.mjs",
+      "bytes": 3851,
+      "sha256": "3421c0f4ba02f8a775e6a21636561a197a1d40b140fff8bcbeb6c8d9bc73600c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d375-run.py",
+      "bytes": 6582,
+      "sha256": "3b1b89bc2db32012950ea77806e08ab2b80756c4a64cbca6b41896492023a69b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d353-preparation.json",
+      "bytes": 1508,
+      "sha256": "7608e5c5843b41c627e3da3e31c61a45d1817f3eff642f9027a0e37738b18e62"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d353-entry-store.mjs",
+      "bytes": 7767,
+      "sha256": "23d20b1e5d1527b51345856c920c1b39938649bdd932112bd7c92515ff5c7847"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d353-index.mjs",
+      "bytes": 22104,
+      "sha256": "38731a21e6b95733237d4a45e724828b3ab6e7f2046fa29c630bf3686fbc2017"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d353-owned-cache-lock.mjs",
+      "bytes": 4321,
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d360-benchmark-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d360-benchmark-entry-store.mjs",
+      "bytes": 15454,
+      "sha256": "ff621a9673a5e737ed8394e31b089f9bb480d7cc85d8607de6b37735e3f6fe73"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d376-record-entry-memory.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d376-entry-memory-evidence/d376-record-entry-memory.py",
+      "bytes": 12695,
+      "sha256": "27aae64b8e2c8b8ba2e579cd328df2bbe03b7b640b1ac5d4013091dca8fea5ef"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { appendFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
@@ -220,6 +221,7 @@ return array(
 });
 
 it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a Trait contract changes at PHP %s', async phpVersion => {
+  const caseStarted = performance.now();
   const root = await mkdtemp(join(tmpdir(), 'sophp-canonical-constructors-'));
   await mkdir(join(root, 'src')); await mkdir(join(root, 'origin'));
   await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'Consumer\\': 'src/', 'Origin\\': 'origin/' } } }));
@@ -227,10 +229,19 @@ it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a 
   const disk = '<?php namespace Consumer; // unchanged disk baseline\n';
   await writeFile(file, disk);
   const server = spawn(process.execPath, [process.env.PHP_COMPANION_TEST_CANONICAL_SERVER ?? resolve('dist/server.js'), '--stdio', '--parser-core-wasm', resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe' });
+  const traceDirectory = process.env.PHP_COMPANION_TEST_CONSTRUCTOR_TRACE_DIR;
+  const tracePath = traceDirectory ? join(traceDirectory, `constructor-${phpVersion}.jsonl`) : undefined;
+  const recordTrace = (event: object): void => {
+    if (tracePath) appendFileSync(tracePath, JSON.stringify({ atMs: performance.now() - caseStarted, ...event }) + '\n');
+  };
+  recordTrace({ event: 'server-started', phpVersion, pid: server.pid, command: server.spawnargs });
+  server.stderr.on('data', chunk => recordTrace({ event: 'stderr', text: chunk.toString() }));
+  server.on('exit', (code, signal) => recordTrace({ event: 'server-exited', code, signal }));
   const decoder = new LspMessageDecoder(), messages: any[] = [];
   const waiters: Array<{ matches: (message: any) => boolean; done: (message: any) => void }> = [];
   server.stdout.on('data', chunk => {
     for (const message of decoder.push(chunk) as any[]) {
+      recordTrace({ event: 'received', message });
       messages.push(message);
       for (const waiter of [...waiters]) if (waiter.matches(message)) {
         waiters.splice(waiters.indexOf(waiter), 1); waiter.done(message);
@@ -238,6 +249,7 @@ it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a 
     }
   });
   const waitFor = (matches: (message: any) => boolean): Promise<any> => {
+    recordTrace({ event: 'wait', predicate: matches.toString() });
     const existing = messages.find(matches); if (existing) return Promise.resolve(existing);
     return new Promise((done, reject) => {
       const waiter = { matches, done: (message: any): void => { clearTimeout(timer); done(message); } };
@@ -246,7 +258,7 @@ it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a 
     });
   };
   let id = 0;
-  const send = (message: object): void => { server.stdin.write(encodeLspMessage({ jsonrpc: '2.0', ...message })); };
+  const send = (message: object): void => { recordTrace({ event: 'sent', message }); server.stdin.write(encodeLspMessage({ jsonrpc: '2.0', ...message })); };
   const request = async (method: string, params: object | null): Promise<any> => {
     const requestId = ++id, response = waitFor(message => message.id === requestId);
     send({ id: requestId, method, params }); const result = await response;
@@ -263,16 +275,35 @@ it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a 
     send({method:'initialized',params:{}});
     send({method:'textDocument/didOpen',params:{textDocument:{uri:dependencyUri,languageId:'php',version:1,text:original}}});
     await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === dependencyUri && message.params.version === 1);
-    expect(await request('phpCompanion/testPauseNextQuery',{method:'constructorDiagnostics'})).toBe(true);
     const source="<?php declare(strict_types=1); namespace Consumer; class C {use \\Origin\\Init;} new C('wrong');";
     send({method:'textDocument/didOpen',params:{textDocument:{uri,languageId:'php',version:1,text:source}}});
-    await waitFor(message=>message.method === 'window/logMessage' && message.params.message === '[test-query-paused] method=constructorDiagnostics');
-    send({method:'textDocument/didChange',params:{textDocument:{uri:dependencyUri,version:2},contentChanges:[{text:original.replace('int $value','string $value')}]}});
+    // didOpen also schedules content validation. Its unchanged int contract may
+    // legitimately publish while the other validation is paused. Keep this
+    // positive control separate from the resumed, post-edit publication.
+    const beforeChange=await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1);
+    expect(beforeChange.params.diagnostics.filter((item:any)=>item.code === 'php.argument.type-mismatch')).toHaveLength(1);
+    // didOpen starts two independent validations. Observe both before arming
+    // the pause, so it belongs to a related refresh with duplicate suppression.
+    await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1
+      && messages.filter(item=>item.method === 'textDocument/publishDiagnostics' && item.params.uri === uri && item.params.version === 1).length >= 2);
+    expect(await request('phpCompanion/testPauseNextQuery',{method:'constructorDiagnostics'})).toBe(true);
+    send({method:'textDocument/didChange',params:{textDocument:{uri:dependencyUri,version:2},contentChanges:[{text:original.replace('int $value','float $value')}]}});
     await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === dependencyUri && message.params.version === 2);
+    await waitFor(message=>message.method === 'window/logMessage' && message.params.message === '[test-query-paused] method=constructorDiagnostics');
+    const changedAt=messages.length;
+    send({method:'textDocument/didChange',params:{textDocument:{uri:dependencyUri,version:3},contentChanges:[{text:original.replace('int $value','string $value')}]}});
+    await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === dependencyUri && message.params.version === 3);
+    // Observe the updated contract while the obsolete proof is still paused.
+    const refreshed=await waitFor(message=>messages.indexOf(message) >= changedAt && message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1
+      && message.params.diagnostics.every((item:any)=>item.code !== 'php.argument.type-mismatch'));
+    expect(refreshed.params.diagnostics.filter((item:any)=>item.code === 'php.argument.type-mismatch')).toEqual([]);
     expect(await request('phpCompanion/testReleaseQuery',{method:'constructorDiagnostics'})).toBe(true);
     const resumed=await waitFor(message=>message.method === 'window/logMessage' && message.params.message.startsWith('[test-constructor-proof]'));
     expect(resumed.params.message).toContain('proven=0');
-    const published=await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1);
+    // Releasing an obsolete proof need not repeat an already current publication.
+    // The revision guard above must reject it, and the latest client state stays current.
+    const published=messages.filter(message=>messages.indexOf(message) >= changedAt && message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1).at(-1);
+    expect(published).toBeDefined();
     expect(published.params.diagnostics.filter((item:any)=>item.code === 'php.argument.type-mismatch')).toEqual([]);
     const offset=source.indexOf("'wrong'")+3;
     const signature=await request('textDocument/signatureHelp',{textDocument:{uri},position:position(source,offset)});
@@ -280,6 +311,7 @@ it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a 
     expect(await readFile(dependencyPath,'utf8')).toBe(original);expect(await readFile(file,'utf8')).toBe(disk);
     console.log(JSON.stringify({phpVersion,interruptedProof:true,obsoleteMismatchWithdrawn:true,diskUnchanged:true}));
   } finally {
+    recordTrace({ event: 'cleanup-started' });
     if(server.exitCode === null){const exited=once(server,'exit');server.kill();await exited;}
     await rm(root,{recursive:true,force:true});
   }

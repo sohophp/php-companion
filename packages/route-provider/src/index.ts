@@ -9,7 +9,7 @@ export interface RouteProviderDescriptor {
   maxOutputBytes?: number;
   /** When this provider succeeds, its snapshot replaces the language server's built-in static route scan. */
   replacesStaticRoutes?: boolean;
-  /** Reuse a complete snapshot until provider, workspace-file, or open-document invalidation. */
+  /** Reuse complete snapshots, or unavailable snapshots with complete local input evidence, until invalidation. */
   cacheUntilInvalidated?: boolean;
 }
 

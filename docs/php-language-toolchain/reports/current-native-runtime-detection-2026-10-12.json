@@ -1,0 +1,150 @@
+{
+  "terminalAuditQualified": true,
+  "nativeRuntimeDetectionQualified": true,
+  "normalBundleSha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+  "passed": 9,
+  "failed": 0,
+  "skipped": 0,
+  "versions": {
+    "7.2": {
+      "version": "7.2.34",
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15"
+    },
+    "7.3": {
+      "version": "7.3.33",
+      "path": "/var/www/node/php-companion/.vscode-test/d2313-php73-json-runtime/php73-with-json",
+      "sha256": "4b76eb7a322611d0c1d914b53d0ee20921b8f8741b7439d14ee8a14022559315"
+    },
+    "7.4": {
+      "version": "7.4.33",
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def"
+    },
+    "8.0": {
+      "version": "8.0.30",
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+      "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958"
+    },
+    "8.1": {
+      "version": "8.1.34",
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0"
+    },
+    "8.2": {
+      "version": "8.2.32",
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c"
+    },
+    "8.3": {
+      "version": "8.3.35",
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+      "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae"
+    },
+    "8.4": {
+      "version": "8.4.23",
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819"
+    },
+    "8.5": {
+      "version": "8.5.9",
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed"
+    }
+  },
+  "originalEightPassOneFailurePreserved": true,
+  "newPhp73JsonWrapperOnly": true,
+  "signedModuleSource": "https://rpms.remirepo.net/enterprise/8/remi/x86_64/php73-php-json-7.3.33-22.el8.remi.x86_64.rpm",
+  "systemPackagesInstalled": false,
+  "normalProductSourceChanged": false,
+  "fullVersionMatrixQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "archive": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2311-native-runtime-integration-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/0-d2311-native-runtime-integration-run.json",
+      "sha256": "03cffa939c2a7c121eb99b8745b0a8025471e0659cbf15a0976f8c933f180a68"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2311-native-runtime-integration.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/1-d2311-native-runtime-integration.log",
+      "sha256": "60f3422c691bab9ddec9cc6dd5eb577a9008a498c3ca9b3b3e1c51083164c527"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2311-run-native-runtime-integration.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/2-d2311-run-native-runtime-integration.py",
+      "sha256": "fb6cfcf6a910b88cdf18e5902c6a8f05a6ee8003ae2e45a9df28d0d2c54c9cfc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2312-native-runtime-integration-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/3-d2312-native-runtime-integration-result.json",
+      "sha256": "1649e97c245e7ac107e5148318dff4948f517080ce25618ebe0b9eee34b506d3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2312-native-runtime-integration-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/4-d2312-native-runtime-integration-run.json",
+      "sha256": "70f3a44760cea4af1a9568928887b1979fea264826641f0bacbcadcc3b2e21f2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2312-native-runtime-integration.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/5-d2312-native-runtime-integration.log",
+      "sha256": "1e31aafa4cafe66cd5cefbd8f69eb030f4e19cc183b027594aa16786ad724fc1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2312-run-native-runtime-integration.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/6-d2312-run-native-runtime-integration.py",
+      "sha256": "47a7f0d9106ef4049cc1187e5fc8c16571369b8aad655141042e2e878d0fae2e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2313-php73-json-runtime/opt/remi/php73/root/usr/lib64/php/modules/json.so",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/7-json.so",
+      "sha256": "3c81e84940cfc9a1de844c8881ebcea4f27067f64d2f77e6913799785451c943"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2313-php73-json-runtime/php73-with-json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/8-php73-with-json",
+      "sha256": "4b76eb7a322611d0c1d914b53d0ee20921b8f8741b7439d14ee8a14022559315"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2313-php73-json-runtime/preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/9-preparation.json",
+      "sha256": "2f2b7c2cd031e6dee7ad8b7ad848ebf845b441c84b0527a84950dc6c79ba3c25"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2313-php73-json-runtime/signature.txt",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/10-signature.txt",
+      "sha256": "05eae62e0bda037a6a3a142e3beccfa061e26f5ba5123f42ed16b50fd65c989f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2314-native-runtime-integration-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/11-d2314-native-runtime-integration-result.json",
+      "sha256": "c02c97b0c54e1528e88a8cf8f0aedbf41915f64d96b34d7d4ae64158a762e260"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2314-native-runtime-integration-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/12-d2314-native-runtime-integration-run.json",
+      "sha256": "6dcb8e6f2c821ce2dbcc5452bef50a40282e31556b35bd30f244c726cc460b79"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2314-native-runtime-integration.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/13-d2314-native-runtime-integration.log",
+      "sha256": "fd06c7d71d3d93132fa3f133c6575ac95a58267cda63e2978cc481a67d93e7f5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2314-run-native-runtime-integration.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/14-d2314-run-native-runtime-integration.py",
+      "sha256": "2e2c3518e3f2efed441e44ea529bb881259611530194eae5eda471d2a677a58f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2315-audit-native-runtime-integration.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/15-d2315-audit-native-runtime-integration.py",
+      "sha256": "e3c70eba183e370fc9c0e561b0b1c143a5dda6039be32b87d0f5b6962229e39a"
+    },
+    {
+      "source": "/var/www/node/php-companion/test/integration/php-executables.integration.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2315-native-runtime-integration-archive/16-php-executables.integration.test.ts",
+      "sha256": "78189bc2a850312211681e47f1b7c173ec3db88ffa2d65d6cb7b78d56c022f3c"
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+{
+  "recordedAtUtc": "2026-10-09T07:57:29.922866+00:00",
+  "engineBuildId": "80ba233a1462c5404388febf64524edce4f84255a198fe4e9ee668b30cfa4170",
+  "runtime": {
+    "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+    "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+    "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "sourceAdoption": {
+    "source": "/var/www/node/php-companion/packages/language-server/src/server.ts",
+    "beforeSha256": "9904f89075220a6b6c715ede843ca1dd51b8f4426e45f69dfed01d62be1aabd6",
+    "afterSha256": "15fc3e90bbdc2c8499d624a4047c3d190359b5f5bae5deaf98addbaf1cced7a3",
+    "backup": "/var/www/node/php-companion/.vscode-test/d1258-server-before-open-function-refresh.ts",
+    "scope": "one exact replacement in explicit Composer file hydration",
+    "reverseExact": true,
+    "sourceAdopted": true,
+    "permanentTest": "/var/www/node/php-companion/packages/language-server/test/direct-function-open-publication-stdio.test.ts",
+    "permanentTestSha256": "42a8b870841d08c465b3a0b65f54e8ed16f16a52928274c8e455cefc74e8f486",
+    "privateTestByteExact": true,
+    "oldControls": {
+      "passed": 0,
+      "failed": 8
+    },
+    "originalFullLspFailurePreserved": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "originalFullLspFailure": {
+    "engineBuildId": "8cb29db17178e48788052366b592144d1c75393740916ea0d8a7ed18d80f5012",
+    "passed": 1437,
+    "failed": 1,
+    "evidenceValid": true,
+    "preserved": true
+  },
+  "diagnosis": {
+    "originalCaseObservationPassed": 1,
+    "notFullQualification": true,
+    "controlledOriginalCasesFailed": 4,
+    "permanentControlsBeforePassed": 0,
+    "permanentControlsBeforeFailed": 8,
+    "privateImportPreparationFailurePreserved": true,
+    "cause": "Composer file with a known URI was reused before publishing its restored open function; lookup by function name could not refresh a missing declaration identity"
+  },
+  "normalValidation": {
+    "status": "exited",
+    "parentPid": 3541860,
+    "qualified": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "fullLspQualified": false,
+    "fullPerformanceQualified": false,
+    "steps": [
+      {
+        "label": "language-server-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "-p",
+          "packages/language-server/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3541915,
+        "processGroup": 3541915,
+        "exitCode": 0,
+        "durationSeconds": 8.227870019007241,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "production-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "esbuild.mjs",
+          "--production"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3541979,
+        "processGroup": 3541979,
+        "exitCode": 0,
+        "durationSeconds": 0.7444242610072251,
+        "logSha256": "26dd4a749e4514d8b7ec68b2079c8e4b722d73c33694c45f9bf5ec2abc975f13"
+      },
+      {
+        "label": "component-boundaries",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "scripts/check-component-boundaries.mjs"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3542085,
+        "processGroup": 3542085,
+        "exitCode": 0,
+        "durationSeconds": 3.0830419159901794,
+        "logSha256": "282a0cb5ce617fcb6020ca2af25d737b9609a38794171d17d3b82e0ad14a7664"
+      },
+      {
+        "label": "root-typecheck",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3542097,
+        "processGroup": 3542097,
+        "exitCode": 0,
+        "durationSeconds": 4.660919108981034,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "control-typecheck",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--strict",
+          "--noUncheckedIndexedAccess",
+          "--skipLibCheck",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--target",
+          "ES2022",
+          "--types",
+          "node,vitest/globals",
+          "packages/language-server/test/direct-function-open-publication-stdio.test.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3542134,
+        "processGroup": 3542134,
+        "exitCode": 0,
+        "durationSeconds": 1.6965468959824648,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "range-eslint",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "node_modules/eslint/bin/eslint.js",
+          "packages/language-server/src/server.ts",
+          "packages/language-server/test/direct-function-open-publication-stdio.test.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3542164,
+        "processGroup": 3542164,
+        "exitCode": 0,
+        "durationSeconds": 4.373319781007012,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "root-unit",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1259-open-function-refresh-root-unit.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "status": "exited",
+        "pid": 3542260,
+        "processGroup": 3542260,
+        "exitCode": 0,
+        "durationSeconds": 6.9988776719837915,
+        "logSha256": "589342ab4510490db499d7d7d8bb0853f3898204b79c596174bb37f3a3444129"
+      },
+      {
+        "label": "direct-function-protocol",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/direct-function-queries-stdio.test.ts",
+          "test/direct-function-open-publication-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1259-open-function-refresh-direct-function-protocol.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "status": "exited",
+        "pid": 3542561,
+        "processGroup": 3542561,
+        "exitCode": 0,
+        "durationSeconds": 132.95519543101545,
+        "logSha256": "389c4c92d75e3b10bc44d3224d5725833d3a3e95a6abb491156ca97709dc18d1"
+      }
+    ],
+    "componentReuse": {
+      "semanticPassed": 23686,
+      "parserPassed": 178,
+      "frozenInputs": 14733,
+      "semanticEvidence": "d1237-probe-guards-full-semantic.json",
+      "parserEvidence": "d1221-recovery-facts-full-parser.json",
+      "rerun": false,
+      "exactSourceTestsCompiledAssetsAndDependencies": true
+    },
+    "runtime": {
+      "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+      "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    "normalAssets": {
+      "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+      "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+      "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+      "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    "engineBuildId": "80ba233a1462c5404388febf64524edce4f84255a198fe4e9ee668b30cfa4170",
+    "changedRuntimeAssets": [
+      "/var/www/node/php-companion/dist/language-server.js"
+    ],
+    "inputCount": 29849,
+    "root-unit": {
+      "passed": 113,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "9d0531ac2109ca99b9b7309e5ff59bdb55259ee0da3c843fd28c1ca5078aded7"
+    },
+    "direct-function-protocol": {
+      "passed": 32,
+      "failed": 0,
+      "pending": 0,
+      "sha256": "8a51de48edcbd490fb8ffb2f8cac5ec0f1e1c2748577d67c2f7f3044982d112e"
+    },
+    "originalDirectFunctionCaseIdentitiesPreserved": true,
+    "permanentControls": {
+      "beforePassed": 0,
+      "beforeFailed": 8,
+      "afterPassed": 8,
+      "sameCaseIdentitiesAndPrivateBody": true
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryScopeUnchanged": true,
+    "exitCode": 0
+  },
+  "remainingValidationOwnedProcessGroups": [],
+  "semantic": {
+    "passed": 23686,
+    "failed": 0,
+    "pending": 0,
+    "reused": true,
+    "exactComponentIdentity": true
+  },
+  "parser": {
+    "passed": 178,
+    "reused": true,
+    "exactComponentIdentity": true
+  },
+  "rootUnit": {
+    "passed": 113
+  },
+  "directFunctionProtocol": {
+    "originalCasesPassed": 24,
+    "permanentControlsPassed": 8,
+    "totalPassed": 32,
+    "failed": 0
+  },
+  "fullLspQualified": false,
+  "fourLinuxHostsQualified": false,
+  "compositeQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "archiveManifest": "/var/www/node/php-companion/.vscode-test/d1260-open-function-refresh-evidence/manifest.json",
+  "archiveManifestSha256": "66212678dcf88d29020355caf47014302c2beb97a95b910cf2fad4e6169d86c9",
+  "archiveCount": 66
+}

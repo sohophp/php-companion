@@ -1,0 +1,69 @@
+{
+  "qualified": false,
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "eeeb904eb440d72c21f6fbe8b3e16e32dcb5a0bdff5024e30ae20f0a016ac545",
+  "normalFullSemanticPassed": 23896,
+  "normalFullSemanticFiles": 183,
+  "original23866IdentitiesPreserved": true,
+  "addedSemanticCases": 30,
+  "normalFullLspPassed": 1539,
+  "normalFullLspFailed": 1,
+  "normalFullLspFiles": 127,
+  "original1534IdentitiesPreserved": true,
+  "original1530IdentitiesPreserved": true,
+  "addedProtocolCases": 6,
+  "qualityGatesPassed": 7,
+  "rootTestsPassed": 113,
+  "componentTypechecksPassed": 24,
+  "publicSemanticDeclarationsUnchanged": true,
+  "publicDeclarationFiles": 9,
+  "frozenInputsRechecked": 30181,
+  "frozenSymlinksRechecked": 184,
+  "allOwnedProcessesGone": true,
+  "checkedPids": [
+    60287,
+    60393,
+    60425,
+    60680,
+    60706,
+    60743,
+    60802,
+    60819,
+    61307,
+    61642,
+    63923,
+    66278
+  ],
+  "fullCurrentLspQualified": false,
+  "fullCurrentEditorQualified": false,
+  "fullCurrent12ProfileQualified": false,
+  "fullPerformanceQualified": false,
+  "currentLongSessionQualified": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "fourCurrentLinuxEditorWorkflowsQualified": true,
+  "failedCases": [
+    {
+      "file": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "name": "language server stdio hydrates repeated case-varied inherited receiver returns and refreshes changed return types at PHP '8.5' in 'progressive'",
+      "messages": [
+        "AssertionError: expected [ { …(2) }, { …(2) }, { …(2) }, …(22) ] to have a length of 26 but got 25\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1389:20)\n    at Proxy.<anonymous> (file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///var/www/node/php-companion/node_modules/.pnpm/chai@6.2.2/node_modules/chai/index.js:1700:25)\n    at /var/www/node/php-companion/packages/language-server/test/stdio.test.ts:7979:34\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+      ]
+    }
+  ],
+  "archiveFilesRechecked": [
+    191,
+    62
+  ],
+  "originalCancellationFailurePassedThisRun": true,
+  "originalFullFailureRootCauseProven": false,
+  "fixtureIds": 177,
+  "fixtureFamilies": 14,
+  "uncheckedRoadmapMajorItems": 26,
+  "evidence": [
+    "d2236-current-full-lsp-terminal-audit.json",
+    "d2237-foreach-normal-terminal-audit.json",
+    "d2231-current-editor-terminal-audit.json"
+  ]
+}

@@ -1,0 +1,456 @@
+{
+  "milestone": "D257",
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "coreSha256": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+  "originalRun": {
+    "status": "exited",
+    "command": [
+      "node",
+      ".vscode-test/d257-progressive-interop-probe.mjs"
+    ],
+    "parentPid": 83167,
+    "childPid": 83284,
+    "startedAtUtc": "2026-10-07T07:49:58.375082+00:00",
+    "inputs": {
+      ".vscode-test/d257-progressive-interop-probe.mjs": "b8b3628ef2014aa8119c23a743f43be9911621f04393558a5de2c0d7f2bc8762",
+      "packages/language-server/src/server.ts": "ed35320fe1734e2fdd0a4902a69bd821f89ac8ad87550ea7da008997525183a3",
+      "dist/language-server.js": "a8b50922b654cc5519439f53dfee72a695d054b2adf75113e514dfc0a19d830b",
+      "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "packages/provider-symfony-controller-contexts/dist/cli.js": "cbfa1bf2084d4bd2320f3f72d22213c336ec5f3df88381a6fc98c6a4d51f5cda"
+    },
+    "exitCode": 1,
+    "durationSeconds": 11.718261054999857,
+    "finishedAtUtc": "2026-10-07T07:50:10.091939+00:00",
+    "changedInputs": []
+  },
+  "checks": [
+    {
+      "indexingMode": "onDemand",
+      "stage": "first-query",
+      "exact": true,
+      "error": null
+    },
+    {
+      "indexingMode": "progressive",
+      "stage": "first-query",
+      "exact": false,
+      "error": null
+    },
+    {
+      "indexingMode": "progressive",
+      "stage": "after-background-index",
+      "exact": false,
+      "error": null
+    },
+    {
+      "indexingMode": "experimental",
+      "stage": "first-query",
+      "exact": true,
+      "error": null
+    },
+    {
+      "indexingMode": "experimental",
+      "stage": "after-background-index",
+      "exact": true,
+      "error": null
+    },
+    {
+      "indexingMode": "off",
+      "stage": "first-query",
+      "exact": true,
+      "error": null
+    }
+  ],
+  "result": {
+    "kind": "independent-real-controller-provider-probe",
+    "observations": [
+      {
+        "indexingMode": "onDemand",
+        "stage": "first-query",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-w9ML61",
+            "snapshotVersion": "0",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-w9ML61/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "0"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-w9ML61/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "0"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-w9ML61/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "0"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-w9ML61/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "0"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-w9ML61/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "0"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "progressive",
+        "stage": "first-query",
+        "exact": false,
+        "result": null,
+        "stderr": ""
+      },
+      {
+        "indexingMode": "progressive",
+        "stage": "after-background-index",
+        "exact": false,
+        "result": null,
+        "stderr": ""
+      },
+      {
+        "indexingMode": "experimental",
+        "stage": "first-query",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-N78CgD",
+            "snapshotVersion": "1",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "1"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "1"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "experimental",
+        "stage": "after-background-index",
+        "exact": true,
+        "result": {
+          "hello": {
+            "protocolVersion": 1,
+            "providerId": "php-companion",
+            "projectId": "file:///tmp/sophp-d257-interop-N78CgD",
+            "snapshotVersion": "1",
+            "capabilities": [
+              "controller-contexts",
+              "php-symbols",
+              "definitions",
+              "invalidation",
+              "rename-prepare"
+            ]
+          },
+          "contexts": [
+            {
+              "template": "page.html.twig",
+              "complete": true,
+              "variables": [
+                {
+                  "name": "user",
+                  "type": {
+                    "kind": "named",
+                    "name": "App\\User"
+                  },
+                  "optional": false,
+                  "sources": [
+                    {
+                      "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/PageController.php",
+                      "start": 135,
+                      "end": 139,
+                      "line": 0,
+                      "character": 135,
+                      "snapshotVersion": "1"
+                    }
+                  ]
+                }
+              ],
+              "sources": [
+                {
+                  "symbol": "App\\PageController::show",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/PageController.php",
+                    "start": 66,
+                    "end": 70,
+                    "line": 0,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ]
+            }
+          ],
+          "types": {
+            "App\\User": {
+              "name": "App\\User",
+              "members": [
+                {
+                  "name": "getName",
+                  "kind": "method",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "signature": "getName()",
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                },
+                {
+                  "name": "name",
+                  "kind": "property",
+                  "type": {
+                    "kind": "primitive",
+                    "name": "string"
+                  },
+                  "location": {
+                    "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/User.php",
+                    "start": 56,
+                    "end": 63,
+                    "line": 0,
+                    "character": 56,
+                    "snapshotVersion": "1"
+                  }
+                }
+              ],
+              "location": {
+                "uri": "file:///tmp/sophp-d257-interop-N78CgD/src/User.php",
+                "start": 33,
+                "end": 37,
+                "snapshotVersion": "1"
+              }
+            }
+          }
+        },
+        "stderr": ""
+      },
+      {
+        "indexingMode": "off",
+        "stage": "first-query",
+        "exact": true,
+        "result": null,
+        "stderr": ""
+      }
+    ]
+  },
+  "failedChecks": [
+    {
+      "indexingMode": "progressive",
+      "stage": "first-query",
+      "exact": false,
+      "error": null
+    },
+    {
+      "indexingMode": "progressive",
+      "stage": "after-background-index",
+      "exact": false,
+      "error": null
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".vscode-test/d257-progressive-interop-original-evidence/d257-progressive-interop-original-run.json",
+      "sha256": "546a1283a4e028ed5b6cf2e969d5f029b02e547efbef7389d81f5cffee8f41d3"
+    },
+    {
+      "path": ".vscode-test/d257-progressive-interop-original-evidence/d257-progressive-interop-run.py",
+      "sha256": "c6d572e668996705083934ffc75d25778fd40d154fd8bf87ed550f6693f444b1"
+    },
+    {
+      "path": ".vscode-test/d257-progressive-interop-original-evidence/d257-progressive-interop-probe.mjs",
+      "sha256": "b8b3628ef2014aa8119c23a743f43be9911621f04393558a5de2c0d7f2bc8762"
+    },
+    {
+      "path": ".vscode-test/d257-progressive-interop-original-evidence/d257-progressive-interop-source-audit.json",
+      "sha256": "b89ec3df1a920fb60a4e20f4d9d8bc3ac87adf39b793c0a0d775c4e418947e1b"
+    },
+    {
+      "path": ".vscode-test/d257-progressive-interop-original-evidence/sophp-d257-progressive-interop-original.json",
+      "sha256": "1edccfe4fd1c65160f32c7bfb88700a468c13df6a54b6fcf7c3cbd8d4a695f59"
+    },
+    {
+      "path": ".vscode-test/d257-progressive-interop-original-evidence/sophp-d257-progressive-interop-original.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runtimeReproduced": true,
+  "rootCause": "interop contexts handler dispatch accepts experimental or onDemand only; progressive follows the false branch and returns null.",
+  "fixImplemented": false,
+  "backgroundCompletionRaceReproduced": false,
+  "currentFullLspQualification": "D256 passed on same product before this independent probe; no product modification",
+  "scope": "Independent Composer project, actual standalone Symfony Controller Provider, one first-query per mode and additional post-background queries for progressive/experimental. Not real TwigPlus editor, UI, long session, or full cross-language qualification.",
+  "goalComplete": false,
+  "profileUpdated": false,
+  "pushed": false,
+  "published": false
+}

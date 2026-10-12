@@ -1,0 +1,485 @@
+{
+  "date": "2026-10-09",
+  "diagnosticOnly": true,
+  "acceptanceQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "sourceChanged": false,
+  "runtimeChanged": false,
+  "profileUpdated": false,
+  "originalFullProfileRetained": true,
+  "privateBootstrap": {
+    "manifest": "/var/www/node/php-companion/.vscode-test/d1164-union-cpu-profile-workspace/package.json",
+    "normalManifest": "/var/www/node/php-companion/package.json",
+    "reverseFrom": "\"main\": \"./d1164-observed-extension.cjs\"",
+    "reverseTo": "\"main\": \"./dist/extension.js\"",
+    "wrapper": "/var/www/node/php-companion/.vscode-test/d1164-union-cpu-profile-workspace/d1164-observed-extension.cjs"
+  },
+  "normalRuntimeBodiesExact": true,
+  "compiledObservationReverseExact": true,
+  "run": {
+    "status": "exited",
+    "parentPid": 3157904,
+    "diagnosticOnly": true,
+    "qualified": false,
+    "acceptanceQualified": false,
+    "fullPerformanceQualified": false,
+    "diagnosticCompleted": true,
+    "normalRuntimeChanged": false,
+    "normalSourceChanged": false,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "equivalentRetryForGreen": false,
+    "originalWorkflowAndBudgetsPreserved": true,
+    "inputCount": 31223,
+    "command": [
+      "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+      "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+      "--evidence",
+      "/var/www/node/php-companion/.vscode-test/d1164-union-cpu-profile-owned-display",
+      "--",
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/.vscode-test/d1164-union-cpu-profile-workspace/dist-test/runPackagedTest.js"
+    ],
+    "environment": {
+      "PHP_COMPANION_TEST_PROFILE_SOURCE": "1",
+      "PHP_COMPANION_TEST_EXTENSIONS_DIR": "/var/www/node/php-companion/.vscode-test/d961-current-full-profile-extensions",
+      "PHP_COMPANION_TEST_TWIG_PLUS_PATH": "/var/www/node/twig-plus/packages/vscode",
+      "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+      "PHP_COMPANION_PHP_EXECUTABLE": "/opt/remi/php85/root/usr/bin/php",
+      "PHP_COMPANION_PHP_CS_FIXER": "/tmp/sophp-gate-tools-99420b4/vendor/bin/php-cs-fixer",
+      "PHP_COMPANION_PHPUNIT_EXECUTABLE": "/tmp/sophp-gate-tools-99420b4/vendor/bin/phpunit",
+      "PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR": "1",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE": "9100",
+      "PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS": "50",
+      "PHP_COMPANION_TEST_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d1164-union-cpu-profile-evidence/host-logs",
+      "D1164_PROFILE_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d1164-union-cpu-profile-evidence",
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1164-full-profile-preload.cjs"
+    },
+    "freezeSha256": "ded1e8f6d25905213a825f339c85276dd33e6d28fa74bd805f175ed924a1ccf0",
+    "childPid": 3158061,
+    "exitCode": 0,
+    "durationSeconds": 92.62752298699343,
+    "logSha256": "f41c3f516dcd16b89c29d2ae1998af3949bde46a29c64b32216ffe6a2fa1746a",
+    "proofSha256": "31dd52d02f20242aadacafb1eb2086f6658f3ccdb5babf7a580521441c42f26b",
+    "phaseSha256": "0fe19e9297054a524dffeb74f9f72c1d4becf09730c4aa5f45be8513fce2d5ef",
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 83,
+        "p95Ms": 105,
+        "maxMs": 1389,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          63,
+          11,
+          11,
+          11,
+          13,
+          9
+        ],
+        "slowRounds": [
+          {
+            "round": 1,
+            "elapsedMs": 1389,
+            "applyEditMs": 3,
+            "diagnosticReadyMs": 103,
+            "hoverReadyMs": 1389
+          }
+        ],
+        "firstCompositeHoverCallMs": 1285,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 2,
+            "maxMs": 110,
+            "firstMs": [
+              84,
+              110
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 84,
+            "firstMs": [
+              84
+            ]
+          },
+          "diagnostics": {
+            "count": 4,
+            "maxMs": 93,
+            "firstMs": [
+              28,
+              93,
+              30,
+              30
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 95,
+            "firstMs": [
+              95
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 1214,
+            "firstMs": [
+              1214
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 1224,
+            "firstMs": [
+              1224
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 100,
+        "p95Ms": 126,
+        "maxMs": 467,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          214,
+          214,
+          214,
+          214,
+          214,
+          214,
+          214
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "actualServerPids": [
+      3158983,
+      3159437
+    ],
+    "actualServersGone": true,
+    "ownedDisplayGone": true,
+    "compositeP95BudgetMs": 150,
+    "observedCompositeP95BudgetsPassed": true,
+    "cpuSampler": {
+      "profileSha256": "142dff678f29ddae63519fa537e91c5640720895bd114c05ed6e964e50d566d9",
+      "samples": 3089,
+      "durationMs": 3821.581,
+      "actualServerPid": 3158983,
+      "sameActualServer": true,
+      "samplingIntervalUs": 1000
+    },
+    "originalWorkflowPassed": true,
+    "finishedAtUtc": "2026-10-09T02:25:32.415429+00:00"
+  },
+  "cpuMapping": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1165-union-cpu-mapped.json",
+    "sha256": "c4ec39ad2930a5b6dcc33e426d104f6c536a353cc5c1cfd32c68d49123bf2ce6",
+    "proof": {
+      "productionSha256": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+      "mappedBodySha256": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+      "exactProductionBody": true,
+      "buildId": "8c1cb4b0c59dcd164a7c0d276c19f96a8e409cd00043077a286e61a45a34eb42",
+      "mapSha256": "e44a91884bcadf9ba959a67a66a1b16516e585176e55f47422fe318f2b21b05f"
+    },
+    "samples": 3089,
+    "durationMs": 3821.153,
+    "diagnosticAncestorSamplesMs": 1160.4249999999997,
+    "topDiagnosticSelfSamples": [
+      {
+        "nodeId": 357,
+        "name": "readonlyPropertyAssignments",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 9367,
+        "column": 3,
+        "generatedLine": 229,
+        "generatedColumn": 34748,
+        "nodeIds": [
+          357,
+          372
+        ],
+        "ms": 285.22799999999995
+      },
+      {
+        "nodeId": 320,
+        "name": "",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 8884,
+        "column": 32,
+        "originalName": "call",
+        "generatedLine": 229,
+        "generatedColumn": 15907,
+        "nodeIds": [
+          320
+        ],
+        "ms": 172.05600000000013
+      },
+      {
+        "nodeId": 255,
+        "name": "",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 8816,
+        "column": 32,
+        "originalName": "call",
+        "generatedLine": 229,
+        "generatedColumn": 13688,
+        "nodeIds": [
+          255,
+          280
+        ],
+        "ms": 163.93400000000003
+      },
+      {
+        "nodeId": 881,
+        "name": "",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 8825,
+        "column": 59,
+        "originalName": "candidate",
+        "generatedLine": 229,
+        "generatedColumn": 14148,
+        "nodeIds": [
+          881,
+          1153
+        ],
+        "ms": 34.63
+      },
+      {
+        "nodeId": 300,
+        "name": "",
+        "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+        "line": 14,
+        "column": 12,
+        "generatedLine": 176,
+        "generatedColumn": 7516,
+        "nodeIds": [
+          300,
+          335,
+          890,
+          1195,
+          1704,
+          1732,
+          2070,
+          2132,
+          2251,
+          2257,
+          2407,
+          2551,
+          2623,
+          2713,
+          2717,
+          2735,
+          2799,
+          2916,
+          2956,
+          2965,
+          3026,
+          3029,
+          3050
+        ],
+        "ms": 28.996
+      },
+      {
+        "nodeId": 748,
+        "name": "",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 9998,
+        "column": 62,
+        "originalName": "candidate",
+        "generatedLine": 229,
+        "generatedColumn": 55180,
+        "nodeIds": [
+          748,
+          941
+        ],
+        "ms": 25.589999999999996
+      },
+      {
+        "nodeId": 356,
+        "name": "wasm-function[24]",
+        "path": "wasm://wasm/000c4536",
+        "line": 1,
+        "column": 10751,
+        "generatedLine": 1,
+        "generatedColumn": 10751,
+        "nodeIds": [
+          356,
+          707,
+          915,
+          920,
+          1392,
+          1875,
+          2002,
+          2138,
+          2384,
+          2502,
+          2595,
+          2896,
+          3130
+        ],
+        "ms": 19.919999999999998
+      },
+      {
+        "nodeId": 1261,
+        "name": "",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 8893,
+        "column": 59,
+        "originalName": "candidate",
+        "generatedLine": 229,
+        "generatedColumn": 16280,
+        "nodeIds": [
+          1261
+        ],
+        "ms": 19.592
+      },
+      {
+        "nodeId": 703,
+        "name": "descendantsOfType",
+        "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+        "line": 411,
+        "column": 3,
+        "generatedLine": 176,
+        "generatedColumn": 11163,
+        "nodeIds": [
+          703,
+          1801
+        ],
+        "ms": 16.358
+      },
+      {
+        "nodeId": 277,
+        "name": "primary",
+        "path": "../../packages/phpdoc/src/index.ts",
+        "line": 69,
+        "column": 11,
+        "generatedLine": 182,
+        "generatedColumn": 64028,
+        "nodeIds": [
+          277,
+          747,
+          1584,
+          1647,
+          1717,
+          1985,
+          2348,
+          2615,
+          2729,
+          3140,
+          3151
+        ],
+        "ms": 12.882000000000001
+      },
+      {
+        "nodeId": 751,
+        "name": "members",
+        "path": "../../packages/semantic/src/index.ts",
+        "line": 20221,
+        "column": 11,
+        "generatedLine": 255,
+        "generatedColumn": 13983,
+        "nodeIds": [
+          751,
+          884,
+          921,
+          1725,
+          1968,
+          2168,
+          3153
+        ],
+        "ms": 12.806999999999999
+      },
+      {
+        "nodeId": 940,
+        "name": "setValue",
+        "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/lib/web-tree-sitter.mjs",
+        "line": 1389,
+        "column": 18,
+        "generatedLine": 179,
+        "generatedColumn": 19978,
+        "nodeIds": [
+          940,
+          1231,
+          1266,
+          1595,
+          2074,
+          2355,
+          2412,
+          2489,
+          2599,
+          2813,
+          3204
+        ],
+        "ms": 12.748999999999999
+      }
+    ]
+  },
+  "finding": "Three diagnosed paths repeatedly flatten all workspace callable declarations to establish exact FQCN uniqueness: missingRequiredArguments, incompatibleArguments and readonlyPropertyAssignments. Existing declaration:function and declaration:type candidate keys can restrict the inspection without changing uniqueness semantics, deferred state, cache schema or diagnostic coverage.",
+  "nextAction": "Use existing candidate keys for exact declaration uniqueness, retaining duplicate rejection and unindexed fallback; test duplicate edit/removal and deferred restore before normal adoption.",
+  "failedSamplerPreparation": {
+    "originalAttemptPreserved": true,
+    "originalRunQualified": false,
+    "samplingStarted": false,
+    "failure": "CPU sampler start acknowledgement absent before original union rounds",
+    "causeNotYetProved": "NODE_OPTIONS did not provide the expected sampler; next setup uses explicit exact-server fork --require",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "remainingOwnedNormalServerPids": [],
+    "ownedDisplayGone": true,
+    "notProductFailure": true,
+    "normalRuntimeChanged": false,
+    "fullPerformanceQualified": false
+  },
+  "staleMapRejected": {
+    "existingMap": "/var/www/node/php-companion/dist/language-server.js.map",
+    "reason": "production builds leave an old development map; not used for profiling",
+    "existingMappedServerSourceSha256": "347973d8b7097aa7e81769726f4244c8de0423acb50c602f254b37cc152961f6",
+    "currentServerSourceSha256": "9904f89075220a6b6c715ede843ca1dd51b8f4426e45f69dfed01d62be1aabd6",
+    "next": "Generate private external source map and require byte-exact minified body match before mapping."
+  },
+  "archive": "/var/www/node/php-companion/.vscode-test/d1165-union-cpu-diagnostic-archive/manifest.json"
+}

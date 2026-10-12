@@ -1,0 +1,69 @@
+{
+  "fixedInputMeasurementQualified": true,
+  "original174BaselineQualified": false,
+  "checkerExitCode": 1,
+  "originalBaselineUnchanged": true,
+  "references": 188,
+  "groups": {
+    "src": 133,
+    "tests": 18,
+    "vendor": 37
+  },
+  "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c",
+  "priorLive188FullHashMatched": true,
+  "currentInputMutationConfoundEliminatedForThisProbe": true,
+  "referenceIdentityNotIndependentlyProven": true,
+  "allReturnedRangesMatchGetToken": true,
+  "definition": {
+    "exactLocationReconstructedFromCompleteReturnedHash": {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/vendor/symfony/http-foundation/ParameterBag.php",
+      "range": {
+        "start": {
+          "line": 87,
+          "character": 20
+        },
+        "end": {
+          "line": 87,
+          "character": 23
+        }
+      }
+    },
+    "uniqueSourceTokenHashMatch": true,
+    "logicalSourceHash": "62e58df5676259065d46d41bd7c267435d09577f70420fd6f2d94308b16295e1",
+    "originalDefinitionFullHashMatched": true,
+    "directRawDefinitionLocationsWereNotRecorded": true
+  },
+  "raw188LocationsRetained": true,
+  "projectInputFiles": 66079,
+  "toolInputFiles": 233,
+  "copiedWorkspace": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+  "sourceCommitAtStableCopy": "9d92adbc983811c5f98d9f79eb0ef04526266a51",
+  "sourceSymfonyLockAbsentAndPreserved": true,
+  "physicalComposerBoundary": {
+    "paths": 924,
+    "dependencies": 249,
+    "generatedClassmap": "invalid",
+    "allPathsWithinFixedSnapshot": true
+  },
+  "allObservedProcessesGone": true,
+  "ownedCacheRemoved": true,
+  "referenceElapsedMs": 16038,
+  "peakRssKiB": 875828,
+  "routeProviderIncompleteSnapshotPreserved": true,
+  "normalAssetsUnchanged": 8,
+  "fixedSnapshotInputScope": "Actual Composer source/dependency roots plus config/templates/translations and provider var/cache/dev; operational storage/probe files excluded",
+  "preparationFailuresRetained": [
+    "cache environment inventory corrected before copy/query",
+    "unrelated operational probe JSON permissions; original partial copy retained",
+    "mandatory symfony.lock assertion was wrong for this source; copied stable epoch independently revalidated without recopy"
+  ],
+  "archive": "/var/www/node/php-companion/.vscode-test/d1779-fixed-reference-mismatch-archive",
+  "archiveFiles": 22,
+  "archiveManifestSha256": "e9fce5f0c922373cb1fd17677c22aa26745ecd9d605de4660af274c8d0650d7b",
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "numberedFixtures": 166,
+  "families": 14,
+  "openMajorItems": 26,
+  "observedAtUtc": "2026-10-10T21:08:55.345752+00:00"
+}

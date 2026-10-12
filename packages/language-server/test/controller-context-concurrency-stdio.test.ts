@@ -6,10 +6,16 @@ import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/dist/index.js';
 
-function outputFor(server: ChildProcessWithoutNullStreams) {
+interface ControllerOutput {
+  send: (message: object) => boolean;
+  messages: any[];
+  wait: (match: (value: any) => boolean) => Promise<any>;
+  dispose: () => void;
+}
+function outputFor(server: ChildProcessWithoutNullStreams): ControllerOutput {
   const messages: any[] = [], decoder = new LspMessageDecoder();
   const waiters: Array<{ match: (value: any) => boolean; done: (value: any) => void; timer: ReturnType<typeof setTimeout> }> = [];
-  const send = (message: object) => server.stdin.write(encodeLspMessage({ jsonrpc: '2.0', ...message }));
+  const send = (message: object): boolean => server.stdin.write(encodeLspMessage({ jsonrpc: '2.0', ...message }));
   server.stdout.on('data', chunk => {
     for (const message of decoder.push(chunk) as any[]) {
       messages.push(message);
@@ -25,7 +31,7 @@ function outputFor(server: ChildProcessWithoutNullStreams) {
       const waiter = { match, done, timer: setTimeout(() => fail(new Error(`LSP timeout: ${JSON.stringify(messages.slice(-8))}`)), 15_000) };
       waiters.push(waiter);
     });
-  }, dispose: () => { for (const waiter of waiters) clearTimeout(waiter.timer); } };
+  }, dispose: (): void => { for (const waiter of waiters) clearTimeout(waiter.timer); } };
 }
 async function callsAt(path: string): Promise<string[]> {
   try { return (await readFile(path, 'utf8')).trim().split('\n').filter(Boolean); } catch { return []; }
@@ -49,7 +55,7 @@ it.each([['7.2', 'one'], ['8.5', 'one'], ['7.2', 'all'], ['8.5', 'all']] as cons
     output = outputFor(server);
     output.send({ id: 1, method: 'initialize', params: { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: { window: { workDoneProgress: true } }, initializationOptions: { phpVersion, indexingMode: 'onDemand', bundledSemanticProviders: [{ providerId: 'test.controllers', command: process.execPath, args: [provider], requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true }] } } });
     expect((await output.wait(message => message.id === 1 && !message.method)).error).toBeUndefined(); output.send({ method: 'initialized', params: {} });
-    const query = (id: number) => output!.send({ id, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } });
+    const query = (id: number): boolean => output!.send({ id, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } });
     query(2); query(3);
     await until(async () => (await callsAt(calls)).length >= 1);
     output.send({ method: '$/cancelRequest', params: { id: 2 } });
@@ -85,14 +91,14 @@ it.each(['7.2', '8.5'])('retains Controller preparation for unchanged watcher ev
   try {
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
     const controller = join(root, 'PageController.php'), uri = pathToFileURL(controller).toString();
-    const source = (template: string) => `<?php namespace App; class PageController { public function show() { return $this->render('${template}'); } }`;
+    const source = (template: string): string => `<?php namespace App; class PageController { public function show() { return $this->render('${template}'); } }`;
     await writeFile(controller, source('initial.html.twig'));
     const calls = join(root, 'calls.txt'), provider = join(root, 'provider.mjs');
     await writeFile(provider, `import {appendFileSync,readFileSync} from 'node:fs';let input='';for await(const part of process.stdin)input+=part;const request=JSON.parse(input);appendFileSync(${JSON.stringify(calls)},request.id+'\\n');const documents=new Map((request.params.documents??[]).map(doc=>[doc.uri,doc.source]));const contexts=request.params.projectTypes.flatMap(type=>{const source=documents.get(type.uri)??readFileSync(type.path,'utf8');const template=/render\\('([^']+)'/.exec(source)?.[1];return template?[{template,complete:true,variables:[],sources:[{symbol:type.fqcn+'::show',location:{uri:type.uri,start:type.start,end:type.end,snapshotVersion:request.params.generation}}]}]:[]});process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'test.controllers',generation:request.params.generation,complete:true,methods:[],properties:[],literalMethodReturns:[],controllerContexts:contexts}}));`);
     server = spawn(process.execPath, [resolve('../../dist/language-server.js'), '--stdio', '--parser-core-wasm', resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe' }); output = outputFor(server);
     output.send({ id: 1, method: 'initialize', params: { processId: null, rootUri: pathToFileURL(root).toString(), capabilities: { window: { workDoneProgress: true } }, initializationOptions: { phpVersion, indexingMode: 'onDemand', bundledSemanticProviders: [{ providerId: 'test.controllers', command: process.execPath, args: [provider], requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true }] } } });
     expect((await output.wait(message => message.id === 1 && !message.method)).error).toBeUndefined(); output.send({ method: 'initialized', params: {} });
-    const query = async (id: number) => { output!.send({ id, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }); const response = await output!.wait(message => message.id === id && !message.method); expect(response.error).toBeUndefined(); return response.result.contexts.map((context: { template: string }) => context.template); };
+    const query = async (id: number): Promise<string[]> => { output!.send({ id, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }); const response = await output!.wait(message => message.id === id && !message.method); expect(response.error).toBeUndefined(); return response.result.contexts.map((context: { template: string }) => context.template); };
     expect(await query(2)).toEqual(['initial.html.twig']); expect(await callsAt(calls)).toHaveLength(1);
     await writeFile(controller, source('initial.html.twig'));
     output.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri, type: 2 }, { uri, type: 2 }] } });

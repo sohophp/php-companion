@@ -1,0 +1,208 @@
+{
+  "qualified": true,
+  "normalBundleSha256": "8713a0c6250065e3f1d762cea387f8265291448ba1245fe2b35d8a5bd7b849be",
+  "parserPassed": 254,
+  "languageSpecPassed": 360,
+  "semanticPassed": 24122,
+  "semanticFiles": 189,
+  "relatedLspPassed": 173,
+  "originalParserCasesPreserved": 244,
+  "originalSemanticCasesPreserved": 24114,
+  "originalRelatedLspCasesPreserved": 149,
+  "beforeParserFailures": 8,
+  "beforeSemanticFailures": 8,
+  "beforeProductionFailures": 18,
+  "preBuildSemanticDistFailuresPreserved": 8,
+  "newTestCases": 38,
+  "nativeVersionCases": 108,
+  "productionVersionModeCases": 18,
+  "cacheVersion": 83,
+  "cacheRejectionAndWarmCases": 2,
+  "declarationsUnchanged": 202,
+  "frozenInputs": 30239,
+  "archives": 38,
+  "stageResults": [
+    {
+      "name": "d2442-build",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "build"
+      ],
+      "status": "exited",
+      "pid": 67753,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2442-after-parser",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/parser",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2442-after-parser.json"
+      ],
+      "status": "exited",
+      "pid": 68690,
+      "exitCode": 0,
+      "childGone": true,
+      "passed": 254,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2442-after-spec",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-spec",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2442-after-spec.json"
+      ],
+      "status": "exited",
+      "pid": 68933,
+      "exitCode": 0,
+      "childGone": true,
+      "passed": 360,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2442-focused-semantic",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/semantic",
+        "test",
+        "test/invalid-octal-refactor.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2442-focused-semantic.json"
+      ],
+      "status": "exited",
+      "pid": 69239,
+      "exitCode": 0,
+      "childGone": true,
+      "passed": 8,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2442-after-lsp",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-server",
+        "test",
+        "test/invalid-octal-stdio.test.ts",
+        "test/invalid-octal-cache-stdio.test.ts",
+        "test/unreachable-guard-cache-stdio.test.ts",
+        "test/unreachable-call-cache-stdio.test.ts",
+        "test/version-boundary-analysis.test.ts",
+        "test/version-boundary-stdio.test.ts",
+        "test/numeric-literal-analysis.test.ts",
+        "test/numeric-literal-separators-stdio.test.ts",
+        "test/analysis.test.ts",
+        "test/analysis-null-coalescing-throw.test.ts",
+        "test/projectless-version-stdio.test.ts",
+        "test/native-clone-stdio.test.ts",
+        "test/shutdown-version-refresh-stdio.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2442-after-lsp.json"
+      ],
+      "status": "exited",
+      "pid": 69323,
+      "exitCode": 0,
+      "childGone": true,
+      "passed": 173,
+      "failed": 0,
+      "pending": 0,
+      "todo": 0,
+      "qualified": true
+    },
+    {
+      "name": "d2442-spec-typecheck",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-spec",
+        "typecheck"
+      ],
+      "status": "exited",
+      "pid": 72135,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2442-lsp-typecheck",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-server",
+        "typecheck"
+      ],
+      "status": "exited",
+      "pid": 72186,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2442-lint",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "exec",
+        "eslint",
+        "packages/language-spec/src/index.ts",
+        "packages/parser/src/index.ts",
+        "packages/parser/test/invalid-octal-literals.test.ts",
+        "packages/semantic/test/invalid-octal-refactor.test.ts",
+        "packages/language-server/src/cacheVersion.ts",
+        "packages/language-server/test/invalid-octal-stdio.test.ts",
+        "packages/language-server/test/invalid-octal-cache-stdio.test.ts"
+      ],
+      "status": "exited",
+      "pid": 72229,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    },
+    {
+      "name": "d2442-public-contracts",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "check:public-contracts"
+      ],
+      "status": "exited",
+      "pid": 72264,
+      "exitCode": 0,
+      "childGone": true,
+      "qualified": true
+    }
+  ],
+  "fullSemanticRun": [
+    "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+    "--dir",
+    "/var/www/node/php-companion/packages/semantic",
+    "test",
+    "--reporter=json",
+    "--outputFile=/var/www/node/php-companion/.vscode-test/d2443-current-full-semantic.json"
+  ],
+  "currentFullLspQualified": false,
+  "fullVersionMatrixQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "fixtureIds": 185,
+  "fixtureFamilies": 14,
+  "uncheckedRoadmapItems": 26,
+  "uncheckedFinalChecks": 6
+}

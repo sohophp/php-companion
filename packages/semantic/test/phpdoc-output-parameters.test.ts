@@ -178,15 +178,15 @@ it('rejects previous snapshot schemas missing output and inline tag facts', () =
  try {
   seed.update(uri, defs);
   const snapshot = seed.snapshot(uri)!;
-  expect(snapshot.schema).toBe(89);
-  for (const schema of [87, 88]) {
+  expect(snapshot.schema).toBe(93);
+  for (const schema of [87, 88, 89, 90, 91, 92]) {
    const legacy = structuredClone(snapshot) as { schema: number };
    legacy.schema = schema;
    expect(w.restore(legacy, uri)).toBe(false);
    expect(w.restoreDeclaration(legacy, uri)).toBe(false);
   }
   const source = seed.sourceDeclarationSnapshot(uri)!;
-  expect(source.schema).toBe(7);
+  expect(source.schema).toBe(10);
   expect(w.restoreSourceDeclaration({ ...source, schema: 6 }, uri)).toBe(false);
  } finally { seed.dispose(); w.dispose(); }
 });

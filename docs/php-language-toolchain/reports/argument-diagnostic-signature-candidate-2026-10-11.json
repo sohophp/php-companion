@@ -1,0 +1,19 @@
+{
+  "privateCandidate": true,
+  "candidateSourceSha256": "2f42a05d158941224cfe85a6e6d88750d253c8cc905e01e196651e8340783d8c",
+  "normalBundleSha256": "ac1147152e71b18967f9db0d05524262d0e25d79f937f0e4b57c87ea400af062",
+  "normalProductChanged": false,
+  "realQueryAndDiagnosticOutputsExact": true,
+  "pairedDiagnosticMedianRatio": 0.8599833180338184,
+  "privateSourceSemanticPassed": 23862,
+  "privateSourceSemanticFiles": 181,
+  "firstCompiledSemanticPassed": 23852,
+  "firstCompiledSemanticFailed": 10,
+  "firstFailureCauseProven": false,
+  "originalCompiledSemanticPassed": 23862,
+  "inferenceReentryConsistencyStillToVerify": true,
+  "normalAdoptionQualified": false,
+  "fullPerformanceQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false
+}

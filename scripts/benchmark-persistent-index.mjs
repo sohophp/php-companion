@@ -1,3 +1,6 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { Buffer } from 'node:buffer';
 import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { arch, cpus, platform, tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -69,7 +72,27 @@ async function load(workspace) {
 // Keep full manifest mutation data out of the subsequent restore workspace's lifetime.
 async function mutateCacheFile(cacheFile, mutate) {
   const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));
-  await mutate(persisted);
+  if (persisted.schema === 2) {
+    assert.equal(typeof persisted.generation, 'string');
+    const entry = persisted.entries[sourcePath(0)];
+    assert.ok(entry && !Object.hasOwn(entry, 'payload'));
+    assert.match(entry.payloadHash, /^[a-f0-9]{64}$/u);
+    const bytes = await readFile(join(cacheFile + '.entries', persisted.generation, entry.payloadHash + '.json'));
+    assert.equal(bytes.length, entry.payloadBytes);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.payloadHash);
+    const payload = JSON.parse(bytes.toString('utf8'));
+    await mutate({ entries: { [sourcePath(0)]: { payload } } });
+    const serialized = JSON.stringify(payload);
+    const hash = createHash('sha256').update(serialized).digest('hex');
+    const blob = join(cacheFile + '.entries', persisted.generation, hash + '.json');
+    try { await writeFile(blob, serialized, { flag: 'wx' }); }
+    catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      assert.equal(await readFile(blob, 'utf8'), serialized);
+    }
+    entry.payloadHash = hash;
+    entry.payloadBytes = Buffer.byteLength(serialized);
+  } else await mutate(persisted);
   await writeFile(cacheFile, JSON.stringify(persisted));
 }
 

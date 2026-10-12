@@ -245,8 +245,9 @@ function cloneFlatFact<T extends { [K in keyof T]: string | number | boolean | u
 }
 
 function cloneDocumentFacts(facts: Omit<ParsedPhpDocument, 'tree'>): Omit<ParsedPhpDocument, 'tree'> {
-  const { rawNames, constants, imports, typeReferences, errors, commentRanges, stringRanges, ...nested } = facts;
-  return { ...structuredClone(nested), rawNames: rawNames.map(cloneFlatFact), constants: constants.map(cloneFlatFact),
+  const { rawNames, constants, imports, typeReferences, variableReferences, returns, errors, commentRanges, stringRanges, ...nested } = facts;
+  return { ...structuredClone(nested), variableReferences: variableReferences.map(cloneFlatFact), returns: returns.map(cloneFlatFact),
+    rawNames: rawNames.map(cloneFlatFact), constants: constants.map(cloneFlatFact),
     imports: imports.map(cloneFlatFact), typeReferences: typeReferences.map(cloneFlatFact), errors: errors.map(cloneFlatFact),
     commentRanges: commentRanges.map(cloneFlatFact), stringRanges: stringRanges.map(cloneFlatFact) };
 }
@@ -340,7 +341,7 @@ const DECLARATION_TYPES: Record<string, PhpSymbolKind> = {
 const STRING_TYPES = new Set(['string', 'encapsed_string', 'heredoc', 'nowdoc', 'shell_command_expression']);
 const DECLARATION_NODE_TYPES = [...Object.keys(DECLARATION_TYPES), 'anonymous_class', 'namespace_use_declaration',
   'function_definition', 'method_declaration', 'property_declaration', 'const_declaration', 'enum_case', 'comment'];
-const FACT_NODE_TYPES = [...DECLARATION_NODE_TYPES, ...STRING_TYPES,
+const FACT_NODE_TYPES = [...DECLARATION_NODE_TYPES, ...STRING_TYPES, 'text', 'php_tag', 'php_end_tag',
   'named_type', 'base_clause', 'class_interface_clause', 'use_declaration', 'attribute', 'binary_expression',
   'variable_name', 'conditional_expression', 'return_statement',
   'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression',
@@ -537,9 +538,11 @@ const LEGACY_CLASS_ERROR = new RegExp(`^(?:(?:final|abstract)${LEGACY_CLASS_TRIV
 
 export class PhpSyntaxParser {
   private readonly recoveredSyntaxTrees = new WeakSet<Tree>();
-  // Semantic updates and diagnostics can consume the same document in succession.
-  // Keep one independently owned result; callers may enrich facts or edit/delete trees.
-  private lastDocument?: { source: string; identity: string; facts: Omit<ParsedPhpDocument, 'tree'>; tree: Tree };
+  // Keep independently owned results for the two most recently parsed identities.
+  // A builtin snapshot must survive the intervening application document.
+  private readonly cachedDocuments = new Map<string, {
+    source: string; facts: Omit<ParsedPhpDocument, 'tree'>; tree: Tree;
+  }>();
   private constructor(private readonly parser: Parser) {}
 
   static async create(paths: PhpParserPaths): Promise<PhpSyntaxParser> {
@@ -556,10 +559,19 @@ export class PhpSyntaxParser {
   }
 
   /** Build only the syntax tree. Callers own it and read token text from source ranges: legacy class names and trait adaptations may be masked in the tree. */
-  parseTree(source: string, oldTree?: Tree): Tree {
+  parseTree(source: string, oldTree?: Tree, documentIdentity = ''): Tree {
+    const cached = this.cachedDocuments.get(documentIdentity);
+    if (!oldTree && documentIdentity && cached?.source === source) {
+      this.cachedDocuments.delete(documentIdentity);
+      this.cachedDocuments.set(documentIdentity, cached);
+      const tree = cached.tree.copy();
+      if (this.recoveredSyntaxTrees.has(cached.tree)) this.recoveredSyntaxTrees.add(tree);
+      return tree;
+    }
     let tree = this.parser.parse(source, oldTree && !this.recoveredSyntaxTrees.has(oldTree) ? oldTree : undefined);
     if (!tree) throw new Error('Tree-sitter returned no parse tree.');
     const appliedMasks = new Map<string,SyntaxMask>();
+    const supplementaryIdentifierMasks = new Set<string>();
     for (let pass = 0; pass < 2 && tree.rootNode.hasError; pass++) {
       // The current grammar reserves these names, but PHP 7 accepted them as class names.
       // Repair only matching error nodes with equal-width names so all source ranges survive.
@@ -574,6 +586,12 @@ export class PhpSyntaxParser {
         if (!node.hasError) return;
         if (node.type === 'ERROR') {
           const text = node.text;
+          // PHP identifiers accept these UTF-8 bytes, but this grammar's name
+          // range ends at U+FFFF. Preserve both UTF-16 units during recovery.
+          if (/^[\u{10000}-\u{10ffff}]+$/u.test(text)) {
+            const mask = { start: node.startIndex, end: node.endIndex, value: '_'.repeat(text.length) };
+            replacements.push(mask); supplementaryIdentifierMasks.add(`${mask.start}:${mask.end}`);
+          }
           const declaration = LEGACY_CLASS_ERROR.exec(text)
             ?? (node.parent?.type === 'class_declaration' ? /^(mixed|never)(?=\s+(?:extends|implements)\b)/iu.exec(text) : null);
           if (declaration) {
@@ -611,7 +629,15 @@ export class PhpSyntaxParser {
         for (const mask of replacements) appliedMasks.set(`${mask.start}:${mask.end}`,mask);
         const recovered = applyMasks([...appliedMasks.values()]);
         tree.delete();
-        tree = this.parser.parse(recovered);
+        if (supplementaryIdentifierMasks.size) {
+          const tokenText = applyMasks([...appliedMasks.values()].filter(mask =>
+            !supplementaryIdentifierMasks.has(`${mask.start}:${mask.end}`)));
+          // The public input callback also supplies Node.text. Parse the
+          // equal-width recovery, then expose the original identifier text.
+          let parsing = true;
+          tree = this.parser.parse(index => (parsing ? recovered : tokenText).slice(index));
+          parsing = false;
+        } else tree = this.parser.parse(recovered);
         if (!tree) throw new Error('Tree-sitter returned no recovered parse tree.');
         this.recoveredSyntaxTrees.add(tree);
       } else break;
@@ -620,8 +646,10 @@ export class PhpSyntaxParser {
   }
 
   parse(source: string, oldTree?: Tree, documentIdentity = ''): ParsedPhpDocument {
-    const cached = this.lastDocument;
-    if (!oldTree && documentIdentity && cached?.source === source && cached.identity === documentIdentity) {
+    const cached = this.cachedDocuments.get(documentIdentity);
+    if (!oldTree && documentIdentity && cached?.source === source) {
+      this.cachedDocuments.delete(documentIdentity);
+      this.cachedDocuments.set(documentIdentity, cached);
       const tree = cached.tree.copy();
       if (this.recoveredSyntaxTrees.has(cached.tree)) this.recoveredSyntaxTrees.add(tree);
       return { ...cloneDocumentFacts(cached.facts), tree };
@@ -631,8 +659,14 @@ export class PhpSyntaxParser {
       const { tree, ...facts } = parsed;
       const copy = tree.copy();
       if (this.recoveredSyntaxTrees.has(tree)) this.recoveredSyntaxTrees.add(copy);
-      this.lastDocument?.tree.delete();
-      this.lastDocument = { source, identity: documentIdentity, facts: cloneDocumentFacts(facts), tree: copy };
+      this.cachedDocuments.get(documentIdentity)?.tree.delete();
+      this.cachedDocuments.delete(documentIdentity);
+      this.cachedDocuments.set(documentIdentity, { source, facts: cloneDocumentFacts(facts), tree: copy });
+      if (this.cachedDocuments.size > 2) {
+        const oldest = this.cachedDocuments.keys().next().value!;
+        this.cachedDocuments.get(oldest)!.tree.delete();
+        this.cachedDocuments.delete(oldest);
+      }
     }
     return parsed;
   }
@@ -678,11 +712,14 @@ export class PhpSyntaxParser {
     const errors: SourceRange[] = [];
     const commentRanges: SourceRange[] = [];
     const stringRanges: SourceRange[] = [];
+    const nonPhpRanges: SourceRange[] = [];
     const namespaceDefinitions: Array<{ name: string; start: number; end: number; braced: boolean }> = [];
     const typeReferenceKeys = new Set<string>();
     const typeDeclarationRanges = tree.rootNode.descendantsOfType([...Object.keys(DECLARATION_TYPES), 'anonymous_class'])
       .map((node) => ({ start: node.startIndex, end: node.endIndex }));
     const scopeByNodeId = new Map<number, ParsedScope>();
+    // Ancestry is immutable within this tree; scope membership is still checked on every visit.
+    const scopeAncestors = new Map<number, { parent: SyntaxNode | null; insideType: boolean }>();
     const addScope = (node: SyntaxNode, scope: ParsedScope): void => {
       scopes.push(scope); scopeByNodeId.set(node.id, scope);
     };
@@ -694,8 +731,14 @@ export class PhpSyntaxParser {
         while (current) {
           const scope = scopeByNodeId.get(current.id);
           if (scope && start >= scope.start && end <= scope.end) return scope;
-          if (DECLARATION_TYPES[current.type] || current.type === 'anonymous_class') insideType = true;
-          current = current.parent;
+          let ancestry = scopeAncestors.get(current.id);
+          if (!ancestry) {
+            const type = current.type;
+            ancestry = { parent: current.parent, insideType: Boolean(DECLARATION_TYPES[type] || type === 'anonymous_class') };
+            scopeAncestors.set(current.id, ancestry);
+          }
+          if (ancestry.insideType) insideType = true;
+          current = ancestry.parent;
         }
         return insideType ? undefined : scopes[0];
       }
@@ -970,15 +1013,29 @@ export class PhpSyntaxParser {
       return [namespaceAt(node.startIndex), name].filter(Boolean).join('\\');
     };
 
+    const containingTypesByAncestor = new Map<number, ParsedDeclaration>();
     const containingType = (node: SyntaxNode): ParsedDeclaration | undefined => {
       let current = node.parent;
+      const ancestors: number[] = [];
       while (current) {
+        const cached = containingTypesByAncestor.get(current.id);
+        if (cached) {
+          for (const id of ancestors) containingTypesByAncestor.set(id, cached);
+          return cached;
+        }
+        ancestors.push(current.id);
         if (DECLARATION_TYPES[current.type] || current.type === 'anonymous_class') {
-          if (current.type === 'anonymous_class') return declarations.find((item) => item.anonymous && item.declarationStart === current!.startIndex);
-          const name = current.childForFieldName('name')?.text;
-          if (!name) return undefined;
-          const fqcn = [namespaceAt(current.startIndex), name].filter(Boolean).join('\\');
-          return declarations.find((item) => item.fqcn === fqcn);
+          let declaration: ParsedDeclaration | undefined;
+          if (current.type === 'anonymous_class') {
+            declaration = declarations.find((item) => item.anonymous && item.declarationStart === current!.startIndex);
+          } else {
+            const name = current.childForFieldName('name')?.text;
+            if (!name) return undefined;
+            const fqcn = [namespaceAt(current.startIndex), name].filter(Boolean).join('\\');
+            declaration = declarations.find((item) => item.fqcn === fqcn);
+          }
+          if (declaration) for (const id of ancestors) containingTypesByAncestor.set(id, declaration);
+          return declaration;
         }
         current = current.parent;
       }
@@ -1037,6 +1094,16 @@ export class PhpSyntaxParser {
       class_constant_access_expression: 'constant',
     };
     const callTypes = new Set(['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression', 'object_creation_expression']);
+    const collectRecoveryErrors = (node: SyntaxNode): void => {
+      if (hasSyntaxErrors && (node.isError || node.isMissing)) errors.push(nodeRange(source, node));
+      // An unrelated incomplete declaration must not enumerate every valid node's tokens.
+      if (hasSyntaxErrors && node.hasError) for (const child of node.children) {
+        if (child.isMissing && !child.isNamed && [')', ']', '}'].includes(child.type)
+          && child.startIndex < source.length) {
+          errors.push({ start: child.startIndex, end: child.startIndex + 1 });
+        }
+      }
+    };
     const visitNode = (node: SyntaxNode, nodeParent?: SyntaxNode): void => {
       const nodeType = node.type;
       if (nodeType === 'named_type') addTypeReference(node.namedChildren[0], 'native-type');
@@ -1055,14 +1122,11 @@ export class PhpSyntaxParser {
       }
       if (nodeType === 'comment') commentRanges.push(nodeRange(source, node));
       if (STRING_TYPES.has(nodeType)) stringRanges.push(nodeRange(source, node));
-      if (hasSyntaxErrors && (node.isError || node.isMissing)) errors.push(nodeRange(source, node));
-      // An unrelated incomplete declaration must not enumerate every valid node's tokens.
-      if (hasSyntaxErrors && node.hasError) for (const child of node.children) {
-        if (child.isMissing && !child.isNamed && [')', ']', '}'].includes(child.type)
-          && child.startIndex < source.length) {
-          errors.push({ start: child.startIndex, end: child.startIndex + 1 });
-        }
-      }
+      // The broad fallback below scans original text, including HTML between
+      // PHP regions. Use syntax boundaries so tags inside PHP strings/comments
+      // and incomplete PHP expressions retain their existing interpretation.
+      if (nodeType === 'text' || nodeType === 'php_tag' || nodeType === 'php_end_tag') nonPhpRanges.push(nodeRange(source, node));
+      if (declarationsOnly) collectRecoveryErrors(node);
       if (nodeType === 'variable_name' && nodeParent?.type !== 'scoped_property_access_expression') {
         const scope = scopeAt(node);
         if (scope) variableReferences.push({ ...nodeRange(source, node), variable: node.text, scopeId: scope.id });
@@ -1714,18 +1778,40 @@ export class PhpSyntaxParser {
           || candidate.namedChildren.some(containsGoto);
         const containsLoopExit = (candidate: SyntaxNode): boolean => candidate.type === 'break_statement'
           || candidate.type === 'continue_statement' || candidate.namedChildren.some(containsLoopExit);
-        const continueExitsCurrentBody = ((): boolean => {
-          let ancestor = nodeParent;
-          while (ancestor) {
-            if (ancestor.type === 'switch_statement') return false;
-            if (ancestor.type === 'foreach_statement' || ancestor.type === 'for_statement'
-              || ancestor.type === 'while_statement' || ancestor.type === 'do_statement') return true;
-            if (ancestor.type === 'function_definition' || ancestor.type === 'method_declaration'
-              || ancestor.type === 'anonymous_function' || ancestor.type === 'arrow_function') return false;
-            ancestor = ancestor.parent ?? undefined;
+        const jumpExitsCurrentBody = (candidate: SyntaxNode): boolean => {
+          if (candidate.hasError || candidate.children.some((child) => child.isMissing)) return false;
+          const operands = candidate.namedChildren.filter((child) => child.type !== 'comment');
+          if (operands.length > 1) return false;
+          let operand = operands[0];
+          while (operand?.type === 'parenthesized_expression') {
+            const values = operand.namedChildren.filter(child => child.type !== 'comment');
+            if (values.length !== 1) return false;
+            operand = values[0];
           }
-          return false;
-        })();
+          if (operand && operand.type !== 'integer') return false;
+          const raw = operand?.text ?? '1';
+          if (/__|^_|_$|0[xXbBoO]_/.test(raw)) return false;
+          const literal = raw.replace(/_/g, '');
+          if (!/^(?:0[xX][\da-fA-F]+|0[bB][01]+|0[oO][0-7]+|0[0-7]*|[1-9]\d*)$/.test(literal)) return false;
+          const level = /^0[0-7]+$/.test(literal) ? BigInt(`0o${literal.slice(1)}`) : BigInt(literal);
+          if (level < 1n) return false;
+          const targets: SyntaxNode[] = [];
+          let ancestor = candidate.parent;
+          while (ancestor) {
+            if (ancestor.type === 'function_definition' || ancestor.type === 'method_declaration'
+              || ancestor.type === 'anonymous_function' || ancestor.type === 'arrow_function') break;
+            if (ancestor.type === 'switch_statement' || ancestor.type === 'foreach_statement'
+              || ancestor.type === 'for_statement' || ancestor.type === 'while_statement'
+              || ancestor.type === 'do_statement') targets.push(ancestor);
+            ancestor = ancestor.parent;
+          }
+          if (level > BigInt(targets.length)) return false;
+          const target = targets[Number(level) - 1]!;
+          // A switch also counts as a jump level (continue targeting it acts
+          // as break). A jump confined to a nested control cannot prove that
+          // the enclosing guard's continuation is unreachable.
+          return target.startIndex <= node.startIndex && target.endIndex >= node.endIndex;
+        };
         const isConstantTrue = (candidate: SyntaxNode | null | undefined): boolean => {
           let value = candidate;
           while (value?.type === 'parenthesized_expression' && value.namedChildren.length === 1) value = value.namedChildren[0];
@@ -1734,11 +1820,11 @@ export class PhpSyntaxParser {
         const terminatesBody = (candidate: SyntaxNode | null | undefined): boolean => {
           if (!candidate || containsGoto(candidate)) return false;
           if (candidate.type === 'compound_statement') {
-            const finalStatement = candidate.namedChildren.filter((child) => child.type !== 'comment').at(-1);
-            return terminatesBody(finalStatement);
+            // Statements after a guaranteed exit are unreachable.
+            return !candidate.hasError && candidate.namedChildren.some((child) => child.type !== 'comment' && terminatesBody(child));
           }
           if (candidate.type === 'return_statement' || candidate.type === 'exit_statement'
-            || (candidate.type === 'continue_statement' && continueExitsCurrentBody)
+            || ((candidate.type === 'continue_statement' || candidate.type === 'break_statement') && jumpExitsCurrentBody(candidate))
             || (candidate.type === 'expression_statement' && candidate.namedChildren[0]?.type === 'throw_expression')) return true;
           if (candidate.type === 'if_statement') {
             const nestedBody = candidate.childForFieldName('body');
@@ -1860,14 +1946,39 @@ export class PhpSyntaxParser {
     };
     if (declarationsOnly) {
       for (const node of tree.rootNode.descendantsOfType(DECLARATION_NODE_TYPES)) visitNode(node, node.parent ?? undefined);
-    } else if (!hasSyntaxErrors) {
-      // Tree-sitter visits all descendants natively, returning only nodes that
-      // contribute facts. Keep source order and the actual (unfiltered) parent.
+    } else {
+      // Keep fact order and actual parents while native traversal filters inert nodes.
       for (const node of tree.rootNode.descendantsOfType(FACT_NODE_TYPES)) {
-        // Anonymous keyword tokens can share a type name (notably `string`).
         if (node.isNamed) visitNode(node, node.parent ?? undefined);
       }
-    } else walk(tree.rootNode, visitNode);
+      if (hasSyntaxErrors) {
+        const inspectRecovery = (node: SyntaxNode): void => {
+          collectRecoveryErrors(node);
+          if (!node.hasError) return;
+          for (const child of node.namedChildren) {
+            if (child.hasError || child.isError || child.isMissing) inspectRecovery(child);
+          }
+        };
+        inspectRecovery(tree.rootNode);
+      }
+    }
+
+    // The grammar accepts an empty or underscore-led octal prefix as an integer.
+    // Query numeric tokens only when such a prefix can occur in this source.
+    if (!declarationsOnly && /0[oO](?![0-7])/u.test(source)) {
+      let invalidOctal = false;
+      for (const node of tree.rootNode.descendantsOfType('integer')) {
+        if (!/^0[oO](?:$|_)/u.test(node.text)) continue;
+        const range = nodeRange(source, node);
+        const adjacent = errors.findIndex(error => error.start <= range.end && error.end >= range.start);
+        if (adjacent >= 0) {
+          const existing = errors[adjacent]!;
+          errors[adjacent] = { start: Math.min(existing.start, range.start), end: Math.max(existing.end, range.end) };
+        } else errors.push(range);
+        invalidOctal = true;
+      }
+      if (invalidOctal) errors.sort((left, right) => left.start - right.start || left.end - right.end);
+    }
 
     for (const fact of conditionalCalls) {
       const call = calls.find((candidate) => candidate.start === fact.start && candidate.end === fact.end);
@@ -1886,7 +1997,7 @@ export class PhpSyntaxParser {
     }
 
     const importStatements = imports.map((item) => ({ start: item.statementStart, end: item.statementEnd }));
-    const excluded = [...commentRanges, ...stringRanges, ...importStatements, ...declarations]
+    const excluded = [...nonPhpRanges, ...commentRanges, ...stringRanges, ...importStatements, ...declarations]
       .sort((a, b) => a.start - b.start);
     const rawNames: RawName[] = commentRanges.flatMap((range) => parsePhpDocNames(source, range));
     const pattern = /\\?[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*(?:\\[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)*/g;
@@ -1909,8 +2020,8 @@ export class PhpSyntaxParser {
   }
 
   dispose(): void {
-    this.lastDocument?.tree.delete();
-    this.lastDocument = undefined;
+    for (const cached of this.cachedDocuments.values()) cached.tree.delete();
+    this.cachedDocuments.clear();
     this.parser.delete();
   }
 }

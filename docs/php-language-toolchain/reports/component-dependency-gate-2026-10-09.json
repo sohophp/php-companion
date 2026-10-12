@@ -1,0 +1,76 @@
+{
+  "recordedAtUtc": "2026-10-09T01:48:52.044651+00:00",
+  "qualifiedForComponentSourceGate": true,
+  "components": 24,
+  "sourceFiles": 200,
+  "imports": 511,
+  "controlTestsPassed": 18,
+  "checks": [
+    {
+      "name": "package-command",
+      "command": [
+        "pnpm",
+        "check:component-boundaries"
+      ],
+      "exitCode": 0,
+      "log": "/var/www/node/php-companion/.vscode-test/d1153-package-command.log",
+      "logSha256": "0319798450e2f1e97e65ed8a6af638b1a08c3e8d6c50649dbe2db3eae3c6f01d"
+    },
+    {
+      "name": "package-controls",
+      "command": [
+        "pnpm",
+        "test:component-boundaries"
+      ],
+      "exitCode": 0,
+      "log": "/var/www/node/php-companion/.vscode-test/d1153-package-controls.log",
+      "logSha256": "1fa531b0b1397bc407897ffd4773e6cdd02e4761f46237e4d1e2d19204ee1680"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/node_modules/eslint/bin/eslint.js",
+        "/var/www/node/php-companion/scripts/check-component-boundaries.mjs",
+        "/var/www/node/php-companion/scripts/test/check-component-boundaries.test.mjs"
+      ],
+      "exitCode": 0,
+      "log": "/var/www/node/php-companion/.vscode-test/d1153-lint.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "sourceSha256": "4c2720afd4b283c974cf95aef7ecb8324f8c67ae4699eb1240df556077c28d75",
+  "testSha256": "30def0e825bdef1dd9e89dc163c1c29900ed30a984795e806be69aff55046f7a",
+  "packageSha256": "a4bac16893e16078550a437a765014945b2c287ab0cdf89b3775c5b8f8817f06",
+  "runtimeUnchanged": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "0cb3e6be2ef5db651492cb89e1099c685d8070e016aa73fbb5391032d4cf95ff",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "upstreamTerminalAudits": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1146-commented-return-full-lsp-run.json",
+      "sha256": "8452bb850e31245dab20fac3f0e87bbcb5dfc7bb3454a24aa79f39e548ca8d40",
+      "qualified": true
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1149-commented-return-editor-qualification.json",
+      "sha256": "219d99d45e7c9f8b8cda98e1d2d82167676fe9c47ffce066d4965d9aeda7f505",
+      "qualified": true
+    }
+  ],
+  "fullP0ContractGateComplete": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false
+}

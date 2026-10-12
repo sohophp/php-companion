@@ -12,6 +12,10 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 
 ## 自研语言服务器
 
+Generator 内的普通 `yield` 使用自身函数／闭包的有效四参数 PHPDoc 合同推断接收值，匿名模板只使用可证明的上界；嵌套 callable 不借用外层合同。`Generator::send()` 保留 TSend 输入约束，send／throw 的输出保留 TValue|null。渐进索引的 References 会核对当前候选文件，处理 watcher 到达前新增、修改或删除的未打开调用者；未变化的准备事实继续复用。正常新构建验收进度见实施状态。
+
+`yield from` 会保留已证明的 Generator 返回值，并将委托得到的局部结果用于成员补全、跳转和实参类型诊断；数组委托的结果为 `null`。委托的键值类型、无显式返回和受支持的嵌套 yield 使用同一类型模型。未知 iterable、无法证明的调用、引用逃逸与动态边界继续保持 unknown；更复杂 Generator 副作用推断仍在实施。
+
 当前自研服务器提供语法/版本/重复/PSR-4/未使用 import/缺失接口及抽象父类方法/确定的继承方法签名不兼容诊断、完整索引后未解析 `new` 类型、确定缺失/不可见/错误静态访问及 nullable 普通访问的成员，以及必填参数、未知/重复命名参数、参数顺序、可证明的参数/返回/类型属性赋值和目标版本感知的 readonly 属性写入诊断，类型、函数、namespace 常量和成员补全，以及 Hover、参数提示、Definition、Type Definition、Implementation、Type Hierarchy、声明及精确变量/调用/成员/原生与 PHPDoc 类型/import 使用点 Semantic Tokens、已证明局部对象的 Inlay Hints、基础 References、安全子集的接口/抽象方法、构造函数、属性访问器与父方法 Override 生成、方法 Rename 和文档/工作区符号。PHP 8.2 readonly class 的普通及提升实例属性使用同一成员模型。类型可由参数、`$this`、赋值、调用返回、基础 PHPDoc 或直接类模板证明时继续链式推断。它会静态读取 Composer 根包、嵌套项目与已安装依赖的 PSR-4/PSR-0/classmap/files 配置，不执行项目 PHP 或 autoloader。
 
 当唯一调用目标声明了 PHPDoc `callable(Service): Return` 时，无原生类型的 closure/arrow 参数也会获得上下文对象类型，供成员补全、Definition 和参数诊断使用。具名参数按名称映射；Callable 模板可从同一调用的其他已证明数组/集合实参唯一专门化。可证明的 arrow 主体，以及由有界顺序语句、嵌套 `if/elseif/else`、`try/catch/finally`、支持直接 `break;`/`break 1;` 汇入外层后续语句的 `switch` case 贯穿，以及支持直接 `break;`/`break 1;` 汇入外层后续语句的有界 `while/do/for/foreach` 循环组成、每条可继续路径最终到达可证明 `return` 的 closure 主体，会绑定返回模板，排除明确的 throw/exit 以及唯一解析且实参兼容的原生 never 调用终止路径，并把条件提前返回与最终返回合并为 Union，因此 `array_map` 的这些写法都保留输入和映射结果元素类型。重载歧义、未绑定或冲突模板、任一未知返回、函数体仍可落空、没有任何可证明返回、循环内嵌套/多层 `break` 与 `continue`、其它尚未建模控制结构内的 return、yield/goto、未解析类型、unpack、引用/variadic callback 及参数数量不符时保持 unknown。
@@ -116,6 +120,8 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 资源管理器中的 Safe Move 默认开启，在移动 PSR-4 PHP 文件时同步 namespace 与语义引用。Safe Move 采用全有或全无策略：目标 FQCN 冲突、语法错误、未保存的相关文档、索引缺失或非规范 PSR-4 路径都会取消该次资源管理器移动并显示原因。若需关闭，可设置 `phpCompanion.move.enabled: false`。
 
 也可以在资源管理器右键 PHP 文件，使用 `SoPHP: Safe Move PHP File` 选择目标目录；该命令默认先预览 namespace 与已证明引用的改动，再以一个可撤销、可重做的原子编辑完成文件移动与代码更新。可通过 `phpCompanion.move.preview: false` 跳过命令预览。
+
+将光标放在公开静态方法声明中，执行 `SoPHP: 预览并移动 PHP 成员`，输入现有目标类的完整限定名称，即可预览并同步修改方法和已证明的静态调用。确认前会重新检查项目源码与所有参与文件；取消或文件发生变化时拒绝应用，正常移动支持一次 Undo/Redo。当前仅支持可证明保持名称绑定、访问权限及运行行为的静态方法；实例成员、动态调用、晚期静态绑定及无法完整核对的类层级仍拒绝。 移动前还会沿已解析调用检查调用栈观察，包括已支持的回调、析构、字符串转换、属性访问器、克隆、迭代及已建模的计数／序列化／JSON／调试输出路径；原生异常对象可能携带变化后的调用栈时拒绝移动；预览期间未参与编辑的被调用文件发生变化时，也会重新核对。
 
 新建类、接口、Trait、Enum 或测试文件会先显示预览。当前隔离 VS Code 宿主中，经暂存文件移动创建的文件已通过一次 Undo/Redo。只有暂存移动全部不可用、最终回退到 `WorkspaceEdit.createFile` 的本机文件路径时，已观察到 Undo 删除文件后 Redo 未恢复；命令会显示警告，撤销后可重新执行生成命令。该限制不代表 Safe Move 等其它已验证编辑操作。
 

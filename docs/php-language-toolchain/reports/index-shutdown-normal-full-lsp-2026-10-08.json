@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-08",
+  "auditedAtUtc": "2026-10-08T02:11:15.922486+00:00",
+  "normalFullLspQualified": true,
+  "files": 101,
+  "cases": 1337,
+  "result": {
+    "success": true,
+    "numTotalTests": 1337,
+    "numPassedTests": 1337,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "caseIdentityAndMultiplicityPreserved": true,
+  "durationSeconds": 2128.800882632,
+  "inputCount": 18723,
+  "linkCount": 180,
+  "changedInputs": [],
+  "changedLinks": [],
+  "runtimeFiles": [
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "9f0283f18c056c1caa9839e803c963979614d92eb448d5dc5b8467e582c2cc39"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "originalCaseCount": 1329,
+  "newCaseCount": 8,
+  "currentRuntimeEditingMeasured": false,
+  "previousEditingCountsAreHistorical": true,
+  "artifacts": {
+    "/var/www/node/php-companion/.vscode-test/d548-normal-index-shutdown-full-lsp-run.json": {
+      "sha256": "35e66790833adf091fd7b91e9befafce39d05f75b7d7b8e5635a53d10a8c718b",
+      "sizeBytes": 1248
+    },
+    "/var/www/node/php-companion/.vscode-test/d548-normal-index-shutdown-full-lsp-input.json": {
+      "sha256": "fad50ae627bdfa62d080ed64087ea98c3d5b91c83b9a86e0d71edc739aa448b1",
+      "sizeBytes": 3274510
+    },
+    "/var/www/node/php-companion/.vscode-test/d548-normal-index-shutdown-full-lsp-result.json": {
+      "sha256": "73e52db6490df9f83b9ecf3cef7ac17ffcb4df68c09b3b7fa356032a01c49c1d",
+      "sizeBytes": 442338
+    },
+    "/var/www/node/php-companion/.vscode-test/d548-normal-index-shutdown-full-lsp.log": {
+      "sha256": "67f2e9a9fb06c44504439075f1b114d1d911360ef61340726830f9b7ebe9dafe",
+      "sizeBytes": 112
+    },
+    "/var/www/node/php-companion/.vscode-test/d548-run-normal-index-shutdown-full-lsp.py": {
+      "sha256": "594db6d4f79a5a7cbd0281032934e74f4772fc2de87c4f1354aeb686ea11b66d",
+      "sizeBytes": 8819
+    },
+    "/var/www/node/php-companion/.vscode-test/d546-index-shutdown-final-validation.json": {
+      "sha256": "d8c36266ee63373bfeb29ee1346af6780096b746bd541e129eb669da0aa0159e",
+      "sizeBytes": 596
+    },
+    "/var/www/node/php-companion/.vscode-test/d545-index-shutdown-verification.json": {
+      "sha256": "40e68e2c78462ffd5250cce96abd7cca9cf745feac9e85a181a7131a7f2a4392",
+      "sizeBytes": 635633
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-timings/output-completion-progressive.json": {
+      "sha256": "c81c4d2f663185b47fad411bc6a07a07b78f34c2f595ba65bf91f5b4d3e654cc",
+      "sizeBytes": 247
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-timings/output-completion-onDemand.json": {
+      "sha256": "ec1eb286e1704f33053476c34c5bcbceb3a8a0a52641e010d13e09a0f31ab8d8",
+      "sizeBytes": 244
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/onDemand-true.json": {
+      "sha256": "13ded20db5be28bfb38246d9bafc231cef2f50cfeeec01a54b3b4316bfe17bae",
+      "sizeBytes": 103
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/onDemand-true-gap5.json": {
+      "sha256": "24b5d9cabd303d109cb7cd99e9d29b900d296884915fa244d101540af3135703",
+      "sizeBytes": 102
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/progressive-false.json": {
+      "sha256": "c0d346e443391eec3fc1ea81fd13868727c387d66bdbf3141e775da8aeb631e4",
+      "sizeBytes": 107
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/progressive-true.json": {
+      "sha256": "20fa1099e615a5aaa116eb5a99d985e62ebbc8cac889148cc4ac4285ad4d19a2",
+      "sizeBytes": 105
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/progressive-true-gap5.json": {
+      "sha256": "26c716ab7b4459235e50a570ca8ebe15f76fdd79f4b6852257832e6cafba3854",
+      "sizeBytes": 106
+    },
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/onDemand-false.json": {
+      "sha256": "8538fd1b3398cffaa9b2cf1b8de4756a48cf7cf32436be1ee76aec044de1dc3d",
+      "sizeBytes": 103
+    }
+  },
+  "timingSamples": [
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-timings/output-completion-progressive.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-timings/output-completion-onDemand.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/onDemand-true.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/progressive-false.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/progressive-true.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+    "/tmp/sophp-d548-normal-index-shutdown-full-lsp-full-shutdown-timings/onDemand-false.json"
+  ],
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "ordinaryEditingQualified": false,
+  "ordinaryEditingLatestWithinBudgetRuns": 23,
+  "ordinaryEditingLatestCorrectRuns": 25,
+  "scope": "The original normal package and production-bundle full LSP suite, original default parallelism/timeouts/performance-group sequence. No full editor, platform, scale, continuous editing or human acceptance is implied.",
+  "next": "Run the three original complete Linux editor workflows for the current parameter-validation runtime, then continue independent advanced type and refactoring gaps. Both failed performance candidates remain unadopted; preserve the full original goal."
+}

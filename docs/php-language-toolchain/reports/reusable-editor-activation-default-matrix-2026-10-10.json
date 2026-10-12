@@ -1,0 +1,446 @@
+{
+  "recordedAtUtc": "2026-10-10T00:16:19.541187+00:00",
+  "engineBuildId": "d43b6ccb4abdb745fc9f3216b1099051a54962c5b5235b0c63924d41251853fb",
+  "publicDefaultMatrixExecuted": true,
+  "publicDefaultMatrixPassed": true,
+  "cases": 15,
+  "strictFirstQueries": 45,
+  "firstQueryFailures": 0,
+  "queryRetries": 0,
+  "queryPrewarm": false,
+  "forcedGc": false,
+  "actualEditorHosts": 15,
+  "actualLanguageServers": 15,
+  "checkedInputs": 18156,
+  "checkedSymlinks": 1367,
+  "inputsUnchanged": true,
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    249395,
+    249520,
+    249522,
+    249526,
+    250045,
+    250390,
+    250452,
+    250454,
+    250458,
+    250984,
+    251357,
+    251419,
+    251424,
+    251428,
+    251942,
+    252306,
+    252376,
+    252378,
+    252382,
+    252899,
+    253259,
+    253333,
+    253335,
+    253339,
+    253856,
+    254236,
+    254293,
+    254295,
+    254299,
+    254824,
+    255202,
+    255272,
+    255274,
+    255278,
+    255795,
+    256163,
+    256235,
+    256237,
+    256241,
+    256762,
+    257133,
+    257197,
+    257202,
+    257206,
+    257731,
+    258117,
+    258154,
+    258156,
+    258160,
+    258696,
+    259069,
+    259133,
+    259135,
+    259139,
+    259680,
+    260064,
+    260120,
+    260122,
+    260126,
+    260674,
+    261035,
+    261154,
+    261156,
+    261160,
+    261704,
+    262079,
+    262162,
+    262164,
+    262168,
+    262706,
+    263058,
+    263179,
+    263181,
+    263185,
+    263732,
+    264083
+  ],
+  "productionContextLogVerified": true,
+  "productionLogs": [
+    {
+      "files": 1000,
+      "round": 1,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-1000-r1-host-logs/20261010T081103/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "671ff577d88538ea7822fcbfb3df5ef708ab3e8d358a73cf057fc7bc93bfd2ff",
+      "noTestMarkers": true
+    },
+    {
+      "files": 1000,
+      "round": 2,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-1000-r2-host-logs/20261010T081120/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "e35d8ee179b6dc17cc84894e47d3997800b2043e786ac6a59f47a6c056b032cf",
+      "noTestMarkers": true
+    },
+    {
+      "files": 1000,
+      "round": 3,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-1000-r3-host-logs/20261010T081130/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "2db2d19682538cb98c1267438f0b4281aa3cf4c8c63d47f48663a66e8f799478",
+      "noTestMarkers": true
+    },
+    {
+      "files": 1000,
+      "round": 4,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-1000-r4-host-logs/20261010T081140/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "717ebfac2e47ddc87cdfea14489ad4cb93517d8438fb7aadebe4f3f0b68186e0",
+      "noTestMarkers": true
+    },
+    {
+      "files": 1000,
+      "round": 5,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-1000-r5-host-logs/20261010T081151/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "1ea32970402b5cce4a7688c7f3623cb95f11bd3eb70bb33b2871e0ae6c01f185",
+      "noTestMarkers": true
+    },
+    {
+      "files": 10000,
+      "round": 1,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-10000-r1-host-logs/20261010T081202/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "01d6443bb1bfc8457ebd2d727e5e3c11d7049337ffd0d08f42629750865170c3",
+      "noTestMarkers": true
+    },
+    {
+      "files": 10000,
+      "round": 2,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-10000-r2-host-logs/20261010T081214/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "ec921141fc91ced68acf0237f9b4a3d0052970b753a4fb9bb0c86322f7c31cf9",
+      "noTestMarkers": true
+    },
+    {
+      "files": 10000,
+      "round": 3,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-10000-r3-host-logs/20261010T081226/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "a8db0372fc59b263490b8b496bcbd05b617a1d961f664c021ff7a1b7158c947f",
+      "noTestMarkers": true
+    },
+    {
+      "files": 10000,
+      "round": 4,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-10000-r4-host-logs/20261010T081238/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "ca841917da9a0244d86f12d878301354eb61e35acb79fc670222b7dcdfb6061e",
+      "noTestMarkers": true
+    },
+    {
+      "files": 10000,
+      "round": 5,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-10000-r5-host-logs/20261010T081250/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "2139c812be1ec8d937bb325efe082f2ddc6d21502885fb246ed702aea996f234",
+      "noTestMarkers": true
+    },
+    {
+      "files": 50000,
+      "round": 1,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-50000-r1-host-logs/20261010T081307/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "f9133b1240b08a64e6e86ee2bd4a3df628c051c9e9eb888fed27a8b2345add44",
+      "noTestMarkers": true
+    },
+    {
+      "files": 50000,
+      "round": 2,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-50000-r2-host-logs/20261010T081325/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "3c22c926dd8495f69f419468aa4507e7623c996f7619e4b44a8e1d2bb9cedb7d",
+      "noTestMarkers": true
+    },
+    {
+      "files": 50000,
+      "round": 3,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-50000-r3-host-logs/20261010T081352/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "f4e9fe5cc11c28763746f43e78d9504018cab0f5a8506ba9808dadbf8551b089",
+      "noTestMarkers": true
+    },
+    {
+      "files": 50000,
+      "round": 4,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-50000-r4-host-logs/20261010T081413/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "cde953523f5740ba37d20c9534e55961a5a320c8f94a472f154247f471786a9c",
+      "noTestMarkers": true
+    },
+    {
+      "files": 50000,
+      "round": 5,
+      "path": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/activation-50000-r5-host-logs/20261010T081439/window1/exthost/nullExtensionDescription/SoPHP.log",
+      "sha256": "b1a24ff14ee708d732a89f39b9b1fa3ae0a2c2b28e62dc436f381ba630df5188",
+      "noTestMarkers": true
+    }
+  ],
+  "runtimeAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "d43b6ccb4abdb745fc9f3216b1099051a54962c5b5235b0c63924d41251853fb",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "37f9cfe038aae4c30d95eeeae355694ac81e22ad25bd8d39e8f9f1d1be03f0dc",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "scales": [
+    {
+      "files": 1000,
+      "rounds": 5,
+      "metrics": {
+        "activationResolvedMs": {
+          "samples": 5,
+          "p50": 2349.4487000000004,
+          "p95": 2501.024284,
+          "maximum": 2501.024284,
+          "values": [
+            2190.665314,
+            2217.1336569999994,
+            2349.4487000000004,
+            2420.782069,
+            2501.024284
+          ]
+        },
+        "firstCompletionReceivedMs": {
+          "samples": 5,
+          "p50": 2757.3641849999995,
+          "p95": 2966.77726,
+          "maximum": 2966.77726,
+          "values": [
+            2666.5361539999994,
+            2719.5181199999997,
+            2757.3641849999995,
+            2825.1368990000005,
+            2966.77726
+          ]
+        },
+        "firstCompletionCallMs": {
+          "samples": 5,
+          "p50": 289.33509500000036,
+          "p95": 346.4999230000003,
+          "maximum": 346.4999230000003,
+          "values": [
+            182.28047700000025,
+            264.34444299999996,
+            289.33509500000036,
+            309.9539199999999,
+            346.4999230000003
+          ]
+        },
+        "firstHoverReceivedMs": {
+          "samples": 5,
+          "p50": 2973.152121,
+          "p95": 3110.585863,
+          "maximum": 3110.585863,
+          "values": [
+            2855.0575010000002,
+            2949.3451080000004,
+            2973.152121,
+            3071.159828,
+            3110.585863
+          ]
+        },
+        "firstDefinitionReceivedMs": {
+          "samples": 5,
+          "p50": 3181.079112,
+          "p95": 3342.96648,
+          "maximum": 3342.96648,
+          "values": [
+            3030.737749,
+            3034.8099119999997,
+            3181.079112,
+            3185.5227399999994,
+            3342.96648
+          ]
+        }
+      }
+    },
+    {
+      "files": 10000,
+      "rounds": 5,
+      "metrics": {
+        "activationResolvedMs": {
+          "samples": 5,
+          "p50": 2322.096974,
+          "p95": 2521.289286,
+          "maximum": 2521.289286,
+          "values": [
+            2184.148687,
+            2306.403614,
+            2322.096974,
+            2459.4714459999996,
+            2521.289286
+          ]
+        },
+        "firstCompletionReceivedMs": {
+          "samples": 5,
+          "p50": 2702.149902,
+          "p95": 2848.709782,
+          "maximum": 2848.709782,
+          "values": [
+            2521.5759980000003,
+            2692.9830359999996,
+            2702.149902,
+            2819.3305279999995,
+            2848.709782
+          ]
+        },
+        "firstCompletionCallMs": {
+          "samples": 5,
+          "p50": 203.83058100000017,
+          "p95": 232.57531700000072,
+          "maximum": 232.57531700000072,
+          "values": [
+            170.86527699999988,
+            176.21605799999998,
+            203.83058100000017,
+            213.70275000000038,
+            232.57531700000072
+          ]
+        },
+        "firstHoverReceivedMs": {
+          "samples": 5,
+          "p50": 3162.75356,
+          "p95": 3285.4872480000004,
+          "maximum": 3285.4872480000004,
+          "values": [
+            2957.2101220000004,
+            3128.542343,
+            3162.75356,
+            3273.922601,
+            3285.4872480000004
+          ]
+        },
+        "firstDefinitionReceivedMs": {
+          "samples": 5,
+          "p50": 3378.0899069999996,
+          "p95": 3578.077265,
+          "maximum": 3578.077265,
+          "values": [
+            3255.6268090000003,
+            3313.585271,
+            3378.0899069999996,
+            3417.929953,
+            3578.077265
+          ]
+        }
+      }
+    },
+    {
+      "files": 50000,
+      "rounds": 5,
+      "metrics": {
+        "activationResolvedMs": {
+          "samples": 5,
+          "p50": 2244.564254,
+          "p95": 2535.35671,
+          "maximum": 2535.35671,
+          "values": [
+            2061.8820869999995,
+            2217.6751959999997,
+            2244.564254,
+            2356.411444,
+            2535.35671
+          ]
+        },
+        "firstCompletionReceivedMs": {
+          "samples": 5,
+          "p50": 3150.739474,
+          "p95": 4685.130157,
+          "maximum": 4685.130157,
+          "values": [
+            2571.5242759999996,
+            2604.767076,
+            3150.739474,
+            4604.825209999999,
+            4685.130157
+          ]
+        },
+        "firstCompletionCallMs": {
+          "samples": 5,
+          "p50": 420.7834219999995,
+          "p95": 2189.5216439999995,
+          "maximum": 2189.5216439999995,
+          "values": [
+            178.5558799999999,
+            346.82445800000005,
+            420.7834219999995,
+            2166.7088110000004,
+            2189.5216439999995
+          ]
+        },
+        "firstHoverReceivedMs": {
+          "samples": 5,
+          "p50": 4707.547417000001,
+          "p95": 4795.452939000001,
+          "maximum": 4795.452939000001,
+          "values": [
+            2589.0155519999994,
+            2808.386939,
+            4707.547417000001,
+            4719.621304,
+            4795.452939000001
+          ]
+        },
+        "firstDefinitionReceivedMs": {
+          "samples": 5,
+          "p50": 4740.591794,
+          "p95": 4808.367812,
+          "maximum": 4808.367812,
+          "values": [
+            2598.3373689999994,
+            2823.7434860000003,
+            4740.591794,
+            4758.885725000001,
+            4808.367812
+          ]
+        }
+      }
+    }
+  ],
+  "platform": "linux",
+  "editorVersion": "1.140.0",
+  "phpVersion": "8.5.9",
+  "indexingMode": "onDemand",
+  "privateMainClockWrapper": true,
+  "privateProductionContextProxy": true,
+  "diagnosticOnly": true,
+  "fullQualification": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "archivedFiles": 484,
+  "evidenceManifest": "/var/www/node/php-companion/.vscode-test/d1514-reusable-activation-default-evidence/manifest.json",
+  "evidenceManifestSha256": "5c6dcc04ea296d91fddbd578cc80065d9e32a2ec78484b5c9a722fda16424d1c",
+  "defaultRun": "/var/www/node/php-companion/.vscode-test/d1513-reusable-activation-default-matrix/result.json",
+  "defaultRunSha256": "5065c54c6a6496cde21ad2d7cc5fba8b30094fc0b1524e73f79dcf7e39fea4f4"
+}

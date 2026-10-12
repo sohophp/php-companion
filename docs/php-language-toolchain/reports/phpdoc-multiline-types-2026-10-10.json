@@ -1,0 +1,41 @@
+{
+  "qualified": true,
+  "engineBuildId": "fb94f421ae09234ef213398984b994c344f895daa1e3d539f0ab1ce85434518f",
+  "normalRuntimeAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "fb94f421ae09234ef213398984b994c344f895daa1e3d539f0ab1ce85434518f",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "c2583db71964dd8ebe8d4b675300da87bb9615e389d522e55bcb1ae7fc6a6be8",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "phpdocPassed": 40,
+  "semanticPassed": 23720,
+  "lspPassed": 1468,
+  "lspFiles": 118,
+  "originalSemantic23709IdentitiesPreserved": true,
+  "originalLsp1464IdentitiesPreserved": true,
+  "semanticSchema": 90,
+  "sourceDeclarationSchema": 8,
+  "fullLspInputsChecked": 29958,
+  "allOriginalProcessesGone": true,
+  "remainingOwnedProcessGroupPids": [],
+  "changedInputs": [],
+  "changedSymlinks": [],
+  "repositoryChanges": [],
+  "archive": "/var/www/node/php-companion/.vscode-test/d1597-phpdoc-multiline-evidence",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1597-phpdoc-multiline-evidence/manifest.json",
+  "manifestSha256": "63139f394aa635a166d7d265f53f6df75c599f97cfb1e640d2c13110bc0d39ee",
+  "archiveFilesVerified": 64,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "roadmapOpenItems": 26,
+  "knownMagicMethodParameterGaps": [
+    "malformed parameter type errors are not propagated",
+    "concrete default value truncates later parameters"
+  ],
+  "nextGapEvidence": "/var/www/node/php-companion/.vscode-test/d1599-magic-method-parameter-gap.json",
+  "allMagicMethodParameterInputsQualified": false
+}

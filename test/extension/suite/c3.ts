@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as vscode from 'vscode';
 import { verifyRuntimeExecutableReplacement } from './runtimeExecutable.js';
+import { verifyGenerationBodyBoundary } from './generationBodyBoundary.js';
+import { verifyEffectfulParameterReorder } from './reorderEffects.js';
+import { verifyDefaultEvaluationReorder } from './reorderDefaults.js';
 
 async function verifyMultiplePasteAliases(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
   for (const name of ['C3AliasFirst', 'C3AliasSecond']) {
@@ -250,6 +253,8 @@ async function verifyDefaultMove(folder: vscode.WorkspaceFolder): Promise<void> 
 }
 
 async function verifyDefaultParameters(folder: vscode.WorkspaceFolder): Promise<void> {
+  await verifyEffectfulParameterReorder(folder);
+  await verifyDefaultEvaluationReorder(folder);
   const directory = vscode.Uri.joinPath(folder.uri, 'src', 'C3Parameters');
   await vscode.workspace.fs.createDirectory(directory);
   const contractUri = vscode.Uri.joinPath(directory, 'Store.php');
@@ -304,6 +309,304 @@ async function verifyDefaultParameters(folder: vscode.WorkspaceFolder): Promise<
 
 type QueryState = { paused: boolean; version: number | null };
 type TestApi = { requestLanguageServer<T>(method: string, params: unknown): Promise<T> };
+
+async function verifyMoveMember(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
+  const sourceUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveMemberSource.php');
+  const targetUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveMemberTarget.php');
+  const callerUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveMemberCaller.php');
+  const extraUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3MoveMemberExtra.php');
+  const source = '<?php namespace App\\Service; final class C3MoveMemberSource {public static function moveMemberProof(int $value): int {return $value + 1;}}';
+  const target = '<?php namespace App\\Service; final class C3MoveMemberTarget {}';
+  const caller = '<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}';
+  const files = [[sourceUri, source], [targetUri, target], [callerUri, caller]] as const;
+  const documents = new Map<string, vscode.TextDocument>();
+  const deleteOwned = async (uri: vscode.Uri): Promise<void> => {
+    try { await vscode.workspace.fs.delete(uri, {useTrash: false}); }
+    catch (error) { if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error; }
+  };
+  try {
+    for (const [uri, text] of files) {
+      await vscode.workspace.fs.writeFile(uri, Buffer.from(text));
+      documents.set(uri.toString(), await vscode.workspace.openTextDocument(uri));
+    }
+    const sourceDocument = documents.get(sourceUri.toString())!;
+    const position = sourceDocument.positionAt(source.indexOf('moveMemberProof(') + 1);
+    const initialPlan = await api.requestLanguageServer<{changes?: Record<string, unknown>} | null>('phpCompanion/moveMember', {
+      textDocument: {uri: sourceUri.toString(), version: sourceDocument.version}, position, targetClass: 'App\\Service\\C3MoveMemberTarget',
+    });
+    assert.strictEqual(Object.keys(initialPlan?.changes ?? {}).length, 3, 'Move Member omitted a participating file');
+    const command = (testPreviewAction: () => Promise<'apply' | 'cancel'>, testBeforeApply?: () => Promise<void>): Thenable<boolean> =>
+      vscode.commands.executeCommand<boolean>('phpCompanion.moveMember', {uri: sourceUri, position,
+        targetClass: 'App\\Service\\C3MoveMemberTarget', testPreviewAction, testBeforeApply});
+    const assertInitial = (): void => {
+      for (const [uri, text] of files) assert.strictEqual(documents.get(uri.toString())!.getText(), text, `Move Member changed ${uri.path}`);
+    };
+    assert.strictEqual(await command(async () => 'cancel'), false); assertInitial();
+    assert.strictEqual(await command(async () => {
+      await vscode.workspace.fs.writeFile(extraUri, Buffer.from('<?php namespace App\\Service; function c3MoveMemberExtra(): int {return C3MoveMemberSource::moveMemberProof(3);}'));
+      return 'apply';
+    }), false, 'Move Member applied a preview that omitted a newly created caller');
+    assertInitial();
+    assert.ok(Buffer.from(await vscode.workspace.fs.readFile(extraUri)).toString().includes('C3MoveMemberSource::moveMemberProof(3)'));
+    await vscode.workspace.fs.delete(extraUri, {useTrash: false});
+    const callerDocument = documents.get(callerUri.toString())!;
+    assert.strictEqual(await command(async () => 'apply', async () => {
+      const userEdit = new vscode.WorkspaceEdit(); userEdit.insert(callerUri, callerDocument.positionAt(caller.length), '\n// user input during preview');
+      assert.ok(await vscode.workspace.applyEdit(userEdit));
+    }), false, 'Move Member overwrote user input during preview');
+    assert.ok(callerDocument.getText().endsWith('// user input during preview'));
+    assert.strictEqual(sourceDocument.getText(), source);
+    assert.strictEqual(documents.get(targetUri.toString())!.getText(), target);
+    await vscode.window.showTextDocument(callerDocument); await vscode.commands.executeCommand('undo'); assertInitial();
+    // Hold the real, already-computed validation response. This models transport
+    // latency rather than changing the replan result or bypassing a product guard.
+    let concurrentInput: Promise<void> | undefined;
+    const outcome = await command(async () => 'apply', async () => {
+      const method = 'moveMemberValidationResult';
+      assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', {method}), true);
+      concurrentInput = (async (): Promise<void> => {
+        try {
+          await waitForState(api, method, sourceDocument, state => state.paused,
+            'Move Member did not hold its actual verified response');
+          const edit = new vscode.WorkspaceEdit();
+          edit.insert(callerUri, callerDocument.positionAt(caller.length), '\n// user input while validation reply was delayed');
+          assert.ok(await vscode.workspace.applyEdit(edit));
+          await waitForState(api, method, callerDocument,
+            state => state.paused && state.version === callerDocument.version,
+            'Move Member did not observe the concurrent caller version');
+        } finally {
+          await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', {method});
+        }
+      })();
+      // Keep rejection observed while the command waits for the controlled reply.
+      void concurrentInput.catch((): void => undefined);
+    });
+    assert.ok(concurrentInput, 'Move Member did not reach the final preview application');
+    await concurrentInput;
+    console.log('C3 Move Member validation-response race evidence: ' + JSON.stringify({
+      outcome, source: sourceDocument.getText(), target: documents.get(targetUri.toString())!.getText(),
+      caller: callerDocument.getText(), callerVersion: callerDocument.version,
+      sourceVersion: sourceDocument.version,
+    }));
+    assert.strictEqual(outcome, false, 'Move Member accepted an edit after a participant changed during validation');
+    assert.strictEqual(sourceDocument.getText(), source, 'Move Member changed the source using a stale validation response');
+    assert.strictEqual(documents.get(targetUri.toString())!.getText(), target, 'Move Member changed the target using a stale validation response');
+    assert.strictEqual(callerDocument.getText(), caller + '\n// user input while validation reply was delayed',
+      'Move Member applied stale edits to the concurrently edited caller');
+    await vscode.window.showTextDocument(callerDocument); await vscode.commands.executeCommand('undo'); assertInitial();
+    for (const participant of ['target-buffer', 'closed-caller-disk'] as const) {
+      const diskCaller = '<?php namespace App\\Service; function c3MoveMemberExtra(): int {return C3MoveMemberSource::moveMemberProof(3);}';
+      if (participant === 'closed-caller-disk') {
+        assert.ok(!vscode.workspace.textDocuments.some(document => document.uri.toString() === extraUri.toString()),
+          'Disk race participant was already open');
+        await vscode.workspace.fs.writeFile(extraUri, Buffer.from(diskCaller));
+      }
+      let changedParticipant: Promise<void> | undefined;
+      const result = await command(async () => 'apply', async () => {
+        const method = 'moveMemberValidationResult';
+        assert.strictEqual(await api.requestLanguageServer<boolean>('phpCompanion/testPauseNextQuery', {method}), true);
+        changedParticipant = (async (): Promise<void> => {
+          try {
+            await waitForState(api, method, sourceDocument, state => state.paused,
+              `Move Member did not hold its validation for ${participant}`);
+            if (participant === 'target-buffer') {
+              const document = documents.get(targetUri.toString())!;
+              const edit = new vscode.WorkspaceEdit(); edit.insert(targetUri, document.positionAt(target.length), '\n// concurrent target input');
+              assert.ok(await vscode.workspace.applyEdit(edit));
+              await waitForState(api, method, document, state => state.paused && state.version === document.version,
+                'Move Member did not observe the concurrent target version');
+            } else {
+              await vscode.workspace.fs.writeFile(extraUri, Buffer.from(diskCaller + '\n// concurrent disk input'));
+              assert.ok(!vscode.workspace.textDocuments.some(document => document.uri.toString() === extraUri.toString()),
+                'Disk race unexpectedly opened the participant');
+            }
+          } finally {
+            await api.requestLanguageServer<boolean>('phpCompanion/testReleaseQuery', {method});
+          }
+        })();
+        void changedParticipant.catch((): void => undefined);
+      });
+      assert.ok(changedParticipant); await changedParticipant;
+      console.log('C3 Move Member delayed participant evidence: ' + JSON.stringify({participant, result,
+        source: sourceDocument.getText(), target: documents.get(targetUri.toString())!.getText(), caller: callerDocument.getText(),
+        diskCaller: participant === 'closed-caller-disk' ? Buffer.from(await vscode.workspace.fs.readFile(extraUri)).toString() : undefined}));
+      assert.strictEqual(result, false, `Move Member accepted stale ${participant} edits`);
+      assert.strictEqual(sourceDocument.getText(), source); assert.strictEqual(callerDocument.getText(), caller);
+      if (participant === 'target-buffer') {
+        const document = documents.get(targetUri.toString())!;
+        assert.strictEqual(document.getText(), target + '\n// concurrent target input');
+        await vscode.window.showTextDocument(document); await vscode.commands.executeCommand('undo');
+      } else {
+        assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(extraUri)).toString(), diskCaller + '\n// concurrent disk input');
+        await vscode.workspace.fs.delete(extraUri, {useTrash: false});
+      }
+      assertInitial();
+    }
+    assert.strictEqual(await command(async () => 'apply'), true, 'Move Member could not apply the checked preview');
+    const expected = new Map([...documents].map(([uri, document]) => [uri, document.getText()]));
+    assert.ok(!sourceDocument.getText().includes('function moveMemberProof'));
+    assert.ok(documents.get(targetUri.toString())!.getText().includes('function moveMemberProof(int $value)'));
+    assert.ok(callerDocument.getText().includes('\\App\\Service\\C3MoveMemberTarget::moveMemberProof(2)'));
+    await vscode.window.showTextDocument(sourceDocument); await vscode.commands.executeCommand('undo'); assertInitial();
+    await vscode.commands.executeCommand('redo');
+    for (const [uri, document] of documents) assert.strictEqual(document.getText(), expected.get(uri), 'One Redo did not restore the full Move Member edit');
+    await vscode.commands.executeCommand('undo'); assertInitial();
+    for (const [uri, text] of files) assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), text, 'Preview/apply unexpectedly saved a file');
+  } finally {
+    for (const [uri, text] of files) {
+      const document = documents.get(uri.toString());
+      if (document && !document.isClosed && document.getText() !== text) {
+        const reset = new vscode.WorkspaceEdit(); reset.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), text);
+        await vscode.workspace.applyEdit(reset);
+      }
+      if (document?.isDirty) await document.save();
+    }
+    const owned = new Set([...files.map(([uri]) => uri.toString()), extraUri.toString()]);
+    const tabs = vscode.window.tabGroups.all.flatMap(group => group.tabs).filter(tab => tab.input instanceof vscode.TabInputText && owned.has(tab.input.uri.toString()));
+    if (tabs.length) await vscode.window.tabGroups.close(tabs);
+    for (const uri of [...files.map(([uri]) => uri), extraUri]) {
+      await deleteOwned(uri);
+    }
+  }
+}
+
+
+async function verifyMoveMemberObserver(folder: vscode.WorkspaceFolder, api: TestApi): Promise<void> {
+  const directory = vscode.Uri.joinPath(folder.uri, 'src', 'Service');
+  const sourceUri = vscode.Uri.joinPath(directory, 'C3MemberObserverSource.php');
+  const targetUri = vscode.Uri.joinPath(directory, 'C3MemberObserverTarget.php');
+  const callerUri = vscode.Uri.joinPath(directory, 'C3MemberObserverCaller.php');
+  const helperUri = vscode.Uri.joinPath(directory, 'C3MemberObserverHelper.php');
+  const source = '<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}';
+  const target = '<?php namespace App\\Service; final class C3MemberObserverTarget {}';
+  const caller = '<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}';
+  const helper = '<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return $value + 1;}}';
+  const observed = helper.replace('return $value + 1;', "return \\debug_backtrace()[1]['class'] === C3MemberObserverSource::class ? $value + 1 : $value + 2;");
+  const files = [[sourceUri, source], [targetUri, target], [callerUri, caller], [helperUri, helper]] as const;
+  const documents = new Map<string, vscode.TextDocument>();
+  try {
+    for (const [uri, text] of files) {
+      await vscode.workspace.fs.writeFile(uri, Buffer.from(text));
+      documents.set(uri.toString(), await vscode.workspace.openTextDocument(uri));
+    }
+    let sourceDocument = documents.get(sourceUri.toString())!;
+    let helperDocument = documents.get(helperUri.toString())!;
+    const position = sourceDocument.positionAt(source.indexOf('moveObserverProof(') + 1);
+    const refreshDocuments = async (): Promise<void> => {
+      // Preview tabs may close a document. A closed TextDocument retains an old
+      // snapshot even after a later WorkspaceEdit updates the same URI.
+      for (const [uri] of files) documents.set(uri.toString(), await vscode.workspace.openTextDocument(uri));
+      sourceDocument = documents.get(sourceUri.toString())!;
+      helperDocument = documents.get(helperUri.toString())!;
+    };
+    const first = await api.requestLanguageServer<{changes?: Record<string, unknown>} | null>('phpCompanion/moveMember', {
+      textDocument: {uri: sourceUri.toString(), version: sourceDocument.version}, position, targetClass: 'App\\Service\\C3MemberObserverTarget',
+    });
+    assert.strictEqual(Object.keys(first?.changes ?? {}).length, 3);
+    assert.ok(!first?.changes?.[helperUri.toString()], 'Callee was unexpectedly a preview participant');
+    const command = (testPreviewAction: () => Promise<'apply' | 'cancel'>): Thenable<boolean> =>
+      vscode.commands.executeCommand<boolean>('phpCompanion.moveMember', {uri: sourceUri, position,
+        targetClass: 'App\\Service\\C3MemberObserverTarget', testPreviewAction});
+    const result = await command(async () => {
+      const edit = new vscode.WorkspaceEdit();
+      edit.replace(helperUri, new vscode.Range(helperDocument.positionAt(0), helperDocument.positionAt(helperDocument.getText().length)), observed);
+      assert.ok(await vscode.workspace.applyEdit(edit));
+      await waitForState(api, 'moveMemberValidationResult', helperDocument, state => state.version === helperDocument.version,
+        'Move Member did not receive the unedited callee buffer version');
+      return 'apply';
+    });
+    await refreshDocuments();
+    console.log('C3 Move Member indirect-observer evidence: ' + JSON.stringify({result,
+      source: sourceDocument.getText(), target: documents.get(targetUri.toString())!.getText(),
+      caller: documents.get(callerUri.toString())!.getText(), helper: helperDocument.getText(), helperVersion: helperDocument.version}));
+    assert.strictEqual(result, false, 'Move Member applied a plan after its callee began observing the caller');
+    assert.strictEqual(sourceDocument.getText(), source);
+    assert.strictEqual(documents.get(targetUri.toString())!.getText(), target);
+    assert.strictEqual(documents.get(callerUri.toString())!.getText(), caller);
+    assert.strictEqual(helperDocument.getText(), observed, 'Move Member overwrote the callee user input');
+    assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(helperUri)).toString(), helper);
+    await vscode.window.showTextDocument(helperDocument); await vscode.commands.executeCommand('undo');
+    assert.strictEqual(helperDocument.getText(), helper);
+    await waitForState(api, 'moveMemberValidationResult', helperDocument, state => state.version === helperDocument.version,
+      'Move Member did not receive the restored callee');
+    const operatorProbes: Array<[string, string]> = [
+      ['echo', helper.replace('return $value + 1;', 'echo new C3MemberObserverProbe(); return $value + 1;')
+        + " final class C3MemberObserverProbe {public function __toString(): string {return \\debug_backtrace()[2]['class'];}}"],
+      ['clone', helper.replace('return $value + 1;', 'return (clone new C3MemberObserverProbe())->result;')
+        + " final class C3MemberObserverProbe {public int $result=3; public function __clone() {$this->result=\\debug_backtrace()[2]['class'] === C3MemberObserverSource::class ? 3 : 4;}}"],
+      ['isset', helper.replace('return $value + 1;', 'return isset((new C3MemberObserverProbe())->result) ? 3 : 4;')
+        + " /** @property-read int $result */ final class C3MemberObserverProbe {public function __isset($name): bool {return \\debug_backtrace()[2]['class'] === C3MemberObserverSource::class;}}"],
+      ['count', helper.replace('return $value + 1;', "return count(new C3MemberObserverProbe());")
+        + " final class C3MemberObserverProbe implements \\Countable {public function count(): int {return \\array_column(\\debug_backtrace(), 'class')[2] === C3MemberObserverSource::class ? 3 : 4;}}"],
+      ['serialize', helper.replace('return $value + 1;', "return strpos(serialize(new C3MemberObserverProbe()), C3MemberObserverSource::class) !== false ? 3 : 4;")
+        + " final class C3MemberObserverProbe {public function __serialize(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"],
+      ['json', helper.replace('return $value + 1;', "return json_encode(new C3MemberObserverProbe()) === json_encode(C3MemberObserverSource::class) ? 3 : 4;")
+        + " final class C3MemberObserverProbe implements \\JsonSerializable {public function jsonSerialize(): string {return \\array_column(\\debug_backtrace(), 'class')[2];}}"],
+      ['debug', helper.replace('return $value + 1;', "return strpos(print_r(new C3MemberObserverProbe(), true), C3MemberObserverSource::class) !== false ? 3 : 4;")
+        + " final class C3MemberObserverProbe {public function __debugInfo(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"],
+    ];
+    for (const [name, text] of operatorProbes) {
+      const operatorResult = await command(async () => {
+        const edit = new vscode.WorkspaceEdit();
+        edit.replace(helperUri, new vscode.Range(helperDocument.positionAt(0), helperDocument.positionAt(helperDocument.getText().length)), text);
+        assert.ok(await vscode.workspace.applyEdit(edit));
+        await waitForState(api, 'moveMemberValidationResult', helperDocument, state => state.version === helperDocument.version,
+          'Move Member did not receive the implicit operator buffer');
+        return 'apply';
+      });
+      await refreshDocuments();
+      console.log('C3 Move Member implicit-operator evidence: ' + JSON.stringify({name, result: operatorResult,
+        source: sourceDocument.getText(), target: documents.get(targetUri.toString())!.getText(),
+        caller: documents.get(callerUri.toString())!.getText(), helper: helperDocument.getText()}));
+      assert.strictEqual(operatorResult, false, 'Move Member applied a stale callee operator: ' + name);
+      assert.strictEqual(sourceDocument.getText(), source);
+      assert.strictEqual(documents.get(targetUri.toString())!.getText(), target);
+      assert.strictEqual(documents.get(callerUri.toString())!.getText(), caller);
+      assert.strictEqual(helperDocument.getText(), text);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(helperUri)).toString(), helper);
+      await vscode.window.showTextDocument(helperDocument); await vscode.commands.executeCommand('undo');
+      assert.strictEqual(helperDocument.getText(), helper);
+      await waitForState(api, 'moveMemberValidationResult', helperDocument, state => state.version === helperDocument.version,
+        'Move Member did not receive the operator Undo');
+    }
+    assert.strictEqual(await command(async () => 'cancel'), false);
+    assert.strictEqual(await command(async () => 'apply'), true, 'Safe callee move did not recover after Undo');
+    await refreshDocuments();
+    console.log('C3 Move Member live document evidence: ' + JSON.stringify([...documents].map(([uri, document]) => ({uri, version: document.version, closed: document.isClosed, text: document.getText()}))));
+    assert.ok(!sourceDocument.getText().includes('function moveObserverProof'));
+    assert.ok(documents.get(targetUri.toString())!.getText().includes('function moveObserverProof'));
+    assert.ok(documents.get(callerUri.toString())!.getText().includes('\\App\\Service\\C3MemberObserverTarget::moveObserverProof(2)'));
+    const moved = new Map([...documents].map(([uri, document]) => [uri, document.getText()]));
+    await vscode.window.showTextDocument(sourceDocument); await vscode.commands.executeCommand('undo');
+    await refreshDocuments();
+    for (const [uri, text] of files) assert.strictEqual(documents.get(uri.toString())!.getText(), text);
+    await vscode.commands.executeCommand('redo');
+    await refreshDocuments();
+    for (const [uri, text] of moved) assert.strictEqual(documents.get(uri)!.getText(), text);
+    await vscode.commands.executeCommand('undo');
+    await refreshDocuments();
+    for (const [uri, text] of files) {
+      assert.strictEqual(documents.get(uri.toString())!.getText(), text);
+      assert.strictEqual(Buffer.from(await vscode.workspace.fs.readFile(uri)).toString(), text);
+    }
+  } finally {
+    for (const [uri, text] of files) {
+      const document = documents.get(uri.toString());
+      if (document && !document.isClosed && document.getText() !== text) {
+        const reset = new vscode.WorkspaceEdit();
+        reset.replace(uri, new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length)), text);
+        await vscode.workspace.applyEdit(reset);
+      }
+      if (document?.isDirty) await document.save();
+    }
+    const owned = new Set(files.map(([uri]) => uri.toString()));
+    const tabs = vscode.window.tabGroups.all.flatMap(group => group.tabs)
+      .filter(tab => tab.input instanceof vscode.TabInputText && owned.has(tab.input.uri.toString()));
+    if (tabs.length) await vscode.window.tabGroups.close(tabs);
+    for (const [uri] of files) await vscode.workspace.fs.delete(uri, {useTrash: false});
+  }
+}
+
 
 // VS Code canonicalizes drive letters in custom preview URIs on Windows.
 // Keep the remaining path exact so a different directory still fails the test.
@@ -805,6 +1108,9 @@ export async function run(): Promise<void> {
     console.log('C3 focused local extraction completed; this is not the full C3 suite');
     return;
   }
+
+  await verifyMoveMember(folder, api);
+  await verifyMoveMemberObserver(folder, api);
 
   const importUri = vscode.Uri.joinPath(folder.uri, 'src', 'Controller', 'ImportConsumer.php');
   const importDocument = await vscode.workspace.openTextDocument(importUri);
@@ -2458,6 +2764,8 @@ final class C3InlineDocParameter {
   assert.ok((await vscode.workspace.openTextDocument(optionalFirstUri)).getText().includes(
     "combine(string $head, int $count = 2, string $mode = 'web')"));
   assert.ok((await vscode.workspace.openTextDocument(optionalCallerUri)).getText().includes("combine('b', 3, 'api')"));
+  await verifyEffectfulParameterReorder(folder);
+  await verifyDefaultEvaluationReorder(folder);
   const renameUri = vscode.Uri.joinPath(folder.uri, 'src', 'Service', 'C3RenameRace.php');
   const renameSource = '<?php\nnamespace App\\Service;\nfunction renameRace(): int { $value = 1; return $value; }\n';
   await vscode.workspace.fs.writeFile(renameUri, Buffer.from(renameSource));
@@ -4704,4 +5012,5 @@ class C3CrossDefaults { public function defaults(int $local = LOCAL_LIMIT, int $
     vscode.workspace.updateWorkspaceFolders(1, 1);
     await removeMultiRootFixture(secondContainer);
   }
+  await verifyGenerationBodyBoundary(folder.uri);
 }

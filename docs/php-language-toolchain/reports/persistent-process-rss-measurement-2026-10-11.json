@@ -1,0 +1,486 @@
+{
+  "status": "fresh-worker-and-whole-process-matrices-exited",
+  "fullMatrixQualified": true,
+  "canaryQualified": true,
+  "files1000FiveRoundsQualified": true,
+  "files1000FreshWorkers": 20,
+  "files1000PeakRssMiB": 151.10546875,
+  "files1000BudgetMiB": 384,
+  "measurementThroughDisposal": true,
+  "outerSchema2ImmutableBlobEnvelopePreserved": true,
+  "frozenInputs": 220,
+  "frozenInputsUnchangedAtObservation": true,
+  "normalRuntimeAssetsUnchanged": 8,
+  "benchmarkScriptSha256": "f046f613b97f3e006d5d9e41ebb74f69a0c8686da46483fb4b47f11294ccef8a",
+  "scopedLint": {
+    "exitCode": 0,
+    "terminalToolChunk": "f16a06",
+    "command": "node node_modules/eslint/bin/eslint.js scripts/benchmark-persistent-processes.mjs"
+  },
+  "fullMatrixState": "/var/www/node/php-companion/.vscode-test/d1749-persistence-scale-matrix-run.json",
+  "fullMatrixInputManifest": "/var/www/node/php-companion/.vscode-test/d1749-persistence-scale-matrix-input.json",
+  "fullMatrixDriverPid": 1823171,
+  "matrixTarget": {
+    "sizes": [
+      1000,
+      10000,
+      50000
+    ],
+    "roundsPerSize": 5,
+    "workersPerRound": 4
+  },
+  "twoHourSoakStillRunning": false,
+  "twoHourSoakState": "/var/www/node/php-companion/.vscode-test/d1746-long-session-driver.json",
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "openMajorItems": 26,
+  "numberedFixtures": 166,
+  "families": 14,
+  "scope": "Linux synthetic Composer package API worker indexing, cache recovery and RSS through disposal; no parent RSS, cache volume, bundled LSP or editor qualification",
+  "observedAtUtc": "2026-10-10T20:59:22.477027+00:00",
+  "wholeProcessCacheControl": {
+    "status": "exited",
+    "qualified": true,
+    "terminalExitCode": 0,
+    "terminalToolChunk": "70571b",
+    "files": 1000,
+    "rounds": 1,
+    "wholeProcessPeakRssMiB": 153.51,
+    "rssBudgetMiB": 384,
+    "warmCacheMiB": 5.48,
+    "warmCacheBudgetMiB": 64,
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 1000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 1999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    },
+    "ownedFixtureRemoved": true,
+    "ownedProcessesGone": true,
+    "evidence": "/var/www/node/php-companion/.vscode-test/d1752-whole-process-cache-canary-run.json"
+  },
+  "wholeProcessCacheFullMatrix": {
+    "verified": true,
+    "mode": "matrix",
+    "functionalQualified": true,
+    "allThreeMeasuredBudgetTypesQualified": true,
+    "qualified": true,
+    "parentMatrixQualification": true,
+    "parentDriverDoesNotGateColdTime": true,
+    "auditorAlsoChecksColdTimeAndExactWarmCacheBytes": true,
+    "groups": [
+      {
+        "files": 1000,
+        "rounds": 5,
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 2716.52,
+          "p95": 2777.31,
+          "max": 2777.31
+        },
+        "coldIndexBudgetMs": 8000,
+        "warmRestoreMs": {
+          "samples": 5,
+          "p50": 1882.09,
+          "p95": 2006.7,
+          "max": 2006.7
+        },
+        "wholeProcessRssMiB": {
+          "samples": 5,
+          "p50": 154.55,
+          "p95": 164.47,
+          "max": 164.47
+        },
+        "rssBudgetMiB": 384,
+        "warmCacheMiB": {
+          "samples": 5,
+          "p50": 5.476837158203125,
+          "p95": 5.476837158203125,
+          "max": 5.476837158203125
+        },
+        "warmCacheBudgetMiB": 64
+      },
+      {
+        "files": 10000,
+        "rounds": 5,
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 24105.25,
+          "p95": 24626.47,
+          "max": 24626.47
+        },
+        "coldIndexBudgetMs": 60000,
+        "warmRestoreMs": {
+          "samples": 5,
+          "p50": 16978.05,
+          "p95": 18220.3,
+          "max": 18220.3
+        },
+        "wholeProcessRssMiB": {
+          "samples": 5,
+          "p50": 372.49,
+          "p95": 528.18,
+          "max": 528.18
+        },
+        "rssBudgetMiB": 768,
+        "warmCacheMiB": {
+          "samples": 5,
+          "p50": 54.75083351135254,
+          "p95": 54.755117416381836,
+          "max": 54.755117416381836
+        },
+        "warmCacheBudgetMiB": 512
+      },
+      {
+        "files": 50000,
+        "rounds": 5,
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 117304.72,
+          "p95": 124225.16,
+          "max": 124225.16
+        },
+        "coldIndexBudgetMs": 300000,
+        "warmRestoreMs": {
+          "samples": 5,
+          "p50": 86871.91,
+          "p95": 93787.68,
+          "max": 93787.68
+        },
+        "wholeProcessRssMiB": {
+          "samples": 5,
+          "p50": 1371.32,
+          "p95": 1433.96,
+          "max": 1433.96
+        },
+        "rssBudgetMiB": 1536,
+        "warmCacheMiB": {
+          "samples": 5,
+          "p50": 273.7657279968262,
+          "p95": 273.7678470611572,
+          "max": 273.7678470611572
+        },
+        "warmCacheBudgetMiB": 2560
+      }
+    ],
+    "budgetFailures": [],
+    "frozenInputsUnchanged": 222,
+    "allOwnedProcessesGone": true,
+    "allOwnedFixtureRootsRemoved": true,
+    "originalFourLoadsSameProcessRetained": true,
+    "noForcedGcOrStageSplitting": true,
+    "sourceScriptSha256": "6d0b0e56e6f5f91e3737051891695356978f103f8bb28a6cc1e10e5aaa0232c1",
+    "auditorSha256": "e8f530ef80025ac24646b2d49228f202a2a7686733153ce4b986adcb1477dc50",
+    "stateEvidence": "/var/www/node/php-companion/.vscode-test/d1752-whole-process-cache-matrix-run.json",
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "openMajorItems": 26,
+    "scope": "Linux synthetic package API original four-stage whole-process cache sequence; excludes bundled LSP/UI, real projects and other platforms",
+    "observedAtUtc": "2026-10-10T20:48:08.790794+00:00",
+    "numberedFixtures": 166,
+    "families": 14,
+    "documentedAtUtc": "2026-10-10T20:59:22.477027+00:00",
+    "archive": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1769-whole-process-cache-matrix-terminal-archive",
+      "files": 38,
+      "manifestSha256": "cd14beaa7c9e928eec451881ba60c22f607eb7d313fa995d7a8b8e99bad9ae44"
+    },
+    "driverExitCode": 0,
+    "driverTerminalToolChunk": "20354 collected in exec cell 4669",
+    "auditorTerminalToolChunk": "715715",
+    "normalRuntimeAssetsUnchanged": 8,
+    "priorHistoricalFailuresRetained": true,
+    "state": "/var/www/node/php-companion/.vscode-test/d1752-whole-process-cache-matrix-run.json"
+  },
+  "fullMatrixScope": "Linux package API fresh-worker cold/warm/two-corruption matrix only",
+  "freshWorkerMatrix": {
+    "status": "exited",
+    "functionalQualified": true,
+    "memoryQualified": true,
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "scope": "Linux synthetic Composer package API workers, through workspace/parser disposal; parent process and bundled LSP are outside this RSS gate",
+    "benchmarkScriptSha256": "f046f613b97f3e006d5d9e41ebb74f69a0c8686da46483fb4b47f11294ccef8a",
+    "frozenInputs": 220,
+    "frozenInputsUnchanged": true,
+    "normalRuntimeAssetsUnchanged": 8,
+    "freshWorkerProcesses": 60,
+    "rounds": 15,
+    "workerProcessIds": [
+      1823189,
+      1823273,
+      1823287,
+      1823317,
+      1823388,
+      1823425,
+      1823451,
+      1823472,
+      1823506,
+      1823536,
+      1823554,
+      1823595,
+      1823645,
+      1823688,
+      1823711,
+      1823736,
+      1823778,
+      1823881,
+      1823905,
+      1823928,
+      1823974,
+      1824091,
+      1824196,
+      1824302,
+      1824503,
+      1824683,
+      1824766,
+      1824897,
+      1825081,
+      1825394,
+      1825494,
+      1825598,
+      1825758,
+      1825865,
+      1826201,
+      1826661,
+      1827266,
+      1827530,
+      1827657,
+      1827831,
+      1828145,
+      1829173,
+      1829613,
+      1830222,
+      1831113,
+      1832042,
+      1832852,
+      1834098,
+      1835077,
+      1835595,
+      1836074,
+      1836717,
+      1837741,
+      1839185,
+      1839978,
+      1840858,
+      1841543,
+      1842146,
+      1842630,
+      1843159
+    ],
+    "allOwnedProcessesGone": true,
+    "all15FixtureRootsRemoved": true,
+    "manifestSchema": 2,
+    "corruptionChecks": 30,
+    "semanticChecksRetained": true,
+    "rssSamplingIntervalMs": 10,
+    "rssPeakMethod": "Maximum of sampled RSS and worker process.resourceUsage().maxRSS after parser/workspace disposal",
+    "groups": [
+      {
+        "files": 1000,
+        "rounds": 5,
+        "freshWorkerProcesses": 20,
+        "budgetMiB": 384,
+        "peakRssMiB": {
+          "samples": 20,
+          "p50": 123.48046875,
+          "p95": 149.921875,
+          "max": 151.10546875
+        },
+        "sampledPeakRssMiB": {
+          "samples": 20,
+          "p50": 122.5078125,
+          "p95": 149.62109375,
+          "max": 151.10546875
+        },
+        "indexTimeMsByStage": {
+          "cold": {
+            "samples": 5,
+            "p50": 2626.6202,
+            "p95": 2756.1377150000003,
+            "max": 2756.1377150000003
+          },
+          "warm": {
+            "samples": 5,
+            "p50": 1946.9861009999997,
+            "p95": 1989.159471,
+            "max": 1989.159471
+          },
+          "layerRecovery": {
+            "samples": 5,
+            "p50": 2655.5113969999998,
+            "p95": 2726.5440820000003,
+            "max": 2726.5440820000003
+          },
+          "callableRecovery": {
+            "samples": 5,
+            "p50": 2725.3864630000003,
+            "p95": 2933.1349250000003,
+            "max": 2933.1349250000003
+          }
+        },
+        "memoryWithinBudget": true
+      },
+      {
+        "files": 10000,
+        "rounds": 5,
+        "freshWorkerProcesses": 20,
+        "budgetMiB": 768,
+        "peakRssMiB": {
+          "samples": 20,
+          "p50": 247.88671875,
+          "p95": 276.12109375,
+          "max": 279.8359375
+        },
+        "sampledPeakRssMiB": {
+          "samples": 20,
+          "p50": 247.88671875,
+          "p95": 274.05859375,
+          "max": 279.8359375
+        },
+        "indexTimeMsByStage": {
+          "cold": {
+            "samples": 5,
+            "p50": 24096.702135,
+            "p95": 27258.789575000003,
+            "max": 27258.789575000003
+          },
+          "warm": {
+            "samples": 5,
+            "p50": 17506.448016,
+            "p95": 18138.376542,
+            "max": 18138.376542
+          },
+          "layerRecovery": {
+            "samples": 5,
+            "p50": 24938.854602,
+            "p95": 26451.755588,
+            "max": 26451.755588
+          },
+          "callableRecovery": {
+            "samples": 5,
+            "p50": 25204.634863,
+            "p95": 27980.006644,
+            "max": 27980.006644
+          }
+        },
+        "memoryWithinBudget": true
+      },
+      {
+        "files": 50000,
+        "rounds": 5,
+        "freshWorkerProcesses": 20,
+        "budgetMiB": 1536,
+        "peakRssMiB": {
+          "samples": 20,
+          "p50": 743.27734375,
+          "p95": 862.36328125,
+          "max": 871.26171875
+        },
+        "sampledPeakRssMiB": {
+          "samples": 20,
+          "p50": 736.14453125,
+          "p95": 862.36328125,
+          "max": 870.23046875
+        },
+        "indexTimeMsByStage": {
+          "cold": {
+            "samples": 5,
+            "p50": 115205.720564,
+            "p95": 125088.49091,
+            "max": 125088.49091
+          },
+          "warm": {
+            "samples": 5,
+            "p50": 83207.094526,
+            "p95": 89217.451011,
+            "max": 89217.451011
+          },
+          "layerRecovery": {
+            "samples": 5,
+            "p50": 120021.939352,
+            "p95": 121701.953281,
+            "max": 121701.953281
+          },
+          "callableRecovery": {
+            "samples": 5,
+            "p50": 119666.046716,
+            "p95": 125994.706175,
+            "max": 125994.706175
+          }
+        },
+        "memoryWithinBudget": true
+      }
+    ],
+    "budgetFailures": [],
+    "previousFailuresRetained": true,
+    "concurrentLongSession": "d1746-long-session-driver.json",
+    "noIsolatedHostTimingClaim": true,
+    "unmeasured": [
+      "cache volume budget",
+      "current bundled LSP scale matrix",
+      "real project",
+      "Windows/macOS/Remote/editor UI",
+      "whole F13/P9/R4"
+    ],
+    "openMajorItems": 26,
+    "evidence": "/var/www/node/php-companion/.vscode-test/d1749-persistence-scale-matrix-run.json",
+    "archive": "/var/www/node/php-companion/.vscode-test/d1750-persistence-scale-matrix-archive",
+    "archiveFiles": 40,
+    "archiveManifestSha256": "3fedddff3202a68b331d2ceaa46954b3fe779a5cd4fda3c8c76f3f7a379c6f28",
+    "auditedAtUtc": "2026-10-10T19:59:34.519756+00:00"
+  },
+  "freshWorkerMatrixColdIndexGates": [
+    {
+      "files": 1000,
+      "budgetMs": 8000,
+      "coldIndexTime": {
+        "samples": 5,
+        "p50": 2626.6202,
+        "p95": 2756.1377150000003,
+        "max": 2756.1377150000003
+      },
+      "qualified": true
+    },
+    {
+      "files": 10000,
+      "budgetMs": 60000,
+      "coldIndexTime": {
+        "samples": 5,
+        "p50": 24096.702135,
+        "p95": 27258.789575000003,
+        "max": 27258.789575000003
+      },
+      "qualified": true
+    },
+    {
+      "files": 50000,
+      "budgetMs": 300000,
+      "coldIndexTime": {
+        "samples": 5,
+        "p50": 115205.720564,
+        "p95": 125088.49091,
+        "max": 125088.49091
+      },
+      "qualified": true
+    }
+  ],
+  "wholeProcessCacheMatrixQualified": true,
+  "terminalDriverExitCode": 0,
+  "terminalDriverToolChunk": "af4be4",
+  "latestWholeProcessReport": "persistent-whole-process-matrix-terminal-2026-10-11.json",
+  "twoHourSoakQualified": true,
+  "twoHourSoakReport": "long-session-two-hour-terminal-2026-10-11.json"
+}

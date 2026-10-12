@@ -259,8 +259,9 @@ it.each(['onDemand', 'progressive'] as const)('cancels waiting reference selecti
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: {} }));
       expect(await exited, `PHP ${phpVersion}: ${stderr.slice(-500)}`).toBe(0);
       expect(stderr).toBe('');
-      expect(output.messages.filter(message => (message as { method?: string; params?: { type?: number } }).method === 'window/logMessage'
-        && (message as { params?: { type?: number } }).params?.type === 2)).toEqual([]);
+      const warnings = output.messages.filter(message => (message as { method?: string; params?: { type?: number } }).method === 'window/logMessage'
+        && (message as { params?: { type?: number } }).params?.type === 2);
+      expect(warnings, `PHP ${phpVersion} ${indexingMode}; warnings=${JSON.stringify(warnings)}; messages=${JSON.stringify(output.messages)}`).toEqual([]);
       expect(output.messages.filter(message => (message as { params?: { message?: string } }).params?.message?.includes('[reference-prewarm] semantic count='))).toEqual([]);
       console.log('Cancelled reference selection: ' + JSON.stringify({ indexingMode, phpVersion }));
     } finally { server?.kill(); await rm(base, { recursive: true, force: true }); }

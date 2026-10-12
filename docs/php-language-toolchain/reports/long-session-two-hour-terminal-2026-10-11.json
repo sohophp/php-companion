@@ -1,0 +1,107 @@
+{
+  "verified": true,
+  "qualified": true,
+  "mode": "two-hour",
+  "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms",
+  "multiHourQualified": true,
+  "actualElapsedMs": 7200635.133006,
+  "cycles": 23629,
+  "checkedResults": 118145,
+  "staleResults": 0,
+  "windows": 236,
+  "allTimings": {
+    "change": {
+      "samples": 23619,
+      "p50": 29.119393999688327,
+      "p95": 31.342469999566674,
+      "maximum": 41.212156999856234
+    },
+    "betaCompletion": {
+      "samples": 23619,
+      "p50": 2.0240780003368855,
+      "p95": 3.530790999997407,
+      "maximum": 14.057036000303924
+    },
+    "betaHover": {
+      "samples": 23619,
+      "p50": 1.6489820000715554,
+      "p95": 2.8558350000239443,
+      "maximum": 12.206445000134408
+    },
+    "betaDefinition": {
+      "samples": 23619,
+      "p50": 1.669575999956578,
+      "p95": 2.894051999785006,
+      "maximum": 8.877136999741197
+    },
+    "alphaCompletion": {
+      "samples": 23619,
+      "p50": 1.8550159996375442,
+      "p95": 3.2644909997470677,
+      "maximum": 8.422551000025123
+    },
+    "alphaDefinition": {
+      "samples": 23619,
+      "p50": 3.470259000081569,
+      "p95": 6.117568999994546,
+      "maximum": 18.575468000024557
+    }
+  },
+  "peakHighWaterMiB": 308.15625,
+  "peakCacheMiB": 3.690365791320801,
+  "recoveryWitnesses": [
+    {
+      "kind": "forced-process-exit",
+      "previousPid": 1815052,
+      "replacementPid": 1835782,
+      "recoveryMs": 3844.953945999965,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    },
+    {
+      "kind": "cache-manifest-corruption",
+      "path": "/tmp/sophp-long-session-TUDNLc/.cache/10228de94f8ed206a2a3ae98ff49d2cc2083b088892795e90237ae8cf42dd01b.json",
+      "originalSha256": "b3c62006a44e6c58410b7a4533d2ccfd5817ccd324f77fcfa968e8a136268999",
+      "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+      "recoveryProbe": {
+        "uri": "file:///tmp/sophp-long-session-TUDNLc/src/Noise997.php",
+        "method": "textDocument/references",
+        "declarationReturned": true
+      },
+      "rebuiltSha256": "327048d4e33f68104f29574f02877175ff03c01402b52e4a0137fa4c260baca4",
+      "replacementPid": 1854531,
+      "recoveryMs": 4469.329940999858,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    }
+  ],
+  "recoveryMsHasNoSeparateHardBudget": true,
+  "rebuiltManifestBytesNotRetained": true,
+  "rebuiltManifestHashFromActualRunnerRead": true,
+  "driverAndRunnerAndServersGone": true,
+  "ownedFixtureRemoved": true,
+  "frozenSnapshotInputsUnchanged": 1302,
+  "normalAssetsUnchanged": 8,
+  "runnerSha256": "0cc11f154b3a15f06ed38c031130a7eee871d5a810ccac2f9f090ce30e2df810",
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "reportSha256": "8c23602169655edf9c17f87440981a0247ea241200ba854922913af261be8f51",
+  "auditorSha256": "3c9fb8b54a8495ff8d9f50bf44b3354137098a9ff44eecb0eaab89e86d4e8a1d",
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "openMajorItems": 26,
+  "auditedAtUtc": "2026-10-10T20:57:52.238316+00:00",
+  "numberedFixtures": 166,
+  "families": 14,
+  "documentedAtUtc": "2026-10-10T20:59:22.477027+00:00",
+  "archive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1768-long-session-two-hour-terminal-archive",
+    "files": 8,
+    "manifestSha256": "e58e62310c1f9b95290bdd09e933af8bbf4ba97c0822b86090ec09348522972f"
+  },
+  "driverExitCode": 0,
+  "driverTerminalToolChunk": "25712 collected in exec cell 4669",
+  "auditorTerminalToolChunk": "462184",
+  "actualDriverDurationSeconds": 7205.518240924983
+}

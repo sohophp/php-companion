@@ -1,0 +1,161 @@
+{
+  "recordedAtUtc": "2026-10-10T09:41:31.538461+00:00",
+  "engineBuildId": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+  "diagnosticPrefixAssertionsPassed": true,
+  "originalWindowsC2Qualified": false,
+  "originalFailurePreserved": true,
+  "originalFailureCauseProven": false,
+  "diagnosticWrapperExitCode": 1,
+  "diagnosticWrapperError": "Original full-C2 acceptance marker parser was retained by mistake; diagnostic renamed the marker to constructorPrefix. Actual editor assertions and passive proof completed.",
+  "privatePreparationErrorPreserved": "D1575 named a non-existent preparation input path; no editor was launched during that preparation.",
+  "observedUndoRedo": [
+    {
+      "atMs": 7631.759,
+      "event": "command-after",
+      "command": "undo",
+      "target": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 4,
+        "text": "<?php class C2Info extends finfo {} new C2Info(",
+        "dirty": true
+      },
+      "active": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 4,
+        "selection": {
+          "anchor": {
+            "line": 0,
+            "character": 0
+          },
+          "active": {
+            "line": 0,
+            "character": 0
+          }
+        }
+      },
+      "visible": [
+        "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php"
+      ],
+      "focused": true
+    },
+    {
+      "atMs": 7684.0246,
+      "event": "command-after",
+      "command": "redo",
+      "target": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 5,
+        "text": "<?php class C2Info extends finfo { public function __construct(string $label) {} } new C2Info(",
+        "dirty": true
+      },
+      "active": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 5,
+        "selection": {
+          "anchor": {
+            "line": 0,
+            "character": 0
+          },
+          "active": {
+            "line": 0,
+            "character": 0
+          }
+        }
+      },
+      "visible": [
+        "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php"
+      ],
+      "focused": true
+    },
+    {
+      "atMs": 8313.1092,
+      "event": "command-after",
+      "command": "undo",
+      "target": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 9,
+        "text": "<?php class C2Info extends finfo {} new C2Info(",
+        "dirty": true
+      },
+      "active": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 9,
+        "selection": {
+          "anchor": {
+            "line": 0,
+            "character": 0
+          },
+          "active": {
+            "line": 0,
+            "character": 0
+          }
+        }
+      },
+      "visible": [
+        "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php"
+      ],
+      "focused": true
+    },
+    {
+      "atMs": 8340.4323,
+      "event": "command-after",
+      "command": "redo",
+      "target": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 10,
+        "text": "<?php class C2Info extends finfo { public function __construct(string $label) {} } new C2Info(",
+        "dirty": true
+      },
+      "active": {
+        "uri": "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php",
+        "version": 10,
+        "selection": {
+          "anchor": {
+            "line": 0,
+            "character": 0
+          },
+          "active": {
+            "line": 0,
+            "character": 0
+          }
+        }
+      },
+      "visible": [
+        "file:///c%3A/Users/sohop/AppData/Local/Temp/sophp-native-windows-host-1Q0oT4/src/Service/C2FileinfoConstructor.php"
+      ],
+      "focused": true
+    }
+  ],
+  "observedUndoRedoDocumentEvents": 4,
+  "signatureTraceEvents": 39,
+  "passiveObservationHasTimingCost": true,
+  "fullC2Rerun": false,
+  "normalRuntimeAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "37f9cfe038aae4c30d95eeeae355694ac81e22ad25bd8d39e8f9f1d1be03f0dc",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "frozenInputsChecked": 30071,
+  "frozenLinksChecked": 184,
+  "sourceAndRepositoriesUnchanged": true,
+  "actualControllersAndChildrenGone": true,
+  "checkedLinuxProcessIds": [
+    1275581,
+    1275828
+  ],
+  "ownedWindowsProcessesAfterExit": [],
+  "archive": "/var/www/node/php-companion/.vscode-test/d1579-constructor-prefix-evidence",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1579-constructor-prefix-evidence/manifest.json",
+  "manifestSha256": "17d0bcdf96736c65e07d7984b99b92f8205597b05ed736aefa8f6b6f8df3c38e",
+  "archiveFilesVerified": 88,
+  "priorFailureArchiveFilesVerified": 53,
+  "fullObjectiveComplete": false,
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false
+}

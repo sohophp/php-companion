@@ -1,0 +1,325 @@
+{
+  "auditedAtUtc": "2026-10-10T21:35:36.155973+00:00",
+  "terminalAuditQualified": true,
+  "matrixQualified": false,
+  "currentPassedModes": 4,
+  "currentTotalModes": 6,
+  "uniqueFrozenInputsVerified": 66313,
+  "changedInputs": [],
+  "cases": [
+    {
+      "matrix": "d1787",
+      "mode": "normal_reload",
+      "driverExitCode": 1,
+      "checkerExitCodeRecorded": null,
+      "driverPostprocessingError": "Traceback (most recent call last):\n  File \"/var/www/node/php-companion/.vscode-test/d1787-run-reference-cache-case.py\", line 55, in <module>\n    phaseRaw=artifact/(phase+'.locations.json');phaseResults=artifact/(phase+'.stdout.jsonl');normalized=b/(prefix+'-'+phase+'-normalized-comparison.json');comparison=subprocess.run([node,'--input-type=module','-e',normalizeScript,str(phaseRaw),str(phaseResults),str(workspace),project['sourceRoot'],str(normalized)],cwd=r,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);assert comparison.returncode==0,comparison.stderr[-1500:];record['phaseComparisons'][phase]=json.loads(normalized.read_text());assert record['phaseComparisons'][phase]['current188AndHashMatched'];assert record['phaseComparisons'][phase]['definitionResults']==1\n                                                                                                                                                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: node:internal/fs/promises:638\n  return new FileHandle(await PromisePrototypeThen(\n                        ^\n\nError: ENOENT: no such file or directory, open '/var/www/node/php-companion/.vscode-test/d1787-normal_reload-fixed-real-reference-evidence/reference-baseline-qAGNFo/reload.locations.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async readFile (node:internal/fs/promises:1242:14)\n    at async file:///var/www/node/php-companion/[eval1]:1:218 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: '/var/www/node/php-companion/.vscode-test/d1787-normal_reload-fixed-real-reference-evidence/reference-baseline-qAGNFo/reload.locations.json'\n}\n\nNode.js v22.14.0\n\n",
+      "qualified": false,
+      "productionMode": true,
+      "originalBenchmarkTestMode": false,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 17505,
+          "definitionMs": 92,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1787",
+      "mode": "early_reload",
+      "driverExitCode": 1,
+      "checkerExitCodeRecorded": null,
+      "driverPostprocessingError": "Traceback (most recent call last):\n  File \"/var/www/node/php-companion/.vscode-test/d1787-run-reference-cache-case.py\", line 55, in <module>\n    phaseRaw=artifact/(phase+'.locations.json');phaseResults=artifact/(phase+'.stdout.jsonl');normalized=b/(prefix+'-'+phase+'-normalized-comparison.json');comparison=subprocess.run([node,'--input-type=module','-e',normalizeScript,str(phaseRaw),str(phaseResults),str(workspace),project['sourceRoot'],str(normalized)],cwd=r,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);assert comparison.returncode==0,comparison.stderr[-1500:];record['phaseComparisons'][phase]=json.loads(normalized.read_text());assert record['phaseComparisons'][phase]['current188AndHashMatched'];assert record['phaseComparisons'][phase]['definitionResults']==1\n                                                                                                                                                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: node:internal/fs/promises:638\n  return new FileHandle(await PromisePrototypeThen(\n                        ^\n\nError: ENOENT: no such file or directory, open '/var/www/node/php-companion/.vscode-test/d1787-early_reload-fixed-real-reference-evidence/reference-baseline-BsKcaW/reload.locations.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async readFile (node:internal/fs/promises:1242:14)\n    at async file:///var/www/node/php-companion/[eval1]:1:218 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: '/var/www/node/php-companion/.vscode-test/d1787-early_reload-fixed-real-reference-evidence/reference-baseline-BsKcaW/reload.locations.json'\n}\n\nNode.js v22.14.0\n\n",
+      "qualified": false,
+      "productionMode": true,
+      "originalBenchmarkTestMode": false,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 16203,
+          "definitionMs": 112,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1787",
+      "mode": "early_reload_prewarm",
+      "driverExitCode": 1,
+      "checkerExitCodeRecorded": null,
+      "driverPostprocessingError": "Traceback (most recent call last):\n  File \"/var/www/node/php-companion/.vscode-test/d1787-run-reference-cache-case.py\", line 55, in <module>\n    phaseRaw=artifact/(phase+'.locations.json');phaseResults=artifact/(phase+'.stdout.jsonl');normalized=b/(prefix+'-'+phase+'-normalized-comparison.json');comparison=subprocess.run([node,'--input-type=module','-e',normalizeScript,str(phaseRaw),str(phaseResults),str(workspace),project['sourceRoot'],str(normalized)],cwd=r,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);assert comparison.returncode==0,comparison.stderr[-1500:];record['phaseComparisons'][phase]=json.loads(normalized.read_text());assert record['phaseComparisons'][phase]['current188AndHashMatched'];assert record['phaseComparisons'][phase]['definitionResults']==1\n                                                                                                                                                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: node:internal/fs/promises:638\n  return new FileHandle(await PromisePrototypeThen(\n                        ^\n\nError: ENOENT: no such file or directory, open '/var/www/node/php-companion/.vscode-test/d1787-early_reload_prewarm-fixed-real-reference-evidence/reference-baseline-Ubq0o6/reload.locations.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async readFile (node:internal/fs/promises:1242:14)\n    at async file:///var/www/node/php-companion/[eval1]:1:218 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: '/var/www/node/php-companion/.vscode-test/d1787-early_reload_prewarm-fixed-real-reference-evidence/reference-baseline-Ubq0o6/reload.locations.json'\n}\n\nNode.js v22.14.0\n\n",
+      "qualified": false,
+      "productionMode": true,
+      "originalBenchmarkTestMode": false,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 16335,
+          "definitionMs": 80,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1787",
+      "mode": "source_reload",
+      "driverExitCode": 0,
+      "checkerExitCodeRecorded": 0,
+      "driverPostprocessingError": null,
+      "qualified": true,
+      "productionMode": true,
+      "originalBenchmarkTestMode": false,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 8104,
+          "definitionMs": 29,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 9515,
+          "definitionMs": 38,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1787",
+      "mode": "source_selection_reload",
+      "driverExitCode": 1,
+      "checkerExitCodeRecorded": null,
+      "driverPostprocessingError": "Traceback (most recent call last):\n  File \"/var/www/node/php-companion/.vscode-test/d1787-run-reference-cache-case.py\", line 55, in <module>\n    phaseRaw=artifact/(phase+'.locations.json');phaseResults=artifact/(phase+'.stdout.jsonl');normalized=b/(prefix+'-'+phase+'-normalized-comparison.json');comparison=subprocess.run([node,'--input-type=module','-e',normalizeScript,str(phaseRaw),str(phaseResults),str(workspace),project['sourceRoot'],str(normalized)],cwd=r,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);assert comparison.returncode==0,comparison.stderr[-1500:];record['phaseComparisons'][phase]=json.loads(normalized.read_text());assert record['phaseComparisons'][phase]['current188AndHashMatched'];assert record['phaseComparisons'][phase]['definitionResults']==1\n                                                                                                                                                                                                                                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: node:internal/fs/promises:638\n  return new FileHandle(await PromisePrototypeThen(\n                        ^\n\nError: ENOENT: no such file or directory, open '/var/www/node/php-companion/.vscode-test/d1787-source_selection_reload-fixed-real-reference-evidence/reference-baseline-7qRFAx/reload.locations.json'\n    at async open (node:internal/fs/promises:638:25)\n    at async readFile (node:internal/fs/promises:1242:14)\n    at async file:///var/www/node/php-companion/[eval1]:1:218 {\n  errno: -2,\n  code: 'ENOENT',\n  syscall: 'open',\n  path: '/var/www/node/php-companion/.vscode-test/d1787-source_selection_reload-fixed-real-reference-evidence/reference-baseline-7qRFAx/reload.locations.json'\n}\n\nNode.js v22.14.0\n\n",
+      "qualified": false,
+      "productionMode": true,
+      "originalBenchmarkTestMode": false,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 3344,
+          "definitionMs": 28,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1787",
+      "mode": "source_prime_immediate",
+      "driverExitCode": 0,
+      "checkerExitCodeRecorded": 0,
+      "driverPostprocessingError": null,
+      "qualified": true,
+      "productionMode": true,
+      "originalBenchmarkTestMode": false,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 7960,
+          "definitionMs": 25,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 15344,
+          "definitionMs": 41,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1788",
+      "mode": "normal_reload",
+      "driverExitCode": 0,
+      "checkerExitCodeRecorded": 0,
+      "driverPostprocessingError": null,
+      "qualified": true,
+      "productionMode": false,
+      "originalBenchmarkTestMode": true,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 15622,
+          "definitionMs": 19,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 2025,
+          "definitionMs": 675,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1788",
+      "mode": "early_reload",
+      "driverExitCode": 1,
+      "checkerExitCodeRecorded": 1,
+      "driverPostprocessingError": null,
+      "qualified": false,
+      "productionMode": false,
+      "originalBenchmarkTestMode": true,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 16023,
+          "definitionMs": 13,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 1958,
+          "definitionMs": 630,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1788",
+      "mode": "early_reload_prewarm",
+      "driverExitCode": 0,
+      "checkerExitCodeRecorded": 0,
+      "driverPostprocessingError": null,
+      "qualified": true,
+      "productionMode": false,
+      "originalBenchmarkTestMode": true,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 15616,
+          "definitionMs": 14,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 1343,
+          "definitionMs": 18,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1788",
+      "mode": "source_reload",
+      "driverExitCode": 0,
+      "checkerExitCodeRecorded": 0,
+      "driverPostprocessingError": null,
+      "qualified": true,
+      "productionMode": false,
+      "originalBenchmarkTestMode": true,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 7977,
+          "definitionMs": 35,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 8581,
+          "definitionMs": 26,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1788",
+      "mode": "source_selection_reload",
+      "driverExitCode": 1,
+      "checkerExitCodeRecorded": 1,
+      "driverPostprocessingError": null,
+      "qualified": false,
+      "productionMode": false,
+      "originalBenchmarkTestMode": true,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 3473,
+          "definitionMs": 23,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    },
+    {
+      "matrix": "d1788",
+      "mode": "source_prime_immediate",
+      "driverExitCode": 0,
+      "checkerExitCodeRecorded": 0,
+      "driverPostprocessingError": null,
+      "qualified": true,
+      "productionMode": false,
+      "originalBenchmarkTestMode": true,
+      "phases": [
+        {
+          "phase": "cold",
+          "references": 188,
+          "referencesMs": 8034,
+          "definitionMs": 27,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        },
+        {
+          "phase": "reload",
+          "references": 188,
+          "referencesMs": 15587,
+          "definitionMs": 14,
+          "rawLocationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be"
+        }
+      ],
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true
+    }
+  ],
+  "originalThresholdsUnchanged": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "limits": [
+    "D1788 restores original benchmark test RPC waits; it is not production-mode qualification.",
+    "D1787 forced-production failures remain historical evidence; only two production source modes passed.",
+    "Early reload restored all 188 before providers and met 3500ms, but later candidate logs violate the original whole-phase assertion; no root cause or fix qualification.",
+    "Selected cold References 3473ms exceeds original 1000ms despite semantic 1ms; reload was not executed.",
+    "Four successful fixed-project modes do not qualify the full six-mode matrix, editor/Remote, other platforms, or F13/P9/R4."
+  ],
+  "archive": "/var/www/node/php-companion/.vscode-test/d1789-reference-cache-matrix-terminal-archive/manifest.json",
+  "archiveFiles": 191,
+  "archiveManifestSha256": "47a384bf45f888fc4b57e5b739afc29ba80449cf2b96141542d70699977f42db"
+}

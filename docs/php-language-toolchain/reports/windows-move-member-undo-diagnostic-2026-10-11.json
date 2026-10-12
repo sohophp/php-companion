@@ -1,0 +1,38 @@
+{
+  "normalBundleSha256": "ac1147152e71b18967f9db0d05524262d0e25d79f937f0e4b57c87ea400af062",
+  "originalWindowsC3FailurePreserved": true,
+  "originalMoveMemberFailureReproducedWithPassiveObservation": true,
+  "activeCallerCorrectAtUndoDispatch": true,
+  "undoDocumentChangeObserved": false,
+  "independentBaselineCases": 3,
+  "independentBaselineImmediateAnd500msUndoRestored": [
+    false,
+    false,
+    false
+  ],
+  "independentBaselineWindowFocused": [
+    false,
+    false,
+    false
+  ],
+  "physicalOwnedWindowFocusControlPassed": false,
+  "physicalFocusControlEditingCasesExecuted": 0,
+  "nativeRootCauseProven": false,
+  "nativeWindowsC3Qualified": false,
+  "normalProductChanged": false,
+  "equivalentRepetitionStopped": true,
+  "futureWork": [
+    "Independent real-project continuous-editing performance investigation",
+    "Current real-editor two-hour session terminal audit",
+    "Original Windows workflows when actual editor command focus can be verified"
+  ],
+  "roadmapOpenItems": 26,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "evidence": {
+    "/var/www/node/php-companion/.vscode-test/d2070-native-undo-diagnostic-terminal-audit.json": "7f5154985d5635e2016383489a8cff3bd339e3a3eed39099db4c7eec2b1e67fd",
+    "/var/www/node/php-companion/.vscode-test/d2075-focused-native-undo-terminal-audit.json": "0a5d5602140e223ea145f7e56c178fbc5472e8c999753145b803c180c6b23320",
+    "/var/www/node/php-companion/.vscode-test/d2076-installed-native-undo-routing-source.json": "30d3074d4eda2ece213e5749c404b59370e05d1aa6b4756f049a6f4dfb5f80ff",
+    "/var/www/node/php-companion/.vscode-test/d2073-focus-powershell-parse-controls.json": "f45edb5a055ef127fec6ddd0ec94c8d369c434af1789967f598e2f0163888897"
+  }
+}

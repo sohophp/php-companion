@@ -1,0 +1,90 @@
+{
+  "qualified": true,
+  "engineBuildId": "0ae33e9b04c83f12ccbb8dd086a8f3c547818978acb383700b27e8a3f6a131d0",
+  "normalRuntimeAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "09696fde0c544f5e3afb4d52ec7a30160c2b9b28c03aa7c9bd12263c4a4191d2",
+    "/var/www/node/php-companion/dist/language-server.js": "0ae33e9b04c83f12ccbb8dd086a8f3c547818978acb383700b27e8a3f6a131d0",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "d0f703c47110f05277886a7e89ba48e3bc4335dac659a996c8e2009b8dce254d",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "6bf926a7d5bec99a6da7f7faff7c293ce3ef0d094c568eed92986683567e496e",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "originalFourWorkflowsPassed": true,
+  "generationBoundaryRows": 80,
+  "allOriginalProcessesGone": true,
+  "checkedProcessIds": [
+    1524740,
+    1524803,
+    1524805,
+    1524815,
+    1525320,
+    1525677,
+    1532980,
+    1532982,
+    1532985,
+    1533486,
+    1535726,
+    1535820,
+    1535822,
+    1535825,
+    1536327,
+    1536671,
+    1537546,
+    1537548,
+    1537551,
+    1538070,
+    1538426
+  ],
+  "frozenInputsChecked": 29983,
+  "frozenSymlinksChecked": 184,
+  "currentRepositoryStateSerializedAndVerified": true,
+  "fullLspPassed": 1476,
+  "fullLspEvidenceFilesVerified": 52,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1626-controller-generation-editor-evidence",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1626-controller-generation-editor-evidence/manifest.json",
+  "manifestSha256": "aee032e6ce9ac3ed5718be487e63429a3c8e09b19eb844c112f3aa66fbd40653",
+  "archiveFilesVerified": 144,
+  "steps": [
+    {
+      "suite": "c3",
+      "indexingMode": "progressive",
+      "qualified": true,
+      "durationSeconds": 275.79349042399554,
+      "actualLanguageServerPids": [
+        1525677
+      ]
+    },
+    {
+      "suite": "c1",
+      "indexingMode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 118.44152348901844,
+      "actualLanguageServerPids": [
+        1535726
+      ]
+    },
+    {
+      "suite": "c2",
+      "indexingMode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 149.13419732701732,
+      "actualLanguageServerPids": [
+        1536671
+      ]
+    },
+    {
+      "suite": "c3",
+      "indexingMode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 284.2138983680052,
+      "actualLanguageServerPids": [
+        1538426
+      ]
+    }
+  ],
+  "roadmapOpenItems": 26,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false
+}

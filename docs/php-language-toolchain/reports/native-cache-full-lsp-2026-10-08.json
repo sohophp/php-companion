@@ -1,0 +1,1742 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "completed",
+  "decision": "isolated-native-runtime-complete-original-lsp-passed-host-and-performance-pending",
+  "fullLspQualified": true,
+  "qualification": false,
+  "fullObjectiveComplete": false,
+  "normalProductChanged": false,
+  "candidateAdopted": false,
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "published": false,
+  "audit": {
+    "status": "passed",
+    "qualified": true,
+    "auditedAtUtc": "2026-10-07T19:28:32.931406+00:00",
+    "run": {
+      "status": "exited",
+      "parentPid": 1048555,
+      "childPid": 1048652,
+      "startedAtUtc": "2026-10-07T18:57:03.900947+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d436-integrated-full-lsp-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d436-integrated-full-lsp-input.json",
+      "exitCode": 0,
+      "durationSeconds": 1865.6052043740056,
+      "finishedAtUtc": "2026-10-07T19:28:09.504359+00:00",
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "repositoryChanges": [],
+      "logSha256": "e80c09dea74c0abf5ce0c5c3750435648e0b96a9cd4b83df4d0f76d40f71c500"
+    },
+    "result": {
+      "numTotalTests": 1321,
+      "numPassedTests": 1321,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "expectedFiles": 99,
+    "actualFiles": 99,
+    "expectedCases": 1321,
+    "actualCases": 1321,
+    "missingCases": [],
+    "extraCases": [],
+    "caseMultiplicityPreserved": true,
+    "failuresOrSkipped": [],
+    "inputCount": 7305,
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "collectionChanged": false,
+    "warnings": [],
+    "timings": [
+      {
+        "category": "PHP_COMPANION_TEST_OUTPUT_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-timings/output-completion-onDemand.json",
+        "sha256": "cf288b28dcf39f0f1fc6aabb5e0f770bcc4a16374fc5e5f20b24f40f03b33d64",
+        "data": {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "firstQueryMs": 190.49209699999847,
+          "warmSamples": 20,
+          "p95Ms": 17.87219499999992,
+          "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_OUTPUT_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-timings/output-completion-progressive.json",
+        "sha256": "cb30d35ae2f1a7d27ecef7b97fed209d21c0fef4a877b5dbb5a5ac272c46f9c6",
+        "data": {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "firstQueryMs": 207.80977699999858,
+          "warmSamples": 20,
+          "p95Ms": 25.60486200000014,
+          "scope": "isolated stdio output variable, three files, unchanged document; first query without explicit semantic prewarm"
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/onDemand-false.json",
+        "sha256": "19710b515b08597b336484cdb0b9392cfcbf60529cbb4312949bed98f11b40a1",
+        "data": {
+          "indexingMode": "onDemand",
+          "waitingCompletion": false,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 13.537264999999024
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+        "sha256": "cdeaca964dee7dd1390d0639935cbc5b9cd2da7fe868e40abe6020afb91b8130",
+        "data": {
+          "indexingMode": "onDemand",
+          "waitingCompletion": true,
+          "gapMs": 5,
+          "roots": 5,
+          "elapsedMs": 15.669719999998051
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/onDemand-true.json",
+        "sha256": "bbe91ed1d41893e7e72232f8342c963473a087d92baa1f229a3712c974da1e8c",
+        "data": {
+          "indexingMode": "onDemand",
+          "waitingCompletion": true,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 14.065425000000687
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/progressive-false.json",
+        "sha256": "20584f5a7f0ad134ed75f0d1c4f40acacca7a9ce5ad405994cbd28dbdcc3fe9a",
+        "data": {
+          "indexingMode": "progressive",
+          "waitingCompletion": false,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 12.618743999999424
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+        "sha256": "9dd83f9212b0a6ca4320b52da9c121e890163a1c9d6731962df25be47acb9df6",
+        "data": {
+          "indexingMode": "progressive",
+          "waitingCompletion": true,
+          "gapMs": 5,
+          "roots": 5,
+          "elapsedMs": 37.39998000000196
+        }
+      },
+      {
+        "category": "PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR",
+        "path": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/progressive-true.json",
+        "sha256": "d53a587565d31f01eccd083192cf9ac0dbcb99904e9703c0c6bbfce801ba8096",
+        "data": {
+          "indexingMode": "progressive",
+          "waitingCompletion": true,
+          "gapMs": 0,
+          "roots": 5,
+          "elapsedMs": 15.969203999997262
+        }
+      }
+    ],
+    "engineBuildId": "0ae42772dab6921d819c1e618eef1834d8d157a046dc6fd5658042da48973cb2",
+    "candidateBundleSha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04",
+    "normalCoreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+    "originalFixtureAssertionsPreserved": true,
+    "preparationAuditSha256": "cb0cf1e5283692d9e0b51cc2fbfc566d02ec71271ef1eb8a07b9e4d1ab09d5e8",
+    "snapshotSha256": "04db130f4c058d3f90796cc6be681319bf163d7adf54f75051f1068fdc2b3590",
+    "resultSha256": "0f3a896bc663c92ae059a0e26f2a077fb26f98fa3272c581ae8d6c3e50460a5a",
+    "logSha256": "e80c09dea74c0abf5ce0c5c3750435648e0b96a9cd4b83df4d0f76d40f71c500",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "profileUpdated": false,
+    "packaged": false,
+    "published": false,
+    "goalStatus": "active",
+    "scope": "One complete original Linux LSP run against the isolated six-entry native-index/corrected-semantic runtime and private package resolution. All 99 files/1321 cases, original assertions, timeout and performance-stage ordering preserved; only two cache fixtures adapted reversibly for schema 2. Nine actual PHP CLIs participate in the original syntax parameterization, not nine complete suites. Does not qualify Extension Host, three-scale/five-round performance or RSS, ordinary Controller latency, other platforms/modes, complete external-tool combinations, long sessions, human WSL or all C1-C4/R4/P0-P9/F01-F14. Historical failures remain."
+  },
+  "preparationAudit": {
+    "status": "passed",
+    "copiedFilesAndSourcesVerified": 2906,
+    "originalTestFiles": 99,
+    "collectedCases": 1321,
+    "missingOriginalCases": [],
+    "extraCases": [],
+    "caseMultiplicityPreserved": true,
+    "originalConfigByteIdentical": true,
+    "originalAssertionsPreserved": true,
+    "allTestAdaptationsReverseExactly": true,
+    "formatOnlyFixtureAdaptations": {
+      "packages/language-server/test/stdio.test.ts": [
+        {
+          "old": "if (manifest.schema !== 1 || !manifest.entries) continue;",
+          "new": "if (![1, 2].includes(manifest.schema) || !manifest.entries) continue;"
+        }
+      ],
+      "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts": [
+        {
+          "old": "import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';",
+          "new": "import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';\nimport { readCacheFixture, writeCacheFixture } from './cacheFixtureEnvelope.js';"
+        },
+        {
+          "old": "const cache = JSON.parse(await readFile(cachePath, 'utf8'));",
+          "new": "const cache = await readCacheFixture(cachePath);"
+        },
+        {
+          "old": "await writeFile(cachePath, JSON.stringify(cache)); changed = true;",
+          "new": "await writeCacheFixture(cachePath, cache); changed = true;"
+        }
+      ]
+    },
+    "preflightPassed": 3,
+    "preflightNameFilteredNotExecuted": 543,
+    "resolutionProbe": {
+      "paths": {
+        "@php-companion/semantic": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic/dist/index.js",
+        "@php-companion/index": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/index/dist/index.js",
+        "@php-companion/parser": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/parser/dist/index.js"
+      },
+      "semanticWorkspace": "function",
+      "indexComposerSources": "function"
+    },
+    "resolutionProbeExitCode": 0,
+    "runtimeBindings": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/extension.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/extension.js",
+        "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/extension.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/extension.js",
+        "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/language-server.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/language-server.js",
+        "sha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/language-server.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/language-server.js",
+        "sha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/candidateWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/candidateWorker.js",
+        "sha256": "1efb2e17609524b0cbe7f3bb5d36c2a36d1052d85eabda5ca0158e3a07f79a34"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/candidateWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/candidateWorker.js",
+        "sha256": "1efb2e17609524b0cbe7f3bb5d36c2a36d1052d85eabda5ca0158e3a07f79a34"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/portableCandidateSearchWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/portableCandidateSearchWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/sourceStatWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/sourceStatWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/builtinSnapshotWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/builtinSnapshotWorker.js",
+        "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/builtinSnapshotWorker.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/builtinSnapshotWorker.js",
+        "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/web-tree-sitter.wasm",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/tree-sitter-php.wasm",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/server.js",
+        "realpath": "/var/www/node/php-companion/.vscode-test/d426-runtime/language-server.js",
+        "sha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04"
+      }
+    ],
+    "engineBuildId": "0ae42772dab6921d819c1e618eef1834d8d157a046dc6fd5658042da48973cb2",
+    "collectionSha256": "4620f8fb285c5008b6294f14eb4bf45e07a864ea7cb38972477702f9925e8623",
+    "originalCollectionSha256": "56baa5b7544f032a83eee923709004d3418f11a827d848a4e07d2f0f51fb0d31",
+    "launcherAudit": {
+      "status": "passed",
+      "preflightPassed": 3,
+      "nameFilteredNotExecuted": 543,
+      "preflightExitCode": 0,
+      "observation": "pnpm exec performed automatic dependency preparation. Existing resolver targets and frozen source/build inputs remained unchanged; normal dependency metadata was shared and was not frozen, so its byte preservation is not claimed.",
+      "followup": "Use the identical resolved Vitest entry directly with Node; no package-manager invocation. Private .modules.yaml is now an independent copy.",
+      "privateMetadataSource": "/var/www/node/php-companion/node_modules/.modules.yaml",
+      "privateMetadataSha256": "6f506aa70810b4d280353aba434ae82fba324928028dc7e683d1da0992f46f21",
+      "vitestEntry": "/var/www/node/php-companion/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/vitest.mjs",
+      "vitestEntrySha256": "39db22f579acf5639bbb17a261408debbde03f4692c0c439e77e7f13aeba74d6"
+    },
+    "normalProductionSourceOrBundleChanged": false,
+    "candidateAdopted": false,
+    "fullLspExecuted": false,
+    "qualification": false,
+    "scope": "Preparation and three original protocol/cache cases only. Full original 99-file/1321-case LSP remains pending; no host, performance, scale, platform or human qualification."
+  },
+  "priorIntegrationReport": {
+    "path": "docs/php-language-toolchain/reports/native-cache-source-runtime-integration-2026-10-08.json",
+    "sha256": "fac2bae3ce2c3ec935fc053afc368437004e697dcf842b345e1ad791e921a08f",
+    "reusedArtifactCount": 237,
+    "allArchivedAndOriginalHashesVerified": true
+  },
+  "preflight": {
+    "passed": 3,
+    "nameFilteredNotExecuted": 543,
+    "scope": "Original cold/cached/legacy/corrupted/overlay/cancelled progress at PHP 7.2 and 8.5; original five-run on-demand method candidate reload."
+  },
+  "preparationToolCorrections": [
+    {
+      "originalExitCode": 1,
+      "errorCode": "ERR_PACKAGE_PATH_NOT_EXPORTED",
+      "reason": "Probe used require.resolve against import-only package exports; original probe retained, no package export or product change.",
+      "originalSha256": "3c6e89c828cbe263d9ac327cc7935a47cc78457958beb3e77fd1df11ba656a72",
+      "correctedSha256": "c78d94c5d884b3f63669d1737e41fe9d88302cc1806fdf89597a6b05e8ba77f8"
+    },
+    {
+      "exitCode": 1,
+      "collectionStarted": false,
+      "frozenManifestCreated": false,
+      "reason": "Original preparation required .modules.yaml to be a symlink; the intentional private metadata copy is now explicitly checked by hash. Original runner preserved.",
+      "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/node_modules/.modules.yaml"
+    },
+    {
+      "status": "passed",
+      "preflightPassed": 3,
+      "nameFilteredNotExecuted": 543,
+      "preflightExitCode": 0,
+      "observation": "pnpm exec performed automatic dependency preparation. Existing resolver targets and frozen source/build inputs remained unchanged; normal dependency metadata was shared and was not frozen, so its byte preservation is not claimed.",
+      "followup": "Use the identical resolved Vitest entry directly with Node; no package-manager invocation. Private .modules.yaml is now an independent copy.",
+      "privateMetadataSource": "/var/www/node/php-companion/node_modules/.modules.yaml",
+      "privateMetadataSha256": "6f506aa70810b4d280353aba434ae82fba324928028dc7e683d1da0992f46f21",
+      "vitestEntry": "/var/www/node/php-companion/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/vitest.mjs",
+      "vitestEntrySha256": "39db22f579acf5639bbb17a261408debbde03f4692c0c439e77e7f13aeba74d6"
+    }
+  ],
+  "preparationFailureRecordingLimit": "The initial ESM probe error and private metadata guard error are preserved as original scripts plus transcribed error summaries; their complete stderr is only in session tool output, not separately archived raw log files. Neither started the complete suite.",
+  "windowsReadOnlyObservation": {
+    "observedAtUtc": "2026-10-07T19:05:29.467693+00:00",
+    "command": [
+      "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+      "-NoProfile",
+      "-NonInteractive",
+      "-Command",
+      "$app='C:\\Users\\sohop\\AppData\\Local\\Programs\\Microsoft VS Code'; $exe=Get-Item -LiteralPath ($app+'\\Code.exe'); $packages=@(Get-ChildItem -LiteralPath $app -Directory | ForEach-Object {$p=Join-Path $_.FullName 'resources\\app\\package.json'; if(Test-Path -LiteralPath $p){$j=Get-Content -Raw -LiteralPath $p | ConvertFrom-Json; [pscustomobject]@{Directory=$_.Name;Version=$j.version}}}); $processes=@(Get-CimInstance Win32_Process | Where-Object {($_.ExecutablePath -like ($app+'*')) -or ($_.Name -match 'setup|update' -and $_.CommandLine -match 'vscode|Microsoft VS Code')} | ForEach-Object {[pscustomobject]@{ProcessId=$_.ProcessId;Name=$_.Name;IsSetupOrUpdate=($_.Name -match 'setup|update');HasUpdateArgument=($_.CommandLine -match 'vscode-updating|--update|--install')}}); [pscustomobject]@{FileVersion=$exe.VersionInfo.FileVersion;ProductVersion=$exe.VersionInfo.ProductVersion;InstalledPackages=$packages;RelatedProcesses=$processes} | ConvertTo-Json -Depth 4 -Compress"
+    ],
+    "exitCode": 0,
+    "stdout": "{\"FileVersion\":\"1.140.0\",\"ProductVersion\":\"1.140.0\",\"InstalledPackages\":[{\"Directory\":\"07f806f999\",\"Version\":\"1.140.0\"},{\"Directory\":\"2a59476c9b\",\"Version\":\"1.141.0\"}],\"RelatedProcesses\":[{\"ProcessId\":9056,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":26108,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":23892,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":25336,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":20768,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":25788,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":10532,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":27776,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":27032,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":13136,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":32552,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":24992,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":28960,\"Name\":\"copilot-runtime.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":31640,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":10600,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":34416,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":32392,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":33796,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":656,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":31076,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":33860,\"Name\":\"Code.exe\",\"IsSetupOrUpdate\":false,\"HasUpdateArgument\":false},{\"ProcessId\":30360,\"Name\":\"CodeSetup-stable-2a59476c9bfcb90b3ddc372c36762471b7dfad1c.exe\",\"IsSetupOrUpdate\":true,\"HasUpdateArgument\":false},{\"ProcessId\":33800,\"Name\":\"CodeSetup-stable-2a59476c9bfcb90b3ddc372c36762471b7dfad1c.tmp\",\"IsSetupOrUpdate\":true,\"HasUpdateArgument\":false}]}\n",
+    "stderr": "",
+    "readOnly": true,
+    "editorLaunched": false,
+    "qualification": false,
+    "scope": "Read-only installation and related process inventory while Linux full LSP runs; does not prove an update mutex is released or qualify Windows C2.",
+    "observation": {
+      "FileVersion": "1.140.0",
+      "ProductVersion": "1.140.0",
+      "InstalledPackages": [
+        {
+          "Directory": "07f806f999",
+          "Version": "1.140.0"
+        },
+        {
+          "Directory": "2a59476c9b",
+          "Version": "1.141.0"
+        }
+      ],
+      "RelatedProcesses": [
+        {
+          "ProcessId": 9056,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 26108,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 23892,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 25336,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 20768,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 25788,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 10532,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 27776,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 27032,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 13136,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 32552,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 24992,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 28960,
+          "Name": "copilot-runtime.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 31640,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 10600,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 34416,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 32392,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 33796,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 656,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 31076,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 33860,
+          "Name": "Code.exe",
+          "IsSetupOrUpdate": false,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 30360,
+          "Name": "CodeSetup-stable-2a59476c9bfcb90b3ddc372c36762471b7dfad1c.exe",
+          "IsSetupOrUpdate": true,
+          "HasUpdateArgument": false
+        },
+        {
+          "ProcessId": 33800,
+          "Name": "CodeSetup-stable-2a59476c9bfcb90b3ddc372c36762471b7dfad1c.tmp",
+          "IsSetupOrUpdate": true,
+          "HasUpdateArgument": false
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d430-executable-ast-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d430-executable-ast-audit.json",
+      "sha256": "08c2460842e7cb8cd501cc8c0442f8b156023ea935d4223c6d25758b6e881204"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d430-native-integration-final-validation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d430-native-integration-final-validation.json",
+      "sha256": "c29a810b50fb2bc8ec2445594b481e52016dd30c9fd0846be9588a89ff81f715"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-cache-fixture-envelope.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-cache-fixture-envelope.ts",
+      "sha256": "271ebe95bf4171db94a46b0b1b31f4ab142f2108ac70e386d57fd37e93e483b5"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-full-lsp-preparation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-full-lsp-preparation.json",
+      "sha256": "f4c8babf0b7692ba558eabeef1f60913ab5d7612172be136bcfca16c61f851a3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/node_modules/.modules.yaml",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/node_modules/.modules.yaml",
+      "sha256": "6f506aa70810b4d280353aba434ae82fba324928028dc7e683d1da0992f46f21"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/package.json",
+      "sha256": "419171cd1037fdef41f128b2f2e0e52a2bee314fde853d44ffce4740a5165556"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/framework-doctrine/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/framework-doctrine/package.json",
+      "sha256": "d228af4cbe96f9441633ca13426801202c0eea3d6c9052d1160ee8df64aaf384"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/framework-doctrine/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/framework-doctrine/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/framework-symfony/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/framework-symfony/package.json",
+      "sha256": "73698f33124577a13c76f1ee44fb74b110ad8a795964cf0c1cf5d6c7c10a85be"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/framework-symfony/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/framework-symfony/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/index/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/index/package.json",
+      "sha256": "d60c0d07f0193fc2675ed7d74543766da8091e24052449f6b927ad7cbc32d223"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/index/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/index/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/interop/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/interop/package.json",
+      "sha256": "87ea8068f4149f2d3e8cb746d6d3ceeb20f1361f6df7380960bb6b85fec688bf"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/interop/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/interop/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/package.json",
+      "sha256": "73e62616459b15885ebc1d3703f749db6c1e876a2f7cea3dd2b26b30dd97ca66"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/resolution-probe.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/resolution-probe.mjs",
+      "sha256": "c78d94c5d884b3f63669d1737e41fe9d88302cc1806fdf89597a6b05e8ba77f8"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/analysis.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/analysis.ts",
+      "sha256": "8eeb69f309b55955b9a5932dca17edac66dc81b4e137917742cab9f8d846248a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/builtinSnapshotService.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/builtinSnapshotService.ts",
+      "sha256": "0e21db8861a79cce1d63a4bdbe1a0c6af238619e280c49d0d8d9d6b3784ce2d1"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/builtinSnapshotWorker.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/builtinSnapshotWorker.ts",
+      "sha256": "c7b38a469c25f1c9106cff3f04ddc841b09377687c1a1c506fa0550749173ffe"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/cacheVersion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/cacheVersion.ts",
+      "sha256": "4e27ceb6dac85772108428a233a5ac589f5beb0860a2322b4f801d1f78df34e9"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/callableFactsCache.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/callableFactsCache.ts",
+      "sha256": "8b3c9ee0bf80411a7ce57ead53a04cc712c719a09c1665907c8b8b903a04e90a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/candidateWorker.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/candidateWorker.ts",
+      "sha256": "ac5de16eec508db274ff82ee9810602ff910a82e9a31280694727021c669cd5d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/candidateWorkers.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/candidateWorkers.ts",
+      "sha256": "bf995798674df7d6f900d9d58c2fc837d8c176408484e34d65e894b2bf21e99a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/codeActionMessages.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/codeActionMessages.ts",
+      "sha256": "b03840c94623246108f99e92491753a360c924a4cdb8af77e2e2aba0ebe24f76"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/completionCallTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/completionCallTrivia.ts",
+      "sha256": "451ca3102112256b58ff11a28b808adc03d449f301852b0655038631df9d2261"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/diagnosticMessages.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/diagnosticMessages.ts",
+      "sha256": "35f3cb95c2103f6f82afdffedd99e2e62f10e4d9893ec626f16e91ba2344deb8"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/index.ts",
+      "sha256": "1bae8d999801d1e174206be25ac8cfb3448c2eefc3f2628c33ef44fde789efad"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/outputMessages.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/outputMessages.ts",
+      "sha256": "fb5071d1854bf117b544f0ec4f84d67ed16670ac6a6294c3327d724a31b6eb8a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/portableCandidatePaths.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/portableCandidatePaths.ts",
+      "sha256": "9c5d05bffd259e1efa277dce4fd6fdf007db1c728067996452e3619c656af8a5"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/portableCandidateSearchWorker.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/portableCandidateSearchWorker.ts",
+      "sha256": "01d8b82f4ee90dc770c5f5572e9af7e8ded97903b249f9175f70325e86cfe42f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/progressMessages.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/progressMessages.ts",
+      "sha256": "b1fbdaaa82189c7718b02808363b781f9118b61e8d04bde928449b74c18cfc57"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/projectFacts.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/projectFacts.ts",
+      "sha256": "5d3dd3757b003fbb8212dd283856ce3b6f001faf2c5bffe6e9404af34a351613"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/projectIndex.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/projectIndex.ts",
+      "sha256": "0fd9548fac5e7548c9e5e53dc38d8c3a5b50a6fa18b19e508df890d82e7dd906"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/protocolMessages.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/protocolMessages.ts",
+      "sha256": "82ee9f1f2e718d45266fb41d14494e8ea251467873a060649bc243fe319c7f11"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/referenceCandidateEvidence.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/referenceCandidateEvidence.ts",
+      "sha256": "67b3f85544837fb3c8e33c5d1e2ccc4d63c15db3f9c1e0c0157f82118f3e0515"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/referenceDependencyEvidence.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/referenceDependencyEvidence.ts",
+      "sha256": "465a1be67a349ec3fccf69e631d400846d534d9f9c5bfa6bf8e4345dbbe8bb11"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/referenceEngineIdentity.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/referenceEngineIdentity.ts",
+      "sha256": "f25171ecc1dc681a310c3e1414381c423030f83aa128c54fb1e973c7e398420a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/referenceInputSnapshot.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/referenceInputSnapshot.ts",
+      "sha256": "5c03ca6671a98e777cb05040c3fa0be78b69604db78a610be4d9865945de437d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/referenceResultStore.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/referenceResultStore.ts",
+      "sha256": "e791e2f71100d02b96ba2d32afa883b177b5adaaaeed7c7529156fee789cf61f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/server.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/server.ts",
+      "sha256": "e36c81493ef6d2d9f4953163fc6b457a60c9500181473694c48582543172783a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/sourceStatBatches.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/sourceStatBatches.ts",
+      "sha256": "1b2f6252adc850da7e03428b1a336c04d3b412bb7a4f7838bcffaae459ba8d3a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/src/sourceStatWorker.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/src/sourceStatWorker.ts",
+      "sha256": "c392b071a923bc1620dd61b261bbad40402c60d20cb7c6e6bb0469e096893963"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/analysis-null-coalescing-throw.test.ts",
+      "sha256": "aca0f9af0b21f1cb68e8cdad3100c5489be84863ae01478291d0b3cb806ba5e7"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/analysis.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/analysis.test.ts",
+      "sha256": "9d1daa301814eaebf0bc8f9c386be47b1e5e4e2a955c996efa9f688e04c9c6e0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-column-return-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-column-return-stdio.test.ts",
+      "sha256": "5f16e40eb970174d57a2cd06fb534366235e111ac509517266bd4c91fdd5b304"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-combine-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-combine-stdio.test.ts",
+      "sha256": "72904694991ff8efe60c3be66633e1d2436c8ee1a751c5c17182571378b6c8e3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-count-values-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-count-values-stdio.test.ts",
+      "sha256": "131d54e6f3d322fec56f9e2ee299a9eb4eea449321712237ab688d7004c9b542"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-fill-keys-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-fill-keys-stdio.test.ts",
+      "sha256": "528ed0790bf2e26c1d72a17952ab2f09e40c6e981b25d1c254375e96349c6a2f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-flip-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-flip-stdio.test.ts",
+      "sha256": "da66507a32918c87b02ac79d620c060a3beec5f648950d8bfb40c5b3f2587d39"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-inline-doc-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-inline-doc-stdio.test.ts",
+      "sha256": "50712b0004be279665843aaeb98ceaba9664adfd1d2a68ddd6547e8c5b902c7a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-key-preservation-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-key-preservation-stdio.test.ts",
+      "sha256": "cf5d3baad06631dc246c5b3c31ae8ed51a9a46c89c22731e6b7229de1e9f982f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-receiver-origin-completion-stdio.test.ts",
+      "sha256": "ed812d8c36a99f07f8d88ed9887ac86b7206323e098cce0eef65429f4d0baff6"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/array-reduce-carry-completion-stdio.test.ts",
+      "sha256": "7a5070ec9e6b1202ed1f5baa9fbf08136243915a69472947f2c492002df6288f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/assignment-target-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/assignment-target-completion-stdio.test.ts",
+      "sha256": "15c9473fd2e7cc7fccadb093154e6a8e0e8b42b0cd2fc37528acf6658c8339e0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/cacheFixtureEnvelope.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/cacheFixtureEnvelope.ts",
+      "sha256": "271ebe95bf4171db94a46b0b1b31f4ab142f2108ac70e386d57fd37e93e483b5"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/call-trivia-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/call-trivia-stdio.test.ts",
+      "sha256": "59dfee6235e6a3367ef5b341010168216ad3e7dda2f5eb651a2e3adb1fa8ff09"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/callable-facts-cache.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/callable-facts-cache.test.ts",
+      "sha256": "0c8dbcaa6064ce04f10f9a10f8f04d3c9558f372d67045942369a6e46202c91b"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/candidate-worker-project-facts.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/candidate-worker-project-facts.test.ts",
+      "sha256": "9dd125fbd8140776ceec32b7150f32371f153d2e2c6ed3fa0f2245e16b9903b4"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/candidate-workers.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/candidate-workers.test.ts",
+      "sha256": "f75e0eb5bb2ed9184b539c7ab0d0abedf065eab7897a31c17f0f59b58edae9db"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/canonical-construction-stdio.test.ts",
+      "sha256": "cb5159d118eafadefec8f4b2a7f9e8550b6ce93350e5bc7abe8f61861c825ca6"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/captured-array-values-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/captured-array-values-stdio.test.ts",
+      "sha256": "adfdda24cdf185ad1fe4eed92e0b07cd44184687488ac40211edaeb2cbe98138"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/class-relative-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/class-relative-construction-stdio.test.ts",
+      "sha256": "2305fca03088c079bc87cd2cbf7d730931e26128301659ff49b9a04f9ec348be"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/code-action-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/code-action-messages.test.ts",
+      "sha256": "df6cd92d886b00925d0a234c723df760f1b8403fae0f671a3353d4729f16b002"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/cold-function-result-queries-stdio.test.ts",
+      "sha256": "25929a0ba5a81a103f74efb443d156905a78fd17c09b55624cbe77c51d4033e8"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/completion-call-trivia.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/completion-call-trivia.test.ts",
+      "sha256": "90feacd0e918e39a00d4485c5b246faf5ab9efd284b6bd92b9b77a9e3fa7b4f2"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/completion-prefix-refresh-stdio.test.ts",
+      "sha256": "b7b9945f24de60cd0ea28fb3153f8a968119fa2982e8d9467b0bdbd13d424e3b"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/construction-trivia-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/construction-trivia-stdio.test.ts",
+      "sha256": "ec323c9bedb972ae3af866a1edf108552db61bd6192490568537540341ba28df"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/controller-context-concurrency-stdio.test.ts",
+      "sha256": "775afae31682a4cd489212798cec2ae94522af7cef28a0cef6d051d09d486fe9"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/controller-context-progressive-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/controller-context-progressive-stdio.test.ts",
+      "sha256": "63b586d14848db391d8753b417ff79be845d1b25f0e0874544cda1752b9cb84d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/csv-fields-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/csv-fields-stdio.test.ts",
+      "sha256": "788fd3f0bdec1c66a75c6fc3b867409527dfa6c39f9c63be70b76e6ed294b7e7"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/declaration-variable-boundaries-stdio.test.ts",
+      "sha256": "3a0144c4fae6b5bcf7277ce964dd0b50c51df83b6dc8d5dbef26e62ec0d06abe"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/diagnostic-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/diagnostic-messages.test.ts",
+      "sha256": "08a741195d3d5026a0acf0cb6b5d41837dcf3e47fcd73aa144bc6782dc0f4b4c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/direct-function-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/direct-function-queries-stdio.test.ts",
+      "sha256": "3a25b03b087bcc2372b791a69fda4ceb5111684c855500cc462454e04904b4a3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/documented-callable-cold-queries-stdio.test.ts",
+      "sha256": "739fd541c58d5d1ba0aba80bdf3eeb0f49bfb35e212f718b6bd920ad3d8f5042"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/documented-method-overloads-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/documented-method-overloads-stdio.test.ts",
+      "sha256": "1821b60f409e802ffa113d86df4cc1364703435b8ffe7a90ba372f223d5da2c2"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/enum-magic-declaration-stdio.test.ts",
+      "sha256": "82da92e5964e1a6d2791b980441064cc36563fea438f981a66ae9ff0e184c33c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/flow-value-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/flow-value-completion-stdio.test.ts",
+      "sha256": "2fccdc415b7db8d4948a50b523640f95da974558937b04304846c26762363847"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/getrusage-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/getrusage-stdio.test.ts",
+      "sha256": "c4ef67b452ee4dcae9bdbdd8704c3369a8edf5fd0fa209b98966033b7fe7c24f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/headers-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/headers-stdio.test.ts",
+      "sha256": "685ea75c135b155dcb415c4f6c5591176c09589ba561201f5c377e17dd8a6b93"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/highlight-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/highlight-stdio.test.ts",
+      "sha256": "7b90cd9fde52b1ac4284caf00e85b2f542a56d2d4d3088228ce42e149fac2f5f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/image-size-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/image-size-stdio.test.ts",
+      "sha256": "e877b7ff04044a9ba14570bd7fa5f8fca7fa591bf4cd2d40a99c5853a1192e42"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/implicit-nullable-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/implicit-nullable-stdio.test.ts",
+      "sha256": "5aec1aae976f34d640ebcd97be9cd7663d5bb87986a4667d20c84a0b6eb2f21f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/inheritance-list-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/inheritance-list-stdio.test.ts",
+      "sha256": "7ac9f97568b8aff4ca748aa041db65e6b1eea61fac0f946d68d542f4159b7305"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/inheritance-trivia-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/inheritance-trivia-stdio.test.ts",
+      "sha256": "245b229c26cfff2918e9520002b8fbe2c06baee714152a330c72f8e1d81d4a38"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/inheritance-validity-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/inheritance-validity-stdio.test.ts",
+      "sha256": "9fa9025c6fc6781383ee2dbe362fe3fb66d19e8edfa1c0df41f07c9098f66be0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+      "sha256": "7609ca598e4ac61e3d898a5c267a6b493ae55f6a34b01f14ab7a0763938811ab"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/inherited-final-magic-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/inherited-final-magic-stdio.test.ts",
+      "sha256": "debae89b8f85af5c12e837ebe524bd9c5a18ca76e2376d91e05960b52b047991"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/iterator-apply-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/iterator-apply-stdio.test.ts",
+      "sha256": "fa24c4b1d80a6141909637d0f039d12cbe8de2dc85e70ae541b85e4bec292834"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/large-candidate-ranking-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/large-candidate-ranking-stdio.test.ts",
+      "sha256": "59b661effb60053a0be3a4c3af876cee2cf6324657d5f7d2348c26a446c6b63f"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/large-local-ranking-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/large-local-ranking-stdio.test.ts",
+      "sha256": "a96f26e41880880fa55c5bd7c7f80e90f78852e1a7a295024fcf6662b99f87c0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/legacy-constructor-rename-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/legacy-constructor-rename-stdio.test.ts",
+      "sha256": "da643376fe0540cf539137629a36b04493840088cc27b7216fa58a0316bd3392"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/legacy-project-construction-stdio.test.ts",
+      "sha256": "f96f1ac7fc702135ce865fedded8dab8186eec0ed24a6574e3a8093004a273c3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/magic-declaration-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/magic-declaration-stdio.test.ts",
+      "sha256": "0fdcd590cffc4d4f65a2126ace2a76757e0f0b85602c22f5438b2a1d923c5b26"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/magic-modifier-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/magic-modifier-stdio.test.ts",
+      "sha256": "8e8bf75c0922243554b56ca1cd4636dfb430a4ecf2de1e69682e9b139f362cc3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/match-condition-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/match-condition-completion-stdio.test.ts",
+      "sha256": "74a8df600b4364ee3478333366a1c3b073ae0153a8d5099e3e463ded7b3c083d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/native-array-template-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/native-array-template-stdio.test.ts",
+      "sha256": "7c23695f572f426fb193cb97e680f307a5a7b49057cdb5641645e580afbddf1e"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/native-boundary-diagnostics-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/native-boundary-diagnostics-stdio.test.ts",
+      "sha256": "6f2e18c1179afc54bd18959f91d21bb466a074d92e361aedf14574a95824c625"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/native-clone-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/native-clone-stdio.test.ts",
+      "sha256": "df53c8519bfe16e508509c1c9cdf17a25e10d28968628425e33bd81a6c441ed4"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/native-pipe-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/native-pipe-stdio.test.ts",
+      "sha256": "e1346b20652143054550e0e03a5ee9dc3dd78f27fd22aa92a4c440e3c77b17f5"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/output-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/output-messages.test.ts",
+      "sha256": "63d9f95d6e97f5744b2796fc2a0e5d366fbbd57b61349d14a0dbed508be8d1d9"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/php-runtime-syntax.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/php-runtime-syntax.test.ts",
+      "sha256": "bd0f5a12ea85c40264d290807d67b7eea8d62a744142df8c5df97261367fa64c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+      "sha256": "596ad8e6ea08d8fa78c42412f594f355f483ebab153e6c5ea417589bf4d31414"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-native-conditional-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-native-conditional-stdio.test.ts",
+      "sha256": "e496dae26027f2ef7ef39ff86c6f3c1c419c3296bcbcdb981cd002dc5e6d309a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-native-default-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-native-default-stdio.test.ts",
+      "sha256": "9d0ffa70ff06cddef2e7ee68b55125a8ea62adb11a02713807ee0ad8c92e696e"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-native-numeric-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-native-numeric-stdio.test.ts",
+      "sha256": "43420be37a4e4e9a1752d054bce82aa190da2e7c393be153eaebf3cd3d263141"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-output-families-stdio.test.ts",
+      "sha256": "1d0965805fbc3f14f7724555da5684f8a1d9648400971d17dcfcea0adbfe9e44"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-output-queries-stdio.test.ts",
+      "sha256": "faf64024a896fd56ee7e4ccaf989a514c6b4ec72d76c59b0799e3f6369b01e12"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/phpdoc-tag-boundaries-stdio.test.ts",
+      "sha256": "ed80814e408c082d9b9a3432df16c0b0cbe4d56b5e635629d3318d17b705010c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/portableCandidatePaths.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/portableCandidatePaths.test.ts",
+      "sha256": "b4bf51b24492e2b9fdb04a03468abc87f683fc1c134e5595d78423fcdf6bbc24"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/progress-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/progress-messages.test.ts",
+      "sha256": "8f2142942dee76e7ca2f038f2f2fe37c83c022f54ee09b1390099cd5929f6ecc"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/project-facts.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/project-facts.test.ts",
+      "sha256": "596edd1265dcdb6cb0542939a9566904ef0336ad0016e4e0d1c453057be5bac3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/project-index.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/project-index.test.ts",
+      "sha256": "9ada31138cf27d1883acb2f71190feb83f84cdb6d0914e8d8f11cbeb2f092c64"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/projectless-version-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/projectless-version-stdio.test.ts",
+      "sha256": "be65480e202dd3a3c511e4f75c1ba193f2a690ae4c7b3a77197099b669f30aaf"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/property-case-rename-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/property-case-rename-stdio.test.ts",
+      "sha256": "e8c3da52fe01263610e600d62b322b4e1fdf40ea7ae8414abd6af098d4e3693a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/property-hook-keywords-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/property-hook-keywords-stdio.test.ts",
+      "sha256": "d5bce59d3064623175f6f816517096b200b53d9ddfdba28afcf93eb9acfe7c13"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/protocol-messages.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/protocol-messages.test.ts",
+      "sha256": "fb3906a986891f821752ca8544e7420fa4e6ade8e9b4d060990164d7006df05b"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/readonly-anonymous-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/readonly-anonymous-stdio.test.ts",
+      "sha256": "440e878799e5626c405fa8177149c9a6f6cf1ccea1e066980753709406aa6d58"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/readonly-anonymous.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/readonly-anonymous.test.ts",
+      "sha256": "a81a5961e56be100f3079a948a2cc8631769e9c62eab419be9108286cd813348"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reassigned-parameter-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reassigned-parameter-completion-stdio.test.ts",
+      "sha256": "72e2f3504363c1ddeed7e5bd17e327bf66359d92a3ac3ed160e5a9d7351ceeac"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reference-candidate-evidence.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reference-candidate-evidence.test.ts",
+      "sha256": "64dc4e0b340f34aaaa478c085b13dd8354ea941fe34f8734043abe94b72ec893"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reference-dependency-evidence.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reference-dependency-evidence.test.ts",
+      "sha256": "28c8545d4e8d403f92157506c156b8cd5ea580082ebb459954bac6985f24f38d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reference-engine-identity.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reference-engine-identity.test.ts",
+      "sha256": "6e15ebaf9bb1e779b7cd63ac6f52b1afccfdbd70638dccb10f1bc707bd023f93"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reference-input-snapshot.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reference-input-snapshot.test.ts",
+      "sha256": "a071f5ac082d2c4e54e8595a6e2376215639a4128ddf6c8b333eb42005b1f87a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "sha256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reference-result-store.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reference-result-store.test.ts",
+      "sha256": "8cac29674d91db0cabb378e7f5fc3f33734dcd94e1f2b37662ba5d8b3db3d0bd"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/reflection-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/reflection-construction-stdio.test.ts",
+      "sha256": "205f588c1931c71df011fa31f2d6067667ba2ed084ad2a61619843ff9ddeedcf"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/root-import-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/root-import-stdio.test.ts",
+      "sha256": "7338af0c5fd1735816c678ff92f8af5c7393f0463c0824b47cd2a8a2bca3e828"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/shutdown-version-refresh-stdio.test.ts",
+      "sha256": "6220d237973175fb99c1296e46ed019d196072e9026d503f7471702605b5e9f0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/sourceStatBatches.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/sourceStatBatches.test.ts",
+      "sha256": "f0904a4a382f074ba28e6fe758481e1fa63eaaf5081b5466d6f66d45d301b9f6"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/static-property-value-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/static-property-value-completion-stdio.test.ts",
+      "sha256": "0984a860b0169e4f6250ecc0f094a3ced6e4767f2255328107513ea3428a7aaf"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/stdio.test.ts",
+      "sha256": "167fc00c53ce6ac5922ba425b72dbf9e1c8c5d391573ea7c32003f0ef7e39d07"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/string-replacement-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/string-replacement-stdio.test.ts",
+      "sha256": "36cf510eed9ba209ab3547f1b49975f138c74dd6acb73536a5ad6212ecc614c5"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/stubs-flow-completion-stdio.test.ts",
+      "sha256": "8e05726b6b5073b607b3919d6d117bbcc3c97baa6b924ff0ca7d75d14c9bd57d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/switch-condition-completion-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/switch-condition-completion-stdio.test.ts",
+      "sha256": "924929bf28b110ff235ec9c7fd0a4c568f66ee38f1c7cda503c7171fc3273bb2"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/trait-construction-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/trait-construction-stdio.test.ts",
+      "sha256": "8d2007c23756f221beb8b236cfb6d27c102c1aea598ea60e42d94c1b7e1edfec"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+      "sha256": "d49d93d37abf3dedd69de9ea83f85068d9fc501db365ca47dda6beee21699a0e"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/trait-final-cache-stdio.test.ts",
+      "sha256": "a65d607de8f2a91825793a9c72480575a6779844269387337c52c2670f60b798"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+      "sha256": "0d69052fb90c7138e72675121880f8acb108ecd3d9a563a658847ab688f3972b"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/trait-use-generics-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/trait-use-generics-stdio.test.ts",
+      "sha256": "598042d0190c9e6b1bec6d64c233bfa2d8cce7bfc48467b4fc60f6aca0841dd2"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/type-completion-recovery-stdio.test.ts",
+      "sha256": "2f6c8107863f472c183561a1014e2918e3992908e25a69b5d3b672591a72f315"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/variable-value-hover-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/variable-value-hover-stdio.test.ts",
+      "sha256": "3d4b007ce4cfff1cbdb8fab6f3e09be793b614f802094aed3c4d7bccb18c8e74"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/test/xmlreader-invocation-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/test/xmlreader-invocation-stdio.test.ts",
+      "sha256": "f936a1e9de20f92b3a18a34c19920850d1581631129ca0c846114a25e6430f7c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/tsconfig.json",
+      "sha256": "92439242903c65b4412cb66e2dd644c32698b3bbc5ce47c9201fd64038684306"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-server/vitest.config.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/vitest.config.ts",
+      "sha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-spec/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-spec/package.json",
+      "sha256": "bf0eb0891f388709de4dc61102ac6f4097a711d60d0088e5024b8d2cd6c878c8"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/language-spec/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-spec/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/parser/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/parser/package.json",
+      "sha256": "5f11ff2a65fb2d35579f55a1cb0cdc1372a5df13c4deed13373269f4d6d17615"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/parser/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/parser/tsconfig.json",
+      "sha256": "92439242903c65b4412cb66e2dd644c32698b3bbc5ce47c9201fd64038684306"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/php-companion-extension-pack/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/php-companion-extension-pack/package.json",
+      "sha256": "eb700a1442c8135dd055f9adef6490c20d7f1ed36362bb79fbdd355d401de18e"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/php-companion-symfony/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/php-companion-symfony/package.json",
+      "sha256": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/php-companion-symfony/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/php-companion-symfony/tsconfig.json",
+      "sha256": "507a78306af937ed63c5157a53b38e0bb3109e533b339b6ef1f11a96f9f356f3"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/phpdoc/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/phpdoc/package.json",
+      "sha256": "ab2c057f1df6592807efeb70e385f1a1ebeed5e43c117854cd1a911c5ca6fdd9"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/phpdoc/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/phpdoc/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/plugin-api/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/plugin-api/package.json",
+      "sha256": "1bccfcfc935f3a19280df9d51bf35fb6a3768732e87c04cba5669259012cdd55"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/plugin-api/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/plugin-api/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/project/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/project/package.json",
+      "sha256": "8db0fc78ae7d4a6da3afdbc0b44d179fac2569a1502a5c0d84295649d3cbee6c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/project/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/project/tsconfig.json",
+      "sha256": "1624c0d77bfb24d7a1971f71b60bfd1ab3e9932e0a17841c4451552e3197b7ef"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-controller-contexts/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-controller-contexts/package.json",
+      "sha256": "fbb2a1cb1d91e6e264e9c767bf2deeb9a4cc92220b2221c260efcaed8fba0cdf"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-controller-contexts/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-controller-contexts/tsconfig.json",
+      "sha256": "aade553b45614df4c0ed80e46bd2d60168dcf2071070d6f1db1e236f50316cd0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-events/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-events/package.json",
+      "sha256": "b58dec54576b566051e23327c273721a5c3fb572e772176d19ac803d0b17d14d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-events/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-events/tsconfig.json",
+      "sha256": "aade553b45614df4c0ed80e46bd2d60168dcf2071070d6f1db1e236f50316cd0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-routes/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-routes/package.json",
+      "sha256": "d5046dbe063947d65c61afe3c83026232ee2fa5ea15edfe02b392bbf9f194c7c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-routes/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-routes/tsconfig.json",
+      "sha256": "aade553b45614df4c0ed80e46bd2d60168dcf2071070d6f1db1e236f50316cd0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-services/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-services/package.json",
+      "sha256": "92c804a92f93ec2c2e30c7616cd00eca3da622a2f5059505fa16b9b9e4192fc4"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-symfony-services/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-symfony-services/tsconfig.json",
+      "sha256": "aade553b45614df4c0ed80e46bd2d60168dcf2071070d6f1db1e236f50316cd0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-winstar-routes/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-winstar-routes/package.json",
+      "sha256": "a086b547a7cd97ccecea4278cf108a2c3f633e9d9389001ac34805fa4ce1e0be"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/provider-winstar-routes/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/provider-winstar-routes/tsconfig.json",
+      "sha256": "1624c0d77bfb24d7a1971f71b60bfd1ab3e9932e0a17841c4451552e3197b7ef"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/refactor/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/refactor/package.json",
+      "sha256": "214212d4194e62e7717a370d8ac296c642f0d7930cf301b861ecb7b146c8e021"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/refactor/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/refactor/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/route-provider/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/route-provider/package.json",
+      "sha256": "4e0e499663be4ef5db70b7f0ca220c769a9a36a39b8fdad706b97aebc02df2f7"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/route-provider/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/route-provider/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/route-provider-host/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/route-provider-host/package.json",
+      "sha256": "617dc9ff83ccf43f94a02ef0885bc02f8bd93b6823c2a1c41e1def2be2395dcf"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/route-provider-host/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/route-provider-host/tsconfig.json",
+      "sha256": "1624c0d77bfb24d7a1971f71b60bfd1ab3e9932e0a17841c4451552e3197b7ef"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/runtime-probe/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/runtime-probe/package.json",
+      "sha256": "b30cfc13d5b9eba74fcea2cc998207b8e5966395391f6538dca79c66cf7f71ff"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/runtime-probe/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/runtime-probe/tsconfig.json",
+      "sha256": "1624c0d77bfb24d7a1971f71b60bfd1ab3e9932e0a17841c4451552e3197b7ef"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/semantic-provider/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic-provider/package.json",
+      "sha256": "e238614f9ecbba5dbe421219b4f93893ae4768e9b4fb3068449a581233dbe323"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/semantic-provider/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic-provider/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/semantic-provider-host/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic-provider-host/package.json",
+      "sha256": "9a2a3f8e1e2392a34ad70bc1316b1e2efb61215c0a4f58b100563ebaea51ac17"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/semantic-provider-host/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic-provider-host/tsconfig.json",
+      "sha256": "1624c0d77bfb24d7a1971f71b60bfd1ab3e9932e0a17841c4451552e3197b7ef"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/testkit/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/testkit/package.json",
+      "sha256": "fc80dc903e718ad9ac793e68c11b73f025a0e24311045fea29a209df26ac5fe1"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/testkit/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/testkit/tsconfig.json",
+      "sha256": "92439242903c65b4412cb66e2dd644c32698b3bbc5ce47c9201fd64038684306"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/type-system/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/type-system/package.json",
+      "sha256": "bc982b0e122c48011f51a239c6a60c52393063de9092043ff9bd8e3fd4b77525"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/packages/type-system/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/type-system/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/pnpm-lock.yaml",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/pnpm-lock.yaml",
+      "sha256": "fca87642f66123e0f5dcfcf43dda5fd31d4c13e0a5a12153987c18467fe4573e"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/pnpm-workspace.yaml",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/pnpm-workspace.yaml",
+      "sha256": "f3601f59767b5100a201fe97fdcdaa65ded68815d2925acce31f49c441524a9a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/arrayAccessFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/arrayAccessFixture.ts",
+      "sha256": "f3336560e45dbae455fe6c6e87d02ea073c90dae600b7a65446a112e7315539c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/existingShapeArrowFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/existingShapeArrowFixture.ts",
+      "sha256": "07df826e41a4f6853d32ad5e008b82b19b0e482e4e9ca41fe3e26d187ea200e2"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/largeLocalRankingFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/largeLocalRankingFixture.ts",
+      "sha256": "fd68c2bd8a3e4662d2f207dcd48f5f6472d597c728ae2e6d830f763558509fab"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/largeRankingFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/largeRankingFixture.ts",
+      "sha256": "baa57ecab2917196aa5263747572032d2b702c9f1dc6758e93c9c5ef6ea8f6f4"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/quotedPrefixFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/quotedPrefixFixture.ts",
+      "sha256": "4acce0a41c2a350127cd2c028c79ccaac1f2835e743bd806165dcc5550ffc134"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/unfinishedShapeFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/unfinishedShapeFixture.ts",
+      "sha256": "31d70d380a66e482b8a8281ec366f2d59a67535a6a0df665bf4a289f5c4adb29"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/test/extension/suite/wordMiddleShapeFixture.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/test/extension/suite/wordMiddleShapeFixture.ts",
+      "sha256": "9e998054ce14daeb7456ba550d0c68acb90cd2c1401ef42a604ee089b2eac5fa"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-integrated-workspace/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/tsconfig.json",
+      "sha256": "95ac0433c9b734a731dc1542a0330c065bafd0bd9671c7985f982c071b5b6c02"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-prepare-full-lsp.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-prepare-full-lsp.py",
+      "sha256": "79ed0dcfd582ec35dd0f113317a048f3875c7f2121c37650a1640c0ec843b8bd"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d431-resolution-probe-original.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-resolution-probe-original.mjs",
+      "sha256": "3c6e89c828cbe263d9ac327cc7935a47cc78457958beb3e77fd1df11ba656a72"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d432-cache-fixture-preflight-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d432-cache-fixture-preflight-input.json",
+      "sha256": "3b0b921f8980ad76070e463b55cb8503293b4ab9cb6688da699e02b879b9d811"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d432-cache-fixture-preflight-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d432-cache-fixture-preflight-result.json",
+      "sha256": "bb64b16d1e914870ae07e2267c6a63446db743346cab83f502d1e6be2a6ceea0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d432-cache-fixture-preflight-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d432-cache-fixture-preflight-run.json",
+      "sha256": "04884b5ae0924251bbc1b109659d4a78c49372db7e9de49d12324a4997220434"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d432-cache-fixture-preflight.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d432-cache-fixture-preflight.log",
+      "sha256": "0e77e02d88024b24b53b55bdb2c7d36c89e98420216d186fc08d235c521c7767"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d432-resolution-probe-correction.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d432-resolution-probe-correction.json",
+      "sha256": "91c180027992944b9b21ea949e2f5c4707b7d1e559b8ef5b1f190b7fb3361b60"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d432-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d432-run.py",
+      "sha256": "08a5d582f80f7617a8c55a227293ba33d18875e2dfeef0e9d1d3574fe8a43517"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d433-launcher-isolation-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d433-launcher-isolation-audit.json",
+      "sha256": "eb9ff6c3ed01b3f73bc946a48a7ef13ca6513097289b84d42e09e6f2cdfee70d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d433-original-metadata-guard-failure.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d433-original-metadata-guard-failure.json",
+      "sha256": "5a25b3bb4ef47ccc3438699afff0ac78e61497376c487b9d0d8da7bb555ddeea"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d433-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d433-run.py",
+      "sha256": "c0f9e5c10e7c90c0d0e7e862da04839664e090331a026898a7101f161c6e0cb8"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d434-full-collection-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d434-full-collection-input.json",
+      "sha256": "70bad3143b2ec325927e6692cee828bf0052b9f8bd5c7c18adab889cffb7c53a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d434-full-collection-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d434-full-collection-run.json",
+      "sha256": "d1af85994266a2c9387cf9bdc28276201e9b7cfcce76b428727efb74b9e1ef04"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d434-full-collection.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d434-full-collection.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d434-full-lsp-collection.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d434-full-lsp-collection.json",
+      "sha256": "4620f8fb285c5008b6294f14eb4bf45e07a864ea7cb38972477702f9925e8623"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d435-audit-full-lsp-preparation.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d435-audit-full-lsp-preparation.py",
+      "sha256": "099d46a954736bb0328f96dfd2a239437e6a0e33af33d98d5e6fb8ed9d1f372b"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d435-full-lsp-preparation-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d435-full-lsp-preparation-audit.json",
+      "sha256": "cb0cf1e5283692d9e0b51cc2fbfc566d02ec71271ef1eb8a07b9e4d1ab09d5e8"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d435-node-resolution-probe.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d435-node-resolution-probe.log",
+      "sha256": "a976008339b1c5a10cdaa2fbe7f3cfedde74ad734080e945a317434b790ce6dd"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d436-integrated-full-lsp-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d436-integrated-full-lsp-input.json",
+      "sha256": "04db130f4c058d3f90796cc6be681319bf163d7adf54f75051f1068fdc2b3590"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d436-integrated-full-lsp-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d436-integrated-full-lsp-result.json",
+      "sha256": "0f3a896bc663c92ae059a0e26f2a077fb26f98fa3272c581ae8d6c3e50460a5a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d436-integrated-full-lsp-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d436-integrated-full-lsp-run.json",
+      "sha256": "cca8ee12de19a2f2ff6be635e3349dc7403ffcbc28289c1d788fa65812c211cc"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d436-integrated-full-lsp.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d436-integrated-full-lsp.log",
+      "sha256": "e80c09dea74c0abf5ce0c5c3750435648e0b96a9cd4b83df4d0f76d40f71c500"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d436-run-full-lsp.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d436-run-full-lsp.py",
+      "sha256": "a956fa4b37274f3659e3061e1d8181800e539104e964f66f4ca0340300fbf86d"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d437-live-process-observation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d437-live-process-observation.json",
+      "sha256": "e51fd5e7e16e5342dfc9abc7ac307fc0ec5a6d8af9e356096159a4fb56971d62"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d438-audit-integrated-full-lsp.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d438-audit-integrated-full-lsp.py",
+      "sha256": "494a2f0a0915d4d8a9ec4ac9cb1d210397cd91f9b21675743c02b8198e219f84"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d438-integrated-full-lsp-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d438-integrated-full-lsp-audit.json",
+      "sha256": "ab3ab10685ee0ef67ad5625fb5d53d4e374f3b675744802c9b48e17acd31fbb1"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d439-windows-installation-observation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d439-windows-installation-observation.json",
+      "sha256": "66041573785bcb8675bb150bed0025c3224a51668169383f248321f73f607395"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/d440-record-native-full-lsp.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d440-record-native-full-lsp.py",
+      "sha256": "cc85f7e39bb34f29f80c41eba15259cb55969d097daad7b07d9d0dc9e04395ea"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/original-normal-inputs/packages/language-server/test/stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/stdio.test.ts",
+      "sha256": "3398d1347c92fbde2a236e536eefc5643fbd0ab94fe70104963146f2e39b11d0"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/original-normal-inputs/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "sha256": "c55ee94ba587c16b0dc57001b056988b0e14c325bb383cd5120047a2cc6729a2"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/original-normal-inputs/packages/language-server/vitest.config.ts",
+      "originalPath": "/var/www/node/php-companion/packages/language-server/vitest.config.ts",
+      "sha256": "c9b3da3c3b514afc773dec73ec7ad97b0a6f38c285d1c06d3d40bc78127d1aad"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/original-normal-suite-collection.json",
+      "originalPath": "/tmp/sophp-d349-current-lsp-collection.json",
+      "sha256": "56baa5b7544f032a83eee923709004d3418f11a827d848a4e07d2f0f51fb0d31"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_OUTPUT_TIMING_DIR/output-completion-onDemand.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-timings/output-completion-onDemand.json",
+      "sha256": "cf288b28dcf39f0f1fc6aabb5e0f770bcc4a16374fc5e5f20b24f40f03b33d64"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_OUTPUT_TIMING_DIR/output-completion-progressive.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-timings/output-completion-progressive.json",
+      "sha256": "cb30d35ae2f1a7d27ecef7b97fed209d21c0fef4a877b5dbb5a5ac272c46f9c6"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR/onDemand-false.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/onDemand-false.json",
+      "sha256": "19710b515b08597b336484cdb0b9392cfcbf60529cbb4312949bed98f11b40a1"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR/onDemand-true-gap5.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+      "sha256": "cdeaca964dee7dd1390d0639935cbc5b9cd2da7fe868e40abe6020afb91b8130"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR/onDemand-true.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/onDemand-true.json",
+      "sha256": "bbe91ed1d41893e7e72232f8342c963473a087d92baa1f229a3712c974da1e8c"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR/progressive-false.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/progressive-false.json",
+      "sha256": "20584f5a7f0ad134ed75f0d1c4f40acacca7a9ce5ad405994cbd28dbdcc3fe9a"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR/progressive-true-gap5.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+      "sha256": "9dd83f9212b0a6ca4320b52da9c121e890163a1c9d6731962df25be47acb9df6"
+    },
+    {
+      "path": ".vscode-test/d440-native-full-lsp-evidence/timings/PHP_COMPANION_TEST_SHUTDOWN_TIMING_DIR/progressive-true.json",
+      "originalPath": "/tmp/sophp-d436-integrated-full-lsp-full-shutdown-timings/progressive-true.json",
+      "sha256": "d53a587565d31f01eccd083192cf9ac0dbcb99904e9703c0c6bbfce801ba8096"
+    }
+  ],
+  "artifactCount": 235,
+  "evidenceDirectory": ".vscode-test/d440-native-full-lsp-evidence",
+  "noNewScaleEvidence": true,
+  "historicalScaleEvidenceInherited": false,
+  "normalOpenBudgets": {
+    "controllerP95Ms": 157.74,
+    "controllerBudgetMs": 150,
+    "normalComplete10000RssMiB": 920.54,
+    "normal10000BudgetMiB": 768
+  },
+  "limitations": [
+    "Complete LSP qualification is restricted to this actual isolated Linux runtime and exact frozen input set.",
+    "Nine actual PHP CLIs parameterize the original syntax file; this is not nine complete LSP runs or a complete version/platform matrix.",
+    "Small output-query and shutdown timings are not ordinary editing, scale memory or five-round performance qualification; total suite time is not a statistical performance comparison.",
+    "Preflight pnpm dependency preparation shared normal dependency metadata before it was frozen; that initial metadata byte preservation is not claimed. The complete run used the same Vitest entry directly, with normal and private metadata frozen and unchanged.",
+    "Windows observation still finds active setup processes and active 1.140.0/pending 1.141.0; no editor launch or Windows C2 acceptance performed.",
+    "Extension Host, original five-round scale/performance, ordinary Controller latency, other platforms/versions/modes, complete tools, long sessions and human WSL remain open.",
+    "Full C1-C4/R4, P0-P9/F01-F14 and historical failures remain; no normal product adoption or release action."
+  ],
+  "nextStep": "Validate this unchanged complete runtime in the original full isolated Linux Extension Host workflows, then execute original three-scale/five-round performance gates. Preserve all original assertions and budgets; do not inherit old private single-round results."
+}

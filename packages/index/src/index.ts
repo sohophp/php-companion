@@ -1,4 +1,5 @@
-import { mkdir, open, readdir, readFile, rename, rm, stat } from 'node:fs/promises';
+import { EntryStore, type IndexCacheEntry } from './entry-store.js';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -59,24 +60,10 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const warnings = [...project.warnings];
   const cacheIdentity = options.cache?.key === undefined ? root : `${root}\0${options.cache.key}`;
   const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(cacheIdentity).digest('hex')}.json`) : undefined;
-  type CacheEntry = { size: number; mtimeMs: number; ctimeMs?: number; hash: string; payload: unknown };
-  const previous = new Map<string, CacheEntry>();
-  if (cachePath && options.cache) {
-    try {
-      const data = JSON.parse(await readFile(cachePath, 'utf8')) as { schema?: number; version?: string; root?: string; entries?: Record<string, CacheEntry> };
-      if (data.schema === 1 && data.version === options.cache.version && data.root === root
-        && data.entries && typeof data.entries === 'object' && !Array.isArray(data.entries)) {
-        for (const [path, entry] of Object.entries(data.entries)) {
-          if (entry && typeof entry === 'object' && !Array.isArray(entry)
-            && Number.isSafeInteger(entry.size) && entry.size >= 0
-            && Number.isFinite(entry.mtimeMs)
-            && (entry.ctimeMs === undefined || Number.isFinite(entry.ctimeMs))
-            && typeof entry.hash === 'string' && /^[a-f0-9]{64}$/.test(entry.hash)) previous.set(path, entry);
-          else warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);
-        }
-      }
-    } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') warnings.push('Persistent index cache was unreadable and will be rebuilt.'); }
-  }
+  const store = cachePath && options.cache ? await EntryStore.load(cachePath, root, options.cache.version) : undefined;
+  const previous = store?.previous ?? new Map<string, IndexCacheEntry>();
+  warnings.push(...store?.warnings ?? []);
+  try {
   const inventoryLimit = options.skipSourceOutsideBudget ? Math.max(50_000, limits.maxFiles) : limits.maxFiles;
   const projectCandidates = new Set<string>();
   const include = (path: string): boolean => !isAutoloadPathExcluded(project, path);
@@ -88,7 +75,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   }
   const projectFiles = [...projectCandidates];
   if (projectFiles.length > inventoryLimit) return { files: 0, bytes: 0, cached: 0, complete: false, projectComplete: false, warnings: [...warnings, `Project source index exceeded ${inventoryLimit} files.`] };
-  let bytes = 0; let indexed = 0; let chargedFiles = 0; let cached = 0; let cacheChanged = false; const next = new Map<string, CacheEntry>();
+  let bytes = 0; let indexed = 0; let chargedFiles = 0; let cached = 0; let cacheChanged = false; let cacheWriteFailed = false; const next = new Map<string, IndexCacheEntry>();
   const pendingPayloads = new Set<Promise<void>>();
   // The sequential producer needs one notification, without adding handlers to slow tasks.
   let payloadReady: (() => void) | undefined;
@@ -116,7 +103,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
     if (candidate.project) projectIncomplete = true; else dependencyIncomplete = true;
     warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);
   };
-  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; preparedRestore?: unknown; inspectFailed?: boolean; readFailed?: boolean; omitted?: boolean };
+  type PrefetchedSource = { info?: { size: number; mtimeMs: number; ctimeMs: number }; source?: string; hash?: string; prepared?: unknown; preparedRestore?: unknown; cachedPayload?: unknown; inspectFailed?: boolean; readFailed?: boolean; omitted?: boolean };
   const prefetch = async (path: string, inspect: typeof stat | NonNullable<ProjectIndexOptions['inspectSource']>): Promise<PrefetchedSource> => {
     let information;
     try { information = await inspect(path); } catch { return { inspectFailed: true }; }
@@ -134,10 +121,18 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       }
       if (!verifySource || verifiedHash === old.hash) {
         if (!options.cache.prepareRestore || options.shouldContinue?.() === false) return { info, hash: verifiedHash };
+        let cachedPayload: unknown;
+        let payloadLoaded = false;
         try {
           const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();
-          return { info, hash: verifiedHash, preparedRestore: await options.cache.prepareRestore(old.payload, { uri, path, bytes: info.size, hash: old.hash }) };
-        } catch { return { info, hash: verifiedHash }; }
+          cachedPayload = await store!.payload(old);
+          payloadLoaded = true;
+          const preparedRestore = await options.cache.prepareRestore(cachedPayload, { uri, path, bytes: info.size, hash: old.hash });
+          return { info, hash: verifiedHash, cachedPayload, preparedRestore };
+        } catch {
+          // Preserve the original callback's payload even when preparation rejects.
+          return payloadLoaded ? { info, hash: verifiedHash, cachedPayload } : { info, hash: verifiedHash };
+        }
       }
     }
     if (options.cache && !options.prepareSource) return verifiedSource !== undefined ? { info, source: verifiedSource, hash: verifiedHash } : { info };
@@ -214,7 +209,10 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
         && (prefetched?.hash === undefined ? !options.verifyCachedSourceHash : prefetched.hash === old.hash)) {
         restoreAttempted = true;
         try {
-          const decision = await options.cache.restore(old.payload, { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);
+          // Own-property presence also preserves valid null/undefined payloads.
+          const payload = prefetched && Object.hasOwn(prefetched, 'cachedPayload')
+            ? prefetched.cachedPayload : await store!.payload(old);
+          const decision = await options.cache.restore(payload, { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);
           if (decision === true) {
             next.set(path, old); cached += 1; bytes += size; indexed += 1;
             options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });
@@ -228,7 +226,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       const hash = prefetched?.hash ?? createHash('sha256').update(source).digest('hex');
       let restored = false;
       if (!restoreAttempted && old && old.size === size && old.hash === hash && options.cache) {
-        try { restored = await options.cache.restore(old.payload, { uri, path, bytes: size, hash }) === true; }
+        try { restored = await options.cache.restore(await store!.payload(old), { uri, path, bytes: size, hash }) === true; }
         catch { warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`); }
       }
       if (old && restored) {
@@ -241,16 +239,20 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
       // run on a slower worker while the producer keeps discovering new files.
       if (pendingPayloads.size >= readConcurrency && !await waitForPayloads(readConcurrency)) return 'cancelled';
       const payload = await options.onSource({ uri, path, source, bytes: size, hash, prepared: prefetched?.prepared });
-      if (payload !== undefined) {
-        const entry: CacheEntry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash, payload };
-        next.set(path, entry); cacheChanged = true;
-        if (options.cache?.finalizePayload) {
-          const finish = Promise.resolve().then(() => options.cache!.finalizePayload!(payload))
-            .then((finalized) => { if (finalized === undefined) next.delete(path); else entry.payload = finalized; })
-            .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })
-            .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });
-          pendingPayloads.add(finish);
-        }
+      if (payload !== undefined && store) {
+        cacheChanged = true;
+        const entry: IndexCacheEntry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash };
+        next.set(path, entry);
+        let payloadFinalized = false;
+        const finish: Promise<void> = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)
+          .then(async (finalized) => {
+            payloadFinalized = true;
+            if (finalized === undefined) next.delete(path);
+            else Object.assign(entry, await store.stage(finalized));
+          })
+          .catch(() => { if (payloadFinalized || store.loadedManifestDigest !== undefined) cacheWriteFailed = true; next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })
+          .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });
+        pendingPayloads.add(finish);
       }
       bytes += size; indexed += 1;
       options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });
@@ -268,27 +270,10 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   const commitCache = async (): Promise<boolean> => {
     if (!cachePath || !options.cache) return true;
     if (!await waitForPayloads(1)) return false;
-    if (!cacheChanged && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry)) return true;
-    const temporary = `${cachePath}.${process.pid}.tmp`;
-    try {
-      await mkdir(options.cache.directory, { recursive: true });
-      const file = await open(temporary, 'w');
-      try {
-        // Serialize bounded batches instead of holding a second full-project JSON string.
-        let batch = `{"schema":1,"version":${JSON.stringify(options.cache.version)},"root":${JSON.stringify(root)},"entries":{`;
-        let separator = '';
-        for (const [path, entry] of next) {
-          batch += `${separator}${JSON.stringify(path)}:${JSON.stringify(entry)}`;
-          separator = ',';
-          if (batch.length >= 256 * 1024) { await file.writeFile(batch); batch = ''; }
-        }
-        await file.writeFile(`${batch}}}`);
-      } finally { await file.close(); }
-      if (options.shouldContinue?.() === false) return false;
-      await rename(temporary, cachePath);
-    }
+    if (cacheWriteFailed) { warnings.push('Persistent index cache could not be written.'); return true; }
+    if (!cacheChanged && store!.readonlyGeneration !== undefined && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry)) return true;
+    try { return await store!.commit(next, options.shouldContinue); }
     catch { warnings.push('Persistent index cache could not be written.'); }
-    finally { await rm(temporary, { force: true }).catch(() => undefined); }
     return true;
   };
   if (options.includeDependencies === false) {
@@ -320,6 +305,7 @@ export async function indexComposerSources(root: string, options: ProjectIndexOp
   if (!await commitCache()) return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete,
     warnings: [...warnings, 'Project indexing was cancelled.'] };
   return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };
+  } finally { await store?.dispose(); }
 }
 
 export { PendingChanges } from './pending.js';

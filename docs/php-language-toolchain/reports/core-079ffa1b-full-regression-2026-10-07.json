@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestone": "D298",
+  "qualified": true,
+  "coreBundleSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "run": {
+    "status": "exited",
+    "phase": "lsp",
+    "parentPid": 604034,
+    "childPid": 604040,
+    "startedAtUtc": "2026-10-07T11:35:47.959159+00:00",
+    "command": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=json",
+      "--outputFile=/tmp/sophp-d298-current-lsp-full.json"
+    ],
+    "cwd": "/var/www/node/php-companion/packages/language-server",
+    "exitCode": 0,
+    "durationSeconds": 2142.325115989999,
+    "finishedAtUtc": "2026-10-07T12:11:30.282904+00:00"
+  },
+  "audit": {
+    "twigChanged": false,
+    "inputs": 5446,
+    "changedInputs": [],
+    "runtimeChanges": [],
+    "nodeChanged": false,
+    "headChanged": false,
+    "worktreeChanged": false,
+    "collectionChanged": false,
+    "expectedCases": 1321,
+    "actualCases": 1321,
+    "expectedFiles": 99,
+    "actualFiles": 99,
+    "missing": [],
+    "extra": [],
+    "preexistingDuplicateLabels": [],
+    "duplicateMultiplicityPreserved": true
+  },
+  "result": {
+    "numTotalTests": 1321,
+    "numPassedTests": 1321,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0,
+    "success": true
+  },
+  "failuresOrSkipped": [],
+  "archive": ".vscode-test/d298-current-lsp-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/d298-current-lsp-input.json",
+      "sha256": "9136e1a23ac5fdf351e1d45417ceb2af3f70b97c617c79bf36799abd7050c8e1"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/d298-current-lsp-run.json",
+      "sha256": "41a3b11d7f152d1168a1ead40b53c7441edaf702e1e1ecb82346a41e9279e47c"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/sophp-d298-current-lsp-full.json",
+      "sha256": "4bd6f1f3aa04d77e5f6a3129f7fc2ae7dad66642826b6457163792d2429b96b9"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/sophp-d298-current-lsp-collection.json",
+      "sha256": "da1b6b8f5b658b986bf9c4f2bd546c7397f14b832b9eaf42ad2aedc41e8432e9"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/sophp-d298-current-lsp-full.log",
+      "sha256": "a672063cac3967d9f5d14a60d12eaece2fef5aaee9f17728b44d83f5818423ea"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/d298-current-full-run.py",
+      "sha256": "1f11cd78bd16b7b39413376adc8e98c79a380049641ac95cc0990bce0ae57e44"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/d298-current-audit.py",
+      "sha256": "8ccc4baad38d88edd9c0a0cc089bacad1f16059f0b5a1a79a2784feb3308c8b7"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/d298-current-freeze.py",
+      "sha256": "3d1d5af0ca30b2e89b64d552df1024334ebbf1791d7997ff2712651ae3bc3730"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/output-completion-progressive.json",
+      "sha256": "d9b3922353bfe2d2c6bac5e1b79a292c4a570a564e74e099f4299cc078d2d52d"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/output-completion-onDemand.json",
+      "sha256": "2882128bbc6b62c77cda51bfad1fe57677922689b5a279ed37344056e17b6277"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/onDemand-true.json",
+      "sha256": "e4e39b75ebe21538963305b15946528be5afd898dab457a940f5027150c07759"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/onDemand-true-gap5.json",
+      "sha256": "6ca667112e3efd2ef96513a6cc97bf5b2d78b799e0f7f4529f937bf6b35da067"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/progressive-false.json",
+      "sha256": "419932223618fae3e6232cb3053b6f327d355bede0b5fbde1d9157849ca0b06c"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/progressive-true.json",
+      "sha256": "897c64dc4613563075167b3b5b12174474171750436e8f2f3ed87f18b3ba394d"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/progressive-true-gap5.json",
+      "sha256": "dd06601770bff1166484ce65baee19db46a67c4e769df703cd7a23e0546b1249"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/onDemand-false.json",
+      "sha256": "d63226258ee3af7173b71a72bcc20622ed528b5562ef7a6aa927fe78f4c2ac40"
+    },
+    {
+      "path": ".vscode-test/d298-current-lsp-evidence/d298-current-lsp-audit.json",
+      "sha256": "1b78cecaa3379a7f0994ae98a56f6d75cce975c439798edef79cf41bcf587c57"
+    }
+  ],
+  "boundaries": [
+    "Complete original LSP entry, all 99 files and 1321 cases retained at collection, no test filters or relaxed thresholds. Actual case multiplicity audited separately.",
+    "One complete Linux LSP suite with nine actual PHP 7.2-8.5 CLI syntax parameters, not nine complete semantic/platform suites.",
+    "Both source repositories, built assets, Node/PHP executables, original case identities and input files frozen throughout the run.",
+    "Original D284 a6e9f650 warning failure, its missing warning body and unknown cause remain recorded. A later green result cannot establish the historical cause or prove the scalar copier fixed it.",
+    "Original D225 14 timeouts and their unknown causes remain recorded separately.",
+    "Parser 158, semantic 22826, original ordinary C1 and actual three-extension 25 checks are separate D292-D297 qualifications for this build.",
+    "Ordinary five-case benchmark still fails: large Controller P95 150.30/150 ms. Old uninstrumented 10k RSS 1003.52/768 MiB remains failed; this run is not new scale-memory qualification.",
+    "Other versions/platforms/full tool combinations/long sessions/real WSL and advanced capabilities remain open. All original C1-C4/R4/P0-P9/F01-F14 scope continues.",
+    "No commit, push, VSIX packaging, Profile update or publication."
+  ]
+}

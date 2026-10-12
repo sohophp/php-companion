@@ -1,0 +1,657 @@
+{
+  "date": "2026-10-08",
+  "auditedAtUtc": "2026-10-07T23:21:32.627812+00:00",
+  "normalSourceAdopted": true,
+  "normalProductionBuildPassed": true,
+  "normalRuntimeByteExactCandidate": true,
+  "normalPackageTests": {
+    "parser": {
+      "files": 8,
+      "cases": 164
+    },
+    "framework": {
+      "files": 6,
+      "cases": 72
+    },
+    "semantic": {
+      "files": 147,
+      "cases": 22845
+    }
+  },
+  "targetedStdio": {
+    "route": {
+      "numTotalTests": 544,
+      "numPassedTests": 13,
+      "numFailedTests": 0,
+      "numPendingTests": 531
+    },
+    "recovery": {
+      "numTotalTests": 37,
+      "numPassedTests": 37,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    }
+  },
+  "candidateEditingGroups": [
+    {
+      "label": "fixed-7.2",
+      "correctRuns": 5,
+      "withinBudgetRuns": 3,
+      "p95PerRunMs": [
+        152.77,
+        141.99,
+        134.17,
+        142.82,
+        157.25
+      ]
+    },
+    {
+      "label": "fixed-8.5",
+      "correctRuns": 5,
+      "withinBudgetRuns": 5,
+      "p95PerRunMs": [
+        134.33,
+        138.93,
+        145.7,
+        145.66,
+        136.49
+      ]
+    },
+    {
+      "label": "real-data-service",
+      "correctRuns": 5,
+      "withinBudgetRuns": 5,
+      "p95PerRunMs": [
+        96.31,
+        92.42,
+        109.28,
+        93.02,
+        93.88
+      ]
+    },
+    {
+      "label": "real-large-controller",
+      "correctRuns": 5,
+      "withinBudgetRuns": 5,
+      "p95PerRunMs": [
+        139.64,
+        142,
+        147.42,
+        148.8,
+        138.03
+      ]
+    },
+    {
+      "label": "real-blog-controller",
+      "correctRuns": 5,
+      "withinBudgetRuns": 5,
+      "p95PerRunMs": [
+        69.2,
+        65.54,
+        65.93,
+        63.22,
+        70.45
+      ]
+    }
+  ],
+  "candidateEditingCorrectRuns": 25,
+  "candidateEditingWithinBudgetRuns": 23,
+  "budgetMs": 150,
+  "candidateEditingQualified": false,
+  "normalFullLspQualifiedForNewRuntime": false,
+  "userProfileUpdated": false,
+  "fullObjectiveComplete": false,
+  "artifacts": {
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-preparation.json": {
+      "sha256": "182283c9f94fcf87f55c8d40fb65840f6cfc70c6a98c6b751583cae4e4ef6021",
+      "sizeBytes": 966
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-framework-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-tree-only-route-source-input.json": {
+      "sha256": "15816cddb8de857a4950fa7a09df69ba42b090b5c0bcf523356e834c4fb973b9",
+      "sizeBytes": 17391
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-parser-build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-verify-tree-only-route.py": {
+      "sha256": "8c3fedb2898cbb70c26392bccb4ac52559523283af7aecbabcee8aac4853c93b",
+      "sizeBytes": 3969
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-framework-full.log": {
+      "sha256": "b01bae5785045922ab4afcacdabeb09c3f508bc1215e92d1dc2d72e6aadec5fb",
+      "sizeBytes": 1728
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-parser-full.log": {
+      "sha256": "28f4e556c98c07cf2875d146865698e06f0aa7b1f5a5b6dde56b7e3bd3b7e8c9",
+      "sizeBytes": 276
+    },
+    "/var/www/node/php-companion/.vscode-test/d494-tree-only-route-verification.json": {
+      "sha256": "d49507b31a17ae5afdd496c20ddbf1376115f88c8e44112671b5b290e5807f4a",
+      "sizeBytes": 2829
+    },
+    "/var/www/node/php-companion/.vscode-test/d495-original-route-fixture-control.json": {
+      "sha256": "5edcadbec6bb7e04f4a2bf06ccd60be411de8a2460454ee20c96d04a7b1a2033",
+      "sizeBytes": 256
+    },
+    "/var/www/node/php-companion/.vscode-test/d495-initial-route-probe-test.ts": {
+      "sha256": "a172cad3e3d5fa6c75181a39fba8e7b3daa8d7fdcdba07e374fb151cd1336514",
+      "sizeBytes": 2177
+    },
+    "/var/www/node/php-companion/.vscode-test/d496-verify-corrected-route-fixture.py": {
+      "sha256": "834865c1863984b7d83201e9294fcb1ef486975f4b83fac754b14f24a745aaae",
+      "sizeBytes": 3693
+    },
+    "/var/www/node/php-companion/.vscode-test/d496-framework-full.log": {
+      "sha256": "7379e449826592b30a43d4cb799c1c57aa98b9d81fafabf08c216c7d7ad952fd",
+      "sizeBytes": 285
+    },
+    "/var/www/node/php-companion/.vscode-test/d496-tree-only-route-source-input.json": {
+      "sha256": "b2475d3c85e0664923483fbd08e118a41f79f76f792202047f3f0465a2e545e5",
+      "sizeBytes": 17391
+    },
+    "/var/www/node/php-companion/.vscode-test/d496-tree-only-route-verification.json": {
+      "sha256": "e9b3532aeebb588ae157e9e66b81c15b544e7f691a721026424c5b4a99945dba",
+      "sizeBytes": 945
+    },
+    "/var/www/node/php-companion/.vscode-test/d497-negative-controls-result.json": {
+      "sha256": "6f56898711c591be0bef5ad918120614e012ed66fa4afda24c49fcadf6e93330",
+      "sizeBytes": 6672
+    },
+    "/var/www/node/php-companion/.vscode-test/d497-negative-controls.log": {
+      "sha256": "28712c6a0f7f65fe041f41ce924bbca1cec98f6619c6a520276d8c45b6f45b5b",
+      "sizeBytes": 99
+    },
+    "/var/www/node/php-companion/.vscode-test/d497-negative-control-audit.json": {
+      "sha256": "ccb720234862bf8824064ffacc441bc2a65ac02e2e76c1483cd8a0b2fce02928",
+      "sizeBytes": 611
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-baseline-metafile.json": {
+      "sha256": "c7c2f4f169c915b996db235b82e3ec7b89e3a2eb1f83bae6b0537c60b61c084e",
+      "sizeBytes": 421619
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-candidate-metafile.json": {
+      "sha256": "569d26e3b76bf9e9e68e3eca0c845b6e49645d16e4d53d743f8a1340850db805",
+      "sizeBytes": 422461
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-build-tree-only-runtime.mjs": {
+      "sha256": "e78a8e1facee1e4cd2dcf01f4397ef79a0bb86d4c8b215a282f326da7a270ccd",
+      "sizeBytes": 6008
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-runtime-build.json": {
+      "sha256": "61f8b3d0e307e0ce9943a4c1ec71e9192dd686cb54ddba2cbfc56b803f188253",
+      "sizeBytes": 198038
+    },
+    "/var/www/node/php-companion/.vscode-test/d499-route-stdio-result.json": {
+      "sha256": "4fac881e5cf5734c8252578ef01d85a8b4b6d4ab5f190fb10d831a8bf9b51d6b",
+      "sizeBytes": 171325
+    },
+    "/var/www/node/php-companion/.vscode-test/d499-route-stdio.log": {
+      "sha256": "2300b2220f1802b89e92acd65efa550321a9ef5ccefb566dbcbd9a58af315bbd",
+      "sizeBytes": 93
+    },
+    "/var/www/node/php-companion/.vscode-test/d499-verify-tree-only-stdio.py": {
+      "sha256": "9043b077f7468752bdfcb8fae11e5762af8081c63d7cab73112234ac4054a934",
+      "sizeBytes": 6154
+    },
+    "/var/www/node/php-companion/.vscode-test/d499-tree-only-stdio-verification.json": {
+      "sha256": "9ec7db9d49de2ef9cfe3795ce7de438cec82666a9a5193b3b142ad68602bb982",
+      "sizeBytes": 157549
+    },
+    "/var/www/node/php-companion/.vscode-test/d499-recovery-stdio.log": {
+      "sha256": "337cbaf89e487c0f3db7177241b2228d78fe6786fea9100de4b8ca427b5fc351",
+      "sizeBytes": 96
+    },
+    "/var/www/node/php-companion/.vscode-test/d499-recovery-stdio-result.json": {
+      "sha256": "39bbc61064d167142f333c74f31e888d5edb3db366601a9a5b847f5569f2977c",
+      "sizeBytes": 11527
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-input.json": {
+      "sha256": "a19df1f06f188eccbcdb3d09024398762b867b81a79c08ea340c6f33db6f64f3",
+      "sizeBytes": 3095533
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-run-tree-only-ordinary-editing.py": {
+      "sha256": "954d7206a250fcb1b9805c44f686e58baf131a5d8f0cf516051f1ce26c6f5c41",
+      "sizeBytes": 12037
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-run.json": {
+      "sha256": "ee8835663b2a52ef27ba6c4f6aaa3cba70cbcfd04b9d56aeb3323a369b380aab",
+      "sizeBytes": 133668
+    },
+    "/var/www/node/php-companion/.vscode-test/d501-record-tree-only-route.py": {
+      "sha256": "d51860433eb80193adc92a545f354bee26df14936046f8c5775d2b6aeb7b0e0e",
+      "sizeBytes": 13119
+    },
+    "/var/www/node/php-companion/.vscode-test/d502-tree-only-route-source-adoption.json": {
+      "sha256": "38dc4e64d76d65a226266af85194cf8761fb7bfd077a3731a6799387fc9446a0",
+      "sizeBytes": 550066
+    },
+    "/var/www/node/php-companion/.vscode-test/d502-adopt-tree-only-route.py": {
+      "sha256": "6cfd3e10c319077edb81cd3a32a371019fdfb979d538259c91098be8c6aac8a6",
+      "sizeBytes": 4317
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-normal-semantic-result.json": {
+      "sha256": "9792bc513d8332993178429ea5fb93de8565244b447219a6b737fcb6ec4ed532",
+      "sizeBytes": 7025387
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-normal-tree-only-verification.json": {
+      "sha256": "4dd1ab16b3539d44d0be5cad361d00847ef18d0d9719c39dd521d5df950c19c5",
+      "sizeBytes": 502000
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-semantic-full.log": {
+      "sha256": "0008169bc2667e4823484a6e02c7382335a13991f62edc6548c1c900b6d9dfe3",
+      "sizeBytes": 97
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-verify-normal-tree-only.py": {
+      "sha256": "7337a0ce1399718aa675f8394461f1d2c0e1ef8151519625f1003224fc8c0608",
+      "sizeBytes": 4010
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-lint.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-normal-framework-result.json": {
+      "sha256": "7825b0aa7a318d95e4c24c66c5c216264bee6b5eb636a2143e2ef4e218e57260",
+      "sizeBytes": 27481
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-production-build.log": {
+      "sha256": "c44f71b560b4919eddb49e423bce79a498cb9448d3faa03820bc63c4955fb62d",
+      "sizeBytes": 2223
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-framework-full.log": {
+      "sha256": "fe4664f9be65c97f211de452b01fd33e52bed97cbbaf45259cce6027dd4e5bc7",
+      "sizeBytes": 98
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-parser-full.log": {
+      "sha256": "b4f882a6e7cc5ab41eda3fd9bf007e5e806d4c5b39c0cc0500f30b612c5b0f67",
+      "sizeBytes": 95
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-normal-parser-result.json": {
+      "sha256": "61cbb30982f46360d7451ababf4577d6bc3f8ff9ed8d51c5f8d821c6a80e2182",
+      "sizeBytes": 55342
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r1.stdout": {
+      "sha256": "fe33a53625be38b37b3ab8d3c2da8246ddd5ef378e20d75eca1fea5ec3ea8fad",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r3.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r3.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r3.stdout": {
+      "sha256": "eb84f4647a383373faae8bae666d6062bef8a9b79c922a6c9cb6ee95254c6f6f",
+      "sizeBytes": 1094
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r2.stdout": {
+      "sha256": "99f7c803daeb9a3f895939986f104717e5628642a496917c47a11b6815d3f1e8",
+      "sizeBytes": 1380
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r2.stdout": {
+      "sha256": "9d7d0c1e46f709fffa756c4504f224288dec9d4d5327e59e935c0d7e3cb7a50d",
+      "sizeBytes": 1415
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r2.stdout": {
+      "sha256": "c6529cffee0a5797503ecedeba4247363d624af9106f050dbb847b19803f629a",
+      "sizeBytes": 1384
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r5.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r4.stdout": {
+      "sha256": "ff89cbcee02e394a9f6ba17052ad654cd3b1c8e2e9f44eaa15f76cf4e3744212",
+      "sizeBytes": 1417
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r3.stdout": {
+      "sha256": "c03e101162583f9d00cd58be3cc4b375851c773b01e4e983bd2a0608bbf8908b",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r3.stdout": {
+      "sha256": "1d4b5ada661f98f6b9c3827a7a7fa97653fc45ea47e0630fd25bd1aac9865b11",
+      "sizeBytes": 1387
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r5.stdout": {
+      "sha256": "60c19cec91ad711d0cbe5cd7e19d6963b0a9043bbd66f50d9cc7cacc19507066",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r3.stdout": {
+      "sha256": "e5207c67d4989ea50bb19b4bdb4d61485bc8231b573fbd26191b05c229edfbad",
+      "sizeBytes": 1417
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r5.stdout": {
+      "sha256": "a6c3136c8eaae78bb1663acda2c502bee1bcd4d0697de5c515330380d055a07f",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r5.stdout": {
+      "sha256": "ae870a60ab0e008cd237cb8ce43decc59ae29eac3bfb4fbf8e9558e76e5fcaa4",
+      "sizeBytes": 1384
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r4.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r5.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r4.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r2.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r4.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r4.stdout": {
+      "sha256": "fe22a2f23dee83e2a6f85b4fe92341523bf1cd9d1de97c440961e6435b8108c3",
+      "sizeBytes": 1088
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r4.stdout": {
+      "sha256": "59010f8bb84f289f9d7a9dfe97aada1d3c4c2207a33c8905bfeddffff6b21f92",
+      "sizeBytes": 1381
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r3.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r5.stdout": {
+      "sha256": "f1461bd1ee507f23f5a68ff5a95e2e7ae9b85a2e04e51ee4ba9f7db59cf030a9",
+      "sizeBytes": 1419
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r3.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r1.stdout": {
+      "sha256": "913fa64e074aff6846479d082cc7fa6888ada5acb1b882c3a3cb7be6f22d184d",
+      "sizeBytes": 1386
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r4.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r5.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r2.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r4.stdout": {
+      "sha256": "baa00bcd123cbc978b52ba9adc5b45f47cc8eb1d8e23a586fa5b871a44eda538",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r2.stdout": {
+      "sha256": "ba90cb8afbd203a3cddfd6866196fa7a489e0e145eee5757c417cbcdf53a3f60",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r5.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r1.stdout": {
+      "sha256": "a12fd45c5dd0f43e199fd1b200a7ab96bf7eec17570245cc45ef4b61bc0b210c",
+      "sizeBytes": 1379
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r2.stdout": {
+      "sha256": "61882dfd40a890b88143316ef2fcec07bd4baf9ace6cf031a6ecd5cf478e9b5a",
+      "sizeBytes": 1097
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r2.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r2.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r1.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r3.stdout": {
+      "sha256": "734c8f6befc8638b15ef68754f19fec9d887b7b0912fc64b03021a81ab0683c4",
+      "sizeBytes": 1384
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r1.stdout": {
+      "sha256": "83a3d9614766669bd2d5bbc3819045208ed5e8cbb26b2542bd6e9b975236dfe3",
+      "sizeBytes": 1097
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r4.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r4.stdout": {
+      "sha256": "0e34cfad082a5853643fb9240ed03bd12816d7c74d453ae67bada4d6c0779ccb",
+      "sizeBytes": 1381
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-blog-controller-r5.stdout": {
+      "sha256": "5bf47f573cc4cba9c7e746f89bfc6b876d06d229f9e391f3225f6ab49a59cc5f",
+      "sizeBytes": 1382
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-8.5-r3.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-large-controller-r1.stdout": {
+      "sha256": "81c283db755d523b1a4e0dec03361206a4146a3051d6659ecd9004f053e0c844",
+      "sizeBytes": 1419
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/real-data-service-r2.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-evidence/fixed-7.2-r5.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/src/index.ts": {
+      "sha256": "b4a364ad42f5bfcde22995d0b5a10ec481877bfd59ea0aa86bb07f67cd24e82f",
+      "sizeBytes": 123568
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/incomplete-document-errors.test.ts": {
+      "sha256": "6139b441ea1929aa7b61c3b03dbd921f4916d06730c05f070824b6931a517d08",
+      "sizeBytes": 2610
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/tree-only-cache.test.ts": {
+      "sha256": "3173f568280f98dd958853e9745cffc100e9d12c5953331c15f1acf7ae31366d",
+      "sizeBytes": 4169
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/parser.test.ts": {
+      "sha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa",
+      "sizeBytes": 93031
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/readonly-anonymous.test.ts": {
+      "sha256": "5055f2ba8465b2b2c675f597a0a2dc3f42d6fff67ab92bd9eb266c6ff275a012",
+      "sizeBytes": 1234
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/clone-with-recovery.test.ts": {
+      "sha256": "83e2a00ea7ef6e71a5250ef2aaa33e75737bc2ef66e8c2b414f5a2071e033cab",
+      "sizeBytes": 3468
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/trait-precedence-names.test.ts": {
+      "sha256": "ae341bc5d6c08c66a48974cbeef5aa76e62e68c950e4371aef7a2581c5574c5d",
+      "sizeBytes": 5803
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/trait-final-adaptation.test.ts": {
+      "sha256": "39180e8ddacffdfc827886b78e23f7ea16fdc16487b879e9ce3657aadffcd3b8",
+      "sizeBytes": 2780
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/test/bare-construction.test.ts": {
+      "sha256": "c6d5432488284a914289e8e94fff1d7b0df184f402d19c61b74f90aae6872411",
+      "sizeBytes": 2181
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/dist/index.d.ts.map": {
+      "sha256": "22cee466b9d4b55554c9246c3007da668a9200f8bee85fc68e93715c6f7c10a4",
+      "sizeBytes": 11116
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/dist/index.js": {
+      "sha256": "43ca54d9315cbcff192b46553111da61b238591d0a8fc9137da0643a44f77bb0",
+      "sizeBytes": 127600
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/dist/index.d.ts": {
+      "sha256": "e4f1f2d3c21e4f6e12fc0763dfe9d778b92a04951b71b36e45542b971f18fd96",
+      "sizeBytes": 12495
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/parser/dist/index.js.map": {
+      "sha256": "3bae3c7086574cf6bb9328bdecb210aee1792b9b5fd6af3a71cba1767842035d",
+      "sizeBytes": 115050
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/src/index.ts": {
+      "sha256": "11e250262428cd09fff55a1793b133453c31bfe86c06dc39a7747c28692a9d54",
+      "sizeBytes": 192021
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/src/routes.ts": {
+      "sha256": "a2b8cf96e161b342a7743fa72ae49cd96fd701ae0c9c3671b72d6dab9d9b058d",
+      "sizeBytes": 45459
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/framework-symfony.test.ts": {
+      "sha256": "8ba85ca981c39ec0111e8893e74d7db8631ee0772187bc3ab26c482b1026ef88",
+      "sizeBytes": 98688
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/acceptance-f09-routes.test.ts": {
+      "sha256": "c3459958e712379f7a3697fb54e165c30048b2cd13f4d4e211e09c0c5333882a",
+      "sizeBytes": 2086
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/route-attributes.test.ts": {
+      "sha256": "284231308ea7c5dcf81d2ab3d427bf5d9bdab2f555d2f9ebdf3461f486b782e0",
+      "sizeBytes": 6632
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/routes.test.ts": {
+      "sha256": "2e0e67e3f0b60c4ac106b92d051a81e135a7de57e08ee5b5bbc54cfe14e570a0",
+      "sizeBytes": 21370
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/tree-only-route-probes.test.ts": {
+      "sha256": "913c5bf8626498cb321418fc6125a2e841c1a3e59654c0ea321a691d61543734",
+      "sizeBytes": 2499
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/acceptance-f09-services.test.ts": {
+      "sha256": "08ccae3aaa40d58ea1ae0398416f110847df17013b051f61cc8468fe6eb92e6e",
+      "sizeBytes": 2129
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/fixtures/acceptance/f09-route-counterexample.yaml": {
+      "sha256": "d916990e2e53cbad12669d044bbbd905face9e39d692b5d719555c7110c7830b",
+      "sizeBytes": 62
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/fixtures/acceptance/f09-service-literal-counterexample.yaml": {
+      "sha256": "6563d400461cd6a7c29a59b5702e9d90b4bb2c9b5947bba918ed7f403ad236b9",
+      "sizeBytes": 177
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/fixtures/acceptance/f09-service-valid.yaml": {
+      "sha256": "efeeab0b63971b556dd48b21653a930a2d98fae919b34e038d03b1fc00a92887",
+      "sizeBytes": 147
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/fixtures/acceptance/f09-route-incomplete.yaml": {
+      "sha256": "772405726547e383bba57378727e5353faee36d64726c78db38907eaeeec31b4",
+      "sizeBytes": 102
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/fixtures/acceptance/f09-route-valid.yaml": {
+      "sha256": "149432caef3e2dffcc8f762c65703a7eb8b4b2da3bce1bd50a8dd09997b62043",
+      "sizeBytes": 89
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/test/fixtures/acceptance/f09-service-incomplete.yaml": {
+      "sha256": "28042e316bf9bd32d0649214aaae82a45896a29fdbbee687760791c6333718ff",
+      "sizeBytes": 12
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/index.d.ts.map": {
+      "sha256": "d1828f9b1a95256a214e1eefd6fa64ebf8e03b5a4c7d8ad53e0e5fa00955ef25",
+      "sizeBytes": 9762
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/routes.js": {
+      "sha256": "a07bcbc672e7e11a46ae9731fec57d7064d35d14af3aeb26cf6db376d49c81e6",
+      "sizeBytes": 48978
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/routes.d.ts": {
+      "sha256": "e73433f9e2a21203765b98b1713f2e023247e0a79461c8d7effaf360ebb7beff",
+      "sizeBytes": 3882
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/routes.js.map": {
+      "sha256": "53f84870331a3337bbacbfe8cd581cf4bc188ef43a728f9bba288db884a44daf",
+      "sizeBytes": 50111
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/index.js": {
+      "sha256": "deb5c513855211cd3bd605f2e22876162e6650d5361864e863ed5ec3a1c5aa29",
+      "sizeBytes": 196689
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/routes.d.ts.map": {
+      "sha256": "40ad371118d2df6b020a474fd40e0e3345980fa38a30c982561a1b2d69887f72",
+      "sizeBytes": 2914
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/index.d.ts": {
+      "sha256": "cfa8acb0cf9f6434657b28cbb8ee54a8d2924951ea3995cdbf3ff8801f87b071",
+      "sizeBytes": 14570
+    },
+    "/var/www/node/php-companion/.vscode-test/d493-tree-only-route-candidate/packages/framework-symfony/dist/index.js.map": {
+      "sha256": "5b48241cf3c439a31bda3af1ba881ab46a8e437559472621c8487d8d29af914e",
+      "sizeBytes": 204562
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/tree-sitter-php.wasm": {
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "sizeBytes": 1058041
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/extension.js": {
+      "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9",
+      "sizeBytes": 3301877
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/candidateWorker.js": {
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "sizeBytes": 149028
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/portableCandidateSearchWorker.js": {
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "sizeBytes": 3004
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/language-server.js": {
+      "sha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326",
+      "sizeBytes": 4264100
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/sourceStatWorker.js": {
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "sizeBytes": 1098
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/web-tree-sitter.wasm": {
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "sizeBytes": 201037
+    },
+    "/var/www/node/php-companion/.vscode-test/d498-tree-only-candidate-runtime/builtinSnapshotWorker.js": {
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "sizeBytes": 130390
+    }
+  },
+  "privateEngineBuild": "334bbde8765179037043c4d9fbf0614609b857474ae6821052164b380fee2c21",
+  "sourceAdoption": "/var/www/node/php-companion/.vscode-test/d502-tree-only-route-source-adoption.json",
+  "normalVerification": "/var/www/node/php-companion/.vscode-test/d503-normal-tree-only-verification.json",
+  "ordinaryTrial": "/var/www/node/php-companion/.vscode-test/d500-tree-only-route-ordinary-editing-five-rounds-run.json",
+  "scope": "The original five cases, five predeclared rounds each, 100 immediate unsaved-edit completions per run. No paired statistical comparison, no full current-runtime LSP or editor qualification yet.",
+  "retainedFixtureFailure": "The initial new double-quoted positive parameter-key fixture failed. Original normal code also returns undefined. The initial fixture and failure are preserved; only the test changed to supported single quotes, with a separate double-quoted rejection control.",
+  "next": "Run the unchanged full 99-file/1321-case LSP suite against the new normal runtime. Investigate the independent fixed PHP7.2 parse/update/completion costs. Preserve the entire original goal and all budgets."
+}

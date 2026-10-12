@@ -1,0 +1,584 @@
+{
+  "terminalAuditQualified": true,
+  "currentComponentTestsQualified": true,
+  "normalBundleSha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+  "packages": 22,
+  "files": 54,
+  "passed": 733,
+  "failed": 0,
+  "skipped": 0,
+  "inputCount": 30172,
+  "symlinkCount": 184,
+  "runs": [
+    {
+      "package": "runtime-probe",
+      "files": 2,
+      "passed": 30,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/runtime-probe",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-runtime-probe-result.json"
+      ]
+    },
+    {
+      "package": "language-spec",
+      "files": 17,
+      "passed": 320,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/language-spec",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-language-spec-result.json"
+      ]
+    },
+    {
+      "package": "phpdoc",
+      "files": 4,
+      "passed": 86,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/phpdoc",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-phpdoc-result.json"
+      ]
+    },
+    {
+      "package": "project",
+      "files": 1,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/project",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-project-result.json"
+      ]
+    },
+    {
+      "package": "index",
+      "files": 4,
+      "passed": 68,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/index",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-index-result.json"
+      ]
+    },
+    {
+      "package": "type-system",
+      "files": 1,
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/type-system",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-type-system-result.json"
+      ]
+    },
+    {
+      "package": "interop",
+      "files": 1,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/interop",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-interop-result.json"
+      ]
+    },
+    {
+      "package": "semantic-provider",
+      "files": 1,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/semantic-provider",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-semantic-provider-result.json"
+      ]
+    },
+    {
+      "package": "semantic-provider-host",
+      "files": 2,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/semantic-provider-host",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-semantic-provider-host-result.json"
+      ]
+    },
+    {
+      "package": "route-provider",
+      "files": 1,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/route-provider",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-route-provider-result.json"
+      ]
+    },
+    {
+      "package": "route-provider-host",
+      "files": 1,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/route-provider-host",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-route-provider-host-result.json"
+      ]
+    },
+    {
+      "package": "plugin-api",
+      "files": 1,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/plugin-api",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-plugin-api-result.json"
+      ]
+    },
+    {
+      "package": "provider-winstar-routes",
+      "files": 1,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/provider-winstar-routes",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-provider-winstar-routes-result.json"
+      ]
+    },
+    {
+      "package": "framework-symfony",
+      "files": 6,
+      "passed": 72,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/framework-symfony",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-framework-symfony-result.json"
+      ]
+    },
+    {
+      "package": "provider-symfony-routes",
+      "files": 1,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/provider-symfony-routes",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-routes-result.json"
+      ]
+    },
+    {
+      "package": "provider-symfony-services",
+      "files": 1,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/provider-symfony-services",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-services-result.json"
+      ]
+    },
+    {
+      "package": "provider-symfony-events",
+      "files": 1,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/provider-symfony-events",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-events-result.json"
+      ]
+    },
+    {
+      "package": "provider-symfony-controller-contexts",
+      "files": 1,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/provider-symfony-controller-contexts",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-controller-contexts-result.json"
+      ]
+    },
+    {
+      "package": "framework-doctrine",
+      "files": 2,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/framework-doctrine",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-framework-doctrine-result.json"
+      ]
+    },
+    {
+      "package": "refactor",
+      "files": 1,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/refactor",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-refactor-result.json"
+      ]
+    },
+    {
+      "package": "testkit",
+      "files": 1,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/testkit",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-testkit-result.json"
+      ]
+    },
+    {
+      "package": "php-companion-symfony",
+      "files": 3,
+      "passed": 13,
+      "failed": 0,
+      "skipped": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/pnpm",
+        "--dir",
+        "/var/www/node/php-companion/packages/php-companion-symfony",
+        "test",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d2317-php-companion-symfony-result.json"
+      ]
+    }
+  ],
+  "archive": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2318-audit-current-component-tests.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/0-d2318-audit-current-component-tests.py",
+      "sha256": "a99f604a0cab6e703ac2255041c49b0c9a13d2ef637d6229690d42b07ca1057a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-run-current-component-tests.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/1-d2317-run-current-component-tests.py",
+      "sha256": "6271124bdbe56197c5095a52e2bb89cfa2de8f5c59431148c263c578b77ab2fc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-current-component-tests-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/2-d2317-current-component-tests-run.json",
+      "sha256": "f2d5d751c5e16ecb1f3308253bc137f69c31e1a3934a54b1c87c691a663b1cb9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-runtime-probe-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/3-d2317-runtime-probe-result.json",
+      "sha256": "9172d5607ae8ab05ab8dd6cb03f1884262abc71378b60bded5997d04d4f591c0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-runtime-probe.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/4-d2317-runtime-probe.log",
+      "sha256": "e55eefde9f02bd4fc463804c272cffef4c004fe7f213359aaf2fedf68f940a09"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-language-spec-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/5-d2317-language-spec-result.json",
+      "sha256": "4f4331195e539a62dfadc4d252782699d09c64458db69c4996bee37351194a2f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-language-spec.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/6-d2317-language-spec.log",
+      "sha256": "6f76cefa5453ca24faa6fc84be35d24205e13f762e0b17827794736a7d8d1ec9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-phpdoc-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/7-d2317-phpdoc-result.json",
+      "sha256": "4e3d7c3133e2cd2deff6cc1d41502999c33be5cf7ae19479f0672d7d86aa5470"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-phpdoc.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/8-d2317-phpdoc.log",
+      "sha256": "dfbc1fdb73730b759f59657e08fbf2a1d038b8aa4a13b1c30bb65407e2055577"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-project-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/9-d2317-project-result.json",
+      "sha256": "33d17f00ed7d21a762ce1968e55c4560ce0115a89924c3e57e5f6099e3656f82"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-project.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/10-d2317-project.log",
+      "sha256": "c66ea71bf70e5c93f762326aff79096d117df9fe00c8b72fa03741c35fa35d05"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-index-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/11-d2317-index-result.json",
+      "sha256": "d5de1fdef3630ab52b1c960d7a02d793fc1f12876328f41018839bd5126675ea"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-index.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/12-d2317-index.log",
+      "sha256": "b7d9a32dd96a72d650f28016c6a5fc2381a67a2c86b6d8ad8bf7fe6043a0821a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-type-system-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/13-d2317-type-system-result.json",
+      "sha256": "39ea9809a6da7db90d7c9f94bf5b09493318a43f36320915d8865900bcfc40bc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-type-system.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/14-d2317-type-system.log",
+      "sha256": "dbd416bba8dddba2683166032753afaaaf99f353cc4e3d4cbae49835404f375a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-interop-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/15-d2317-interop-result.json",
+      "sha256": "e510d4678507ea0f96b8751d7df421dc967a8fa06c9f74c15fb45719134c328e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-interop.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/16-d2317-interop.log",
+      "sha256": "151ed94fd7b75cc9d63414cafe878dfdb4d37a12b799533730f6999512f555be"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-semantic-provider-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/17-d2317-semantic-provider-result.json",
+      "sha256": "cbc5da8494a17e69b0cb16a2e261057b974f69775e924e3ad88289fe43c2c4cf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-semantic-provider.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/18-d2317-semantic-provider.log",
+      "sha256": "1dd4cf84d39c56e539603e193786d842d0c757fbda3e1921b1bb73c4d88fcbaf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-semantic-provider-host-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/19-d2317-semantic-provider-host-result.json",
+      "sha256": "732e3d4e67dec1660b5a6ac1445126caac937a9ed8b019e177c4603160c01307"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-semantic-provider-host.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/20-d2317-semantic-provider-host.log",
+      "sha256": "ce676dc0c3428a9696f3a3f9804d434ccbcc8236dd0a0e3648e6f0f754bbfe15"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-route-provider-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/21-d2317-route-provider-result.json",
+      "sha256": "61dcbf075ef61839f7b2aa3b83d764cc8d796850b8f1d4fac900d1a02af73876"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-route-provider.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/22-d2317-route-provider.log",
+      "sha256": "1581dfd796d55eb692531670e15fa6ccb8677530c266d2d0f9f60fec5c210c2f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-route-provider-host-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/23-d2317-route-provider-host-result.json",
+      "sha256": "f648a1c83a0ded4da22ae8c64277fcd914678671836bf0a78d8cb79716bc445d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-route-provider-host.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/24-d2317-route-provider-host.log",
+      "sha256": "e764c8c810b6173acbb0db016ea6d4742e9aed5438f1dbac5ca337304a708262"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-plugin-api-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/25-d2317-plugin-api-result.json",
+      "sha256": "902a3fd41200f42cd3f11d626ab50cae790cf380664b1a0d24343b5e1f02534f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-plugin-api.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/26-d2317-plugin-api.log",
+      "sha256": "b4062c13bf25bb305c57e16051a27fa35caa331ee987d8df42bf03375eda1ec0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-winstar-routes-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/27-d2317-provider-winstar-routes-result.json",
+      "sha256": "d76f56c8a708a173180d0040f6980e31e41d30470c6c7e7bf8923984645b6652"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-winstar-routes.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/28-d2317-provider-winstar-routes.log",
+      "sha256": "80e9f2b8331c7bec52dd71f68e79daefc5b88401834eb5fb1762097cebd0553d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-framework-symfony-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/29-d2317-framework-symfony-result.json",
+      "sha256": "7e853237dbe3504a8d680e9ed322f2454f7959541f86fdd04c3b15c0cece3b0d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-framework-symfony.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/30-d2317-framework-symfony.log",
+      "sha256": "be63a9cff379951c4b29c5a1a10de5f02dc3bb5043e9de17c6712b18e8b845a2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-routes-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/31-d2317-provider-symfony-routes-result.json",
+      "sha256": "a61ae93f377854423cd3e8147b6045139472c81767355d21c7001aaa2d5f4e21"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-routes.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/32-d2317-provider-symfony-routes.log",
+      "sha256": "3fff7698b7d33986a9d3885c15a052923846f2c830a85fb6c3ad39ab77287fce"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-services-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/33-d2317-provider-symfony-services-result.json",
+      "sha256": "1c8931c7751c592edaaddde26430e7f4d05abf6703507fe979e0be2ab099ac0d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-services.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/34-d2317-provider-symfony-services.log",
+      "sha256": "12c35c3d0d4b23ff4f275b5accb62e55235c25fbcd8d9d6575be965b81aec745"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-events-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/35-d2317-provider-symfony-events-result.json",
+      "sha256": "84d4d4dad95e029e64aea675e8fe5a7cf12200d9839354b2aa36cf595001c104"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-events.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/36-d2317-provider-symfony-events.log",
+      "sha256": "a43c2c6ac2c2f068685be0e97aae9f5b227446d26f81b7eebf0bba0e90dcec20"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-controller-contexts-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/37-d2317-provider-symfony-controller-contexts-result.json",
+      "sha256": "d9a18183e30383fa4febcaee9e286c1e8e3236d3aead5fbae3908585e86d9761"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-provider-symfony-controller-contexts.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/38-d2317-provider-symfony-controller-contexts.log",
+      "sha256": "abe8e3a5f56bcf8ab622e4b3cf74317593774a5966b3f8d09fa234f8f1d04d6c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-framework-doctrine-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/39-d2317-framework-doctrine-result.json",
+      "sha256": "fcd5b66dc68b197ab9d74cfcf862e487fe7892c05783d0f6b871017365f84e86"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-framework-doctrine.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/40-d2317-framework-doctrine.log",
+      "sha256": "3261c16882b7eee133e11515f712246516894f64d66c721668b32a5abd590043"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-refactor-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/41-d2317-refactor-result.json",
+      "sha256": "8d942ef6d36280eae05a85349deecbb0ed7b418ad922be46327fae3356d07d27"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-refactor.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/42-d2317-refactor.log",
+      "sha256": "51c778a606e6e2ef5996a46c9c8b75c9e8c0095a3d452b04a756fbb7b3a8e19a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-testkit-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/43-d2317-testkit-result.json",
+      "sha256": "1db8f46b914f2128e246904ea6df4287dfa5c53bc6cb03333c65b030557686ed"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-testkit.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/44-d2317-testkit.log",
+      "sha256": "fd29d1f7c1c367cb762fbfca08bf42e59facf33b40dfbab250ad508d7b7ef3b0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-php-companion-symfony-result.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/45-d2317-php-companion-symfony-result.json",
+      "sha256": "43bb74ec5d99790c688f71348546ad7fab652088e3fa6a7123b2125213c55690"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d2317-php-companion-symfony.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d2318-current-component-tests-archive/46-d2317-php-companion-symfony.log",
+      "sha256": "22e360f1655fb1e6993acee5419401f07d477d9874a1b59a8602410e2406ec70"
+    }
+  ],
+  "fullObjectiveComplete": false,
+  "fullVersionMatrixQualified": false,
+  "profileUpdated": false
+}

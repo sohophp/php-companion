@@ -1,0 +1,150 @@
+{
+  "date": "2026-10-08",
+  "auditedAtUtc": "2026-10-07T23:57:26.668556+00:00",
+  "normalFullLspQualified": true,
+  "files": 99,
+  "cases": 1321,
+  "result": {
+    "success": true,
+    "numTotalTests": 1321,
+    "numPassedTests": 1321,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "caseIdentityAndMultiplicityPreserved": true,
+  "durationSeconds": 2091.1685271329916,
+  "inputCount": 18700,
+  "linkCount": 180,
+  "changedInputs": [],
+  "changedLinks": [],
+  "runtimeComparison": [
+    {
+      "name": "extension.js",
+      "expectedSha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9",
+      "actualSha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9",
+      "byteExact": true
+    },
+    {
+      "name": "language-server.js",
+      "expectedSha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326",
+      "actualSha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326",
+      "byteExact": true
+    },
+    {
+      "name": "candidateWorker.js",
+      "expectedSha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "actualSha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "byteExact": true
+    },
+    {
+      "name": "portableCandidateSearchWorker.js",
+      "expectedSha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "actualSha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "byteExact": true
+    },
+    {
+      "name": "sourceStatWorker.js",
+      "expectedSha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "actualSha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "byteExact": true
+    },
+    {
+      "name": "builtinSnapshotWorker.js",
+      "expectedSha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "actualSha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "byteExact": true
+    },
+    {
+      "name": "web-tree-sitter.wasm",
+      "expectedSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "actualSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "byteExact": true
+    },
+    {
+      "name": "tree-sitter-php.wasm",
+      "expectedSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "actualSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "byteExact": true
+    }
+  ],
+  "artifacts": {
+    "/var/www/node/php-companion/.vscode-test/d504-normal-tree-only-full-lsp-run.json": {
+      "sha256": "5dcbcec2552ddf659a310bd30f2727775cc4b21c86a388a9c1ebdfa8aac4305d",
+      "sizeBytes": 1241
+    },
+    "/var/www/node/php-companion/.vscode-test/d504-normal-tree-only-full-lsp-input.json": {
+      "sha256": "d2bd7c27a1434149fb5cffc75936c8fdb147b4b946a626f526da355d29c21563",
+      "sizeBytes": 3265939
+    },
+    "/var/www/node/php-companion/.vscode-test/d504-normal-tree-only-full-lsp-result.json": {
+      "sha256": "7727e34b063fd6dc9d50974fc4b8d71cdcddb24dcd5fcbad304e5ceb70377578",
+      "sizeBytes": 437242
+    },
+    "/var/www/node/php-companion/.vscode-test/d504-normal-tree-only-full-lsp.log": {
+      "sha256": "714099683313f5d6bc574c740438d3da4f9552338904dfff776be5b9a2a35de9",
+      "sizeBytes": 107
+    },
+    "/var/www/node/php-companion/.vscode-test/d504-run-normal-tree-only-full-lsp.py": {
+      "sha256": "2b76596071b9771a04d05f0688f86da60c731ab3f9379924d12546728ce31b13",
+      "sizeBytes": 7953
+    },
+    "/var/www/node/php-companion/.vscode-test/d501-tree-only-final-validation.json": {
+      "sha256": "364451c5c94b87fdeeffb6f6572c64fd702a933c27757c1a82ca4dbdbad9697e",
+      "sizeBytes": 607
+    },
+    "/var/www/node/php-companion/.vscode-test/d503-normal-tree-only-verification.json": {
+      "sha256": "4dd1ab16b3539d44d0be5cad361d00847ef18d0d9719c39dd521d5df950c19c5",
+      "sizeBytes": 502000
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-timings/output-completion-progressive.json": {
+      "sha256": "292111371df193b50fc4b29a41ea97f7da6c71adc1c386a5c628901f4296ffc0",
+      "sizeBytes": 247
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-timings/output-completion-onDemand.json": {
+      "sha256": "3a925d50890d824cd4cff96d066a0725ecc3afdd49e272036743ce25fdc89b60",
+      "sizeBytes": 245
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/onDemand-true.json": {
+      "sha256": "787dba139f4249a8e0cf182af9465604fa05f2eb4425dd65f2d7a65d81c13c27",
+      "sizeBytes": 100
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/onDemand-true-gap5.json": {
+      "sha256": "2f7b45330710aa0d630babf8013319bd4b26a4906a29a3c393727225cca20138",
+      "sizeBytes": 102
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/progressive-false.json": {
+      "sha256": "11889cc2a806c89e9c4834e242f5998234b7ffc52f92e70d6946fa774343db3e",
+      "sizeBytes": 107
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/progressive-true.json": {
+      "sha256": "697c9f64cdde723f9e0a9793bc19fe977c8d42c33a06874e8c39557685c2af55",
+      "sizeBytes": 106
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/progressive-true-gap5.json": {
+      "sha256": "fd75e468f78947ea4c5ce0c97daac8d934a29e548905ebb2acb95dc498e09e81",
+      "sizeBytes": 105
+    },
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/onDemand-false.json": {
+      "sha256": "8d48c22fdb6e6667bc67a7b338f74574cf1802568caaa3ea46ce94643a46a5ed",
+      "sizeBytes": 103
+    }
+  },
+  "timingSamples": [
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-timings/output-completion-progressive.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-timings/output-completion-onDemand.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/onDemand-true.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/onDemand-true-gap5.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/progressive-false.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/progressive-true.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/progressive-true-gap5.json",
+    "/tmp/sophp-d504-normal-tree-only-full-lsp-full-shutdown-timings/onDemand-false.json"
+  ],
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "ordinaryEditingQualified": false,
+  "ordinaryEditingLatestWithinBudgetRuns": 23,
+  "ordinaryEditingLatestCorrectRuns": 25,
+  "scope": "The original normal package and production-bundle full LSP suite, original default parallelism/timeouts/performance-group sequence. No full editor, platform, scale, continuous editing or human acceptance is implied.",
+  "next": "Continue current-runtime editor checks and the independent PHP7.2 editing cost. The private surface-comparison candidate remains unbuilt, untested and unadopted until separately qualified."
+}

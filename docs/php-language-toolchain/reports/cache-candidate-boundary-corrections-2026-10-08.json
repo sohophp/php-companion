@@ -1,0 +1,1990 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "completed",
+  "decision": "private-eligibility-and-payload-contract-fixes-passed-native-integration-pending",
+  "normalProductChanged": false,
+  "candidateAdopted": false,
+  "qualification": false,
+  "semanticCorrection": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "qualification": false,
+    "predecessorEligibilityFailures": 4,
+    "correctedEligibilityChecks": 4,
+    "sameEligibilityAssertions": true,
+    "onePredicateCorrectionReverseExact": true,
+    "normalSourceReverseExact": true,
+    "originalContractAssertionsUnchanged": true,
+    "contracts": {
+      "passed": 46,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "caseIdentityAndMultiplicityPreserved": true
+    },
+    "parity": {
+      "inputs": 95,
+      "comparisons": 2053,
+      "negativeChecks": 1958,
+      "inputCorpusUnchanged": true
+    },
+    "additionalToolPositiveAndWithdrawalChecks": 4,
+    "fullSemantic": {
+      "files": 146,
+      "passed": 22836,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "caseIdentityAndMultiplicityPreserved": true,
+      "privateEntryResolutionRequests": 143,
+      "execution": "Original Vitest file-parallel default; no concurrent performance workload"
+    },
+    "currentNormalSourceSha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+    "currentNormalDistSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+    "candidateSourceSha256": "acca8e5858da96e9f4eeb2f83e4abf9bce27df47f29678ff659b06cbcdf133e5",
+    "candidateDistSha256": "da1abdcfa2886785f33ed5fd5d9f0f19809c5d1b50a62c59503e9ac47fa5522e",
+    "correctionDiff": [
+      "--- d402\n",
+      "+++ d414\n",
+      "@@ -1222,7 +1222,7 @@\n",
+      "       if (!Number.isFinite(current) || Object.is(current, -0)) return false;",
+      "       continue;",
+      "     }",
+      "-    if (!current || typeof current !== 'object' || seen.has(current)) return false;",
+      "+    if (!current || typeof current !== 'object' || seen.has(current) || !Object.isExtensible(current)) return false;",
+      "     seen.add(current);",
+      "     const array = Array.isArray(current);",
+      "     if (Object.getPrototypeOf(current) !== (array ? Array.prototype : Object.prototype) || 'toJSON' in current) return false;"
+    ],
+    "runs": {
+      "d415-eligibility-build": {
+        "status": "exited",
+        "parentPid": 1008278,
+        "childPid": 1008378,
+        "startedAtUtc": "2026-10-07T17:18:32.223421+00:00",
+        "command": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "-p",
+          ".vscode-test/d414-candidate-semantic/tsconfig.json"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d415-eligibility-build-input.json",
+        "exitCode": 0,
+        "durationSeconds": 9.204450129000179,
+        "finishedAtUtc": "2026-10-07T17:18:41.426752+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "d415-eligibility": {
+        "status": "exited",
+        "parentPid": 1012169,
+        "childPid": 1012250,
+        "startedAtUtc": "2026-10-07T17:26:39.268493+00:00",
+        "command": [
+          "env",
+          "SOPHP_ELIGIBILITY_CANDIDATE=/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/index.js",
+          "SOPHP_ELIGIBILITY_REPORT=/var/www/node/php-companion/.vscode-test/d415-eligibility-result.json",
+          "node",
+          ".vscode-test/d412-encoding-eligibility-controls.mjs"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d415-eligibility-input.json",
+        "exitCode": 0,
+        "durationSeconds": 0.2998980800039135,
+        "finishedAtUtc": "2026-10-07T17:26:39.567036+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "67ac4e6f34939664a496dfb063e174f183690c4ffb6dc574ef4f323721a1e4a0"
+      },
+      "d415-contracts": {
+        "status": "exited",
+        "parentPid": 1012337,
+        "childPid": 1012421,
+        "startedAtUtc": "2026-10-07T17:26:51.508708+00:00",
+        "command": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "--config",
+          ".vscode-test/d414-vitest.config.mjs",
+          "--reporter=json",
+          "--outputFile=.vscode-test/d415-contracts-result.json"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d415-contracts-input.json",
+        "exitCode": 0,
+        "durationSeconds": 7.190972037002211,
+        "finishedAtUtc": "2026-10-07T17:26:58.698611+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "112a63d74d83893fe850dc98d39524a72afdbdcb987b6ffd1e96ad966621651b"
+      },
+      "d415-parity": {
+        "status": "exited",
+        "parentPid": 1012628,
+        "childPid": 1012714,
+        "startedAtUtc": "2026-10-07T17:27:08.176366+00:00",
+        "command": [
+          "env",
+          "SOPHP_ENCODED_TRIAL_REPORT=/var/www/node/php-companion/.vscode-test/d415-parity-result.json",
+          "node",
+          ".vscode-test/d414-encoded-parity.mjs"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d415-parity-input.json",
+        "exitCode": 0,
+        "durationSeconds": 9.950512138006161,
+        "finishedAtUtc": "2026-10-07T17:27:18.125317+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "cd49d4935fbaa59c829b52a7f76271aa9803a45b76e0eaeb24143de82021814f"
+      },
+      "d415-tool-positives": {
+        "status": "exited",
+        "parentPid": 1012977,
+        "childPid": 1013063,
+        "startedAtUtc": "2026-10-07T17:27:38.240828+00:00",
+        "command": [
+          "env",
+          "SOPHP_TOOL_POSITIVES_REPORT=/var/www/node/php-companion/.vscode-test/d415-tool-positives-result.json",
+          "node",
+          ".vscode-test/d414-tool-positives.mjs"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d415-tool-positives-input.json",
+        "exitCode": 0,
+        "durationSeconds": 0.3704273179973825,
+        "finishedAtUtc": "2026-10-07T17:27:38.609999+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "5996878ac681411fbf855b3294799b2dc466a8f89d08540c1e74db12a4ac94ce"
+      },
+      "d416-full-semantic": {
+        "status": "exited",
+        "parentPid": 1013392,
+        "childPid": 1013470,
+        "startedAtUtc": "2026-10-07T17:28:12.414146+00:00",
+        "command": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "--config",
+          ".vscode-test/d414-full-semantic.config.mjs",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d416-full-semantic-result.json"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d416-full-semantic-input.json",
+        "exitCode": 0,
+        "durationSeconds": 68.5611050209991,
+        "finishedAtUtc": "2026-10-07T17:29:20.973712+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "90e981399275de151e7432bdf9fe48b55768ca5272a135740816b1fff2acd09a"
+      }
+    },
+    "scaleEvidenceInherited": false,
+    "original95InputToolEvidenceInherited": false,
+    "scope": "Eligibility-only private correction. Full original semantic cases and unchanged contract/parity/positive controls pass. D408 scale and D407 bounded restored-tool evidence remain tied to d402; no runtime/LSP/platform/adoption qualification."
+  },
+  "indexCorrectionAndIntegrationAudit": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "qualification": false,
+    "actualPredecessorFailureRetained": true,
+    "sameProbeAssertions": true,
+    "indexReverseExactToD385": true,
+    "identityAndMutationPreservedForSuccessfulAndRejectedPreparation": true,
+    "payloadReadsPerFourFileWarmRestore": {
+      "predecessor": 8,
+      "candidate": 4
+    },
+    "fullIndexApi": {
+      "files": 3,
+      "passed": 52,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "caseIdentityAndMultiplicityPreserved": true,
+      "formatOnlyFixtureAdaptationsUnchanged": true
+    },
+    "controls": {
+      "d418-original-cache-controls": {
+        "passed": 12,
+        "run": {
+          "status": "exited",
+          "parentPid": 1018489,
+          "childPid": 1018576,
+          "startedAtUtc": "2026-10-07T17:36:32.800455+00:00",
+          "command": [
+            "env",
+            "SOPHP_ENTRY_CONTROL_REPORT=/var/www/node/php-companion/.vscode-test/d418-original-cache-controls-result.json",
+            "node",
+            ".vscode-test/d418-entry-store-controls.mjs"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d418-original-cache-controls-input.json",
+          "exitCode": 0,
+          "durationSeconds": 0.437116656001308,
+          "finishedAtUtc": "2026-10-07T17:36:33.235358+00:00",
+          "changedInputs": [],
+          "repositoryChanges": [],
+          "logSha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+        }
+      },
+      "d418-cache-edge-controls": {
+        "passed": 3,
+        "run": {
+          "status": "exited",
+          "parentPid": 1018696,
+          "childPid": 1018781,
+          "startedAtUtc": "2026-10-07T17:36:51.065386+00:00",
+          "command": [
+            "env",
+            "SOPHP_ENTRY_EDGE_REPORT=/var/www/node/php-companion/.vscode-test/d418-cache-edge-controls-result.json",
+            "node",
+            ".vscode-test/d418-entry-store-edge-controls.mjs"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d418-cache-edge-controls-input.json",
+          "exitCode": 0,
+          "durationSeconds": 0.2374550239983364,
+          "finishedAtUtc": "2026-10-07T17:36:51.301155+00:00",
+          "changedInputs": [],
+          "repositoryChanges": [],
+          "logSha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+        }
+      },
+      "d418-cache-transaction-controls": {
+        "passed": 2,
+        "run": {
+          "status": "exited",
+          "parentPid": 1018936,
+          "childPid": 1019035,
+          "startedAtUtc": "2026-10-07T17:37:10.336801+00:00",
+          "command": [
+            "env",
+            "SOPHP_D356_TRANSACTION_REPORT=/var/www/node/php-companion/.vscode-test/d418-cache-transaction-controls-result.json",
+            "node",
+            ".vscode-test/d418-entry-transaction-controls.mjs"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d418-cache-transaction-controls-input.json",
+          "exitCode": 0,
+          "durationSeconds": 0.23167567000200506,
+          "finishedAtUtc": "2026-10-07T17:37:10.567181+00:00",
+          "changedInputs": [],
+          "repositoryChanges": [],
+          "logSha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+        }
+      },
+      "d418-finalizer-boundaries": {
+        "passed": 4,
+        "run": {
+          "status": "exited",
+          "parentPid": 1019226,
+          "childPid": 1019320,
+          "startedAtUtc": "2026-10-07T17:37:46.994218+00:00",
+          "command": [
+            "env",
+            "SOPHP_FINALIZER_BOUNDARY_REPORT=/var/www/node/php-companion/.vscode-test/d418-finalizer-boundaries-result.json",
+            "node",
+            ".vscode-test/d387-finalizer-boundary-controls.mjs",
+            "./d418-index.mjs"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d418-finalizer-boundaries-input.json",
+          "exitCode": 0,
+          "durationSeconds": 0.29303472199535463,
+          "finishedAtUtc": "2026-10-07T17:37:47.285525+00:00",
+          "changedInputs": [],
+          "repositoryChanges": [],
+          "logSha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+        }
+      }
+    },
+    "runs": {
+      "d418-prepare-restore-identity": {
+        "status": "exited",
+        "parentPid": 1018017,
+        "childPid": 1018120,
+        "startedAtUtc": "2026-10-07T17:35:57.856056+00:00",
+        "command": [
+          "env",
+          "SOPHP_PREPARE_RESTORE_REPORT=/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity-result.json",
+          "node",
+          ".vscode-test/d418-prepare-restore-identity.mjs"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity-input.json",
+        "exitCode": 0,
+        "durationSeconds": 0.21968600100080948,
+        "finishedAtUtc": "2026-10-07T17:35:58.074370+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "9dead9795f31dc1a4fbe034ff03d4c8ebfcbeabe588a23d208d3a8512369bbc6"
+      },
+      "d418-full-index-api": {
+        "status": "exited",
+        "parentPid": 1018194,
+        "childPid": 1018282,
+        "startedAtUtc": "2026-10-07T17:36:09.498140+00:00",
+        "command": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "--config",
+          ".vscode-test/d418-index-api-vitest.config.mjs",
+          "--reporter=json",
+          "--outputFile=.vscode-test/d418-full-index-api-result.json"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d418-full-index-api-input.json",
+        "exitCode": 0,
+        "durationSeconds": 4.05139985599817,
+        "finishedAtUtc": "2026-10-07T17:36:13.548553+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "f9454399bd4d9aacb814e3d05b069c6ef4971a18cd23fee31f4bf233d93a2d57"
+      }
+    },
+    "unchangedStorageHelpers": {
+      "d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+      "d372-bounded-cache-removal.mjs": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d",
+      "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    "candidateIndexSha256": "f7bf312341d35ecce4b47092958f92e739fddc551f53d2b2cf9d03a603718da6",
+    "integrationSourceAnchors": {
+      "packages/language-server/src/server.ts": {
+        "sha256": "e36c81493ef6d2d9f4953163fc6b457a60c9500181473694c48582543172783a",
+        "anchors": {
+          "indexComposerSources(root, {": [
+            1840,
+            3479,
+            3942,
+            4030,
+            8372
+          ],
+          "if (!workspace.restoreDeclaration(restored.semantic, uri)) return false;": [
+            1903
+          ],
+          "? workspace.restoreDeclaration(cached.semantic, uri) : workspace.restore(cached.semantic, uri)": [
+            3592
+          ],
+          "version: 'source-candidates-v7'": [
+            3562
+          ]
+        }
+      },
+      "packages/language-server/src/candidateWorker.ts": {
+        "sha256": "ac5de16eec508db274ff82ee9810602ff910a82e9a31280694727021c669cd5d",
+        "anchors": {
+          "restoreCachedProjectPhpFile(decompressCachedProjectPhpFile": [
+            27
+          ],
+          "parentPort?.postMessage({ id: task.id, json: JSON.stringify(result)": [
+            30
+          ]
+        }
+      },
+      "packages/language-server/src/candidateWorkers.ts": {
+        "sha256": "bf995798674df7d6f900d9d58c2fc837d8c176408484e34d65e894b2bf21e99a",
+        "anchors": {
+          "'candidateWorker.js'": [
+            69
+          ]
+        }
+      },
+      "packages/language-server/src/sourceStatBatches.ts": {
+        "sha256": "1b2f6252adc850da7e03428b1a336c04d3b412bb7a4f7838bcffaae459ba8d3a",
+        "anchors": {
+          "'sourceStatWorker.js'": [
+            69
+          ]
+        }
+      },
+      "packages/language-server/src/cacheVersion.ts": {
+        "sha256": "4e27ceb6dac85772108428a233a5ac589f5beb0860a2322b4f801d1f78df34e9",
+        "anchors": {
+          "semantic-v80-php-": [
+            2
+          ]
+        }
+      },
+      "esbuild.mjs": {
+        "sha256": "6e4806b8cf260a4de33cafe7005cdc31716ed376eef600fef9314bc056b4f4b2",
+        "anchors": {
+          "entryPoints: {": [
+            10
+          ],
+          "candidateWorker: 'packages/language-server/src/candidateWorker.ts'": [
+            13
+          ],
+          "finalizeReferenceEngineBuild(result.outputFiles, assets)": [
+            33
+          ]
+        }
+      },
+      "scripts/reference-engine-build.mjs": {
+        "sha256": "8df813f257760dbb19e891addf28c23b57e591f9aaf0f3b7b1736d824f2df5c8",
+        "anchors": {
+          "const engineFiles = ['language-server.js', 'candidateWorker.js', 'builtinSnapshotWorker.js'];": [
+            10
+          ],
+          "for (const name of ['web-tree-sitter.wasm', 'tree-sitter-php.wasm'])": [
+            16
+          ]
+        }
+      },
+      "packages/index/src/index.ts": {
+        "sha256": "caff9d34193523598200e1c8df1ff62f14ee8d188483b016b344065f8c98e7be",
+        "anchors": {
+          "type CacheEntry =": [
+            62
+          ],
+          "data.schema === 1": [
+            67
+          ]
+        }
+      }
+    },
+    "integrationRequired": [
+      "Port private index/store/owned-lock/bounded-cleanup behavior to strictly typed source without changing original callback or transaction contracts.",
+      "Build a complete isolated runtime with the corrected semantic and index, all six standard JS entrypoints, both parser WASMs and the existing engine-identity finalizer.",
+      "Validate actual stdio and worker restoration, full API/safety/LSP and required Extension Host combinations, then original five-round scale/waiting gates.",
+      "Keep schema 89 semantic snapshots and all validation/targeted-hydration semantics; handle legacy schema 1 index cache and schema 2 immutable generations consistently."
+    ],
+    "limitations": [
+      "The measured count reduction is not a timing or RSS improvement claim.",
+      "The d414 semantic and d418 index candidates have not yet been run together in a complete runtime.",
+      "D407 tool parity and D408 single-round scale evidence remain bound to the exact older candidates.",
+      "No normal product integration, full LSP, five-round/platform/version/long-session/real WSL qualification."
+    ]
+  },
+  "originalEligibilityFailure": {
+    "status": "failed",
+    "normalProductChanged": false,
+    "qualification": false,
+    "candidate": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.js",
+    "checks": [
+      {
+        "name": "nonextensible assignment fact",
+        "passed": false,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": false,
+        "expectedExtensible": false,
+        "actualExtensible": true
+      },
+      {
+        "name": "frozen empty nested metadata",
+        "passed": false,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": false,
+        "expectedExtensible": false,
+        "actualExtensible": true
+      },
+      {
+        "name": "sealed empty nested metadata",
+        "passed": false,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": false,
+        "expectedExtensible": false,
+        "actualExtensible": true
+      },
+      {
+        "name": "nonextensible assignment array",
+        "passed": false,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": false
+      }
+    ],
+    "scope": "Actual restoreDeclaration and public snapshotForPersistence checks for nonextensible validated fact graphs. The original accepted snapshots must retain their representation; a nonextensible fact or nested metadata must not become extensible after hydration. Same assertions run against old and corrected candidates."
+  },
+  "correctedEligibility": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "qualification": false,
+    "candidate": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/index.js",
+    "checks": [
+      {
+        "name": "nonextensible assignment fact",
+        "passed": true,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": true,
+        "expectedExtensible": false,
+        "actualExtensible": false
+      },
+      {
+        "name": "frozen empty nested metadata",
+        "passed": true,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": true,
+        "expectedExtensible": false,
+        "actualExtensible": false
+      },
+      {
+        "name": "sealed empty nested metadata",
+        "passed": true,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": true,
+        "expectedExtensible": false,
+        "actualExtensible": false
+      },
+      {
+        "name": "nonextensible assignment array",
+        "passed": true,
+        "baselineAccepted": true,
+        "candidateAccepted": true,
+        "originalRepresentation": true
+      }
+    ],
+    "scope": "Actual restoreDeclaration and public snapshotForPersistence checks for nonextensible validated fact graphs. The original accepted snapshots must retain their representation; a nonextensible fact or nested metadata must not become extensible after hydration. Same assertions run against old and corrected candidates."
+  },
+  "originalPrepareRestoreFailure": {
+    "status": "failed",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "qualification": false,
+    "checks": [
+      {
+        "mode": "successful-prepare",
+        "implementation": "baseline",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": null,
+        "samePayload": true,
+        "mutationPreserved": true,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F0.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F1.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F2.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F3.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          }
+        ]
+      },
+      {
+        "mode": "successful-prepare",
+        "implementation": "candidate",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": 8,
+        "samePayload": false,
+        "mutationPreserved": false,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F0.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F1.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F2.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F3.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          }
+        ]
+      },
+      {
+        "mode": "throwing-prepare",
+        "implementation": "baseline",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": null,
+        "samePayload": true,
+        "mutationPreserved": true,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F0.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F1.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F2.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F3.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          }
+        ]
+      },
+      {
+        "mode": "throwing-prepare",
+        "implementation": "candidate",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": 8,
+        "samePayload": false,
+        "mutationPreserved": false,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F0.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F1.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F2.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-LVaWtF/project/src/F3.php",
+            "samePayload": false,
+            "mutationPreserved": false
+          }
+        ]
+      }
+    ],
+    "scope": "Four-file real cold/warm public indexComposerSources sequences in successful and rejected prepareRestore modes. EntryStore.payload call count only, no timing or scale qualification. Exact normal callback identity and mutation behavior used as baseline. Immutable payload hash validation remains active."
+  },
+  "correctedPrepareRestore": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "qualification": false,
+    "checks": [
+      {
+        "mode": "successful-prepare",
+        "implementation": "baseline",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": null,
+        "samePayload": true,
+        "mutationPreserved": true,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F0.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F1.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F2.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F3.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          }
+        ]
+      },
+      {
+        "mode": "successful-prepare",
+        "implementation": "candidate",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": 4,
+        "samePayload": true,
+        "mutationPreserved": true,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F0.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F1.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F2.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F3.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          }
+        ]
+      },
+      {
+        "mode": "throwing-prepare",
+        "implementation": "baseline",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": null,
+        "samePayload": true,
+        "mutationPreserved": true,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F0.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F1.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F2.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F3.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          }
+        ]
+      },
+      {
+        "mode": "throwing-prepare",
+        "implementation": "candidate",
+        "files": 4,
+        "cached": 4,
+        "prepareRestoreCalls": 4,
+        "restoreCalls": 4,
+        "entryStorePayloadReads": 4,
+        "samePayload": true,
+        "mutationPreserved": true,
+        "calls": [
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F0.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F1.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F2.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          },
+          {
+            "uri": "file:///tmp/sophp-prepare-restore-identity-WvwJsY/project/src/F3.php",
+            "samePayload": true,
+            "mutationPreserved": true
+          }
+        ]
+      }
+    ],
+    "scope": "Four-file real cold/warm public indexComposerSources sequences in successful and rejected prepareRestore modes. EntryStore.payload call count only, no timing or scale qualification. Exact normal callback identity and mutation behavior used as baseline. Immutable payload hash validation remains active."
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d311-validator-semantic-full-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d311-validator-semantic-full-result.json",
+      "sha256": "53dee7f3f01ad957ac5db7ccf956f03e000ba249a358e72558e7ada715fc200c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d353-owned-cache-lock.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d372-bounded-cache-removal.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs",
+      "sha256": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d375-entry-store.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs",
+      "sha256": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d382-dependency-api.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d382-dependency-api.test.ts",
+      "sha256": "ef7c928037388c2b3fbff21a1d017f8795c09928aacd69b7e0a023f629e36cbe"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d382-index-api-preparation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d382-index-api-preparation.json",
+      "sha256": "7609ae244c53f1554ae246787150aac1afd25c870a66b8d28a809511943fd36c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d382-pending-api.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d382-pending-api.test.ts",
+      "sha256": "38199eb50abb2eb6f56e03ac370c4d3d5c6ec35fa979916120fc340155c3e66c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d383-normal-index-full-api-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api-result.json",
+      "sha256": "3518a30a426c328b54ffcbbbce24397d0a4066e816229798b6945ba079eec3f8"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d385-index.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d385-index.mjs",
+      "sha256": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d387-finalizer-boundary-controls.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d387-finalizer-boundary-controls.mjs",
+      "sha256": "bbdf7644169e1f8425cdfa6112e22b697d112835cb7789014688bfaa3df1f17f"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d388-finalizer-full-api-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d388-finalizer-full-api-result.json",
+      "sha256": "aaffaf0c0b75adb07a8431683a5e804b27abc96c4e32fb5296cdb1a7c283515f"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionIdentifier.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionIdentifier.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionIdentifier.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionIdentifier.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionMatching.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionMatching.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionMatching.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionMatching.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTrivia.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTrivia.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTrivia.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTrivia.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTypeTail.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTypeTail.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTypeTail.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/completionTypeTail.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/index.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/index.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.d.ts.map",
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.js",
+      "sha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/index.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.js.map",
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/nativeScalarInput.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/nativeScalarInput.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/nativeScalarInput.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/nativeScalarInput.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/phpDocNameBinding.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/phpDocNameBinding.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/phpDocNameBinding.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/phpDocNameBinding.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/quotedCompletion.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/quotedCompletion.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/quotedCompletion.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/dist/quotedCompletion.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/completionIdentifier.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionIdentifier.ts",
+      "sha256": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/completionMatching.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionMatching.ts",
+      "sha256": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/completionTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionTrivia.ts",
+      "sha256": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/completionTypeTail.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionTypeTail.ts",
+      "sha256": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/index.ts",
+      "sha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/nativeScalarInput.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/nativeScalarInput.ts",
+      "sha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/phpDocNameBinding.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/phpDocNameBinding.ts",
+      "sha256": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/src/quotedCompletion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/quotedCompletion.ts",
+      "sha256": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d399-baseline-semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionIdentifier.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionIdentifier.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionIdentifier.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionMatching.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionMatching.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionMatching.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionMatching.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTrivia.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTrivia.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTrivia.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTypeTail.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTypeTail.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/completionTypeTail.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/index.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/index.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.d.ts.map",
+      "sha256": "44af217697606845623447f8bbd6c4beb174d177edd8f2db25c9828169c94289"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.js",
+      "sha256": "66ff5be8f03035c7fae20533ba31c4d66197ffe1199bf9ba3791d67270d7bf12"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/index.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.js.map",
+      "sha256": "d51b5bb5c2fc6035731256f04cf8e4863eef283d219b518dacb84c2a65a47b76"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/nativeScalarInput.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/nativeScalarInput.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/phpDocNameBinding.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/quotedCompletion.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/quotedCompletion.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/dist/quotedCompletion.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/completionIdentifier.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionIdentifier.ts",
+      "sha256": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/completionMatching.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionMatching.ts",
+      "sha256": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/completionTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionTrivia.ts",
+      "sha256": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/completionTypeTail.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionTypeTail.ts",
+      "sha256": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/index.ts",
+      "sha256": "670f6413b9b2923197dc99b8d57dae267ed5a66f4a93af0928119e211972ffb1"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/nativeScalarInput.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/nativeScalarInput.ts",
+      "sha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/phpDocNameBinding.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/phpDocNameBinding.ts",
+      "sha256": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/src/quotedCompletion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/quotedCompletion.ts",
+      "sha256": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d402-candidate-semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d404-encoded-contracts-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-contracts-result.json",
+      "sha256": "8877ee44767ab121c875e3cdc6a63dc6813216f0d853a700cea81d7fcccb4582"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d404-encoded-parity-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-parity-result.json",
+      "sha256": "9952b3d3e69f837bffe52bd558a05d968d81051811c572d84722ef950790232d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d411-encoded-facts-final-validation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d411-encoded-facts-final-validation.json",
+      "sha256": "45832b041af555bb116d3f0a03cf134de1a2bce7f0ef8f5a4e3f1243cfe637fe"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d412-encoding-eligibility-controls.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d412-encoding-eligibility-controls.mjs",
+      "sha256": "c9838db2da3b1058824417f200e932ac053717ac99365174823e0497c51895cf"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d413-original-eligibility-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d413-original-eligibility-input.json",
+      "sha256": "94ee1a4796f99837b783d28cfed87871f9beb60631a3870abf6858ed22697d7c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d413-original-eligibility-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d413-original-eligibility-result.json",
+      "sha256": "7954ceae8ab204e1b8b4ac504d1f21552f6814f465f17f47f6e26cbef029b5ee"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d413-original-eligibility-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d413-original-eligibility-run.json",
+      "sha256": "be4b38fcfe2e9f319c22d0f7d83787c2db2917a72044ece58f69715fb31ad12d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d413-original-eligibility.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d413-original-eligibility.log",
+      "sha256": "7954ceae8ab204e1b8b4ac504d1f21552f6814f465f17f47f6e26cbef029b5ee"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d413-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d413-run.py",
+      "sha256": "651b3239664e8f4925df20840b19c49122a8148bc81eedd2fee2db4d6c1d2ea3"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionIdentifier.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionIdentifier.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionIdentifier.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionMatching.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionMatching.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionMatching.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionMatching.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTrivia.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTrivia.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTrivia.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTypeTail.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTypeTail.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/completionTypeTail.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/index.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/index.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/index.d.ts.map",
+      "sha256": "44af217697606845623447f8bbd6c4beb174d177edd8f2db25c9828169c94289"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/index.js",
+      "sha256": "da1abdcfa2886785f33ed5fd5d9f0f19809c5d1b50a62c59503e9ac47fa5522e"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/index.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/index.js.map",
+      "sha256": "5b4f15f522f8b3e2c7aabca22715d1f2b04ef7de1af33f381113c60a1c527867"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/nativeScalarInput.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/nativeScalarInput.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/phpDocNameBinding.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/quotedCompletion.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/quotedCompletion.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/dist/quotedCompletion.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/completionIdentifier.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/completionIdentifier.ts",
+      "sha256": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/completionMatching.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/completionMatching.ts",
+      "sha256": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/completionTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/completionTrivia.ts",
+      "sha256": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/completionTypeTail.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/completionTypeTail.ts",
+      "sha256": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/index.ts",
+      "sha256": "acca8e5858da96e9f4eeb2f83e4abf9bce27df47f29678ff659b06cbcdf133e5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/nativeScalarInput.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/nativeScalarInput.ts",
+      "sha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/phpDocNameBinding.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/phpDocNameBinding.ts",
+      "sha256": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/src/quotedCompletion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/src/quotedCompletion.ts",
+      "sha256": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-candidate-semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-candidate-semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-contract-baseline.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-contract-baseline.test.ts",
+      "sha256": "a7a2ce3055c2fd4a36870570d7fde79a2349e48c5f8ae283ba8a43b05c9b0e49"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-contract-candidate.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-contract-candidate.test.ts",
+      "sha256": "89938e66dcabe2aa13fd7590aa91e592c03f6f3b3224e9a91841c78de5ba7933"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-eligibility-preparation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-eligibility-preparation.json",
+      "sha256": "6fc38122e47eed0707f1f6a600ec9669b1b0cbb1a2b3b3896376e05647f90d3a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-encoded-parity.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-encoded-parity.mjs",
+      "sha256": "6ecdb3673a0aed5829dd525e35e982fb370f0a909f18220bf07ef1efaf352455"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-encoded-storage.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-encoded-storage.test.ts",
+      "sha256": "f87be54460728834caf9da9049bf1122512bdc13045edebc30af37ee4c08c94a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-full-semantic.config.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-full-semantic.config.mjs",
+      "sha256": "52d327a2a8ef649cbad9445d56dcea1031d3bb7ceafc7d488f8927d7a6b76057"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-prepare-eligibility-fix.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-prepare-eligibility-fix.py",
+      "sha256": "b7647be0a6da638ea9f3a1281184f19ab47403dbd7d25bdbbc8701e48a2208de"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-tool-positives.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-tool-positives.mjs",
+      "sha256": "9fa2f7dd0dc35aae317e5d1d35f6b663848ce2dbe0a117aa9f211716060825ee"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d414-vitest.config.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d414-vitest.config.mjs",
+      "sha256": "822065cbe17eafac987212421a58b48a73d532751a6b4711d0e1e173a858532c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-audit-build.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-audit-build.py",
+      "sha256": "42391b03983d9a659c972327414d5cbc4ce2e31866504b2377cbb40548cda548"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-contracts-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-contracts-input.json",
+      "sha256": "a69edf47e49ac931c4a504eddc6ecf5ad2f37ae19154f1bd68a015caf91c45d5"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-contracts-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-contracts-result.json",
+      "sha256": "de2293f6cda534e377849ac7d2a328cd6f6c3626f4ebeabde96a624fbff41858"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-contracts-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-contracts-run.json",
+      "sha256": "4c24fb12789178cb6dfab6ec411f40730430d763fcaaa76977b8e869532b3273"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-contracts.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-contracts.log",
+      "sha256": "112a63d74d83893fe850dc98d39524a72afdbdcb987b6ffd1e96ad966621651b"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility-build-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility-build-input.json",
+      "sha256": "ca589cc8dcde7cb0fb7f6495ed83c56fa30a86cd02be5e4e840f3df767287be7"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility-build-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility-build-run.json",
+      "sha256": "a7b7b29900419e64ff0e2a9aad55d24fe5c806efad528cf16c57037a35c1b093"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility-build.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility-input.json",
+      "sha256": "785e3414f71ca54cb1056c2c33e918956a6b672fae37734946a5a73a09ff05ff"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility-result.json",
+      "sha256": "67ac4e6f34939664a496dfb063e174f183690c4ffb6dc574ef4f323721a1e4a0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility-run.json",
+      "sha256": "c277bf48c4d53c7683e8f3e733c4d18e9ac34b03eb082fa40012a93d262ce55c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-eligibility.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-eligibility.log",
+      "sha256": "67ac4e6f34939664a496dfb063e174f183690c4ffb6dc574ef4f323721a1e4a0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-encoded-build-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-encoded-build-audit.json",
+      "sha256": "2459c02a92ad7b80a0466004f1a1c24c0d9f8279138112d8c841056db12f5f82"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-parity-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-parity-input.json",
+      "sha256": "d76ecf463c44454c39cba5e2a060fef017e810c549601c183ff51eea525ea752"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-parity-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-parity-result.json",
+      "sha256": "9952b3d3e69f837bffe52bd558a05d968d81051811c572d84722ef950790232d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-parity-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-parity-run.json",
+      "sha256": "2f8db206d04f28e9baea5f196de9eca359d44973d5c2ebb47d06c77188078b28"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-parity.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-parity.log",
+      "sha256": "cd49d4935fbaa59c829b52a7f76271aa9803a45b76e0eaeb24143de82021814f"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-run.py",
+      "sha256": "5c7e32ed0a4ae46cfb09ac810dcd78a9847d40c257ff31912a471180a54c2da7"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-tool-positives-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-tool-positives-input.json",
+      "sha256": "b7c466f834f53eb1bdd6130ff8a069fec0ec9414408d843c83c9d6bf1997084c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-tool-positives-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-tool-positives-result.json",
+      "sha256": "d2b9635d7e2d05aa348b32f0e6018a7f837fb42752254cf84920cde025f8f2e4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-tool-positives-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-tool-positives-run.json",
+      "sha256": "4849b1c6b256dee84003aff21840d64b855a9bb6681cc6c74162a91939768d2e"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d415-tool-positives.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d415-tool-positives.log",
+      "sha256": "5996878ac681411fbf855b3294799b2dc466a8f89d08540c1e74db12a4ac94ce"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d416-full-semantic-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d416-full-semantic-input.json",
+      "sha256": "4daee998ff209e284f8e39e5854a9ed002a394b9fcfc2360cf8e24c0b4107d07"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d416-full-semantic-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d416-full-semantic-result.json",
+      "sha256": "58c042e571fd977e31e21f0257fc1f0ef203df3aa613f324d36c860d645fa2d8"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d416-full-semantic-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d416-full-semantic-run.json",
+      "sha256": "f1583e31d9361c172ea6190877ae1968e6cc4324921d5c81cc4a9a2393ea7b93"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d416-full-semantic.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d416-full-semantic.log",
+      "sha256": "90e981399275de151e7432bdf9fe48b55768ca5272a135740816b1fff2acd09a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d416-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d416-run.py",
+      "sha256": "7724a656b408c76ad2cfaed346c7464628e628a658929c3e0361f67f63bdaa2e"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d416-semantic-resolved-inputs.jsonl",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d416-semantic-resolved-inputs.jsonl",
+      "sha256": "467e18b5829749cbee07ca9ea221bcc133742f44ee496d8167b810ec4623e639"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-audit-eligibility.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-audit-eligibility.py",
+      "sha256": "161662458f5235009db808fed1694b709695540ab5f66e9f9667d508fe83d33e"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-eligibility-controls-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-eligibility-controls-audit.json",
+      "sha256": "f5ee494fb5dae588b82c879e190c14d61b3657fd3a5c0764a63d74f5f3bb64bc"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-prepare-restore-identity-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-prepare-restore-identity-input.json",
+      "sha256": "04f12d1a9b515e1b437cef8b78b123631d61da95945e218b38571a7285ce5c86"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-prepare-restore-identity-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-prepare-restore-identity-result.json",
+      "sha256": "15e74cfd9bb20b416b38cade935bfc6890faeb7e0e8c83864c463d324fdcb693"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-prepare-restore-identity-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-prepare-restore-identity-run.json",
+      "sha256": "c56d86cf7e305af1b67361fba501176505ca40d23f88aab239f8a9694536e802"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-prepare-restore-identity.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-prepare-restore-identity.log",
+      "sha256": "15e74cfd9bb20b416b38cade935bfc6890faeb7e0e8c83864c463d324fdcb693"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-prepare-restore-identity.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-prepare-restore-identity.mjs",
+      "sha256": "0245ce2f15d2d9a65aa0de9b9d0214a898c3b0f65b6415a12cbcc9b70c8a72a9"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d417-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d417-run.py",
+      "sha256": "f3f7b54ad73f9da13edaac1385f169c167182e41e0a028a5e1e8ab4b35cbc095"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-edge-controls-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-edge-controls-input.json",
+      "sha256": "f605d1b857b694bb71e490253ed9d14278085750cb4d02cf307241658df598b0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-edge-controls-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-edge-controls-result.json",
+      "sha256": "84c351d42c3275dc770d50f26e481b60bc56001ba288a6c29fd65db2df4e2b7c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-edge-controls-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-edge-controls-run.json",
+      "sha256": "a095e60a82927802ea1d2c5f59727348b9fd4324fe77666684fb17fe4f3d2954"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-edge-controls.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-edge-controls.log",
+      "sha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-transaction-controls-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-transaction-controls-input.json",
+      "sha256": "d1b2cce4ed0282703265ab9d38d6622f3dd45169402f08477346ff5622ce5a3e"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-transaction-controls-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-transaction-controls-result.json",
+      "sha256": "def47d6d1e77eedaf6662db8e3ab77d1d92b3690f9a24f7ff049419248c5f967"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-transaction-controls-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-transaction-controls-run.json",
+      "sha256": "a744e8b08ce36dc4992f756985adcc3dffdba21d77d47b0bb789f795fee0a39d"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-cache-transaction-controls.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-cache-transaction-controls.log",
+      "sha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-entry-store-controls.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-entry-store-controls.mjs",
+      "sha256": "bf255e69f1e01b5ad6882e8763b9b35a5828b74e440a6820bd528b9b6623c399"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-entry-store-edge-controls.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-entry-store-edge-controls.mjs",
+      "sha256": "0af75e0f1b786c9c90fccce887e177c9cb626c906dfe15a0637c277009d17fb1"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-entry-transaction-controls.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-entry-transaction-controls.mjs",
+      "sha256": "ab4912d009f98dbaa395bb302c714d05e61a92be2bc21009c681d9d276552a4b"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-finalizer-boundaries-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-finalizer-boundaries-input.json",
+      "sha256": "13569e1921faf0f5ce60ed2d02d7ce13ec4a5f7cb8f6bd2477813ffb58fc7a69"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-finalizer-boundaries-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-finalizer-boundaries-result.json",
+      "sha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-finalizer-boundaries-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-finalizer-boundaries-run.json",
+      "sha256": "b427186cd39593bbae58313d5a9134b716c49f56184660524f5176de7b2ca9e2"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-finalizer-boundaries.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-finalizer-boundaries.log",
+      "sha256": "a1ed8c46a11310c2c92f576c2319ac034a76dd85fb1d76d6f6f07592aa771f6f"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-full-index-api-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-full-index-api-input.json",
+      "sha256": "babb1d10babae426064812d8340b1d52f41ca12b3f96916d75f219c45e7afe05"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-full-index-api-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-full-index-api-result.json",
+      "sha256": "17ae79d6e7bba65a1b222520a5e773a20625b4c827f1992700c43c9e29372cb8"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-full-index-api-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-full-index-api-run.json",
+      "sha256": "9f7eab083cfbcdd8977a64cb233f54c78ff8a53ff7b052a6dbccd61f90703dfb"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-full-index-api.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-full-index-api.log",
+      "sha256": "f9454399bd4d9aacb814e3d05b069c6ef4971a18cd23fee31f4bf233d93a2d57"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-index-api-vitest.config.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-index-api-vitest.config.mjs",
+      "sha256": "c73b67d9c8041c2e8758b3de1f54fc1ff0fa6593afce28b4f77b38212f96ca22"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-index-api.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-index-api.test.ts",
+      "sha256": "a59f8744f84415c1d68065fa6acb6ef789830cd73847b383e9a6d25ed590655c"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-index.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-index.mjs",
+      "sha256": "f7bf312341d35ecce4b47092958f92e739fddc551f53d2b2cf9d03a603718da6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-original-cache-controls-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-original-cache-controls-input.json",
+      "sha256": "f6d8a3ca1963a302b90dd120cbe12961b44e427a5ccd1027b52f3ded05553f3a"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-original-cache-controls-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-original-cache-controls-result.json",
+      "sha256": "feb75faf3187721ec07d3fa264872571e9fa3b900b57a6e4964d22f2b97bd4b6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-original-cache-controls-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-original-cache-controls-run.json",
+      "sha256": "99a358d349765df101320a6e785923b3bf1da1b9ddfcddf660c6d16b891850e6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-original-cache-controls.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-original-cache-controls.log",
+      "sha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-payload-reuse-preparation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-payload-reuse-preparation.json",
+      "sha256": "1d3b9754d92135268d6fb730dfbeb665ca07d45fbb5556d7c17249c024ad4da0"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-prepare-payload-reuse.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-prepare-payload-reuse.py",
+      "sha256": "1fa7a38e466c3777db61355006e22b7b99ae8673afa0627f9ea3d2f45ca265ca"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-prepare-restore-identity-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity-input.json",
+      "sha256": "f20d17873bfeb1c432dd89a20ad84d33e0561757353ebaacdf0c8054b9f63f97"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-prepare-restore-identity-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity-result.json",
+      "sha256": "9dead9795f31dc1a4fbe034ff03d4c8ebfcbeabe588a23d208d3a8512369bbc6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-prepare-restore-identity-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity-run.json",
+      "sha256": "5e22de25224fcf5b43853f59f3821c7046486e5034e84a36ddc89315701c08c9"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-prepare-restore-identity.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity.log",
+      "sha256": "9dead9795f31dc1a4fbe034ff03d4c8ebfcbeabe588a23d208d3a8512369bbc6"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-prepare-restore-identity.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-prepare-restore-identity.mjs",
+      "sha256": "17d14d6eecd3b715f20af73539b9a59375d91fd7dc67c2bcb4afd4ad3e5983c4"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d418-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d418-run.py",
+      "sha256": "2393fa733ed50c82abceb7f8fcf7bbe15e71ccf46dad30aecc29e64ec2610029"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d419-audit-payload-reuse.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d419-audit-payload-reuse.py",
+      "sha256": "5368796ffdf5e30f549402e94e7a25ca4befed8d19904f2d265abbef3e9d6482"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d419-payload-reuse-integration-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d419-payload-reuse-integration-audit.json",
+      "sha256": "73851097d15242483d36b607572cdf939df1c2a24de2de8a4c4f9a722ef40c84"
+    },
+    {
+      "path": ".vscode-test/d420-candidate-boundaries-evidence/d420-record-candidate-boundaries.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d420-record-candidate-boundaries.py",
+      "sha256": "83b5d98cef80f94c5044a525d88dace7226f9f1b4ef83cbb89a05954d8882fb3"
+    }
+  ],
+  "artifactCount": 228,
+  "evidenceDirectory": ".vscode-test/d420-candidate-boundaries-evidence",
+  "historicalScaleEvidence": {
+    "report": "encoded-deferred-facts-private-trial-2026-10-08.json",
+    "boundToSemantic": "d402",
+    "boundToIndex": "d385",
+    "inheritedByCurrentCandidates": false,
+    "roundsPerScale": 1
+  },
+  "normalOpenBudgets": {
+    "controllerP95Ms": 157.74,
+    "controllerBudgetMs": 150,
+    "normalComplete10000RssMiB": 920.54,
+    "normal10000BudgetMiB": 768
+  },
+  "limitations": [
+    "The two corrected candidates have not been jointly integrated into a complete source-built runtime.",
+    "No new timing, RSS or scale measurement. Reading each four-file payload once instead of twice proves operation count and callback correctness only.",
+    "Original 95-input restored-tool and single-round scale evidence stays bound to the older exact candidate; it is not inherited.",
+    "Full C1-C4/R4, P0-P9/F01-F14, current full LSP/runtime, five-round scale, platform/version/tool combinations, long sessions and real WSL remain open.",
+    "No commit, push, VSIX packaging, installed Profile change or publication."
+  ],
+  "nextStep": "Port d418 index/store/owned-lock/bounded-cleanup behavior to strict TypeScript in an isolated source candidate, combine d414 semantic, build all six normal runtime entries plus both WASMs with the existing engine identity, and validate actual API/safety/stdio/worker/LSP behavior before original five-round performance and platform gates."
+}

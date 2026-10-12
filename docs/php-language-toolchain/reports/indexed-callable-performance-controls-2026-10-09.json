@@ -1,0 +1,2185 @@
+{
+  "recordedAtUtc": "2026-10-09T04:19:15.907968+00:00",
+  "engineBuildId": "d93a920cb023363469383bfb925461ac06df203788628958c5385f9d089582f0",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "priorNormalQualification": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/indexed-callable-normal-qualification-2026-10-09.json",
+    "sha256": "14e06713ea9e7220639268038f14ab7584a47a6234f6fc452c768db2181d0202"
+  },
+  "recovery": {
+    "qualified": true,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1181-normal-editing-recovery-run.json",
+      "sha256": "30f73fbf2b700135dea23e38b5fa0975b587398cb05d60d81c0434344af570ab"
+    },
+    "warmupIterationsPerMode": 100,
+    "measuredIterationsPerMode": 1000,
+    "rows": [
+      {
+        "mode": "onDemand",
+        "diagnostics": {
+          "samples": 1000,
+          "p50": 27.88502200000221,
+          "p95": 29.071168999998918,
+          "maximum": 31.56717000000026
+        },
+        "hotCompletion": {
+          "samples": 1000,
+          "p50": 1.2783140000028652,
+          "p95": 2.1309179999989283,
+          "maximum": 3.0616250000002765
+        },
+        "rss": {
+          "baseline": 230.42578125,
+          "sampledPeak": 327.5859375,
+          "final": 327.5859375,
+          "endMinusBaseline": 97.16015625,
+          "samples": 112,
+          "sampledEveryIterations": 10,
+          "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+        },
+        "cacheRecovered": true,
+        "staleResultFailures": 0
+      },
+      {
+        "mode": "experimental",
+        "diagnostics": {
+          "samples": 1000,
+          "p50": 28.167358000000604,
+          "p95": 29.28599799999938,
+          "maximum": 31.955276999999114
+        },
+        "hotCompletion": {
+          "samples": 1000,
+          "p50": 1.2790050000003248,
+          "p95": 2.068850999999995,
+          "maximum": 3.0227149999991525
+        },
+        "rss": {
+          "baseline": 262.9140625,
+          "sampledPeak": 294.5703125,
+          "final": 294.5703125,
+          "endMinusBaseline": 31.65625,
+          "samples": 112,
+          "sampledEveryIterations": 10,
+          "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+        },
+        "cacheRecovered": true,
+        "staleResultFailures": 0
+      }
+    ]
+  },
+  "ordinary": {
+    "qualified": false,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1182-normal-ordinary-editing-five-rounds-run.json",
+      "sha256": "d6a45269df16eb3023447360978ce4178398ed441f5d9a2e0a9796422664d3ec"
+    },
+    "scheduledRuns": 25,
+    "executedRuns": 25,
+    "correctnessPassed": 25,
+    "budgetPassed": 23,
+    "originalBudgetMs": 150,
+    "queriesPerRun": 100,
+    "rows": [
+      {
+        "label": "fixed-7.2",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 3,
+        "minimumP95Ms": 139.95,
+        "maximumP95Ms": 157.67
+      },
+      {
+        "label": "fixed-8.5",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "minimumP95Ms": 123.15,
+        "maximumP95Ms": 147.33
+      },
+      {
+        "label": "real-data-service",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "minimumP95Ms": 80.86,
+        "maximumP95Ms": 98.88
+      },
+      {
+        "label": "real-large-controller",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "minimumP95Ms": 135.23,
+        "maximumP95Ms": 146.54
+      },
+      {
+        "label": "real-blog-controller",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "minimumP95Ms": 65.22,
+        "maximumP95Ms": 70.78
+      }
+    ],
+    "failures": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 157.67
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 153.83
+      }
+    ],
+    "failedRoundsRetried": false,
+    "allOriginalScheduleAndAssertionsPreserved": true
+  },
+  "scale": {
+    "qualified": true,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1184-normal-production-scale-run.json",
+      "sha256": "20e750c7ef4f047b2bda12d742626622884ea222ea644cbab8bbb5a2533223d5"
+    },
+    "rows": [
+      {
+        "files": 1000,
+        "rounds": 5,
+        "actualServers": 10,
+        "coldIndexP95Ms": 2153,
+        "warmIndexP95Ms": 1646,
+        "maximumRssMiB": 349.6328125,
+        "largestRoundHotP95Ms": 3.8429359999990993,
+        "source": {
+          "files": 1000,
+          "path": "/var/www/node/php-companion/.vscode-test/d1184-production-server-1000-five-rounds.json",
+          "sha256": "7ec655be702a75d20d80b997117f0a8df468649fd577cafdff5622ad6ffd68b6"
+        },
+        "summary": {
+          "files": 1000,
+          "rounds": 5,
+          "actualServers": 10,
+          "statistics": {
+            "cold": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 2041,
+                "p95": 2153,
+                "maximum": 2153
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 5063.966804,
+                "p95": 5243.698983,
+                "maximum": 5243.698983
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 338.97265625,
+                "p95": 349.6328125,
+                "maximum": 349.6328125
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3124.036223,
+                "p95": 3229.886744,
+                "maximum": 3229.886744
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 2.592818260192871,
+                "p95": 2.5943593978881836,
+                "maximum": 2.5943593978881836
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 3.1480240000000776,
+                  "p95": 3.7340549999998984,
+                  "maximum": 3.7340549999998984
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.1525369999999384,
+                  "p95": 2.7875739999999496,
+                  "maximum": 2.7875739999999496
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 2.238274999999703,
+                  "p95": 3.354921000000104,
+                  "maximum": 3.354921000000104
+                }
+              }
+            },
+            "warm": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 1606,
+                "p95": 1646,
+                "maximum": 1646
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 4429.99807,
+                "p95": 4503.371981999999,
+                "maximum": 4503.371981999999
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 335.94140625,
+                "p95": 340.27734375,
+                "maximum": 340.27734375
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 2926.314681,
+                "p95": 3063.065636000001,
+                "maximum": 3063.065636000001
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 2.592818260192871,
+                "p95": 2.5943593978881836,
+                "maximum": 2.5943593978881836
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 3.394056000001001,
+                  "p95": 3.8429359999990993,
+                  "maximum": 3.8429359999990993
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 1.9765520000000834,
+                  "p95": 2.715650000000096,
+                  "maximum": 2.715650000000096
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 2.4313190000011673,
+                  "p95": 2.8826269999990473,
+                  "maximum": 2.8826269999990473
+                }
+              }
+            }
+          },
+          "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+        }
+      },
+      {
+        "files": 10000,
+        "rounds": 5,
+        "actualServers": 10,
+        "coldIndexP95Ms": 15304,
+        "warmIndexP95Ms": 11264,
+        "maximumRssMiB": 513.78125,
+        "largestRoundHotP95Ms": 11.030320000005304,
+        "source": {
+          "files": 10000,
+          "path": "/var/www/node/php-companion/.vscode-test/d1184-production-server-10000-five-rounds.json",
+          "sha256": "5493bcdfe54701dd358221a031d88ec6c7efaeb80a14e40267716eafb469856e"
+        },
+        "summary": {
+          "files": 10000,
+          "rounds": 5,
+          "actualServers": 10,
+          "statistics": {
+            "cold": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 14954,
+                "p95": 15304,
+                "maximum": 15304
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 17917.015595999997,
+                "p95": 18395.207128,
+                "maximum": 18395.207128
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 475.03515625,
+                "p95": 483.5859375,
+                "maximum": 483.5859375
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3069.508996,
+                "p95": 3354.352801,
+                "maximum": 3354.352801
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 25.989882469177246,
+                "p95": 25.993149757385254,
+                "maximum": 25.993149757385254
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 5.95141700000022,
+                  "p95": 7.384932000000845,
+                  "maximum": 7.384932000000845
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 1.8479839999999967,
+                  "p95": 2.8490399999973306,
+                  "maximum": 2.8490399999973306
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 6.419432000002416,
+                  "p95": 9.193676999999298,
+                  "maximum": 9.193676999999298
+                }
+              }
+            },
+            "warm": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 11218,
+                "p95": 11264,
+                "maximum": 11264
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 14144.143486,
+                "p95": 14219.977901000002,
+                "maximum": 14219.977901000002
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 503.40625,
+                "p95": 513.78125,
+                "maximum": 513.78125
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3034.1375100000005,
+                "p95": 3068.706534000001,
+                "maximum": 3068.706534000001
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 25.989882469177246,
+                "p95": 25.993149757385254,
+                "maximum": 25.993149757385254
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 9.561699999998382,
+                  "p95": 11.030320000005304,
+                  "maximum": 11.030320000005304
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.620243000004848,
+                  "p95": 3.036649000001489,
+                  "maximum": 3.036649000001489
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 7.319229000000632,
+                  "p95": 9.01046900000074,
+                  "maximum": 9.01046900000074
+                }
+              }
+            }
+          },
+          "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+        }
+      },
+      {
+        "files": 50000,
+        "rounds": 5,
+        "actualServers": 10,
+        "coldIndexP95Ms": 74205,
+        "warmIndexP95Ms": 54996,
+        "maximumRssMiB": 1194.74609375,
+        "largestRoundHotP95Ms": 55.641522999998415,
+        "source": {
+          "files": 50000,
+          "path": "/var/www/node/php-companion/.vscode-test/d1184-production-server-50000-five-rounds.json",
+          "sha256": "8032bcf76d2e60d6c262c0ed996a422591461b323a34485457cb313128375162"
+        },
+        "summary": {
+          "files": 50000,
+          "rounds": 5,
+          "actualServers": 10,
+          "statistics": {
+            "cold": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 73243,
+                "p95": 74205,
+                "maximum": 74205
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 76336.825025,
+                "p95": 77041.779048,
+                "maximum": 77041.779048
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 1006.359375,
+                "p95": 1022.35546875,
+                "maximum": 1022.35546875
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3059.1179269999993,
+                "p95": 3255.040642000001,
+                "maximum": 3255.040642000001
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 130.0410852432251,
+                "p95": 130.14223384857178,
+                "maximum": 130.14223384857178
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 41.229956999988644,
+                  "p95": 44.4104379999917,
+                  "maximum": 44.4104379999917
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.8478329999925336,
+                  "p95": 3.099849999998696,
+                  "maximum": 3.099849999998696
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 39.337828000003356,
+                  "p95": 43.00468300000648,
+                  "maximum": 43.00468300000648
+                }
+              }
+            },
+            "warm": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 54187,
+                "p95": 54996,
+                "maximum": 54996
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 56958.740435000014,
+                "p95": 58045.275162000005,
+                "maximum": 58045.275162000005
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 1149.74609375,
+                "p95": 1194.74609375,
+                "maximum": 1194.74609375
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3023.721986999997,
+                "p95": 3333.4847750000044,
+                "maximum": 3333.4847750000044
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 130.0410852432251,
+                "p95": 130.14223384857178,
+                "maximum": 130.14223384857178
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 51.34851099998923,
+                  "p95": 55.641522999998415,
+                  "maximum": 55.641522999998415
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.352833000011742,
+                  "p95": 3.710480000008829,
+                  "maximum": 3.710480000008829
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 49.38294000001042,
+                  "p95": 52.34387300000526,
+                  "maximum": 52.34387300000526
+                }
+              }
+            }
+          },
+          "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+        }
+      }
+    ],
+    "actualServers": 30,
+    "originalBenchmarksAndBudgetsPreserved": true,
+    "allActualServersGone": true,
+    "forcedGc": false
+  },
+  "cpuDiagnostic": {
+    "captured": true,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1187-fixed-72-cpu-run.json",
+      "sha256": "9cc1446594efd3aaa7b1a44a4097f9be0a98629dd160c0329adf2332958f4871"
+    },
+    "mappedProfile": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1187-fixed-72-cpu-evidence/fixed-7.2/profiles/mapped-cpu.json",
+      "sha256": "0c5fa9b22f4c26d9604c9ae28c902d29636bf5c72969d089e40538a28c12e521"
+    },
+    "profiles": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1187-fixed-72-cpu-evidence/fixed-7.2/profiles/CPU.20261009.121619.3246584.0.001.cpuprofile",
+        "sha256": "f7a42ae3c99b938be2f4178aa3654219c3854df566e7cf2794aad522c46d97e5"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d1187-fixed-72-cpu-evidence/fixed-7.2/profiles/CPU.20261009.121620.3246584.1.002.cpuprofile",
+        "sha256": "11f76be44673cea47c13f60fe3bc1b203742c5494c5a437ced4e6dae4147066a"
+      }
+    ],
+    "mainSamples": 11449,
+    "mainSampleDurationMs": 13465.383,
+    "operationSamples": [
+      {
+        "operation": "updateSource",
+        "inclusiveSampleMs": 6152.898999999988,
+        "selfContributors": [
+          {
+            "nodeId": 798,
+            "name": "parseDocument",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 666,
+            "column": 11,
+            "generatedLine": 182,
+            "generatedColumn": 4561,
+            "ms": 228.72799999999998
+          },
+          {
+            "nodeId": 457,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 2347,
+            "column": 41,
+            "generatedLine": 192,
+            "generatedColumn": 24218,
+            "ms": 197.6170000000001
+          },
+          {
+            "nodeId": 900,
+            "name": "V_",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 1101,
+            "column": 10,
+            "generatedLine": 189,
+            "generatedColumn": 5593,
+            "ms": 196.93999999999997
+          },
+          {
+            "nodeId": 796,
+            "name": "TE",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 314,
+            "column": 17,
+            "generatedLine": 180,
+            "generatedColumn": 7630,
+            "ms": 193.81400000000008
+          },
+          {
+            "nodeId": 859,
+            "name": "Le",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 1047,
+            "column": 23,
+            "generatedLine": 182,
+            "generatedColumn": 15969,
+            "ms": 176.49299999999997
+          },
+          {
+            "nodeId": 409,
+            "name": "updateSource",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 2011,
+            "column": 11,
+            "generatedLine": 192,
+            "generatedColumn": 10804,
+            "ms": 149.71599999999992
+          },
+          {
+            "nodeId": 903,
+            "name": "pT",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 1155,
+            "column": 10,
+            "generatedLine": 189,
+            "generatedColumn": 8059,
+            "ms": 140.05799999999994
+          },
+          {
+            "nodeId": 1664,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 135.85299999999998
+          },
+          {
+            "nodeId": 1663,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 130.04800000000003
+          },
+          {
+            "nodeId": 902,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 1439,
+            "column": 36,
+            "generatedLine": 189,
+            "generatedColumn": 15685,
+            "ms": 126.19000000000004
+          },
+          {
+            "nodeId": 893,
+            "name": "HF",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 462,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4822,
+            "ms": 120.70900000000003
+          },
+          {
+            "nodeId": 1137,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 114.904
+          },
+          {
+            "nodeId": 863,
+            "name": "wasm-function[24]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 10751,
+            "ms": 111.53400000000002
+          },
+          {
+            "nodeId": 915,
+            "name": "Q_",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 1450,
+            "column": 10,
+            "generatedLine": 189,
+            "generatedColumn": 15877,
+            "ms": 103.25300000000003
+          },
+          {
+            "nodeId": 896,
+            "name": "cs",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 243,
+            "column": 10,
+            "generatedLine": 180,
+            "generatedColumn": 5891,
+            "ms": 101.24500000000005
+          },
+          {
+            "nodeId": 1655,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 81.104
+          },
+          {
+            "nodeId": 1654,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 69.54299999999998
+          },
+          {
+            "nodeId": 834,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 65.627
+          },
+          {
+            "nodeId": 1131,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 63.824000000000005
+          },
+          {
+            "nodeId": 1670,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 63.75199999999998
+          },
+          {
+            "nodeId": 894,
+            "name": "RegExp: \\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*(?:\\\\[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)*",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 61.988
+          },
+          {
+            "nodeId": 1344,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 61.2
+          },
+          {
+            "nodeId": 842,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 60.48300000000001
+          },
+          {
+            "nodeId": 1669,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 58.958000000000006
+          },
+          {
+            "nodeId": 852,
+            "name": "Le",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 1047,
+            "column": 23,
+            "generatedLine": 182,
+            "generatedColumn": 15969,
+            "ms": 55.407
+          },
+          {
+            "nodeId": 458,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 2347,
+            "column": 92,
+            "generatedLine": 192,
+            "generatedColumn": 24246,
+            "ms": 53.76700000000002
+          },
+          {
+            "nodeId": 410,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 2038,
+            "column": 47,
+            "generatedLine": 192,
+            "generatedColumn": 11510,
+            "ms": 53.278
+          },
+          {
+            "nodeId": 1656,
+            "name": "wasm-function[191]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 134623,
+            "ms": 50.78300000000001
+          },
+          {
+            "nodeId": 856,
+            "name": "Le",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 1047,
+            "column": 23,
+            "generatedLine": 182,
+            "generatedColumn": 15969,
+            "ms": 49.855
+          },
+          {
+            "nodeId": 860,
+            "name": "de",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 980,
+            "column": 29,
+            "generatedLine": 182,
+            "generatedColumn": 13377,
+            "ms": 47.54
+          },
+          {
+            "nodeId": 849,
+            "name": "__",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 457,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4757,
+            "ms": 39.30499999999999
+          },
+          {
+            "nodeId": 865,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 37.38300000000001
+          },
+          {
+            "nodeId": 890,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 36.17499999999999
+          },
+          {
+            "nodeId": 1661,
+            "name": "wasm-function[71]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 48653,
+            "ms": 32.787
+          },
+          {
+            "nodeId": 1342,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 32.40299999999999
+          },
+          {
+            "nodeId": 850,
+            "name": "__",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 457,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4757,
+            "ms": 30.432
+          },
+          {
+            "nodeId": 1336,
+            "name": "wasm-function[224]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 144962,
+            "ms": 30.221999999999998
+          },
+          {
+            "nodeId": 1659,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 29.236000000000004
+          },
+          {
+            "nodeId": 1687,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 29.202000000000005
+          },
+          {
+            "nodeId": 1683,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 29.020000000000007
+          },
+          {
+            "nodeId": 862,
+            "name": "wasm-function[205]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 138911,
+            "ms": 28.178000000000004
+          },
+          {
+            "nodeId": 1289,
+            "name": "get typeId",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 71,
+            "column": 7,
+            "generatedLine": 176,
+            "generatedColumn": 7731,
+            "ms": 28.099000000000007
+          },
+          {
+            "nodeId": 831,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 25.717
+          },
+          {
+            "nodeId": 1652,
+            "name": "wasm-function[191]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 134623,
+            "ms": 24.790999999999997
+          },
+          {
+            "nodeId": 415,
+            "name": "Fs",
+            "path": "../../packages/phpdoc/src/index.ts",
+            "line": 167,
+            "column": 17,
+            "generatedLine": 182,
+            "generatedColumn": 68512,
+            "ms": 24.468999999999998
+          },
+          {
+            "nodeId": 895,
+            "name": "bE",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 247,
+            "column": 10,
+            "generatedLine": 180,
+            "generatedColumn": 5919,
+            "ms": 24.232000000000003
+          },
+          {
+            "nodeId": 820,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 23.401999999999997
+          },
+          {
+            "nodeId": 1658,
+            "name": "wasm-function[71]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 48653,
+            "ms": 23.226
+          },
+          {
+            "nodeId": 869,
+            "name": "wasm-function[192]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 135474,
+            "ms": 23.206999999999997
+          },
+          {
+            "nodeId": 1292,
+            "name": "RegExp: @(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|use|mixin|property(?:-read|-write)?|method)\\b(?<body>[^\\r\\n]*)",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 23.106
+          },
+          {
+            "nodeId": 1809,
+            "name": "wasm-function[16]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 7343,
+            "ms": 22.455999999999996
+          },
+          {
+            "nodeId": 839,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 21.255000000000003
+          },
+          {
+            "nodeId": 1123,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 20.785
+          },
+          {
+            "nodeId": 1129,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 20.685000000000006
+          },
+          {
+            "nodeId": 864,
+            "name": "get namedChildren",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 385,
+            "column": 7,
+            "generatedLine": 176,
+            "generatedColumn": 10854,
+            "ms": 20.639
+          },
+          {
+            "nodeId": 851,
+            "name": "__",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 457,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4757,
+            "ms": 19.849
+          },
+          {
+            "nodeId": 848,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 19.691
+          },
+          {
+            "nodeId": 1224,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 18.941000000000003
+          },
+          {
+            "nodeId": 1281,
+            "name": "wasm-function[224]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 144962,
+            "ms": 18.590999999999998
+          },
+          {
+            "nodeId": 1662,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 18.450000000000003
+          }
+        ]
+      },
+      {
+        "operation": "parseDocument",
+        "inclusiveSampleMs": 4143.570999999999,
+        "selfContributors": [
+          {
+            "nodeId": 798,
+            "name": "parseDocument",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 666,
+            "column": 11,
+            "generatedLine": 182,
+            "generatedColumn": 4561,
+            "ms": 228.72799999999998
+          },
+          {
+            "nodeId": 859,
+            "name": "Le",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 1047,
+            "column": 23,
+            "generatedLine": 182,
+            "generatedColumn": 15969,
+            "ms": 176.49299999999997
+          },
+          {
+            "nodeId": 1664,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 135.85299999999998
+          },
+          {
+            "nodeId": 1663,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 130.04800000000003
+          },
+          {
+            "nodeId": 893,
+            "name": "HF",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 462,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4822,
+            "ms": 120.70900000000003
+          },
+          {
+            "nodeId": 1137,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 114.904
+          },
+          {
+            "nodeId": 863,
+            "name": "wasm-function[24]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 10751,
+            "ms": 111.53400000000002
+          },
+          {
+            "nodeId": 1655,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 81.104
+          },
+          {
+            "nodeId": 1654,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 69.54299999999998
+          },
+          {
+            "nodeId": 834,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 65.627
+          },
+          {
+            "nodeId": 1131,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 63.824000000000005
+          },
+          {
+            "nodeId": 894,
+            "name": "RegExp: \\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*(?:\\\\[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)*",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 61.988
+          },
+          {
+            "nodeId": 1344,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 61.2
+          },
+          {
+            "nodeId": 842,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 60.48300000000001
+          },
+          {
+            "nodeId": 852,
+            "name": "Le",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 1047,
+            "column": 23,
+            "generatedLine": 182,
+            "generatedColumn": 15969,
+            "ms": 55.407
+          },
+          {
+            "nodeId": 1656,
+            "name": "wasm-function[191]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 134623,
+            "ms": 50.78300000000001
+          },
+          {
+            "nodeId": 856,
+            "name": "Le",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 1047,
+            "column": 23,
+            "generatedLine": 182,
+            "generatedColumn": 15969,
+            "ms": 49.855
+          },
+          {
+            "nodeId": 860,
+            "name": "de",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 980,
+            "column": 29,
+            "generatedLine": 182,
+            "generatedColumn": 13377,
+            "ms": 47.54
+          },
+          {
+            "nodeId": 849,
+            "name": "__",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 457,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4757,
+            "ms": 39.30499999999999
+          },
+          {
+            "nodeId": 865,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 37.38300000000001
+          },
+          {
+            "nodeId": 890,
+            "name": "",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 11,
+            "column": 19,
+            "generatedLine": 176,
+            "generatedColumn": 7492,
+            "ms": 36.17499999999999
+          },
+          {
+            "nodeId": 1661,
+            "name": "wasm-function[71]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 48653,
+            "ms": 32.787
+          },
+          {
+            "nodeId": 1342,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 32.40299999999999
+          },
+          {
+            "nodeId": 850,
+            "name": "__",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 457,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4757,
+            "ms": 30.432
+          },
+          {
+            "nodeId": 1336,
+            "name": "wasm-function[224]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 144962,
+            "ms": 30.221999999999998
+          },
+          {
+            "nodeId": 1659,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 29.236000000000004
+          },
+          {
+            "nodeId": 1687,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 29.202000000000005
+          },
+          {
+            "nodeId": 862,
+            "name": "wasm-function[205]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 138911,
+            "ms": 28.178000000000004
+          },
+          {
+            "nodeId": 1289,
+            "name": "get typeId",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 71,
+            "column": 7,
+            "generatedLine": 176,
+            "generatedColumn": 7731,
+            "ms": 28.099000000000007
+          },
+          {
+            "nodeId": 831,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 25.717
+          },
+          {
+            "nodeId": 1652,
+            "name": "wasm-function[191]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 134623,
+            "ms": 24.790999999999997
+          },
+          {
+            "nodeId": 820,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 23.401999999999997
+          },
+          {
+            "nodeId": 1658,
+            "name": "wasm-function[71]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 48653,
+            "ms": 23.226
+          },
+          {
+            "nodeId": 869,
+            "name": "wasm-function[192]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 135474,
+            "ms": 23.206999999999997
+          },
+          {
+            "nodeId": 1292,
+            "name": "RegExp: @(?:(?:phpstan|psalm)-)?(?:var|param|return|throws|(?:template-)?extends|(?:template-)?implements|use|mixin|property(?:-read|-write)?|method)\\b(?<body>[^\\r\\n]*)",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 23.106
+          },
+          {
+            "nodeId": 1809,
+            "name": "wasm-function[16]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 7343,
+            "ms": 22.455999999999996
+          },
+          {
+            "nodeId": 839,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 21.255000000000003
+          },
+          {
+            "nodeId": 1123,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 20.785
+          },
+          {
+            "nodeId": 1129,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 20.685000000000006
+          },
+          {
+            "nodeId": 864,
+            "name": "get namedChildren",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 385,
+            "column": 7,
+            "generatedLine": 176,
+            "generatedColumn": 10854,
+            "ms": 20.639
+          },
+          {
+            "nodeId": 851,
+            "name": "__",
+            "path": "../../packages/parser/src/index.ts",
+            "line": 457,
+            "column": 10,
+            "generatedLine": 181,
+            "generatedColumn": 4757,
+            "ms": 19.849
+          },
+          {
+            "nodeId": 848,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 19.691
+          },
+          {
+            "nodeId": 1224,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 18.941000000000003
+          },
+          {
+            "nodeId": 1281,
+            "name": "wasm-function[224]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 144962,
+            "ms": 18.590999999999998
+          },
+          {
+            "nodeId": 1662,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 18.450000000000003
+          },
+          {
+            "nodeId": 1153,
+            "name": "wasm-function[196]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 136844,
+            "ms": 18.413000000000004
+          },
+          {
+            "nodeId": 1615,
+            "name": "wt",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 38,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14383,
+            "ms": 18.406
+          },
+          {
+            "nodeId": 838,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 17.516
+          },
+          {
+            "nodeId": 1568,
+            "name": "setValue",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/lib/web-tree-sitter.mjs",
+            "line": 1389,
+            "column": 18,
+            "generatedLine": 179,
+            "generatedColumn": 19978,
+            "ms": 17.441000000000003
+          },
+          {
+            "nodeId": 1214,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 17.417
+          },
+          {
+            "nodeId": 1717,
+            "name": "wasm-function[71]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 48653,
+            "ms": 17.285
+          },
+          {
+            "nodeId": 815,
+            "name": "RegExp: insteadof",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 17.255
+          },
+          {
+            "nodeId": 813,
+            "name": "wasm-function[70]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 47841,
+            "ms": 17.007
+          },
+          {
+            "nodeId": 1221,
+            "name": "get typeId",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 71,
+            "column": 7,
+            "generatedLine": 176,
+            "generatedColumn": 7731,
+            "ms": 16.427
+          },
+          {
+            "nodeId": 1415,
+            "name": "wasm-function[224]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 144962,
+            "ms": 16.275
+          },
+          {
+            "nodeId": 1154,
+            "name": "RegExp: (?:->|::|\\$|function\\s+|const\\s+)\\s*$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 16.229
+          },
+          {
+            "nodeId": 1225,
+            "name": "wasm-function[37]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 31171,
+            "ms": 16.174
+          },
+          {
+            "nodeId": 1443,
+            "name": "wasm-function[186]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 133793,
+            "ms": 16.110000000000003
+          },
+          {
+            "nodeId": 1685,
+            "name": "wasm-function[16]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 7343,
+            "ms": 15.783999999999995
+          },
+          {
+            "nodeId": 858,
+            "name": "wt",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 38,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14383,
+            "ms": 15.218
+          }
+        ]
+      },
+      {
+        "operation": "completeFunctions",
+        "inclusiveSampleMs": 561.2519999999998,
+        "selfContributors": [
+          {
+            "nodeId": 998,
+            "name": "completeFunctions",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7907,
+            "column": 3,
+            "generatedLine": 224,
+            "generatedColumn": 5771,
+            "ms": 177.52200000000008
+          },
+          {
+            "nodeId": 1003,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7942,
+            "column": 40,
+            "generatedLine": 224,
+            "generatedColumn": 7033,
+            "ms": 72.75500000000001
+          },
+          {
+            "nodeId": 1004,
+            "name": "Vt",
+            "path": "../../packages/semantic/src/completionMatching.ts",
+            "line": 2,
+            "column": 17,
+            "generatedLine": 186,
+            "generatedColumn": 35824,
+            "ms": 61.69600000000001
+          },
+          {
+            "nodeId": 1005,
+            "name": "RegExp: _+|(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 36.048
+          },
+          {
+            "nodeId": 1621,
+            "name": "RegExp: \\b(?:public|protected|private|static|readonly|var)(?:\\s+(?:public|protected|private|static|readonly))*\\s+\\??([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 25.8
+          },
+          {
+            "nodeId": 1743,
+            "name": "completeFunctions",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7907,
+            "column": 3,
+            "generatedLine": 224,
+            "generatedColumn": 5771,
+            "ms": 18.584999999999997
+          },
+          {
+            "nodeId": 1514,
+            "name": "attributeConstructorAt",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 12444,
+            "column": 11,
+            "generatedLine": 248,
+            "generatedColumn": 58648,
+            "ms": 15.360000000000001
+          },
+          {
+            "nodeId": 1358,
+            "name": "RegExp: #\\[\\s*([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 15.152999999999999
+          },
+          {
+            "nodeId": 1245,
+            "name": "RegExp: \\b(?:new|extends|instanceof)\\s+([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 14.483
+          },
+          {
+            "nodeId": 1303,
+            "name": "RegExp: \\b(?:function\\s*(?:&\\s*)?\\(|function\\s+(?:&\\s*)?[A-Za-z_][A-Za-z0-9_]*\\s*\\(|fn\\s*\\()",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 14.069999999999999
+          },
+          {
+            "nodeId": 1541,
+            "name": "RegExp: \\bcatch\\s*\\(\\s*([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 9.468000000000002
+          },
+          {
+            "nodeId": 2054,
+            "name": "RegExp: _+|(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 6.955999999999999
+          },
+          {
+            "nodeId": 1712,
+            "name": "RegExp: \\bimplements\\s+(?:[\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*\\s*,\\s*)*([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 6.954000000000001
+          },
+          {
+            "nodeId": 2053,
+            "name": "RegExp: \\b(?:public|protected|private|static|readonly|var)(?:\\s+(?:public|protected|private|static|readonly))*\\s+\\??([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 5.811999999999999
+          },
+          {
+            "nodeId": 1589,
+            "name": "RegExp: \\bcatch\\s*\\(\\s*(?:\\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*(?:\\\\[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)*\\s*\\|\\s*)+([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 4.715
+          },
+          {
+            "nodeId": 999,
+            "name": "zi",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 716,
+            "column": 10,
+            "generatedLine": 188,
+            "generatedColumn": 3934,
+            "ms": 4.668
+          },
+          {
+            "nodeId": 1361,
+            "name": "",
+            "path": "../../packages/semantic/src/completionTrivia.ts",
+            "line": 9,
+            "column": 34,
+            "generatedLine": 182,
+            "generatedColumn": 76594,
+            "ms": 4.617999999999999
+          },
+          {
+            "nodeId": 1509,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7922,
+            "column": 69,
+            "generatedLine": 224,
+            "generatedColumn": 6496,
+            "ms": 3.6029999999999998
+          },
+          {
+            "nodeId": 1864,
+            "name": "signatureContext",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 13383,
+            "column": 11,
+            "generatedLine": 252,
+            "generatedColumn": 315,
+            "ms": 3.598
+          },
+          {
+            "nodeId": 1001,
+            "name": "RegExp: \\bextends\\s+(?:\\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*(?:\\\\[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)*\\s*,\\s*)+([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 3.5029999999999997
+          },
+          {
+            "nodeId": 1002,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7923,
+            "column": 60,
+            "generatedLine": 224,
+            "generatedColumn": 6582,
+            "ms": 3.4459999999999997
+          },
+          {
+            "nodeId": 1749,
+            "name": "Vt",
+            "path": "../../packages/semantic/src/completionMatching.ts",
+            "line": 2,
+            "column": 17,
+            "generatedLine": 186,
+            "generatedColumn": 35824,
+            "ms": 3.3919999999999995
+          },
+          {
+            "nodeId": 1542,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7922,
+            "column": 108,
+            "generatedLine": 224,
+            "generatedColumn": 6515,
+            "ms": 3.3850000000000002
+          },
+          {
+            "nodeId": 2201,
+            "name": "Oa",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 514,
+            "column": 10,
+            "generatedLine": 187,
+            "generatedColumn": 1909,
+            "ms": 2.458
+          },
+          {
+            "nodeId": 1178,
+            "name": "expectedArgumentCompletionType",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 5626,
+            "column": 11,
+            "generatedLine": 218,
+            "generatedColumn": 40088,
+            "ms": 2.3760000000000003
+          },
+          {
+            "nodeId": 2455,
+            "name": "RegExp: \\b(?:function\\s*(?:&\\s*)?\\(|function\\s+(?:&\\s*)?[A-Za-z_][A-Za-z0-9_]*\\s*\\(|fn\\s*\\()",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 2.367
+          },
+          {
+            "nodeId": 1176,
+            "name": "expectedArrayShapeValueType",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 6415,
+            "column": 11,
+            "generatedLine": 218,
+            "generatedColumn": 66458,
+            "ms": 2.356
+          },
+          {
+            "nodeId": 1359,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7923,
+            "column": 15,
+            "generatedLine": 224,
+            "generatedColumn": 6545,
+            "ms": 2.3419999999999996
+          },
+          {
+            "nodeId": 1748,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7942,
+            "column": 40,
+            "generatedLine": 224,
+            "generatedColumn": 7033,
+            "ms": 2.3369999999999997
+          },
+          {
+            "nodeId": 1006,
+            "name": "at",
+            "path": "../../packages/type-system/src/index.ts",
+            "line": 116,
+            "column": 17,
+            "generatedLine": 182,
+            "generatedColumn": 52079,
+            "ms": 2.299
+          },
+          {
+            "nodeId": 1397,
+            "name": "Fs",
+            "path": "../../packages/phpdoc/src/index.ts",
+            "line": 167,
+            "column": 17,
+            "generatedLine": 182,
+            "generatedColumn": 68512,
+            "ms": 2.25
+          },
+          {
+            "nodeId": 2014,
+            "name": "cursorInsideSourceTrivia",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 12631,
+            "column": 11,
+            "generatedLine": 248,
+            "generatedColumn": 65276,
+            "ms": 2.25
+          },
+          {
+            "nodeId": 2437,
+            "name": "RegExp: \\bextends\\s+(?:\\\\?[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*(?:\\\\[A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)*\\s*,\\s*)+([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 1.264
+          },
+          {
+            "nodeId": 2336,
+            "name": "nativeType",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 16145,
+            "column": 11,
+            "generatedLine": 253,
+            "generatedColumn": 707,
+            "ms": 1.235
+          },
+          {
+            "nodeId": 1247,
+            "name": "Bl",
+            "path": "../../packages/semantic/src/quotedCompletion.ts",
+            "line": 3,
+            "column": 17,
+            "generatedLine": 182,
+            "generatedColumn": 76854,
+            "ms": 1.218
+          },
+          {
+            "nodeId": 1512,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 12435,
+            "column": 51,
+            "generatedLine": 248,
+            "generatedColumn": 58405,
+            "ms": 1.214
+          },
+          {
+            "nodeId": 2439,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 12632,
+            "column": 34,
+            "generatedLine": 248,
+            "generatedColumn": 65306,
+            "ms": 1.208
+          },
+          {
+            "nodeId": 1746,
+            "name": "RegExp: \\b(?:new|extends|instanceof)\\s+([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 1.207
+          },
+          {
+            "nodeId": 1644,
+            "name": "isPhpCodeContext",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 6756,
+            "column": 3,
+            "generatedLine": 218,
+            "generatedColumn": 77907,
+            "ms": 1.194
+          },
+          {
+            "nodeId": 1175,
+            "name": "expectedCandidateCompletionType",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 6401,
+            "column": 11,
+            "generatedLine": 218,
+            "generatedColumn": 66055,
+            "ms": 1.186
+          },
+          {
+            "nodeId": 2410,
+            "name": "RegExp: \\bimplements\\s+(?:[\\\\A-Za-z_\\x80-\\xff][A-Za-z0-9_\\\\\\x80-\\xff]*\\s*,\\s*)*([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 1.181
+          },
+          {
+            "nodeId": 2454,
+            "name": "RegExp: #\\[\\s*([A-Za-z_\\x80-\\xff][A-Za-z0-9_\\x80-\\xff]*)?$",
+            "path": "",
+            "line": 0,
+            "column": 0,
+            "ms": 1.156
+          },
+          {
+            "nodeId": 1478,
+            "name": "primary",
+            "path": "../../packages/phpdoc/src/index.ts",
+            "line": 69,
+            "column": 11,
+            "generatedLine": 182,
+            "generatedColumn": 64028,
+            "ms": 1.153
+          },
+          {
+            "nodeId": 2316,
+            "name": "wasm-function[16]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 7343,
+            "ms": 1.153
+          },
+          {
+            "nodeId": 1759,
+            "name": "argumentTextWithoutComments",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 13350,
+            "column": 11,
+            "generatedLine": 250,
+            "generatedColumn": 21594,
+            "ms": 1.149
+          },
+          {
+            "nodeId": 1747,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 7923,
+            "column": 60,
+            "generatedLine": 224,
+            "generatedColumn": 6582,
+            "ms": 1.147
+          },
+          {
+            "nodeId": 2289,
+            "name": "Ca",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/marshal.ts",
+            "line": 56,
+            "column": 17,
+            "generatedLine": 176,
+            "generatedColumn": 14632,
+            "ms": 1.146
+          },
+          {
+            "nodeId": 2254,
+            "name": "attributeConstructorAt",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 12444,
+            "column": 11,
+            "generatedLine": 248,
+            "generatedColumn": 58648,
+            "ms": 1.144
+          },
+          {
+            "nodeId": 2415,
+            "name": "wasm-function[24]",
+            "path": "wasm://wasm/000c4536",
+            "line": 1,
+            "column": 10751,
+            "ms": 1.139
+          },
+          {
+            "nodeId": 2482,
+            "name": "initializerCompletionContext",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 5442,
+            "column": 3,
+            "generatedLine": 218,
+            "generatedColumn": 33990,
+            "ms": 1.139
+          },
+          {
+            "nodeId": 2532,
+            "name": "",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 13462,
+            "column": 14,
+            "generatedLine": 252,
+            "generatedColumn": 2447,
+            "ms": 1.139
+          },
+          {
+            "nodeId": 2456,
+            "name": "get type",
+            "path": "../../node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/src/node.ts",
+            "line": 86,
+            "column": 7,
+            "generatedLine": 176,
+            "generatedColumn": 7874,
+            "ms": 1.137
+          },
+          {
+            "nodeId": 2055,
+            "name": "expectedShapeAtArray",
+            "path": "../../packages/semantic/src/index.ts",
+            "line": 6275,
+            "column": 11,
+            "generatedLine": 218,
+            "generatedColumn": 62367,
+            "ms": 1.118
+          }
+        ]
+      },
+      {
+        "operation": "completeMembers",
+        "inclusiveSampleMs": 0,
+        "selfContributors": []
+      },
+      {
+        "operation": "publishDocumentDiagnostics",
+        "inclusiveSampleMs": 0,
+        "selfContributors": []
+      }
+    ],
+    "structuredCloneSelfMs": 16.189999999999998,
+    "exactProductionMap": {
+      "productionSha256": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+      "mappedBodySha256": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+      "exactProductionBody": true,
+      "buildId": "d93a920cb023363469383bfb925461ac06df203788628958c5385f9d089582f0"
+    },
+    "diagnosticOnly": true,
+    "scope": "Whole process startup,100 original edits,shutdown; operation inclusive sample costs overlap and are not request latencies."
+  },
+  "fullLspQualified": true,
+  "fourLinuxWorkflowsQualified": true,
+  "compositeFeedbackQualified": true,
+  "fullPerformanceQualified": false,
+  "nativeWindowsQualified": false,
+  "realWslAcceptance": false,
+  "normalSourceChanged": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1188-indexed-callable-performance-evidence/manifest.json",
+  "next": "Review full-document parser/update costs for original fixed PHP7.2 input; retain previous generic clone/serialization rejection and avoid equivalent gate reruns."
+}

@@ -1,0 +1,155 @@
+{
+  "recordedAtUtc": "2026-10-09T08:51:35.932787+00:00",
+  "engineBuildId": "80ba233a1462c5404388febf64524edce4f84255a198fe4e9ee668b30cfa4170",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+    "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "runtime": {
+    "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+    "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "fullLsp": {
+    "files": 115,
+    "passed": 1446,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "audit": "/var/www/node/php-companion/.vscode-test/d1261-open-function-refresh-full-lsp-run.json",
+    "sha256": "e8e7869e83883d567a3e90a391559030f4b91ab4ca7a29402a741ee859fe37d6",
+    "allOriginalCaseIdentitiesAndMultiplicitiesPreserved": true
+  },
+  "editor": {
+    "allFourOriginalLinuxFlowsPassed": true,
+    "audit": "/var/www/node/php-companion/.vscode-test/d1262-open-function-refresh-editor-qualification.json",
+    "sha256": "96d051f61c0ee610d244a0b4064fd5bd866336d9be8e6e314ca067785af1c9a8",
+    "generatorReturnFlowStates": [
+      {
+        "state": "partial",
+        "version": 1,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      },
+      {
+        "state": "total",
+        "version": 2,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result>",
+        "mismatchLines": [
+          12,
+          18
+        ]
+      },
+      {
+        "state": "finally",
+        "version": 3,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Other>",
+        "mismatchLines": [
+          11,
+          17
+        ]
+      },
+      {
+        "state": "unknown",
+        "version": 4,
+        "signature": "inner(bool $flag): \\Generator",
+        "mismatchLines": []
+      },
+      {
+        "state": "partial",
+        "version": 5,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      },
+      {
+        "state": "unknown",
+        "version": 6,
+        "signature": "inner(bool $flag): \\Generator",
+        "mismatchLines": []
+      },
+      {
+        "state": "partial",
+        "version": 7,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      }
+    ],
+    "generationBoundaryObservations": 80
+  },
+  "normalFullProfile": {
+    "audit": "/var/www/node/php-companion/.vscode-test/d1264-open-function-profile-run.json",
+    "sha256": "7f1a7096cf31e9b8286cc56fd1655dbe09497a0c05d3ff99b5230a9504b004e2",
+    "functionalQualified": true,
+    "scalarP95Ms": 88,
+    "unionP95Ms": 106,
+    "originalBudgetMs": 150,
+    "compositeFeedbackQualified": true,
+    "firstCompositeHoverCallMs": 1332,
+    "definitionWaitMs": [
+      23,
+      12,
+      12,
+      12,
+      11,
+      12
+    ],
+    "coldFirstResultQualified": false
+  },
+  "normalValidation": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1259-open-function-refresh-validation.json",
+    "sha256": "ec4c038d8f9d17d2976408bba925aade6e4341086f199742320c2441e354fa2f"
+  },
+  "semanticCasesPassed": 23686,
+  "parserCasesPassed": 178,
+  "semanticAndParserReusedByExactComponentIdentity": true,
+  "rootUnitCasesPassed": 113,
+  "directFunctionProtocolCasesPassed": 32,
+  "newPermanentRestorationControlsPassed": 8,
+  "fullLspQualified": true,
+  "fourLinuxWorkflowsQualified": true,
+  "fullProfileFunctionalQualified": true,
+  "compositeFeedbackQualified": true,
+  "nativeWindowsQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "priorSourceEvidence": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/open-composer-function-refresh-2026-10-09.json",
+    "sha256": "efa63d521a5a6d22cd933824238dcfcd3f114c928bc77ab81a6f1d065b5cdb7c"
+  },
+  "priorArchive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1260-open-function-refresh-evidence/manifest.json",
+    "sha256": "66212678dcf88d29020355caf47014302c2beb97a95b910cf2fad4e6169d86c9"
+  },
+  "archive": "/var/www/node/php-companion/.vscode-test/d1265-open-function-qualified-evidence/manifest.json",
+  "remaining": [
+    "Original normal continuous recovery, five-round ordinary editing and three scales",
+    "Cold first usable result, sustained editing and additional platform/mode/version combinations",
+    "Real WSL Remote and manual use",
+    "Original P0-P9/F01-F14 contract, fixture, advanced semantics, refactor, package consumption and final VSIX/migration/rollback scope"
+  ]
+}

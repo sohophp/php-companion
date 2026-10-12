@@ -1,0 +1,803 @@
+{
+  "date": "2026-10-08",
+  "auditedAtUtc": "2026-10-08T00:50:20.332942+00:00",
+  "normalSourceChanged": true,
+  "normalSourceAndBuildQualified": true,
+  "publicSemanticEntryDeclarationByteExact": true,
+  "normalRuntimeFiles": [
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "835e6d4e487ae1628ddd2ae1858e613c07cb1fdb652f1d66fda9afa4ee8537c5"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    }
+  ],
+  "originalSemanticCasesPreserved": true,
+  "semanticTestsPassed": 22907,
+  "semanticTestFiles": 148,
+  "newSemanticCases": 62,
+  "focusedSemanticCasesPassed": 78,
+  "actualProductionStdioCasesPassed": 8,
+  "stdioScope": "PHP7.2/8.5 targets x onDemand/progressive x private/public; six invalid requests and a valid octal control per real new production server, source hashes and unchanged disk, normal shutdown and exit0.",
+  "before": {
+    "acceptedCases": 62,
+    "invalidCasesPerRuntime": 36,
+    "compileFailuresPerRuntime": 30,
+    "strictRuntimeTypeFailuresPerRuntime": 6,
+    "actualPhpRuntimeCount": 9,
+    "allSupportedRuntimeIntegerSizes": 8,
+    "nativeReport": "/var/www/node/php-companion/.vscode-test/d530-add-parameter-baseline.json"
+  },
+  "after": {
+    "invalidCasesRejected": 36,
+    "compatibleControlsAccepted": 26,
+    "nativeLintAndExecutionPairsPassed": 234,
+    "actualPhpRuntimeCount": 9,
+    "nativeReport": "/var/www/node/php-companion/.vscode-test/d533-fixed-native-parameters.json"
+  },
+  "preservedEarlierUncommittedChanges": true,
+  "failedPerformanceCandidatesAdopted": false,
+  "currentFullLspQualified": false,
+  "currentFullLinuxHostsQualified": false,
+  "ordinaryEditingQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "artifacts": {
+    "/var/www/node/php-companion/.vscode-test/d530-record-add-parameter-baseline.py": {
+      "sha256": "671e7614871f95f9ddf669a21aad64dc9f10692614191af129d2db6707f933a7",
+      "sizeBytes": 2071
+    },
+    "/var/www/node/php-companion/.vscode-test/d530-add-parameter-baseline.mjs": {
+      "sha256": "75309cd6319e719f8870ef52eb5c6f9fd1db3e54c37706507089de4701b120a0",
+      "sizeBytes": 1660
+    },
+    "/var/www/node/php-companion/.vscode-test/d530-add-parameter-baseline.json": {
+      "sha256": "dd7dd9f07ca1903e4f0b7acee867e18e8283a513d503c02baac46483ee5a7aec",
+      "sizeBytes": 228111
+    },
+    "/var/www/node/php-companion/.vscode-test/d531-original-add-parameter-negative-controls.json": {
+      "sha256": "1f5633634c8db285daa59721ebeb308397ea5fda294c7a6c734eb4c3dbaccbee",
+      "sizeBytes": 64891
+    },
+    "/var/www/node/php-companion/.vscode-test/d532-fixed-add-parameter-result.json": {
+      "sha256": "b74cd873238e806b140668feaf169ef0db63db168d2b0654ebdfec5354d43e08",
+      "sizeBytes": 25180
+    },
+    "/var/www/node/php-companion/.vscode-test/d532-parameter-validation-source-backup.json": {
+      "sha256": "059d7ace16584163c0cd9a20957fdf9a4cb94df0d4f94a1f95fe327ec3813147",
+      "sizeBytes": 294
+    },
+    "/var/www/node/php-companion/.vscode-test/d532-before-parameter-validation.ts": {
+      "sha256": "ce3e0103198afbf9815f9ab7d81e649be40d5b4ed9da348bdd4606af34c79ab6",
+      "sizeBytes": 1393142
+    },
+    "/var/www/node/php-companion/.vscode-test/d533-verify-fixed-native-parameters.py": {
+      "sha256": "d799fcf8d3ccf4de1cfb452a638f8ec3d7b0ad93fdbdb30d8b60c4c8fac16a49",
+      "sizeBytes": 3117
+    },
+    "/var/www/node/php-companion/.vscode-test/d533-fixed-native-parameters.json": {
+      "sha256": "d0c1e7c4bf8de004b1c71c8cb484c46064fcfe842455f7d8cf5418019342c281",
+      "sizeBytes": 101500
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-verify-normal-parameter-input.py": {
+      "sha256": "e02744f71d07db37bf4be379d57c1991cfb2a7d098b5fbca91b038f2d5fb7492",
+      "sizeBytes": 4981
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-normal-semantic-result.json": {
+      "sha256": "262c61846fc8f9cfa5ca05ec416becf19294d42e1cbef590a4220f0ecb1a3e66",
+      "sizeBytes": 7044623
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-normal-parameter-stdio-result.json": {
+      "sha256": "dfdbbbd60c0a041122c8738ec203f4cced2b88a3de596d54fd29d81b86cd5c62",
+      "sizeBytes": 2972
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-normal-parameter-input-verification.json": {
+      "sha256": "74b23e8994479ab5324e4605d16d768de47a8551299adbee4869b9d83b54fa10",
+      "sizeBytes": 599079
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-parameter-stdio.log": {
+      "sha256": "9d1ed25d31d942470eda898b07d53e5dd5b9ce30a1cb0442bc900e614fdc3f3a",
+      "sizeBytes": 104
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-production-build.log": {
+      "sha256": "4bd2353cd156da0bbba8b258618d0b0cb98fc580b2a9ac60defd8b810524946b",
+      "sizeBytes": 2223
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-lint.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-semantic-full.log": {
+      "sha256": "ad2d032e061ef669c5d5c2d458ea57a1384a7afd8440a6cba6eff29cc7253ea1",
+      "sizeBytes": 97
+    },
+    "/var/www/node/php-companion/.vscode-test/d535-record-parameter-input.py": {
+      "sha256": "8994ad66c03ff18a2bc038cba8596c4d7e334d0a4624b7c9da20375c7a9011ce",
+      "sizeBytes": 10329
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/candidateWorker.js.map": {
+      "sha256": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+      "sizeBytes": 540648
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/sourceStatWorker.js.map": {
+      "sha256": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+      "sizeBytes": 2583
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/tree-sitter-php.wasm": {
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "sizeBytes": 1058041
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/extension.js": {
+      "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9",
+      "sizeBytes": 3301877
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/candidateWorker.js": {
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+      "sizeBytes": 149028
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/portableCandidateSearchWorker.js": {
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+      "sizeBytes": 3004
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/language-server.js": {
+      "sha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326",
+      "sizeBytes": 4264100
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/sourceStatWorker.js": {
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "sizeBytes": 1098
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/web-tree-sitter.wasm": {
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "sizeBytes": 201037
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/builtinSnapshotWorker.js": {
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+      "sizeBytes": 130390
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/extension.js.map": {
+      "sha256": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+      "sizeBytes": 8363758
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/portableCandidateSearchWorker.js.map": {
+      "sha256": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+      "sizeBytes": 26325
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/language-server.js.map": {
+      "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d",
+      "sizeBytes": 11513444
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/dist/node_modules/web-tree-sitter/index.js": {
+      "sha256": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979",
+      "sizeBytes": 165707
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/quotedCompletion.d.ts.map": {
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553",
+      "sizeBytes": 809
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/index.d.ts.map": {
+      "sha256": "44af217697606845623447f8bbd6c4beb174d177edd8f2db25c9828169c94289",
+      "sizeBytes": 46837
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTrivia.js": {
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a",
+      "sizeBytes": 1017
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionMatching.d.ts.map": {
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9",
+      "sizeBytes": 227
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/phpDocNameBinding.d.ts": {
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c",
+      "sizeBytes": 366
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionIdentifier.d.ts": {
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a",
+      "sizeBytes": 256
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/nativeScalarInput.d.ts": {
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44",
+      "sizeBytes": 474
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/nativeScalarInput.js.map": {
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70",
+      "sizeBytes": 7552
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/index.js": {
+      "sha256": "eab147243f4ad5faf546ddfd2456f88c1a0dca27e9cdab04b2f986a752255250",
+      "sizeBytes": 1508028
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/quotedCompletion.js": {
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8",
+      "sizeBytes": 3431
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/phpDocNameBinding.js.map": {
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf",
+      "sizeBytes": 3196
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/quotedCompletion.d.ts": {
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19",
+      "sizeBytes": 823
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTypeTail.d.ts": {
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b",
+      "sizeBytes": 253
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTypeTail.js.map": {
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5",
+      "sizeBytes": 949
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/index.d.ts": {
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82",
+      "sizeBytes": 58859
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTrivia.d.ts": {
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c",
+      "sizeBytes": 449
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/phpDocNameBinding.d.ts.map": {
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6",
+      "sizeBytes": 348
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/nativeScalarInput.js": {
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4",
+      "sizeBytes": 6554
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionMatching.js.map": {
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74",
+      "sizeBytes": 946
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionIdentifier.js.map": {
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd",
+      "sizeBytes": 820
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/phpDocNameBinding.js": {
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692",
+      "sizeBytes": 2870
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/quotedCompletion.js.map": {
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184",
+      "sizeBytes": 3791
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionMatching.js": {
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3",
+      "sizeBytes": 839
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/nativeScalarInput.d.ts.map": {
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08",
+      "sizeBytes": 520
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionIdentifier.js": {
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc",
+      "sizeBytes": 823
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTypeTail.js": {
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0",
+      "sizeBytes": 851
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/d188-baseline-index.js": {
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653",
+      "sizeBytes": 1501711
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionIdentifier.d.ts.map": {
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d",
+      "sizeBytes": 236
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTypeTail.d.ts.map": {
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb",
+      "sizeBytes": 257
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTrivia.js.map": {
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7",
+      "sizeBytes": 1255
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionTrivia.d.ts.map": {
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d",
+      "sizeBytes": 382
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/index.js.map": {
+      "sha256": "a247efbb0991a01fd7e8ae8308d166a475fdb207021f042b5782c7f0ef2731c0",
+      "sizeBytes": 1493325
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/semantic/dist/completionMatching.d.ts": {
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813",
+      "sizeBytes": 227
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorkers.js.map": {
+      "sha256": "36b6e3a0121eee1708a672c4f3939695e5c1ae2bc53015f28c2184e890342d23",
+      "sizeBytes": 6422
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectIndex.d.ts.map": {
+      "sha256": "3f1f0163f2554b81041446d4f26ca2efb26d2dfe2b35815007fdd5e0540c2db9",
+      "sizeBytes": 439
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorkers.d.ts": {
+      "sha256": "6229c3894329f80012643c7c9c690b34ef221550730ef3f5b7a084fa3e69222e",
+      "sizeBytes": 2603
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotWorker.d.ts": {
+      "sha256": "cf762d612e5aeeccbbc8a0c9cc57a341a791d85f1862c27fc828835086db6930",
+      "sizeBytes": 62
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/progressMessages.d.ts.map": {
+      "sha256": "57f025fb9d56773961d980b3e8a73d7551a9e258338d8e2cbc2ac1046d359fd1",
+      "sizeBytes": 379
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/analysis.js": {
+      "sha256": "3a2de0b002cc8152cff34737099d7a2323901366a78370941407f5bcb2b9b4cc",
+      "sizeBytes": 86229
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceInputSnapshot.js.map": {
+      "sha256": "995a59bb40f67e8994ea0c29b656870dc81a332627c56ada7cd452ababc7e97e",
+      "sizeBytes": 10454
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateSource.d.ts": {
+      "sha256": "abecf2522c3113c990cb1e6a25ded1f1dc0d3257fc6c3a5fb3f24ecd2c6cdb89",
+      "sizeBytes": 237
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/analysis.d.ts": {
+      "sha256": "90660416b99b2791058f08193f98eeeb53ac228953496adacad2590f7e9c8685",
+      "sizeBytes": 1441
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/index.d.ts.map": {
+      "sha256": "70f8a7f63b2842708cb463432c5cdaeed8b3a3075c0b1f24f12327c86ff13df4",
+      "sizeBytes": 162
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorker.d.ts": {
+      "sha256": "ca8bdae0c893bd37c82ec6705e185f26ac2a5d6e63b416598a6dc7769c284e74",
+      "sizeBytes": 56
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotService.d.ts.map": {
+      "sha256": "0a0dc5abec77d05bf940573d0c2996b6e2fb955602e1d0835a004c467af633c9",
+      "sizeBytes": 737
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidatePaths.d.ts.map": {
+      "sha256": "1faba04f431b439534c6691731a372ae293c654590b8b852cb10896055bfb71a",
+      "sizeBytes": 491
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/server.d.ts.map": {
+      "sha256": "003491c3d329f70892f1d153e94000571d3b0fbe907f22ef334905f6a8a24929",
+      "sizeBytes": 106
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/completionCallTrivia.js": {
+      "sha256": "65f50f3818fb90635070b1cfda75afa338fed07302a57bd2b1c1f48227da3b9f",
+      "sizeBytes": 1356
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceResultStore.js": {
+      "sha256": "81a74d259f2b2bf6bd90d1f0327111b4e3a9aee6e71c968de840c17ff7869f83",
+      "sizeBytes": 7240
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceDependencyEvidence.d.ts.map": {
+      "sha256": "e0e77d4aecfa8324aac1f055a78d2ce779a8e1f895abf57cd00b9b78dab73b04",
+      "sizeBytes": 981
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorker.js.map": {
+      "sha256": "e758af9c46e5a1491799e960f0d2eb7fa83b3e993ae94447b591e57fb9589685",
+      "sizeBytes": 3507
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/cacheVersion.js": {
+      "sha256": "3f6f86435446f114f8fd13cc468104895f60c516cdb1a04f3d1c42f5002686f6",
+      "sizeBytes": 143
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/callableFactsCache.js": {
+      "sha256": "00052f044587108591b44835fd92fbea3f3edc5c81a1c28de6acd02ab37029b0",
+      "sizeBytes": 5828
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/progressMessages.js.map": {
+      "sha256": "28706307a278ac7f2506cff735de1fce68ee38b7f545136fa4a08353bf9e3a10",
+      "sizeBytes": 1274
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/callableFactsCache.js.map": {
+      "sha256": "f68df079fe8759865e8bbb4578714adafb717eb30217539404b4fe7b24200f1e",
+      "sizeBytes": 6299
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatBatches.d.ts": {
+      "sha256": "9dcb255a2cbb0df8726c1d814e9d5b59313a1e44e02d92547a02fd99ee5b5f73",
+      "sizeBytes": 1142
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/callableFactsCache.d.ts.map": {
+      "sha256": "8212ad43b6bd64e7712d2af06130fe047c8ab76a1fc08d3d9a0f59f47bf08719",
+      "sizeBytes": 724
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceCandidateEvidence.d.ts.map": {
+      "sha256": "c5e7dfc61c3b173dc8615bbea43ba5fb651ad5d38e9bd3b9f5642d745a5ee6bc",
+      "sizeBytes": 642
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceInputSnapshot.d.ts": {
+      "sha256": "1fc44942cdbb840569137e6b4be818b59f438fd85d5746e36f407dbbdf21d230",
+      "sizeBytes": 1729
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/outputMessages.js.map": {
+      "sha256": "fc746e7538b3baeb8f552dd8937a13b61d4426a90c89fe8e79e31452e9c7b6fc",
+      "sizeBytes": 3140
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/diagnosticMessages.js.map": {
+      "sha256": "b3f8978c07f2b6970c8fb1bcac2520a22ec4c92dcf5efe005b81c0a2a0720cfa",
+      "sizeBytes": 11433
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/index.js": {
+      "sha256": "e4613594c2273c514bdeebd0a94084677f40d2dc47cd817c13c9b18d9780f834",
+      "sizeBytes": 85
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotService.js": {
+      "sha256": "c4335f2d45b674e6010dcf22600c2aaf1387996cf9adb8d7112392ac1f30b801",
+      "sizeBytes": 4647
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateSource.d.ts.map": {
+      "sha256": "2170deaccf79be07b73b6d497fd319464d733ac6728f69cea330b7f47d7f63ce",
+      "sizeBytes": 226
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotWorker.d.ts.map": {
+      "sha256": "dc49c18de2e942cff99a044e95cfb6469f7be2d805c520af655344c5e96d3df2",
+      "sizeBytes": 136
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/protocolMessages.d.ts": {
+      "sha256": "bddb7aa99795d0783ffc429d56ac4e9c60d7c6d7362c47d4b0bbf537e200caa8",
+      "sizeBytes": 3086
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceResultStore.d.ts.map": {
+      "sha256": "3fe0da8882cba419abd78385c914376c74e57626d0a1be9a1eec221cd2e0efb0",
+      "sizeBytes": 1497
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/completionCallTrivia.d.ts.map": {
+      "sha256": "8b070c4cbe1bfecb290d12f9f062627f14f5aa5860ad4f14cbc0474e64038a08",
+      "sizeBytes": 354
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/codeActionMessages.js.map": {
+      "sha256": "ec18d73a83cda54dc2d968250ae48d7312668340615be457e901e2171ea43e28",
+      "sizeBytes": 1411
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceEngineIdentity.d.ts": {
+      "sha256": "edca106ff022f8ad35eb5383b26045dacb9ccdf31db92feec71d8dbae0b2566b",
+      "sizeBytes": 475
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotService.d.ts": {
+      "sha256": "216b9d076a51aa091106aa7b64d171e6a6d73f1e1bb3f75b6404dcfd6a545b2a",
+      "sizeBytes": 662
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/cacheVersion.d.ts.map": {
+      "sha256": "554be4ad1df5f649a8276864dc2da73819b1f678ce52bda1631afb422e00d858",
+      "sizeBytes": 172
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceEngineIdentity.js.map": {
+      "sha256": "17db474f10a2acbb19455a79ecca36e0672aa354fe98c894c722bddb4494a7c7",
+      "sizeBytes": 1052
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/outputMessages.d.ts.map": {
+      "sha256": "86127a9e7afa846c8a6e907eb2e46bd15aaaeebe013e27deb40bfb3a452ccb83",
+      "sizeBytes": 487
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/server.d.ts": {
+      "sha256": "8d4a958eaa779bd74510fb5a167375cf533c41655308c0b163ed8a69e91a296d",
+      "sizeBytes": 67
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatBatches.d.ts.map": {
+      "sha256": "cc7da3f28e86c7c3d13d9c8e004e790a7bf2d6912d6401150314456d54dc34e5",
+      "sizeBytes": 1103
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidatePaths.d.ts": {
+      "sha256": "69b2fde87434a3eb04074c8c57b5615fe257907dc3fde8993e7862647ef7c3ee",
+      "sizeBytes": 534
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatWorker.js.map": {
+      "sha256": "ab87e46631cdac35f5f84ae22a80d045f23fc6a152f1433a04e1b93f26f40df6",
+      "sizeBytes": 1603
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/codeActionMessages.js": {
+      "sha256": "34546e49feb754586230c458d02d1b961f6617e8a0ac1622316408b52c2b97d5",
+      "sizeBytes": 2042
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/diagnosticMessages.d.ts": {
+      "sha256": "488970fe79dc77588d933ea2c5fec38effc4b9988c9fca1317c839d4d226540d",
+      "sizeBytes": 26100
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/analysis.js.map": {
+      "sha256": "759bb177d002c8fdfd943e778126f90e3ddb6b49dd6000b0930cb8cce90200be",
+      "sizeBytes": 83993
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/index.d.ts": {
+      "sha256": "cc3b3c405b40806a2c811712fa25f1b1dd8caee613086ebe5c8add9626ec315a",
+      "sizeBytes": 113
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorker.js": {
+      "sha256": "f665c0894a41df1e815788874205cf8e8dc08b8df783b05f48be3bcf71a2c499",
+      "sizeBytes": 3531
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceEngineIdentity.js": {
+      "sha256": "1cdbc5ece713d6927bdb284963061c570abfe486a390be0cd6619245a6bf1599",
+      "sizeBytes": 986
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/completionCallTrivia.d.ts": {
+      "sha256": "4719dd8e5ee181d8ecace4127504be4cb6adef72d007214a01217668794ed068",
+      "sizeBytes": 477
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/protocolMessages.js": {
+      "sha256": "dfa63b9df17046575f05316ed33066d66069fba549dd915706d68e9be619e252",
+      "sizeBytes": 2637
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorkers.d.ts.map": {
+      "sha256": "136fb7444106ebcb1068fd75efb9fb4862f40c3d3016f4406bb377dcdedcad16",
+      "sizeBytes": 2517
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceInputSnapshot.js": {
+      "sha256": "e9e06e7c41384040091d0654c257ec6f11ff333708a272ec8a51acd10bfc139a",
+      "sizeBytes": 10750
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateSource.js": {
+      "sha256": "8d278e49a9bc6ffc220b891f4461433033d2d8c080164cea70f9be4ead292991",
+      "sizeBytes": 495
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/analysis.d.ts.map": {
+      "sha256": "d0578270c5e0e7c83450d3cbcb9ab277b9eb4a89cbc144ad802f39b62a9b573a",
+      "sizeBytes": 1059
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/diagnosticMessages.js": {
+      "sha256": "7cda3c9b1e89cc502cdbf08c12d56efe6dbf5fee806896a3601870a807451924",
+      "sizeBytes": 24383
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/progressMessages.js": {
+      "sha256": "0b1e7240f3639bf0b55bdfe394b103b44f7e03e9d1302dbd3024ccae5705fc45",
+      "sizeBytes": 1742
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceResultStore.js.map": {
+      "sha256": "126227f083032770ec11c7abaf57df42044278c8df0f7610c0d9a0a69b1cc2ae",
+      "sizeBytes": 8067
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/server.js.map": {
+      "sha256": "36490c5d61b65d540956c9fc4ebc78c5191cd7e825971d7316cead392cedad4b",
+      "sizeBytes": 637980
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidateSearchWorker.d.ts": {
+      "sha256": "f5a85cf6e31414c3f9f4979293331692eaff9929e8f6ec29b69480ef07fa17b6",
+      "sizeBytes": 543
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatWorker.d.ts.map": {
+      "sha256": "9fc52683da674f7a1712a418de27741f2f43a61c944f27bf2107de0eece41d9a",
+      "sizeBytes": 614
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectFacts.d.ts": {
+      "sha256": "fb8aff284d396c7f4bdd2b5e854b4c9deba03d71c1cfdad1613ebb0f15657e8b",
+      "sizeBytes": 2076
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorkers.js": {
+      "sha256": "e49213d8960dd5b1c143ac6e0a2dbca967564c43744d53a06e43f98972e39172",
+      "sizeBytes": 5777
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/cacheVersion.d.ts": {
+      "sha256": "10b93beb76b1f916b7337885e915292843f85c41af8d147c6b3aaa8ef9447fbf",
+      "sizeBytes": 121
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectIndex.d.ts": {
+      "sha256": "36dd873a93b93e59d3c795b4d48de67fde2da70756b7437766e1ad35b6d2d7af",
+      "sizeBytes": 458
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/outputMessages.d.ts": {
+      "sha256": "e42e21923847d8c2545b99f530c08599efe78b77e6f089ed8d0204b1afe6ab23",
+      "sizeBytes": 9935
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidateSearchWorker.js": {
+      "sha256": "92cf07038d93c03eb408b43744f91334d9d6d6076d128b762946468ad9d64b81",
+      "sizeBytes": 3255
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/protocolMessages.js.map": {
+      "sha256": "af79034729e312837d97ff484c6b1627825b83d0665ad6c88231cf9645d5588c",
+      "sizeBytes": 1096
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceCandidateEvidence.js": {
+      "sha256": "4c22b82f45c4ce28c816bf18fb88ffeedd6cfe9391297c79c8e0349c22c00b3a",
+      "sizeBytes": 1565
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceDependencyEvidence.js.map": {
+      "sha256": "46a1b96a3b935bd269c3a5467ffe611d3c11a452fefec3f4e69a9b1aaf1b43bb",
+      "sizeBytes": 2452
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/codeActionMessages.d.ts": {
+      "sha256": "fabf8b428ecc2b73ee497b1bd11c3a0b967ce60b953217f7f8e8536ec6884d30",
+      "sizeBytes": 2459
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/completionCallTrivia.js.map": {
+      "sha256": "c4a09728b15155efb7306324acbaf9c0c2ea0e364eb91f12d85ff00e2a8a4e74",
+      "sizeBytes": 1326
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceReferenceFacts.d.ts": {
+      "sha256": "4e979231fb37c14d26b6309910a9a8c80ea4bd53acd771a186811e04e4de037c",
+      "sizeBytes": 424
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceInputSnapshot.d.ts.map": {
+      "sha256": "e81102af04b9b1ae887e7680037fe3eb96a2689a4c0d4044af3dc7d874bb411c",
+      "sizeBytes": 1086
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateWorker.d.ts.map": {
+      "sha256": "2481f5e16e04029b1a6957554f1c110d4b9de9e6e18871354cf853e2fd537c7a",
+      "sizeBytes": 124
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidateSearchWorker.d.ts.map": {
+      "sha256": "ba3859bb8c4960cf85d81aef54083b74c6f0bea03bff92a4163c0349bf3ae1b3",
+      "sizeBytes": 477
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotWorker.js.map": {
+      "sha256": "35802324e149a0687d2cc2ad8939e4ba867c6b1da53f794746e4dce81b933e54",
+      "sizeBytes": 1145
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceCandidateEvidence.js.map": {
+      "sha256": "6a0fdfd66e0bb710d7deb1888fdbc4bdbb97b306d31964fcfc0c809191dd4244",
+      "sizeBytes": 1780
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceReferenceFacts.d.ts.map": {
+      "sha256": "36f5d8e87f87f8a114011b167bc0fe006ab1cdd9f0bd4dd1197669090e9a91b2",
+      "sizeBytes": 396
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/server.js": {
+      "sha256": "7589ef694db3887f88f6ff6a9a2343b6b680e44e696ab521a53964156c7d9fc2",
+      "sizeBytes": 649839
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatBatches.js": {
+      "sha256": "71c5488897d454d576558640aa318656a66363439cfb2486bc5a3920f2af850f",
+      "sizeBytes": 8339
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatWorker.js": {
+      "sha256": "219db71b878e728bc08fd3e0e4bd989f4766196b3f94324c6cd8807c17b6618c",
+      "sizeBytes": 1313
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceReferenceFacts.js": {
+      "sha256": "adea17995556d0ad0271a8b6be285c3a313cc90ad90b47c55e8e17845ed13192",
+      "sizeBytes": 1446
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectIndex.js": {
+      "sha256": "ae67730d16da96e6326118a54add489473a8e03c23387ddb61b660cb0c9c7e4d",
+      "sizeBytes": 322
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectFacts.js.map": {
+      "sha256": "c44657dccbe6711716a2ef2f47c8a269dff6a64ccd0af998bd79beb415b4d571",
+      "sizeBytes": 11158
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceDependencyEvidence.d.ts": {
+      "sha256": "484bae2b2f15a816d07c20153622b740b17f304bd62b76055521c3796f3b183f",
+      "sizeBytes": 1101
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/callableFactsCache.d.ts": {
+      "sha256": "1dba7da165cbda738d585e3bab0ebe0ae80c18b2d97aac1ff29bdaf6940c6c38",
+      "sizeBytes": 741
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotService.js.map": {
+      "sha256": "606a73008d4d89057dd42bd6f6695e177455e8f2428ce20214a9e20e335b301a",
+      "sizeBytes": 5053
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceResultStore.d.ts": {
+      "sha256": "2c7b969f738ababd5fe485dcd3f0d4c47417e5cfe4cbc4ea64a8dcb8c517c552",
+      "sizeBytes": 1526
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/outputMessages.js": {
+      "sha256": "ae1f78f9a4c9ef214eface09c2153f0202ae9ecda268f739806d19af1e10a920",
+      "sizeBytes": 9063
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/candidateSource.js.map": {
+      "sha256": "4a1be9d9e41e69de9ba58497e731f96098ec1403ce03658f5275f13b8bb8ff44",
+      "sizeBytes": 387
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceReferenceFacts.js.map": {
+      "sha256": "b49c99c918ac96ddc9a2dcf48f09de816d86a6d11e374c407acbd88f3f86563f",
+      "sizeBytes": 1603
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/protocolMessages.d.ts.map": {
+      "sha256": "6740fad80fe171a3bb298c8742e3b294c00323d7f4984f99d751aacef5a3b563",
+      "sizeBytes": 348
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatWorker.d.ts": {
+      "sha256": "f95b5fd097f2b084b4d40a2f5ec567441294e31b4c50633d25048d49acb2ee77",
+      "sizeBytes": 494
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/builtinSnapshotWorker.js": {
+      "sha256": "a740eed22ca15cb42797eec42d211e514b01209bfaaeefc5c086149887303866",
+      "sizeBytes": 894
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectIndex.js.map": {
+      "sha256": "73587576ab7ab081476f3ace2e8b440062eb4146cbc1b006abbe86e51375cec3",
+      "sizeBytes": 426
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/cacheVersion.js.map": {
+      "sha256": "ceba8d62c2dbd05ab2ce1bd1c4ad3ef32670bc177823af1c198de0f82479bc3e",
+      "sizeBytes": 192
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/codeActionMessages.d.ts.map": {
+      "sha256": "d1ca023c4f549aa7fa4d6a2c4d98517c55bf02d4d5d09b65b63ac4a8d1c7bbef",
+      "sizeBytes": 386
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceCandidateEvidence.d.ts": {
+      "sha256": "f5c26b9b08f57847cedceda12bc818c23e188bb714f3372a4af7b333b682c016",
+      "sizeBytes": 808
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/progressMessages.d.ts": {
+      "sha256": "782df62252b1a578aae3a655003e4d68f575edb9324d25a3c8f559a18fa6c2fd",
+      "sizeBytes": 2105
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/sourceStatBatches.js.map": {
+      "sha256": "1dd91d0b641c54261d308a7c642c440c25414306e2464f5f27f14f38641a0a6f",
+      "sizeBytes": 8772
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidateSearchWorker.js.map": {
+      "sha256": "4aa8c5251510a4307056d4ce70bcca012e2876a770f3ed520ecce21cb66fd61a",
+      "sizeBytes": 3616
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidatePaths.js.map": {
+      "sha256": "c789448a5b7987db204b8942bb092ad9dcaac1ae216f482deb6dfb6b1dfbbbce",
+      "sizeBytes": 2179
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceEngineIdentity.d.ts.map": {
+      "sha256": "04e499b79b06079af3cdbb171eb5e571864cdb5f1a85c5f021171b4e32763c64",
+      "sizeBytes": 456
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/index.js.map": {
+      "sha256": "bf933ceccb6b7f61ae8e9ecef987beb83825f558f8b345dcd94bd32206836e46",
+      "sizeBytes": 144
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/portableCandidatePaths.js": {
+      "sha256": "4e652795b0f88d0fe6d5466d0207851041d5741277351a0a5d1457dc7659cf1c",
+      "sizeBytes": 1924
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectFacts.js": {
+      "sha256": "a2b8226c6a65ed5c959b7e2ef2ceec8848d53c99832ccc22517da4739d4782ec",
+      "sizeBytes": 11209
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/referenceDependencyEvidence.js": {
+      "sha256": "28c7ed6b5e56a6dc5f840b241c8ec07e885d5e1c3ce17b9df314592e1e08fa49",
+      "sizeBytes": 2003
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/diagnosticMessages.d.ts.map": {
+      "sha256": "d7e80b4f2cff2fcacfd53616fa2e86bc79beb49ba066e50b6af191eb2a10782c",
+      "sizeBytes": 1036
+    },
+    "/var/www/node/php-companion/.vscode-test/d534-before-normal-build/packages/language-server/dist/projectFacts.d.ts.map": {
+      "sha256": "417e76c45a3e01331a08688468817e1de9b8b36ad6765267cd3b5939a374e9cc",
+      "sizeBytes": 1629
+    },
+    "/var/www/node/php-companion/packages/semantic/src/index.ts": {
+      "sha256": "4a914473efab167a3de4f2a581fbc073a81040fad239c282620bdfce55e89001",
+      "sizeBytes": 1392742
+    },
+    "/var/www/node/php-companion/packages/semantic/src/refactorParameterInput.ts": {
+      "sha256": "5e64882eb7d47f08c7b40a733c226d907e8858706266a730a3ec435426b78620",
+      "sizeBytes": 1214
+    },
+    "/var/www/node/php-companion/packages/semantic/test/add-parameter-input-validity.test.ts": {
+      "sha256": "116cc09d18e767504cbfa7b11a293893d5139488f42c1c53faed205a8018b822",
+      "sizeBytes": 2499
+    },
+    "/var/www/node/php-companion/packages/language-server/test/method-parameter-input-stdio.test.ts": {
+      "sha256": "7aa1cbbe39a039a07f7bd0c6ce6465c1e4f659be295b8339501b6028ff45cdac",
+      "sizeBytes": 4889
+    },
+    "/var/www/node/php-companion/.changeset/parameter-input-validation.md": {
+      "sha256": "c3196fa0fd10a939ec2c385fc6dcaabd24e92bca2ef71604aae3156ef7532318",
+      "sizeBytes": 240
+    }
+  },
+  "next": "Run the original complete100-file/1329-case normal LSP suite, retaining all original1321 cases plus the new8. Then verify original complete Linux editor workflows. Continue original full C1-C4/R4/P0-P9/F01-F14 scope.",
+  "performanceBoundary": "Original route runtime ordinary editing23/25, semantic comparison trial23/25 and incremental block trial24/25 retained; neither failed candidate adopted. This cold refactor-input fix is not an ordinary-edit performance improvement or a new performance qualification."
+}

@@ -1,0 +1,57 @@
+{
+  "auditedAtUtc": "2026-10-10T22:57:17.639430+00:00",
+  "terminalAuditQualified": true,
+  "normalBundleSha256": "87e7845725f3ab4c53753861431c21e61b05ed28949474bd425b4246d4defd83",
+  "cases": [
+    {
+      "prefix": "d1823",
+      "referencesMs": 1149,
+      "references": 188,
+      "definitionResults": 1,
+      "fullLocationHashesMatched": true,
+      "fourAnchorsVerifiedIndependently": true,
+      "projectInputs": 66079,
+      "toolInputs": 241,
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true,
+      "original1000msGatePassed": false,
+      "reloadExecuted": false
+    },
+    {
+      "prefix": "d1825",
+      "referencesMs": 1169,
+      "references": 188,
+      "definitionResults": 1,
+      "fullLocationHashesMatched": true,
+      "fourAnchorsVerifiedIndependently": true,
+      "projectInputs": 66079,
+      "toolInputs": 241,
+      "allObservedProcessesGone": true,
+      "ownedCacheRemoved": true,
+      "original1000msGatePassed": false,
+      "reloadExecuted": false
+    }
+  ],
+  "referencesMs": 1169,
+  "previousNormalSingleMs": 1351,
+  "targetedTestsPassed": 14,
+  "firstAndFinalRunsShareTestIdentities": true,
+  "targetedInputs": 366,
+  "buildPassed": true,
+  "bundlePassed": true,
+  "lintPassed": true,
+  "fixtureCount": 170,
+  "roadmapOpenItems": 26,
+  "performanceQualified": false,
+  "statisticalQualification": false,
+  "fullNewLspQualified": false,
+  "fullSixModeQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "limits": [
+    "Single measurements do not establish percentile improvement or the original 1000ms qualification.",
+    "Reload was not executed after the cold gate failed.",
+    "Full LSP, complete performance, real editor/platform/Remote and F13/P9/R4 remain open."
+  ],
+  "archiveFiles": 94
+}

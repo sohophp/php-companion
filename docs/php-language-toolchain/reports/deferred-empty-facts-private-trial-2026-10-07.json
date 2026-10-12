@@ -1,0 +1,1146 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestones": "D322-D327",
+  "productChanged": false,
+  "qualification": false,
+  "decision": "do-not-adopt-private-empty-facts-candidate; full 10k RSS still fails and private module metadata differs",
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "generation": {
+    "productChanged": false,
+    "qualification": false,
+    "requiredLspAuditSha256": "c4b4c6ba3a5afa898fa94a9515ec71fc198e77301f4d327f7e48120486654d00",
+    "originalSemanticSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+    "folders": {
+      "baseline": {
+        "path": "/var/www/node/php-companion/.vscode-test/d322-baseline-semantic",
+        "indexSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+      },
+      "candidate": {
+        "path": "/var/www/node/php-companion/.vscode-test/d322-candidate-semantic",
+        "indexSha256": "af9b0db2c28c8148db83e426c5eb6a27554b742de1df87a15073aca9ec8c7cfa"
+      }
+    },
+    "permanentTestSha256": "cff44ed76319350e67f9ee43ab8ef55080ef5dc5322928e379252344b6a7ee65",
+    "scope": "Private normal compiled copies. Reuse one fresh per-document empty facts object during validation and delayed installation; do not share arrays across files/workspaces. Full restore keeps existing merge default. All validators, schema and persistence unchanged. No performance qualification.",
+    "diff": [
+      "--- normal-baseline\n",
+      "+++ private-empty-facts-candidate\n",
+      "@@ -1112,8 +1112,7 @@\n",
+      "     }",
+      "     return true;",
+      " }",
+      "-function semanticFileSnapshot(declaration, implementation) {",
+      "-    const facts = mergedImplementationFacts(implementation);",
+      "+function semanticFileSnapshot(declaration, implementation, facts = mergedImplementationFacts(implementation)) {",
+      "     return {",
+      "         uri: declaration.uri, source: implementation.source, namespace: declaration.namespace,",
+      "         declarations: declaration.declarations, callables: declaration.callables, properties: declaration.properties,",
+      "@@ -1547,12 +1546,12 @@\n",
+      "             return current.facts[field];",
+      "         };",
+      "     }",
+      "-    deferredSemanticFile(file, implementation) {",
+      "+    deferredSemanticFile(file, implementation, initialFacts = emptyImplementationFacts()) {",
+      "         const deferred = {",
+      "             snapshot: implementation,",
+      "             loadedCallables: new Set(),",
+      "             fileFactsLoaded: false,",
+      "-            facts: emptyImplementationFacts(),",
+      "+            facts: initialFacts,",
+      "         };",
+      "         this.deferredImplementations.set(file.uri, deferred);",
+      "         for (const field of IMPLEMENTATION_ARRAY_FIELDS) {",
+      "@@ -2728,8 +2727,8 @@\n",
+      "             return false;",
+      "         const declarationSnapshot = declaration;",
+      "         const implementationSnapshotValue = implementation;",
+      "-        const initial = { ...implementationSnapshotValue, file: emptyImplementationFacts(), callables: [] };",
+      "-        const file = semanticFileSnapshot(declarationSnapshot, initial);",
+      "+        const initialFacts = emptyImplementationFacts();",
+      "+        const file = semanticFileSnapshot(declarationSnapshot, implementationSnapshotValue, initialFacts);",
+      "         if (!validDeferredImplementation(file, implementationSnapshotValue))",
+      "             return false;",
+      "         const expectedReferenceKeys = [...deferredReferenceCandidateKeys(file, implementationSnapshotValue)].sort();",
+      "@@ -2776,7 +2775,7 @@\n",
+      "         this.trees.get(uri)?.delete();",
+      "         this.trees.delete(uri);",
+      "         this.deferredImplementations.delete(uri);",
+      "-        this.files.set(uri, this.deferredSemanticFile(file, implementationSnapshotValue));",
+      "+        this.files.set(uri, this.deferredSemanticFile(file, implementationSnapshotValue, initialFacts));",
+      "         this.referenceResultCache.clear();",
+      "         this.controlFlowAssignments.delete(uri);",
+      "         if (references.indexed) {"
+    ]
+  },
+  "queuedExecution": {
+    "status": "private-trial-passed-awaiting-review",
+    "parentPid": 705007,
+    "startedAtUtc": "2026-10-07T13:09:48.259844+00:00",
+    "driverSha256": "227d85a368e5b7b6acf89682b5ebea447e56df3c1af820008c8cf8f531fc0f6f",
+    "requiredCoreSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+    "productChanged": false,
+    "qualification": false,
+    "steps": [
+      {
+        "label": "prepare-private-copies",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d322-prepare-empty-facts-trial.py"
+        ],
+        "childPid": 743005,
+        "startedAtUtc": "2026-10-07T13:35:10.774990+00:00",
+        "status": "exited",
+        "log": "/var/www/node/php-companion/.vscode-test/d323-prepare-private-copies.log",
+        "exitCode": 0,
+        "durationSeconds": 0.26997585400022217,
+        "logSha256": "082f39e8d2e2b2c8ab7302cb0973709dea6f0416b3229c9aea1cb8533b819080"
+      },
+      {
+        "label": "private-contracts",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d323-run.py",
+          "d323-empty-facts-contracts",
+          "/var/www/node/php-companion",
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/d322-vitest.config.mjs",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d323-empty-facts-contracts-result.json"
+        ],
+        "childPid": 743009,
+        "startedAtUtc": "2026-10-07T13:35:11.044883+00:00",
+        "status": "exited",
+        "log": "/var/www/node/php-companion/.vscode-test/d323-private-contracts.log",
+        "exitCode": 0,
+        "durationSeconds": 9.396970558998873,
+        "logSha256": "ca044242c1c863496837e6621ff11744f789f9bfea331589425a3bf459c78a41"
+      },
+      {
+        "label": "private-restore-parity-and-allocation",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d323-run.py",
+          "d323-empty-facts-parity",
+          "/var/www/node/php-companion",
+          "env",
+          "SOPHP_EMPTY_FACTS_TRIAL_REPORT=/var/www/node/php-companion/.vscode-test/d323-empty-facts-parity-result.json",
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d322-empty-facts-trial.mjs"
+        ],
+        "childPid": 743217,
+        "startedAtUtc": "2026-10-07T13:35:20.443644+00:00",
+        "status": "exited",
+        "log": "/var/www/node/php-companion/.vscode-test/d323-private-restore-parity-and-allocation.log",
+        "exitCode": 0,
+        "durationSeconds": 13.053606784000294,
+        "logSha256": "a9ee7195cfd0c9b45de90d58d6954c07353d180c80ff0031091d959cb59e9e6a"
+      }
+    ],
+    "scope": "Await actual D321 terminal audit without restarting it. Only after a passing complete audit and exited original test processes, prepare and test private copies. No production edits, build, package, Profile update, commit or release.",
+    "lastLspObservationAtUtc": "2026-10-07T13:34:50.741656+00:00",
+    "lastLspRunStatus": "running",
+    "lastObservedLiveLspPids": [
+      685103,
+      685105
+    ],
+    "originalLspAuditSha256": "c4b4c6ba3a5afa898fa94a9515ec71fc198e77301f4d327f7e48120486654d00",
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-07T13:35:33.511656+00:00"
+  },
+  "runs": {
+    "d323-empty-facts-contracts": {
+      "status": "exited",
+      "parentPid": 743009,
+      "childPid": 743048,
+      "startedAtUtc": "2026-10-07T13:35:13.184354+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/d322-vitest.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d323-empty-facts-contracts-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d323-empty-facts-contracts-input.json",
+      "exitCode": 0,
+      "durationSeconds": 5.908343906998198,
+      "finishedAtUtc": "2026-10-07T13:35:19.091140+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "ac261dc8c8a4efad68d676ad59796e2517af2bb00e21bf7b29585fa901dfbe8c"
+    },
+    "d323-empty-facts-parity": {
+      "status": "exited",
+      "parentPid": 743217,
+      "childPid": 743262,
+      "startedAtUtc": "2026-10-07T13:35:22.438809+00:00",
+      "command": [
+        "env",
+        "SOPHP_EMPTY_FACTS_TRIAL_REPORT=/var/www/node/php-companion/.vscode-test/d323-empty-facts-parity-result.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d322-empty-facts-trial.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d323-empty-facts-parity-input.json",
+      "exitCode": 0,
+      "durationSeconds": 9.841940706002788,
+      "finishedAtUtc": "2026-10-07T13:35:32.279382+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "4baaaf3e9c17f046b3edef3f9ab2f55dc58b96462be31ac17f1bec5319c02c1a"
+    },
+    "d326-empty-facts-persistence": {
+      "status": "exited",
+      "parentPid": 743639,
+      "childPid": 743730,
+      "startedAtUtc": "2026-10-07T13:36:02.708742+00:00",
+      "command": [
+        "node",
+        ".vscode-test/d326-empty-facts-persistence.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d326-empty-facts-persistence-input.json",
+      "exitCode": 1,
+      "durationSeconds": 43.61725621300138,
+      "finishedAtUtc": "2026-10-07T13:36:46.324501+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "4e4d6d01ea1eb690dc0de3f74c413e7f93c275814fc8c35c6ee3a86ad4da69dd"
+    }
+  },
+  "contracts": {
+    "success": true,
+    "numTotalTests": 24,
+    "numPassedTests": 24,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "parity": {
+    "status": "passed",
+    "productChanged": false,
+    "qualification": false,
+    "scope": "Private actual restoreDeclaration parity, rejection state preservation and complete snapshot equality; ABBA sampled cumulative allocation for repeated same-URI restore only. Not full-scale RSS, ordinary editing, current source or full LSP qualification.",
+    "inputs": 95,
+    "comparisons": 2053,
+    "negativeChecks": 1958,
+    "inputHashes": [
+      {
+        "name": "test/extension/baseline/config/services.php",
+        "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+      },
+      {
+        "name": "test/extension/baseline/src/Broken.php",
+        "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/ExportContract.php",
+        "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Mailer.php",
+        "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/MessageHandler.php",
+        "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Traceable.php",
+        "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+        "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+        "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+        "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+        "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+        "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+        "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+        "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+        "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+        "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+        "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+        "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+        "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeImports.php",
+        "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+        "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RouteConsumer.php",
+        "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+        "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+        "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/UserController.php",
+        "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+      },
+      {
+        "name": "test/extension/baseline/src/Legacy/Duplicate.php",
+        "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ActivityService.php",
+        "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AliasConsumer.php",
+        "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AlternateFeature.php",
+        "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AssertionConsumer.php",
+        "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AttributeConsumer.php",
+        "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+        "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/BaseService.php",
+        "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/CompletionService.php",
+        "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantBase.php",
+        "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantChild.php",
+        "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+        "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructorTarget.php",
+        "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ContainerConsumer.php",
+        "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+        "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DeliveryState.php",
+        "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+        "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+        "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DynamicProperties.php",
+        "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ExportService.php",
+        "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ImplicitNullable.php",
+        "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/Mailer.php",
+        "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MessageHandler.php",
+        "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MissingRunner.php",
+        "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/OverrideTarget.php",
+        "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+        "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+        "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+        "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+        "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+        "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/RunnerImplementation.php",
+        "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/SharedFeature.php",
+        "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+        "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+        "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+        "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnusedImport.php",
+        "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UserService.php",
+        "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/Constants.php",
+        "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/baseline/src/WrongNamespace.php",
+        "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+      },
+      {
+        "name": "test/extension/fixture/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+        "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/UserController.php",
+        "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/AliasConsumer.php",
+        "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/UserService.php",
+        "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+      },
+      {
+        "name": "test/extension/fixture/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+        "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+      },
+      {
+        "name": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+        "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+      },
+      {
+        "name": "test/extension/real-psr0/src/Consumer.php",
+        "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+      },
+      {
+        "name": "scale-typical",
+        "sha256": "ddaab7987829e2e081cc42c49359de7085a5e6593edc3b40f424b0585b0af5d3"
+      },
+      {
+        "name": "nested-callables",
+        "sha256": "c836ab824f2f0ff41c0f27aed5de3f7c0ca3daf594912261ab866c9f18014741"
+      },
+      {
+        "name": "property-hooks",
+        "sha256": "e9e297e971e2dbf7d5ca62e275105c30a75f9aeb6725e6284bb6e23b00773ee5"
+      },
+      {
+        "name": "trait-alias",
+        "sha256": "a878f64b8940d4a1a402d10f0e91c517cf251af810fa3b1beb32ecff82f50e5e"
+      },
+      {
+        "name": "mixed-unfinished",
+        "sha256": "cd4a68a568bafe2ba9e94a4f4707c698a8ef654df2fba188670fd2a0133fc247"
+      }
+    ],
+    "snapshotUnchanged": true,
+    "trials": [
+      {
+        "label": "baseline",
+        "count": 5000,
+        "durationMs": 515.8052889999999,
+        "sampledSelfSize": 227580888,
+        "nodes": 108,
+        "samples": 27315,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d322-empty-facts-0-baseline.heapprofile",
+        "bytes": 1153967,
+        "sha256": "eb4632cc3905fdc8a51d71dbd5b7c194c4f804205c61f375aa7d29778f9707a2"
+      },
+      {
+        "label": "candidate",
+        "count": 5000,
+        "durationMs": 516.8222740000001,
+        "sampledSelfSize": 209893544,
+        "nodes": 98,
+        "samples": 25188,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d322-empty-facts-1-candidate.heapprofile",
+        "bytes": 1057203,
+        "sha256": "0ec9a4a97df2625c0ccc4a90935bec9ea2876cc9d92e2989f3fe7e194fa169e7"
+      },
+      {
+        "label": "candidate",
+        "count": 5000,
+        "durationMs": 415.7604819999997,
+        "sampledSelfSize": 205559760,
+        "nodes": 59,
+        "samples": 24676,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d322-empty-facts-2-candidate.heapprofile",
+        "bytes": 1028201,
+        "sha256": "265effb0aecd21d4b07c9b43f2811b21b25390cd6e5f9ab736633c5cc7ff2dda"
+      },
+      {
+        "label": "baseline",
+        "count": 5000,
+        "durationMs": 464.53051100000084,
+        "sampledSelfSize": 226700752,
+        "nodes": 90,
+        "samples": 27201,
+        "profilePath": "/var/www/node/php-companion/.vscode-test/d322-empty-facts-3-baseline.heapprofile",
+        "bytes": 1135676,
+        "sha256": "ff10a8cec28cb1b14386cd5480c61fa66a6161dea8e7f35641582967904ccb1c"
+      }
+    ],
+    "ordering": "ABBA",
+    "samplingInterval": 8192,
+    "explicitForcedGc": false,
+    "maximumProfileBytes": 8388608,
+    "createdAtUtc": "2026-10-07T13:35:32.244Z",
+    "expiresAtUtc": "2026-10-09T13:35:32.244Z"
+  },
+  "sampledAllocationReductionPercent": 8.547194643393468,
+  "persistence": {
+    "schema": 1,
+    "files": 10000,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 19148.11,
+      "parsed": 10000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 6318.86,
+      "parsed": 0,
+      "restored": 10000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.33,
+    "cache": {
+      "cold": {
+        "files": 2,
+        "bytes": 57271357,
+        "mebibytes": 54.62
+      },
+      "warm": {
+        "files": 2,
+        "bytes": 57271357,
+        "mebibytes": 54.62
+      },
+      "frozenBudgetMb": 512
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 300.14,
+      "warmPeakRssMb": 421.4,
+      "layerRecoveryPeakRssMb": 724.07,
+      "callableRecoveryPeakRssMb": 838.75,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 768,
+      "processPeakRssMb": 895.22,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": false
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 10000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 19999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "privateModuleWarning": "(node:743730) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///var/www/node/php-companion/.vscode-test/d322-candidate-semantic/index.js is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to /var/www/node/php-companion/package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n",
+  "privateContractSourceMapWarningsPresent": true,
+  "scriptGeneration": {
+    "productChanged": false,
+    "qualification": false,
+    "originalScriptSha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+    "candidateScriptSha256": "e1f8f94b1075ec634eca913dd8a5e2a90bdf91984ebed7b96747baf52d886748",
+    "reconstructedOriginalMatches": true,
+    "change": "Only semantic module import points to the private empty-facts candidate. All four loads, cache mutations, functional assertions and 768 MiB original 10k threshold remain unchanged. No profiler or forced GC."
+  },
+  "archive": ".vscode-test/d327-empty-facts-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-contracts-input.json",
+      "sha256": "166970e19fdab25d43e687c6a10eda2e329b80d22f4ceb938f7e174860472e61"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-contracts-run.json",
+      "sha256": "56b0dde142809eb073ff1dd6638051264dfaa6f5168487be30688fcdf73edae3"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-contracts-result.json",
+      "sha256": "48130aaa944f27ae69ffc883e4af8ea146c8a81d51903cca2796ecb8f73fa9a1"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-contracts.log",
+      "sha256": "ac261dc8c8a4efad68d676ad59796e2517af2bb00e21bf7b29585fa901dfbe8c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-parity-input.json",
+      "sha256": "bcb89b72cca953fbb5a25951e00c537af07068e7304fa709a349d513b8404722"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-parity-run.json",
+      "sha256": "086da6c640c456c6d9465413d3643a41923ce5cf1ca355c75e0d39ccf50e9702"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-parity-result.json",
+      "sha256": "9056946543976ffe0af355d7da7e14d2ac7981ec23ed5e4244d014a24e815a43"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-empty-facts-parity.log",
+      "sha256": "4baaaf3e9c17f046b3edef3f9ab2f55dc58b96462be31ac17f1bec5319c02c1a"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d326-empty-facts-persistence-input.json",
+      "sha256": "fd5c1be90741654783de5b12011eb8c2ba1c9f6ec9c5df285ab2dea624b68b13"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d326-empty-facts-persistence-run.json",
+      "sha256": "74f5f9ecc8f44eb1b5ec4bb149cbd3f420540ecc4019d923c53377399e46f1ad"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d326-empty-facts-persistence.log",
+      "sha256": "4e4d6d01ea1eb690dc0de3f74c413e7f93c275814fc8c35c6ee3a86ad4da69dd"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d322-prepare-empty-facts-trial.py",
+      "sha256": "45adca340c8e258642d237ea2c19777f2b47401a21868e0fbbd2cdc9939c61d2"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d322-empty-facts-trial.mjs",
+      "sha256": "3b1750b9c0d5a03e12a3743d59b8694a770b4924ac1a669c99c23a6fe83acbc2"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d322-empty-facts-generation.json",
+      "sha256": "ee87c5e1a38ceeb83e437e36b9731c235e5d959cc32fbb3bd41a6235a9688592"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d322-vitest.config.mjs",
+      "sha256": "cd80ff06327c55e23a2191d7729a08b99bcd3f3e003f106415fa77c0dd18136e"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d322-contract-baseline.test.ts",
+      "sha256": "badf4a13675dc4a611f1e96ef8a870d567f145d345f87e255f12c2592ab376db"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d322-contract-candidate.test.ts",
+      "sha256": "5c64aa0c2d7ee2e8d4466c091f0d065ae5651f15176c82ca5c9ca16a56504be5"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-run.py",
+      "sha256": "c3d0b7371349efccfd7c94ba3115c6a5bcd912aeb5526ea03f38a301382ccef4"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-after-full.py",
+      "sha256": "227d85a368e5b7b6acf89682b5ebea447e56df3c1af820008c8cf8f531fc0f6f"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-after-full-run.json",
+      "sha256": "87590f6c80b291cbcfda964c8e9fb604d65dd4087146691a52c30c998611819c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d326-run.py",
+      "sha256": "c5f37d552de3410562c827a637f09dfa351703144970bf2bd85dccf270b31d2d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d326-empty-facts-persistence.mjs",
+      "sha256": "e1f8f94b1075ec634eca913dd8a5e2a90bdf91984ebed7b96747baf52d886748"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d326-persistence-generation.json",
+      "sha256": "c02485c50f0d8bfa35a7674f1263b812fd9e4a5f07f918469f7f42f14cea552b"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d321-midrun-observation-1.json",
+      "sha256": "e91b9f4170571801579f6e1a7751cb05659e61517635f58b241cbf82df3f26fa"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-prepare-private-copies.log",
+      "sha256": "082f39e8d2e2b2c8ab7302cb0973709dea6f0416b3229c9aea1cb8533b819080"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-private-contracts.log",
+      "sha256": "ca044242c1c863496837e6621ff11744f789f9bfea331589425a3bf459c78a41"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d323-private-restore-parity-and-allocation.log",
+      "sha256": "a9ee7195cfd0c9b45de90d58d6954c07353d180c80ff0031091d959cb59e9e6a"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/index.d.ts.map",
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/index.js",
+      "sha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/d188-baseline-index.js",
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/index.js.map",
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/baseline/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/index.d.ts.map",
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/index.js",
+      "sha256": "af9b0db2c28c8148db83e426c5eb6a27554b742de1df87a15073aca9ec8c7cfa"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/d188-baseline-index.js",
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/index.js.map",
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/candidate/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/profiles/d322-empty-facts-0-baseline.heapprofile",
+      "sha256": "eb4632cc3905fdc8a51d71dbd5b7c194c4f804205c61f375aa7d29778f9707a2"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/profiles/d322-empty-facts-1-candidate.heapprofile",
+      "sha256": "0ec9a4a97df2625c0ccc4a90935bec9ea2876cc9d92e2989f3fe7e194fa169e7"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/profiles/d322-empty-facts-2-candidate.heapprofile",
+      "sha256": "265effb0aecd21d4b07c9b43f2811b21b25390cd6e5f9ab736633c5cc7ff2dda"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/profiles/d322-empty-facts-3-baseline.heapprofile",
+      "sha256": "ff10a8cec28cb1b14386cd5480c61fa66a6161dea8e7f35641582967904ccb1c"
+    },
+    {
+      "path": ".vscode-test/d327-empty-facts-evidence/d327-record-empty-facts.py",
+      "sha256": "a996ad57bf570cda4288617d25da4f2be73a3cfa72ad3a8425f566c79ac70a1e"
+    }
+  ],
+  "boundaries": [
+    "Only private normal compiled copies changed. One fresh empty facts object per restored document is reused; no shared arrays across files/workspaces. Validation predicates, persistence format and schema are unchanged.",
+    "The existing 12 integrity/isolation cases executed unchanged against each private module, totaling 24. They do not represent 24 new permanent tests.",
+    "Actual restoreDeclaration results, previously accepted state after rejection, visible declaration data and complete snapshots matched across 95 inputs and 2053 comparisons, including 1958 malformed variants. Original snapshots remain unchanged.",
+    "ABBA sampling uses 5000 repeated restores of the same URI per trial, collected-object sampling and no explicit GC. Sampled cumulative allocation is not exact allocated bytes, peak RSS or full-scale performance. The first candidate timing is slower than the first baseline; no timing improvement claim.",
+    "Private full 10k run changes only the semantic module import. Original four complete loads, both manifest mutations, all assertions, cleanup and 768 MiB threshold remain. RSS 895.22 MiB fails. Extra module-type warning and private sourcemap warnings are preserved; module metadata differs from the normally built package, so no normal build improvement is inferred.",
+    "Current normal Core f026f9cd has independent complete D321 LSP qualification, original normal 10k RSS 920.54/768 MiB failure and ordinary Controller 157.74/150 ms failure. These are not replaced by private measurements. No equivalent rerun to select green; no 50k qualification.",
+    "All original C1-C4/R4/P0-P9/F01-F14, advanced semantics/refactoring, versions/platforms/full combinations/long sessions/real WSL remain active. No production source edit, package/Profile update, commit, push or release."
+  ]
+}

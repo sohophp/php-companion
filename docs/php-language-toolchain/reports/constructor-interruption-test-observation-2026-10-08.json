@@ -1,0 +1,151 @@
+{
+  "status": "test-observation-corrected-full-lsp-pending",
+  "recordedAtUtc": "2026-10-08T09:15:29.320253+00:00",
+  "originalFullLsp": {
+    "status": "exited",
+    "parentPid": 2009315,
+    "startedAtUtc": "2026-10-08T08:27:41.209546+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+      "run",
+      "--reporter=json",
+      "--outputFile=/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-result.json"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-input.json",
+    "normalSourceAdopted": true,
+    "fullObjectiveComplete": false,
+    "childPid": 2009355,
+    "exitCode": 1,
+    "durationSeconds": 2144.2834167679976,
+    "finishedAtUtc": "2026-10-08T09:03:25.494015+00:00",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "logSha256": "250892137905e5b933795f423e7dd2ae06c0db033355b1a093dd374abe6c61fc",
+    "result": {
+      "success": false,
+      "numTotalTests": 1361,
+      "numPassedTests": 1360,
+      "numFailedTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "caseMultiplicityPreserved": true,
+    "missingCases": [],
+    "extraCases": [],
+    "actualFiles": 105,
+    "resultSha256": "7a01e90b00d8a41d089f5c2055f056297fec370655fc08771c8b7ec8c738fd7b",
+    "evidenceValid": true,
+    "qualified": false
+  },
+  "originalFailurePreserved": true,
+  "normalProductSourceChanged": false,
+  "runtimeBuildChanged": false,
+  "normalCanonicalConstructionCases": 16,
+  "normalCanonicalCaseIdentitiesPreserved": true,
+  "preChangePositiveDiagnosticControl": true,
+  "historicalSelectionControl": {
+    "passed": 0,
+    "failed": 2
+  },
+  "correctedSelectionControl": {
+    "passed": 2,
+    "failed": 0
+  },
+  "omittedRevisionGuardControl": {
+    "passed": 0,
+    "failed": 2
+  },
+  "fullLspQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "adoption": {
+    "status": "adopted-test-observation-fix",
+    "path": "/var/www/node/php-companion/packages/language-server/test/canonical-construction-stdio.test.ts",
+    "beforeSha256": "cb5159d118eafadefec8f4b2a7f9e8550b6ce93350e5bc7abe8f61861c825ca6",
+    "afterSha256": "d56a1ed35fc86fa3cc89d53e5430af2a902ba51d4d64f692ba1af19940115bca",
+    "normalProductSourceChanged": false,
+    "originalFinalMismatchAssertionPreserved": true,
+    "originalProofAssertionPreserved": true,
+    "originalBudgetsPreserved": true,
+    "originalCaseNamesPreserved": true,
+    "addedPreChangePositiveControl": true,
+    "fullLspQualified": false,
+    "profileUpdated": false
+  },
+  "evidence": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-run.json",
+      "sha256": "8627f657d8e8be89ea57b68e1be7d4d81c346fcd03108833ca5ec418bf6e74a2"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-result.json",
+      "sha256": "7a01e90b00d8a41d089f5c2055f056297fec370655fc08771c8b7ec8c738fd7b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d808-constructor-diagnostic-observation-result.json",
+      "sha256": "af2043af7551ffb866d306f854c2a8e81f56948094a2a7364a9889bb8812bb4e"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d809-constructor-diagnostic-trace-result.json",
+      "sha256": "75e5fc4ef30ab2f68057a3fffaea6d4847a52548fb09ca7166d48f651236b520"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d810-constructor-prechange-control-result.json",
+      "sha256": "6cf3925eb97c842d7fe979d4a38a4b538655b6118d9cf8883399ccca6c4c08f5"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d811-constructor-current-publication-result.json",
+      "sha256": "c9e7f3450a24cc47216502e57c062ff4e6efa49b79930881f0c388366a062087"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d811-constructor-revision-mutant-result.json",
+      "sha256": "42af893a133ab925ea5bbc49991195c6743ebfa38a9dfe9069d4f4433abc64eb"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d812-constructor-history-diagnosis.json",
+      "sha256": "b051a3cd28eacad6f6732c4d022dafc2f2bceebbf81ba1a9712b877de14fe574"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d812-constructor-history-adoption.json",
+      "sha256": "91713c3af78cb1f0c2adb3e83ae161b3e38e52325f83fe655d36327c6e367806"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d813-normal-canonical-construction-result.json",
+      "sha256": "6fba01a8e1c723b33975c3b5bae0b5afc2a76596713b14d68d05db4bd900fed6"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d809-constructor-trace-7.2.json",
+      "sha256": "c63db2894f39373815948363bc0d9adbfe0177c611e7dbc79e2597b8f8f8568a"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d809-constructor-trace-8.5.json",
+      "sha256": "59e48b355de4eb2755bcaacbc7850e8f8e7a34007f6cbc855fec8c1b959789a8"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d810-constructor-trace-7.2.json",
+      "sha256": "f6d19991661be0a7ba90bb617424ec1a811dcce8af57416ad2ac86c0c59a7c9e"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d810-constructor-trace-8.5.json",
+      "sha256": "e83f9f8d72d2a35d4092eef0227d58b4f3b5d4998ac4a76fe023459737fa7501"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d811-constructor-trace-7.2.json",
+      "sha256": "05947ece6f0d7bb5cc4d8f1e73ddf51cbcc6ab5575a31e5e46e610546554f91d"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d811-constructor-trace-8.5.json",
+      "sha256": "e9fa647c4397f2caf83f8c7e89732a35c70df35d8941ea8a3886a14654c5b239"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d811-mutant-constructor-trace-7.2.json",
+      "sha256": "44ecc1a574af7ccd4629a730d172a1a6bc271d97ff9650840fcbec1c9bbddc72"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d811-mutant-constructor-trace-8.5.json",
+      "sha256": "d87d0b7acf0bc108089b3f94c276a278dd1486c1d0bcfaea8faff3164184796a"
+    }
+  ]
+}

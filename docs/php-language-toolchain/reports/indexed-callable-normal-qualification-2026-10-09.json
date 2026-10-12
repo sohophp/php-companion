@@ -1,0 +1,137 @@
+{
+  "recordedAtUtc": "2026-10-09T03:44:20.800614+00:00",
+  "engineBuildId": "d93a920cb023363469383bfb925461ac06df203788628958c5385f9d089582f0",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/language-server.js": "f019a1bafebb8ad716ef8b47c852233e4f2e93919e92fd68f1acc28ce747c3e8",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "fullLsp": {
+    "files": 114,
+    "passed": 1438,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "audit": "/var/www/node/php-companion/.vscode-test/d1173-indexed-callable-full-lsp-run.json",
+    "auditSha256": "23a65d8a873e3a60ad4155f2c18602be6e08b9c0393ad3a3558fa11d08160905",
+    "allOriginalCaseIdentitiesAndMultiplicitiesPreserved": true
+  },
+  "editor": {
+    "allFourOriginalLinuxFlowsPassed": true,
+    "qualificationReused": false,
+    "audit": "/var/www/node/php-companion/.vscode-test/d1174-indexed-callable-editor-qualification.json",
+    "auditSha256": "956c411406bace8da5a9ea9e66d1e24349adf23a98901ac83fedf3a7331bc291",
+    "generatorReturnFlowStates": [
+      {
+        "state": "partial",
+        "version": 1,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      },
+      {
+        "state": "total",
+        "version": 2,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result>",
+        "mismatchLines": [
+          12,
+          18
+        ]
+      },
+      {
+        "state": "finally",
+        "version": 3,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Other>",
+        "mismatchLines": [
+          11,
+          17
+        ]
+      },
+      {
+        "state": "unknown",
+        "version": 4,
+        "signature": "inner(bool $flag): \\Generator",
+        "mismatchLines": []
+      },
+      {
+        "state": "partial",
+        "version": 5,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      },
+      {
+        "state": "unknown",
+        "version": 6,
+        "signature": "inner(bool $flag): \\Generator",
+        "mismatchLines": []
+      },
+      {
+        "state": "partial",
+        "version": 7,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      }
+    ],
+    "generationBoundaryObservations": 80
+  },
+  "semanticCasesPassed": 23673,
+  "rootUnitCasesPassed": 113,
+  "targetCasesPassed": 28,
+  "targetedProductionProtocolCasesPassed": 17,
+  "normalFullProfile": {
+    "audit": "/var/www/node/php-companion/.vscode-test/d1171-callable-candidates-profile-run.json",
+    "sha256": "52a8f5dd2c4da9d44b321cb53a5744b2a7d91891b20438c71689e2c9930cbabf",
+    "scalarP95Ms": 83,
+    "unionP95Ms": 96,
+    "originalBudgetMs": 150,
+    "compositeFeedbackQualified": true,
+    "firstColdHoverMs": 1272
+  },
+  "normalValidation": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1170-callable-candidates-validation.json",
+    "sha256": "0724eba9698f90d2c009424231eb37e22d51a1fc7de18eaa5b8bb76ecc74edb6"
+  },
+  "priorSourceEvidence": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/indexed-callable-diagnostics-2026-10-09.json",
+    "sha256": "ed3da52791905fa592056a6014052e6826b4a326f0c434b083377bc077a43e0a"
+  },
+  "priorArchive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1172-indexed-callable-diagnostics-evidence/manifest.json",
+    "sha256": "9952744f4c4b644998b8f0d4e49b2ea17efe78fc83dda2dee3fc2d140206f088"
+  },
+  "fullLspQualified": true,
+  "fourLinuxWorkflowsQualified": true,
+  "compositeFeedbackQualified": true,
+  "nativeWindowsQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1175-indexed-callable-qualified-evidence/manifest.json",
+  "remaining": [
+    "First cold Hover and remaining original full-performance budgets",
+    "Remaining native Windows / WSL Remote / scale / long-session / human acceptance",
+    "Remaining advanced types, refactors, contracts and all original C1-C4/R4, P0-P9/F01-F14 requirements"
+  ]
+}

@@ -1,0 +1,1226 @@
+{
+  "recordedAtUtc": "2026-10-08T13:52:09.677220+00:00",
+  "normalSourceAdopted": true,
+  "normalFocusedQualification": {
+    "recordedAtUtc": "2026-10-08T12:58:46.216148+00:00",
+    "qualified": true,
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "normalSemanticTargetCases": 80,
+    "normalProductionProtocolCases": 56,
+    "newProductionProtocolCases": 2,
+    "newProductionProtocolRows": 80,
+    "all54OriginalFocusedCaseIdentitiesAndMultiplicityPreserved": true,
+    "normalRuntimeIdentity": {
+      "recordedAtUtc": "2026-10-08T12:56:48.887967+00:00",
+      "allEightProductionAssetsMatchQualifiedPrivateCandidate": true,
+      "normalSemanticSourcesTestsAndDistMatchPrivateCandidate": true,
+      "semanticFullCasesReusedByExactSourceAndDist": 23555,
+      "originalTestFormattingDelta": {
+        "recordedAtUtc": "2026-10-08T12:49:07.358815+00:00",
+        "beforeSha256": "aa7277174d58bbed51c55ba8286849553333d95de11a847f4ee325d9417cfd1e",
+        "afterSha256": "ddf297c2362a243dfd86b77bcaef9d3510e36ea4b02972d36e6333a5e787f131",
+        "whitespaceOnly": true,
+        "originalD904EvidencePreserved": true
+      },
+      "fullSemanticOriginalFailuresPreserved": true,
+      "normalSourceAdopted": true,
+      "profileUpdated": false,
+      "fullObjectiveComplete": false
+    },
+    "constructorPhaseTraces": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-constructor-traces/constructor-7.2.jsonl",
+        "sha256": "c527bde7f9b714ddc55d250daae35b43637f70b91c8c847f5e85dc3df00f2355",
+        "events": 44,
+        "firstEvent": "server-started"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-constructor-traces/constructor-8.5.jsonl",
+        "sha256": "b6f00d4221cd1f5eda6032ea20ecbc754406a70eb97ca2775787f515f1ff7f24",
+        "events": 44,
+        "firstEvent": "server-started"
+      }
+    ],
+    "originalFullLspFailurePreserved": true,
+    "originalSemanticThreeTimeoutsPreserved": true,
+    "editorLintInitialFailurePreserved": "d910-normal-generation-editor-lint.log",
+    "constructorTraceDirectoryInitialRelativeMkdirFailedAndAbsolutePathCreatedBeforeCases": true,
+    "logFiles": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-build.log",
+        "sha256": "d15cdeaddb11b485f404badafa502aa020997496f686b5dba735edd552a7c1fd"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-extension-types.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-editor-lint-corrected.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-editor-build-corrected.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-semantic-target.log",
+        "sha256": "dae1a3f1cb1aaad785f93e8e2ebcebeea2bba5ba120ec5fa6dec07804213196c"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-stdio.log",
+        "sha256": "dd090b0aae05b538e970ae35a7b181cd96ad40eae712d3ad0d2a8d23e02eca40"
+      }
+    ],
+    "normal80SemanticCaseIdentitiesMatchQualifiedPrivateFull": true,
+    "strictTypecheckPassed": true,
+    "lintPassed": true,
+    "productionBuildPassed": true,
+    "editorBuildPassed": true,
+    "editorBuildLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "finishedAtUtc": "2026-10-08T12:59:03.667136+00:00"
+  },
+  "normalFullLsp": {
+    "status": "exited",
+    "parentPid": 2349790,
+    "upstreamPid": 2347074,
+    "createdAtUtc": "2026-10-08T13:01:02.578455+00:00",
+    "qualified": true,
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "lastObservedAtUtc": "2026-10-08T13:13:02.624285+00:00",
+    "upstreamStatus": "exited",
+    "verifiedLiveUpstreamPid": null,
+    "startedAtUtc": "2026-10-08T13:13:05.150205+00:00",
+    "childPid": 2369633,
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+      "run",
+      "--reporter=json",
+      "--outputFile=/var/www/node/php-companion/.vscode-test/d913-normal-generation-full-lsp-result.json"
+    ],
+    "inputCount": 4417,
+    "expectedFiles": 109,
+    "expectedCases": 1377,
+    "exitCode": 0,
+    "durationSeconds": 2162.2808867540007,
+    "resultSha256": "708ffa99c1455b37feef3a0b529a9c3652a9f35240027c20d19b707d775ff31c",
+    "logSha256": "11d88032be906bd597bbfb5d7d390207bbfd82653b4f49931a96e6521dd9f66b",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "originalCaseMultiplicityPreserved": true,
+    "files": 109,
+    "totalCases": 1377,
+    "passedCases": 1377,
+    "failedCases": 0,
+    "pendingCases": 0,
+    "todoCases": 0,
+    "constructorPhaseTraces": [
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d913-normal-generation-full-lsp-constructor-traces/constructor-8.5.jsonl",
+        "sha256": "e3891e83a3c691394d4a26373ea69d59ec2cb144305a46522f1daf0fd99bbc10"
+      },
+      {
+        "path": "/var/www/node/php-companion/.vscode-test/d913-normal-generation-full-lsp-constructor-traces/constructor-7.2.jsonl",
+        "sha256": "795b4f72176e0078dab9b2c09efcae1501741deac3e9fe3f72f7c48ae2226ed6"
+      }
+    ],
+    "evidenceValid": true,
+    "finishedAtUtc": "2026-10-08T13:49:07.431950+00:00"
+  },
+  "normalFourEditorWorkflows": {
+    "status": "exited",
+    "parentPid": 2347074,
+    "startedAtUtc": "2026-10-08T13:00:02.988834+00:00",
+    "steps": [
+      {
+        "name": "d911-normal-generation-full-c3-progressive",
+        "suite": "c3",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-progressive-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C3_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-progressive-evidence/failures",
+          "D911_PRIVATE_HOST_SUITE": "c3",
+          "D911_PRIVATE_HOST_MODE": "progressive",
+          "D911_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-progressive-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d911-private-host-observer.cjs",
+          "PHP_COMPANION_TEST_C3_INDEXING_MODE": "progressive"
+        },
+        "childPid": 2347149,
+        "exitCode": 0,
+        "durationSeconds": 251.20030109900108,
+        "logSha256": "2e14a26b403a80de62f36c897700de8c5a3ad0c876456c31e4bfb6b0cf2caf71",
+        "acceptanceProofExists": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [
+          [
+            {
+              "operation": "constructor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 2,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 7,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 12,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 17,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 22,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 23,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 24,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 25,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 26,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 31,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 36,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 41,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 46,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 47,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 48,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 49,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "complete class",
+              "offered": true,
+              "version": 50,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 55,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 60,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 65,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 70,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 71,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 72,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 73,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "complete class",
+              "offered": true,
+              "version": 74,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 79,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 84,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 89,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 94,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 95,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 96,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 97,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "complete class",
+              "offered": true,
+              "version": 98,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 103,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 108,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 113,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 118,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 119,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 120,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 121,
+              "undoRedo": false
+            }
+          ]
+        ],
+        "qualified": true
+      },
+      {
+        "name": "d911-normal-generation-full-c1-onDemand",
+        "suite": "c1",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c1-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C1_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c1-onDemand-evidence/failures",
+          "D911_PRIVATE_HOST_SUITE": "c1",
+          "D911_PRIVATE_HOST_MODE": "onDemand",
+          "D911_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c1-onDemand-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d911-private-host-observer.cjs",
+          "PHP_COMPANION_TEST_C1_UI": "1",
+          "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php"
+        },
+        "childPid": 2356257,
+        "exitCode": 0,
+        "durationSeconds": 107.28541536998819,
+        "logSha256": "885929bee61c6aa5ab89345ad8bca6a53e100b79de48ff268c2998624c6dba0a",
+        "acceptanceProofExists": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [],
+        "qualified": true
+      },
+      {
+        "name": "d911-normal-generation-full-c2-onDemand",
+        "suite": "c2",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c2-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C2_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c2-onDemand-evidence/failures",
+          "D911_PRIVATE_HOST_SUITE": "c2",
+          "D911_PRIVATE_HOST_MODE": "onDemand",
+          "D911_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c2-onDemand-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d911-private-host-observer.cjs"
+        },
+        "childPid": 2359254,
+        "exitCode": 0,
+        "durationSeconds": 118.56191373999172,
+        "logSha256": "b889fb8cf8b05322c0c29a92ad6598709a7ef2b6adc1c62a774cf3dcac306351",
+        "acceptanceProofExists": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [],
+        "qualified": true
+      },
+      {
+        "name": "d911-normal-generation-full-c3-onDemand",
+        "suite": "c3",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-onDemand-owned-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "environment": {
+          "PHP_COMPANION_TEST_C3_ONLY": "1",
+          "PHP_COMPANION_TEST_VSCODE_EXECUTABLE": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "PHP_COMPANION_TEST_FAILURE_LOG_DIR": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-onDemand-evidence/failures",
+          "D911_PRIVATE_HOST_SUITE": "c3",
+          "D911_PRIVATE_HOST_MODE": "onDemand",
+          "D911_PRIVATE_HOST_EVIDENCE": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-onDemand-evidence",
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d911-private-host-observer.cjs",
+          "PHP_COMPANION_TEST_C3_INDEXING_MODE": "onDemand"
+        },
+        "childPid": 2361047,
+        "exitCode": 0,
+        "durationSeconds": 300.48222524899757,
+        "logSha256": "9336120cc098e463f83d76a05f5b0f31f19bd4209ed9608549e27f9663832609",
+        "acceptanceProofExists": true,
+        "changedInputs": [],
+        "changedSymlinks": [],
+        "changedRepositories": [],
+        "generationBoundaryObservations": [
+          [
+            {
+              "operation": "constructor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 2,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 7,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 12,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 17,
+              "undoRedo": true
+            },
+            {
+              "operation": "constructor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 22,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 23,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 24,
+              "undoRedo": false
+            },
+            {
+              "operation": "constructor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 25,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "complete class",
+              "offered": true,
+              "version": 26,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 31,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 36,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 41,
+              "undoRedo": true
+            },
+            {
+              "operation": "accessor",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 46,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 47,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 48,
+              "undoRedo": false
+            },
+            {
+              "operation": "accessor",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 49,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "complete class",
+              "offered": true,
+              "version": 50,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 55,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 60,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 65,
+              "undoRedo": true
+            },
+            {
+              "operation": "interface",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 70,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 71,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 72,
+              "undoRedo": false
+            },
+            {
+              "operation": "interface",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 73,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "complete class",
+              "offered": true,
+              "version": 74,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 79,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 84,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 89,
+              "undoRedo": true
+            },
+            {
+              "operation": "abstract",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 94,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 95,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 96,
+              "undoRedo": false
+            },
+            {
+              "operation": "abstract",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 97,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "complete class",
+              "offered": true,
+              "version": 98,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "nested method braces",
+              "offered": true,
+              "version": 103,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "brace in comment",
+              "offered": true,
+              "version": 108,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "unrelated unfinished function",
+              "offered": true,
+              "version": 113,
+              "undoRedo": true
+            },
+            {
+              "operation": "override",
+              "variant": "missing class brace",
+              "offered": false,
+              "version": 118,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "line-comment brace",
+              "offered": false,
+              "version": 119,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "block-comment brace",
+              "offered": false,
+              "version": 120,
+              "undoRedo": false
+            },
+            {
+              "operation": "override",
+              "variant": "unfinished method",
+              "offered": false,
+              "version": 121,
+              "undoRedo": false
+            }
+          ]
+        ],
+        "qualified": true
+      }
+    ],
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false,
+    "qualified": true,
+    "exitCode": 0,
+    "originalC1C2Qualified": true,
+    "originalFullC3ModesQualified": [
+      "progressive",
+      "onDemand"
+    ],
+    "newGenerationEditorRows": 80,
+    "finishedAtUtc": "2026-10-08T13:13:00.528769+00:00"
+  },
+  "runtimeFiles": [
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "realpath": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "fff56ad1dfe6d33ce24452629a9d32a016c72796f9094809caf23542675ee44d"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "realpath": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "3fd68029584cbbda0ae1c51f4bda6cb5f10c10998105ac10a07dbf0892135192"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "realpath": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "realpath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "realpath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    }
+  ],
+  "sourceAndCompiledSemanticReuseCases": 23555,
+  "compiledDependencyIdentity": {
+    "recordedAtUtc": "2026-10-08T13:06:00.044518+00:00",
+    "normalDependencyCompiledInputsChecked": 668,
+    "changedDependencies": [],
+    "sourceManifest": "/var/www/node/php-companion/.vscode-test/d904-private-generation-observed-semantic-input.json",
+    "normalPrivateFullSemanticDependencyIdentityPreserved": true,
+    "fullObjectiveComplete": false
+  },
+  "originalDependencyFreezeTerminalAudit": {
+    "recordedAtUtc": "2026-10-08T13:52:09.371367+00:00",
+    "primaryInputCount": 4417,
+    "originalDependencySupplementCount": 14393,
+    "combinedInputCount": 18810,
+    "changedInputs": [],
+    "supplementSha256": "e1134394266ea16c1b8571057328c4f1db67a467986c4f52c9797add83bffef4",
+    "normalFullRunQualified": true,
+    "normalFullResultSha256": "708ffa99c1455b37feef3a0b529a9c3652a9f35240027c20d19b707d775ff31c",
+    "auditAfterFullAndPilotTerminalBeforeAnyDocumentWrites": true,
+    "primarySnapshotScopeGapRetained": true,
+    "normalFullRegressionNotRestarted": true,
+    "fullObjectiveComplete": false
+  },
+  "referenceCostPilot": {
+    "status": "exited",
+    "parentPid": 2352261,
+    "upstreamPid": 2349790,
+    "createdAtUtc": "2026-10-08T13:02:16.232443+00:00",
+    "steps": [
+      {
+        "noise": "sparse",
+        "runtime": "baseline",
+        "files": 1000,
+        "hotQueries": 100,
+        "name": "d914-prepared-reference-cost-sparse-baseline",
+        "status": "exited",
+        "childPid": 2410342,
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d882-prepared-reference-cost-probe.mjs",
+          "1000",
+          "sparse",
+          "/var/www/node/php-companion/.vscode-test/d872-generator-reference-normal-adoption/build-before/dist/language-server.js",
+          "/var/www/node/php-companion/.vscode-test/d914-prepared-reference-cost-sparse-baseline-result.json"
+        ],
+        "exitCode": 1,
+        "durationSeconds": 5.521115543000633,
+        "logSha256": "278d95f72ec4a9c3a14584ac4c6fe85f8cddf0e3e5a45058afe97863dd96afc9",
+        "resultSha256": "89079a0a1c51050409d5e3292a462c16cd9ab3b70d26de30dd490fb56b5e0f92",
+        "firstReferenceMs": 20.664146000000073,
+        "hotReferencesMs": {
+          "samples": 100,
+          "p50": 3.5328389999995125,
+          "p95": 6.8059650000004694,
+          "maximum": 7.861583999999311
+        },
+        "hotBudgetPassed": true,
+        "freshnessPassed": false,
+        "serverPid": 2410353,
+        "knownBaselineFreshnessFailure": true
+      },
+      {
+        "noise": "sparse",
+        "runtime": "candidate",
+        "files": 1000,
+        "hotQueries": 100,
+        "name": "d914-prepared-reference-cost-sparse-candidate",
+        "status": "exited",
+        "childPid": 2410382,
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d882-prepared-reference-cost-probe.mjs",
+          "1000",
+          "sparse",
+          "/var/www/node/php-companion/dist/language-server.js",
+          "/var/www/node/php-companion/.vscode-test/d914-prepared-reference-cost-sparse-candidate-result.json"
+        ],
+        "exitCode": 0,
+        "durationSeconds": 9.340665238996735,
+        "logSha256": "5d04de4a3cf2163d81396e861b01a9ee143f2ce1d7e17f0322b317b40663e367",
+        "resultSha256": "141487cdacb37fbb8ef2e3c79d14c52419232839aad64bbef93da27b32294bd4",
+        "firstReferenceMs": 57.01850099999956,
+        "hotReferencesMs": {
+          "samples": 100,
+          "p50": 31.236096999999972,
+          "p95": 39.19697300000007,
+          "maximum": 50.350054999999884
+        },
+        "hotBudgetPassed": true,
+        "freshnessPassed": true,
+        "serverPid": 2410393,
+        "knownBaselineFreshnessFailure": false
+      },
+      {
+        "noise": "dispatch",
+        "runtime": "baseline",
+        "files": 1000,
+        "hotQueries": 100,
+        "name": "d914-prepared-reference-cost-dispatch-baseline",
+        "status": "exited",
+        "childPid": 2411941,
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d882-prepared-reference-cost-probe.mjs",
+          "1000",
+          "dispatch",
+          "/var/www/node/php-companion/.vscode-test/d872-generator-reference-normal-adoption/build-before/dist/language-server.js",
+          "/var/www/node/php-companion/.vscode-test/d914-prepared-reference-cost-dispatch-baseline-result.json"
+        ],
+        "exitCode": 1,
+        "durationSeconds": 5.716110916007892,
+        "logSha256": "3e1ae494edd332639c32de4d51339d4e9b28a70753477f22fe23f8fe66d1d6d2",
+        "resultSha256": "ca25e1e7a6a7e6e442b72c271156ab7a1c25d7eef258096dfcca5fd94b95f7c2",
+        "firstReferenceMs": 22.95377499999995,
+        "hotReferencesMs": {
+          "samples": 100,
+          "p50": 3.551496000000043,
+          "p95": 5.144798000000264,
+          "maximum": 9.175928999999996
+        },
+        "hotBudgetPassed": true,
+        "freshnessPassed": false,
+        "serverPid": 2411952,
+        "knownBaselineFreshnessFailure": true
+      },
+      {
+        "noise": "dispatch",
+        "runtime": "candidate",
+        "files": 1000,
+        "hotQueries": 100,
+        "name": "d914-prepared-reference-cost-dispatch-candidate",
+        "status": "exited",
+        "childPid": 2411982,
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/.vscode-test/d882-prepared-reference-cost-probe.mjs",
+          "1000",
+          "dispatch",
+          "/var/www/node/php-companion/dist/language-server.js",
+          "/var/www/node/php-companion/.vscode-test/d914-prepared-reference-cost-dispatch-candidate-result.json"
+        ],
+        "exitCode": 1,
+        "durationSeconds": 116.67493042700517,
+        "logSha256": "49df55dda0d1f0f1a08e18541ac871b69916b1f58d65914e2561e9e4a0afd89f",
+        "resultSha256": "db5f7a116b026041b7055e6c13748dd2f7281ad5cd6870e9afbebe57cf8d6972",
+        "firstReferenceMs": 1097.093213,
+        "hotReferencesMs": {
+          "samples": 100,
+          "p50": 966.1628219999984,
+          "p95": 1031.3750109999964,
+          "maximum": 1096.486155999999
+        },
+        "hotBudgetPassed": false,
+        "freshnessPassed": true,
+        "serverPid": 2412002,
+        "knownBaselineFreshnessFailure": false
+      }
+    ],
+    "qualified": true,
+    "profileUpdated": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "probe": "/var/www/node/php-companion/.vscode-test/d882-prepared-reference-cost-probe.mjs",
+    "probeSha256": "ba93a5cd8f8b34b54435f9d9167a4431c701e0b56177bbd9a224a887b0c3cdfa",
+    "plan": [
+      {
+        "noise": "sparse",
+        "runtime": "baseline",
+        "files": 1000,
+        "hotQueries": 100
+      },
+      {
+        "noise": "sparse",
+        "runtime": "candidate",
+        "files": 1000,
+        "hotQueries": 100
+      },
+      {
+        "noise": "dispatch",
+        "runtime": "baseline",
+        "files": 1000,
+        "hotQueries": 100
+      },
+      {
+        "noise": "dispatch",
+        "runtime": "candidate",
+        "files": 1000,
+        "hotQueries": 100
+      }
+    ],
+    "noRepeatedRunsOrScaleExpansion": true,
+    "upstreamStatus": "exited",
+    "verifiedLiveUpstreamPid": null,
+    "lastObservedAtUtc": "2026-10-08T13:49:16.355261+00:00",
+    "startedAtUtc": "2026-10-08T13:49:19.103015+00:00",
+    "inputCount": 4428,
+    "manifest": "/var/www/node/php-companion/.vscode-test/d914-prepared-reference-cost-pilot-input.json",
+    "exitCode": 0,
+    "bothCandidateFreshnessControlsPassed": true,
+    "bothCandidateHotBudgetsPassed": false,
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "finishedAtUtc": "2026-10-08T13:51:38.315336+00:00"
+  },
+  "costResults": [
+    {
+      "noise": "sparse",
+      "runtime": "baseline",
+      "firstReferenceMs": 20.664146000000073,
+      "hotReferencesMs": {
+        "samples": 100,
+        "p50": 3.5328389999995125,
+        "p95": 6.8059650000004694,
+        "maximum": 7.861583999999311
+      },
+      "hotBudgetPassed": true,
+      "freshnessPassed": false,
+      "resultSha256": "89079a0a1c51050409d5e3292a462c16cd9ab3b70d26de30dd490fb56b5e0f92"
+    },
+    {
+      "noise": "sparse",
+      "runtime": "candidate",
+      "firstReferenceMs": 57.01850099999956,
+      "hotReferencesMs": {
+        "samples": 100,
+        "p50": 31.236096999999972,
+        "p95": 39.19697300000007,
+        "maximum": 50.350054999999884
+      },
+      "hotBudgetPassed": true,
+      "freshnessPassed": true,
+      "resultSha256": "141487cdacb37fbb8ef2e3c79d14c52419232839aad64bbef93da27b32294bd4"
+    },
+    {
+      "noise": "dispatch",
+      "runtime": "baseline",
+      "firstReferenceMs": 22.95377499999995,
+      "hotReferencesMs": {
+        "samples": 100,
+        "p50": 3.551496000000043,
+        "p95": 5.144798000000264,
+        "maximum": 9.175928999999996
+      },
+      "hotBudgetPassed": true,
+      "freshnessPassed": false,
+      "resultSha256": "ca25e1e7a6a7e6e442b72c271156ab7a1c25d7eef258096dfcca5fd94b95f7c2"
+    },
+    {
+      "noise": "dispatch",
+      "runtime": "candidate",
+      "firstReferenceMs": 1097.093213,
+      "hotReferencesMs": {
+        "samples": 100,
+        "p50": 966.1628219999984,
+        "p95": 1031.3750109999964,
+        "maximum": 1096.486155999999
+      },
+      "hotBudgetPassed": false,
+      "freshnessPassed": true,
+      "resultSha256": "db5f7a116b026041b7055e6c13748dd2f7281ad5cd6870e9afbebe57cf8d6972"
+    }
+  ],
+  "editorListenerWarnings": [
+    {
+      "suite": "c3",
+      "mode": "progressive",
+      "lines": [
+        "[LanguageService._onDidChange] potential listener LEAK detected, popular: Error"
+      ],
+      "sourceLog": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-progressive.log",
+      "sourceLogSha256": "2e14a26b403a80de62f36c897700de8c5a3ad0c876456c31e4bfb6b0cf2caf71"
+    },
+    {
+      "suite": "c3",
+      "mode": "onDemand",
+      "lines": [
+        "[LanguageService._onDidChange] potential listener LEAK detected, popular: Error"
+      ],
+      "sourceLog": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-full-c3-onDemand.log",
+      "sourceLogSha256": "9336120cc098e463f83d76a05f5b0f31f19bd4209ed9608549e27f9663832609"
+    }
+  ],
+  "listenerWarningCauseProven": false,
+  "priorNormalFullLspTimeoutPreserved": true,
+  "priorThreeSemanticTimeoutsPreserved": true,
+  "priorTimeoutCausesProven": false,
+  "profileUpdated": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "qualificationArtifacts": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d911-normal-generation-host-qualification.json",
+      "sha256": "56d17df27703de6d8b9e9d10c3976493656a0aaf1ca2b000c0784548cd0d1f16"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d913-normal-generation-full-lsp-run.json",
+      "sha256": "60d01ec7ed35f5e84940dcfb752ffc40d4c90b0ef34ecd8b4ca039e7040ac911"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d913-normal-generation-full-lsp-input.json",
+      "sha256": "35773979ea8ed0238b15447b8fd9b7522ea860fe6cf464d95857af5a2b62a4a0"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d913-normal-generation-full-lsp-result.json",
+      "sha256": "708ffa99c1455b37feef3a0b529a9c3652a9f35240027c20d19b707d775ff31c"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d914-prepared-reference-cost-pilot-run.json",
+      "sha256": "4da1f5cf2fa637b3c5757d1163c84582b97ded7ad86f8399a3475bad24b4a04e"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d921-original-dependency-freeze-supplement.json",
+      "sha256": "e1134394266ea16c1b8571057328c4f1db67a467986c4f52c9797add83bffef4"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d922-terminal-original-dependency-audit.json",
+      "sha256": "3419563e7001f638403b19b58e1e26551f94a481962867f524bde896b289d48d"
+    }
+  ]
+}

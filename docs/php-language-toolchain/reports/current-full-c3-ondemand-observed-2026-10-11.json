@@ -1,0 +1,130 @@
+{
+  "status": "exited",
+  "qualified": true,
+  "engineSha256": "a5033f60a0dc72f8cf83ece6fd4ec830e1a882169d0a5ba4e9bd0a7036a2dfc2",
+  "fullOriginalC3OnDemandRetained": true,
+  "privatePassiveObservationOnly": true,
+  "passiveObservationScope": "Move Member command/callback/editor snapshots only",
+  "protocolObservationQualified": false,
+  "actualLsProcessVerifiedByOriginalHostProc": true,
+  "originalDriverObservationFailurePreserved": true,
+  "originalAuditFixtureRootToolFailurePreserved": true,
+  "exactOwnedFixtureRoot": "/tmp/php-companion-extension-28dPdA",
+  "productRerunForToolCorrection": false,
+  "sourceAndRuntimeChanged": false,
+  "allOriginalAssertionsAndOrderingPreserved": true,
+  "noPrefixStop": true,
+  "commandOutcomes": [
+    {
+      "ordinal": 1,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 0
+      }
+    },
+    {
+      "ordinal": 2,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 0
+      }
+    },
+    {
+      "ordinal": 3,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 4,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 5,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 6,
+      "result": false,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 1
+      }
+    },
+    {
+      "ordinal": 7,
+      "result": true,
+      "hits": {
+        "preview": 1,
+        "beforeApply": 0
+      }
+    }
+  ],
+  "observedMoveMemberCommands": 7,
+  "thirdPreviewBeforeApplyActuallyObserved": true,
+  "thirdUserInputRetained": true,
+  "thirdCallerSnapshot": [
+    {
+      "uri": "file:///tmp/php-companion-extension-28dPdA/src/Service/C3MoveMemberCaller.php",
+      "text": "<?php namespace App\\Service; class C3MoveMemberCaller {public function run(): int {return C3MoveMemberSource::moveMemberProof(2);}}\n// user input during preview",
+      "version": 2,
+      "dirty": true,
+      "closed": false
+    }
+  ],
+  "original40GenerationCases": 40,
+  "frozenInputsChecked": 31480,
+  "frozenLinksChecked": 185,
+  "twoRepositoriesUnchanged": true,
+  "qualifiedCompiledTestsUnchanged": 95,
+  "normalRuntimeAssetsUnchanged": 8,
+  "symfonyAssetsUnchanged": 8,
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    1784654,
+    1784696,
+    1784698,
+    1784702,
+    1785213,
+    1785575
+  ],
+  "fullLspPassed": 1488,
+  "originalProgressiveFailurePreserved": true,
+  "originalProgressiveRootCauseProven": false,
+  "original165MsFailurePreserved": true,
+  "fullFourEditorWorkflowQualification": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "recordedAtUtc": "2026-10-10T18:27:31.476342+00:00",
+  "audit": "/var/www/node/php-companion/.vscode-test/d1734-full-c3-onDemand-terminal-audit.json",
+  "auditSha256": "41fbfb80273b43ababdd7121f38a2de83994ee03724d408418f572405580bdaa",
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1734-full-c3-onDemand-archive/manifest.json",
+  "manifestSha256": "19202ed88b87483df37404d335d335df56142637ccb6307341c79d148004298c",
+  "archivedFiles": 68,
+  "numberedFixturesBefore": 164,
+  "numberedFixturesAfter": 165,
+  "familiesWithNumberedInput": 14,
+  "openMajorRoadmapItems": 26,
+  "productSourceChanged": false,
+  "testSourceChanged": false,
+  "runtimeChanged": false,
+  "packaged": false,
+  "limitations": [
+    "Full original C3 onDemand in Linux automated VS Code host with passive in-memory Move Member command/callback/editor snapshot observation; protocol capture was absent",
+    "Observation can affect timing; a passing run does not establish or fix the original progressive failure root cause",
+    "Original progressive C3 failure, native Windows/createFile/165ms performance and whole platform/long-session/VSIX/WSL scope remain open"
+  ]
+}

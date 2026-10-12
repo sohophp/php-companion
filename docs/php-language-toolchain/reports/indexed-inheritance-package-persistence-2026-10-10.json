@@ -1,0 +1,80 @@
+{
+  "recordedAtUtc": "2026-10-09T18:27:48.876394+00:00",
+  "engineBuildId": "700d58bc2ce94a6103b517e495de9d7b67b688640a63c55b01bdc4a915439166",
+  "benchmarkSha256": "6d0b0e56e6f5f91e3737051891695356978f103f8bb28a6cc1e10e5aaa0232c1",
+  "scope": "Original direct-package single-process four-load/corrupt sequence, three scales by five rounds",
+  "qualified": true,
+  "executedRounds": 15,
+  "plannedRounds": 15,
+  "loadsPerRound": 4,
+  "forcedGc": false,
+  "extraHeapFlags": false,
+  "splitProcessLoads": false,
+  "summaries": [
+    {
+      "files": 1000,
+      "rounds": 5,
+      "loadsPerRound": 4,
+      "coldIndexP95Ms": 2578.27,
+      "warmLoadP95Ms": 2001.44,
+      "processPeakRssMaxMiB": 260.28,
+      "cacheMaxMiB": 5.55,
+      "coldIndexBudgetMs": 8000,
+      "rssBudgetMiB": 384,
+      "cacheBudgetMiB": 64,
+      "qualified": true
+    },
+    {
+      "files": 10000,
+      "rounds": 5,
+      "loadsPerRound": 4,
+      "coldIndexP95Ms": 23571.62,
+      "warmLoadP95Ms": 16978.44,
+      "processPeakRssMaxMiB": 578.27,
+      "cacheMaxMiB": 55.48,
+      "coldIndexBudgetMs": 60000,
+      "rssBudgetMiB": 768,
+      "cacheBudgetMiB": 512,
+      "qualified": true
+    },
+    {
+      "files": 50000,
+      "rounds": 5,
+      "loadsPerRound": 4,
+      "coldIndexP95Ms": 115990.46,
+      "warmLoadP95Ms": 84802.1,
+      "processPeakRssMaxMiB": 1510.4,
+      "cacheMaxMiB": 277.41,
+      "coldIndexBudgetMs": 300000,
+      "rssBudgetMiB": 1536,
+      "cacheBudgetMiB": 2560,
+      "qualified": true
+    }
+  ],
+  "percentileMethod": "Original nearest-rank; five-round P95 equals maximum",
+  "originalRecord": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1429-normal-package-persistence-run.json",
+    "sha256": "91635bd9eaaec81eabc548154ec803aa8e00fa522f4c78766068531ef2d683ff"
+  },
+  "archive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1430-normal-package-persistence-evidence/manifest.json",
+    "sha256": "d103a5d027da4663367ebf1a1e071cb499607c98bdf7c1ba894966fd1c8f39f1",
+    "files": 857
+  },
+  "frozenInputsChecked": 29929,
+  "allOwnedProcessesGone": true,
+  "fixturesCleaned": true,
+  "inputsUnchanged": true,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false,
+  "remaining": [
+    "Cold first usable feedback",
+    "Latest complete versions/platforms/modes and real-project matrices",
+    "Long sessions and human Windows/WSL Remote acceptance",
+    "Original C1-C4/R4, P0-P9/F01-F14 advanced abilities, contracts, numbered fixtures, refactors, package consumption and final deliverables"
+  ]
+}

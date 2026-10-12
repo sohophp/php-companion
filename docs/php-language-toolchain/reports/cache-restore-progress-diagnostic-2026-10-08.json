@@ -1,0 +1,2001 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "decision": "restore-progress-diagnostic-complete-not-qualified",
+  "adopted": false,
+  "normalProductChanged": false,
+  "qualification": false,
+  "preparation": {
+    "status": "prepared-not-executed",
+    "diagnosticOnly": true,
+    "qualification": false,
+    "candidateUnchanged": true,
+    "originalBenchmarkBodyReverseExact": true,
+    "baselineOnlyIndexImportChanged": true,
+    "smokeOnlyFileGuardChanged": true,
+    "fullSequenceAndFinalCleanupPreserved": true,
+    "forcedGc": false,
+    "heapSnapshots": false,
+    "processSplitting": false,
+    "candidateHashes": {
+      "/var/www/node/php-companion/.vscode-test/d385-index.mjs": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff",
+      "/var/www/node/php-companion/.vscode-test/d385-entry-store-controls.mjs": "c675a01a45c603bfa9e4f431cb48ece8b2f84fcac8a9f7ba34edbb6b4ec36940",
+      "/var/www/node/php-companion/.vscode-test/d385-entry-store-edge-controls.mjs": "5f00bacfa3b6a526e7185405cc560655080a316ba1d0abda016a4cf74171a868",
+      "/var/www/node/php-companion/.vscode-test/d385-entry-transaction-controls.mjs": "c6fe19394cf4798b11d7b6517be22ced95e991ccce561b3e4f139463d5e7cd69",
+      "/var/www/node/php-companion/.vscode-test/d385-index-api.test.ts": "f178f3f90fe30d06aee5bb06aa6280459c94bc5f9556566b4964939c74e80c4f",
+      "/var/www/node/php-companion/.vscode-test/d385-index-api-vitest.config.mjs": "af50b8e8b7080817e3ea1dfa72915c02fcc16bb28d5a239c43cbc638c8bd8431",
+      "/var/www/node/php-companion/.vscode-test/d387-finalizer-negative-index.mjs": "64d7281825f70527e788d7fd66f9e769bf4f1708934fe0fccf4510744fc2e075",
+      "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+      "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d",
+      "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    "files": {
+      "/var/www/node/php-companion/.vscode-test/d392-benchmark-finalizer.mjs": "666351eb81176df86aa2b9961b03f918e465847d7f5255edb1818cf90a39e40c",
+      "/var/www/node/php-companion/.vscode-test/d392-restore-trace-header.mjs": "ab523107614b635b4f045cbb88c446d1c5cf30503f95ecf68b6c71d9f9bc2f20",
+      "/var/www/node/php-companion/.vscode-test/d392-restore-trace.mjs": "4e89e245bbbafa7bb7453af802146b1d5ada8f1a923bbee118fbc1214f95a3dc",
+      "/var/www/node/php-companion/.vscode-test/d392-restore-trace-smoke.mjs": "c05b86347b25c39a43b5eb219b78b4341c92ce572dc16a18dc665ff8029a0b08",
+      "/var/www/node/php-companion/.vscode-test/d392-prepare-restore-trace.py": "cc6e20613e7115a6663501e72a9fd7ee9439736ad4974e2ace984d0857544179"
+    },
+    "observation": "Real store class and SemanticWorkspace method wrappers; per-load numerical counters, bounded interval/GC/event samples, payload/validation/semantic progress and commit boundaries. No telemetry references to payload/source/workspace/store objects; store identities use WeakMap.",
+    "limits": {
+      "events": 5000,
+      "samples": 36000,
+      "gc": 10000,
+      "intervalMs": 50
+    },
+    "countsExpectedForNFiles": {
+      "payloadCalls": "3*n",
+      "validationCalls": "3*n",
+      "validationAccepted": "3*n-2",
+      "validationRejected": 2,
+      "semanticCalls": "3*n-2",
+      "stageCalls": "n+2",
+      "commitCalls": 3,
+      "stores": 4
+    },
+    "edits": [
+      {
+        "old": "if (!Number.isInteger(files) || files < 4)",
+        "new": "if (files !== 50000) throw new Error('Diagnostic requires one complete original 50k sequence.');\nif (!Number.isInteger(files) || files < 4)"
+      },
+      {
+        "old": "async function load(workspace) {",
+        "new": "async function load(workspace) {\n  const currentLoad = beginObservedLoad(workspace);"
+      },
+      {
+        "old": "} finally { clearInterval(sampler); }",
+        "new": "} finally { clearInterval(sampler); markPhase(`load${currentLoad}:end`, workspace); }"
+      },
+      {
+        "old": "      const restored = restoreCachedProjectPhpFile(payload, source.uri);",
+        "new": "      const observeValidation = beginValidation();\n      const restored = restoreCachedProjectPhpFile(payload, source.uri);\n      endValidation(observeValidation, restored !== undefined);"
+      },
+      {
+        "old": "async function mutateCacheFile(cacheFile, mutate) {",
+        "new": "async function mutateCacheFile(cacheFile, mutate) {\n  const currentMutation = ++mutationNumber; markPhase(`mutation${currentMutation}:begin`);"
+      },
+      {
+        "old": "  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));",
+        "new": "  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));\n  markPhase(`mutation${currentMutation}:manifest-parsed`);"
+      },
+      {
+        "old": "    const original = JSON.parse(await readFile(payloadPath, 'utf8'));",
+        "new": "    const original = JSON.parse(await readFile(payloadPath, 'utf8'));\n    markPhase(`mutation${currentMutation}:payload-parsed`);"
+      },
+      {
+        "old": "  await writeFile(cacheFile, JSON.stringify(persisted));",
+        "new": "  await writeFile(cacheFile, JSON.stringify(persisted));\n  markPhase(`mutation${currentMutation}:end`);"
+      },
+      {
+        "old": "  await generatePhpComposerProject(root, files);",
+        "new": "  markPhase('fixture:begin');\n  await generatePhpComposerProject(root, files);\n  markPhase('fixture:end');"
+      },
+      {
+        "old": "  coldWorkspace.dispose();",
+        "new": "  coldWorkspace.dispose();\n  markPhase('coldWorkspace:disposed', coldWorkspace);"
+      },
+      {
+        "old": "  warmWorkspace.dispose();",
+        "new": "  warmWorkspace.dispose();\n  markPhase('warmWorkspace:disposed', warmWorkspace);"
+      },
+      {
+        "old": "  recoveredWorkspace.dispose();",
+        "new": "  recoveredWorkspace.dispose();\n  markPhase('recoveredWorkspace:disposed', recoveredWorkspace);"
+      },
+      {
+        "old": "  callableRecoveredWorkspace.dispose();",
+        "new": "  callableRecoveredWorkspace.dispose();\n  markPhase('callableRecoveredWorkspace:disposed', callableRecoveredWorkspace);"
+      },
+      {
+        "old": "  parser.dispose(); await rm(root, { recursive: true, force: true });",
+        "new": "  markPhase('final-cleanup:begin');\n  parser.dispose(); await rm(root, { recursive: true, force: true });\n  markPhase('final-cleanup:end');"
+      }
+    ],
+    "diff": "--- original-body\n+++ observed-body\n@@ -15,6 +15,7 @@\n \n const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');\n const files = Number(arguments_[0] ?? 1_000);\n+if (files !== 50000) throw new Error('Diagnostic requires one complete original 50k sequence.');\n if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');\n if ((arguments_[1] === undefined) !== (arguments_[2] === undefined))\n   throw new Error('Provide both core WASM and PHP WASM paths, or neither.');\n@@ -42,6 +43,7 @@\n const cacheBudgetMb = R1_PERFORMANCE_BUDGETS.warmCacheMb[`files${files}`];\n \n async function load(workspace) {\n+  const currentLoad = beginObservedLoad(workspace);\n   let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();\n   let peakRssMb = process.memoryUsage().rss / 1024 / 1024;\n   const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);\n@@ -56,7 +58,9 @@\n       return createCachedProjectPhpFile(workspace.snapshotForPersistence(sourceUri), facts, hash);\n     },\n     cache: { directory: cacheDirectory, version: cacheVersion, restore: (payload, source) => {\n+      const observeValidation = beginValidation();\n       const restored = restoreCachedProjectPhpFile(payload, source.uri);\n+      endValidation(observeValidation, restored !== undefined);\n       if (!restored || !workspace.restoreDeclaration(restored.semantic, source.uri)) return false;\n       acceptFacts(restored.facts); return true;\n     } },\n@@ -64,16 +68,19 @@\n   peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024);\n   return { durationMs: performance.now() - started, parsed, doctrineParsed, doctrineProperties, result,\n     peakRssMb: Math.round(peakRssMb * 100) / 100 };\n-  } finally { clearInterval(sampler); }\n+  } finally { clearInterval(sampler); markPhase(`load${currentLoad}:end`, workspace); }\n }\n \n // Keep full manifest mutation data out of the subsequent restore workspace's lifetime.\n async function mutateCacheFile(cacheFile, mutate) {\n+  const currentMutation = ++mutationNumber; markPhase(`mutation${currentMutation}:begin`);\n   const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));\n+  markPhase(`mutation${currentMutation}:manifest-parsed`);\n   if (persisted.schema === 2) {\n     const entry = persisted.entries[sourcePath(0)];\n     const payloadPath = join(cacheFile + '.entries', persisted.generation, entry.payloadHash + '.json');\n     const original = JSON.parse(await readFile(payloadPath, 'utf8'));\n+    markPhase(`mutation${currentMutation}:payload-parsed`);\n     await mutate({ entries: { [sourcePath(0)]: { payload: original } } });\n     const serialized = JSON.stringify(original);\n     entry.payloadHash = createHash('sha256').update(serialized).digest('hex');\n@@ -81,13 +88,16 @@\n     await writeFile(join(cacheFile + '.entries', persisted.generation, entry.payloadHash + '.json'), serialized);\n   } else await mutate(persisted);\n   await writeFile(cacheFile, JSON.stringify(persisted));\n+  markPhase(`mutation${currentMutation}:end`);\n }\n \n const parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()\n   : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });\n let report;\n try {\n+  markPhase('fixture:begin');\n   await generatePhpComposerProject(root, files);\n+  markPhase('fixture:end');\n   await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);\n   const coldWorkspace = new SemanticWorkspace(parser); const cold = await load(coldWorkspace);\n   if (cold.result.files !== files || cold.result.cached !== 0 || cold.parsed !== files) throw new Error(`Cold index did not parse every file: ${JSON.stringify(cold)}`);\n@@ -98,6 +108,7 @@\n   if (!coldCallableCommit.written || coldCallableCommit.facts !== 3) throw new Error(`Cold callable facts were not persisted: ${JSON.stringify(coldCallableCommit)}`);\n   const coldCache = await cacheVolume(cacheDirectory);\n   coldWorkspace.dispose();\n+  markPhase('coldWorkspace:disposed', coldWorkspace);\n \n   const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);\n   if (warm.result.files !== files || warm.result.cached !== files || warm.parsed !== 0) throw new Error(`Warm index did not restore every file: ${JSON.stringify(warm)}`);\n@@ -128,6 +139,7 @@\n   warmWorkspace.update(uri(0), base(false));\n   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 0) throw new Error('Restored dependency graph retained a stale derived constructor fact.');\n   warmWorkspace.dispose();\n+  markPhase('warmWorkspace:disposed', warmWorkspace);\n \n   const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');\n   await mutateCacheFile(cacheFile, (persisted) => {\n@@ -150,6 +162,7 @@\n     || recoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)\n     throw new Error('Layer corruption recovery lost cross-file completion or constructor facts.');\n   recoveredWorkspace.dispose();\n+  markPhase('recoveredWorkspace:disposed', recoveredWorkspace);\n \n   await mutateCacheFile(cacheFile, (callablePersisted) => {\n   const callableEntry = callablePersisted.entries[sourcePath(0)];\n@@ -161,6 +174,7 @@\n     || callableRecoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)\n     throw new Error('Callable corruption recovery lost cross-file completion or constructor facts.');\n   callableRecoveredWorkspace.dispose();\n+  markPhase('callableRecoveredWorkspace:disposed', callableRecoveredWorkspace);\n \n   report = {\n     schema: 1, files, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,\n@@ -180,7 +194,9 @@\n       constructorFactsAfterRecovery: true },\n   };\n } finally {\n+  markPhase('final-cleanup:begin');\n   parser.dispose(); await rm(root, { recursive: true, force: true });\n+  markPhase('final-cleanup:end');\n }\n const processPeakRssMb = process.resourceUsage().maxRSS / 1024;\n report.loadMemory.processPeakRssMb = Math.round(processPeakRssMb * 100) / 100;\n"
+  },
+  "runs": {
+    "d394-restore-smoke": {
+      "status": "exited",
+      "parentPid": 963309,
+      "childPid": 963394,
+      "startedAtUtc": "2026-10-07T16:24:40.948764+00:00",
+      "command": [
+        "env",
+        "SOPHP_RESTORE_TRACE=/var/www/node/php-companion/.vscode-test/d394-restore-smoke-trace.json",
+        "SOPHP_RESTORE_TRACE_EVERY=1",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d392-restore-trace-smoke.mjs",
+        "8"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.5530993990032584,
+      "finishedAtUtc": "2026-10-07T16:24:41.500280+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "387e0bf7a5483196c6f56dd23bbd39713518b6af3589391d568786700d295676"
+    },
+    "d394-restore-smoke-loss": {
+      "status": "exited",
+      "parentPid": 963512,
+      "childPid": 963599,
+      "startedAtUtc": "2026-10-07T16:24:52.520584+00:00",
+      "command": [
+        "env",
+        "SOPHP_RESTORE_TRACE=/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss-trace.json",
+        "SOPHP_RESTORE_TRACE_EVERY=1",
+        "SOPHP_RESTORE_TRACE_EVENT_LIMIT=2",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d392-restore-trace-smoke.mjs",
+        "8"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.5513042869933997,
+      "finishedAtUtc": "2026-10-07T16:24:53.069987+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "b94f8962bb3c64f1114b4c6f1a7c796f84915ad3103fdbeadfcfbb36848df75c"
+    },
+    "d395-restore-trace-50000": {
+      "status": "exited",
+      "parentPid": 963776,
+      "childPid": 963857,
+      "startedAtUtc": "2026-10-07T16:25:17.118882+00:00",
+      "command": [
+        "env",
+        "SOPHP_RESTORE_TRACE=/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000-trace.json",
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d392-restore-trace.mjs",
+        "50000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 457.22027901600086,
+      "finishedAtUtc": "2026-10-07T16:32:54.337542+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "5100a4352e4f71da9822f2bda8539617ec5fecadb6e80f731c668852c77e9b3b"
+    }
+  },
+  "results": {
+    "d394-restore-smoke": {
+      "schema": 1,
+      "files": 8,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 99.06,
+        "parsed": 8,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 31.4,
+        "parsed": 0,
+        "restored": 8,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.317,
+      "cache": {
+        "cold": {
+          "files": 10,
+          "bytes": 52340,
+          "mebibytes": 0.05
+        },
+        "warm": {
+          "files": 10,
+          "bytes": 52340,
+          "mebibytes": 0.05
+        },
+        "frozenBudgetMb": null
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 92.16,
+        "warmPeakRssMb": 89.75,
+        "layerRecoveryPeakRssMb": 83.92,
+        "callableRecoveryPeakRssMb": 83.92,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": null,
+        "processPeakRssMb": 241.21,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": null
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 8,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 15,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d394-restore-smoke-loss": {
+      "schema": 1,
+      "files": 8,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 117.21,
+        "parsed": 8,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 28.63,
+        "parsed": 0,
+        "restored": 8,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.2443,
+      "cache": {
+        "cold": {
+          "files": 10,
+          "bytes": 52340,
+          "mebibytes": 0.05
+        },
+        "warm": {
+          "files": 10,
+          "bytes": 52340,
+          "mebibytes": 0.05
+        },
+        "frozenBudgetMb": null
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 83.18,
+        "warmPeakRssMb": 77.66,
+        "layerRecoveryPeakRssMb": 81.88,
+        "callableRecoveryPeakRssMb": 82.14,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": null,
+        "processPeakRssMb": 241.1,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": null
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 8,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 15,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d395-restore-trace-50000": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 115134.65,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 78381.67,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6808,
+      "cache": {
+        "cold": {
+          "files": 50002,
+          "bytes": 290864910,
+          "mebibytes": 277.39
+        },
+        "warm": {
+          "files": 50002,
+          "bytes": 290864910,
+          "mebibytes": 277.39
+        },
+        "frozenBudgetMb": 2560
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 618.37,
+        "warmPeakRssMb": 1116.38,
+        "layerRecoveryPeakRssMb": 1572.43,
+        "callableRecoveryPeakRssMb": 1405.61,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 1536,
+        "processPeakRssMb": 1572.43,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    }
+  },
+  "audit": {
+    "status": "passed",
+    "functionalAssertionsPassed": true,
+    "counterAssertionsPassed": true,
+    "diagnosticOnly": true,
+    "qualification": false,
+    "files": 50000,
+    "profileSha256": "65ab2f3049b6c41210690aa42457ef9db450d7808da427029a9f455ae42509ad",
+    "dropped": {
+      "samples": 0,
+      "events": 0,
+      "gc": 0
+    },
+    "counterTotals": {
+      "payloadCalls": 150000,
+      "payloadCompleted": 150000,
+      "payloadErrors": 0,
+      "payloadBytes": 824829148,
+      "validationCalls": 150000,
+      "validationAccepted": 149998,
+      "validationRejected": 2,
+      "semanticCalls": 149998,
+      "semanticAccepted": 149998,
+      "semanticRejected": 0,
+      "semanticErrors": 0,
+      "stageCalls": 50002,
+      "stageCompleted": 50002,
+      "stageErrors": 0,
+      "commitCalls": 3,
+      "commitCompleted": 3,
+      "commitErrors": 0,
+      "activePayloads": 0,
+      "activeStages": 0,
+      "activeCommits": 0
+    },
+    "countersByLoad": [
+      {
+        "payloadCalls": 0,
+        "payloadCompleted": 0,
+        "payloadErrors": 0,
+        "payloadBytes": 0,
+        "validationCalls": 0,
+        "validationAccepted": 0,
+        "validationRejected": 0,
+        "semanticCalls": 0,
+        "semanticAccepted": 0,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 50000,
+        "stageCompleted": 50000,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 50000,
+        "payloadCompleted": 50000,
+        "payloadErrors": 0,
+        "payloadBytes": 274943244,
+        "validationCalls": 50000,
+        "validationAccepted": 50000,
+        "validationRejected": 0,
+        "semanticCalls": 50000,
+        "semanticAccepted": 50000,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 0,
+        "stageCompleted": 0,
+        "stageErrors": 0,
+        "commitCalls": 0,
+        "commitCompleted": 0,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 50000,
+        "payloadCompleted": 50000,
+        "payloadErrors": 0,
+        "payloadBytes": 274942606,
+        "validationCalls": 50000,
+        "validationAccepted": 49999,
+        "validationRejected": 1,
+        "semanticCalls": 49999,
+        "semanticAccepted": 49999,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 1,
+        "stageCompleted": 1,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 50000,
+        "payloadCompleted": 50000,
+        "payloadErrors": 0,
+        "payloadBytes": 274943298,
+        "validationCalls": 50000,
+        "validationAccepted": 49999,
+        "validationRejected": 1,
+        "semanticCalls": 49999,
+        "semanticAccepted": 49999,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 1,
+        "stageCompleted": 1,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      }
+    ],
+    "traceEvents": 1060,
+    "intervalSamples": 8958,
+    "naturalGcEvents": 1780,
+    "loadSummaries": [
+      {
+        "load": 1,
+        "startMs": 5470.856675999999,
+        "endMs": 120606.13670199999,
+        "commitBeginMs": 111903.81145699999,
+        "commitEndMs": 120604.485938,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 111903.685602,
+            "phase": "load1:begin",
+            "loadNumber": 1,
+            "rss": 632999936,
+            "heapTotal": 535449600,
+            "heapUsed": 497317656,
+            "external": 36349444,
+            "arrayBuffers": 859586,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 50000,
+              "stageCompleted": 50000,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 1,
+              "activeCommits": 0
+            },
+            "label": "stage:end",
+            "storeId": 1
+          },
+          "commit": {
+            "elapsedMs": 120568.035779,
+            "phase": "load1:begin",
+            "loadNumber": 1,
+            "rss": 645464064,
+            "heapTotal": 540479488,
+            "heapUsed": 508578504,
+            "external": 41316010,
+            "arrayBuffers": 5826152,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 50000,
+              "stageCompleted": 50000,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 1
+            }
+          },
+          "postCommit": {
+            "elapsedMs": 120605.46993899999,
+            "phase": "load1:begin",
+            "loadNumber": 1,
+            "rss": 643035136,
+            "heapTotal": 538238976,
+            "heapUsed": 500268920,
+            "external": 38886575,
+            "arrayBuffers": 3389237,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 50000,
+              "stageCompleted": 50000,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:disposed",
+            "storeId": 1,
+            "pendingWrites": 0,
+            "previousEntries": 0
+          }
+        },
+        "naturalGcEvents": 569,
+        "gcKinds": {
+          "1": 559,
+          "8": 5,
+          "4": 5
+        }
+      },
+      {
+        "load": 2,
+        "startMs": 128631.160053,
+        "endMs": 207012.945041,
+        "commitBeginMs": null,
+        "commitEndMs": null,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 174484.68091999998,
+            "phase": "load2:begin",
+            "loadNumber": 2,
+            "rss": 1170608128,
+            "heapTotal": 1059725312,
+            "heapUsed": 1011525016,
+            "external": 36368272,
+            "arrayBuffers": 870934,
+            "counters": {
+              "payloadCalls": 29441,
+              "payloadCompleted": 29440,
+              "payloadErrors": 0,
+              "payloadBytes": 161889303,
+              "validationCalls": 29440,
+              "validationAccepted": 29440,
+              "validationRejected": 0,
+              "semanticCalls": 29440,
+              "semanticAccepted": 29440,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 0,
+              "stageCompleted": 0,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 1,
+              "activeStages": 0,
+              "activeCommits": 0
+            }
+          }
+        },
+        "naturalGcEvents": 307,
+        "gcKinds": {
+          "1": 305,
+          "8": 1,
+          "4": 1
+        }
+      },
+      {
+        "load": 3,
+        "startMs": 216637.986049,
+        "endMs": 334493.914747,
+        "commitBeginMs": 296654.790508,
+        "commitEndMs": 334493.477507,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 275276.83406799997,
+            "phase": "load3:begin",
+            "loadNumber": 3,
+            "rss": 1648812032,
+            "heapTotal": 1514545152,
+            "heapUsed": 1466092856,
+            "external": 36993965,
+            "arrayBuffers": 1500336,
+            "counters": {
+              "payloadCalls": 37285,
+              "payloadCompleted": 37285,
+              "payloadErrors": 0,
+              "payloadBytes": 205022821,
+              "validationCalls": 37285,
+              "validationAccepted": 37284,
+              "validationRejected": 1,
+              "semanticCalls": 37284,
+              "semanticAccepted": 37284,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            }
+          },
+          "commit": {
+            "elapsedMs": 329613.748686,
+            "phase": "load3:begin",
+            "loadNumber": 3,
+            "rss": 1020334080,
+            "heapTotal": 851030016,
+            "heapUsed": 711833360,
+            "external": 41290365,
+            "arrayBuffers": 5796736,
+            "counters": {
+              "payloadCalls": 50000,
+              "payloadCompleted": 50000,
+              "payloadErrors": 0,
+              "payloadBytes": 274942606,
+              "validationCalls": 50000,
+              "validationAccepted": 49999,
+              "validationRejected": 1,
+              "semanticCalls": 49999,
+              "semanticAccepted": 49999,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 1
+            }
+          },
+          "postCommit": {
+            "elapsedMs": 334493.785827,
+            "phase": "load3:begin",
+            "loadNumber": 3,
+            "rss": 1016115200,
+            "heapTotal": 846241792,
+            "heapUsed": 709509040,
+            "external": 36722863,
+            "arrayBuffers": 1229234,
+            "counters": {
+              "payloadCalls": 50000,
+              "payloadCompleted": 50000,
+              "payloadErrors": 0,
+              "payloadBytes": 274942606,
+              "validationCalls": 50000,
+              "validationAccepted": 49999,
+              "validationRejected": 1,
+              "semanticCalls": 49999,
+              "semanticAccepted": 49999,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:disposed",
+            "storeId": 3,
+            "pendingWrites": 0,
+            "previousEntries": 50000
+          }
+        },
+        "naturalGcEvents": 390,
+        "gcKinds": {
+          "1": 386,
+          "8": 2,
+          "4": 2
+        }
+      },
+      {
+        "load": 4,
+        "startMs": 334931.450171,
+        "endMs": 449497.00562199997,
+        "commitBeginMs": 414270.855474,
+        "commitEndMs": 449496.39609399997,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 381473.712736,
+            "phase": "load4:begin",
+            "loadNumber": 4,
+            "rss": 1473888256,
+            "heapTotal": 1307545600,
+            "heapUsed": 1257692296,
+            "external": 36871484,
+            "arrayBuffers": 1377855,
+            "counters": {
+              "payloadCalls": 29437,
+              "payloadCompleted": 29437,
+              "payloadErrors": 0,
+              "payloadBytes": 161867361,
+              "validationCalls": 29437,
+              "validationAccepted": 29436,
+              "validationRejected": 1,
+              "semanticCalls": 29436,
+              "semanticAccepted": 29436,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            }
+          },
+          "commit": {
+            "elapsedMs": 444555.702758,
+            "phase": "load4:begin",
+            "loadNumber": 4,
+            "rss": 943775744,
+            "heapTotal": 749117440,
+            "heapUsed": 684571640,
+            "external": 38826868,
+            "arrayBuffers": 3333239,
+            "counters": {
+              "payloadCalls": 50000,
+              "payloadCompleted": 50000,
+              "payloadErrors": 0,
+              "payloadBytes": 274943298,
+              "validationCalls": 50000,
+              "validationAccepted": 49999,
+              "validationRejected": 1,
+              "semanticCalls": 49999,
+              "semanticAccepted": 49999,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 1
+            }
+          },
+          "postCommit": {
+            "elapsedMs": 449496.838096,
+            "phase": "load4:begin",
+            "loadNumber": 4,
+            "rss": 941084672,
+            "heapTotal": 746221568,
+            "heapUsed": 682624672,
+            "external": 35943092,
+            "arrayBuffers": 449463,
+            "counters": {
+              "payloadCalls": 50000,
+              "payloadCompleted": 50000,
+              "payloadErrors": 0,
+              "payloadBytes": 274943298,
+              "validationCalls": 50000,
+              "validationAccepted": 49999,
+              "validationRejected": 1,
+              "semanticCalls": 49999,
+              "semanticAccepted": 49999,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:disposed",
+            "storeId": 4,
+            "pendingWrites": 0,
+            "previousEntries": 50000
+          }
+        },
+        "naturalGcEvents": 394,
+        "gcKinds": {
+          "1": 386,
+          "8": 4,
+          "4": 4
+        }
+      }
+    ],
+    "allObservedWorkspaceContainersZeroAfterDispose": true,
+    "allPendingWritesZeroAfterDispose": true
+  },
+  "smokeAudit": {
+    "status": "passed",
+    "functionalAssertionsPassed": true,
+    "counterAssertionsPassed": true,
+    "diagnosticOnly": true,
+    "qualification": false,
+    "files": 8,
+    "profileSha256": "a64799aa3873a370fbfb3ede39b521ce8c15f425127b2495b8b8554eba3ed376",
+    "dropped": {
+      "samples": 0,
+      "events": 0,
+      "gc": 0
+    },
+    "counterTotals": {
+      "payloadCalls": 24,
+      "payloadCompleted": 24,
+      "payloadErrors": 0,
+      "payloadBytes": 143998,
+      "validationCalls": 24,
+      "validationAccepted": 22,
+      "validationRejected": 2,
+      "semanticCalls": 22,
+      "semanticAccepted": 22,
+      "semanticRejected": 0,
+      "semanticErrors": 0,
+      "stageCalls": 10,
+      "stageCompleted": 10,
+      "stageErrors": 0,
+      "commitCalls": 3,
+      "commitCompleted": 3,
+      "commitErrors": 0,
+      "activePayloads": 0,
+      "activeStages": 0,
+      "activeCommits": 0
+    },
+    "countersByLoad": [
+      {
+        "payloadCalls": 0,
+        "payloadCompleted": 0,
+        "payloadErrors": 0,
+        "payloadBytes": 0,
+        "validationCalls": 0,
+        "validationAccepted": 0,
+        "validationRejected": 0,
+        "semanticCalls": 0,
+        "semanticAccepted": 0,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 8,
+        "stageCompleted": 8,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 8,
+        "payloadCompleted": 8,
+        "payloadErrors": 0,
+        "payloadBytes": 48194,
+        "validationCalls": 8,
+        "validationAccepted": 8,
+        "validationRejected": 0,
+        "semanticCalls": 8,
+        "semanticAccepted": 8,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 0,
+        "stageCompleted": 0,
+        "stageErrors": 0,
+        "commitCalls": 0,
+        "commitCompleted": 0,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 8,
+        "payloadCompleted": 8,
+        "payloadErrors": 0,
+        "payloadBytes": 47556,
+        "validationCalls": 8,
+        "validationAccepted": 7,
+        "validationRejected": 1,
+        "semanticCalls": 7,
+        "semanticAccepted": 7,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 1,
+        "stageCompleted": 1,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 8,
+        "payloadCompleted": 8,
+        "payloadErrors": 0,
+        "payloadBytes": 48248,
+        "validationCalls": 8,
+        "validationAccepted": 7,
+        "validationRejected": 1,
+        "semanticCalls": 7,
+        "semanticAccepted": 7,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 1,
+        "stageCompleted": 1,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      }
+    ],
+    "traceEvents": 200,
+    "intervalSamples": 6,
+    "naturalGcEvents": 7,
+    "loadSummaries": [
+      {
+        "load": 1,
+        "startMs": 46.67769000000001,
+        "endMs": 145.914572,
+        "commitBeginMs": 133.228467,
+        "commitEndMs": 144.578907,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 130.54023600000002,
+            "phase": "load1:begin",
+            "loadNumber": 1,
+            "rss": 96641024,
+            "heapTotal": 18481152,
+            "heapUsed": 11143160,
+            "external": 36624132,
+            "arrayBuffers": 1134274,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 8,
+              "stageCompleted": 7,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 1,
+              "activeCommits": 0
+            },
+            "label": "stage:begin",
+            "storeId": 1
+          },
+          "commit": {
+            "elapsedMs": 144.578907,
+            "phase": "load1:begin",
+            "loadNumber": 1,
+            "rss": 94986240,
+            "heapTotal": 18481152,
+            "heapUsed": 11316464,
+            "external": 36650291,
+            "arrayBuffers": 1152953,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 8,
+              "stageCompleted": 8,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 1
+            },
+            "label": "commit:end",
+            "storeId": 1,
+            "published": true,
+            "returned": true
+          },
+          "postCommit": {
+            "elapsedMs": 145.678148,
+            "phase": "load1:begin",
+            "loadNumber": 1,
+            "rss": 83644416,
+            "heapTotal": 18481152,
+            "heapUsed": 11339920,
+            "external": 36650491,
+            "arrayBuffers": 1153153,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 8,
+              "stageCompleted": 8,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:disposed",
+            "storeId": 1,
+            "pendingWrites": 0,
+            "previousEntries": 0
+          }
+        },
+        "naturalGcEvents": 0,
+        "gcKinds": {}
+      },
+      {
+        "load": 2,
+        "startMs": 183.034688,
+        "endMs": 214.59557500000003,
+        "commitBeginMs": null,
+        "commitEndMs": null,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 186.45118799999997,
+            "phase": "load2:begin",
+            "loadNumber": 2,
+            "rss": 94642176,
+            "heapTotal": 19005440,
+            "heapUsed": 12547128,
+            "external": 36658465,
+            "arrayBuffers": 1161127,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 0,
+              "stageCompleted": 0,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:loaded",
+            "storeId": 2,
+            "previousEntries": 8,
+            "inlinePayloads": 0
+          }
+        },
+        "naturalGcEvents": 1,
+        "gcKinds": {
+          "1": 1
+        }
+      },
+      {
+        "load": 3,
+        "startMs": 254.71220300000002,
+        "endMs": 302.379241,
+        "commitBeginMs": 283.94989599999997,
+        "commitEndMs": 301.845557,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 281.045347,
+            "phase": "load3:begin",
+            "loadNumber": 3,
+            "rss": 87728128,
+            "heapTotal": 19791872,
+            "heapUsed": 13569712,
+            "external": 35644699,
+            "arrayBuffers": 147361,
+            "counters": {
+              "payloadCalls": 7,
+              "payloadCompleted": 7,
+              "payloadErrors": 0,
+              "payloadBytes": 42069,
+              "validationCalls": 7,
+              "validationAccepted": 6,
+              "validationRejected": 1,
+              "semanticCalls": 6,
+              "semanticAccepted": 6,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "semantic:accepted",
+            "workspaceFiles": 7
+          },
+          "commit": {
+            "elapsedMs": 301.845557,
+            "phase": "load3:begin",
+            "loadNumber": 3,
+            "rss": 87998464,
+            "heapTotal": 20316160,
+            "heapUsed": 11150232,
+            "external": 35539400,
+            "arrayBuffers": 42062,
+            "counters": {
+              "payloadCalls": 8,
+              "payloadCompleted": 8,
+              "payloadErrors": 0,
+              "payloadBytes": 47556,
+              "validationCalls": 8,
+              "validationAccepted": 7,
+              "validationRejected": 1,
+              "semanticCalls": 7,
+              "semanticAccepted": 7,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 1
+            },
+            "label": "commit:end",
+            "storeId": 3,
+            "published": true,
+            "returned": true
+          },
+          "postCommit": {
+            "elapsedMs": 302.238968,
+            "phase": "load3:begin",
+            "loadNumber": 3,
+            "rss": 87998464,
+            "heapTotal": 20316160,
+            "heapUsed": 11158024,
+            "external": 35539600,
+            "arrayBuffers": 42262,
+            "counters": {
+              "payloadCalls": 8,
+              "payloadCompleted": 8,
+              "payloadErrors": 0,
+              "payloadBytes": 47556,
+              "validationCalls": 8,
+              "validationAccepted": 7,
+              "validationRejected": 1,
+              "semanticCalls": 7,
+              "semanticAccepted": 7,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:disposed",
+            "storeId": 3,
+            "pendingWrites": 0,
+            "previousEntries": 8
+          }
+        },
+        "naturalGcEvents": 1,
+        "gcKinds": {
+          "1": 1
+        }
+      },
+      {
+        "load": 4,
+        "startMs": 316.647472,
+        "endMs": 353.16686000000004,
+        "commitBeginMs": 338.449934,
+        "commitEndMs": 352.669403,
+        "peaks": {
+          "preCommit": {
+            "elapsedMs": 316.647472,
+            "phase": "load4:begin",
+            "loadNumber": 4,
+            "rss": 87998464,
+            "heapTotal": 20316160,
+            "heapUsed": 12047008,
+            "external": 35565095,
+            "arrayBuffers": 67757,
+            "counters": {
+              "payloadCalls": 0,
+              "payloadCompleted": 0,
+              "payloadErrors": 0,
+              "payloadBytes": 0,
+              "validationCalls": 0,
+              "validationAccepted": 0,
+              "validationRejected": 0,
+              "semanticCalls": 0,
+              "semanticAccepted": 0,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 0,
+              "stageCompleted": 0,
+              "stageErrors": 0,
+              "commitCalls": 0,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "load4:begin",
+            "spaces": [
+              {
+                "space_name": "read_only_space",
+                "space_size": 0,
+                "space_used_size": 0,
+                "space_available_size": 0,
+                "physical_space_size": 0
+              },
+              {
+                "space_name": "new_space",
+                "space_size": 8388608,
+                "space_used_size": 1354296,
+                "space_available_size": 2769352,
+                "physical_space_size": 7372800
+              },
+              {
+                "space_name": "old_space",
+                "space_size": 6823936,
+                "space_used_size": 5933808,
+                "space_available_size": 765664,
+                "physical_space_size": 7077888
+              },
+              {
+                "space_name": "code_space",
+                "space_size": 1310720,
+                "space_used_size": 1164096,
+                "space_available_size": 64544,
+                "physical_space_size": 1269760
+              },
+              {
+                "space_name": "shared_space",
+                "space_size": 0,
+                "space_used_size": 0,
+                "space_available_size": 0,
+                "physical_space_size": 0
+              },
+              {
+                "space_name": "trusted_space",
+                "space_size": 1851392,
+                "space_used_size": 1671344,
+                "space_available_size": 144624,
+                "physical_space_size": 2097152
+              },
+              {
+                "space_name": "new_large_object_space",
+                "space_size": 0,
+                "space_used_size": 0,
+                "space_available_size": 4194304,
+                "physical_space_size": 0
+              },
+              {
+                "space_name": "large_object_space",
+                "space_size": 1941504,
+                "space_used_size": 1920040,
+                "space_available_size": 0,
+                "physical_space_size": 1941504
+              },
+              {
+                "space_name": "code_large_object_space",
+                "space_size": 0,
+                "space_used_size": 0,
+                "space_available_size": 0,
+                "physical_space_size": 0
+              },
+              {
+                "space_name": "shared_large_object_space",
+                "space_size": 0,
+                "space_used_size": 0,
+                "space_available_size": 0,
+                "physical_space_size": 0
+              },
+              {
+                "space_name": "trusted_large_object_space",
+                "space_size": 0,
+                "space_used_size": 0,
+                "space_available_size": 0,
+                "physical_space_size": 0
+              }
+            ],
+            "workspaceMaps": {
+              "files": 0,
+              "trees": 0,
+              "deferredImplementations": 0,
+              "deferredSources": 0,
+              "deferredImplementationGetters": 0,
+              "callableDependenciesByUri": 0,
+              "constructorInitializationSummaries": 0,
+              "factoryConstructionSummaries": 0,
+              "referenceResultCache": 0
+            }
+          },
+          "commit": {
+            "elapsedMs": 351.02131299999996,
+            "phase": "load4:begin",
+            "loadNumber": 4,
+            "rss": 87998464,
+            "heapTotal": 20316160,
+            "heapUsed": 13274816,
+            "external": 35658063,
+            "arrayBuffers": 160725,
+            "counters": {
+              "payloadCalls": 8,
+              "payloadCompleted": 8,
+              "payloadErrors": 0,
+              "payloadBytes": 48248,
+              "validationCalls": 8,
+              "validationAccepted": 7,
+              "validationRejected": 1,
+              "semanticCalls": 7,
+              "semanticAccepted": 7,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 0,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 1
+            }
+          },
+          "postCommit": {
+            "elapsedMs": 353.019669,
+            "phase": "load4:begin",
+            "loadNumber": 4,
+            "rss": 87998464,
+            "heapTotal": 20316160,
+            "heapUsed": 13302744,
+            "external": 35658863,
+            "arrayBuffers": 161525,
+            "counters": {
+              "payloadCalls": 8,
+              "payloadCompleted": 8,
+              "payloadErrors": 0,
+              "payloadBytes": 48248,
+              "validationCalls": 8,
+              "validationAccepted": 7,
+              "validationRejected": 1,
+              "semanticCalls": 7,
+              "semanticAccepted": 7,
+              "semanticRejected": 0,
+              "semanticErrors": 0,
+              "stageCalls": 1,
+              "stageCompleted": 1,
+              "stageErrors": 0,
+              "commitCalls": 1,
+              "commitCompleted": 1,
+              "commitErrors": 0,
+              "activePayloads": 0,
+              "activeStages": 0,
+              "activeCommits": 0
+            },
+            "label": "store:disposed",
+            "storeId": 4,
+            "pendingWrites": 0,
+            "previousEntries": 8
+          }
+        },
+        "naturalGcEvents": 0,
+        "gcKinds": {}
+      }
+    ],
+    "allObservedWorkspaceContainersZeroAfterDispose": true,
+    "allPendingWritesZeroAfterDispose": true
+  },
+  "lossAudit": {
+    "status": "rejected",
+    "functionalAssertionsPassed": true,
+    "counterAssertionsPassed": true,
+    "diagnosticOnly": true,
+    "qualification": false,
+    "files": 8,
+    "profileSha256": "7ddccfd7a75b4ba3836b8a2db4854a7945049ac3687a1b34f2d5949736e2ee87",
+    "dropped": {
+      "samples": 0,
+      "events": 198,
+      "gc": 0
+    },
+    "counterTotals": {
+      "payloadCalls": 24,
+      "payloadCompleted": 24,
+      "payloadErrors": 0,
+      "payloadBytes": 143998,
+      "validationCalls": 24,
+      "validationAccepted": 22,
+      "validationRejected": 2,
+      "semanticCalls": 22,
+      "semanticAccepted": 22,
+      "semanticRejected": 0,
+      "semanticErrors": 0,
+      "stageCalls": 10,
+      "stageCompleted": 10,
+      "stageErrors": 0,
+      "commitCalls": 3,
+      "commitCompleted": 3,
+      "commitErrors": 0,
+      "activePayloads": 0,
+      "activeStages": 0,
+      "activeCommits": 0
+    },
+    "countersByLoad": [
+      {
+        "payloadCalls": 0,
+        "payloadCompleted": 0,
+        "payloadErrors": 0,
+        "payloadBytes": 0,
+        "validationCalls": 0,
+        "validationAccepted": 0,
+        "validationRejected": 0,
+        "semanticCalls": 0,
+        "semanticAccepted": 0,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 8,
+        "stageCompleted": 8,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 8,
+        "payloadCompleted": 8,
+        "payloadErrors": 0,
+        "payloadBytes": 48194,
+        "validationCalls": 8,
+        "validationAccepted": 8,
+        "validationRejected": 0,
+        "semanticCalls": 8,
+        "semanticAccepted": 8,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 0,
+        "stageCompleted": 0,
+        "stageErrors": 0,
+        "commitCalls": 0,
+        "commitCompleted": 0,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 8,
+        "payloadCompleted": 8,
+        "payloadErrors": 0,
+        "payloadBytes": 47556,
+        "validationCalls": 8,
+        "validationAccepted": 7,
+        "validationRejected": 1,
+        "semanticCalls": 7,
+        "semanticAccepted": 7,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 1,
+        "stageCompleted": 1,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      },
+      {
+        "payloadCalls": 8,
+        "payloadCompleted": 8,
+        "payloadErrors": 0,
+        "payloadBytes": 48248,
+        "validationCalls": 8,
+        "validationAccepted": 7,
+        "validationRejected": 1,
+        "semanticCalls": 7,
+        "semanticAccepted": 7,
+        "semanticRejected": 0,
+        "semanticErrors": 0,
+        "stageCalls": 1,
+        "stageCompleted": 1,
+        "stageErrors": 0,
+        "commitCalls": 1,
+        "commitCompleted": 1,
+        "commitErrors": 0,
+        "activePayloads": 0,
+        "activeStages": 0,
+        "activeCommits": 0
+      }
+    ],
+    "traceEvents": 2,
+    "intervalSamples": 6,
+    "naturalGcEvents": 6,
+    "reason": "Observer dropped bounded telemetry; diagnostic evidence rejected."
+  },
+  "recoveryPreCommitHighest": {
+    "elapsedMs": 275276.83406799997,
+    "phase": "load3:begin",
+    "loadNumber": 3,
+    "rss": 1648812032,
+    "heapTotal": 1514545152,
+    "heapUsed": 1466092856,
+    "external": 36993965,
+    "arrayBuffers": 1500336,
+    "counters": {
+      "payloadCalls": 37285,
+      "payloadCompleted": 37285,
+      "payloadErrors": 0,
+      "payloadBytes": 205022821,
+      "validationCalls": 37285,
+      "validationAccepted": 37284,
+      "validationRejected": 1,
+      "semanticCalls": 37284,
+      "semanticAccepted": 37284,
+      "semanticRejected": 0,
+      "semanticErrors": 0,
+      "stageCalls": 1,
+      "stageCompleted": 1,
+      "stageErrors": 0,
+      "commitCalls": 0,
+      "commitCompleted": 0,
+      "commitErrors": 0,
+      "activePayloads": 0,
+      "activeStages": 0,
+      "activeCommits": 0
+    }
+  },
+  "recoveryCommitHighest": {
+    "elapsedMs": 329613.748686,
+    "phase": "load3:begin",
+    "loadNumber": 3,
+    "rss": 1020334080,
+    "heapTotal": 851030016,
+    "heapUsed": 711833360,
+    "external": 41290365,
+    "arrayBuffers": 5796736,
+    "counters": {
+      "payloadCalls": 50000,
+      "payloadCompleted": 50000,
+      "payloadErrors": 0,
+      "payloadBytes": 274942606,
+      "validationCalls": 50000,
+      "validationAccepted": 49999,
+      "validationRejected": 1,
+      "semanticCalls": 49999,
+      "semanticAccepted": 49999,
+      "semanticRejected": 0,
+      "semanticErrors": 0,
+      "stageCalls": 1,
+      "stageCompleted": 1,
+      "stageErrors": 0,
+      "commitCalls": 1,
+      "commitCompleted": 0,
+      "commitErrors": 0,
+      "activePayloads": 0,
+      "activeStages": 0,
+      "activeCommits": 1
+    }
+  },
+  "recoveryPreCommitPeakExceedsCommitPeak": true,
+  "retainedOriginalFailures": {
+    "private50kRssMiB": 1615.89,
+    "private50kBudgetMiB": 1536,
+    "normal10kRssMiB": 920.54,
+    "normalControllerP95Ms": 157.74
+  },
+  "priorApiQualificationPreserved": {
+    "completeApiPassed": 52,
+    "originalCacheChecksPassed": 17,
+    "newBoundaryChecksPassed": 4,
+    "sourceHashesUnchanged": true
+  },
+  "deferredStorageSurfaceAudit": {
+    "schemaVersion": 1,
+    "status": "read-only-storage-surface-audit",
+    "candidateImplemented": false,
+    "newRuntimeMeasurement": false,
+    "source": "/var/www/node/php-companion/packages/semantic/src/index.ts",
+    "sourceSha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+    "directSnapshotReads": [
+      {
+        "line": 1733,
+        "text": "const callables = deferred.snapshot.callables.filter((record) => deferred.loadedCallables.has(record.identity));"
+      },
+      {
+        "line": 1734,
+        "text": "deferred.facts = mergedImplementationFacts({ ...deferred.snapshot, callables });"
+      },
+      {
+        "line": 1736,
+        "text": "if (callables.length !== deferred.snapshot.callables.length) return;"
+      },
+      {
+        "line": 1746,
+        "text": "if (deferred) this.loadCallableImplementations(uri, deferred.snapshot.callables.map((record) => record.identity));"
+      },
+      {
+        "line": 1753,
+        "text": "const target = deferred.snapshot.callables.filter((record) => offset >= record.start && offset <= record.end)"
+      },
+      {
+        "line": 1769,
+        "text": "this.loadCallableImplementations(uri, deferred.snapshot.callables"
+      },
+      {
+        "line": 1790,
+        "text": "if (deferred) return deferred.snapshot.callables.map(({ identity, kind }) => ({"
+      }
+    ],
+    "sections": {
+      "deferredRecord": "interface DeferredImplementation {\n  snapshot: SemanticImplementationSnapshot;\n  loadedCallables: Set<string>;\n  fileFactsLoaded: boolean;\n  facts: SemanticImplementationFacts;\n}\n\n",
+      "installDeferred": "  private deferredSemanticFile(file: SemanticFile, implementation: SemanticImplementationSnapshot): SemanticFile {\n    const deferred: DeferredImplementation = {\n      snapshot: implementation,\n      loadedCallables: new Set(),\n      fileFactsLoaded: false,\n      facts: emptyImplementationFacts(),\n    };\n    this.deferredImplementations.set(file.uri, deferred);\n    for (const field of IMPLEMENTATION_ARRAY_FIELDS) {\n      let getter = this.deferredImplementationGetters.get(field);\n      if (!getter) {\n        // One accessor per field and workspace, rather than twelve closures per\n        // restored document. The receiver selects the current document facts.\n        getter = SemanticWorkspace.deferredImplementationGetter(this, field);\n        this.deferredImplementationGetters.set(field, getter);\n      }\n      Object.defineProperty(file, field, { configurable: true, enumerable: true, get: getter });\n    }\n    return file;\n  }\n\n",
+      "hydrateCallable": "  private loadCallableImplementations(uri: string, identities: Iterable<string>): void {\n    const deferred = this.deferredImplementations.get(uri); const file = this.files.get(uri);\n    if (!deferred || !file) return;\n    const previousCount = deferred.loadedCallables.size;\n    for (const identity of identities) deferred.loadedCallables.add(identity);\n    // File-level facts are installed on the first load, including when no\n    // callable contains the cursor. Repeated queries in loaded callables must\n    // not merge the same facts again or invalidate completed reference queries.\n    if (deferred.fileFactsLoaded && previousCount === deferred.loadedCallables.size) return;\n    this.referenceResultCache.clear();\n    deferred.fileFactsLoaded = true;\n    const callables = deferred.snapshot.callables.filter((record) => deferred.loadedCallables.has(record.identity));\n    deferred.facts = mergedImplementationFacts({ ...deferred.snapshot, callables });\n    this.controlFlowAssignments.set(uri, new Set(deferred.facts.controlFlowAssignments));\n    if (callables.length !== deferred.snapshot.callables.length) return;\n    this.deferredImplementations.delete(uri);\n    for (const field of IMPLEMENTATION_ARRAY_FIELDS) Object.defineProperty(file, field, {\n      configurable: true, enumerable: true, writable: true, value: deferred.facts[field],\n    });\n  }\n\n",
+      "observeCallableState": "  callableImplementationStates(uri: string): SemanticCallableImplementationState[] {\n    const source = this.deferredSources.get(uri);\n    if (source) return callableImplementationRanges(source).map(({ identity, kind }) => ({ identity, kind, state: 'deferred' }));\n    const deferred = this.deferredImplementations.get(uri);\n    if (deferred) return deferred.snapshot.callables.map(({ identity, kind }) => ({\n      identity, kind, state: deferred.loadedCallables.has(identity) ? 'loaded' : 'deferred',\n    }));\n    const file = this.files.get(uri);\n    return file ? callableImplementationRanges(file).map(({ identity, kind }) => ({ identity, kind, state: 'loaded' })) : [];\n  }\n\n"
+    },
+    "requiredFactsFields": [
+      "typeReferences",
+      "assignments",
+      "rawNames",
+      "memberAccesses",
+      "calls",
+      "scopes",
+      "variableReferences",
+      "returns",
+      "narrowings",
+      "syntaxErrors",
+      "commentRanges",
+      "stringRanges",
+      "controlFlowAssignments"
+    ],
+    "requiredInvariants": [
+      "Validate the complete incoming declaration/implementation/layers before replacing accepted state; retain schema 89, owner/range/order/identity/offset checks and unchanged input snapshots.",
+      "Keep all file and callable facts available; querying state/metadata must not hydrate unrelated callable bodies.",
+      "Full source/persistence snapshots and complete hydration must remain equivalent; focused hydration must keep unrelated callable states deferred.",
+      "Identical URIs in separate workspaces must not share mutable decoded facts; dispose/update must clear only owned state.",
+      "Any internal representation candidate must account for valid JSON shape and serialization failure/exception behavior; no input mutation, silent fact loss or new cross-file shared mutable arrays.",
+      "Preserve complete original index/cache API, all original full benchmark assertions and process cleanup; no schema/fixture reduction or forced GC."
+    ],
+    "possibleDirection": "If measured pre-commit restore activity dominates, evaluate a private internal encoded representation of already-validated implementation facts with metadata kept available and targeted independent decoding. This is an unimplemented direction, not a memory-gain conclusion.",
+    "controlsBeforeScale": [
+      "Original 12 deferred isolation/integrity cases with all assertions unchanged.",
+      "Complete file/callable fact and tool-result comparisons on the original independent corpus, including state and snapshots.",
+      "Actual corruption rejection, snapshot immutability and cross-workspace isolation.",
+      "Cold/warm/corruption full cache protocol and current full API safety protections."
+    ]
+  },
+  "scope": [
+    "Complete original four-stage 50k workload, corruption callbacks, functional assertions, final recursive fixture cleanup and original RSS gate preserved.",
+    "Actual EntryStore and SemanticWorkspace methods observed, and validation observed around the existing unchanged call. Wrappers preserve return/throw/receiver/arguments.",
+    "Telemetry retains numerical counters, primitive memory values and weak store identities; no payload/source/workspace/store references in records.",
+    "Intervals, progress events and natural GC bounded with explicit loss counters; smoke checks all counters and intentionally limited observation is rejected.",
+    "Pre-commit versus commit boundaries locate measured activity, not unique allocation ownership, retained heap, causal GC attribution or CPU cost.",
+    "Instrumented timings/RSS do not qualify a scale, replace the prior uninstrumented failure, establish statistical improvement or allow product adoption.",
+    "All C1-C4/R4/P0-P9/F01-F14, advanced semantics/refactors, ordinary latency, five-round scales, versions/platforms/tools/long sessions/human WSL remain open."
+  ],
+  "next": "Audit a distinct internal deferred-fact storage candidate that preserves full snapshot validation, all fact records and lazy callable semantics. Use private complete controls before any new scale qualification; do not weaken original benchmark or force GC.",
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-input.json",
+      "bytes": 724528,
+      "sha256": "70ae31c1e691f688cd83bcc319635575bb4912fde87fcecf41c8b96698f5e127"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-run.json",
+      "bytes": 719,
+      "sha256": "aa2e258836146b21c6db9b3f2284eabefba05ee61b3a5f80d6fa87c4c14ebc8f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke.log",
+      "bytes": 1643,
+      "sha256": "387e0bf7a5483196c6f56dd23bbd39713518b6af3589391d568786700d295676"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-trace.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-trace.json",
+      "bytes": 258129,
+      "sha256": "a64799aa3873a370fbfb3ede39b521ce8c15f425127b2495b8b8554eba3ed376"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-audit.json",
+      "bytes": 17970,
+      "sha256": "bf49280f0f1f54f1437ae5485fd4378e833d58b2344a2af91e10ed7161cd4e98"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-loss-input.json",
+      "bytes": 724574,
+      "sha256": "c6c80a32396987f0ec6dd7c7a092b5d1c465bd4f32aefba990399bc0fc27d121"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-loss-run.json",
+      "bytes": 770,
+      "sha256": "0db26d827faea0519c9f14301e71cd9b9627fbed84e50127d361cc519d067f88"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-loss.log",
+      "bytes": 1645,
+      "sha256": "b94f8962bb3c64f1114b4c6f1a7c796f84915ad3103fdbeadfcfbb36848df75c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss-trace.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-loss-trace.json",
+      "bytes": 20782,
+      "sha256": "7ddccfd7a75b4ba3836b8a2db4854a7945049ac3687a1b34f2d5949736e2ee87"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-restore-smoke-loss-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-restore-smoke-loss-audit.json",
+      "bytes": 3230,
+      "sha256": "99c1c8a44cee17a840b6af55e527c0eed2fa287975b5f1de391b013fbff2e116"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d395-restore-trace-50000-input.json",
+      "bytes": 725667,
+      "sha256": "5a411ba8aeadd78a804c5c6e3a16dd55393a34cbf7c3268e37027f13ce49f56d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d395-restore-trace-50000-run.json",
+      "bytes": 694,
+      "sha256": "cfb17eeb864522df6995ef2edcfc115fa054222086cf7f0baefe9c7ad2fa2380"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d395-restore-trace-50000.log",
+      "bytes": 1698,
+      "sha256": "5100a4352e4f71da9822f2bda8539617ec5fecadb6e80f731c668852c77e9b3b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000-trace.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d395-restore-trace-50000-trace.json",
+      "bytes": 10725715,
+      "sha256": "65ab2f3049b6c41210690aa42457ef9db450d7808da427029a9f455ae42509ad"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d395-restore-trace-50000-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d395-restore-trace-50000-audit.json",
+      "bytes": 15152,
+      "sha256": "ae57f163ebd93c9e2b8c1f37cdebfc0439686d9618aa2c61d963ffba8c37d4d5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d392-restore-trace-header.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d392-restore-trace-header.mjs",
+      "bytes": 7451,
+      "sha256": "ab523107614b635b4f045cbb88c446d1c5cf30503f95ecf68b6c71d9f9bc2f20"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d392-prepare-restore-trace.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d392-prepare-restore-trace.py",
+      "bytes": 5415,
+      "sha256": "cc6e20613e7115a6663501e72a9fd7ee9439736ad4974e2ace984d0857544179"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d392-benchmark-finalizer.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d392-benchmark-finalizer.mjs",
+      "bytes": 15454,
+      "sha256": "666351eb81176df86aa2b9961b03f918e465847d7f5255edb1818cf90a39e40c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d392-restore-trace.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d392-restore-trace.mjs",
+      "bytes": 23855,
+      "sha256": "4e89e245bbbafa7bb7453af802146b1d5ada8f1a923bbee118fbc1214f95a3dc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d392-restore-trace-smoke.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d392-restore-trace-smoke.mjs",
+      "bytes": 23867,
+      "sha256": "c05b86347b25c39a43b5eb219b78b4341c92ce572dc16a18dc665ff8029a0b08"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d392-restore-trace-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d392-restore-trace-preparation.json",
+      "bytes": 12574,
+      "sha256": "7a7f7854359aed232ade7f2f7333c03e7ce306c1dafaa586ed0b7858ecab2367"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d393-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d393-run.py",
+      "bytes": 9692,
+      "sha256": "d4e38768abd537e3c581b916d0c798450adafbb0a43704289c5e5afc8c665f0b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d394-check-restore-trace.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d394-check-restore-trace.py",
+      "bytes": 5781,
+      "sha256": "d1a567cac67d18a2e8c66b52776a10f9ee12f1332db202cdcbe48ebf11dccf1a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d391-finalizer-contract-final-validation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d391-finalizer-contract-final-validation.json",
+      "bytes": 934,
+      "sha256": "5996f0f0603888ffb8f3e5fbd15b116f550c32f848bf6193cfde1958a3fbe58b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d390-restore-memory-source-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d390-restore-memory-source-audit.json",
+      "bytes": 6716,
+      "sha256": "7b57c1d2525315ba2d34626b4a09ec130d1358f5ba50f36ad8bab75bf6252391"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d397-deferred-storage-surface-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d397-deferred-storage-surface-audit.json",
+      "bytes": 6651,
+      "sha256": "eae5a01019b57fc5c306470bc3c574cce5472b5eee464bf3bf4c9c6f9f17787b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d385-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d385-index.mjs",
+      "bytes": 22265,
+      "sha256": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d375-entry-store.mjs",
+      "bytes": 7820,
+      "sha256": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d372-bounded-cache-removal.mjs",
+      "bytes": 2782,
+      "sha256": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d353-owned-cache-lock.mjs",
+      "bytes": 4321,
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d396-record-restore-trace.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/d396-record-restore-trace.py",
+      "bytes": 10473,
+      "sha256": "1a30c3d652c20d0ce79dc70b9088a5a7c6a767e4d21fc81c4204c1f5e9b92b0a"
+    },
+    {
+      "source": "/var/www/node/php-companion/docs/php-language-toolchain/reports/cache-finalizer-contract-trial-2026-10-08.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d396-restore-trace-evidence/cache-finalizer-contract-trial-2026-10-08.json",
+      "bytes": 78071,
+      "sha256": "6183b31b88d3f95099ce9fe161267dadcd2ec1d7ad5ec48b99f52d56ad1311ef"
+    }
+  ]
+}

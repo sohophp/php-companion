@@ -1,0 +1,56 @@
+{
+  "diagnosticOnly": true,
+  "acceptanceQualified": false,
+  "firstFailurePreserved": true,
+  "causeProven": false,
+  "equivalentFullRerunsStopped": true,
+  "normalProductChangedByDiagnostics": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "normalLanguageServerSha256": "db088ffc47c08d92683bacf2621e6fa1ce3200f44747b26a56ff0f506cf2b18c",
+  "runs": [
+    {
+      "id": "d1132",
+      "nativeExitCode": 1,
+      "seconds": 160.596088204009,
+      "frozenInputCount": 18965,
+      "ownedProcessesAfterExit": []
+    },
+    {
+      "id": "d1136",
+      "nativeExitCode": 0,
+      "seconds": 162.1757829169801,
+      "frozenInputCount": 18971,
+      "ownedProcessesAfterExit": []
+    },
+    {
+      "id": "d1138",
+      "nativeExitCode": 0,
+      "seconds": 162.04583490401274,
+      "frozenInputCount": 18970,
+      "ownedProcessesAfterExit": []
+    }
+  ],
+  "evidence": [
+    {
+      "path": ".vscode-test/d1132-native-c2-audit.json",
+      "sha256": "1770030d302daa27a1fd562140297a3fec9d7c508ea05a09d165504bd5d93043"
+    },
+    {
+      "path": ".vscode-test/d1136-native-c2-audit.json",
+      "sha256": "ebb6146f49c358be8d306d3aea71d0f5aaccc3655de0d6774b68c06a0e310af0"
+    },
+    {
+      "path": ".vscode-test/d1137-native-signature-protocol-review.json",
+      "sha256": "6d98cd8474e72af682beaf000959728af2b653e5c9d118d5780439ec1bd1ee69"
+    },
+    {
+      "path": ".vscode-test/d1138-native-c2-audit.json",
+      "sha256": "558ad45b338955f14bd599bcd2abfee5ed6e0c728d9a5f7a3738d7ec50b46f5d"
+    },
+    {
+      "path": ".vscode-test/d1140-native-signature-middleware-review.json",
+      "sha256": "2d47c541f9712b5522ce7bc52a4f9d9e81fb994c573892212df4591f0dd43029"
+    }
+  ]
+}

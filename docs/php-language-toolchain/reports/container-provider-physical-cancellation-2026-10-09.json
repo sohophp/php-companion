@@ -1,0 +1,1410 @@
+{
+  "recordedAtUtc": "2026-10-08T20:57:24.815549+00:00",
+  "normalValidation": {
+    "status": "exited",
+    "parentPid": 2880969,
+    "startedAtUtc": "2026-10-08T20:51:02.924606+00:00",
+    "qualified": true,
+    "steps": [
+      {
+        "label": "host-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "-p",
+          "/var/www/node/php-companion/packages/semantic-provider-host/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "environment": {},
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:51:02.929301+00:00",
+        "pid": 2880970,
+        "exitCode": 0,
+        "durationSeconds": 1.443025270011276,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "server-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "-p",
+          "/var/www/node/php-companion/packages/language-server/tsconfig.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "environment": {},
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:51:04.373072+00:00",
+        "pid": 2880990,
+        "exitCode": 0,
+        "durationSeconds": 8.235250448982697,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "root-strict",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "environment": {},
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:51:12.608961+00:00",
+        "pid": 2881042,
+        "exitCode": 0,
+        "durationSeconds": 4.556213058996946,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "full-lint",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/eslint/bin/eslint.js",
+          "src",
+          "test",
+          "packages",
+          "scripts",
+          "esbuild.mjs",
+          "vitest.config.ts",
+          "vitest.integration.config.ts"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "environment": {},
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:51:17.166052+00:00",
+        "pid": 2881067,
+        "exitCode": 0,
+        "durationSeconds": 38.94568585799425,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "bundle-build",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/esbuild.mjs",
+          "--production"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "environment": {},
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:51:56.112914+00:00",
+        "pid": 2881307,
+        "exitCode": 0,
+        "durationSeconds": 0.6204324809950776,
+        "logSha256": "18d5b42c2958892a79a04c43e3d14536cd2062552e597af802db43143ecfbfbe"
+      },
+      {
+        "label": "root-unit",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1070-normal-root-unit.json"
+        ],
+        "cwd": "/var/www/node/php-companion",
+        "environment": {},
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:51:56.843578+00:00",
+        "pid": 2881339,
+        "exitCode": 0,
+        "durationSeconds": 6.68707978198654,
+        "logSha256": "9209b2e86a1e375bd19e880f2b0868e66ad514d65efb08056b39de63533bf727"
+      },
+      {
+        "label": "host-tests",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1070-normal-host-tests.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/semantic-provider-host",
+        "environment": {
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1062-owned-provider-observer.cjs",
+          "D1062_OWNED_PROCESS_LOG": "/var/www/node/php-companion/.vscode-test/d1070-normal-host-tests-owned.jsonl"
+        },
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:52:03.531605+00:00",
+        "pid": 2881654,
+        "exitCode": 0,
+        "durationSeconds": 3.4665810689912178,
+        "logSha256": "aaab881d7f7e15dfc1bf6093e6ee4a62a65d2dd84f734e45cfc2b2e070a408d0",
+        "actualOwnedPids": [
+          2881727,
+          2881733,
+          2881749,
+          2881755,
+          2881771,
+          2881777,
+          2881793,
+          2881799,
+          2881811,
+          2881826,
+          2881837,
+          2881848,
+          2881859,
+          2881870,
+          2881884,
+          2881895,
+          2881909
+        ],
+        "allActualOwnedProcessesGone": true,
+        "physicalStopObservations": [
+          {
+            "case": "pre-abort",
+            "result": {
+              "ok": false,
+              "code": "cancelled",
+              "message": "Provider was cancelled."
+            },
+            "spawned": false
+          },
+          {
+            "case": "hold",
+            "pid": 2881733,
+            "elapsedMs": 5.96810099999999,
+            "gone": true,
+            "result": {
+              "ok": false,
+              "code": "cancelled",
+              "message": "Provider was cancelled."
+            }
+          },
+          {
+            "case": "ignore-term",
+            "pid": 2881755,
+            "elapsedMs": 29.516253000000006,
+            "gone": true,
+            "result": {
+              "ok": false,
+              "code": "cancelled",
+              "message": "Provider was cancelled."
+            }
+          },
+          {
+            "case": "timeout",
+            "pid": 2881799,
+            "gone": true,
+            "result": {
+              "ok": false,
+              "code": "timeout",
+              "message": "Provider exceeded 2000 ms."
+            }
+          },
+          {
+            "case": "output-limit",
+            "pid": 2881909,
+            "gone": true,
+            "result": {
+              "ok": false,
+              "code": "output-limit",
+              "message": "Provider stdout exceeded 1024 bytes."
+            }
+          }
+        ],
+        "ownershipLogSha256": "93af3fd9875e5c40e1b3740c0ec176a685c4e6bcf157b15b4f8614da0d882f53"
+      },
+      {
+        "label": "protocol",
+        "command": [
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+          "run",
+          "test/symfony-service-definition-lazy-stdio.test.ts",
+          "test/symfony-container-provider-concurrency-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/d1070-normal-container-protocol.json"
+        ],
+        "cwd": "/var/www/node/php-companion/packages/language-server",
+        "environment": {
+          "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1062-owned-provider-observer.cjs",
+          "D1062_OWNED_PROCESS_LOG": "/var/www/node/php-companion/.vscode-test/d1070-normal-protocol-owned.jsonl"
+        },
+        "status": "exited",
+        "startedAtUtc": "2026-10-08T20:52:07.003084+00:00",
+        "pid": 2881920,
+        "exitCode": 0,
+        "durationSeconds": 91.7768989650067,
+        "logSha256": "0927dd9bbc6639ba42f58b7778fc9759337809926ebd2751afea4b73feab5a8e",
+        "actualOwnedPids": [
+          2881995,
+          2882002,
+          2882028,
+          2882036,
+          2882051,
+          2882063,
+          2882087,
+          2882101,
+          2882116,
+          2882137,
+          2882148,
+          2882154,
+          2882171,
+          2882182,
+          2882193,
+          2882210,
+          2882212,
+          2882232,
+          2882242,
+          2882262,
+          2882283,
+          2882294,
+          2882305,
+          2882316,
+          2882327,
+          2882338,
+          2882355,
+          2882370,
+          2882385,
+          2882397,
+          2882417,
+          2882428,
+          2882439,
+          2882450,
+          2882461,
+          2882472,
+          2882490,
+          2882504,
+          2882519,
+          2882534,
+          2882545,
+          2882556,
+          2882573,
+          2882584,
+          2882595,
+          2882606,
+          2882617,
+          2882634,
+          2882655,
+          2882666,
+          2882681,
+          2882692,
+          2882707,
+          2882718,
+          2882729,
+          2882743,
+          2882823,
+          2882834,
+          2882845,
+          2882856,
+          2882873,
+          2882884,
+          2882898,
+          2882920,
+          2882931,
+          2882942,
+          2882953,
+          2882970,
+          2882981,
+          2882992,
+          2883015,
+          2883028,
+          2883039,
+          2883050,
+          2883061,
+          2883080,
+          2883091,
+          2883102,
+          2883113,
+          2883161,
+          2883172,
+          2883183,
+          2883194,
+          2883211,
+          2883222,
+          2883233,
+          2883244,
+          2883269,
+          2883280,
+          2883291,
+          2883302,
+          2883313,
+          2883324,
+          2883335,
+          2883352,
+          2883377,
+          2883388,
+          2883399,
+          2883410,
+          2883421,
+          2883432,
+          2883443,
+          2883460,
+          2883485,
+          2883496,
+          2883507,
+          2883518,
+          2883529,
+          2883540,
+          2883551,
+          2883562,
+          2883579,
+          2883606,
+          2883617,
+          2883628,
+          2883639,
+          2883650,
+          2883661,
+          2883672,
+          2883686,
+          2883703,
+          2883733,
+          2883744,
+          2883755,
+          2883766,
+          2883777,
+          2883788,
+          2883802,
+          2883830,
+          2883841,
+          2883852,
+          2883863,
+          2883874,
+          2883885,
+          2883896,
+          2883908,
+          2883939,
+          2883950,
+          2883961,
+          2883972,
+          2883983,
+          2883994,
+          2884005,
+          2884036,
+          2884047,
+          2884064,
+          2884075,
+          2884086,
+          2884097,
+          2884108,
+          2884125,
+          2884150,
+          2884161,
+          2884172,
+          2884183,
+          2884195,
+          2884206,
+          2884238,
+          2884249,
+          2884260,
+          2884271,
+          2884282
+        ],
+        "allActualOwnedProcessesGone": true,
+        "physicalStopObservations": [
+          {
+            "case": "surviving-owner",
+            "phpVersion": "7.2",
+            "pid": 2883777,
+            "alive": true
+          },
+          {
+            "case": "all-owners-cancelled",
+            "phpVersion": "7.2",
+            "pid": 2883874,
+            "gone": true,
+            "elapsedMs": 24.867291000002297
+          },
+          {
+            "case": "surviving-owner",
+            "phpVersion": "8.5",
+            "pid": 2883983,
+            "alive": true
+          },
+          {
+            "case": "all-owners-cancelled",
+            "phpVersion": "8.5",
+            "pid": 2884086,
+            "gone": true,
+            "elapsedMs": 30.010862000010093
+          },
+          {
+            "case": "shutdown",
+            "phpVersion": "7.2",
+            "pid": 2884195,
+            "gone": true,
+            "elapsedMs": 8.748324999993201
+          },
+          {
+            "case": "shutdown",
+            "phpVersion": "8.5",
+            "pid": 2884282,
+            "gone": true,
+            "elapsedMs": 8.057631999996374
+          }
+        ],
+        "ownershipLogSha256": "af02fd6e4b6899302721cbf6eb955dc3991c576b8534294b90b5281d01affded"
+      }
+    ],
+    "normalSourceAdopted": true,
+    "profileUpdated": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "normalRuntimeAssetsMatchCandidate": true,
+    "assets": [
+      {
+        "path": "/var/www/node/php-companion/dist/extension.js",
+        "sha256": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/language-server.js",
+        "sha256": "51cb4095f653c9e32f9784a188d7bcf19f06d439e1396d1e6a0f09be57550cac"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+        "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+        "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+        "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      }
+    ],
+    "normalHostCases": 16,
+    "normalProtocolCases": 26,
+    "rootUnitCases": 113,
+    "fullRepositoryLintQualified": true,
+    "physicalDirectChildAbortQualified": true,
+    "currentFullLspQualified": false,
+    "currentEditorFlowsQualified": false,
+    "currentFullProfileQualified": false,
+    "scope": "Current normal optional host cancellation, shared container ownership and focused host/protocol validation only. Other providers, descendants, full performance and platform acceptance remain open.",
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-08T20:53:38.792695+00:00"
+  },
+  "normalTerminalAudit": {
+    "recordedAtUtc": "2026-10-08T20:55:18.348024+00:00",
+    "qualified": true,
+    "normalProviderCancellationQualified": true,
+    "validation": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-validation.json",
+    "validationSha256": "c5f0aeb7ca5fe9d401caab7cddc0afa5bc7dce384b1307d5e3cb85752122d476",
+    "normalHostCases": 16,
+    "normalProtocolCases": 26,
+    "rootUnitCases": 113,
+    "allChecksPassed": true,
+    "actualNormalLanguageServers": 26,
+    "allActualOwnedProcessesGone": true,
+    "normalRuntimeMatchesPrivateCandidate": true,
+    "sourceAndRuntimeChangesOnlyAuthorized": true,
+    "changedPriorInputs": [
+      "/var/www/node/php-companion/dist/language-server.js",
+      "/var/www/node/php-companion/packages/language-server/dist/server.js",
+      "/var/www/node/php-companion/packages/language-server/dist/server.js.map",
+      "/var/www/node/php-companion/packages/language-server/src/server.ts",
+      "/var/www/node/php-companion/packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+      "/var/www/node/php-companion/packages/semantic-provider-host/dist/index.d.ts",
+      "/var/www/node/php-companion/packages/semantic-provider-host/dist/index.d.ts.map",
+      "/var/www/node/php-companion/packages/semantic-provider-host/dist/index.js",
+      "/var/www/node/php-companion/packages/semantic-provider-host/dist/index.js.map",
+      "/var/www/node/php-companion/packages/semantic-provider-host/src/index.ts"
+    ],
+    "physicalStopObservations": {
+      "host-tests": [
+        {
+          "case": "pre-abort",
+          "result": {
+            "ok": false,
+            "code": "cancelled",
+            "message": "Provider was cancelled."
+          },
+          "spawned": false
+        },
+        {
+          "case": "hold",
+          "pid": 2881733,
+          "elapsedMs": 5.96810099999999,
+          "gone": true,
+          "result": {
+            "ok": false,
+            "code": "cancelled",
+            "message": "Provider was cancelled."
+          }
+        },
+        {
+          "case": "ignore-term",
+          "pid": 2881755,
+          "elapsedMs": 29.516253000000006,
+          "gone": true,
+          "result": {
+            "ok": false,
+            "code": "cancelled",
+            "message": "Provider was cancelled."
+          }
+        },
+        {
+          "case": "timeout",
+          "pid": 2881799,
+          "gone": true,
+          "result": {
+            "ok": false,
+            "code": "timeout",
+            "message": "Provider exceeded 2000 ms."
+          }
+        },
+        {
+          "case": "output-limit",
+          "pid": 2881909,
+          "gone": true,
+          "result": {
+            "ok": false,
+            "code": "output-limit",
+            "message": "Provider stdout exceeded 1024 bytes."
+          }
+        }
+      ],
+      "protocol": [
+        {
+          "case": "surviving-owner",
+          "phpVersion": "7.2",
+          "pid": 2883777,
+          "alive": true
+        },
+        {
+          "case": "all-owners-cancelled",
+          "phpVersion": "7.2",
+          "pid": 2883874,
+          "gone": true,
+          "elapsedMs": 24.867291000002297
+        },
+        {
+          "case": "surviving-owner",
+          "phpVersion": "8.5",
+          "pid": 2883983,
+          "alive": true
+        },
+        {
+          "case": "all-owners-cancelled",
+          "phpVersion": "8.5",
+          "pid": 2884086,
+          "gone": true,
+          "elapsedMs": 30.010862000010093
+        },
+        {
+          "case": "shutdown",
+          "phpVersion": "7.2",
+          "pid": 2884195,
+          "gone": true,
+          "elapsedMs": 8.748324999993201
+        },
+        {
+          "case": "shutdown",
+          "phpVersion": "8.5",
+          "pid": 2884282,
+          "gone": true,
+          "elapsedMs": 8.057631999996374
+        }
+      ]
+    },
+    "fullPerformanceQualified": false,
+    "currentFullLspQualified": false,
+    "currentEditorFlowsQualified": false,
+    "currentFullProfileQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "privateQualification": {
+    "status": "exited",
+    "parentPid": 2877501,
+    "createdAtUtc": "2026-10-08T20:45:43.322053+00:00",
+    "qualified": true,
+    "candidateAdopted": false,
+    "normalProductChanged": false,
+    "profileUpdated": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "previousGoalTurnClassification": "progress: original three-scale/five-round normal production matrix passed; private host 16 passed and four physical LSP baseline failures recorded",
+    "startedAtUtc": "2026-10-08T20:45:48.737758+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+      "run",
+      "--config",
+      "/var/www/node/php-companion/.vscode-test/d1062-provider-abort-candidate/packages/language-server/vitest.config.mjs",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile=/var/www/node/php-companion/.vscode-test/d1068-candidate-language-server.json"
+    ],
+    "cwd": "/var/www/node/php-companion/.vscode-test/d1062-provider-abort-candidate/packages/language-server",
+    "environment": {
+      "NODE_OPTIONS": "--require=/var/www/node/php-companion/.vscode-test/d1062-owned-provider-observer.cjs",
+      "D1062_OWNED_PROCESS_LOG": "/var/www/node/php-companion/.vscode-test/d1068-candidate-language-server-owned.jsonl"
+    },
+    "reusedOriginalHostBaseline": true,
+    "reusedCandidateHost": true,
+    "reusedOriginalServerBaseline": true,
+    "verifierCorrection": "Match actual quoted Vitest parameterized titles; original assertions and timing budgets unchanged.",
+    "childPid": 2877533,
+    "childExitCode": 0,
+    "durationSeconds": 115.2779428389913,
+    "logSha256": "373e787d14685748f1153758c330cba9e643bd27d9bc9b133325c744be0db7c3",
+    "resultSha256": "897911c349571c84014a446f7560451b444b0077a5be5a73da592f1d32a2f12c",
+    "ownershipLogSha256": "bd18b34026f95f874ca82879fcad632b1454110ae05896fb6234821594ea7b8a",
+    "totalCases": 26,
+    "passedCases": 26,
+    "failedCases": 0,
+    "caseIdentities": [
+      {
+        "fullName": "keeps first unsaved service navigation while foreground and background overlap at PHP '7.2' in 'onDemand'",
+        "status": "passed"
+      },
+      {
+        "fullName": "keeps first unsaved service navigation while foreground and background overlap at PHP '7.2' in 'progressive'",
+        "status": "passed"
+      },
+      {
+        "fullName": "keeps first unsaved service navigation while foreground and background overlap at PHP '8.5' in 'onDemand'",
+        "status": "passed"
+      },
+      {
+        "fullName": "keeps first unsaved service navigation while foreground and background overlap at PHP '8.5' in 'progressive'",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains live container waiters and replaces abandoned work at PHP '7.2' with 'one' cancelled callers",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains live container waiters and replaces abandoned work at PHP '7.2' with 'all' cancelled callers",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains live container waiters and replaces abandoned work at PHP '8.5' with 'one' cancelled callers",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains live container waiters and replaces abandoned work at PHP '8.5' with 'all' cancelled callers",
+        "status": "passed"
+      },
+      {
+        "fullName": "rejects an older container snapshot while the new YAML snapshot remains in flight at PHP 7.2",
+        "status": "passed"
+      },
+      {
+        "fullName": "rejects an older container snapshot while the new YAML snapshot remains in flight at PHP 8.5",
+        "status": "passed"
+      },
+      {
+        "fullName": "does not join a superseded container provider at PHP 7.2",
+        "status": "passed"
+      },
+      {
+        "fullName": "does not join a superseded container provider at PHP 8.5",
+        "status": "passed"
+      },
+      {
+        "fullName": "waits for actual source publication before joining container work at PHP 7.2",
+        "status": "passed"
+      },
+      {
+        "fullName": "waits for actual source publication before joining container work at PHP 8.5",
+        "status": "passed"
+      },
+      {
+        "fullName": "preserves the surviving owner or physically stops the abandoned container at PHP '7.2' with 'one' cancelled owners",
+        "status": "passed"
+      },
+      {
+        "fullName": "preserves the surviving owner or physically stops the abandoned container at PHP '7.2' with 'all' cancelled owners",
+        "status": "passed"
+      },
+      {
+        "fullName": "preserves the surviving owner or physically stops the abandoned container at PHP '8.5' with 'one' cancelled owners",
+        "status": "passed"
+      },
+      {
+        "fullName": "preserves the surviving owner or physically stops the abandoned container at PHP '8.5' with 'all' cancelled owners",
+        "status": "passed"
+      },
+      {
+        "fullName": "physically stops the owned container provider during shutdown at PHP 7.2",
+        "status": "passed"
+      },
+      {
+        "fullName": "physically stops the owned container provider during shutdown at PHP 8.5",
+        "status": "passed"
+      },
+      {
+        "fullName": "ordinary PHP definition positions keep onDemand lazy at PHP 7.2",
+        "status": "passed"
+      },
+      {
+        "fullName": "ordinary PHP definition positions keep onDemand lazy at PHP 8.5",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains service strings, class IDs, parameters and new unsaved attributes at PHP '7.2' in 'onDemand'",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains service strings, class IDs, parameters and new unsaved attributes at PHP '7.2' in 'progressive'",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains service strings, class IDs, parameters and new unsaved attributes at PHP '8.5' in 'onDemand'",
+        "status": "passed"
+      },
+      {
+        "fullName": "retains service strings, class IDs, parameters and new unsaved attributes at PHP '8.5' in 'progressive'",
+        "status": "passed"
+      }
+    ],
+    "physicalStopObservations": [
+      {
+        "case": "surviving-owner",
+        "phpVersion": "7.2",
+        "pid": 2879092,
+        "alive": true
+      },
+      {
+        "case": "all-owners-cancelled",
+        "phpVersion": "7.2",
+        "pid": 2879189,
+        "gone": true,
+        "elapsedMs": 7.0891520000004675
+      },
+      {
+        "case": "surviving-owner",
+        "phpVersion": "8.5",
+        "pid": 2879306,
+        "alive": true
+      },
+      {
+        "case": "all-owners-cancelled",
+        "phpVersion": "8.5",
+        "pid": 2879404,
+        "gone": true,
+        "elapsedMs": 6.277822000003653
+      },
+      {
+        "case": "shutdown",
+        "phpVersion": "7.2",
+        "pid": 2879512,
+        "gone": true,
+        "elapsedMs": 10.59541999999783
+      },
+      {
+        "case": "shutdown",
+        "phpVersion": "8.5",
+        "pid": 2879601,
+        "gone": true,
+        "elapsedMs": 6.907703000004403
+      }
+    ],
+    "actualOwnedPids": [
+      2877590,
+      2877627,
+      2877638,
+      2877649,
+      2877666,
+      2877677,
+      2877698,
+      2877712,
+      2877726,
+      2877740,
+      2877754,
+      2877779,
+      2877790,
+      2877801,
+      2877818,
+      2877829,
+      2877856,
+      2877876,
+      2877891,
+      2877905,
+      2877916,
+      2877941,
+      2877952,
+      2877963,
+      2877974,
+      2877988,
+      2878002,
+      2878013,
+      2878038,
+      2878049,
+      2878060,
+      2878071,
+      2878082,
+      2878093,
+      2878104,
+      2878121,
+      2878147,
+      2878158,
+      2878169,
+      2878180,
+      2878191,
+      2878202,
+      2878219,
+      2878244,
+      2878255,
+      2878266,
+      2878277,
+      2878288,
+      2878299,
+      2878310,
+      2878324,
+      2878352,
+      2878363,
+      2878374,
+      2878385,
+      2878396,
+      2878407,
+      2878418,
+      2878429,
+      2878461,
+      2878472,
+      2878483,
+      2878494,
+      2878505,
+      2878516,
+      2878528,
+      2878546,
+      2878572,
+      2878583,
+      2878594,
+      2878605,
+      2878616,
+      2878627,
+      2878638,
+      2878649,
+      2878680,
+      2878691,
+      2878702,
+      2878713,
+      2878724,
+      2878735,
+      2878746,
+      2878757,
+      2878788,
+      2878799,
+      2878810,
+      2878821,
+      2878832,
+      2878843,
+      2878854,
+      2878865,
+      2878876,
+      2878929,
+      2878940,
+      2878951,
+      2878962,
+      2878973,
+      2878984,
+      2878995,
+      2879006,
+      2879017,
+      2879048,
+      2879059,
+      2879070,
+      2879081,
+      2879092,
+      2879103,
+      2879114,
+      2879145,
+      2879156,
+      2879167,
+      2879178,
+      2879189,
+      2879200,
+      2879211,
+      2879222,
+      2879253,
+      2879264,
+      2879275,
+      2879286,
+      2879306,
+      2879317,
+      2879328,
+      2879359,
+      2879370,
+      2879382,
+      2879393,
+      2879404,
+      2879415,
+      2879426,
+      2879437,
+      2879468,
+      2879479,
+      2879490,
+      2879501,
+      2879512,
+      2879523,
+      2879556,
+      2879567,
+      2879579,
+      2879590,
+      2879601,
+      2879623,
+      2879653,
+      2879665,
+      2879696,
+      2879708,
+      2879719,
+      2879730,
+      2879741,
+      2879765,
+      2879786,
+      2879797,
+      2879808,
+      2879830,
+      2879845,
+      2879862,
+      2879873,
+      2879884,
+      2879905,
+      2879925,
+      2879939
+    ],
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "changedRepositories": [],
+    "physicalDirectChildAbortQualified": true,
+    "allActualOwnedProcessesGone": true,
+    "originalHostCasesPreserved": 10,
+    "newHostCases": 6,
+    "originalContainerAndLazyCasesPreserved": 20,
+    "newContainerOwnershipCases": 6,
+    "scope": "Direct provider child cancellation and shared container ownership only. Other provider kinds, descendants, performance and full objective remain open.",
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-08T20:47:54.248386+00:00"
+  },
+  "adoption": {
+    "recordedAtUtc": "2026-10-08T20:49:30.346678+00:00",
+    "candidateQualification": "/var/www/node/php-companion/.vscode-test/d1068-provider-abort-run.json",
+    "candidateQualificationSha256": "2da94a8d89565648aba233600f08e12c1fc1d3a49cd76f725e8aadfc01eb7250",
+    "before": {
+      "packages/semantic-provider-host/src/index.ts": "bd78bdfda3ee404dd12cf1042c703ad13accbd78d03a72f94e1dfd511cad71d5",
+      "packages/language-server/src/server.ts": "7148493a2ebff344d68245610270efc831195193ec3bf6b8323943b565a448b0",
+      "packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts": "e75c01ae94ddcac09d26081710e887c18da9f56faf8b1e850fd0d978aa1c2e6c",
+      "packages/semantic-provider-host/test/physical-abort.test.ts": null
+    },
+    "adoptedFiles": {
+      "packages/semantic-provider-host/src/index.ts": "1e65842919e29724e6a47d7657f47c10dba772a417edefca94247e58e62f2114",
+      "packages/language-server/src/server.ts": "43f891ddc37dd9e89e0e5009a5719acde65f52f8f29da744f1a851f6b8b6b157",
+      "packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts": "689821e48562914f44da0c681531c9cb7423b5e077788521b0de7cb6fc5070cc",
+      "packages/semantic-provider-host/test/physical-abort.test.ts": "3ae418ba0173df72eec70c7ef0a79efb0272c934e6f73a9803e2395a8f985a26",
+      ".changeset/cancellable-container-providers.md": "806241d80bd6b11273c4d625333277e7148f3f81138d2fd5c55e657e538ed84f"
+    },
+    "originalContainerCasesPreserved": 14,
+    "newContainerCases": 6,
+    "newHostCases": 6,
+    "previousNormalQualificationArchive": "/var/www/node/php-companion/.vscode-test/d1069-normal-shared-container-qualification-evidence/manifest.json",
+    "previousNormalQualificationArchiveSha256": "6fe17dc2dc1974c903eac58b07058449019dea16fcec5f4ea2bef55ffd277898",
+    "profileUpdated": false,
+    "normalBuildPending": true,
+    "fullObjectiveComplete": false
+  },
+  "archiveManifest": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/manifest.json",
+  "archiveManifestSha256": "0b049ecb4899300d414e15799a2e4a3d60f859d483a87e78b9ea21326f78b5b8",
+  "archive": [
+    {
+      "source": "/var/www/node/php-companion/.changeset/cancellable-container-providers.md",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.changeset/cancellable-container-providers.md",
+      "sha256": "806241d80bd6b11273c4d625333277e7148f3f81138d2fd5c55e657e538ed84f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1058-provider-abort-draft.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1058-provider-abort-draft.json",
+      "sha256": "b50216e51a81664f24ad5127c81403b9290a98a1bf56a9b215f021ed877e57c7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1058-provider-abort-host.patch",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1058-provider-abort-host.patch",
+      "sha256": "9d19dabf26b2cfaf8c37830bfbc0a6f800a3ae51d6f64dac1191126f5781ca0a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1058-provider-abort-host.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1058-provider-abort-host.ts",
+      "sha256": "1e65842919e29724e6a47d7657f47c10dba772a417edefca94247e58e62f2114"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1058-provider-abort-server.patch",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1058-provider-abort-server.patch",
+      "sha256": "b95e6e56ce7a6743126c4dad842e1368ea92eea1b090777fb251848199ab5c1d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1058-provider-abort-server.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1058-provider-abort-server.ts",
+      "sha256": "bd6acb1d93b60520d7a47d3b4465530d024a467fa8c9b24a8800c3bb48228c0a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1059-provider-abort-test-preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1059-provider-abort-test-preparation.json",
+      "sha256": "ab50d846e3b5dee226eeee730f41e50f40e15e811f3a37b4430a2deb4b977929"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1059-semantic-provider-physical-abort.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1059-semantic-provider-physical-abort.test.ts",
+      "sha256": "3ae418ba0173df72eec70c7ef0a79efb0272c934e6f73a9803e2395a8f985a26"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1060-container-physical-abort-test-preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1060-container-physical-abort-test-preparation.json",
+      "sha256": "c157480ee2957ba3468f0c72226ac511ba20010133ddb6557f83735bbff380c6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1060-symfony-container-provider-physical-abort-stdio.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1060-symfony-container-provider-physical-abort-stdio.test.ts",
+      "sha256": "689821e48562914f44da0c681531c9cb7423b5e077788521b0de7cb6fc5070cc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1061-provider-abort-draft.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1061-provider-abort-draft.json",
+      "sha256": "2559f34e8825958952748d225edf6e5ccf58f5e6b722f302780cc222340f08fe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1061-provider-abort-server.patch",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1061-provider-abort-server.patch",
+      "sha256": "be1bad6491655b4d05bf667e8337285b2cc04490a7189f53a63b4266f29e6888"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1061-provider-abort-server.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1061-provider-abort-server.ts",
+      "sha256": "43f891ddc37dd9e89e0e5009a5719acde65f52f8f29da744f1a851f6b8b6b157"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-original-semantic-provider-host-owned.jsonl",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-original-semantic-provider-host-owned.jsonl",
+      "sha256": "5f73ca734b6496ee32b0b1d9addabb630f361b3d854b08a221ba17aba8ee607b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-original-semantic-provider-host.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-original-semantic-provider-host.json",
+      "sha256": "cd1342b6198ad01f202cc892cdd5a423d3c5578abb426956a37650cf9864734c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-original-semantic-provider-host.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-original-semantic-provider-host.log",
+      "sha256": "5289d11d247636578a9708eef8c70b890bd018b4f7eb95cfd487acb77030a8b0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-owned-provider-observer.cjs",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-owned-provider-observer.cjs",
+      "sha256": "49ceade616bc205dd6eb130f289a14ab0edba537029e0f6cb653f9cd9cc8ca17"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-prepare-provider-abort.mjs",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-prepare-provider-abort.mjs",
+      "sha256": "3f9c1f81697b11f9fbb8999c45a8b9791a88a8c021d5749313b257a4f809315d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-provider-abort-input.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-provider-abort-input.json",
+      "sha256": "8d75f009a14b731b17a2c7e91416c35d176841b236956c9cc0183565a07d8841"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-provider-abort-preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-provider-abort-preparation.json",
+      "sha256": "f42967489cbd20a038b2c1a93c1bc3a0c2e660106cee45742749657be697095a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-provider-abort-preparation.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-provider-abort-preparation.log",
+      "sha256": "36bf9203728c7a897481f70c34e3fddff5505532f4c7e1d89977869427322cdc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-provider-abort-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-provider-abort-run.json",
+      "sha256": "b0cf26fce656a9843d846cea56058d8864b6408454e02828198afcd45a087bf6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1062-run-provider-abort.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1062-run-provider-abort.py",
+      "sha256": "188e321c4b7257a263192e85a429badc0151c3c923b572bbeccbac5c3a98bad2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1064-provider-abort-observer-correction.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1064-provider-abort-observer-correction.json",
+      "sha256": "c20968bbeadc04386d4fb56f6bab0c1acd1c4a60825bb3bd581b6e716d1d69a3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1064-provider-abort-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1064-provider-abort-run.json",
+      "sha256": "8b728acbdf1c9c89f0005d7096e740636492ed439fc9c358a75e2248e9829b92"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1064-run-provider-abort.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1064-run-provider-abort.py",
+      "sha256": "30468c7f8550dbc6cc723294e444e0c766c5e6768e2b6f387710b10bf9f65350"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-candidate-semantic-provider-host-owned.jsonl",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-candidate-semantic-provider-host-owned.jsonl",
+      "sha256": "540835f1baefbc32ecad3198bffce5374fc973f30cc2fc3db13494b76d09621b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-candidate-semantic-provider-host.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-candidate-semantic-provider-host.json",
+      "sha256": "82aeda8f2e6625e6efaece5ab11bc9ada171d0b7df5e23179eb6b37bd19d713c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-candidate-semantic-provider-host.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-candidate-semantic-provider-host.log",
+      "sha256": "34f3c10c3a99e6b7a1f3f9a37fa58e5e75d519a99103fd46536fc447e3c83ae5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-original-language-server-owned.jsonl",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-original-language-server-owned.jsonl",
+      "sha256": "a59a78f80e32722ea9d1c7123d64bdd5626ffff81da52f9f9d04d7dd2a76aa6c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-original-language-server.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-original-language-server.json",
+      "sha256": "de44b2a6a8f7892659fc26205cea6b36735caaf5f0495537c595138a53acae84"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-original-language-server.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-original-language-server.log",
+      "sha256": "949d8ed979c690556abc4c1932d809d0c0ea00dfda2e1f98ec57f230cd30559a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-provider-abort-input.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-provider-abort-input.json",
+      "sha256": "d57deab855612fbd849b8232869e747454e8e4943585345cae3206889f06045e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-provider-abort-observation-correction.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-provider-abort-observation-correction.json",
+      "sha256": "7b35643600da37e827120791c91c2209ddfe0b7227228071322555c0dad4ff0c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-provider-abort-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-provider-abort-run.json",
+      "sha256": "d0ac0f0795e44ae6717293c9d377c356fa89459473cbdcfde9f0aa6cbc2c9554"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1067-run-provider-abort.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1067-run-provider-abort.py",
+      "sha256": "ce53b41f6f1a7763d0771057be169b8f47cca99fb9136a159f07485d89ddc4e4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1068-candidate-language-server-owned.jsonl",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1068-candidate-language-server-owned.jsonl",
+      "sha256": "bd18b34026f95f874ca82879fcad632b1454110ae05896fb6234821594ea7b8a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1068-candidate-language-server.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1068-candidate-language-server.json",
+      "sha256": "897911c349571c84014a446f7560451b444b0077a5be5a73da592f1d32a2f12c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1068-candidate-language-server.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1068-candidate-language-server.log",
+      "sha256": "373e787d14685748f1153758c330cba9e643bd27d9bc9b133325c744be0db7c3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1068-complete-provider-abort.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1068-complete-provider-abort.py",
+      "sha256": "a5538fc54ee390a2051be4f3df0cc82e1bb052fc2cb4ae45aa0ca1f46a5cd480"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1068-provider-abort-input.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1068-provider-abort-input.json",
+      "sha256": "a9fc9ea31b6a031eb0ffdb947dd10a83784e838882d65c313149e8821a8f8364"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1068-provider-abort-run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1068-provider-abort-run.json",
+      "sha256": "2da94a8d89565648aba233600f08e12c1fc1d3a49cd76f725e8aadfc01eb7250"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1069-provider-abort-adoption/adoption.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1069-provider-abort-adoption/adoption.json",
+      "sha256": "e75a60c79c1d120d98c4c5488c136eb3539f6a3b53ce3e989413644a9afe5d3b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1069-provider-abort-adoption/before/packages/language-server/src/server.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1069-provider-abort-adoption/before/packages/language-server/src/server.ts",
+      "sha256": "7148493a2ebff344d68245610270efc831195193ec3bf6b8323943b565a448b0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1069-provider-abort-adoption/before/packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1069-provider-abort-adoption/before/packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+      "sha256": "e75c01ae94ddcac09d26081710e887c18da9f56faf8b1e850fd0d978aa1c2e6c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1069-provider-abort-adoption/before/packages/semantic-provider-host/src/index.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1069-provider-abort-adoption/before/packages/semantic-provider-host/src/index.ts",
+      "sha256": "bd78bdfda3ee404dd12cf1042c703ad13accbd78d03a72f94e1dfd511cad71d5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-container-protocol.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-container-protocol.json",
+      "sha256": "47dfd2a2fb235935d82bc45d3a938a1a4a8ae2fba6b44ef07447732d69a0f439"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-host-tests-owned.jsonl",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-host-tests-owned.jsonl",
+      "sha256": "93af3fd9875e5c40e1b3740c0ec176a685c4e6bcf157b15b4f8614da0d882f53"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-host-tests.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-host-tests.json",
+      "sha256": "e75ce5c5b1a1cac4dd199f804558a85c61d5bc9bb651eb87df5157a6f6b65e05"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-protocol-owned.jsonl",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-protocol-owned.jsonl",
+      "sha256": "af02fd6e4b6899302721cbf6eb955dc3991c576b8534294b90b5281d01affded"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-bundle-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-bundle-build.log",
+      "sha256": "18d5b42c2958892a79a04c43e3d14536cd2062552e597af802db43143ecfbfbe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-full-lint.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-full-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-host-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-host-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-host-tests.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-host-tests.log",
+      "sha256": "aaab881d7f7e15dfc1bf6093e6ee4a62a65d2dd84f734e45cfc2b2e070a408d0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-protocol.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-protocol.log",
+      "sha256": "0927dd9bbc6639ba42f58b7778fc9759337809926ebd2751afea4b73feab5a8e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-root-strict.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-root-strict.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-root-unit.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-root-unit.log",
+      "sha256": "9209b2e86a1e375bd19e880f2b0868e66ad514d65efb08056b39de63533bf727"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-server-build.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-server-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-provider-abort-validation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-provider-abort-validation.json",
+      "sha256": "c5f0aeb7ca5fe9d401caab7cddc0afa5bc7dce384b1307d5e3cb85752122d476"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-normal-root-unit.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-normal-root-unit.json",
+      "sha256": "02495de0fe4bc70619be2f6d22d7390c4a18dd1e8751a2a5e14ed0d5008b746c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1070-validate-normal-provider-abort.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1070-validate-normal-provider-abort.py",
+      "sha256": "4afb026e82cff9529b486cb9976385f1bb34116df5af07ca35adbf8ebed31266"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d1071-normal-provider-abort-terminal-review.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/.vscode-test/d1071-normal-provider-abort-terminal-review.json",
+      "sha256": "953ddbe9edb977a6bb094b9fee16c904698b76a5291a8e1073904ee9d9042540"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/extension.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/extension.js",
+      "sha256": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/language-server.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/language-server.js",
+      "sha256": "51cb4095f653c9e32f9784a188d7bcf19f06d439e1396d1e6a0f09be57550cac"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "source": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/language-server/src/server.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/language-server/src/server.ts",
+      "sha256": "43f891ddc37dd9e89e0e5009a5719acde65f52f8f29da744f1a851f6b8b6b157"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+      "sha256": "689821e48562914f44da0c681531c9cb7423b5e077788521b0de7cb6fc5070cc"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic-provider-host/README.md",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/semantic-provider-host/README.md",
+      "sha256": "a501bbc52ced703183025a1435f068e71eb1f2858f3355950ae8b96988d841c1"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic-provider-host/dist/index.d.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/semantic-provider-host/dist/index.d.ts",
+      "sha256": "0a363b74a09b6c61035cf84cd72293b6e7ba1bc80ffa0d18c6e9479826cbbf7b"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic-provider-host/dist/index.js",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/semantic-provider-host/dist/index.js",
+      "sha256": "b86cd0f21852e17bc62cabb6f98fb8c96d67209b0bd492f4211c99297ce5b5e6"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic-provider-host/src/index.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/semantic-provider-host/src/index.ts",
+      "sha256": "1e65842919e29724e6a47d7657f47c10dba772a417edefca94247e58e62f2114"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/semantic-provider-host/test/physical-abort.test.ts",
+      "archive": "/var/www/node/php-companion/.vscode-test/d1072-provider-abort-evidence/packages/semantic-provider-host/test/physical-abort.test.ts",
+      "sha256": "3ae418ba0173df72eec70c7ef0a79efb0272c934e6f73a9803e2395a8f985a26"
+    }
+  ],
+  "currentFullLspQualified": false,
+  "currentEditorFlowsQualified": false,
+  "currentFullProfileQualified": false,
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false
+}

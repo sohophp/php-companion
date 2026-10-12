@@ -1,0 +1,1302 @@
+{
+  "schemaVersion": 1,
+  "productChanged": false,
+  "qualification": false,
+  "decision": "do-not-adopt",
+  "coreSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "generation": {
+    "productChanged": false,
+    "qualification": false,
+    "requiredLspAuditSha256": "c4b4c6ba3a5afa898fa94a9515ec71fc198e77301f4d327f7e48120486654d00",
+    "originalSemanticSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+    "folders": {
+      "baseline": {
+        "path": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic",
+        "indexSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+      },
+      "candidate": {
+        "path": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic",
+        "indexSha256": "6b6f4ff66299b784ff21ae25d0765461df9a3e838d5ea8bf40d7ae5b889e8bb8"
+      }
+    },
+    "permanentTestSha256": "cff44ed76319350e67f9ee43ab8ef55080ef5dc5322928e379252344b6a7ee65",
+    "originalBenchmarkSha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+    "privateBenchmarkSha256": "79ad5c50190e834fb3d818278838810e7da8f19e8ccca37db873f4136f6b4725",
+    "scope": "Private compiled candidate only: twelve inherited accessors per workspace, declaration-only internal file objects, clear prototype on dispose. Empty-facts changes are NOT included. Validators, schema, public snapshot constructors, cache mutations and benchmark budgets unchanged. Internal own-property layout intentionally differs; public API equality requires testing. Original module metadata/dependency links retained; candidate source map is not regenerated and does not prove normal source/build equivalence.",
+    "diff": [
+      "--- normal-baseline\n",
+      "+++ private-shared-prototype-candidate\n",
+      "@@ -1373,6 +1373,7 @@\n",
+      "     typeCompletionFileEntries = new WeakMap();",
+      "     deferredImplementations = new Map();",
+      "     deferredImplementationGetters = new Map();",
+      "+    deferredImplementationPrototype;",
+      "     deferredSources = new Map();",
+      "     targetedImplementationQueries = new Map();",
+      "     referenceCandidates = new DocumentKeyIndex();",
+      "@@ -1555,17 +1556,22 @@\n",
+      "             facts: emptyImplementationFacts(),",
+      "         };",
+      "         this.deferredImplementations.set(file.uri, deferred);",
+      "-        for (const field of IMPLEMENTATION_ARRAY_FIELDS) {",
+      "-            let getter = this.deferredImplementationGetters.get(field);",
+      "-            if (!getter) {",
+      "-                // One accessor per field and workspace, rather than twelve closures per",
+      "-                // restored document. The receiver selects the current document facts.",
+      "-                getter = SemanticWorkspace.deferredImplementationGetter(this, field);",
+      "+        if (!this.deferredImplementationPrototype) {",
+      "+            const prototype = {};",
+      "+            for (const field of IMPLEMENTATION_ARRAY_FIELDS) {",
+      "+                const getter = SemanticWorkspace.deferredImplementationGetter(this, field);",
+      "                 this.deferredImplementationGetters.set(field, getter);",
+      "-            }",
+      "-            Object.defineProperty(file, field, { configurable: true, enumerable: true, get: getter });",
+      "-        }",
+      "-        return file;",
+      "+                Object.defineProperty(prototype, field, { configurable: true, enumerable: true, get: getter });",
+      "+            }",
+      "+            this.deferredImplementationPrototype = prototype;",
+      "+        }",
+      "+        const deferredFile = {",
+      "+            uri: file.uri, source: file.source, namespace: file.namespace,",
+      "+            declarations: file.declarations, callables: file.callables, properties: file.properties,",
+      "+            constants: file.constants, imports: file.imports, templates: file.templates,",
+      "+            genericParents: file.genericParents, mixins: file.mixins, magicMembers: file.magicMembers,",
+      "+        };",
+      "+        return Object.setPrototypeOf(deferredFile, this.deferredImplementationPrototype);",
+      "     }",
+      "     loadCallableImplementations(uri, identities) {",
+      "         const deferred = this.deferredImplementations.get(uri);",
+      "@@ -2263,7 +2269,7 @@\n",
+      "             this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);",
+      "     }",
+      "     dispose() { for (const tree of this.trees.values())",
+      "-        tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.deferredImplementationGetters.clear(); this.deferredSources.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); this.clearLocalProofCaches(); this.valueParameterCallInProgress.clear(); this.readOnlyParseUrlInProgress.clear(); }",
+      "+        tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.deferredImplementationGetters.clear(); this.deferredImplementationPrototype = undefined; this.deferredSources.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); this.clearLocalProofCaches(); this.valueParameterCallInProgress.clear(); this.readOnlyParseUrlInProgress.clear(); }",
+      "     replaceExternalFacts(contribution) {",
+      "         if (!isSemanticFactsContribution(contribution))",
+      "             return false;"
+    ]
+  },
+  "runs": {
+    "d331-prototype-contracts": {
+      "status": "exited",
+      "parentPid": 756186,
+      "childPid": 756551,
+      "startedAtUtc": "2026-10-07T13:53:29.094218+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        ".vscode-test/d330-vitest.config.mjs",
+        "--reporter=json",
+        "--outputFile=.vscode-test/d331-prototype-contracts-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d331-prototype-contracts-input.json",
+      "exitCode": 1,
+      "durationSeconds": 8.572550067998236,
+      "finishedAtUtc": "2026-10-07T13:53:37.665637+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "7c1c774c9c872239836ba0d2d5c5d8baf19e7b23774b51284ed724efab8edba2"
+    },
+    "d332-prototype-failure": {
+      "status": "exited",
+      "parentPid": 757448,
+      "childPid": 757525,
+      "startedAtUtc": "2026-10-07T13:54:39.781375+00:00",
+      "command": [
+        "node",
+        ".vscode-test/d332-prototype-failure.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d332-prototype-failure-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.3083161670001573,
+      "finishedAtUtc": "2026-10-07T13:54:40.088168+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "1b5a1ec1b0e055fe1f11ea967ab1d4b25e4b6c81760f987824240a62e44087d5"
+    },
+    "d333-prototype-contracts": {
+      "status": "exited",
+      "parentPid": 758178,
+      "childPid": 758255,
+      "startedAtUtc": "2026-10-07T13:55:25.944533+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        ".vscode-test/d330-vitest.config.mjs",
+        "--reporter=json",
+        "--outputFile=.vscode-test/d333-prototype-contracts-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d333-prototype-contracts-input.json",
+      "exitCode": 0,
+      "durationSeconds": 8.162375031999545,
+      "finishedAtUtc": "2026-10-07T13:55:34.105587+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "c19fe51b5ff0b1d873c2c11ef5b059457e6518e530e5c284307120e61e95ab9a"
+    },
+    "d333-prototype-parity": {
+      "status": "exited",
+      "parentPid": 758497,
+      "childPid": 758585,
+      "startedAtUtc": "2026-10-07T13:55:44.306936+00:00",
+      "command": [
+        "env",
+        "SOPHP_PROTOTYPE_TRIAL_REPORT=/var/www/node/php-companion/.vscode-test/d333-prototype-parity-result.json",
+        "node",
+        ".vscode-test/d330-prototype-parity.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d333-prototype-parity-input.json",
+      "exitCode": 0,
+      "durationSeconds": 7.5820466359982674,
+      "finishedAtUtc": "2026-10-07T13:55:51.887531+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "85e69f7ce0eea43568e4e1d077a5953666cf84d4cd8dc85bcaa129f090ca8eb8"
+    },
+    "d334-prototype-persistence": {
+      "status": "exited",
+      "parentPid": 759349,
+      "childPid": 759433,
+      "startedAtUtc": "2026-10-07T13:56:05.837211+00:00",
+      "command": [
+        "node",
+        ".vscode-test/d330-prototype-persistence.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d334-prototype-persistence-input.json",
+      "exitCode": 1,
+      "durationSeconds": 42.14100288099871,
+      "finishedAtUtc": "2026-10-07T13:56:47.977131+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "326714ebab805a15b15355ef62793c49afac93f15680bb90ffa259bb5e0eb567"
+    }
+  },
+  "initialContracts": {
+    "total": 27,
+    "passed": 26,
+    "failed": 1,
+    "failure": "Negated Vitest object identity deep equality traversed the getter-bearing prototypes."
+  },
+  "harnessCorrection": {
+    "productChanged": false,
+    "candidateIndexUnchanged": true,
+    "originalTestSha256": "3ea5f1432db5412b5cf8204e1fb75a41dcd6ce68c326d2fc940c899c33b0b28c",
+    "correctedTestSha256": "22d0036ae221d4012810e18b692b1fb32d44781b04d3fa8f66c0af59ab1461a7",
+    "changes": [
+      [
+        "expect(Object.getPrototypeOf(a)).toBe(Object.getPrototypeOf(b));",
+        "expect(Object.getPrototypeOf(a) === Object.getPrototypeOf(b)).toBe(true);"
+      ],
+      [
+        "expect(Object.getPrototypeOf(a)).not.toBe(Object.getPrototypeOf(other));",
+        "expect(Object.getPrototypeOf(a) === Object.getPrototypeOf(other)).toBe(false);"
+      ],
+      [
+        "expect(Object.getPrototypeOf(second.files.get(other.uri))).not.toBe(prototype);",
+        "expect(Object.getPrototypeOf(second.files.get(other.uri)) === prototype).toBe(false);"
+      ]
+    ],
+    "cause": "Vitest toBe computes deep equality suggestions when Object.is is false, even under negation. Prototype accessors are read with the prototype itself as receiver. Independent node strict identity and full stages pass. Boolean identity assertions preserve exact identity requirements without traversing prototype values."
+  },
+  "finalContracts": {
+    "files": 3,
+    "total": 28,
+    "passed": 28,
+    "failed": 0,
+    "existingCasesTwice": 24,
+    "newMechanismOrLifecycleExecutions": 3,
+    "harnessControl": 1
+  },
+  "parity": {
+    "status": "passed",
+    "productChanged": false,
+    "qualification": false,
+    "scope": "Private shared-prototype actual restoreDeclaration parity, rejection state preservation and explicit public persistence/full snapshot equality. No allocation profiler or RSS qualification.",
+    "inputs": 95,
+    "comparisons": 2053,
+    "negativeChecks": 1958,
+    "inputHashes": [
+      {
+        "name": "test/extension/baseline/config/services.php",
+        "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+      },
+      {
+        "name": "test/extension/baseline/src/Broken.php",
+        "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/ExportContract.php",
+        "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Mailer.php",
+        "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/MessageHandler.php",
+        "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Traceable.php",
+        "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+        "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+        "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+        "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+        "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+        "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+        "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+        "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+        "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+        "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+        "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+        "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+        "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeImports.php",
+        "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+        "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RouteConsumer.php",
+        "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+        "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+        "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/UserController.php",
+        "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+      },
+      {
+        "name": "test/extension/baseline/src/Legacy/Duplicate.php",
+        "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ActivityService.php",
+        "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AliasConsumer.php",
+        "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AlternateFeature.php",
+        "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AssertionConsumer.php",
+        "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AttributeConsumer.php",
+        "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+        "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/BaseService.php",
+        "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/CompletionService.php",
+        "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantBase.php",
+        "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantChild.php",
+        "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+        "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructorTarget.php",
+        "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ContainerConsumer.php",
+        "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+        "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DeliveryState.php",
+        "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+        "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+        "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DynamicProperties.php",
+        "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ExportService.php",
+        "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ImplicitNullable.php",
+        "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/Mailer.php",
+        "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MessageHandler.php",
+        "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MissingRunner.php",
+        "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/OverrideTarget.php",
+        "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+        "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+        "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+        "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+        "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+        "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/RunnerImplementation.php",
+        "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/SharedFeature.php",
+        "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+        "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+        "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+        "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnusedImport.php",
+        "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UserService.php",
+        "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/Constants.php",
+        "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/baseline/src/WrongNamespace.php",
+        "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+      },
+      {
+        "name": "test/extension/fixture/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+        "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/UserController.php",
+        "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/AliasConsumer.php",
+        "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/UserService.php",
+        "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+      },
+      {
+        "name": "test/extension/fixture/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+        "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+      },
+      {
+        "name": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+        "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+      },
+      {
+        "name": "test/extension/real-psr0/src/Consumer.php",
+        "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+      },
+      {
+        "name": "scale-typical",
+        "sha256": "ddaab7987829e2e081cc42c49359de7085a5e6593edc3b40f424b0585b0af5d3"
+      },
+      {
+        "name": "nested-callables",
+        "sha256": "c836ab824f2f0ff41c0f27aed5de3f7c0ca3daf594912261ab866c9f18014741"
+      },
+      {
+        "name": "property-hooks",
+        "sha256": "e9e297e971e2dbf7d5ca62e275105c30a75f9aeb6725e6284bb6e23b00773ee5"
+      },
+      {
+        "name": "trait-alias",
+        "sha256": "a878f64b8940d4a1a402d10f0e91c517cf251af810fa3b1beb32ecff82f50e5e"
+      },
+      {
+        "name": "mixed-unfinished",
+        "sha256": "cd4a68a568bafe2ba9e94a4f4707c698a8ef654df2fba188670fd2a0133fc247"
+      }
+    ],
+    "snapshotUnchanged": true,
+    "explicitForcedGc": false
+  },
+  "persistence": {
+    "schema": 1,
+    "files": 10000,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 18851.94,
+      "parsed": 10000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 6090.48,
+      "parsed": 0,
+      "restored": 10000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.3231,
+    "cache": {
+      "cold": {
+        "files": 2,
+        "bytes": 57260849,
+        "mebibytes": 54.61
+      },
+      "warm": {
+        "files": 2,
+        "bytes": 57260849,
+        "mebibytes": 54.61
+      },
+      "frozenBudgetMb": 512
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 312.5,
+      "warmPeakRssMb": 433.82,
+      "layerRecoveryPeakRssMb": 727.27,
+      "callableRecoveryPeakRssMb": 843.85,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 768,
+      "processPeakRssMb": 899.88,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": false
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 10000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 19999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "originalBenchmarkReconstructed": true,
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d331-prototype-contracts-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d331-prototype-contracts-input.json",
+      "bytes": 704677,
+      "sha256": "a6913b73ffed0f76192d8180d05d63e1a4435af4a847c59f772c183ed0ba7be8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d331-prototype-contracts-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d331-prototype-contracts-run.json",
+      "bytes": 683,
+      "sha256": "012923b90ece1e7826a5b11929edb7e351f96f442a3cc7d1320ce8335f19aeae"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d331-prototype-contracts.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d331-prototype-contracts.log",
+      "bytes": 101,
+      "sha256": "7c1c774c9c872239836ba0d2d5c5d8baf19e7b23774b51284ed724efab8edba2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d331-prototype-contracts-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d331-prototype-contracts-result.json",
+      "bytes": 11007,
+      "sha256": "649830a67132b50dd0988157c45727702041fb33b6e3fe2447c7bf08e14b6e07"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-prototype-failure-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-prototype-failure-input.json",
+      "bytes": 704678,
+      "sha256": "939a3f7742aaecccb8b63610ccc0319b741f64c03e2402d5ba121103ee8fcf67"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-prototype-failure-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-prototype-failure-run.json",
+      "bytes": 540,
+      "sha256": "a2c49873a0610ccc1536bd7234dd26c69148103abbf70b722c1301ea5b6129d0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-prototype-failure.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-prototype-failure.log",
+      "bytes": 66,
+      "sha256": "1b5a1ec1b0e055fe1f11ea967ab1d4b25e4b6c81760f987824240a62e44087d5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-contracts-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-contracts-input.json",
+      "bytes": 705113,
+      "sha256": "64015cf2bb231a62026398c27b659429f8ece6976185d1035928bc4cefcfac32"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-contracts-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-contracts-run.json",
+      "bytes": 683,
+      "sha256": "5f6e69947bd5b26b8d454deab427df96c2a7ea0e81dcbad6207ec4169f9481b9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-contracts.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-contracts.log",
+      "bytes": 101,
+      "sha256": "c19fe51b5ff0b1d873c2c11ef5b059457e6518e530e5c284307120e61e95ab9a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-contracts-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-contracts-result.json",
+      "bytes": 10121,
+      "sha256": "b9031019a07af7058a08703cacdc3c0c480f65387833e753f4a7cbdf8967d884"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-parity-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-parity-input.json",
+      "bytes": 705092,
+      "sha256": "ed867d5400fb825df2da3797f96a1772be9b0efdf9d37774de060fc08578cb9e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-parity-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-parity-run.json",
+      "bytes": 660,
+      "sha256": "00b60bcdc7c940585953fcda023a51050b7db5c93aba2d9837931d0bedb65584"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-parity.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-parity.log",
+      "bytes": 404,
+      "sha256": "85e69f7ce0eea43568e4e1d077a5953666cf84d4cd8dc85bcaa129f090ca8eb8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-prototype-parity-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-prototype-parity-result.json",
+      "bytes": 16481,
+      "sha256": "8e5195e9fe1dbbbb986593b6aabaf1cee38522f1926a1dff81549a10fcb99514"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d334-prototype-persistence-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d334-prototype-persistence-input.json",
+      "bytes": 705588,
+      "sha256": "dd74145289fe147de895249ecbd9ae330db140baa44ec14aa9d5ae421c25fd83"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d334-prototype-persistence-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d334-prototype-persistence-run.json",
+      "bytes": 560,
+      "sha256": "84cb7f4dd07e468b7ad8bd66826619039ea393f64bf6a0114b5e4cac7b20c874"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d334-prototype-persistence.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d334-prototype-persistence.log",
+      "bytes": 1677,
+      "sha256": "326714ebab805a15b15355ef62793c49afac93f15680bb90ffa259bb5e0eb567"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-prepare-prototype-trial.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-prepare-prototype-trial.py",
+      "bytes": 6917,
+      "sha256": "ec05f5a8214a5c277fc2c65f09e0f5dd8734744994b2b7a4bcc4fc4882f42dd6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-prototype-generation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-prototype-generation.json",
+      "bytes": 5942,
+      "sha256": "500728567fa44b63ac3dc4dbcdd9c289ba56411f6dff5583d6680ade7e8780fe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-vitest.config.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-vitest.config.mjs",
+      "bytes": 147,
+      "sha256": "4d876a71f065a647ad491f5c3cba7f0518cb50b0f5213fd7197253c7ffd05de0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-contract-baseline.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-contract-baseline.test.ts",
+      "bytes": 7912,
+      "sha256": "d659f88682605137aae137bdd961baab2e6492f659cff8999ee944635cf60831"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-contract-candidate.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-contract-candidate.test.ts",
+      "bytes": 7913,
+      "sha256": "95aae60d6726e6638a62edf686468bbe1d15b2b2509d3b7ed5e755bbeef782df"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-shape.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-shape.test.ts",
+      "bytes": 4576,
+      "sha256": "22d0036ae221d4012810e18b692b1fb32d44781b04d3fa8f66c0af59ab1461a7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-prototype-parity.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-prototype-parity.mjs",
+      "bytes": 6247,
+      "sha256": "5c9ccfd7318be073493c59d457625b41bca981fccec93082f1b9f96063d4d00b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-prototype-persistence.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d330-prototype-persistence.mjs",
+      "bytes": 14793,
+      "sha256": "79ad5c50190e834fb3d818278838810e7da8f19e8ccca37db873f4136f6b4725"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d331-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d331-run.py",
+      "bytes": 4032,
+      "sha256": "39e9b739073d161fc86fb79b81300d23394d5bcb0fcb8aef2d7a5dfe7d0c7833"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-run.py",
+      "bytes": 4118,
+      "sha256": "2cae1bbf7c135973e6c554be6c9f6bedbe8989d9aa4677f6f22e5abcf48a406a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-prototype-failure.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-prototype-failure.mjs",
+      "bytes": 3061,
+      "sha256": "2a6f4453c8751ebd8af68147713242f4f9db3f6677a00d01cf70a9dddb6e10d0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-original-shape.test.ts.txt",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-original-shape.test.ts.txt",
+      "bytes": 3971,
+      "sha256": "3ea5f1432db5412b5cf8204e1fb75a41dcd6ce68c326d2fc940c899c33b0b28c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d332-harness-correction.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d332-harness-correction.json",
+      "bytes": 1148,
+      "sha256": "5320dd84b3d2800e44933f5cb480465a55485aaa55f335671f3ed3d7e2ee20e2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d333-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d333-run.py",
+      "bytes": 4250,
+      "sha256": "11df712fc3226459d41c174ec1d8c0047e4bf5f98683684ddcf407222dc78609"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d334-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d334-run.py",
+      "bytes": 4461,
+      "sha256": "6b214c54e4c983427c87f284cc93954a06362dcfed79bc0f940f9cd6c2a583b1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d335-record-prototype-trial.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/d335-record-prototype-trial.py",
+      "bytes": 9532,
+      "sha256": "24d96dc7388e4519ba3311764608bdb00fe837055a3d1ad8f709dfaab5fd4327"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/package.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/package.json",
+      "bytes": 1060,
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/quotedCompletion.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/quotedCompletion.d.ts.map",
+      "bytes": 809,
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/index.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/index.d.ts.map",
+      "bytes": 46837,
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTrivia.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTrivia.js",
+      "bytes": 1017,
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionMatching.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionMatching.d.ts.map",
+      "bytes": 227,
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/phpDocNameBinding.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/phpDocNameBinding.d.ts",
+      "bytes": 366,
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionIdentifier.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionIdentifier.d.ts",
+      "bytes": 256,
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/nativeScalarInput.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/nativeScalarInput.d.ts",
+      "bytes": 474,
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/nativeScalarInput.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/nativeScalarInput.js.map",
+      "bytes": 7552,
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/index.js",
+      "bytes": 1504170,
+      "sha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/quotedCompletion.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/quotedCompletion.js",
+      "bytes": 3431,
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/phpDocNameBinding.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/phpDocNameBinding.js.map",
+      "bytes": 3196,
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/quotedCompletion.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/quotedCompletion.d.ts",
+      "bytes": 823,
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTypeTail.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTypeTail.d.ts",
+      "bytes": 253,
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTypeTail.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTypeTail.js.map",
+      "bytes": 949,
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/index.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/index.d.ts",
+      "bytes": 58859,
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTrivia.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTrivia.d.ts",
+      "bytes": 449,
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/phpDocNameBinding.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/phpDocNameBinding.d.ts.map",
+      "bytes": 348,
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/nativeScalarInput.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/nativeScalarInput.js",
+      "bytes": 6554,
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionMatching.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionMatching.js.map",
+      "bytes": 946,
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionIdentifier.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionIdentifier.js.map",
+      "bytes": 820,
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/phpDocNameBinding.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/phpDocNameBinding.js",
+      "bytes": 2870,
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/quotedCompletion.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/quotedCompletion.js.map",
+      "bytes": 3791,
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionMatching.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionMatching.js",
+      "bytes": 839,
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/nativeScalarInput.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/nativeScalarInput.d.ts.map",
+      "bytes": 520,
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionIdentifier.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionIdentifier.js",
+      "bytes": 823,
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTypeTail.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTypeTail.js",
+      "bytes": 851,
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/d188-baseline-index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/d188-baseline-index.js",
+      "bytes": 1501711,
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionIdentifier.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionIdentifier.d.ts.map",
+      "bytes": 236,
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTypeTail.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTypeTail.d.ts.map",
+      "bytes": 257,
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTrivia.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTrivia.js.map",
+      "bytes": 1255,
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionTrivia.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionTrivia.d.ts.map",
+      "bytes": 382,
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/index.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/index.js.map",
+      "bytes": 1489685,
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-baseline-semantic/dist/completionMatching.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/baseline/dist/completionMatching.d.ts",
+      "bytes": 227,
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/package.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/package.json",
+      "bytes": 1060,
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/quotedCompletion.d.ts.map",
+      "bytes": 809,
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/index.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/index.d.ts.map",
+      "bytes": 46837,
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTrivia.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTrivia.js",
+      "bytes": 1017,
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionMatching.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionMatching.d.ts.map",
+      "bytes": 227,
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/phpDocNameBinding.d.ts",
+      "bytes": 366,
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionIdentifier.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionIdentifier.d.ts",
+      "bytes": 256,
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/nativeScalarInput.d.ts",
+      "bytes": 474,
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/nativeScalarInput.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/nativeScalarInput.js.map",
+      "bytes": 7552,
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/index.js",
+      "bytes": 1504629,
+      "sha256": "6b6f4ff66299b784ff21ae25d0765461df9a3e838d5ea8bf40d7ae5b889e8bb8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/quotedCompletion.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/quotedCompletion.js",
+      "bytes": 3431,
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/phpDocNameBinding.js.map",
+      "bytes": 3196,
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/quotedCompletion.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/quotedCompletion.d.ts",
+      "bytes": 823,
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTypeTail.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTypeTail.d.ts",
+      "bytes": 253,
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTypeTail.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTypeTail.js.map",
+      "bytes": 949,
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/index.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/index.d.ts",
+      "bytes": 58859,
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTrivia.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTrivia.d.ts",
+      "bytes": 449,
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/phpDocNameBinding.d.ts.map",
+      "bytes": 348,
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/nativeScalarInput.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/nativeScalarInput.js",
+      "bytes": 6554,
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionMatching.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionMatching.js.map",
+      "bytes": 946,
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionIdentifier.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionIdentifier.js.map",
+      "bytes": 820,
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/phpDocNameBinding.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/phpDocNameBinding.js",
+      "bytes": 2870,
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/quotedCompletion.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/quotedCompletion.js.map",
+      "bytes": 3791,
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionMatching.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionMatching.js",
+      "bytes": 839,
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/nativeScalarInput.d.ts.map",
+      "bytes": 520,
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionIdentifier.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionIdentifier.js",
+      "bytes": 823,
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTypeTail.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTypeTail.js",
+      "bytes": 851,
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/d188-baseline-index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/d188-baseline-index.js",
+      "bytes": 1501711,
+      "sha256": "ccf61722c0c074a19f80f3128cb88c227425e94bb47b7d1290b9a0a0da026653"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionIdentifier.d.ts.map",
+      "bytes": 236,
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTypeTail.d.ts.map",
+      "bytes": 257,
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTrivia.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTrivia.js.map",
+      "bytes": 1255,
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionTrivia.d.ts.map",
+      "bytes": 382,
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/index.js.map",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/index.js.map",
+      "bytes": 1489685,
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d330-candidate-semantic/dist/completionMatching.d.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/candidate/dist/completionMatching.d.ts",
+      "bytes": 227,
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "source": "/var/www/node/php-companion/node_modules/.pnpm/@vitest+expect@4.1.10/node_modules/@vitest/expect/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d335-prototype-evidence/vitest-expect-index.js",
+      "bytes": 72296,
+      "sha256": "b177ca97952f1d65d3d2691edbc31ab1af56ac36b3cf08d7f56ad0ca69f07a45"
+    }
+  ],
+  "boundaries": [
+    "Private compiled candidate, not a normal source/build qualification; unchanged original package metadata/dependency ownership retained.",
+    "Candidate source map was not regenerated. It cannot prove candidate TS/source equivalence; no profiler or source-mapped attribution is claimed.",
+    "Inherited accessors intentionally alter internal file own-property layout. Explicit public snapshot constructors and APIs tested here remain equal.",
+    "Single candidate original 10k trial, no paired baseline or statistical RSS/latency improvement claim; 768 MiB failure remains. No 50k follow-up.",
+    "No normal product source, build, profile, package, installed extension, commit, push or publication change. Full original scope remains open."
+  ]
+}

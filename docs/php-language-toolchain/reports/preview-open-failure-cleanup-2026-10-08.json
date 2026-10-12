@@ -1,0 +1,126 @@
+{
+  "recordedAtUtc": "2026-10-08T14:20:43.632769+00:00",
+  "normalSourceAdopted": true,
+  "sourceSha256": "89e93bce7ffe69a1e057e57b8591f27a2ddb91bb73435db73e6461077d7cd567",
+  "normalExtensionSha256": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+  "onlyExtensionBundleChanged": true,
+  "normalLanguageServerWorkersAndWasmUnchanged": true,
+  "actualPrivateFaultProofs": [
+    {
+      "kind": "baseline",
+      "mode": "onDemand",
+      "path": "/var/www/node/php-companion/.vscode-test/d929-preview-open-baseline-onDemand-evidence/acceptance-proof.json",
+      "sha256": "e626ac0ea5d7e1973bebd600471ed494e0238e326c204149d23299706d1ab143",
+      "faultRows": 8,
+      "cancelRows": 4,
+      "applyUndoRedoRows": 0
+    },
+    {
+      "kind": "candidate",
+      "mode": "onDemand",
+      "path": "/var/www/node/php-companion/.vscode-test/d929-preview-open-candidate-onDemand-evidence/acceptance-proof.json",
+      "sha256": "6c3748a84d2eb28668488bd7cb8b247278aa78694bda184670e2f994ad5caedd",
+      "faultRows": 8,
+      "cancelRows": 4,
+      "applyUndoRedoRows": 4
+    },
+    {
+      "kind": "baseline",
+      "mode": "progressive",
+      "path": "/var/www/node/php-companion/.vscode-test/d929-preview-open-baseline-progressive-evidence/acceptance-proof.json",
+      "sha256": "f1cecbaa6c36820cd9e9bfaf93fc75df6fafa1ed5d249eabf08d12351c068301",
+      "faultRows": 8,
+      "cancelRows": 4,
+      "applyUndoRedoRows": 0
+    },
+    {
+      "kind": "candidate",
+      "mode": "progressive",
+      "path": "/var/www/node/php-companion/.vscode-test/d929-preview-open-candidate-progressive-evidence/acceptance-proof.json",
+      "sha256": "6cad26f0eb2727831755cda1381834f5e9ece839820b20a99ed0e17faa2a8130",
+      "faultRows": 8,
+      "cancelRows": 4,
+      "applyUndoRedoRows": 4
+    }
+  ],
+  "secondOpenFailureRows": 16,
+  "firstOpenNegativeControls": 16,
+  "normalCancelRows": 16,
+  "candidateApplyUndoRedoRows": 8,
+  "normalFullC3": [
+    {
+      "mode": "progressive",
+      "durationSeconds": 249.51389623100113,
+      "qualified": true,
+      "logSha256": "3047e98d10a213c4cee40ee9d76150587645352bfff5532cd69cc5ac4d539ff4"
+    },
+    {
+      "mode": "onDemand",
+      "durationSeconds": 301.39270332999877,
+      "qualified": true,
+      "logSha256": "9f36bf07be27ca0dfb0337364ec03d0e0c047194d631cb46306d65cc89c94fb8"
+    }
+  ],
+  "normalGenerationWorkflowRows": 80,
+  "rootUnitCasesActuallyRerun": 113,
+  "rootTypecheckExitCode": 0,
+  "extensionEslintExitCode": 0,
+  "frozenInputs": 18799,
+  "terminalInputChanges": [],
+  "previousLspScope": {
+    "files": 109,
+    "cases": 1377,
+    "exactLanguageServerInputsReused": true,
+    "currentFullLspRerun": false,
+    "changesSinceThatSnapshot": [
+      "/var/www/node/php-companion/docs/php-language-toolchain/future-core-plan.md",
+      "/var/www/node/php-companion/src/extension/extension.ts",
+      "/var/www/node/php-companion/docs/php-language-toolchain/status.md",
+      "/var/www/node/php-companion/docs/php-language-toolchain/acceptance-fixtures.md",
+      "/var/www/node/php-companion/docs/php-language-toolchain/roadmap.md",
+      "/var/www/node/php-companion/dist/extension.js"
+    ]
+  },
+  "permanentLeakOrRssReductionProven": false,
+  "editorListenerWarningCauseProven": false,
+  "previousWindowsC2BodyPassedButWholeHostObserverFailed": true,
+  "performanceStillOpen": true,
+  "profileUpdated": false,
+  "packaged": false,
+  "committed": false,
+  "fullObjectiveComplete": false,
+  "evidence": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d936-current-preview-open-failure-controller.json",
+      "sha256": "bcf93b57b5702017133567f533caeb32527589241eab6d07df0e112e84c171b0"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d938-normal-generation-host-qualification.json",
+      "sha256": "22fff216cd8ad86418f0f2d3171aec1f9a7867f5d5483a421a6f466d058ddf38"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d938-normal-generation-host-input.json",
+      "sha256": "deddbc19057992124a369b59daf34bdba4a122870faebf3901adcde9033b16c1"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d937-preview-open-root-unit-result.json",
+      "sha256": "3a8e49fcc80fead69a151f60b2975f3d5af2ee7537b2beb84dbab1484fba5932"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d937-preview-open-normal-types.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d937-preview-open-normal-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d937-preview-open-normal-build.log",
+      "sha256": "0992f69f0b6e1d8feb086dd78a7ab64504de7cb6adf67fab128d504f0fe54375"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d940-reference-stage-diagnostic-run.json",
+      "sha256": "f1de2aa5d9fb49876c997f3e35d1d40261ddfffad2d25dab490e4a252c40b291"
+    }
+  ]
+}

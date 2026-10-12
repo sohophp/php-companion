@@ -1,0 +1,276 @@
+{
+  "terminalAuditQualified": true,
+  "privateCandidateOnly": true,
+  "normalProductChanged": false,
+  "candidateAdopted": false,
+  "fullPerformanceQualified": false,
+  "original500msBudgetPassed": false,
+  "fourDiagnosticObservationsNotP95OrEditorUiQualification": true,
+  "readonlyProjectFilesRechecked": 66079,
+  "ownedProcessesGone": true,
+  "originalPhasesQueriesAndOutputsExactlyEqual": true,
+  "normalReceiptMs": [
+    5908.7345669999995,
+    3003.994681,
+    2236.462043999998,
+    2306.0305599999992
+  ],
+  "candidateReceiptMs": [
+    3637.913237,
+    2631.066309,
+    1993.76368,
+    2017.5917590000008
+  ],
+  "normalArgumentProofFrames": [
+    {
+      "function": "provenArgumentType",
+      "url": "file:///var/www/node/php-companion/dist/language-server.js",
+      "lineZeroBased": 252,
+      "columnZeroBased": 107324,
+      "sampledMs": 3881.15,
+      "actualBundleSnippet": "rty\"&&d.static&&d.name===l.name&&d.readable!==!1);return c.length===1?this.memberDiagnosticType(c[0],!0):void 0}provenArgumentType(e,t,n){let l=e.source.slice(t,n),s=l.trim(),r=t+l.indexOf(s),o=r+s.length;if(s.toLowerCase()===\"null\")return Qe(\"null\");if(/^(?:true|false)$/i.test(s))return Qe(\"bool\");if(/^[+-]?(?:0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)$/.test(s))return Qe(\"int\");if(/^[+-]?(?:(?:[0-9][0-9_]*)?"
+    }
+  ],
+  "candidateArgumentProofFrames": [
+    {
+      "function": "provenArgumentType",
+      "url": "file:///var/www/node/php-companion/.vscode-test/d2193-diagnostic-argument-candidate-runtime/language-server.js",
+      "lineZeroBased": 252,
+      "columnZeroBased": 107324,
+      "sampledMs": 2411.459,
+      "actualBundleSnippet": "rty\"&&d.static&&d.name===l.name&&d.readable!==!1);return c.length===1?this.memberDiagnosticType(c[0],!0):void 0}provenArgumentType(e,t,n){let l=e.source.slice(t,n),s=l.trim(),r=t+l.indexOf(s),o=r+s.length;if(s.toLowerCase()===\"null\")return Qe(\"null\");if(/^(?:true|false)$/i.test(s))return Qe(\"bool\");if(/^[+-]?(?:0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)$/.test(s))return Qe(\"int\");if(/^[+-]?(?:(?:[0-9][0-9_]*)?"
+    }
+  ],
+  "normalParameterDiagnosticFrames": [
+    {
+      "function": "incompatibleArguments",
+      "url": "file:///var/www/node/php-companion/dist/language-server.js",
+      "lineZeroBased": 228,
+      "columnZeroBased": 15644,
+      "sampledMs": 5414.176,
+      "actualBundleSnippet": "eBoundResolver(n,[o.containerFqcn],o.containerFqcn);r(f,o.type,o.containerFqcn,\"property\",o.fqcn,c)}return l}incompatibleArguments(e,t=!1){let n=!Qi.has(this);n&&Qi.set(this,{generation:0,entries:new Map});try{let l=this.files.get(e);return l?l.calls.flatMap(s=>{if(s.arguments.some(d=>d.unpacked))return[];let r=this.completedCallSignature(l,s);if(!r)return[];if(t&&r.uri!==e&&!r.uri.startsWith(\"php-companion-builtin:\"))return[]"
+    }
+  ],
+  "candidateParameterDiagnosticFrames": [
+    {
+      "function": "incompatibleArguments",
+      "url": "file:///var/www/node/php-companion/.vscode-test/d2193-diagnostic-argument-candidate-runtime/language-server.js",
+      "lineZeroBased": 228,
+      "columnZeroBased": 15644,
+      "sampledMs": 3939.122,
+      "actualBundleSnippet": "eBoundResolver(n,[o.containerFqcn],o.containerFqcn);r(f,o.type,o.containerFqcn,\"property\",o.fqcn,c)}return l}incompatibleArguments(e,t=!1){let n=!Fr.has(this);n&&Fr.set(this,{generation:0,entries:new Map});try{let l=this.files.get(e);return l?l.calls.flatMap(s=>{if(s.arguments.some(d=>d.unpacked))return[];let r=this.completedCallSignature(l,s);if(!r)return[];if(t&&r.uri!==e&&!r.uri.startsWith(\"php-companion-builtin:\"))return[]"
+    }
+  ],
+  "sourceMapsUsed": false,
+  "fullObjectiveComplete": false,
+  "evidenceHashes": {
+    "d2196-real-controller-argument-cpu-run.json": "8b0097f6fefd307fd84baf6340161b62f67d13f424b98b9f06d80240e73e471d",
+    "d2195-real-controller-argument-cpu/result.json": "73a88dff3e2f45eb689f71160f4d12c066c95a11e888d7778a9f073358518a13",
+    "d2199-candidate-controller-argument-cpu-analysis.json": "2423716b3873b66cfa418844561298f639b1d98bead278c1668d75a943dc5861",
+    "d2197-argument-targeted-result.json": "765801e82ed9d74cfa14601c6c8baec9cd66c3e90a1c158a5e08f464163840d9"
+  },
+  "fullSemanticEvidence": {
+    "qualified": true,
+    "privateCandidateOnly": true,
+    "fullSemanticFiles": 182,
+    "semanticCases": 23866,
+    "originalCaseIdentitiesPreserved": true,
+    "strictTypesAndPublicDeclarationsUnchanged": true,
+    "freshControlCases": 4,
+    "freshCandidateCases": 4,
+    "frozenInputsRechecked": 30166,
+    "ownedProcessesGone": true,
+    "normalProductChanged": false,
+    "fullPerformanceQualified": false,
+    "candidateAdopted": false,
+    "fullObjectiveComplete": false
+  },
+  "ordinaryEditingMatrix": {
+    "qualified": false,
+    "allOriginal25RunsExecuted": true,
+    "actualServers": 25,
+    "allOriginalProcessesGone": true,
+    "maximumHotP95Ms": 157.01,
+    "originalBudgetMs": 150,
+    "frozenInputsChecked": 97691,
+    "archivedFiles": 86,
+    "caseResults": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 141.9,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 1,
+        "p95Ms": 142.35,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 1,
+        "p95Ms": 94.86,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 1,
+        "p95Ms": 148.12,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 1,
+        "p95Ms": 62.85,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 2,
+        "p95Ms": 137.86,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 2,
+        "p95Ms": 132.63,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 2,
+        "p95Ms": 97.28,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 2,
+        "p95Ms": 140.89,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 2,
+        "p95Ms": 65.55,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 3,
+        "p95Ms": 144.28,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 3,
+        "p95Ms": 135.34,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 3,
+        "p95Ms": 111.84,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 3,
+        "p95Ms": 151.5,
+        "correctnessPassed": true,
+        "budgetPassed": false
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 3,
+        "p95Ms": 64.54,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 136.45,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 4,
+        "p95Ms": 133.58,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 4,
+        "p95Ms": 93.58,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 4,
+        "p95Ms": 157.01,
+        "correctnessPassed": true,
+        "budgetPassed": false
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 4,
+        "p95Ms": 65.69,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 5,
+        "p95Ms": 136.11,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 5,
+        "p95Ms": 141.3,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 5,
+        "p95Ms": 99.92,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 5,
+        "p95Ms": 138.08,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 5,
+        "p95Ms": 62.01,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      }
+    ]
+  },
+  "normalRuntimeSha256": "169e923bda8dd948a37d65f4c78c74c733a63789350966c5b66babafdce0a9fe"
+}

@@ -1,0 +1,22 @@
+{
+  "qualified": true,
+  "recordedAtUtc": "2026-10-10T14:55:50.403245+00:00",
+  "publicContracts": 43,
+  "sourceOwnerFiles": 12,
+  "contractGatePassed": true,
+  "boundaryTestsPassed": 25,
+  "integratedTypecheckPassed": true,
+  "existingComponentGatePassed": true,
+  "targetLintPassed": true,
+  "normalRuntimeAssetsUnchanged": true,
+  "compiledProductDependenciesUnchanged": true,
+  "compiledDependencyFilesChecked": 411,
+  "onlyRequestedManifestScriptChanges": true,
+  "engineBuildId": "1e43306f108b60e2b86a1691fe20bbd4a7923c3a92448b8e7db1e3ecf57edf6d",
+  "fullP0ContractGateComplete": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1657-public-contract-gate-evidence/manifest.json",
+  "manifestSha256": "06fe3087c702261893662792ff603bd9958d1c3991a1d5013139efeb56adba9e",
+  "archiveFilesVerified": 11
+}

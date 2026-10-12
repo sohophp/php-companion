@@ -1,0 +1,231 @@
+{
+  "recordedAtUtc": "2026-10-12T04:37:36.064847+00:00",
+  "profile": "PHP Companion Alpha",
+  "profileLocation": "/home/jason/.vscode-server/data/User/profiles/5db630d7",
+  "profileUpdated": true,
+  "installedVersion": "0.4.13",
+  "installedFileCount": 39,
+  "installedFiles": [
+    {
+      "id": "sohophp.php-companion",
+      "file": "package.nls.zh-cn.json",
+      "sha256": "a4dd65e00773872a215ff7ebd2d0ea90913f64577f37bcf5ffbab085cb70ba18"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "package.nls.json",
+      "sha256": "181ecf16c6add529cc9ef3cc9d5b05425370703cbf4040e02b7ecbabbb26b11e"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "package.json",
+      "sha256": "41f09cb5bec07c67f7072ae87efb5f87f8b8da0c5ace02f9a7e08fc137cdaa29"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "THIRD_PARTY_NOTICES.md",
+      "sha256": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "SECURITY.md",
+      "sha256": "b5e80b9a909c4c9c87504ef4b96c9754ad6ac954f78d22a72eeab5468ab45cc5"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "readme.md",
+      "sha256": "76c023627c0d9094459141ba82daa1c23cddefe0f4ba318e41246605edef67a7"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "LICENSE-phpstorm-stubs.txt",
+      "sha256": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "LICENSE.txt",
+      "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "changelog.md",
+      "sha256": "e0678f2e983db9275e6b7638c204b790f9cf1682cc7969a6ca8eb32699a40b1b"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "resources/icon.png",
+      "sha256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/sourceStatWorker.js.map",
+      "sha256": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/portableCandidateSearchWorker.js.map",
+      "sha256": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/portableCandidateSearchWorker.js",
+      "sha256": "496cd74d759ef5e1550dfe1edfe057c8e9b6a28bc0f4057c5824862f73c7ba39"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/language-server.js.map",
+      "sha256": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/language-server.js",
+      "sha256": "8713a0c6250065e3f1d762cea387f8265291448ba1245fe2b35d8a5bd7b849be"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/extension.js.map",
+      "sha256": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/extension.js",
+      "sha256": "2fbc4298e3bf6c3cfa03ec5fb15e6fa539d0f49e8225bb97e1c4edbe6eb62e8a"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/candidateWorker.js.map",
+      "sha256": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/candidateWorker.js",
+      "sha256": "49e00f6068f134c4b422fc59617de0d46897e697722f4ba1d742c0061ee9ec87"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/builtinSnapshotWorker.js",
+      "sha256": "b4e2b84781fb17ecf80509c8aa02fa31bdd6551391dd5b646073b39f8e3c9627"
+    },
+    {
+      "id": "sohophp.php-companion",
+      "file": "dist/node_modules/web-tree-sitter/index.js",
+      "sha256": "84321506f6d6f5b1292dd449af6dfe3a0c2e97b4e5247c2da6971ab2c6ab9979"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "package.nls.zh-cn.json",
+      "sha256": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "package.nls.json",
+      "sha256": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "package.json",
+      "sha256": "9b34fb1173b85dbae5f90299411d523c43752a7b50a38115dc81bc8e178dfe59"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "readme.md",
+      "sha256": "a0c7e01db895caee773f5567ebceec6e910e34da4651520ffca5bcdb259132d1"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "LICENSE.txt",
+      "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "changelog.md",
+      "sha256": "462f54a6fdead5c7bfad1504b02a307bd25eb1bcc5057a30b4c6d6c3d871df02"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "resources/icon.png",
+      "sha256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/winstar-route-provider.js",
+      "sha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/static-route-provider.js",
+      "sha256": "dc4523dd505c47b704ad1ce09f5950b6965d8df60bccc22974fa2454581729db"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/service-provider.js",
+      "sha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/extension.js",
+      "sha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/event-provider.js",
+      "sha256": "f7e98415a871b97cf1b3d3a81edc55b2ebf6f0a383ae96566b4ad9755098665e"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "file": "dist/controller-context-provider.js",
+      "sha256": "7a2d9fb763afec492187e1f4957daeb7beba2f223e988386e1787346315c877c"
+    }
+  ],
+  "normalBundleSha256": "8713a0c6250065e3f1d762cea387f8265291448ba1245fe2b35d8a5bd7b849be",
+  "coreRuntimeMatchesFullRegression": true,
+  "symfonyRebuiltFiles": [
+    "packages/php-companion-symfony/dist/service-provider.js",
+    "packages/php-companion-symfony/dist/event-provider.js",
+    "packages/php-companion-symfony/dist/controller-context-provider.js",
+    "packages/php-companion-symfony/dist/static-route-provider.js"
+  ],
+  "symfonyFocusedTestsPassed": 13,
+  "vsixVerificationPassed": true,
+  "profileExtensionCount": 15,
+  "unrelatedExtensionVersionsLocationsMetadataUnchanged": true,
+  "profileSerializationChanges": [
+    {
+      "id": "redhat.vscode-yaml",
+      "change": "VS Code added identifier UUID and normalized URI serialization; version/location/metadata unchanged"
+    }
+  ],
+  "profileConfigurationFilesUnchanged": [
+    "extensions.json.codex-writer-guard-before"
+  ],
+  "openSourcePackFilesUnchanged": true,
+  "windowReloadPending": true,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "evidenceDirectory": "/var/www/node/php-companion/.vscode-test/d2452-profile-update"
+}

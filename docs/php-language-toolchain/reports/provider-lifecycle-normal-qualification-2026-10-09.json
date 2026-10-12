@@ -1,0 +1,605 @@
+{
+  "date": "2026-10-09",
+  "normalLinuxScopeQualified": true,
+  "normalSourceSha256": "c6f52526ba00a681cb1ab28e8257046447d2a4aed64cc781491c3982adc5189c",
+  "normalRuntimeAssets": {
+    "candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "extension.js": "fdd89c42c62f8dd9c92cc9e9b21e3f2d3c9567232f01f458e63a368cabbdfd8c",
+    "candidateWorker.js": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299",
+    "portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "language-server.js": "4c91f86b973ed30fe514fbb3d6ffd1cf275f46e7a1bff2af2bd75164db9ce5a8",
+    "sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "builtinSnapshotWorker.js": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69",
+    "extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "reviews": {
+    "lsp": {
+      "reviewedAtUtc": "2026-10-08T22:09:20.751499+00:00",
+      "qualified": true,
+      "sourceEvidence": "/var/www/node/php-companion/.vscode-test/d1087-normal-provider-lifecycle-full-lsp-run.json",
+      "resultSha256": "66b456856e388cdc2a161ce736563b46fbabd9eefbe6a3c5419101db045768dc",
+      "files": 113,
+      "passedCases": 1434,
+      "baselineCases": 1404,
+      "additionalContainerCases": 6,
+      "newLifecycleCases": 24,
+      "caseIdentitiesAndMultiplicityPreserved": true,
+      "frozenInputCount": 29761,
+      "inputsUnchangedAtTerminal": true,
+      "actualControllerAndVitestGone": true,
+      "constructorTracesVerified": 2,
+      "fullObjectiveComplete": false
+    },
+    "editors": {
+      "reviewedAtUtc": "2026-10-08T22:22:37.631259+00:00",
+      "qualified": true,
+      "originalSuites": [
+        [
+          "c3",
+          "progressive"
+        ],
+        [
+          "c1",
+          "onDemand"
+        ],
+        [
+          "c2",
+          "onDemand"
+        ],
+        [
+          "c3",
+          "onDemand"
+        ]
+      ],
+      "allOriginalAssertionsAndBudgetsPreserved": true,
+      "sourceRuntimeAssetsMatch": true,
+      "generationBoundaryRows": 80,
+      "actualServersAndOwnedDisplaysGone": true,
+      "frozenInputCount": 29768,
+      "allFrozenInputsUnchanged": true,
+      "profileUpdated": false,
+      "fullObjectiveComplete": false
+    },
+    "profile": {
+      "reviewedAtUtc": "2026-10-08T22:24:30.092183+00:00",
+      "functionalQualified": true,
+      "actualExtensions": 12,
+      "originalFullProfileRetained": true,
+      "runtimeAndCopiedInputsVerified": true,
+      "frozenInputCount": 31155,
+      "actualPhpAndTwigServersGone": true,
+      "scalarP95Ms": 149,
+      "unionShapeP95Ms": 174,
+      "firstCompleteFeedbackMs": 1473,
+      "firstRoundHoverCallMs": 57,
+      "fullPerformanceQualified": false,
+      "realWslAcceptance": false,
+      "fullObjectiveComplete": false
+    },
+    "editing": {
+      "reviewedAtUtc": "2026-10-08T22:26:50.748842+00:00",
+      "qualified": true,
+      "originalScriptAndBudgetsRetained": true,
+      "rows": [
+        {
+          "mode": "onDemand",
+          "diagnostics": {
+            "samples": 1000,
+            "p50": 27.90110999999888,
+            "p95": 29.06241399999999,
+            "maximum": 34.284984999998414
+          },
+          "hotCompletion": {
+            "samples": 1000,
+            "p50": 1.300106999999116,
+            "p95": 1.8276380000006611,
+            "maximum": 3.4391469999973197
+          },
+          "hotTypedMemberCompletion": {
+            "samples": 1000,
+            "p50": 2.8170070000014675,
+            "p95": 4.410018999999011,
+            "maximum": 7.071261000004597
+          },
+          "cancellationMs": 6.328104000000167,
+          "rss": {
+            "baseline": 231.6640625,
+            "sampledPeak": 316.796875,
+            "final": 316.796875,
+            "endMinusBaseline": 85.1328125,
+            "samples": 112,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "cacheRecovered": true,
+          "staleResultFailures": 0
+        },
+        {
+          "mode": "experimental",
+          "diagnostics": {
+            "samples": 1000,
+            "p50": 28.210744000003615,
+            "p95": 29.250947999993514,
+            "maximum": 31.03476999999839
+          },
+          "hotCompletion": {
+            "samples": 1000,
+            "p50": 1.3000370000008843,
+            "p95": 1.9872919999997976,
+            "maximum": 4.367019000001164
+          },
+          "hotTypedMemberCompletion": {
+            "samples": 1000,
+            "p50": 2.7717940000002272,
+            "p95": 4.047099000003072,
+            "maximum": 8.07080500000302
+          },
+          "cancellationMs": 0.956397999994806,
+          "rss": {
+            "baseline": 255.12109375,
+            "sampledPeak": 287.30078125,
+            "final": 287.30078125,
+            "endMinusBaseline": 32.1796875,
+            "samples": 112,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "cacheRecovered": true,
+          "staleResultFailures": 0
+        }
+      ],
+      "warmupIterationsPerMode": 100,
+      "measuredIterationsPerMode": 1000,
+      "allActualServersGone": true,
+      "forcedGc": false,
+      "profileUpdated": false,
+      "fullPerformanceQualified": false,
+      "fullObjectiveComplete": false
+    },
+    "ordinary": {
+      "reviewedAtUtc": "2026-10-08T22:31:51.523364+00:00",
+      "qualified": true,
+      "correctnessPassed": 25,
+      "aggregateP95BudgetPassed": 25,
+      "queriesPerRun": 100,
+      "unchangedBudgetMs": 150,
+      "fixtureRows": {
+        "fixed-7.2": {
+          "rounds": 5,
+          "minimumP95Ms": 138.65,
+          "maximumP95Ms": 147.73
+        },
+        "fixed-8.5": {
+          "rounds": 5,
+          "minimumP95Ms": 129.76,
+          "maximumP95Ms": 139.93
+        },
+        "real-data-service": {
+          "rounds": 5,
+          "minimumP95Ms": 88.23,
+          "maximumP95Ms": 91.06
+        },
+        "real-large-controller": {
+          "rounds": 5,
+          "minimumP95Ms": 131.39,
+          "maximumP95Ms": 140.02
+        },
+        "real-blog-controller": {
+          "rounds": 5,
+          "minimumP95Ms": 64.54,
+          "maximumP95Ms": 70.9
+        }
+      },
+      "allActualServersGone": true,
+      "scheduleUnchanged": true,
+      "noEquivalentRetry": true,
+      "previous152_15MsFailureRetainedAsHistoricalEvidence": true,
+      "fullPerformanceQualified": false,
+      "fullObjectiveComplete": false
+    },
+    "scale": {
+      "reviewedAtUtc": "2026-10-08T22:53:42.538847+00:00",
+      "qualified": true,
+      "productionBenchmarkByteExact": true,
+      "budgetsUnchanged": true,
+      "roundsPerScale": 5,
+      "actualServers": 30,
+      "allActualServersGone": true,
+      "allInputsAndSymlinksUnchangedAtTerminal": true,
+      "rows": [
+        {
+          "files": 1000,
+          "coldIndexP95Ms": 2585,
+          "warmIndexP95Ms": 1827,
+          "maximumRssMiB": 347.14453125,
+          "maximumCacheMiB": 2.594912528991699,
+          "largestRoundHotP95Ms": 4.092471999999361,
+          "summary": {
+            "files": 1000,
+            "rounds": 5,
+            "actualServers": 10,
+            "statistics": {
+              "cold": {
+                "indexMs": {
+                  "samples": 5,
+                  "p50": 2069,
+                  "p95": 2585,
+                  "maximum": 2585
+                },
+                "startupToIndexEndMs": {
+                  "samples": 5,
+                  "p50": 4942.503011999999,
+                  "p95": 5495.185929,
+                  "maximum": 5495.185929
+                },
+                "peakRssMiB": {
+                  "samples": 5,
+                  "p50": 330.82421875,
+                  "p95": 347.14453125,
+                  "maximum": 347.14453125
+                },
+                "firstExactCompletionMs": {
+                  "samples": 5,
+                  "p50": 2992.303587,
+                  "p95": 3458.1341390000002,
+                  "maximum": 3458.1341390000002
+                },
+                "cacheMiB": {
+                  "samples": 5,
+                  "p50": 2.5923871994018555,
+                  "p95": 2.594912528991699,
+                  "maximum": 2.594912528991699
+                },
+                "hotQueryP95Ms": {
+                  "textDocument/completion": {
+                    "samples": 5,
+                    "p50": 3.0808209999995597,
+                    "p95": 4.092471999999361,
+                    "maximum": 4.092471999999361
+                  },
+                  "textDocument/hover": {
+                    "samples": 5,
+                    "p50": 2.044315000000097,
+                    "p95": 2.384902000000693,
+                    "maximum": 2.384902000000693
+                  },
+                  "textDocument/definition": {
+                    "samples": 5,
+                    "p50": 2.4385910000000877,
+                    "p95": 3.1611229999998613,
+                    "maximum": 3.1611229999998613
+                  }
+                }
+              },
+              "warm": {
+                "indexMs": {
+                  "samples": 5,
+                  "p50": 1640,
+                  "p95": 1827,
+                  "maximum": 1827
+                },
+                "startupToIndexEndMs": {
+                  "samples": 5,
+                  "p50": 4581.269493,
+                  "p95": 4820.575475000001,
+                  "maximum": 4820.575475000001
+                },
+                "peakRssMiB": {
+                  "samples": 5,
+                  "p50": 328.08984375,
+                  "p95": 342.0390625,
+                  "maximum": 342.0390625
+                },
+                "firstExactCompletionMs": {
+                  "samples": 5,
+                  "p50": 3033.7139019999995,
+                  "p95": 3121.9746320000004,
+                  "maximum": 3121.9746320000004
+                },
+                "cacheMiB": {
+                  "samples": 5,
+                  "p50": 2.5923871994018555,
+                  "p95": 2.594912528991699,
+                  "maximum": 2.594912528991699
+                },
+                "hotQueryP95Ms": {
+                  "textDocument/completion": {
+                    "samples": 5,
+                    "p50": 3.3260389999995823,
+                    "p95": 3.5370919999986654,
+                    "maximum": 3.5370919999986654
+                  },
+                  "textDocument/hover": {
+                    "samples": 5,
+                    "p50": 2.243148999999903,
+                    "p95": 2.7830009999997856,
+                    "maximum": 2.7830009999997856
+                  },
+                  "textDocument/definition": {
+                    "samples": 5,
+                    "p50": 2.694050000000061,
+                    "p95": 2.8027659999988828,
+                    "maximum": 2.8027659999988828
+                  }
+                }
+              }
+            },
+            "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+          }
+        },
+        {
+          "files": 10000,
+          "coldIndexP95Ms": 15494,
+          "warmIndexP95Ms": 11324,
+          "maximumRssMiB": 501.4453125,
+          "maximumCacheMiB": 26.007864952087402,
+          "largestRoundHotP95Ms": 9.38950499999919,
+          "summary": {
+            "files": 10000,
+            "rounds": 5,
+            "actualServers": 10,
+            "statistics": {
+              "cold": {
+                "indexMs": {
+                  "samples": 5,
+                  "p50": 15321,
+                  "p95": 15494,
+                  "maximum": 15494
+                },
+                "startupToIndexEndMs": {
+                  "samples": 5,
+                  "p50": 18213.059976999997,
+                  "p95": 18436.325169,
+                  "maximum": 18436.325169
+                },
+                "peakRssMiB": {
+                  "samples": 5,
+                  "p50": 491.96484375,
+                  "p95": 501.4453125,
+                  "maximum": 501.4453125
+                },
+                "firstExactCompletionMs": {
+                  "samples": 5,
+                  "p50": 3025.944848,
+                  "p95": 3086.964436,
+                  "maximum": 3086.964436
+                },
+                "cacheMiB": {
+                  "samples": 5,
+                  "p50": 26.00182056427002,
+                  "p95": 26.007864952087402,
+                  "maximum": 26.007864952087402
+                },
+                "hotQueryP95Ms": {
+                  "textDocument/completion": {
+                    "samples": 5,
+                    "p50": 6.108126999999513,
+                    "p95": 6.614469000000099,
+                    "maximum": 6.614469000000099
+                  },
+                  "textDocument/hover": {
+                    "samples": 5,
+                    "p50": 2.145743000000948,
+                    "p95": 2.971853999999439,
+                    "maximum": 2.971853999999439
+                  },
+                  "textDocument/definition": {
+                    "samples": 5,
+                    "p50": 6.182247000000643,
+                    "p95": 8.61406100000022,
+                    "maximum": 8.61406100000022
+                  }
+                }
+              },
+              "warm": {
+                "indexMs": {
+                  "samples": 5,
+                  "p50": 10999,
+                  "p95": 11324,
+                  "maximum": 11324
+                },
+                "startupToIndexEndMs": {
+                  "samples": 5,
+                  "p50": 14012.054709999997,
+                  "p95": 14100.860587000003,
+                  "maximum": 14100.860587000003
+                },
+                "peakRssMiB": {
+                  "samples": 5,
+                  "p50": 483.17578125,
+                  "p95": 497.671875,
+                  "maximum": 497.671875
+                },
+                "firstExactCompletionMs": {
+                  "samples": 5,
+                  "p50": 2996.855409,
+                  "p95": 3113.988877,
+                  "maximum": 3113.988877
+                },
+                "cacheMiB": {
+                  "samples": 5,
+                  "p50": 26.00182056427002,
+                  "p95": 26.007864952087402,
+                  "maximum": 26.007864952087402
+                },
+                "hotQueryP95Ms": {
+                  "textDocument/completion": {
+                    "samples": 5,
+                    "p50": 7.801150000006601,
+                    "p95": 9.38950499999919,
+                    "maximum": 9.38950499999919
+                  },
+                  "textDocument/hover": {
+                    "samples": 5,
+                    "p50": 2.0541060000032303,
+                    "p95": 2.7113790000003064,
+                    "maximum": 2.7113790000003064
+                  },
+                  "textDocument/definition": {
+                    "samples": 5,
+                    "p50": 7.7616479999996955,
+                    "p95": 9.177216000003682,
+                    "maximum": 9.177216000003682
+                  }
+                }
+              }
+            },
+            "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+          }
+        },
+        {
+          "files": 50000,
+          "coldIndexP95Ms": 72984,
+          "warmIndexP95Ms": 54155,
+          "maximumRssMiB": 1186.26953125,
+          "maximumCacheMiB": 130.20391178131104,
+          "largestRoundHotP95Ms": 53.78281099998276,
+          "summary": {
+            "files": 50000,
+            "rounds": 5,
+            "actualServers": 10,
+            "statistics": {
+              "cold": {
+                "indexMs": {
+                  "samples": 5,
+                  "p50": 71420,
+                  "p95": 72984,
+                  "maximum": 72984
+                },
+                "startupToIndexEndMs": {
+                  "samples": 5,
+                  "p50": 74363.673223,
+                  "p95": 76255.17150200001,
+                  "maximum": 76255.17150200001
+                },
+                "peakRssMiB": {
+                  "samples": 5,
+                  "p50": 1002.203125,
+                  "p95": 1034.8203125,
+                  "maximum": 1034.8203125
+                },
+                "firstExactCompletionMs": {
+                  "samples": 5,
+                  "p50": 3092.9466969999994,
+                  "p95": 3397.1606300000003,
+                  "maximum": 3397.1606300000003
+                },
+                "cacheMiB": {
+                  "samples": 5,
+                  "p50": 130.10551166534424,
+                  "p95": 130.20391178131104,
+                  "maximum": 130.20391178131104
+                },
+                "hotQueryP95Ms": {
+                  "textDocument/completion": {
+                    "samples": 5,
+                    "p50": 41.41606899999897,
+                    "p95": 42.20773099998769,
+                    "maximum": 42.20773099998769
+                  },
+                  "textDocument/hover": {
+                    "samples": 5,
+                    "p50": 2.4670740000001388,
+                    "p95": 3.2412460000050487,
+                    "maximum": 3.2412460000050487
+                  },
+                  "textDocument/definition": {
+                    "samples": 5,
+                    "p50": 38.76233700000739,
+                    "p95": 40.247578000009526,
+                    "maximum": 40.247578000009526
+                  }
+                }
+              },
+              "warm": {
+                "indexMs": {
+                  "samples": 5,
+                  "p50": 52811,
+                  "p95": 54155,
+                  "maximum": 54155
+                },
+                "startupToIndexEndMs": {
+                  "samples": 5,
+                  "p50": 55850.772490999996,
+                  "p95": 57252.33863,
+                  "maximum": 57252.33863
+                },
+                "peakRssMiB": {
+                  "samples": 5,
+                  "p50": 1155.89453125,
+                  "p95": 1186.26953125,
+                  "maximum": 1186.26953125
+                },
+                "firstExactCompletionMs": {
+                  "samples": 5,
+                  "p50": 3032.798207999993,
+                  "p95": 3172.4943670000066,
+                  "maximum": 3172.4943670000066
+                },
+                "cacheMiB": {
+                  "samples": 5,
+                  "p50": 130.10551166534424,
+                  "p95": 130.20391178131104,
+                  "maximum": 130.20391178131104
+                },
+                "hotQueryP95Ms": {
+                  "textDocument/completion": {
+                    "samples": 5,
+                    "p50": 50.8014709999843,
+                    "p95": 53.78281099998276,
+                    "maximum": 53.78281099998276
+                  },
+                  "textDocument/hover": {
+                    "samples": 5,
+                    "p50": 2.7166380000126082,
+                    "p95": 3.079256000026362,
+                    "maximum": 3.079256000026362
+                  },
+                  "textDocument/definition": {
+                    "samples": 5,
+                    "p50": 48.418991999991704,
+                    "p95": 53.14392100000987,
+                    "maximum": 53.14392100000987
+                  }
+                }
+              }
+            },
+            "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+          }
+        }
+      ],
+      "forcedGc": false,
+      "queryPrewarm": false,
+      "scope": "Linux/PHP8.5/progressive; original production workload, 100 hot samples per method per phase",
+      "fullPerformanceQualified": false,
+      "fullObjectiveComplete": false
+    }
+  },
+  "evidenceManifest": "/var/www/node/php-companion/.vscode-test/d1101-normal-lifecycle-qualification-evidence/manifest.json",
+  "normalSourceAdopted": true,
+  "sourceSnapshotArchived": true,
+  "profileUpdated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false,
+  "published": false,
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "remaining": [
+    "union-shape feedback P95 174ms exceeds 150ms",
+    "current build version/platform/real-project/long-session/manual WSL qualification",
+    "remaining original C1-C4/R4 and P0-P9/F01-F14 requirements",
+    "direct-provider cancellation does not cover descendants"
+  ],
+  "historicalOrdinaryFailureRetained": {
+    "p95Ms": 152.15,
+    "budgetMs": 150,
+    "note": "Old snapshot retained. Current changed-build matrix was declared before execution; no equivalent retry or causal performance improvement claim."
+  }
+}

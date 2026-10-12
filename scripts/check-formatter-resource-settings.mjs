@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
+import console from 'node:console';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import process from 'node:process';
 import { runInNewContext } from 'node:vm';
 
 const [candidate] = process.argv.slice(2);

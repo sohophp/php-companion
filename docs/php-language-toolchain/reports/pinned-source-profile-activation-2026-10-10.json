@@ -1,0 +1,144 @@
+{
+  "recordedAtUtc": "2026-10-10T03:55:14.204931+00:00",
+  "pinnedSourceProfileCasePassed": true,
+  "target": "7.2",
+  "actualPhpVersion": "7.2.34",
+  "files": 10000,
+  "indexingMode": "progressive",
+  "round": 1,
+  "extensionsIncludingCore": 12,
+  "profileInventory": [
+    {
+      "id": "sohophp.php-companion",
+      "version": "0.4.13",
+      "extensionPath": "/tmp/sophp-activation-observer-extension-qJAdKk",
+      "active": true
+    },
+    {
+      "id": "editorconfig.editorconfig",
+      "version": "0.18.2",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/editorconfig.editorconfig-0.18.2",
+      "active": true
+    },
+    {
+      "id": "eiminsasete.apacheconf-snippets",
+      "version": "1.4.0",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/eiminsasete.apacheconf-snippets-1.4.0",
+      "active": false
+    },
+    {
+      "id": "junstyle.php-cs-fixer",
+      "version": "0.3.21",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/junstyle.php-cs-fixer-0.3.21",
+      "active": true
+    },
+    {
+      "id": "mrmlnc.vscode-apache",
+      "version": "1.2.0",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/mrmlnc.vscode-apache-1.2.0",
+      "active": false
+    },
+    {
+      "id": "neilbrayfield.php-docblocker",
+      "version": "2.7.0",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/neilbrayfield.php-docblocker-2.7.0",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-xml",
+      "version": "0.29.3",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/redhat.vscode-xml-0.29.3-linux-x64",
+      "active": false
+    },
+    {
+      "id": "redhat.vscode-yaml",
+      "version": "1.24.0",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/redhat.vscode-yaml-1.24.0",
+      "active": false
+    },
+    {
+      "id": "xdebug.php-debug",
+      "version": "1.40.1",
+      "extensionPath": "/tmp/sophp-editor-cold-activation-YlivyA/extensions/xdebug.php-debug-1.40.1",
+      "active": false
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/packages/php-companion-symfony",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/packages/php-companion-extension-pack",
+      "active": false
+    },
+    {
+      "id": "sohophp.twig-plus",
+      "version": "1.3.8",
+      "extensionPath": "/var/www/node/twig-plus/packages/vscode",
+      "active": false
+    }
+  ],
+  "automaticUpdatesDisabledAndObservedInHost": true,
+  "editorAutomaticUpdateValueAsserted": "off",
+  "autoCheckUpdatesAsserted": false,
+  "editorUpdateModeAsserted": "none",
+  "copiedProfileRuntimeFilesVerifiedAtExit": 1185,
+  "copiedRuntimeFilesUnchanged": true,
+  "firstQueriesStrictlyPassed": 3,
+  "firstQueryProofPersistedBeforeInventory": true,
+  "firstCompletionReceivedMs": 39856.813321999995,
+  "firstHoverReceivedMs": 39873.353725999994,
+  "firstDefinitionReceivedMs": 39883.992269999995,
+  "normalRuntimeAssetsUnchanged": 8,
+  "clockAndStrictQueriesUnchanged": true,
+  "publicToolInputFilesVerified": 20780,
+  "publicToolInputLinksVerified": 1536,
+  "historicalDevelopmentCacheExcluded": true,
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    711245,
+    711375,
+    711377,
+    711382,
+    711918,
+    712294
+  ],
+  "original405CaseProfileMatrixStillFailed": true,
+  "priorEvidenceManifestBindings": [
+    {
+      "audit": "/var/www/node/php-companion/.vscode-test/d1537-source-profile-pilots-terminal-audit.json",
+      "auditSha256": "6d9a649b4499737b76f6ef0a19e4f6956b28abd066898d0d12fa83e3c5682aa7",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d1537-source-profile-pilots-evidence/manifest.json",
+      "manifestSha256": "79e2f4ae4c0c01a375bbbc5d7792d6074b378e27a821a57db857eb33c90b3eca",
+      "archiveFilesVerified": 1406
+    },
+    {
+      "audit": "/var/www/node/php-companion/.vscode-test/d1540-source-profile-update-failure-terminal-audit.json",
+      "auditSha256": "ca555681c00f6b486c314c2733b856a05f1ac2d0b0d6bf40b261a47f9ef50589",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d1540-source-profile-update-failure-evidence/manifest.json",
+      "manifestSha256": "7f11788b569fd0ed47b58692a5528ec8faa7d7ea40b8bf89f3a9b31e34d7241d",
+      "archiveFilesVerified": 698
+    },
+    {
+      "audit": "/var/www/node/php-companion/.vscode-test/d1542-profile-setting-validation-failure-terminal-audit.json",
+      "auditSha256": "505b3b44fadd643b3573d367678014b76338241b861a50e285819106e164bd08",
+      "manifest": "/var/www/node/php-companion/.vscode-test/d1542-profile-setting-validation-failure-evidence/manifest.json",
+      "manifestSha256": "d304d8005a6db2a6505afcdd4095426616b8adebb47354515b42dc14c417eec4",
+      "archiveFilesVerified": 55
+    }
+  ],
+  "archivedFiles": 59,
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1544-pinned-profile-activation-evidence/manifest.json",
+  "manifestSha256": "ba02b84d191ff7d828126822ca3bafb7ec83beca08f731df67662c258a81625c",
+  "semanticProviderChangeSecondIndexObserved": true,
+  "ordinaryCompletionAwaitsSemanticProviderReconciliationInSource": true,
+  "performanceIssueStillOpen": true,
+  "fullQualification": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false
+}

@@ -1,0 +1,628 @@
+{
+  "recordedAtUtc": "2026-10-09T09:38:25.861267+00:00",
+  "engineBuildId": "80ba233a1462c5404388febf64524edce4f84255a198fe4e9ee668b30cfa4170",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "4fa247ee7ae3592d8a967c9ec3dfccb69bce1f9bd387189d7a1f36d98c933cd2",
+    "/var/www/node/php-companion/dist/language-server.js": "16cae68918a0ccf7266f04f1c4509907b27f7f1c14ffff435f38eabba0887763",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "a04108394fc59dd45b7b259b9b36ab42cb596a13906c96f3162b76be53ed7dd6",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "dac3925e14079582bfee9981030a90a3269fcf11522fecf76e530c711e36bc36",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "priorNormalQualification": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/open-function-normal-qualification-2026-10-09.json",
+    "sha256": "2b471de73f6cbd915eacc5f591a095f33befa4a32ada7b43c29f3241ad300748"
+  },
+  "recovery": {
+    "qualified": true,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1278-normal-editing-recovery-run.json",
+      "sha256": "c0512e56123c94128e093881904e6025272ee2047e444551c02214a35d66f36b"
+    },
+    "warmupIterationsPerMode": 100,
+    "measuredIterationsPerMode": 1000,
+    "rows": [
+      {
+        "mode": "experimental",
+        "qualified": true,
+        "diagnostics": {
+          "samples": 1000,
+          "p50": 28.39586000000054,
+          "p95": 30.458184000002802,
+          "maximum": 32.758105000000796
+        },
+        "hotCompletion": {
+          "samples": 1000,
+          "p50": 1.3177129999967292,
+          "p95": 2.56000800000038,
+          "maximum": 4.05447699999786
+        },
+        "rss": {
+          "baseline": 244.44140625,
+          "sampledPeak": 280.8828125,
+          "final": 280.8828125,
+          "endMinusBaseline": 36.44140625,
+          "samples": 112,
+          "sampledEveryIterations": 10,
+          "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+        },
+        "cacheRecovered": true,
+        "staleResultFailures": 0
+      }
+    ]
+  },
+  "ordinary": {
+    "qualified": false,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1283-normal-ordinary-editing-five-rounds-run.json",
+      "sha256": "afeb82e625e86ef40215cc237bf9e93a11c18146896a139a45b4fd5db379defb"
+    },
+    "scheduledRuns": 25,
+    "executedRuns": 25,
+    "correctnessPassed": 25,
+    "budgetPassed": 20,
+    "originalBudgetMs": 150,
+    "queriesPerRun": 100,
+    "rows": [
+      {
+        "label": "fixed-7.2",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 1,
+        "eachRoundP95Ms": [
+          154.16,
+          152.02,
+          149.83,
+          151.69,
+          152.24
+        ],
+        "minimumP95Ms": 149.83,
+        "maximumP95Ms": 154.16
+      },
+      {
+        "label": "fixed-8.5",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "eachRoundP95Ms": [
+          137.47,
+          133.4,
+          139.76,
+          136.71,
+          129.23
+        ],
+        "minimumP95Ms": 129.23,
+        "maximumP95Ms": 139.76
+      },
+      {
+        "label": "real-data-service",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "eachRoundP95Ms": [
+          102.2,
+          94.89,
+          99.03,
+          97.7,
+          91.36
+        ],
+        "minimumP95Ms": 91.36,
+        "maximumP95Ms": 102.2
+      },
+      {
+        "label": "real-large-controller",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 4,
+        "eachRoundP95Ms": [
+          143.76,
+          141.2,
+          146.02,
+          159.31,
+          142.13
+        ],
+        "minimumP95Ms": 141.2,
+        "maximumP95Ms": 159.31
+      },
+      {
+        "label": "real-blog-controller",
+        "rounds": 5,
+        "correctnessPassed": 5,
+        "budgetPassed": 5,
+        "eachRoundP95Ms": [
+          67.39,
+          68.56,
+          70.47,
+          67.2,
+          65.89
+        ],
+        "minimumP95Ms": 65.89,
+        "maximumP95Ms": 70.47
+      }
+    ],
+    "failures": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 154.16
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 2,
+        "p95Ms": 152.02
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 151.69
+      },
+      {
+        "label": "real-large-controller",
+        "round": 4,
+        "p95Ms": 159.31
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 5,
+        "p95Ms": 152.24
+      }
+    ],
+    "failedRoundsRetried": false,
+    "allOriginalScheduleAndAssertionsPreserved": true
+  },
+  "scale": {
+    "qualified": true,
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1284-normal-production-scale-run.json",
+      "sha256": "98db72c08a0636ae86177926c22704a8059530058f1dcf80ca98461bbea48e66"
+    },
+    "rows": [
+      {
+        "files": 1000,
+        "rounds": 5,
+        "actualServers": 10,
+        "coldIndexP95Ms": 2244,
+        "warmIndexP95Ms": 1707,
+        "maximumRssMiB": 350.34375,
+        "largestRoundHotP95Ms": 4.603602000001047,
+        "source": {
+          "files": 1000,
+          "path": "/var/www/node/php-companion/.vscode-test/d1284-production-server-1000-five-rounds.json",
+          "sha256": "851874e6b441dd4bb14591656a030da263332678040960a37239e66387a8b8f5"
+        },
+        "summary": {
+          "files": 1000,
+          "rounds": 5,
+          "actualServers": 10,
+          "statistics": {
+            "cold": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 2103,
+                "p95": 2244,
+                "maximum": 2244
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 5141.3372659999995,
+                "p95": 5345.845047,
+                "maximum": 5345.845047
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 337.8125,
+                "p95": 350.34375,
+                "maximum": 350.34375
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3154.198143,
+                "p95": 3234.560367,
+                "maximum": 3234.560367
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 2.5931901931762695,
+                "p95": 2.5959768295288086,
+                "maximum": 2.5959768295288086
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 3.5736390000001848,
+                  "p95": 3.6931610000001456,
+                  "maximum": 3.6931610000001456
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.4760740000001533,
+                  "p95": 2.8092599999999948,
+                  "maximum": 2.8092599999999948
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 2.5411030000004757,
+                  "p95": 2.7111549999999625,
+                  "maximum": 2.7111549999999625
+                }
+              }
+            },
+            "warm": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 1683,
+                "p95": 1707,
+                "maximum": 1707
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 4637.745236999999,
+                "p95": 4674.598268,
+                "maximum": 4674.598268
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 341.2578125,
+                "p95": 343.34765625,
+                "maximum": 343.34765625
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3050.4528929999997,
+                "p95": 3177.569367,
+                "maximum": 3177.569367
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 2.5931901931762695,
+                "p95": 2.5959768295288086,
+                "maximum": 2.5959768295288086
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 3.396194999999352,
+                  "p95": 4.603602000001047,
+                  "maximum": 4.603602000001047
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.2932569999993575,
+                  "p95": 2.713819999999032,
+                  "maximum": 2.713819999999032
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 3.2864970000009635,
+                  "p95": 3.4733180000002903,
+                  "maximum": 3.4733180000002903
+                }
+              }
+            }
+          },
+          "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+        }
+      },
+      {
+        "files": 10000,
+        "rounds": 5,
+        "actualServers": 10,
+        "coldIndexP95Ms": 16224,
+        "warmIndexP95Ms": 11595,
+        "maximumRssMiB": 512.15625,
+        "largestRoundHotP95Ms": 13.47988799999439,
+        "source": {
+          "files": 10000,
+          "path": "/var/www/node/php-companion/.vscode-test/d1284-production-server-10000-five-rounds.json",
+          "sha256": "93704de5806cd08381d60a21ede12f593f344e4394eb28f4b456e1a29e2e362c"
+        },
+        "summary": {
+          "files": 10000,
+          "rounds": 5,
+          "actualServers": 10,
+          "statistics": {
+            "cold": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 15893,
+                "p95": 16224,
+                "maximum": 16224
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 19025.013573,
+                "p95": 19109.413171,
+                "maximum": 19109.413171
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 474.015625,
+                "p95": 504.59375,
+                "maximum": 504.59375
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3099.2193080000006,
+                "p95": 3268.6787619999996,
+                "maximum": 3268.6787619999996
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 25.984868049621582,
+                "p95": 25.99049663543701,
+                "maximum": 25.99049663543701
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 7.3970120000012685,
+                  "p95": 11.07003899999836,
+                  "maximum": 11.07003899999836
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.5663769999991928,
+                  "p95": 2.7801799999979266,
+                  "maximum": 2.7801799999979266
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 5.666735999999219,
+                  "p95": 9.714434000001347,
+                  "maximum": 9.714434000001347
+                }
+              }
+            },
+            "warm": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 11452,
+                "p95": 11595,
+                "maximum": 11595
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 14357.052901999996,
+                "p95": 14521.013949,
+                "maximum": 14521.013949
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 496.953125,
+                "p95": 512.15625,
+                "maximum": 512.15625
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3032.702473999998,
+                "p95": 3144.1964740000003,
+                "maximum": 3144.1964740000003
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 25.984868049621582,
+                "p95": 25.99049663543701,
+                "maximum": 25.99049663543701
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 8.779045999996015,
+                  "p95": 12.752556999999797,
+                  "maximum": 12.752556999999797
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.372294000000693,
+                  "p95": 2.931633000000147,
+                  "maximum": 2.931633000000147
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 8.526432999999088,
+                  "p95": 13.47988799999439,
+                  "maximum": 13.47988799999439
+                }
+              }
+            }
+          },
+          "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+        }
+      },
+      {
+        "files": 50000,
+        "rounds": 5,
+        "actualServers": 10,
+        "coldIndexP95Ms": 75015,
+        "warmIndexP95Ms": 55005,
+        "maximumRssMiB": 1251.97265625,
+        "largestRoundHotP95Ms": 56.18381000001682,
+        "source": {
+          "files": 50000,
+          "path": "/var/www/node/php-companion/.vscode-test/d1284-production-server-50000-five-rounds.json",
+          "sha256": "4210faf8fa89969ab3704e5d084d68803229dc9fa45c11abe541dd5f354a0405"
+        },
+        "summary": {
+          "files": 50000,
+          "rounds": 5,
+          "actualServers": 10,
+          "statistics": {
+            "cold": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 73937,
+                "p95": 75015,
+                "maximum": 75015
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 76849.036883,
+                "p95": 77886.216782,
+                "maximum": 77886.216782
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 1008.47265625,
+                "p95": 1024.28515625,
+                "maximum": 1024.28515625
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3025.9849509999995,
+                "p95": 3110.091684000001,
+                "maximum": 3110.091684000001
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 129.9905595779419,
+                "p95": 130.14537143707275,
+                "maximum": 130.14537143707275
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 42.836880000002566,
+                  "p95": 44.12877199999639,
+                  "maximum": 44.12877199999639
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.758891000004951,
+                  "p95": 2.9636650000029476,
+                  "maximum": 2.9636650000029476
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 38.812088999999105,
+                  "p95": 44.753158000006806,
+                  "maximum": 44.753158000006806
+                }
+              }
+            },
+            "warm": {
+              "indexMs": {
+                "samples": 5,
+                "p50": 54231,
+                "p95": 55005,
+                "maximum": 55005
+              },
+              "startupToIndexEndMs": {
+                "samples": 5,
+                "p50": 57212.71018200001,
+                "p95": 57905.866254999986,
+                "maximum": 57905.866254999986
+              },
+              "peakRssMiB": {
+                "samples": 5,
+                "p50": 1155.74609375,
+                "p95": 1251.97265625,
+                "maximum": 1251.97265625
+              },
+              "firstExactCompletionMs": {
+                "samples": 5,
+                "p50": 3005.2338870000094,
+                "p95": 3158.1865229999967,
+                "maximum": 3158.1865229999967
+              },
+              "cacheMiB": {
+                "samples": 5,
+                "p50": 129.9905595779419,
+                "p95": 130.14537143707275,
+                "maximum": 130.14537143707275
+              },
+              "hotQueryP95Ms": {
+                "textDocument/completion": {
+                  "samples": 5,
+                  "p50": 53.96302900000592,
+                  "p95": 56.18381000001682,
+                  "maximum": 56.18381000001682
+                },
+                "textDocument/hover": {
+                  "samples": 5,
+                  "p50": 2.3190539999923203,
+                  "p95": 2.818392999994103,
+                  "maximum": 2.818392999994103
+                },
+                "textDocument/definition": {
+                  "samples": 5,
+                  "p50": 52.06413499999326,
+                  "p95": 53.48376299999654,
+                  "maximum": 53.48376299999654
+                }
+              }
+            }
+          },
+          "percentileMethod": "Original testkit nearest rank; five-round P95 equals maximum. Hot-query entries summarize each round original 100-sample P95; raw individual samples remain in each profile."
+        }
+      }
+    ],
+    "actualServers": 30,
+    "plannedRounds": 15,
+    "executedRounds": 15,
+    "originalBenchmarksAndBudgetsPreserved": true,
+    "allActualServersGone": true,
+    "forcedGc": false,
+    "scope": "Original supplementary actual production progressive cold/warm workload and strict actual-command wait4 observer, reused byte exactly against current normal eight assets. Stop on first original functional, budget or evidence failure. Direct-package persistence, other modes/platforms, long sessions and real WSL remain separate.",
+    "firstFailure": null
+  },
+  "pipeline": {
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1282-independent-remaining-gates-pipeline.json",
+      "sha256": "463fdb269f16fd2d8fb67e67596186cb8b8351bbf0579274c63916723cf51a7f"
+    },
+    "qualified": false
+  },
+  "fullLspQualified": true,
+  "fourLinuxWorkflowsQualified": true,
+  "compositeFeedbackQualified": true,
+  "fullPerformanceQualified": false,
+  "nativeWindowsQualified": false,
+  "realWslAcceptance": false,
+  "normalSourceChanged": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1285-open-function-performance-evidence/manifest.json",
+  "remaining": [
+    "Original onDemand normal response timeout remains unresolved; diagnostic replay does not qualify that gate",
+    "Cold first Hover and other original performance/latency gates",
+    "Current engine native Windows/WSL Remote/version/mode matrix",
+    "Long-session and human acceptance",
+    "Remaining original advanced types/refactors/contracts and C1-C4/R4, P0-P9/F01-F14 scope"
+  ],
+  "oldOrdinaryFailuresPreserved": {
+    "source": "/var/www/node/php-companion/docs/php-language-toolchain/reports/parser-owner-performance-controls-2026-10-09.json",
+    "p95Ms": [
+      153.74
+    ]
+  },
+  "completeProfileFeedbackBudgetPassed": true,
+  "normalRecoveryPairQualified": false,
+  "originalOnDemandFailure": {
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1267-normal-editing-recovery-run.json",
+      "sha256": "e550160a089cbc0bad4097ad39de7e64f513312bf4f0a36b175e5e8af79d3a46"
+    },
+    "benchmarkStderr": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1267-normal-editing-recovery-onDemand-stderr.log",
+      "sha256": "1dc96d1f80282749e15e2c3951e13c43cb1a30f596f86e735531151ebeb859b1"
+    },
+    "benchmarkStdoutEmpty": true,
+    "benchmarkError": "Timed out waiting for language server response",
+    "benchmarkRequestAndStageNotRecorded": true,
+    "driverJsonDecodeErrorSecondary": true,
+    "preserved": true,
+    "notRetriedForGreen": true
+  },
+  "diagnosticReplay": {
+    "audit": {
+      "path": "/var/www/node/php-companion/.vscode-test/d1277-editing-recovery-trace-run.json",
+      "sha256": "d862e1ec2f17cd78ccf7a354969ddcd9931cac60a067107f3d0f311137df26b1"
+    },
+    "normalPerformanceQualified": false,
+    "exitCode": 0,
+    "originalOperationsAndAssertionsRetained": true,
+    "causeOfOriginalTimeoutProven": false
+  }
+}

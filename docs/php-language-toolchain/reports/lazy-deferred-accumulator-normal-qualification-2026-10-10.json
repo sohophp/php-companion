@@ -1,0 +1,249 @@
+{
+  "recordedAtUtc": "2026-10-09T22:37:58.465678+00:00",
+  "engineBuildId": "d43b6ccb4abdb745fc9f3216b1099051a54962c5b5235b0c63924d41251853fb",
+  "scope": "Lazy deferred accumulation: normal source, independent package persistence, full LSP, four Linux editor workflows and original full 12-extension profile",
+  "semanticPassed": 23709,
+  "rootUnitPassed": 113,
+  "directFunctionProtocolPassed": 48,
+  "parserAndLanguageSpecReusedByExactIdentity": {
+    "parser": 186,
+    "languageSpec": 320
+  },
+  "normalSourceQualified": true,
+  "privateValidCorruptParity": {
+    "inputs": 95,
+    "comparisons": 2053,
+    "corruptInputsRejected": 1958,
+    "qualification": false
+  },
+  "originalNormalPackagePersistence": [
+    {
+      "files": 1000,
+      "passedRounds": 5,
+      "loadsPerRound": 4,
+      "maxProcessRssMiB": 261.11,
+      "allFunctionalColdRssAndCacheBudgetsPassed": true
+    },
+    {
+      "files": 10000,
+      "passedRounds": 5,
+      "loadsPerRound": 4,
+      "maxProcessRssMiB": 553.93,
+      "allFunctionalColdRssAndCacheBudgetsPassed": true
+    },
+    {
+      "files": 50000,
+      "passedRounds": 5,
+      "loadsPerRound": 4,
+      "maxProcessRssMiB": 1300.61,
+      "allFunctionalColdRssAndCacheBudgetsPassed": true
+    }
+  ],
+  "fullLsp": {
+    "files": 116,
+    "passed": 1458,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "caseIdentitiesAndMultiplicityPreserved": true
+  },
+  "linuxEditorWorkflows": [
+    {
+      "suite": "c3",
+      "mode": "progressive",
+      "qualified": true,
+      "durationSeconds": 232.09576714999275
+    },
+    {
+      "suite": "c1",
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 94.57994297100231
+    },
+    {
+      "suite": "c2",
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 136.28008023300208
+    },
+    {
+      "suite": "c3",
+      "mode": "onDemand",
+      "qualified": true,
+      "durationSeconds": 257.1307967850007
+    }
+  ],
+  "generationBoundaryRows": 80,
+  "full12ExtensionProfile": {
+    "qualified": true,
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 56,
+        "p95Ms": 77,
+        "maxMs": 1037,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          16,
+          6,
+          7,
+          6,
+          10,
+          5
+        ],
+        "slowRounds": [
+          {
+            "round": 1,
+            "elapsedMs": 1037,
+            "applyEditMs": 4,
+            "diagnosticReadyMs": 86,
+            "hoverReadyMs": 1037
+          }
+        ],
+        "firstCompositeHoverCallMs": 951,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 2,
+            "maxMs": 90,
+            "firstMs": [
+              65,
+              90
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 65,
+            "firstMs": [
+              65
+            ]
+          },
+          "diagnostics": {
+            "count": 4,
+            "maxMs": 64,
+            "firstMs": [
+              7,
+              64,
+              8,
+              8
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 65,
+            "firstMs": [
+              65
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 930,
+            "firstMs": [
+              930
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 935,
+            "firstMs": [
+              935
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 76,
+        "p95Ms": 117,
+        "maxMs": 507,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          213,
+          213,
+          212,
+          213,
+          213,
+          213,
+          213
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    }
+  },
+  "archives": [
+    {
+      "manifest": ".vscode-test/d1476-lazy-accumulator-private-evidence/manifest.json",
+      "sha256": "829a42b5620770b0639fee34b975563ca69ccf1d8f45dd58c6ebc562290774d1",
+      "verifiedFiles": 132
+    },
+    {
+      "manifest": ".vscode-test/d1481-lazy-accumulator-source-evidence/manifest.json",
+      "sha256": "a03fd6f5d1c1032254a0c8eb736e3999ed004bdfa8402c3b3f3e36e49adc5320",
+      "verifiedFiles": 37
+    },
+    {
+      "manifest": ".vscode-test/d1484-normal-lazy-persistence-evidence/manifest.json",
+      "sha256": "fcf24f4ce41e390da073c024982d773603dc483fae72549014febf2fde140acc",
+      "verifiedFiles": 853
+    },
+    {
+      "manifest": ".vscode-test/d1486-lazy-accumulator-full-lsp-evidence/manifest.json",
+      "sha256": "943e0bd484c4b205be61fe961b121e7d935dbbbaf42c713ad678e5f41fe81051",
+      "verifiedFiles": 19
+    },
+    {
+      "manifest": ".vscode-test/d1488-lazy-accumulator-editor-evidence/manifest.json",
+      "sha256": "6e62fc57afc76cca0bd558ca69815ed8a96aa9d7c88fcb5ee5a0978ebca2783c",
+      "verifiedFiles": 142
+    },
+    {
+      "manifest": ".vscode-test/d1489-lazy-accumulator-profile-evidence/manifest.json",
+      "sha256": "23225a83580902533cdce1919ef6ffd94a5c369676a18bb74c7f0da03129cb41",
+      "verifiedFiles": 55
+    }
+  ],
+  "old1579_87MiBRssFailurePreserved": true,
+  "currentNativeWindowsQualified": false,
+  "currentRecoveryOrdinaryAndProductionScaleQualified": false,
+  "activationToFirstUsableQualified": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false
+}

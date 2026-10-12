@@ -1,0 +1,1093 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestone": "D288",
+  "decision": "diagnostic-collected-no-product-change-no-budget-qualification",
+  "run": {
+    "status": "exited",
+    "parentPid": 576439,
+    "childPid": 576529,
+    "startedAtUtc": "2026-10-07T11:04:53.378316+00:00",
+    "command": [
+      "env",
+      "SOPHP_CACHE_MEMORY_PROFILE=/var/www/node/php-companion/.vscode-test/d288-independent-cache-profile-memory.json",
+      "node",
+      ".vscode-test/d285-cache-memory-profile.mjs",
+      "10000",
+      "dist/web-tree-sitter.wasm",
+      "dist/tree-sitter-php.wasm"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d288-independent-cache-profile-input.json",
+    "exitCode": 1,
+    "durationSeconds": 42.91036774099848,
+    "finishedAtUtc": "2026-10-07T11:05:36.286945+00:00",
+    "changedInputs": [],
+    "repositoryChanges": [],
+    "logSha256": "4fcd82b48f37556d244e4a1e4d06e69c8de498a547521a7627577a31de3dc42e"
+  },
+  "componentSha256": {
+    "packages/semantic/dist/index.js": "1b7ec969dd081459d74bba631b365d2b50d775e003535a13a52e7add3decf045",
+    "packages/parser/dist/index.js": "758b538c482139f9e568c1227a4bc5e0dc4e7ce12e1c372e7681d08c9397437b",
+    "packages/index/dist/index.js": "e85942d00d51da71eba98e1fc4bf7864ee33667bfaed6655e4cdb12548532790",
+    "scripts/benchmark-persistent-index.mjs": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef"
+  },
+  "generation": {
+    "originalBenchmark": "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+    "originalSha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+    "profileSha256": "97438cf70d6fd4a81aa812db8840c7bff9c5b97583cbc6fb3eb31b9fb76683a9",
+    "roundTripReconstructedOriginal": true,
+    "scope": "Observational instrumentation only; original four loads, assertions, corruption operations, cache version, concurrency, budgets and process sequence retained. Restricted to 10k. Do not use instrumented timing or RSS as qualification.",
+    "executed": false,
+    "diff": [
+      "--- original",
+      "+++ instrumented",
+      "@@ -1,3 +1,51 @@",
+      "+// Private observational copy. Never use its timing or RSS as a qualification run.",
+      "+import { PerformanceObserver } from 'node:perf_hooks';",
+      "+import { getHeapSpaceStatistics } from 'node:v8';",
+      "+import { writeFileSync } from 'node:fs';",
+      "+",
+      "+const profilePath = process.env.SOPHP_CACHE_MEMORY_PROFILE;",
+      "+if (!profilePath) throw new Error('Set SOPHP_CACHE_MEMORY_PROFILE to an unused output file.');",
+      "+const profileStarted = performance.now();",
+      "+const memorySamples = []; const phaseMarks = []; const gcEntries = [];",
+      "+let phase = 'setup'; let loadNumber = 0; let mutationNumber = 0;",
+      "+let samplesDropped = false; let gcEntriesDropped = false;",
+      "+const sampleMemory = () => ({ elapsedMs: performance.now() - profileStarted, phase, ...process.memoryUsage() });",
+      "+function markMemory(label) {",
+      "+  phase = label;",
+      "+  phaseMarks.push({ ...sampleMemory(), spaces: getHeapSpaceStatistics() });",
+      "+}",
+      "+function markWorkspace(label, workspace) {",
+      "+  markMemory(label);",
+      "+  phaseMarks.at(-1).workspaceMaps = Object.fromEntries(",
+      "+    ['files', 'trees', 'deferredImplementations', 'deferredSources'].map((field) => {",
+      "+      if (!(workspace[field] instanceof Map)) throw new Error(`Cannot observe actual workspace Map: ${field}`);",
+      "+      return [field, workspace[field].size];",
+      "+    }));",
+      "+}",
+      "+function captureGc(entries) {",
+      "+  for (const entry of entries) {",
+      "+    if (gcEntries.length >= 10000) { gcEntriesDropped = true; continue; }",
+      "+    gcEntries.push({ startMs: entry.startTime - profileStarted, durationMs: entry.duration,",
+      "+      kind: entry.detail?.kind, flags: entry.detail?.flags, deliveryPhase: phase });",
+      "+  }",
+      "+}",
+      "+const gcObserver = new PerformanceObserver((list) => captureGc(list.getEntries()));",
+      "+gcObserver.observe({ entryTypes: ['gc'] });",
+      "+const memorySampler = setInterval(() => {",
+      "+  if (memorySamples.length >= 36000) { samplesDropped = true; return; }",
+      "+  memorySamples.push(sampleMemory());",
+      "+}, 50);",
+      "+memorySampler.unref();",
+      "+process.once('exit', (exitCode) => {",
+      "+  clearInterval(memorySampler);",
+      "+  captureGc(gcObserver.takeRecords()); gcObserver.disconnect(); markMemory('process:exit');",
+      "+  writeFileSync(profilePath, JSON.stringify({ kind: 'instrumented-diagnostic-only', exitCode,",
+      "+    originalBenchmarkSha256: '914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef', intervalMs: 50, forcedGc: false,",
+      "+    samplesDropped, gcEntriesDropped, processPeakRssMb: process.resourceUsage().maxRSS / 1024,",
+      "+    phaseMarks, memorySamples, gcEntries }, null, 2) + String.fromCharCode(10), { flag: 'wx' });",
+      "+});",
+      "+markMemory('setup:begin');",
+      "+",
+      " import { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';",
+      " import { arch, cpus, platform, tmpdir } from 'node:os';",
+      " import { join } from 'node:path';",
+      "@@ -14,6 +62,7 @@",
+      " ",
+      " const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');",
+      " const files = Number(arguments_[0] ?? 1_000);",
+      "+if (files !== 10000) throw new Error('This diagnostic is restricted to one complete 10k sequence.');",
+      " if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');",
+      " if ((arguments_[1] === undefined) !== (arguments_[2] === undefined))",
+      "   throw new Error('Provide both core WASM and PHP WASM paths, or neither.');",
+      "@@ -41,6 +90,7 @@",
+      " const cacheBudgetMb = R1_PERFORMANCE_BUDGETS.warmCacheMb[`files${files}`];",
+      " ",
+      " async function load(workspace) {",
+      "+  const currentLoad = ++loadNumber; markWorkspace(`load${currentLoad}:begin`, workspace);",
+      "   let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();",
+      "   let peakRssMb = process.memoryUsage().rss / 1024 / 1024;",
+      "   const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);",
+      "@@ -63,21 +113,27 @@",
+      "   peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024);",
+      "   return { durationMs: performance.now() - started, parsed, doctrineParsed, doctrineProperties, result,",
+      "     peakRssMb: Math.round(peakRssMb * 100) / 100 };",
+      "-  } finally { clearInterval(sampler); }",
+      "+  } finally { clearInterval(sampler); markWorkspace(`load${currentLoad}:end`, workspace); }",
+      " }",
+      " ",
+      " // Keep full manifest mutation data out of the subsequent restore workspace's lifetime.",
+      " async function mutateCacheFile(cacheFile, mutate) {",
+      "+  const currentMutation = ++mutationNumber; markMemory(`mutation${currentMutation}:before-read-parse`);",
+      "   const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));",
+      "+  markMemory(`mutation${currentMutation}:after-read-parse`);",
+      "   await mutate(persisted);",
+      "+  markMemory(`mutation${currentMutation}:after-mutate`);",
+      "   await writeFile(cacheFile, JSON.stringify(persisted));",
+      "+  markMemory(`mutation${currentMutation}:after-stringify-write`);",
+      " }",
+      " ",
+      " const parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()",
+      "   : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });",
+      " let report;",
+      " try {",
+      "+  markMemory('fixture:begin');",
+      "   await generatePhpComposerProject(root, files);",
+      "+  markMemory('fixture:generated');",
+      "   await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);",
+      "   const coldWorkspace = new SemanticWorkspace(parser); const cold = await load(coldWorkspace);",
+      "   if (cold.result.files !== files || cold.result.cached !== 0 || cold.parsed !== files) throw new Error(`Cold index did not parse every file: ${JSON.stringify(cold)}`);",
+      "@@ -88,6 +144,7 @@",
+      "   if (!coldCallableCommit.written || coldCallableCommit.facts !== 3) throw new Error(`Cold callable facts were not persisted: ${JSON.stringify(coldCallableCommit)}`);",
+      "   const coldCache = await cacheVolume(cacheDirectory);",
+      "   coldWorkspace.dispose();",
+      "+  markWorkspace('coldWorkspace:disposed', coldWorkspace);",
+      " ",
+      "   const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);",
+      "   if (warm.result.files !== files || warm.result.cached !== files || warm.parsed !== 0) throw new Error(`Warm index did not restore every file: ${JSON.stringify(warm)}`);",
+      "@@ -118,6 +175,7 @@",
+      "   warmWorkspace.update(uri(0), base(false));",
+      "   if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 0) throw new Error('Restored dependency graph retained a stale derived constructor fact.');",
+      "   warmWorkspace.dispose();",
+      "+  markWorkspace('warmWorkspace:disposed', warmWorkspace);",
+      " ",
+      "   const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');",
+      "   await mutateCacheFile(cacheFile, (persisted) => {",
+      "@@ -140,6 +198,7 @@",
+      "     || recoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)",
+      "     throw new Error('Layer corruption recovery lost cross-file completion or constructor facts.');",
+      "   recoveredWorkspace.dispose();",
+      "+  markWorkspace('recoveredWorkspace:disposed', recoveredWorkspace);",
+      " ",
+      "   await mutateCacheFile(cacheFile, (callablePersisted) => {",
+      "   const callableEntry = callablePersisted.entries[sourcePath(0)];",
+      "@@ -151,6 +210,7 @@",
+      "     || callableRecoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)",
+      "     throw new Error('Callable corruption recovery lost cross-file completion or constructor facts.');",
+      "   callableRecoveredWorkspace.dispose();",
+      "+  markWorkspace('callableRecoveredWorkspace:disposed', callableRecoveredWorkspace);",
+      " ",
+      "   report = {",
+      "     schema: 1, files, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,",
+      "@@ -171,6 +231,7 @@",
+      "   };",
+      " } finally {",
+      "   parser.dispose(); await rm(root, { recursive: true, force: true });",
+      "+  markMemory('parser-and-fixture:disposed');",
+      " }",
+      " const processPeakRssMb = process.resourceUsage().maxRSS / 1024;",
+      " report.loadMemory.processPeakRssMb = Math.round(processPeakRssMb * 100) / 100;"
+    ],
+    "preExecutionCorrection": "Use an explicit LF code point for the JSON artifact terminator.",
+    "workspaceMapsObserved": [
+      "files",
+      "trees",
+      "deferredImplementations",
+      "deferredSources"
+    ]
+  },
+  "functionalAssertionsPassed": true,
+  "result": {
+    "schema": 1,
+    "files": 10000,
+    "runtime": "v22.14.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 18601.81,
+      "parsed": 10000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 6267.2,
+      "parsed": 0,
+      "restored": 10000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.3369,
+    "cache": {
+      "cold": {
+        "files": 2,
+        "bytes": 57273841,
+        "mebibytes": 54.62
+      },
+      "warm": {
+        "files": 2,
+        "bytes": 57273841,
+        "mebibytes": 54.62
+      },
+      "frozenBudgetMb": 512
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 297.33,
+      "warmPeakRssMb": 577.07,
+      "layerRecoveryPeakRssMb": 833.29,
+      "callableRecoveryPeakRssMb": 854.66,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 768,
+      "processPeakRssMb": 911.71,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": false
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 10000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 19999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "marks": [
+    {
+      "phase": "setup:begin",
+      "elapsedMs": 0.56,
+      "rssMiB": 60.15,
+      "heapUsedMiB": 7.93,
+      "heapTotalMiB": 11.88,
+      "externalMiB": 3.68,
+      "arrayBuffersMiB": 1.83,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.75,
+        "old_space": 4.16,
+        "code_space": 0.22,
+        "shared_space": 0.0,
+        "trusted_space": 0.98,
+        "new_large_object_space": 0.15,
+        "large_object_space": 1.68,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "fixture:begin",
+      "elapsedMs": 28.62,
+      "rssMiB": 66.77,
+      "heapUsedMiB": 7.9,
+      "heapTotalMiB": 17.12,
+      "externalMiB": 34.87,
+      "arrayBuffersMiB": 1.03,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.17,
+        "old_space": 4.61,
+        "code_space": 0.25,
+        "shared_space": 0.0,
+        "trusted_space": 1.04,
+        "new_large_object_space": 0.0,
+        "large_object_space": 1.83,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "fixture:generated",
+      "elapsedMs": 1454.62,
+      "rssMiB": 83.12,
+      "heapUsedMiB": 12.45,
+      "heapTotalMiB": 25.12,
+      "externalMiB": 34.15,
+      "arrayBuffersMiB": 0.31,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 4.15,
+        "old_space": 5.02,
+        "code_space": 0.37,
+        "shared_space": 0.0,
+        "trusted_space": 1.08,
+        "new_large_object_space": 0.0,
+        "large_object_space": 1.83,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load1:begin",
+      "elapsedMs": 1456.43,
+      "rssMiB": 83.43,
+      "heapUsedMiB": 12.51,
+      "heapTotalMiB": 25.12,
+      "externalMiB": 34.15,
+      "arrayBuffersMiB": 0.31,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 4.2,
+        "old_space": 5.03,
+        "code_space": 0.37,
+        "shared_space": 0.0,
+        "trusted_space": 1.09,
+        "new_large_object_space": 0.0,
+        "large_object_space": 1.83,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load1:end",
+      "elapsedMs": 20058.4,
+      "rssMiB": 290.38,
+      "heapUsedMiB": 163.67,
+      "heapTotalMiB": 195.07,
+      "externalMiB": 38.78,
+      "arrayBuffersMiB": 4.93,
+      "workspaceMaps": {
+        "files": 10000,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 5.28,
+        "old_space": 136.74,
+        "code_space": 1.31,
+        "shared_space": 0.0,
+        "trusted_space": 1.47,
+        "new_large_object_space": 4.52,
+        "large_object_space": 14.34,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "coldWorkspace:disposed",
+      "elapsedMs": 20105.02,
+      "rssMiB": 291.15,
+      "heapUsedMiB": 168.39,
+      "heapTotalMiB": 195.61,
+      "externalMiB": 38.79,
+      "arrayBuffersMiB": 4.93,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 9.04,
+        "old_space": 136.91,
+        "code_space": 1.43,
+        "shared_space": 0.0,
+        "trusted_space": 1.62,
+        "new_large_object_space": 5.04,
+        "large_object_space": 14.34,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load2:begin",
+      "elapsedMs": 20105.17,
+      "rssMiB": 291.15,
+      "heapUsedMiB": 168.4,
+      "heapTotalMiB": 195.61,
+      "externalMiB": 38.79,
+      "arrayBuffersMiB": 4.93,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 9.06,
+        "old_space": 136.91,
+        "code_space": 1.43,
+        "shared_space": 0.0,
+        "trusted_space": 1.62,
+        "new_large_object_space": 5.04,
+        "large_object_space": 14.34,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load2:end",
+      "elapsedMs": 26372.43,
+      "rssMiB": 577.07,
+      "heapUsedMiB": 455.13,
+      "heapTotalMiB": 483.84,
+      "externalMiB": 34.44,
+      "arrayBuffersMiB": 0.59,
+      "workspaceMaps": {
+        "files": 10000,
+        "trees": 0,
+        "deferredImplementations": 10000,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 11.13,
+        "old_space": 299.84,
+        "code_space": 1.79,
+        "shared_space": 0.0,
+        "trusted_space": 1.74,
+        "new_large_object_space": 0.47,
+        "large_object_space": 140.15,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "warmWorkspace:disposed",
+      "elapsedMs": 26662.03,
+      "rssMiB": 581.36,
+      "heapUsedMiB": 455.96,
+      "heapTotalMiB": 488.18,
+      "externalMiB": 34.41,
+      "arrayBuffersMiB": 0.56,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 7.76,
+        "old_space": 302.71,
+        "code_space": 1.95,
+        "shared_space": 0.0,
+        "trusted_space": 1.86,
+        "new_large_object_space": 1.03,
+        "large_object_space": 140.63,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation1:before-read-parse",
+      "elapsedMs": 26662.64,
+      "rssMiB": 581.36,
+      "heapUsedMiB": 455.97,
+      "heapTotalMiB": 488.18,
+      "externalMiB": 34.41,
+      "arrayBuffersMiB": 0.56,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 7.77,
+        "old_space": 302.71,
+        "code_space": 1.95,
+        "shared_space": 0.0,
+        "trusted_space": 1.86,
+        "new_large_object_space": 1.03,
+        "large_object_space": 140.63,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation1:after-read-parse",
+      "elapsedMs": 27842.38,
+      "rssMiB": 572.02,
+      "heapUsedMiB": 153.5,
+      "heapTotalMiB": 387.08,
+      "externalMiB": 34.41,
+      "arrayBuffersMiB": 0.02,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.0,
+        "old_space": 92.81,
+        "code_space": 1.49,
+        "shared_space": 0.0,
+        "trusted_space": 1.71,
+        "new_large_object_space": 0.0,
+        "large_object_space": 57.5,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation1:after-mutate",
+      "elapsedMs": 27842.94,
+      "rssMiB": 572.02,
+      "heapUsedMiB": 153.51,
+      "heapTotalMiB": 387.08,
+      "externalMiB": 34.41,
+      "arrayBuffersMiB": 0.02,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.01,
+        "old_space": 92.81,
+        "code_space": 1.49,
+        "shared_space": 0.0,
+        "trusted_space": 1.71,
+        "new_large_object_space": 0.0,
+        "large_object_space": 57.5,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation1:after-stringify-write",
+      "elapsedMs": 28252.07,
+      "rssMiB": 682.91,
+      "heapUsedMiB": 208.42,
+      "heapTotalMiB": 441.7,
+      "externalMiB": 88.52,
+      "arrayBuffersMiB": 54.66,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.26,
+        "old_space": 92.83,
+        "code_space": 1.49,
+        "shared_space": 0.0,
+        "trusted_space": 1.71,
+        "new_large_object_space": 0.0,
+        "large_object_space": 112.12,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load3:begin",
+      "elapsedMs": 28252.21,
+      "rssMiB": 682.91,
+      "heapUsedMiB": 208.43,
+      "heapTotalMiB": 441.7,
+      "externalMiB": 88.52,
+      "arrayBuffersMiB": 54.66,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.28,
+        "old_space": 92.83,
+        "code_space": 1.49,
+        "shared_space": 0.0,
+        "trusted_space": 1.71,
+        "new_large_object_space": 0.0,
+        "large_object_space": 112.12,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load3:end",
+      "elapsedMs": 34502.49,
+      "rssMiB": 572.28,
+      "heapUsedMiB": 179.75,
+      "heapTotalMiB": 247.8,
+      "externalMiB": 53.34,
+      "arrayBuffersMiB": 19.48,
+      "workspaceMaps": {
+        "files": 10000,
+        "trees": 0,
+        "deferredImplementations": 9999,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 12.41,
+        "old_space": 131.6,
+        "code_space": 1.63,
+        "shared_space": 0.0,
+        "trusted_space": 1.14,
+        "new_large_object_space": 11.31,
+        "large_object_space": 21.67,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "recoveredWorkspace:disposed",
+      "elapsedMs": 34547.85,
+      "rssMiB": 561.2,
+      "heapUsedMiB": 162.88,
+      "heapTotalMiB": 236.74,
+      "externalMiB": 53.34,
+      "arrayBuffersMiB": 7.82,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 6.17,
+        "old_space": 131.66,
+        "code_space": 1.71,
+        "shared_space": 0.0,
+        "trusted_space": 1.15,
+        "new_large_object_space": 0.52,
+        "large_object_space": 21.67,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation2:before-read-parse",
+      "elapsedMs": 34547.96,
+      "rssMiB": 561.2,
+      "heapUsedMiB": 162.88,
+      "heapTotalMiB": 236.74,
+      "externalMiB": 53.34,
+      "arrayBuffersMiB": 7.82,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 6.18,
+        "old_space": 131.66,
+        "code_space": 1.71,
+        "shared_space": 0.0,
+        "trusted_space": 1.15,
+        "new_large_object_space": 0.52,
+        "large_object_space": 21.67,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation2:after-read-parse",
+      "elapsedMs": 35117.85,
+      "rssMiB": 670.97,
+      "heapUsedMiB": 349.84,
+      "heapTotalMiB": 383.56,
+      "externalMiB": 41.67,
+      "arrayBuffersMiB": 7.82,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 5.8,
+        "old_space": 210.02,
+        "code_space": 1.71,
+        "shared_space": 0.0,
+        "trusted_space": 1.15,
+        "new_large_object_space": 0.38,
+        "large_object_space": 130.79,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation2:after-mutate",
+      "elapsedMs": 35118.1,
+      "rssMiB": 670.97,
+      "heapUsedMiB": 349.84,
+      "heapTotalMiB": 383.56,
+      "externalMiB": 41.67,
+      "arrayBuffersMiB": 7.82,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 5.8,
+        "old_space": 210.02,
+        "code_space": 1.71,
+        "shared_space": 0.0,
+        "trusted_space": 1.15,
+        "new_large_object_space": 0.38,
+        "large_object_space": 130.79,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "mutation2:after-stringify-write",
+      "elapsedMs": 35558.65,
+      "rssMiB": 801.39,
+      "heapUsedMiB": 404.72,
+      "heapTotalMiB": 443.94,
+      "externalMiB": 96.31,
+      "arrayBuffersMiB": 62.46,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.26,
+        "old_space": 215.83,
+        "code_space": 1.71,
+        "shared_space": 0.0,
+        "trusted_space": 1.15,
+        "new_large_object_space": 0.0,
+        "large_object_space": 185.79,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load4:begin",
+      "elapsedMs": 35558.85,
+      "rssMiB": 801.39,
+      "heapUsedMiB": 404.74,
+      "heapTotalMiB": 443.94,
+      "externalMiB": 96.31,
+      "arrayBuffersMiB": 62.46,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 0.27,
+        "old_space": 215.83,
+        "code_space": 1.71,
+        "shared_space": 0.0,
+        "trusted_space": 1.15,
+        "new_large_object_space": 0.0,
+        "large_object_space": 185.79,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "load4:end",
+      "elapsedMs": 41393.81,
+      "rssMiB": 617.76,
+      "heapUsedMiB": 267.1,
+      "heapTotalMiB": 386.11,
+      "externalMiB": 43.27,
+      "arrayBuffersMiB": 9.43,
+      "workspaceMaps": {
+        "files": 10000,
+        "trees": 0,
+        "deferredImplementations": 9999,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 9.96,
+        "old_space": 170.51,
+        "code_space": 1.54,
+        "shared_space": 0.0,
+        "trusted_space": 1.08,
+        "new_large_object_space": 9.04,
+        "large_object_space": 74.97,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "callableRecoveredWorkspace:disposed",
+      "elapsedMs": 41419.07,
+      "rssMiB": 618.28,
+      "heapUsedMiB": 271.6,
+      "heapTotalMiB": 386.65,
+      "externalMiB": 43.27,
+      "arrayBuffersMiB": 9.43,
+      "workspaceMaps": {
+        "files": 0,
+        "trees": 0,
+        "deferredImplementations": 0,
+        "deferredSources": 0
+      },
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 13.79,
+        "old_space": 170.55,
+        "code_space": 1.62,
+        "shared_space": 0.0,
+        "trusted_space": 1.09,
+        "new_large_object_space": 9.56,
+        "large_object_space": 74.97,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "parser-and-fixture:disposed",
+      "elapsedMs": 42646.35,
+      "rssMiB": 608.49,
+      "heapUsedMiB": 254.42,
+      "heapTotalMiB": 376.83,
+      "externalMiB": 34.73,
+      "arrayBuffersMiB": 0.72,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 6.01,
+        "old_space": 170.64,
+        "code_space": 1.68,
+        "shared_space": 0.0,
+        "trusted_space": 1.12,
+        "new_large_object_space": 0.0,
+        "large_object_space": 74.97,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    },
+    {
+      "phase": "process:exit",
+      "elapsedMs": 42650.43,
+      "rssMiB": 608.49,
+      "heapUsedMiB": 254.47,
+      "heapTotalMiB": 376.83,
+      "externalMiB": 34.73,
+      "arrayBuffersMiB": 0.72,
+      "workspaceMaps": null,
+      "heapSpaceUsedMiB": {
+        "read_only_space": 0.0,
+        "new_space": 6.03,
+        "old_space": 170.66,
+        "code_space": 1.68,
+        "shared_space": 0.0,
+        "trusted_space": 1.13,
+        "new_large_object_space": 0.0,
+        "large_object_space": 74.97,
+        "code_large_object_space": 0.0,
+        "shared_large_object_space": 0.0,
+        "trusted_large_object_space": 0.0
+      }
+    }
+  ],
+  "memorySamples": 766,
+  "gcEvents": 327,
+  "gcKindCounts": {
+    "1": 313,
+    "8": 7,
+    "4": 7
+  },
+  "gcCountsByStartPhase": [
+    {
+      "phase": "setup:begin",
+      "kind": 1,
+      "count": 2
+    },
+    {
+      "phase": "setup:begin",
+      "kind": 8,
+      "count": 1
+    },
+    {
+      "phase": "setup:begin",
+      "kind": 4,
+      "count": 1
+    },
+    {
+      "phase": "fixture:begin",
+      "kind": 1,
+      "count": 19
+    },
+    {
+      "phase": "load1:begin",
+      "kind": 1,
+      "count": 102
+    },
+    {
+      "phase": "load1:begin",
+      "kind": 8,
+      "count": 3
+    },
+    {
+      "phase": "load1:begin",
+      "kind": 4,
+      "count": 3
+    },
+    {
+      "phase": "load2:begin",
+      "kind": 1,
+      "count": 51
+    },
+    {
+      "phase": "load2:end",
+      "kind": 1,
+      "count": 3
+    },
+    {
+      "phase": "mutation1:before-read-parse",
+      "kind": 1,
+      "count": 12
+    },
+    {
+      "phase": "mutation1:before-read-parse",
+      "kind": 8,
+      "count": 1
+    },
+    {
+      "phase": "mutation1:before-read-parse",
+      "kind": 4,
+      "count": 1
+    },
+    {
+      "phase": "mutation1:after-mutate",
+      "kind": 1,
+      "count": 2
+    },
+    {
+      "phase": "load3:begin",
+      "kind": 1,
+      "count": 52
+    },
+    {
+      "phase": "load3:begin",
+      "kind": 8,
+      "count": 1
+    },
+    {
+      "phase": "load3:begin",
+      "kind": 4,
+      "count": 1
+    },
+    {
+      "phase": "load3:end",
+      "kind": 1,
+      "count": 1
+    },
+    {
+      "phase": "mutation2:before-read-parse",
+      "kind": 1,
+      "count": 12
+    },
+    {
+      "phase": "mutation2:after-mutate",
+      "kind": 1,
+      "count": 3
+    },
+    {
+      "phase": "load4:begin",
+      "kind": 1,
+      "count": 52
+    },
+    {
+      "phase": "load4:begin",
+      "kind": 8,
+      "count": 1
+    },
+    {
+      "phase": "load4:begin",
+      "kind": 4,
+      "count": 1
+    },
+    {
+      "phase": "callableRecoveredWorkspace:disposed",
+      "kind": 1,
+      "count": 2
+    }
+  ],
+  "forcedGc": false,
+  "qualification": false,
+  "originalUninstrumentedRssMiB": 1003.52,
+  "originalBudgetMiB": 768,
+  "archive": ".vscode-test/d288-memory-profile-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d288-independent-cache-profile-input.json",
+      "sha256": "3e05d3327471ca1ba66479d4fdf00b4d8c813474c52952d291633fbe8bfd2987"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d288-independent-cache-profile-run.json",
+      "sha256": "d1abb79dc169d803a7264d8d435ffbf39da813f9b683908ccf608a5c1beffb44"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d288-independent-cache-profile-memory.json",
+      "sha256": "b8bece93a626b3b765d3244d7b01352fe19d993cc4abf07ceaa16387d00f41de"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d288-independent-cache-profile.log",
+      "sha256": "4fcd82b48f37556d244e4a1e4d06e69c8de498a547521a7627577a31de3dc42e"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-cache-memory-profile.mjs",
+      "sha256": "97438cf70d6fd4a81aa812db8840c7bff9c5b97583cbc6fb3eb31b9fb76683a9"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-memory-profile-generation.json",
+      "sha256": "15b6bcd3117b998a49842cc9706346127d6d00baeba99aaeeebb9b89d6ae7ac3"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-prepare-memory-profile.py",
+      "sha256": "5ceeca016c373311605f050d55be8376fc56fad9db15d5ec36e3155926c0c67d"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-run.py",
+      "sha256": "e5d2ae756a772a3047427e8680e2ad6b6de86b8605efb581bfa37a13f5bdc921"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-after-full.py",
+      "sha256": "6dd62f0d0246c33838b02595de13ee8941445671de93fa61f975a1c525df9c85"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-after-full-run.json",
+      "sha256": "b91b9df9859ab06bd4f5b8c436a23b631e610d7e543c4046f713bb8d74108339"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d285-static-observations.json",
+      "sha256": "c4770c6c552d9cf3211ca0b0d0319cae27b4a495f1da79de29a01d23f048d66b"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/original-benchmark.mjs",
+      "sha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/original-uninstrumented-result.json",
+      "sha256": "0411305f472825388c1c8473007d7460afe70fed67136e5f51233c1098312968"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/original-full-lsp-audit.json",
+      "sha256": "413f2e96d96a4817f61795d6642a41f1e0f39052ec5b35709e36d3110174b64a"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/independent-lifecycle-run.json",
+      "sha256": "152322f0bab2b15ea9846b4b7183dc4776668a07869f9ff08aa8a11e0f795faa"
+    },
+    {
+      "path": ".vscode-test/d288-memory-profile-evidence/d288-record-memory-profile.py",
+      "sha256": "7608aae46a6fd6ce006120c865358e07ea373d528fbb7477271cbd9c6fc808c8"
+    }
+  ],
+  "observations": [
+    "All four load-end tree Maps are zero, matching update(retainTree=false). No evidence for a per-file retained AST-tree diagnosis.",
+    "The four observed Maps are zero immediately after each workspace dispose. This does not prove all objects are collected or exclude every leak.",
+    "Heap used and large-object space rise during cache recovery and whole-manifest corruption read/write. Subsequent natural GC materially reduces heap used.",
+    "RSS includes resident allocator/WASM/native memory and does not track heapUsed one-to-one. No forced GC, retained-heap claim, causal attribution or statistical speedup.",
+    "Original dependent D285 job remains skipped after full LSP failure. D288 is a separate first component-only diagnostic, after the isolated lifecycle file terminated; original full suite remains unqualified.",
+    "No production source/bundle, benchmark budgets, four-phase assertions or single-process sequence changed. Private parser-copy prototype remains unexecuted."
+  ]
+}

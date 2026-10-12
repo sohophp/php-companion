@@ -1,0 +1,244 @@
+{
+  "status": "passed-for-declared-normal-static-method-scope",
+  "recordedAtUtc": "2026-10-08T04:26:12.584330+00:00",
+  "normalSourceAdopted": true,
+  "moveMemberAdopted": true,
+  "supportedMoveKind": "public-static-method-between-existing-classes",
+  "normalFullSemanticFiles": 152,
+  "normalFullSemanticPassed": 23019,
+  "original22933Plus86CaseMultiplicityPreserved": true,
+  "normalRootUnitPassed": 113,
+  "normalMemberStdioCasesPassed": 8,
+  "normalFullLinuxHosts": [
+    {
+      "suite": "c3",
+      "mode": "onDemand",
+      "durationSeconds": 220.6320107579959,
+      "run": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c3-run.json",
+      "evidence": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c3-evidence",
+      "qualified": true
+    },
+    {
+      "suite": "c1",
+      "mode": "onDemand",
+      "durationSeconds": 105.56509416899644,
+      "run": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c1-run.json",
+      "evidence": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c1-evidence",
+      "qualified": true
+    },
+    {
+      "suite": "c2",
+      "mode": "onDemand",
+      "durationSeconds": 94.04026826600602,
+      "run": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c2-run.json",
+      "evidence": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c2-evidence",
+      "qualified": true
+    },
+    {
+      "suite": "c3",
+      "mode": "progressive",
+      "durationSeconds": 210.5442779300065,
+      "run": "/var/www/node/php-companion/.vscode-test/d652-normal-member-full-c3-progressive-run.json",
+      "evidence": "/var/www/node/php-companion/.vscode-test/d652-normal-member-full-c3-progressive-evidence",
+      "qualified": true
+    }
+  ],
+  "threeDelayedParticipantRacesQualifiedInBothC3Modes": true,
+  "originalSilentPartialApplyCounterexamplePreserved": true,
+  "originalFullC3BodyPreserved": true,
+  "originalManifestContractsPreservedWithOneExplicitNewCommand": true,
+  "manifestLayoutOnlyCorrectionQualifiedByExactJsonEquality": true,
+  "currentManifestSha256": "09efab06985bccd39032be9b91bfabd8f6d990cbb01c4fa2725b26dd0d558773",
+  "runtimeFiles": [
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "a6adaf30da16ebf929007994e64d5455a515c8421abc09912c0dde611059286c"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "3040e422e61755af1927f32618713feb0b6d6acf98a08022e8855a5a73932805"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    }
+  ],
+  "runtimeByteIdenticalToQualifiedPrivateIntegration": true,
+  "boundedNativeVersions": [
+    "7.2",
+    "7.3",
+    "7.4",
+    "8.0",
+    "8.1",
+    "8.2",
+    "8.3",
+    "8.4",
+    "8.5"
+  ],
+  "boundedNativeCommands": 90,
+  "boundedNativeCaseDurationMs": 2492.2925410000003,
+  "nativeConstructorVersionObservations": 18,
+  "originalSerialNativeTimeoutRetained": true,
+  "nativeProofScope": "same-static-method-scenario-only",
+  "currentFullLspQualified": false,
+  "nextFullLspExpectedFiles": 103,
+  "nextFullLspExpectedCases": 1349,
+  "previous1341FullLspBelongsToPreviousBuild": true,
+  "ordinaryEditingRemeasured": false,
+  "historicalOrdinaryEditingCorrectRounds": 25,
+  "historicalOrdinaryEditingWithinBudgetRounds": 23,
+  "instanceMembersDynamicLateStaticGeneralMoveAndAdvancedRefactorScopeStillOpen": true,
+  "otherVersionsPlatformsFullToolCombinationScaleLongSessionHumanWslAndAllOriginalFinalRequirementsStillOpen": true,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "artifacts": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d655-manifest-layout-validation.json",
+      "sha256": "77f30df541f69071036034030a8f525607fd3fab7e942ff639dc9d09d4886726"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d648-move-member-normal-adoption/adoption.json",
+      "sha256": "2994e2916b4f3762a4cd628aefd1e53b28672938d4c1a0e60477d19121574694"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d649-normal-move-member-verification.json",
+      "sha256": "66e6d7e11289b108e2977c327c02127c35dc758674e00dd8e2ab37c5ee4a7a07"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d649-normal-move-member-input.json",
+      "sha256": "a8d7c851bc621e87bd1f90aa4e85cf5b5193e6bab80e3a56cd0eafe0624f52dd"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d649-normal-move-member-semantic-result.json",
+      "sha256": "f8cca28379cd18322d696a33b3b30628114a1dff616106f582d245845aa92f51"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d649-normal-move-member-unit-result.json",
+      "sha256": "7d8517804e2e103df24304c04ce4415577f4499e59dec78b45faec8093f91254"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d649-normal-move-member-stdio-result.json",
+      "sha256": "50e9ad2b84ba824ff53ee41ef20fb191a336f7a9ce2f8faf391393d1708e778a"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d645-private-member-integration-qualification.json",
+      "sha256": "c8867c4e08d32d377333b2ccfd8ded4cbcf8aad5437a7cba0582cacd4ca7776f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d645-private-original-full-c3-with-member-race.log",
+      "sha256": "43776a3599a71f5314ea220637e03dfe401c3f664c8aa69f6b8d359ad1206169"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d647-private-member-integration-qualification.json",
+      "sha256": "c6c6f54cb1640d169a2acfc720fe4fb5f44f23b4ed883b8057af1c79c120fd8e"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d647-private-member-full-c3-evidence/acceptance-proof.json",
+      "sha256": "486e379c52b2bea76b0796ca6514d43a4e3b03f03bb7f85d859b92763687a9e9"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d646-preview-participant-guard/preparation.json",
+      "sha256": "68aca44f3128e89a212297b3aa869e40b0ab968e36d2924f78b7295894cff6da"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d650-normal-member-host-preparation.json",
+      "sha256": "363c36388358a3537668135915b3cb114222c94f3e5e003c8437b51e03ae0b86"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-host-matrix.json",
+      "sha256": "60bcfee3ced92b8b9d60f9b0cdd0f0dcf7f2cc6fc575aa44bae27979857318b0"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d652-normal-member-host-qualification.json",
+      "sha256": "9e93cb7e7e866417b4bfb33cd8b854f99e09630ae612f22e825a0d92a6ecaf12"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d641-move-member-native-audit.json",
+      "sha256": "724f081e61445f6cf64740faa207d249d336b1213db47c182c14175b7c1537d5"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d624-bounded-native-result.json",
+      "sha256": "52214630d19eaa5f84d3624a377eb58a371c1a752b7556480ca27c6f957c25d8"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d624-bounded-native-observations.json",
+      "sha256": "9bad724aa199a7f596126191503ef994572ae1b2ad8b8cb88bfa6391e1c7dcbd"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d616-native-constructors-result.json",
+      "sha256": "ed08df150498153b68ef7abecbee0e7678ab0eb8c01115eb292466dd9c00f23b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d616-native-constructor-observations.json",
+      "sha256": "d49c9dafdad4618e71aa3535a84756e5a6840f0cdfdc9d39409398b21b162ba2"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c3-run.json",
+      "sha256": "d7f15073e0046f32bfc48f342fae77ec62023005908b0a60bec305250ef1db5d"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c1-run.json",
+      "sha256": "64b6513b8ebf5b4f5838c2542a075cd0b179280244d33f1eb31072cf68554d4f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c2-run.json",
+      "sha256": "5790f918ea43cd1d60e13630df5e685c77f53c185229eef7f1dc13c921aa9ee4"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d652-normal-member-full-c3-progressive-run.json",
+      "sha256": "1845caa4f50334b7ef248b844c6d843c68c76cf34cd844c54cb50d7f66b9ac9b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c3-evidence/acceptance-proof.json",
+      "sha256": "1b7b25746cfed4966d68d71f88c0eb26beb4405465bef9a600352f9d35e7e2f7"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c3-evidence/runtime-proof.json",
+      "sha256": "238a746651db6ec605c875eee11378a38f0afcf4fc3e6c79b0cc055983795cbf"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c1-evidence/acceptance-proof.json",
+      "sha256": "39719c7a30dd4abd255a2509cbc5b095acb374520b13382d9a5c18cc646bbd2a"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c1-evidence/runtime-proof.json",
+      "sha256": "06073d5b9934b22a5084d8264d096e6bab9de8c2d7d117a363f6ade2c1cbea5b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c2-evidence/acceptance-proof.json",
+      "sha256": "3d1ba7e44a1716d1575ef0f5fa7cc0124e028164efa483ae65e3be288cff329b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d651-normal-move-member-full-c2-evidence/runtime-proof.json",
+      "sha256": "479a928c41c5771dcbb57e7e5244684d9dfebbd5219d6fc286c30d1aa81e5b47"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d652-normal-member-full-c3-progressive-evidence/acceptance-proof.json",
+      "sha256": "7d1eaad7852ca10d487b210bd8b96123372f14deeb88a26499faa30b01fc4789"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d652-normal-member-full-c3-progressive-evidence/runtime-proof.json",
+      "sha256": "dc5fc981a9ea322a3693d4aac9217d77d4ec83e6ace9f5a6a82c88fd4bfa2249"
+    }
+  ]
+}

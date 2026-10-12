@@ -1,0 +1,520 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "decision": "not-adopted-scale-and-contracts-failed",
+  "productChanged": false,
+  "coreBundleSha256": "0680ad5acb7a06ed62619755aa98ee045e915068370a6015b16e5bc71757cc4e",
+  "twigBundleSha256": "0ca45a6a9c453ea4c258a0e3527c22a8c742fcccc77b459758079e5c065f7862",
+  "repositories": {
+    "/var/www/node/php-companion": {
+      "head": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+      "status": " M docs/php-language-toolchain/acceptance.md\n M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n?? .changeset/progressive-controller-contexts.md\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.json\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.md\n?? packages/language-server/test/controller-context-progressive-stdio.test.ts\n"
+    },
+    "/var/www/node/twig-plus": {
+      "head": "c3d1aa5323f621a71d8055e12b3578b0a1866e4b",
+      "status": " M packages/language-server/src/index.ts\n M packages/language-server/src/projectContexts.ts\n M packages/language-server/test/projectContexts.test.ts\n M packages/parser/src/hybridAst.ts\n M packages/parser/src/templateCompletion.ts\n M packages/parser/test/hybridAst.test.ts\n M packages/vscode/test/extension/suite/index.js\n M tests/integration/languageServerIntegration.test.ts\n M tests/integration/vscodeIntegration.test.ts\n?? docs/reports/php-context-automatic-lifecycle-2026-10-07.md\n?? docs/reports/php-context-definitions-2026-10-07.md\n?? packages/vscode/test/extension/runPhpContextTest.js\n?? packages/vscode/test/extension/suite/phpContextDefinitions.js\n?? packages/vscode/test/extension/suite/phpContextLifecycle.js\n?? tests/helpers/\n?? tests/integration/phpContextDefinitions.test.ts\n?? tests/integration/phpContextNamespaces.test.ts\n"
+    }
+  },
+  "sources": {
+    "d274-entry-store.mjs": {
+      "sha256": "d8ff0321d22eb89272b97cf56e9ef676fd5eafad18c0811709b9297612f5323c",
+      "source": "import { mkdir, open, readFile, readdir, rename, rm, stat, link, copyFile, lstat } from 'node:fs/promises';\nimport { dirname, join } from 'node:path';\nimport { createHash, randomUUID } from 'node:crypto';\n\nconst digest = (value) => createHash('sha256').update(value).digest('hex');\nconst validDigest = (value) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);\nconst validGeneration = (value) => typeof value === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(value);\nconst record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);\nconst MAX_PAYLOAD_BYTES = 64 * 1024 * 1024;\n\n// Private candidate: payload objects never enter the full-project metadata Map.\nexport class EntryStore {\n  previous = new Map();\n  generation;\n  readonlyGeneration = undefined;\n  warnings = [];\n  disposed = false;\n  published = false;\n  writes = new Set();\n\n  constructor(path, root, version) {\n    this.path = path; this.root = root; this.version = version;\n    this.generation = randomUUID();\n    this.directory = path + '.entries';\n    this.staging = join(this.directory, '.staging-' + this.generation);\n  }\n\n  static async load(path, root, version) {\n    const store = new EntryStore(path, root, version);\n    try {\n      const data = JSON.parse(await readFile(path, 'utf8'));\n      if (!record(data) || ![1, 2].includes(data.schema) || data.root !== root || data.version !== version\n        || !record(data.entries) || data.schema === 2 && !validGeneration(data.generation)) return store;\n      store.readonlyGeneration = data.schema === 2 ? data.generation : undefined;\n      for (const [path, entry] of Object.entries(data.entries)) {\n        if (record(entry) && Number.isSafeInteger(entry.size) && entry.size >= 0 && Number.isFinite(entry.mtimeMs)\n          && (entry.ctimeMs === undefined || Number.isFinite(entry.ctimeMs)) && validDigest(entry.hash)\n          && (data.schema === 1 || validDigest(entry.payloadHash) && Number.isSafeInteger(entry.payloadBytes)\n            && entry.payloadBytes >= 0 && entry.payloadBytes <= MAX_PAYLOAD_BYTES)) {\n          store.previous.set(path, entry);\n        } else store.warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);\n      }\n    } catch (error) {\n      if (error.code !== 'ENOENT') store.warnings.push('Persistent index cache was unreadable and will be rebuilt.');\n    }\n    return store;\n  }\n\n  async payload(entry) {\n    if (this.readonlyGeneration === undefined || Object.hasOwn(entry, 'payload')) return entry.payload;\n    const path = join(this.directory, this.readonlyGeneration, entry.payloadHash + '.json');\n    const info = await lstat(path);\n    if (!info.isFile() || info.isSymbolicLink() || info.size !== entry.payloadBytes) throw new Error('Cache payload size mismatch.');\n    const value = await readFile(path);\n    if (value.length !== entry.payloadBytes || digest(value) !== entry.payloadHash) throw new Error('Cache payload checksum mismatch.');\n    return JSON.parse(value.toString('utf8'));\n  }\n\n  async stage(payload) {\n    if (this.disposed) throw new Error('Cache store disposed.');\n    const text = JSON.stringify(payload);\n    const bytes = Buffer.byteLength(text);\n    if (bytes > MAX_PAYLOAD_BYTES) throw new RangeError('Cache payload exceeded its size limit.');\n    const hash = digest(text);\n    const work = (async () => {\n      await mkdir(this.staging, { recursive: true });\n      if (this.disposed) throw new Error('Cache store disposed.');\n      const path = join(this.staging, hash + '.json');\n      // Identical payloads share one immutable entry within this generation.\n      try {\n        const file = await open(path, 'wx');\n        try { await file.writeFile(text); } finally { await file.close(); }\n      } catch (error) { if (error.code !== 'EEXIST') throw error; }\n      return { payloadHash: hash, payloadBytes: bytes };\n    })();\n    this.writes.add(work);\n    try { return await work; } finally { this.writes.delete(work); }\n  }\n\n  async commit(entries, shouldContinue) {\n    if (shouldContinue?.() === false) return false;\n    await mkdir(dirname(this.path), { recursive: true });\n    // Commit contention is a cache-write miss, never a partial publication.\n    const lockPath = this.path + '.lock';\n    const lock = await open(lockPath, 'wx');\n    const temporary = this.path + '.' + this.generation + '.tmp';\n    const publishedDirectory = join(this.directory, this.generation);\n    let renamedGeneration = false;\n    try {\n      await mkdir(this.staging, { recursive: true });\n      for (const [path, entry] of entries) {\n        if (shouldContinue?.() === false) return false;\n        if (Object.hasOwn(entry, 'payload')) {\n          entries.set(path, { ...entry, ...await this.stage(entry.payload) });\n          delete entries.get(path).payload;\n        } else {\n          const target = join(this.staging, entry.payloadHash + '.json');\n          try { await stat(target); }\n          catch (error) {\n            if (error.code !== 'ENOENT') throw error;\n            const source = join(this.directory, this.readonlyGeneration, entry.payloadHash + '.json');\n            const info = await lstat(source);\n            if (!info.isFile() || info.isSymbolicLink() || info.size !== entry.payloadBytes) throw new Error('Cache entry unavailable during commit.');\n            try { await link(source, target); }\n            catch (error) { if (error.code === 'EXDEV') await copyFile(source, target); else if (error.code !== 'EEXIST') throw error; }\n          }\n        }\n      }\n      if (shouldContinue?.() === false) return false;\n      await rename(this.staging, publishedDirectory); renamedGeneration = true;\n      const file = await open(temporary, 'wx');\n      try {\n        let batch = `{\"schema\":2,\"version\":${JSON.stringify(this.version)},\"root\":${JSON.stringify(this.root)},\"generation\":${JSON.stringify(this.generation)},\"entries\":{`;\n        let separator = '';\n        for (const [path, entry] of entries) {\n          if (shouldContinue?.() === false) return false;\n          batch += `${separator}${JSON.stringify(path)}:${JSON.stringify(entry)}`; separator = ',';\n          if (batch.length >= 256 * 1024) { await file.writeFile(batch); batch = ''; }\n        }\n        await file.writeFile(batch + '}}');\n      } finally { await file.close(); }\n      if (shouldContinue?.() === false) return false;\n      await rename(temporary, this.path); this.published = true;\n      // Only committed generations are pruned. Other writers' staging data is untouched.\n      for (const name of await readdir(this.directory)) {\n        if (name !== this.generation && validGeneration(name)) await rm(join(this.directory, name), { recursive: true, force: true }).catch(() => undefined);\n      }\n      return true;\n    } finally {\n      await rm(temporary, { force: true }).catch(() => undefined);\n      if (renamedGeneration && !this.published) await rm(publishedDirectory, { recursive: true, force: true }).catch(() => undefined);\n      await lock.close(); await rm(lockPath, { force: true }).catch(() => undefined);\n    }\n  }\n\n  async dispose() {\n    this.disposed = true;\n    await Promise.allSettled(this.writes);\n    await rm(this.staging, { recursive: true, force: true }).catch(() => undefined);\n  }\n}\n"
+    },
+    "d274-index.mjs": {
+      "sha256": "b8967dcf0929cd50b4c67415d5890120ca24923b0602df885db942a127f0a0bc",
+      "source": "import { EntryStore } from './d274-entry-store.mjs';\nimport { mkdir, open, readdir, readFile, rename, rm, stat } from 'node:fs/promises';\nimport { join } from 'node:path';\nimport { pathToFileURL } from 'node:url';\nimport { createHash } from 'node:crypto';\nimport { dependencyAutoloadPaths, isAutoloadPathExcluded, loadComposerProject, projectAutoloadPaths } from '../packages/project/dist/index.js';\nexport { DocumentKeyIndex, DEFAULT_DOCUMENT_KEY_INDEX_LIMITS } from '../packages/index/dist/inverted.js';\nexport { DocumentDependencyGraph, DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS } from '../packages/index/dist/dependency.js';\nexport { createSourceCandidateSummary, sourceCandidateSummaryDecision } from '../packages/index/dist/source-candidates.js';\nexport const DEFAULT_INDEX_LIMITS = { maxFiles: 10_000, maxFileSizeBytes: 512 * 1024, maxTotalBytes: 128 * 1024 * 1024 };\nfunction validateLimits(limits) {\n    for (const [name, value] of Object.entries(limits)) {\n        if (!Number.isSafeInteger(value) || value <= 0)\n            throw new RangeError(`${name} must be a positive safe integer.`);\n    }\n}\nasync function phpFiles(directory, output, limit, include, shouldContinue) {\n    if (shouldContinue?.() === false)\n        return false;\n    if (output.size >= limit)\n        return true;\n    let entries;\n    try {\n        entries = await readdir(directory, { recursive: true, withFileTypes: true });\n    }\n    catch {\n        return true;\n    }\n    const files = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.php'))\n        .map((entry) => join(entry.parentPath, entry.name)).sort((left, right) => left.localeCompare(right));\n    for (const path of files) {\n        if (shouldContinue?.() === false)\n            return false;\n        if (output.size >= limit)\n            return true;\n        if (include(path))\n            output.add(path);\n    }\n    return true;\n}\nexport async function indexComposerSources(root, options) {\n    const limits = options.limits ?? DEFAULT_INDEX_LIMITS;\n    const project = options.project ?? await loadComposerProject(root);\n    validateLimits(limits);\n    const readConcurrency = options.readConcurrency ?? 1;\n    if (!Number.isSafeInteger(readConcurrency) || readConcurrency < 1 || readConcurrency > 128)\n        throw new RangeError('readConcurrency must be a safe integer between 1 and 128.');\n    if (options.skipSourceOutsideBudget && !options.skipSource)\n        throw new RangeError('skipSourceOutsideBudget requires skipSource.');\n    if (!project)\n        return { files: 0, bytes: 0, cached: 0, complete: true, projectComplete: true, warnings: ['composer.json was not readable.'] };\n    const warnings = [...project.warnings];\n    const cacheIdentity = options.cache?.key === undefined ? root : `${root}\\0${options.cache.key}`;\n    const cachePath = options.cache ? join(options.cache.directory, `${createHash('sha256').update(cacheIdentity).digest('hex')}.json`) : undefined;\n    const store = cachePath && options.cache ? await EntryStore.load(cachePath, root, options.cache.version) : undefined;\n    const previous = store?.previous ?? new Map();\n    warnings.push(...store?.warnings ?? []);\n    try {\n    const inventoryLimit = options.skipSourceOutsideBudget ? Math.max(50_000, limits.maxFiles) : limits.maxFiles;\n    const projectCandidates = new Set();\n    const include = (path) => !isAutoloadPathExcluded(project, path);\n    for (const path of projectAutoloadPaths(project)) {\n        if (options.shouldContinue?.() === false)\n            return { files: 0, bytes: 0, cached: 0, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };\n        let info;\n        try {\n            info = await stat(path);\n        }\n        catch {\n            continue;\n        }\n        if (info.isDirectory() && !await phpFiles(path, projectCandidates, inventoryLimit + 1, include, options.shouldContinue))\n            return { files: 0, bytes: 0, cached: 0, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };\n        else if (info.isFile() && path.toLowerCase().endsWith('.php') && include(path))\n            projectCandidates.add(path);\n    }\n    const projectFiles = [...projectCandidates];\n    if (projectFiles.length > inventoryLimit)\n        return { files: 0, bytes: 0, cached: 0, complete: false, projectComplete: false, warnings: [...warnings, `Project source index exceeded ${inventoryLimit} files.`] };\n    let bytes = 0;\n    let indexed = 0;\n    let chargedFiles = 0;\n    let cached = 0;\n    let cacheChanged = false;\n    const next = new Map();\n    const pendingPayloads = new Set();\n    // The sequential producer needs one notification, without adding handlers to slow tasks.\n    let payloadReady;\n    const waitForPayloads = async (limit) => {\n        while (pendingPayloads.size >= limit) {\n            if (options.shouldContinue?.() === false)\n                return false;\n            await new Promise((done) => {\n                let timer;\n                const finish = () => {\n                    if (timer)\n                        clearInterval(timer);\n                    if (payloadReady === finish)\n                        payloadReady = undefined;\n                    done();\n                };\n                payloadReady = finish;\n                // A stalled optional worker must not prevent cancellation of the scan.\n                if (options.shouldContinue)\n                    timer = setInterval(() => {\n                        if (options.shouldContinue?.() === false)\n                            finish();\n                    }, 10);\n            });\n        }\n        return options.shouldContinue?.() !== false;\n    };\n    let projectIncomplete = false;\n    let dependencyIncomplete = false;\n    const skipped = (candidate, reason) => {\n        if (candidate.project)\n            projectIncomplete = true;\n        else\n            dependencyIncomplete = true;\n        warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} ${candidate.path} ${reason}`);\n    };\n    const prefetch = async (path, inspect) => {\n        let information;\n        try {\n            information = await inspect(path);\n        }\n        catch {\n            return { inspectFailed: true };\n        }\n        const info = { size: information.size, mtimeMs: information.mtimeMs, ctimeMs: information.ctimeMs };\n        if (info.size > limits.maxFileSizeBytes)\n            return { info };\n        if (options.skipSource?.(path, info))\n            return { info, omitted: true };\n        const old = previous.get(path);\n        let verifiedSource = 'source' in information && typeof information.source === 'string' ? information.source : undefined;\n        let verifiedHash;\n        if (options.cache && old && old.size === info.size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs) {\n            const verifySource = options.verifyCachedSourceHash || verifiedSource !== undefined;\n            if (verifySource) {\n                try {\n                    verifiedSource ??= await readFile(path, 'utf8');\n                    verifiedHash = createHash('sha256').update(verifiedSource).digest('hex');\n                }\n                catch {\n                    return { info, readFailed: true };\n                }\n            }\n            if (!verifySource || verifiedHash === old.hash) {\n                if (!options.cache.prepareRestore || options.shouldContinue?.() === false)\n                    return { info, hash: verifiedHash };\n                try {\n                    const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();\n                    return { info, hash: verifiedHash, preparedRestore: await options.cache.prepareRestore(await store.payload(old), { uri, path, bytes: info.size, hash: old.hash }) };\n                }\n                catch {\n                    return { info, hash: verifiedHash };\n                }\n            }\n        }\n        if (options.cache && !options.prepareSource)\n            return verifiedSource !== undefined ? { info, source: verifiedSource, hash: verifiedHash } : { info };\n        let source;\n        try {\n            source = verifiedSource ?? await readFile(path, 'utf8');\n        }\n        catch {\n            return { info, readFailed: true };\n        }\n        if (!options.prepareSource || options.shouldContinue?.() === false)\n            return { info, source, hash: verifiedHash };\n        const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();\n        const hash = verifiedHash ?? createHash('sha256').update(source).digest('hex');\n        try {\n            return { info, source, hash, prepared: await options.prepareSource({ uri, path, source, bytes: info.size, hash }) };\n        }\n        catch {\n            return { info, source, hash };\n        }\n    };\n    // Keep at most one bounded window in flight, without a slow-file batch barrier.\n    // Preparation is speculative; semantic callbacks still run in file order.\n    const preparedSources = async function* (paths) {\n        if (readConcurrency === 1 && !options.inspectSource) {\n            for (const path of paths)\n                yield { path };\n            return;\n        }\n        const pending = new Map();\n        const inspect = options.inspectSource ?? stat;\n        let nextPath = 0;\n        const fill = () => {\n            while (nextPath < paths.length && pending.size < readConcurrency && options.shouldContinue?.() !== false) {\n                const index = nextPath++;\n                pending.set(index, prefetch(paths[index], inspect).catch(() => ({ inspectFailed: true })));\n            }\n        };\n        fill();\n        for (const [index, path] of paths.entries()) {\n            const source = await pending.get(index);\n            pending.delete(index);\n            fill();\n            yield { path, source };\n        }\n    };\n    const indexCandidate = async (candidate, progressTotal, prefetched) => {\n        const path = candidate.path;\n        if (options.shouldContinue?.() === false)\n            return 'cancelled';\n        let info;\n        if (prefetched?.inspectFailed) {\n            skipped(candidate, 'could not be inspected and was skipped.');\n            return 'skipped';\n        }\n        try {\n            info = prefetched?.info ?? await stat(path);\n        }\n        catch {\n            skipped(candidate, 'could not be inspected and was skipped.');\n            return 'skipped';\n        }\n        const size = info.size;\n        if (options.skipSourceOutsideBudget && (prefetched?.omitted || options.skipSource?.(path, info))) {\n            const old = previous.get(path);\n            if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs)\n                next.set(path, old);\n            indexed += 1;\n            options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });\n            if (indexed % (options.yieldEvery ?? 10) === 0)\n                await new Promise((resolve) => setImmediate(resolve));\n            return 'indexed';\n        }\n        if (chargedFiles >= limits.maxFiles) {\n            if (candidate.project)\n                projectIncomplete = true;\n            else\n                dependencyIncomplete = true;\n            warnings.push(`${candidate.project ? 'Project source' : 'Dependency source'} index exceeded ${limits.maxFiles} candidate files.`);\n            return 'budget';\n        }\n        if (size > limits.maxFileSizeBytes) {\n            skipped(candidate, `exceeded the ${limits.maxFileSizeBytes}-byte per-file budget and was skipped.`);\n            return 'skipped';\n        }\n        if (bytes + size > limits.maxTotalBytes) {\n            if (candidate.project)\n                warnings.push(`Project source index exceeded ${limits.maxTotalBytes} bytes.`);\n            else\n                warnings.push(`Dependency index was truncated to fit the ${limits.maxTotalBytes}-byte budget.`);\n            if (candidate.project)\n                projectIncomplete = true;\n            else\n                dependencyIncomplete = true;\n            return 'budget';\n        }\n        if (prefetched?.omitted || !prefetched && options.skipSource?.(path, info)) {\n            const old = previous.get(path);\n            if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs)\n                next.set(path, old);\n            bytes += size;\n            indexed += 1;\n            options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });\n            if (indexed % (options.yieldEvery ?? 10) === 0)\n                await new Promise((resolve) => setImmediate(resolve));\n            return 'indexed';\n        }\n        chargedFiles += 1;\n        try {\n            const uri = options.uriForPath?.(path) ?? pathToFileURL(path).toString();\n            const old = previous.get(path);\n            let restoreAttempted = false;\n            if (old && old.size === size && old.mtimeMs === info.mtimeMs && old.ctimeMs === info.ctimeMs && options.cache\n                && (prefetched?.hash === undefined ? !options.verifyCachedSourceHash : prefetched.hash === old.hash)) {\n                restoreAttempted = true;\n                try {\n                    const decision = await options.cache.restore(await store.payload(old), { uri, path, bytes: size, hash: old.hash }, prefetched?.preparedRestore);\n                    if (decision === true) {\n                        next.set(path, old);\n                        cached += 1;\n                        bytes += size;\n                        indexed += 1;\n                        options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });\n                        if (indexed % (options.yieldEvery ?? 10) === 0)\n                            await new Promise((resolve) => setImmediate(resolve));\n                        return 'indexed';\n                    }\n                }\n                catch {\n                    warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);\n                }\n            }\n            if (prefetched?.readFailed)\n                throw new Error('Source prefetch failed.');\n            const source = prefetched?.source ?? await readFile(path, 'utf8');\n            const hash = prefetched?.hash ?? createHash('sha256').update(source).digest('hex');\n            let restored = false;\n            if (!restoreAttempted && old && old.size === size && old.hash === hash && options.cache) {\n                try {\n                    restored = await options.cache.restore(await store.payload(old), { uri, path, bytes: size, hash }) === true;\n                }\n                catch {\n                    warnings.push(`Persistent index entry for ${path} was rejected and rebuilt.`);\n                }\n            }\n            if (old && restored) {\n                next.set(path, { ...old, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs });\n                cacheChanged = true;\n                cached += 1;\n                bytes += size;\n                indexed += 1;\n                options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });\n                if (indexed % (options.yieldEvery ?? 10) === 0)\n                    await new Promise((resolve) => setImmediate(resolve));\n                return 'indexed';\n            }\n            // Bound retained source facts as well as speculative reads. Finalizers may\n            // run on a slower worker while the producer keeps discovering new files.\n            if (pendingPayloads.size >= readConcurrency && !await waitForPayloads(readConcurrency))\n                return 'cancelled';\n            const payload = await options.onSource({ uri, path, source, bytes: size, hash, prepared: prefetched?.prepared });\n            if (payload !== undefined && store) {\n                cacheChanged = true;\n                const entry = { size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs, hash };\n                next.set(path, entry);\n                const finish = Promise.resolve().then(() => options.cache?.finalizePayload ? options.cache.finalizePayload(payload) : payload)\n                    .then(async (finalized) => {\n                        if (finalized === undefined) next.delete(path);\n                        else Object.assign(entry, await store.stage(finalized));\n                    })\n                    .catch(() => { next.delete(path); warnings.push(`Persistent index entry for ${path} could not be finalized.`); })\n                    .finally(() => { pendingPayloads.delete(finish); payloadReady?.(); });\n                pendingPayloads.add(finish);\n            }\n            bytes += size;\n            indexed += 1;\n            options.onProgress?.({ files: indexed, cached, total: progressTotal, phase: candidate.project ? 'project' : 'dependencies' });\n            if (indexed % (options.yieldEvery ?? 10) === 0)\n                await new Promise((resolve) => setImmediate(resolve));\n        }\n        catch {\n            skipped(candidate, 'could not be read or analyzed and was skipped.');\n        }\n        return 'indexed';\n    };\n    for await (const { path, source } of preparedSources(projectFiles)) {\n        const status = await indexCandidate({ path, project: true }, projectFiles.length, source);\n        if (status === 'cancelled')\n            return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings: [...warnings, 'Project indexing was cancelled.'] };\n        if (status === 'budget')\n            return { files: indexed, bytes, cached, complete: false, projectComplete: false, warnings };\n    }\n    if (!projectIncomplete && options.shouldContinue?.() !== false)\n        await options.onProjectComplete?.();\n    if (options.shouldContinue?.() === false)\n        return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };\n    const commitCache = async () => {\n        if (!cachePath || !options.cache)\n            return true;\n        if (!await waitForPayloads(1))\n            return false;\n        if (!cacheChanged && store.readonlyGeneration !== undefined && previous.size === next.size && [...next].every(([path, entry]) => previous.get(path) === entry))\n            return true;\n        try { return await store.commit(next, options.shouldContinue); }\n        catch { warnings.push('Persistent index cache could not be written.'); }\n        return true;\n    };\n    if (options.includeDependencies === false) {\n        if (!await commitCache())\n            return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete,\n                warnings: [...warnings, 'Project indexing was cancelled.'] };\n        return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings };\n    }\n    const dependencyCandidates = new Set();\n    const remaining = options.skipSourceOutsideBudget\n        ? inventoryLimit - projectFiles.length : limits.maxFiles - projectFiles.length;\n    for (const path of dependencyAutoloadPaths(project)) {\n        if (options.shouldContinue?.() === false)\n            return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };\n        let info;\n        try {\n            info = await stat(path);\n        }\n        catch {\n            continue;\n        }\n        if (info.isDirectory() && !await phpFiles(path, dependencyCandidates, remaining + 1, include, options.shouldContinue))\n            return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete, warnings: [...warnings, 'Project indexing was cancelled.'] };\n        else if (info.isFile() && path.toLowerCase().endsWith('.php') && include(path))\n            dependencyCandidates.add(path);\n    }\n    const projectFileSet = new Set(projectFiles);\n    const uniqueDependencies = [...dependencyCandidates].filter((path) => !projectFileSet.has(path));\n    const dependencyTruncatedByCount = uniqueDependencies.length > remaining;\n    dependencyIncomplete = dependencyTruncatedByCount;\n    if (dependencyTruncatedByCount)\n        warnings.push(options.skipSourceOutsideBudget\n            ? `Dependency index was truncated to fit the ${inventoryLimit}-file inventory after inspecting ${projectFiles.length} project files.`\n            : `Dependency index was truncated to fit the ${limits.maxFiles}-file budget after indexing ${projectFiles.length} project files.`);\n    const dependencies = uniqueDependencies.slice(0, remaining);\n    const dependencyProgressTotal = projectFiles.length + dependencies.length;\n    for await (const { path, source } of preparedSources(dependencies)) {\n        const status = await indexCandidate({ path, project: false }, dependencyProgressTotal, source);\n        if (status === 'cancelled')\n            return { files: indexed, bytes, cached, complete: false, projectComplete: true, warnings: [...warnings, 'Project indexing was cancelled.'] };\n        if (status === 'budget')\n            break;\n    }\n    if (!await commitCache())\n        return { files: indexed, bytes, cached, complete: false, projectComplete: !projectIncomplete,\n            warnings: [...warnings, 'Project indexing was cancelled.'] };\n    return { files: indexed, bytes, cached, complete: !projectIncomplete && !dependencyIncomplete, projectComplete: !projectIncomplete, warnings };\n    } finally { await store?.dispose(); }\n\n}\nexport { PendingChanges } from '../packages/index/dist/pending.js';\n//# sourceMappingURL=index.js.map"
+    },
+    "d274-benchmark-entry-store.mjs": {
+      "sha256": "018415d2b40b964f3959ed6333525e6a6a028aea3b46033845e5540972449c43",
+      "source": "import { createHash } from 'node:crypto';\nimport { mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';\nimport { arch, cpus, platform, tmpdir } from 'node:os';\nimport { join } from 'node:path';\nimport { pathToFileURL } from 'node:url';\nimport { performance } from 'node:perf_hooks';\nimport process from 'node:process';\nimport { clearInterval, setInterval } from 'node:timers';\nimport { indexComposerSources } from './d274-index.mjs';\nimport { PhpSyntaxParser } from '../packages/parser/dist/index.js';\nimport { SemanticWorkspace } from '../packages/semantic/dist/index.js';\nimport { analyzeProjectPhpFileFacts, createCachedProjectPhpFile, restoreCachedProjectPhpFile } from '../packages/language-server/dist/projectFacts.js';\nimport { CallableFactCache } from '../packages/language-server/dist/callableFactsCache.js';\nimport { generatePhpComposerProject, R1_PERFORMANCE_BUDGETS } from '../packages/testkit/dist/index.js';\n\nconst arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');\nconst files = Number(arguments_[0] ?? 1_000);\nif (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');\nif ((arguments_[1] === undefined) !== (arguments_[2] === undefined))\n  throw new Error('Provide both core WASM and PHP WASM paths, or neither.');\n\nconst root = await mkdtemp(join(tmpdir(), `php-companion-persistent-index-${files}-`));\nconst cacheDirectory = join(root, '.cache'); const cacheVersion = 'semantic-v49-callable-array-benchmark';\nconst sourcePath = (index) => join(root, 'src', `Fixture${String(index).padStart(6, '0')}.php`);\nconst uri = (index) => pathToFileURL(sourcePath(index)).toString();\nconst base = (initialized) => `<?php namespace Benchmark; use Doctrine\\\\ORM\\\\Mapping as ORM; #[ORM\\\\Entity] class Base { #[ORM\\\\ManyToOne(targetEntity: Owner::class)] public ?Owner $owner; public readonly int $value; public function __construct() { ${initialized ? '$this->value = 1;' : ''} } } function inner(): Child { return new Child(); }`;\nconst middle = '<?php namespace Benchmark; class Middle extends Base {} function middle(): Child { return inner(); }';\nconst child = '<?php namespace Benchmark; class Child extends Middle { public function childMethod(): void {} } function outer(): Child { return middle(); }';\nconst consumer = \"<?php namespace Benchmark; class Consumer { public function inspect(): void { $child = outer(); $child->childM; foreach ($child as &$value) {} $this->render('child.html.twig', ['child' => $child]); } public function untouched(): void {} }\";\n\nasync function cacheVolume(directory) {\n  let bytes = 0; let files = 0;\n  for (const entry of await readdir(directory, { withFileTypes: true })) {\n    const path = join(directory, entry.name);\n    if (entry.isDirectory()) {\n      const nested = await cacheVolume(path); bytes += nested.bytes; files += nested.files;\n    } else if (entry.isFile()) { bytes += (await stat(path)).size; files += 1; }\n  }\n  return { files, bytes, mebibytes: Math.round(bytes / 1024 / 1024 * 100) / 100 };\n}\n\nconst cacheBudgetMb = R1_PERFORMANCE_BUDGETS.warmCacheMb[`files${files}`];\n\nasync function load(workspace) {\n  let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();\n  let peakRssMb = process.memoryUsage().rss / 1024 / 1024;\n  const sampler = setInterval(() => { peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024); }, 10);\n  const acceptFacts = (facts) => { doctrineProperties += facts.doctrineProperties.length; };\n  try {\n  const result = await indexComposerSources(root, {\n    limits: { maxFiles: files, maxFileSizeBytes: 512 * 1024, maxTotalBytes: Math.max(128 * 1024 * 1024, files * 512) },\n    onSource: ({ uri: sourceUri, source, hash }) => {\n      parsed += 1; workspace.update(sourceUri, source);\n      if (source.includes('Doctrine') || source.includes('ServiceEntityRepository')) doctrineParsed += 1;\n      const facts = analyzeProjectPhpFileFacts(parser, sourceUri, source); acceptFacts(facts);\n      return createCachedProjectPhpFile(workspace.snapshotForPersistence(sourceUri), facts, hash);\n    },\n    cache: { directory: cacheDirectory, version: cacheVersion, restore: (payload, source) => {\n      const restored = restoreCachedProjectPhpFile(payload, source.uri);\n      if (!restored || !workspace.restoreDeclaration(restored.semantic, source.uri)) return false;\n      acceptFacts(restored.facts); return true;\n    } },\n  });\n  peakRssMb = Math.max(peakRssMb, process.memoryUsage().rss / 1024 / 1024);\n  return { durationMs: performance.now() - started, parsed, doctrineParsed, doctrineProperties, result,\n    peakRssMb: Math.round(peakRssMb * 100) / 100 };\n  } finally { clearInterval(sampler); }\n}\n\n// Keep full manifest mutation data out of the subsequent restore workspace's lifetime.\nasync function mutateCacheFile(cacheFile, mutate) {\n  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));\n  if (persisted.schema === 2) {\n    const entry = persisted.entries[sourcePath(0)];\n    const payloadPath = join(cacheFile + '.entries', persisted.generation, entry.payloadHash + '.json');\n    const original = JSON.parse(await readFile(payloadPath, 'utf8'));\n    await mutate({ entries: { [sourcePath(0)]: { payload: original } } });\n    const serialized = JSON.stringify(original);\n    entry.payloadHash = createHash('sha256').update(serialized).digest('hex');\n    entry.payloadBytes = Buffer.byteLength(serialized);\n    await writeFile(join(cacheFile + '.entries', persisted.generation, entry.payloadHash + '.json'), serialized);\n  } else await mutate(persisted);\n  await writeFile(cacheFile, JSON.stringify(persisted));\n}\n\nconst parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()\n  : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });\nlet report;\ntry {\n  await generatePhpComposerProject(root, files);\n  await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);\n  const coldWorkspace = new SemanticWorkspace(parser); const cold = await load(coldWorkspace);\n  if (cold.result.files !== files || cold.result.cached !== 0 || cold.parsed !== files) throw new Error(`Cold index did not parse every file: ${JSON.stringify(cold)}`);\n  if (cold.doctrineParsed !== 1 || cold.doctrineProperties !== 1) throw new Error(`Cold Doctrine facts were incomplete: ${JSON.stringify(cold)}`);\n  if (coldWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Cold index did not resolve the transitive constructor fact.');\n  const coldCallableCache = await CallableFactCache.open(cacheDirectory, root);\n  const coldCallableCommit = await coldCallableCache.commit(coldWorkspace, new Set());\n  if (!coldCallableCommit.written || coldCallableCommit.facts !== 3) throw new Error(`Cold callable facts were not persisted: ${JSON.stringify(coldCallableCommit)}`);\n  const coldCache = await cacheVolume(cacheDirectory);\n  coldWorkspace.dispose();\n\n  const warmWorkspace = new SemanticWorkspace(parser); const warm = await load(warmWorkspace);\n  if (warm.result.files !== files || warm.result.cached !== files || warm.parsed !== 0) throw new Error(`Warm index did not restore every file: ${JSON.stringify(warm)}`);\n  if (warm.doctrineParsed !== 0 || warm.doctrineProperties !== 1) throw new Error(`Warm Doctrine facts were not restored exactly: ${JSON.stringify(warm)}`);\n  const deferredImplementations = warmWorkspace.deferredImplementationCount();\n  if (deferredImplementations !== files) throw new Error(`Warm index eagerly loaded implementation records: ${deferredImplementations}/${files} remained deferred.`);\n  const callableImplementationRecords = Array.from({ length: files }, (_, index) => warmWorkspace.callableImplementationStates(uri(index)))\n    .flat();\n  if (callableImplementationRecords.length === 0 || callableImplementationRecords.some((record) => record.state !== 'deferred'))\n    throw new Error('Warm index did not preserve independently observable deferred callable implementation records.');\n  const warmCallableCache = await CallableFactCache.open(cacheDirectory, root);\n  const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);\n  if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);\n  const warmCache = await cacheVolume(cacheDirectory);\n  if (cacheBudgetMb !== undefined && warmCache.mebibytes > cacheBudgetMb) {\n    throw new Error(`Warm cache exceeded its frozen budget: ${warmCache.mebibytes} MiB > ${cacheBudgetMb} MiB.`);\n  }\n  const completionOffset = consumer.indexOf('$child->childM') + '$child->childM'.length;\n  if (!warmWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod'))\n    throw new Error('Focused warm completion lost the restored transitive callable result.');\n  const focusedCallableStates = warmWorkspace.callableImplementationStates(uri(3));\n  const callableImplementationsLoadedByFocusedQuery = focusedCallableStates.filter((record) => record.state === 'loaded').map((record) => record.identity);\n  if (JSON.stringify(callableImplementationsLoadedByFocusedQuery) !== JSON.stringify(['benchmark\\\\consumer::inspect']))\n    throw new Error(`Focused completion did not preserve unrelated callable records: ${JSON.stringify(focusedCallableStates)}`);\n  if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1) throw new Error('Warm index lost the transitive constructor fact.');\n  const implementationsLoadedByQuery = deferredImplementations - warmWorkspace.deferredImplementationCount();\n  if (implementationsLoadedByQuery < 1 || implementationsLoadedByQuery >= files) throw new Error(`Focused query loaded an invalid implementation set: ${implementationsLoadedByQuery}/${files}.`);\n  warmWorkspace.update(uri(0), base(false));\n  if (warmWorkspace.readonlyPropertyAssignments(uri(3)).length !== 0) throw new Error('Restored dependency graph retained a stale derived constructor fact.');\n  warmWorkspace.dispose();\n\n  const cacheFile = join(cacheDirectory, (await readdir(cacheDirectory)).find((name) => name.endsWith('.json') && !name.endsWith('.callable.json')) ?? '');\n  await mutateCacheFile(cacheFile, (persisted) => {\n  const baseEntry = persisted.entries[sourcePath(0)];\n  if (!baseEntry?.payload?.semantic?.declaration || !baseEntry?.payload?.semantic?.implementation?.file\n    || !Array.isArray(baseEntry?.payload?.semantic?.implementation?.callables)\n    || !baseEntry?.payload?.semantic?.layers?.referenceCandidates\n    || !['source', 'declaration', 'implementationFile', 'layers', 'facts'].every((key) => /^[0-9a-f]{64}$/.test(baseEntry?.payload?.checksums?.[key] ?? ''))\n    || !Array.isArray(baseEntry?.payload?.checksums?.callableImplementations)\n    || baseEntry.payload.semantic.implementation.callables.length === 0\n    || baseEntry.payload.checksums.callableImplementations.length !== baseEntry.payload.semantic.implementation.callables.length\n    || !baseEntry.payload.checksums.callableImplementations.every((record) => typeof record.identity === 'string' && /^[0-9a-f]{64}$/.test(record.checksum)))\n    throw new Error('Persistent cache did not contain separately checksummed source, declaration, file implementation, callable implementation, derived, and Doctrine records.');\n  baseEntry.payload.semantic.layers.referenceCandidates.keys = ['raw-ci:corrupt'];\n  });\n  const recoveredWorkspace = new SemanticWorkspace(parser); const recovered = await load(recoveredWorkspace);\n  if (recovered.result.cached !== files - 1 || recovered.parsed !== 1) throw new Error(`Layer corruption did not rebuild exactly one file: ${JSON.stringify(recovered)}`);\n  if (recoveredWorkspace.workspaceTypes().filter((item) => item.fqcn === 'Benchmark\\\\Base').length !== 1) throw new Error('Layer corruption recovery lost the rebuilt declaration.');\n  if (!recoveredWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod')\n    || recoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)\n    throw new Error('Layer corruption recovery lost cross-file completion or constructor facts.');\n  recoveredWorkspace.dispose();\n\n  await mutateCacheFile(cacheFile, (callablePersisted) => {\n  const callableEntry = callablePersisted.entries[sourcePath(0)];\n  callableEntry.payload.semantic.implementation.callables[0].facts.rawNames.push({ text: 'corrupt', start: 0, end: 1, context: 'code' });\n  });\n  const callableRecoveredWorkspace = new SemanticWorkspace(parser); const callableRecovered = await load(callableRecoveredWorkspace);\n  if (callableRecovered.result.cached !== files - 1 || callableRecovered.parsed !== 1) throw new Error(`Callable record corruption did not rebuild exactly one file: ${JSON.stringify(callableRecovered)}`);\n  if (!callableRecoveredWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod')\n    || callableRecoveredWorkspace.readonlyPropertyAssignments(uri(3)).length !== 1)\n    throw new Error('Callable corruption recovery lost cross-file completion or constructor facts.');\n  callableRecoveredWorkspace.dispose();\n\n  report = {\n    schema: 1, files, runtime: process.version, platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,\n    cold: { durationMs: Math.round(cold.durationMs * 100) / 100, parsed: cold.parsed, restored: cold.result.cached, doctrineParsed: cold.doctrineParsed },\n    warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, doctrineParsed: warm.doctrineParsed },\n    warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,\n    cache: { cold: coldCache, warm: warmCache, frozenBudgetMb: cacheBudgetMb ?? null },\n    loadMemory: { coldPeakRssMb: cold.peakRssMb, warmPeakRssMb: warm.peakRssMb,\n      layerRecoveryPeakRssMb: recovered.peakRssMb, callableRecoveryPeakRssMb: callableRecovered.peakRssMb,\n      sampledIntervalMs: 10, frozenScalePeakRssMb: R1_PERFORMANCE_BUDGETS.peakRssMb[`files${files}`] ?? null },\n    exactness: { transitiveDependencyRestored: true, derivedFactInvalidated: true, doctrineFactsRestored: true,\n      callableFactsRestored: restoredCallableFacts, deferredImplementations, implementationsLoadedByQuery,\n      callableImplementationsLoadedByFocusedQuery,\n      callableImplementationRecords: callableImplementationRecords.length,\n      corruptLayerReparsedFiles: recovered.parsed, corruptCallableReparsedFiles: callableRecovered.parsed,\n      completionAfterLayerRecovery: true, completionAfterCallableRecovery: true,\n      constructorFactsAfterRecovery: true },\n  };\n} finally {\n  parser.dispose(); await rm(root, { recursive: true, force: true });\n}\nconst processPeakRssMb = process.resourceUsage().maxRSS / 1024;\nreport.loadMemory.processPeakRssMb = Math.round(processPeakRssMb * 100) / 100;\nreport.loadMemory.rssMeasurement = 'process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately';\nreport.loadMemory.processRssBudgetPassed = report.loadMemory.frozenScalePeakRssMb === null ? null\n  : processPeakRssMb <= report.loadMemory.frozenScalePeakRssMb;\nif (report.loadMemory.processRssBudgetPassed === false) process.exitCode = 1;\nprocess.stdout.write(`${JSON.stringify(report, null, 2)}\\n`);\n"
+    },
+    "d274-entry-store-controls.mjs": {
+      "sha256": "58e74a676e1c624c75e70fc767d1b26007b06ebc5ac0cc14ad767e78a810823b",
+      "source": "import assert from 'node:assert/strict';\nimport { mkdtemp, mkdir, readFile, readdir, rm, stat, utimes, writeFile } from 'node:fs/promises';\nimport { createHash } from 'node:crypto';\nimport { tmpdir } from 'node:os';\nimport { join, basename } from 'node:path';\nimport { indexComposerSources } from './d274-index.mjs';\nimport { EntryStore } from './d274-entry-store.mjs';\n\nconst root = await mkdtemp(join(tmpdir(), 'sophp-entry-cache-controls-'));\nconst directory = join(root, '.cache');\nconst paths = ['A', 'B', 'C'].map((name) => join(root, 'src', name + '.php'));\nconst report = { status: 'running', checks: [] };\nconst check = async (name, fn) => { await fn(); report.checks.push(name); process.stdout.write('PASS ' + name + '\\n'); };\nconst payload = (source) => ({ source, valid: true, unicode: '中文🙂\"\\\\\\n'.repeat(10000) });\nlet restored = []; let parsed = [];\nconst options = { readConcurrency: 3, onSource: ({ path, source }) => { parsed.push(path); return payload(source); },\n  cache: { directory, version: 'entry-controls-v1', restore: (value, source) => {\n    restored.push(source.path); return value.valid === true && value.source === `<?php class ${basename(source.path, '.php')} {}`;\n  } } };\nconst run = async (extra = {}) => { restored = []; parsed = []; return indexComposerSources(root, { ...options, ...extra }); };\nlet cacheFile;\nconst manifest = async () => JSON.parse(await readFile(cacheFile, 'utf8'));\nconst entryPath = (m, entry) => join(cacheFile + '.entries', m.generation, entry.payloadHash + '.json');\ntry {\n  await mkdir(join(root, 'src'));\n  await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\\\': 'src/' } } }));\n  await Promise.all(paths.map((path) => writeFile(path, `<?php class ${basename(path, '.php')} {}`)));\n  await check('cold Unicode entries are stored outside metadata and warm restore preserves path order', async () => {\n    assert.equal((await run()).cached, 0);\n    cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json')));\n    const m = await manifest(); assert.equal(m.schema, 2);\n    assert.ok((await stat(cacheFile)).size < 3000);\n    for (const entry of Object.values(m.entries)) assert.equal(Object.hasOwn(entry, 'payload'), false);\n    assert.equal((await run()).cached, 3); assert.deepEqual(restored, paths); assert.deepEqual(parsed, []);\n    const store = await EntryStore.load(cacheFile, root, options.cache.version);\n    assert.deepEqual(await store.payload(store.previous.get(paths[0])), payload('<?php class A {}')); await store.dispose();\n  });\n  await check('fully warm metadata and generation remain unchanged', async () => {\n    const old = await readFile(cacheFile, 'utf8'); const fixed = new Date('2001-02-03T04:05:06Z');\n    await utimes(cacheFile, fixed, fixed); assert.equal((await run()).cached, 3);\n    assert.equal((await stat(cacheFile)).mtimeMs, fixed.getTime()); assert.equal(await readFile(cacheFile, 'utf8'), old);\n  });\n  await check('payload checksum corruption rebuilds exactly one file and prunes replaced generation', async () => {\n    const m = await manifest(); await writeFile(entryPath(m, m.entries[paths[0]]), '{broken');\n    const result = await run(); assert.equal(result.cached, 2); assert.deepEqual(parsed, [paths[0]]);\n    assert.equal((await run()).cached, 3);\n    const current = await manifest(); assert.notEqual(current.generation, m.generation);\n    assert.deepEqual(await readdir(cacheFile + '.entries'), [current.generation]);\n  });\n  await check('adapter-level payload rejection rebuilds one file with outer hash kept valid', async () => {\n    const m = await manifest(); const entry = m.entries[paths[1]];\n    const value = JSON.parse(await readFile(entryPath(m, entry), 'utf8')); value.valid = false;\n    const text = JSON.stringify(value); entry.payloadHash = createHash('sha256').update(text).digest('hex'); entry.payloadBytes = Buffer.byteLength(text);\n    await writeFile(entryPath(m, entry), text); await writeFile(cacheFile, JSON.stringify(m));\n    const result = await run(); assert.equal(result.cached, 2); assert.deepEqual(parsed, [paths[1]]);\n  });\n  await check('cancelled source production preserves manifest and leaves no staging directories', async () => {\n    const old = await readFile(cacheFile, 'utf8'); let count = 0;\n    const result = await run({ shouldContinue: () => count < 2,\n      onSource: ({ source }) => { count++; return payload(source); }, cache: { ...options.cache, restore: () => false } });\n    assert.equal(result.complete, false); assert.ok(result.warnings.includes('Project indexing was cancelled.'));\n    assert.equal(await readFile(cacheFile, 'utf8'), old);\n    assert.deepEqual(await readdir(cacheFile + '.entries'), [(await manifest()).generation]);\n  });\n  await check('commit contention preserves published cache and cleans private staging', async () => {\n    const old = await readFile(cacheFile, 'utf8'); await writeFile(cacheFile + '.lock', 'active-control');\n    try {\n      const result = await run({ cache: { ...options.cache, restore: () => false } });\n      assert.equal(result.complete, true); assert.ok(result.warnings.includes('Persistent index cache could not be written.'));\n      assert.equal(await readFile(cacheFile, 'utf8'), old);\n      assert.deepEqual(await readdir(cacheFile + '.entries'), [(await manifest()).generation]);\n    } finally { await rm(cacheFile + '.lock'); }\n  });\n  await check('legacy schema 1 payloads migrate without reparsing source', async () => {\n    const m = await manifest();\n    const entries = {};\n    for (const [path, entry] of Object.entries(m.entries)) {\n      const { payloadHash, payloadBytes, ...metadata } = entry;\n      entries[path] = { ...metadata, payload: JSON.parse(await readFile(entryPath(m, entry), 'utf8')) };\n    }\n    await writeFile(cacheFile, JSON.stringify({ schema: 1, root, version: options.cache.version, entries }));\n    await rm(cacheFile + '.entries', { recursive: true });\n    assert.equal((await run()).cached, 3); assert.deepEqual(parsed, []); assert.equal((await manifest()).schema, 2);\n  });\n  await check('unsafe payload identity is rejected before reads and rebuilds one entry', async () => {\n    const m = await manifest(); m.entries[paths[0]].payloadHash = '../../outside';\n    await writeFile(cacheFile, JSON.stringify(m));\n    const result = await run(); assert.equal(result.cached, 2); assert.deepEqual(parsed, [paths[0]]);\n    assert.ok(result.warnings.some((warning) => warning.includes('was rejected and rebuilt')));\n  });\n  await check('malformed manifest tail cannot partially restore', async () => {\n    const m = await readFile(cacheFile, 'utf8'); await writeFile(cacheFile, m + 'invalid-tail');\n    assert.equal((await run()).cached, 0); assert.deepEqual(parsed, paths);\n  });\n  await check('deleted source drops its payload from the committed generation', async () => {\n    await rm(paths[2]); const result = await run(); assert.equal(result.cached, 2);\n    const m = await manifest(); assert.deepEqual(Object.keys(m.entries), paths.slice(0, 2));\n    assert.equal((await readdir(join(cacheFile + '.entries', m.generation))).length, 2);\n    assert.deepEqual(await readdir(cacheFile + '.entries'), [m.generation]);\n  });\n  await check('cancellation during cache commit preserves old manifest', async () => {\n    const old = await readFile(cacheFile, 'utf8'); const store = await EntryStore.load(cacheFile, root, options.cache.version);\n    let calls = 0;\n    try { assert.equal(await store.commit(new Map(store.previous), () => ++calls < 4), false); }\n    finally { await store.dispose(); }\n    assert.equal(await readFile(cacheFile, 'utf8'), old);\n    assert.deepEqual(await readdir(cacheFile + '.entries'), [(await manifest()).generation]);\n  });\n  await check('concurrent commit contender cannot publish an incomplete generation', async () => {\n    const stores = await Promise.all([EntryStore.load(cacheFile, root, options.cache.version), EntryStore.load(cacheFile, root, options.cache.version)]);\n    try {\n      const outcomes = await Promise.allSettled(stores.map((store) => store.commit(new Map(store.previous))));\n      assert.equal(outcomes.filter((value) => value.status === 'fulfilled' && value.value).length, 1);\n      assert.equal(outcomes.filter((value) => value.status === 'rejected').length, 1);\n      assert.equal((await run()).cached, 2);\n      assert.deepEqual(await readdir(cacheFile + '.entries'), [(await manifest()).generation]);\n    } finally { await Promise.all(stores.map((store) => store.dispose())); }\n  });\n  report.status = 'passed';\n} catch (error) { report.status = 'failed'; report.error = String(error.stack); throw error; }\nfinally {\n  await writeFile(process.env.SOPHP_ENTRY_CONTROL_REPORT, JSON.stringify(report, null, 2));\n  await rm(root, { recursive: true, force: true });\n}\n"
+    },
+    "d274-run.py": {
+      "sha256": "6ea01e0180eed83b1ea02b92fb632cef9f72418ac68374a48941f51175581c73",
+      "source": "from pathlib import Path\nimport datetime,hashlib,json,subprocess,sys,time\nbase=Path('/var/www/node/php-companion/.vscode-test');roots=[Path('/var/www/node/php-companion'),Path('/var/www/node/twig-plus')]\nname=sys.argv[1];cwd=sys.argv[2];command=sys.argv[3:];assert name.replace('-','').isalnum() and command\nmanifest=base/f'{name}-input.json';record_path=base/f'{name}-run.json';log=base/f'{name}.log'\nassert not any(p.exists() for p in [manifest,record_path,log])\nsha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()\ninputs={};states={}\nfor root in roots:\n states[str(root)]={'head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True)}\n paths=set(subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard'],cwd=root,text=True).splitlines())\n for directory in [*list((root/'packages').glob('*/dist')),root/'dist']:\n  paths.update(str(p.relative_to(root)) for p in directory.rglob('*') if p.is_file())\n for p in sorted(paths):\n  path=root/p\n  if path.is_file():inputs[str(path)]=sha(path)\nfor filename in ['d274-entry-store.mjs', 'd274-index.mjs', 'd274-benchmark-entry-store.mjs', 'd274-entry-store-controls.mjs']:\n path=base/filename;inputs[str(path)]=sha(path)\ninputs[str(Path(__file__))]=sha(__file__)\nsnapshot={'command':command,'cwd':cwd,'inputs':inputs,'inputCount':len(inputs),'repositories':states,'nodeVersion':subprocess.check_output(['node','--version'],text=True).strip(),'twigBundleSha256':sha(roots[1]/'packages/vscode/dist/server.js'),'coreBundleSha256':sha(roots[0]/'dist/language-server.js')}\nmanifest.write_text(json.dumps(snapshot,indent=2)+'\\n');started=time.monotonic()\nwith log.open('x') as output:\n child=subprocess.Popen(command,cwd=cwd,stdout=output,stderr=subprocess.STDOUT)\n record={'status':'running','parentPid':__import__('os').getpid(),'childPid':child.pid,'startedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'command':command,'manifest':str(manifest)}\n record_path.write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record),flush=True);code=child.wait()\nrecord.update(status='exited',exitCode=code,durationSeconds=time.monotonic()-started,finishedAtUtc=datetime.datetime.now(datetime.timezone.utc).isoformat(),changedInputs=[p for p,h in inputs.items() if not Path(p).is_file() or sha(p)!=h],repositoryChanges=[str(root) for root in roots if subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()!=states[str(root)]['head'] or subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True)!=states[str(root)]['status']],logSha256=sha(log))\nrecord_path.write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record),flush=True)\nassert not record['changedInputs'] and not record['repositoryChanges']\nraise SystemExit(code)\n"
+    },
+    "d276-entry-store-edge-controls.mjs": {
+      "sha256": "72fd6274de0cabe313b1342b58d694496070ebbed6d308c74fb563e0c4241e7b",
+      "source": "import assert from 'node:assert/strict';\nimport { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';\nimport { tmpdir, hostname } from 'node:os';\nimport { join, basename } from 'node:path';\nimport { indexComposerSources } from './d274-index.mjs';\n\nconst report = { status: 'running', checks: [] };\nasync function fixture(action) {\n  const root = await mkdtemp(join(tmpdir(), 'sophp-entry-edges-'));\n  try {\n    await mkdir(join(root, 'src'));\n    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\\\': 'src/' } } }));\n    const paths = ['A', 'B', 'C'].map((name) => join(root, 'src', name + '.php'));\n    await Promise.all(paths.map((path) => writeFile(path, `<?php class ${basename(path, '.php')} {}`)));\n    const options = { onSource: ({ path }) => ({ identity: basename(path), valid: true }),\n      cache: { directory: join(root, 'cache'), version: 'edge-v1', restore: () => true } };\n    const index = (extra) => indexComposerSources(root, { ...options, ...extra });\n    await index();\n    const path = join(options.cache.directory, (await readdir(options.cache.directory)).find((name) => name.endsWith('.json')));\n    await action({ root, paths, options, path, index });\n  } finally { await rm(root, { recursive: true, force: true }); }\n}\nasync function check(name, action) {\n  try { await fixture(action); report.checks.push({ name, passed: true }); }\n  catch (error) { report.checks.push({ name, passed: false, error: String(error.stack) }); }\n}\nawait check('serialization failure preserves the complete prior manifest (existing index contract)', async ({ index, options, path }) => {\n  const before = await readFile(path, 'utf8'); let count = 0; const cyclic = {}; cyclic.self = cyclic;\n  await index({ cache: { ...options.cache, restore: () => false }, onSource: () => ++count === 3 ? cyclic : { valid: true } });\n  assert.equal(await readFile(path, 'utf8'), before);\n});\nawait check('schema 2 metadata cannot bypass the payload checksum with an inline payload field', async ({ index, path, paths, options }) => {\n  const data = JSON.parse(await readFile(path, 'utf8')); data.entries[paths[0]].payload = { injected: true };\n  await writeFile(path, JSON.stringify(data));\n  const seen = [];\n  await index({ cache: { ...options.cache, restore: (payload) => { seen.push(payload); return true; } } });\n  assert.equal(seen.some((payload) => payload?.injected === true), false);\n});\nawait check('a commit lock with a dead local owner is recoverable', async ({ index, path, options }) => {\n  // 2147483647 exceeds Linux pid_max in this controlled environment.\n  assert.throws(() => process.kill(2147483647, 0), { code: 'ESRCH' });\n  await writeFile(path + '.lock', JSON.stringify({ hostname: hostname(), pid: 2147483647, token: 'dead-control' }));\n  const result = await index({ cache: { ...options.cache, restore: () => false }, onSource: () => ({ changed: true }) });\n  assert.equal(result.warnings.includes('Persistent index cache could not be written.'), false);\n});\nreport.status = report.checks.every((entry) => entry.passed) ? 'passed' : 'failed';\nawait writeFile(process.env.SOPHP_ENTRY_EDGE_REPORT, JSON.stringify(report, null, 2));\nprocess.stdout.write(JSON.stringify(report, null, 2) + '\\n');\nif (report.status === 'failed') process.exitCode = 1;\n"
+    },
+    "d276-run.py": {
+      "sha256": "f65118c073d8eb838ee81ce9d35146cbaf3cc3b33e5846f3387020405979270f",
+      "source": "from pathlib import Path\nimport datetime,hashlib,json,subprocess,sys,time\nbase=Path('/var/www/node/php-companion/.vscode-test');roots=[Path('/var/www/node/php-companion'),Path('/var/www/node/twig-plus')]\nname=sys.argv[1];cwd=sys.argv[2];command=sys.argv[3:];assert name.replace('-','').isalnum() and command\nmanifest=base/f'{name}-input.json';record_path=base/f'{name}-run.json';log=base/f'{name}.log'\nassert not any(p.exists() for p in [manifest,record_path,log])\nsha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()\ninputs={};states={}\nfor root in roots:\n states[str(root)]={'head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True)}\n paths=set(subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard'],cwd=root,text=True).splitlines())\n for directory in [*list((root/'packages').glob('*/dist')),root/'dist']:\n  paths.update(str(p.relative_to(root)) for p in directory.rglob('*') if p.is_file())\n for p in sorted(paths):\n  path=root/p\n  if path.is_file():inputs[str(path)]=sha(path)\nfor filename in ['d274-entry-store.mjs', 'd274-index.mjs', 'd274-benchmark-entry-store.mjs', 'd274-entry-store-controls.mjs']:\n path=base/filename;inputs[str(path)]=sha(path)\ninputs[str(base/'d276-entry-store-edge-controls.mjs')]=sha(base/'d276-entry-store-edge-controls.mjs')\ninputs[str(Path(__file__))]=sha(__file__)\nsnapshot={'command':command,'cwd':cwd,'inputs':inputs,'inputCount':len(inputs),'repositories':states,'nodeVersion':subprocess.check_output(['node','--version'],text=True).strip(),'twigBundleSha256':sha(roots[1]/'packages/vscode/dist/server.js'),'coreBundleSha256':sha(roots[0]/'dist/language-server.js')}\nmanifest.write_text(json.dumps(snapshot,indent=2)+'\\n');started=time.monotonic()\nwith log.open('x') as output:\n child=subprocess.Popen(command,cwd=cwd,stdout=output,stderr=subprocess.STDOUT)\n record={'status':'running','parentPid':__import__('os').getpid(),'childPid':child.pid,'startedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'command':command,'manifest':str(manifest)}\n record_path.write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record),flush=True);code=child.wait()\nrecord.update(status='exited',exitCode=code,durationSeconds=time.monotonic()-started,finishedAtUtc=datetime.datetime.now(datetime.timezone.utc).isoformat(),changedInputs=[p for p,h in inputs.items() if not Path(p).is_file() or sha(p)!=h],repositoryChanges=[str(root) for root in roots if subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()!=states[str(root)]['head'] or subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True)!=states[str(root)]['status']],logSha256=sha(log))\nrecord_path.write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record),flush=True)\nassert not record['changedInputs'] and not record['repositoryChanges']\nraise SystemExit(code)\n"
+    },
+    "d277-deferred-getter-count.mjs": {
+      "sha256": "347aee78b98a9d7714ba043bd9422fb0691a1bfcea2a63217072b0ebaebd106d",
+      "source": "import assert from 'node:assert/strict';\nimport { writeFile } from 'node:fs/promises';\nimport { PhpSyntaxParser } from '../packages/parser/dist/index.js';\nimport { SemanticWorkspace } from '../packages/semantic/dist/index.js';\n\nconst count = 128;\nconst parser = await PhpSyntaxParser.create({ coreWasmPath: 'dist/web-tree-sitter.wasm', phpWasmPath: 'dist/tree-sitter-php.wasm' });\nconst cold = new SemanticWorkspace(parser);\nconst warm = new SemanticWorkspace(parser);\nconst report = { kind: 'allocation-shape-observation-only', files: count, executedWorkspacePhp: false };\ntry {\n  for (let index = 0; index < count; index++) {\n    const uri = `file:///AccessorProbe/Item${index}.php`;\n    cold.update(uri, `<?php namespace AccessorProbe; final class Item${index} { public function getName(): string { return 'name'; } }`);\n    assert.equal(warm.restoreDeclaration(cold.snapshotForPersistence(uri), uri), true);\n  }\n  assert.equal(warm.deferredImplementationCount(), count);\n  assert.ok(warm.files instanceof Map, 'Diagnostic requires the actual compiled workspace file Map.');\n  const functions = new Set(); const byField = new Map(); let descriptors = 0;\n  for (const file of warm.files.values()) {\n    for (const [field, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(file))) {\n      if (!descriptor.get) continue;\n      descriptors++; functions.add(descriptor.get);\n      let identities = byField.get(field); if (!identities) byField.set(field, identities = new Set()); identities.add(descriptor.get);\n    }\n  }\n  report.deferredFiles = warm.deferredImplementationCount(); report.accessorDescriptors = descriptors;\n  report.distinctGetterFunctions = functions.size;\n  report.distinctFunctionsByField = Object.fromEntries([...byField].map(([field, values]) => [field, values.size]));\n  report.scope = 'Counts actual function identities; does not estimate bytes, force GC, take heap snapshots or establish scale RSS/latency.';\n  report.status = 'observed';\n} finally { cold.dispose(); warm.dispose(); parser.dispose(); }\nawait writeFile(process.env.SOPHP_GETTER_COUNT_REPORT, JSON.stringify(report, null, 2));\nprocess.stdout.write(JSON.stringify(report, null, 2) + '\\n');\n"
+    },
+    "d277-run.py": {
+      "sha256": "e91f62de7a72425b074375d908b32b805adb94c8b7387f52b939dc3faef3ceb5",
+      "source": "from pathlib import Path\nimport datetime,hashlib,json,subprocess,sys,time\nbase=Path('/var/www/node/php-companion/.vscode-test');roots=[Path('/var/www/node/php-companion'),Path('/var/www/node/twig-plus')]\nname=sys.argv[1];cwd=sys.argv[2];command=sys.argv[3:];assert name.replace('-','').isalnum() and command\nmanifest=base/f'{name}-input.json';record_path=base/f'{name}-run.json';log=base/f'{name}.log'\nassert not any(p.exists() for p in [manifest,record_path,log])\nsha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()\ninputs={};states={}\nfor root in roots:\n states[str(root)]={'head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True)}\n paths=set(subprocess.check_output(['git','ls-files','--cached','--others','--exclude-standard'],cwd=root,text=True).splitlines())\n for directory in [*list((root/'packages').glob('*/dist')),root/'dist']:\n  paths.update(str(p.relative_to(root)) for p in directory.rglob('*') if p.is_file())\n for p in sorted(paths):\n  path=root/p\n  if path.is_file():inputs[str(path)]=sha(path)\nfor filename in ['d274-entry-store.mjs', 'd274-index.mjs', 'd274-benchmark-entry-store.mjs', 'd274-entry-store-controls.mjs']:\n path=base/filename;inputs[str(path)]=sha(path)\ninputs[str(base/'d276-entry-store-edge-controls.mjs')]=sha(base/'d276-entry-store-edge-controls.mjs')\ninputs[str(base/'d277-deferred-getter-count.mjs')]=sha(base/'d277-deferred-getter-count.mjs')\ninputs[str(Path(__file__))]=sha(__file__)\nsnapshot={'command':command,'cwd':cwd,'inputs':inputs,'inputCount':len(inputs),'repositories':states,'nodeVersion':subprocess.check_output(['node','--version'],text=True).strip(),'twigBundleSha256':sha(roots[1]/'packages/vscode/dist/server.js'),'coreBundleSha256':sha(roots[0]/'dist/language-server.js')}\nmanifest.write_text(json.dumps(snapshot,indent=2)+'\\n');started=time.monotonic()\nwith log.open('x') as output:\n child=subprocess.Popen(command,cwd=cwd,stdout=output,stderr=subprocess.STDOUT)\n record={'status':'running','parentPid':__import__('os').getpid(),'childPid':child.pid,'startedAtUtc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'command':command,'manifest':str(manifest)}\n record_path.write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record),flush=True);code=child.wait()\nrecord.update(status='exited',exitCode=code,durationSeconds=time.monotonic()-started,finishedAtUtc=datetime.datetime.now(datetime.timezone.utc).isoformat(),changedInputs=[p for p,h in inputs.items() if not Path(p).is_file() or sha(p)!=h],repositoryChanges=[str(root) for root in roots if subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()!=states[str(root)]['head'] or subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True)!=states[str(root)]['status']],logSha256=sha(log))\nrecord_path.write_text(json.dumps(record,indent=2)+'\\n');print(json.dumps(record),flush=True)\nassert not record['changedInputs'] and not record['repositoryChanges']\nraise SystemExit(code)\n"
+    }
+  },
+  "runs": {
+    "d274-entry-controls": {
+      "status": "exited",
+      "parentPid": 439065,
+      "childPid": 439130,
+      "startedAtUtc": "2026-10-07T09:48:10.851613+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_CONTROL_REPORT=/var/www/node/php-companion/.vscode-test/d274-entry-controls-result.json",
+        "node",
+        ".vscode-test/d274-entry-store-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d274-entry-controls-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.4460016330012877,
+      "finishedAtUtc": "2026-10-07T09:48:11.295459+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    "d275-entry-cache-1000": {
+      "status": "exited",
+      "parentPid": 439409,
+      "childPid": 439428,
+      "startedAtUtc": "2026-10-07T09:48:54.567427+00:00",
+      "command": [
+        "node",
+        ".vscode-test/d274-benchmark-entry-store.mjs",
+        "1000",
+        "dist/web-tree-sitter.wasm",
+        "dist/tree-sitter-php.wasm"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d275-entry-cache-1000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 9.776306767998904,
+      "finishedAtUtc": "2026-10-07T09:49:04.342466+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "b5c224890dcd91c3dc0ea84227b51aa5b1378cae5fc174a24002fba3106a6033"
+    },
+    "d275-entry-cache-10000": {
+      "status": "exited",
+      "parentPid": 439496,
+      "childPid": 439543,
+      "startedAtUtc": "2026-10-07T09:49:05.603646+00:00",
+      "command": [
+        "node",
+        ".vscode-test/d274-benchmark-entry-store.mjs",
+        "10000",
+        "dist/web-tree-sitter.wasm",
+        "dist/tree-sitter-php.wasm"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d275-entry-cache-10000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 88.82223251799951,
+      "finishedAtUtc": "2026-10-07T09:50:34.424371+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "74dca8acae815ea6fdc97a504cdd2872576dcfe1e3448c85bae9d51dc659f1e7"
+    },
+    "d275-entry-cache-50000": {
+      "status": "exited",
+      "parentPid": 441770,
+      "childPid": 441786,
+      "startedAtUtc": "2026-10-07T09:50:35.963156+00:00",
+      "command": [
+        "node",
+        ".vscode-test/d274-benchmark-entry-store.mjs",
+        "50000",
+        "dist/web-tree-sitter.wasm",
+        "dist/tree-sitter-php.wasm"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d275-entry-cache-50000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 444.36930245000076,
+      "finishedAtUtc": "2026-10-07T09:58:00.331264+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "bdfddb34809f705027fdf142d9df942342f9d63af247c0b22d8b4ae789f75482"
+    },
+    "d276-current-single-cache-10000": {
+      "status": "exited",
+      "parentPid": 469100,
+      "childPid": 469130,
+      "startedAtUtc": "2026-10-07T09:59:15.560984+00:00",
+      "command": [
+        "node",
+        "scripts/benchmark-persistent-index.mjs",
+        "10000",
+        "dist/web-tree-sitter.wasm",
+        "dist/tree-sitter-php.wasm"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d276-current-single-cache-10000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 43.03215750900017,
+      "finishedAtUtc": "2026-10-07T09:59:58.592109+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3dfefda5ecd13020bac8d7ba88c0be3918fffb5975d02a2906f098cc32143477"
+    },
+    "d276-entry-edge-controls": {
+      "status": "exited",
+      "parentPid": 471359,
+      "childPid": 471378,
+      "startedAtUtc": "2026-10-07T10:00:00.134461+00:00",
+      "command": [
+        "env",
+        "SOPHP_ENTRY_EDGE_REPORT=/var/www/node/php-companion/.vscode-test/d276-entry-edge-controls-result.json",
+        "node",
+        ".vscode-test/d276-entry-store-edge-controls.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d276-entry-edge-controls-input.json",
+      "exitCode": 1,
+      "durationSeconds": 0.24164657300025283,
+      "finishedAtUtc": "2026-10-07T10:00:00.375032+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "ad03c033ad4d1ba376354d164e29b747419818dfe60c4991adee381c89e84b4c"
+    },
+    "d277-deferred-getter-count": {
+      "status": "exited",
+      "parentPid": 471398,
+      "childPid": 471417,
+      "startedAtUtc": "2026-10-07T10:00:01.828201+00:00",
+      "command": [
+        "env",
+        "SOPHP_GETTER_COUNT_REPORT=/var/www/node/php-companion/.vscode-test/d277-deferred-getter-count-result.json",
+        "node",
+        ".vscode-test/d277-deferred-getter-count.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d277-deferred-getter-count-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.3035554320013034,
+      "finishedAtUtc": "2026-10-07T10:00:02.130536+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "dcacd94c489b0fd2031b39aca0fa943a4fd9029a0783b9f04daf3d88d6aa4ee7"
+    }
+  },
+  "results": {
+    "d274-entry-controls": {
+      "status": "passed",
+      "checks": [
+        "cold Unicode entries are stored outside metadata and warm restore preserves path order",
+        "fully warm metadata and generation remain unchanged",
+        "payload checksum corruption rebuilds exactly one file and prunes replaced generation",
+        "adapter-level payload rejection rebuilds one file with outer hash kept valid",
+        "cancelled source production preserves manifest and leaves no staging directories",
+        "commit contention preserves published cache and cleans private staging",
+        "legacy schema 1 payloads migrate without reparsing source",
+        "unsafe payload identity is rejected before reads and rebuilds one entry",
+        "malformed manifest tail cannot partially restore",
+        "deleted source drops its payload from the committed generation",
+        "cancellation during cache commit preserves old manifest",
+        "concurrent commit contender cannot publish an incomplete generation"
+      ]
+    },
+    "d275-entry-cache-1000": {
+      "schema": 1,
+      "files": 1000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 2497.71,
+        "parsed": 1000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 1529.03,
+        "parsed": 0,
+        "restored": 1000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6122,
+      "cache": {
+        "cold": {
+          "files": 1002,
+          "bytes": 5818880,
+          "mebibytes": 5.55
+        },
+        "warm": {
+          "files": 1002,
+          "bytes": 5818880,
+          "mebibytes": 5.55
+        },
+        "frozenBudgetMb": 64
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 144.11,
+        "warmPeakRssMb": 138.11,
+        "layerRecoveryPeakRssMb": 144.84,
+        "callableRecoveryPeakRssMb": 159.93,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 384,
+        "processPeakRssMb": 160.19,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 1000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 1999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d275-entry-cache-10000": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 22650.77,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 16179.95,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.7143,
+      "cache": {
+        "cold": {
+          "files": 10002,
+          "bytes": 58168902,
+          "mebibytes": 55.47
+        },
+        "warm": {
+          "files": 10002,
+          "bytes": 58168902,
+          "mebibytes": 55.47
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 221.63,
+        "warmPeakRssMb": 391.36,
+        "layerRecoveryPeakRssMb": 486.75,
+        "callableRecoveryPeakRssMb": 504.4,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 504.4,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d275-entry-cache-50000": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 110724.16,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 78118.16,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.7055,
+      "cache": {
+        "cold": {
+          "files": 50002,
+          "bytes": 290854902,
+          "mebibytes": 277.38
+        },
+        "warm": {
+          "files": 50002,
+          "bytes": 290854902,
+          "mebibytes": 277.38
+        },
+        "frozenBudgetMb": 2560
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 726.35,
+        "warmPeakRssMb": 1217.72,
+        "layerRecoveryPeakRssMb": 1750.77,
+        "callableRecoveryPeakRssMb": 1753.45,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 1536,
+        "processPeakRssMb": 1753.45,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d276-current-single-cache-10000": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 18084.27,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6338.78,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3505,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57266357,
+          "mebibytes": 54.61
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57266357,
+          "mebibytes": 54.61
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 317.5,
+        "warmPeakRssMb": 435.43,
+        "layerRecoveryPeakRssMb": 774.99,
+        "callableRecoveryPeakRssMb": 1007.95,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 1007.95,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d276-entry-edge-controls": {
+      "status": "failed",
+      "checks": [
+        {
+          "name": "serialization failure preserves the complete prior manifest (existing index contract)",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '{\"schema\":2,\"version\":\"edge-v1\",\"root\":\"/tmp/sophp-entry-edges-9Eltwu\",\"generation\":\"557d2e10-fea4-41c7-ab50-13b82347d375\",\"entries\":{\"/tmp/sophp-entry-edges-9Eltwu/src/A.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"11cebbffbca4a86b4ae789c4efb13a0e5a6c55eb77392cd73e9d7fe62b1c66b5\",\"payloadHash\":\"8daf09a6fc31937457dd77e9c25ce4b21349d605b561a8c5d557841bf964c9a0\",\"payloadBytes\":14},\"/tmp/sophp-entry-edges-9Eltwu/src/B.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"b5ba36f5652e537fc42cb0daa636d4a6bd553769fbb40c676f74abe836072f96\",\"payloadHash\":\"8daf09a6fc31937457dd77e9c25ce4b21349d605b561a8c5d557841bf964c9a0\",\"payloadBytes\":14}}}'\n- '{\"schema\":2,\"version\":\"edge-v1\",\"root\":\"/tmp/sophp-entry-edges-9Eltwu\",\"generation\":\"e2c0b22c-757b-4c08-a9a3-5fa31f95c9e1\",\"entries\":{\"/tmp/sophp-entry-edges-9Eltwu/src/A.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"11cebbffbca4a86b4ae789c4efb13a0e5a6c55eb77392cd73e9d7fe62b1c66b5\",\"payloadHash\":\"238bd3fcbe27a62f65a6e47020b9bbc0b15796c0c3d835206d177ca65eb40b60\",\"payloadBytes\":33},\"/tmp/sophp-entry-edges-9Eltwu/src/B.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"b5ba36f5652e537fc42cb0daa636d4a6bd553769fbb40c676f74abe836072f96\",\"payloadHash\":\"0050021b47fe9b1d136f2381b7dbe6024fca4567cfd3752a896be1b1d0c74e3a\",\"payloadBytes\":33},\"/tmp/sophp-entry-edges-9Eltwu/src/C.php\":{\"size\":16,\"mtimeMs\":1791367200209.9487,\"ctimeMs\":1791367200209.9487,\"hash\":\"d50896968f49e6ba298da3c6b1735e24dce8c2a018f8208be3d9a5c8aafb03f0\",\"payloadHash\":\"96ef39c5f625756d627998e752d8622e03b1242a958d94fac2aeb846c007d1c9\",\"payloadBytes\":33}}}'\n\n    at file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:30:10\n    at async fixture (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:20:5)\n    at async check (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:24:9)\n    at async file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:27:1"
+        },
+        {
+          "name": "schema 2 metadata cannot bypass the payload checksum with an inline payload field",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n    at file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:37:10\n    at async fixture (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:20:5)\n    at async check (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:24:9)\n    at async file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:32:1"
+        },
+        {
+          "name": "a commit lock with a dead local owner is recoverable",
+          "passed": false,
+          "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n    at file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:44:10\n    at async fixture (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:20:5)\n    at async check (file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:24:9)\n    at async file:///var/www/node/php-companion/.vscode-test/d276-entry-store-edge-controls.mjs:39:1"
+        }
+      ]
+    },
+    "d277-deferred-getter-count": {
+      "kind": "allocation-shape-observation-only",
+      "files": 128,
+      "executedWorkspacePhp": false,
+      "deferredFiles": 128,
+      "accessorDescriptors": 1536,
+      "distinctGetterFunctions": 1536,
+      "distinctFunctionsByField": {
+        "typeReferences": 128,
+        "assignments": 128,
+        "rawNames": 128,
+        "memberAccesses": 128,
+        "calls": 128,
+        "scopes": 128,
+        "variableReferences": 128,
+        "returns": 128,
+        "narrowings": 128,
+        "syntaxErrors": 128,
+        "commentRanges": 128,
+        "stringRanges": 128
+      },
+      "scope": "Counts actual function identities; does not estimate bytes, force GC, take heap snapshots or establish scale RSS/latency.",
+      "status": "observed"
+    }
+  },
+  "archive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d277-entry-cache-evidence",
+    "files": 41,
+    "manifestSha256": "4ad01622f8710a43e8c442c9d13d5274b703cf15f05e29eee3966cc5dabcb395"
+  },
+  "scope": [
+    "Single process per complete cache sequence; original four load phases and correctness assertions retained",
+    "New-format corruption updates only the outer blob envelope, leaving inner semantic checksums unchanged",
+    "No forced GC, process splitting, increased Node limits or changed budgets",
+    "Each scale once; not five-round qualification or real Language Server/WSL acceptance",
+    "Current 10k baseline is an independent fresh fixture; not a paired randomized benchmark",
+    "Getter function identity count proves allocations, not their byte cost or the cause of RSS failure"
+  ],
+  "next": "Investigate sharing deferred semantic accessors and reusing the already validated declaration object; do not repeat equivalent entry-store or streaming trials."
+}

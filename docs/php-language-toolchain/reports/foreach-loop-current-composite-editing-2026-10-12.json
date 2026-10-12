@@ -1,0 +1,655 @@
+{
+  "normalBundleSha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+  "full12ExtensionProfileQualified": true,
+  "profileAudit": {
+    "currentObserverEnvironmentFailurePreserved": true,
+    "status": "exited",
+    "qualified": true,
+    "functionalQualified": true,
+    "engineSha256": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+    "full12ExtensionProfileRetained": true,
+    "existingPersistentF11FailureRecoveryPassed": true,
+    "existingPersistentPhpAndTwigSaveUndoRedoPassed": true,
+    "formatterSaveProofs": [
+      {
+        "language": "php",
+        "formatterId": "junstyle.php-cs-fixer",
+        "originalText": "<?php\nclass  ProfileFormat{public function run( ):void{}}\n",
+        "formattedText": "<?php\n\nclass ProfileFormat\n{\n    public function run(): void\n    {\n    }\n}\n",
+        "actualFormatDocumentCommand": true,
+        "savePersistedExactBuffer": true,
+        "undoRestoredExactSource": true,
+        "redoRestoredExactFormat": true,
+        "undoAndRedoKeptSavedDisk": true,
+        "dirtyStates": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ]
+      },
+      {
+        "language": "twig",
+        "formatterId": "sohophp.twig-plus",
+        "originalText": "{%if true%}{{ value }}{%endif%}\n",
+        "formattedText": "{% if true %}\n  {{ value }}{% endif %}\n",
+        "actualFormatDocumentCommand": true,
+        "savePersistedExactBuffer": true,
+        "undoRestoredExactSource": true,
+        "redoRestoredExactFormat": true,
+        "undoAndRedoKeptSavedDisk": true,
+        "dirtyStates": [
+          false,
+          true,
+          false,
+          true,
+          false
+        ]
+      }
+    ],
+    "addedPersistentFormatOnSavePassed": true,
+    "formatOnSaveProofs": [
+      {
+        "language": "php",
+        "uri": "file:///tmp/php-companion-packaged-60C1pP/workspace/src/ProfileAutoSave.php",
+        "formatter": "junstyle.php-cs-fixer",
+        "raw": "<?php\nclass  ProfileAutoSave{public function run( ):void{}}\n\n",
+        "formatted": "<?php\n\nclass ProfileAutoSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+        "saveAutomaticallyFormatted": true,
+        "undoRestoredPreSaveBuffer": true,
+        "redoRestoredSavedBuffer": true,
+        "undoAndRedoKeptDisk": true
+      },
+      {
+        "language": "twig",
+        "uri": "file:///tmp/php-companion-packaged-60C1pP/workspace/ProfileAutoSave.html.twig",
+        "formatter": "sohophp.twig-plus",
+        "raw": "{%if true%}{{ value }}{%endif%}\n\n",
+        "formatted": "{% if true %}\n  {{ value }}{% endif %}\n\n",
+        "saveAutomaticallyFormatted": true,
+        "undoRestoredPreSaveBuffer": true,
+        "redoRestoredSavedBuffer": true,
+        "undoAndRedoKeptDisk": true
+      }
+    ],
+    "failedFormatOnSaveRecoveryProofs": [
+      {
+        "language": "php",
+        "uri": "file:///tmp/php-companion-packaged-60C1pP/workspace/src/ProfileFailedSave.php",
+        "raw": "<?php\nclass  ProfileFailedSave{public function run( ):void{}}\n// user edit before failed save\n",
+        "recovered": "<?php\n\nclass ProfileRecoveredSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+        "witness": {
+          "message": "SoPHP intentional format-on-save failure",
+          "config": "/tmp/php-companion-packaged-60C1pP/workspace/.php-cs-fixer.dist.php",
+          "phpVersion": "8.5.9",
+          "phpBinary": "/opt/remi/php85/root/usr/bin/php"
+        },
+        "failedFormatterSaveKeptBufferAndVersion": true,
+        "userInputSavedExactly": true,
+        "recoveredSaveAutomaticallyFormatted": true
+      },
+      {
+        "language": "twig",
+        "uri": "file:///tmp/php-companion-packaged-60C1pP/workspace/ProfileFailedSave.html.twig",
+        "raw": "<script>for (let i, i < 3; i++) {}</script>\n{# user edit before failed save #}\n",
+        "recovered": "{% if true %}\n  {{ recovered }}{% endif %}\n",
+        "failedFormatterSaveKeptBufferAndVersion": true,
+        "userInputSavedExactly": true,
+        "recoveredSaveAutomaticallyFormatted": true
+      }
+    ],
+    "twigServerRejectedAndRecovered": {
+      "uri": "file:///tmp/php-companion-packaged-60C1pP/workspace/ProfileFailedSave.html.twig",
+      "outputLog": "/var/www/node/php-companion/.vscode-test/d2283-current-full-profile-evidence/host-logs/20261012T024857/window1/exthost/output_logging_20261012T024901/4-TwigPlus.log",
+      "logSha256": "2ec8774a27060bf217f29f2e387298c1ff9100d064b8e7805ef58ff8ccb0ad4c",
+      "failed": "[format 71992-4] complete failed 38.6ms: TwigPlus did not modify this document: embedded JavaScript syntax error at 1:23. ',' expected. (file:///tmp/php-companion-packaged-60C1pP/workspace/ProfileFailedSave.html.twig)",
+      "recoveryNotifications": [
+        "[format 71992-5] complete completed 1.4ms (file:///tmp/php-companion-packaged-60C1pP/workspace/ProfileFailedSave.html.twig)",
+        "[format 71992-5] complete completed 2.4ms (file:///tmp/php-companion-packaged-60C1pP/workspace/ProfileFailedSave.html.twig)"
+      ],
+      "failedRequestIds": [
+        "71992-4"
+      ],
+      "recoveredRequestIds": [
+        "71992-5"
+      ]
+    },
+    "languageOverridesRestored": true,
+    "addedExistingRealXdebugSuitePassed": true,
+    "addedPhpunitEditorTasksPassed": true,
+    "phpunitEditorTasksProof": {
+      "results": [
+        {
+          "scenario": "pass",
+          "exitCode": 0,
+          "processId": 72616
+        },
+        {
+          "scenario": "assertion-failure",
+          "exitCode": 1,
+          "processId": 72619
+        },
+        {
+          "scenario": "recovery",
+          "exitCode": 0,
+          "processId": 72622
+        }
+      ],
+      "witnesses": [
+        {
+          "value": 42,
+          "cwd": "/tmp/php-companion-packaged-60C1pP/workspace",
+          "version": "8.5.9",
+          "binary": "/opt/remi/php85/root/usr/bin/php",
+          "sapi": "cli",
+          "pid": 72618
+        },
+        {
+          "value": 41,
+          "cwd": "/tmp/php-companion-packaged-60C1pP/workspace",
+          "version": "8.5.9",
+          "binary": "/opt/remi/php85/root/usr/bin/php",
+          "sapi": "cli",
+          "pid": 72621
+        },
+        {
+          "value": 42,
+          "cwd": "/tmp/php-companion-packaged-60C1pP/workspace",
+          "version": "8.5.9",
+          "binary": "/opt/remi/php85/root/usr/bin/php",
+          "sapi": "cli",
+          "pid": 72624
+        }
+      ],
+      "argumentPathWithSpaces": true,
+      "realProcessExecution": true,
+      "expectedAssertionFailureExitCode": 1,
+      "recoveryPassed": true,
+      "workingDirectoryAndRuntimeMatched": true,
+      "taskAndProcessEndObserved": true,
+      "noActiveOwnedTasks": true
+    },
+    "taskAndRuntimeChildProcessesGone": true,
+    "testExplorerQualified": false,
+    "realXdebugProof": {
+      "platform": "linux",
+      "debuggerVersion": "1.40.1",
+      "breakpointLine": 3,
+      "stepLine": 4,
+      "before": "40",
+      "after": "42",
+      "scopeVariable": true,
+      "programResult": 42,
+      "workingDirectoryMatches": true,
+      "sessionTerminated": true,
+      "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+    },
+    "realDebugRuntime": {
+      "version": "8.5.9",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "xdebugVersion": "3.5.3",
+      "mode": [
+        "debug"
+      ],
+      "extensionDir": "/opt/remi/php85/root/usr/lib64/php/modules",
+      "ini": "/etc/opt/remi/php85/php.ini",
+      "scannedIni": "/etc/opt/remi/php85/php.d/10-opcache.ini,\n/etc/opt/remi/php85/php.d/15-xdebug.ini,\n/etc/opt/remi/php85/php.d/20-bz2.ini,\n/etc/opt/remi/php85/php.d/20-calendar.ini,\n/etc/opt/remi/php85/php.d/20-ctype.ini,\n/etc/opt/remi/php85/php.d/20-curl.ini,\n/etc/opt/remi/php85/php.d/20-dom.ini,\n/etc/opt/remi/php85/php.d/20-exif.ini,\n/etc/opt/remi/php85/php.d/20-fileinfo.ini,\n/etc/opt/remi/php85/php.d/20-ftp.ini,\n/etc/opt/remi/php85/php.d/20-gd.ini,\n/etc/opt/remi/php85/php.d/20-gettext.ini,\n/etc/opt/remi/php85/php.d/20-iconv.ini,\n/etc/opt/remi/php85/php.d/20-intl.ini,\n/etc/opt/remi/php85/php.d/20-mbstring.ini,\n/etc/opt/remi/php85/php.d/20-mysqlnd.ini,\n/etc/opt/remi/php85/php.d/20-pdo.ini,\n/etc/opt/remi/php85/php.d/20-pgsql.ini,\n/etc/opt/remi/php85/php.d/20-phar.ini,\n/etc/opt/remi/php85/php.d/20-posix.ini,\n/etc/opt/remi/php85/php.d/20-shmop.ini,\n/etc/opt/remi/php85/php.d/20-simplexml.ini,\n/etc/opt/remi/php85/php.d/20-sodium.ini,\n/etc/opt/remi/php85/php.d/20-sqlite3.ini,\n/etc/opt/remi/php85/php.d/20-sysvmsg.ini,\n/etc/opt/remi/php85/php.d/20-sysvsem.ini,\n/etc/opt/remi/php85/php.d/20-sysvshm.ini,\n/etc/opt/remi/php85/php.d/20-tokenizer.ini,\n/etc/opt/remi/php85/php.d/20-xml.ini,\n/etc/opt/remi/php85/php.d/20-xmlwriter.ini,\n/etc/opt/remi/php85/php.d/20-xsl.ini,\n/etc/opt/remi/php85/php.d/30-mcrypt.ini,\n/etc/opt/remi/php85/php.d/30-mysqli.ini,\n/etc/opt/remi/php85/php.d/30-pdo_mysql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_pgsql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_sqlite.ini,\n/etc/opt/remi/php85/php.d/30-xmlreader.ini,\n/etc/opt/remi/php85/php.d/30-zip.ini,\n/etc/opt/remi/php85/php.d/40-apcu.ini,\n/etc/opt/remi/php85/php.d/40-igbinary.ini,\n/etc/opt/remi/php85/php.d/40-imagick.ini,\n/etc/opt/remi/php85/php.d/40-msgpack.ini,\n/etc/opt/remi/php85/php.d/40-yaml.ini,\n/etc/opt/remi/php85/php.d/50-redis.ini,\n/etc/opt/remi/php85/php.d/99-xdebug-switch.ini\n",
+      "extensionSha256": "88990f04bc0dc35950121e43c74953a7fd3eb73c1e083a4f657a5b8e83d6f78b"
+    },
+    "realDebugProgramResult": {
+      "value": 42,
+      "cwd": "/tmp/php-companion-packaged-60C1pP/workspace"
+    },
+    "debugBranchActuallyEnabled": true,
+    "allOwnedDebugFixtureProcessesGone": true,
+    "originalAuditToolFailurePreserved": true,
+    "twigCompletionNotificationsCountedByRequestId": true,
+    "failureWitness": {
+      "message": "SoPHP Profile intentional formatter configuration failure",
+      "config": "/tmp/php-companion-packaged-60C1pP/workspace/.php-cs-fixer.dist.php",
+      "phpVersion": "8.5.9",
+      "phpBinary": "/opt/remi/php85/root/usr/bin/php",
+      "failureResult": "empty",
+      "edits": 0,
+      "bufferUnchanged": true,
+      "versionUnchanged": true,
+      "diskUnchanged": true,
+      "dirtyStateUnchanged": true
+    },
+    "intentionalFormatterExitCode": 1,
+    "intentionalFormatterExitCodes": [
+      1,
+      1
+    ],
+    "testSourceChangedForThisRun": false,
+    "productRuntimeDiffersFromHistoricalProfile": true,
+    "normalRuntimeAssetsUnchanged": 8,
+    "original165MsFailurePreserved": true,
+    "precompileFrozenInputsChecked": 31633,
+    "feedbackMetrics": {
+      "scalar": {
+        "noiseFiles": 9100,
+        "rounds": 50,
+        "presentExternalMembers": [
+          "sohophp.twig-plus",
+          "redhat.vscode-yaml",
+          "redhat.vscode-xml",
+          "xdebug.php-debug",
+          "junstyle.php-cs-fixer",
+          "EditorConfig.EditorConfig",
+          "eiminsasete.apacheconf-snippets",
+          "neilbrayfield.php-docblocker"
+        ],
+        "p50Ms": 70,
+        "p95Ms": 89,
+        "maxMs": 122,
+        "declarationUnsaved": true,
+        "consumerVersion": 1,
+        "definitionWaitMs": [
+          975,
+          15,
+          6,
+          6,
+          6,
+          6
+        ],
+        "slowRounds": [],
+        "firstCompositeHoverCallMs": 64,
+        "firstRoundServerTimings": {
+          "candidateInvalidatedOpen": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "generationDiskRefresh": {
+            "count": 3,
+            "maxMs": 110,
+            "firstMs": [
+              32,
+              110,
+              110
+            ]
+          },
+          "generationDiskRefreshEpochRetry": {
+            "count": 1,
+            "maxMs": 32,
+            "firstMs": [
+              32
+            ]
+          },
+          "diagnostics": {
+            "count": 2,
+            "maxMs": 31,
+            "firstMs": [
+              5,
+              31
+            ]
+          },
+          "documentChangeDiagnostics": {
+            "count": 1,
+            "maxMs": 32,
+            "firstMs": [
+              32
+            ]
+          },
+          "hoverWorkspace": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverFrameworkContext": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hoverMemberLookup": {
+            "count": 1,
+            "maxMs": 0,
+            "firstMs": [
+              0
+            ]
+          },
+          "hover": {
+            "count": 1,
+            "maxMs": 2,
+            "firstMs": [
+              2
+            ]
+          }
+        },
+        "nestedPhp72Verified": true
+      },
+      "union-shape": {
+        "rounds": 30,
+        "p50Ms": 74,
+        "p95Ms": 136,
+        "maxMs": 548,
+        "declarationUnsaved": true,
+        "consumerVersion": 3,
+        "hostRssMiB": [
+          220,
+          220,
+          220,
+          221,
+          221,
+          221,
+          220
+        ],
+        "watcherBufferPriority": true,
+        "watcherChanges": 3,
+        "pausedHoverEditWatcher": true
+      }
+    },
+    "compositeP95BudgetMs": 150,
+    "frozenInputsChecked": 31633,
+    "frozenLinksChecked": 185,
+    "inputsAndRepositoriesUnchanged": true,
+    "actualOwnedProcessesGone": true,
+    "checkedProcessIds": [
+      70549,
+      70594,
+      70596,
+      70600,
+      71414,
+      71992,
+      71075,
+      71075,
+      72616,
+      72619,
+      72622,
+      72618,
+      72621,
+      72624
+    ],
+    "qualifiedCompiledTests": 98,
+    "previousQualifiedCompiledTestsRetained": 95,
+    "preservedStrictCompilationVerifiedByExactIdentity": true,
+    "newCompilationForThisRun": false,
+    "historicalCompiledQualificationReused": false,
+    "previousQualifiedCompiledTestsUnchanged": 93,
+    "copiedInputsChecked": 2482,
+    "originalHostLogDirectory": "/var/www/node/php-companion/.vscode-test/d2283-current-full-profile-evidence/host-logs/20261012T024857",
+    "currentHostLogsVerifiedByExactFixture": "/tmp/php-companion-packaged-60C1pP/workspace",
+    "fullLspPassed": 1552,
+    "fullLspManifestSha256": "b37935edd5b7b8222588e95449416c69bd8a9d45cbf5576fcc55002203f25418",
+    "fullLspArchiveFilesVerified": 343,
+    "fullC3EditorOriginalFailurePreserved": true,
+    "fullFourEditorWorkflowQualification": true,
+    "realWslAcceptance": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "recordedAtUtc": "2026-10-11T18:50:54.746174+00:00"
+  },
+  "ordinaryAudit": {
+    "recordedAtUtc": "2026-10-11T18:57:24.830765+00:00",
+    "engineBuildId": "0de51947915730f6123ba71371945f95da2581d9ee00f15e72f1f80f33c40e82",
+    "qualified": true,
+    "boundFull12ExtensionProfileQualified": true,
+    "boundProfileArchiveFilesVerified": 90,
+    "boundFullLspCases": 1552,
+    "allOriginal25RunsExecuted": true,
+    "actualServers": 25,
+    "allOriginalProcessesGone": true,
+    "checkedProcessIds": [
+      73496,
+      73661,
+      73672,
+      73711,
+      73722,
+      73776,
+      73787,
+      73823,
+      73834,
+      73877,
+      73888,
+      73924,
+      73935,
+      73971,
+      73982,
+      74032,
+      74043,
+      74079,
+      74090,
+      74132,
+      74143,
+      74174,
+      74185,
+      74228,
+      74239,
+      74304,
+      74315,
+      74345,
+      74356,
+      74404,
+      74415,
+      74452,
+      74463,
+      74507,
+      74518,
+      74564,
+      74575,
+      74611,
+      74622,
+      74671,
+      74682,
+      74715,
+      74726,
+      74769,
+      74780,
+      74879,
+      74890,
+      74926,
+      74937,
+      75045,
+      75056
+    ],
+    "frozenInputsChecked": 97720,
+    "frozenInputsUnchanged": true,
+    "maximumHotP95Ms": 139.85,
+    "originalBudgetMs": 150,
+    "performanceFailuresPreserved": true,
+    "originalThreeBusinessSourceBytesPreserved": true,
+    "privateBusinessRootUrisChanged": true,
+    "originalInputDriftPreflightFailurePreserved": true,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false,
+    "realWslAcceptance": false,
+    "profileUpdated": false,
+    "manifest": "/var/www/node/php-companion/.vscode-test/d2286-current-fixed-ordinary-evidence/manifest.json",
+    "manifestSha256": "baa5b4704979b637c7391a379e9d5b1350b69fb3a30698a9f80fa89eaa57f92e",
+    "archivedFiles": 67,
+    "frozenLinksChecked": 185,
+    "queriesPerRun": 100,
+    "roundsPerCase": 5,
+    "caseResults": [
+      {
+        "label": "fixed-7.2",
+        "round": 1,
+        "p95Ms": 124.07,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 1,
+        "p95Ms": 138.85,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 1,
+        "p95Ms": 97.4,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 1,
+        "p95Ms": 131.87,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 1,
+        "p95Ms": 63.31,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 2,
+        "p95Ms": 134.49,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 2,
+        "p95Ms": 127.9,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 2,
+        "p95Ms": 88.01,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 2,
+        "p95Ms": 134.67,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 2,
+        "p95Ms": 73.58,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 3,
+        "p95Ms": 138.45,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 3,
+        "p95Ms": 134.76,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 3,
+        "p95Ms": 89.72,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 3,
+        "p95Ms": 137.96,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 3,
+        "p95Ms": 64.03,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 4,
+        "p95Ms": 131.61,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 4,
+        "p95Ms": 139.85,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 4,
+        "p95Ms": 91.95,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 4,
+        "p95Ms": 138,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 4,
+        "p95Ms": 61.21,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-7.2",
+        "round": 5,
+        "p95Ms": 132.42,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "fixed-8.5",
+        "round": 5,
+        "p95Ms": 131.71,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-data-service",
+        "round": 5,
+        "p95Ms": 99.15,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-large-controller",
+        "round": 5,
+        "p95Ms": 136.29,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      },
+      {
+        "label": "real-blog-controller",
+        "round": 5,
+        "p95Ms": 62.36,
+        "correctnessPassed": true,
+        "budgetPassed": true
+      }
+    ]
+  },
+  "observerFixtureFailurePreserved": "d2280-observer-environment-failure.json",
+  "scope": "Current Linux source Profile and original five-case ordinary editing matrix only",
+  "openMajorItems": 26,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false
+}

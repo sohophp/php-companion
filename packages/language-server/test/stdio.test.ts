@@ -5281,6 +5281,10 @@ function inspect(Sink $sink, ?Sink $optional): void {
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: {
         textDocument: { uri: mappedUri },
       } }));
+      // Finish restoring the closed buffer before changing its disk snapshot.
+      // Otherwise close can apply the new namespace before the watcher does.
+      await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === mappedUri && message.params.version === undefined);
       await writeFile(join(root, 'mapped', 'WrongFolder', 'Bundle.php'),
         '<?php namespace Changed\\Billing; class Invoice {}');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
@@ -7054,7 +7058,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const runDurationsMs: number[] = [];
       const run = async (expectedLocations: unknown[], restored: boolean, options: { text?: string; includeDeclaration?: boolean;
         provider?: boolean; routeProvider?: boolean; bundledProviderDirectory?: string; repeat?: boolean; prewarmed?: boolean; selectionPrewarm?: boolean;
-        semanticPrewarmed?: boolean; proofPrewarmed?: boolean } = {}): Promise<void> => {
+        semanticPrewarmed?: boolean; proofPrewarmed?: boolean; lateAutomaticPrewarm?: boolean } = {}): Promise<void> => {
         const currentRun = ++runCount;
         const runStarted = performance.now();
         server = spawn(process.execPath, [bundle, '--stdio', '--parser-core-wasm', join(dirname(bundle), 'web-tree-sitter.wasm'),
@@ -7082,6 +7086,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
             }] } : {}) } });
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'initialized', params: {} }));
         const text = options.text ?? source;
+        if (options.lateAutomaticPrewarm) expect(await request('phpCompanion/testPauseNextQuery', { method: 'openSourcePublication' })).toBe(true);
         server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
           textDocument: { uri, languageId: 'php', version: 1, text },
         } }));
@@ -7098,10 +7103,18 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           && message.params?.message?.includes('[reference-prewarm] semantic count='), 10_000);
         if (options.proofPrewarmed) await output.waitFor((message) => message.method === 'window/logMessage'
           && message.params?.message?.includes('[reference-prewarm] persistent proof verified'), 10_000);
+        if (options.lateAutomaticPrewarm) await output.waitFor((message) => message.method === 'window/logMessage'
+          && message.params?.message === '[test-query-paused] method=openSourcePublication', 10_000);
         const params = { textDocument: { uri }, position: lspPosition(text, text.lastIndexOf('get(') + 1),
           context: { includeDeclaration: options.includeDeclaration ?? false } };
         const sorted = (locations: any[]): any[] => locations.sort((a, b) => a.uri.localeCompare(b.uri));
         expect(sorted(await request('textDocument/references', params))).toEqual(sorted([...expectedLocations]));
+        if (options.lateAutomaticPrewarm) {
+          expect(await request('phpCompanion/testReleaseQuery', { method: 'openSourcePublication' })).toBe(true);
+          // The late open publisher schedules its real 1500ms idle prewarm
+          // after References has already returned a fully validated proof.
+          await new Promise((done) => setTimeout(done, 2_000));
+        }
         const logs = (): string => output.messages.filter((message: any) => message.method === 'window/logMessage').map((message: any) => message.params.message).join('\n');
         expect(logs().includes('[reference-cache] restored')).toBe(restored);
         expect(logs().includes('[named-candidates]')).toBe(!restored || Boolean(options.provider) && !options.bundledProviderDirectory);
@@ -7185,6 +7198,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       expect(earlyProof?.routeInputEvidenceComplete).toBe(true);
       expect(earlyProof?.eventProviderUsed).toBe(false);
       await run(expected, true, { bundledProviderDirectory, selectionPrewarm: true, proofPrewarmed: true });
+      await run(expected, true, { bundledProviderDirectory, lateAutomaticPrewarm: true });
       const providerPath = join(bundledProviderDirectory, 'static-route-provider.js');
       await writeFile(providerPath, `${await readFile(providerPath, 'utf8')}\n`);
       await run(expected, false, { bundledProviderDirectory, selectionPrewarm: true, prewarmed: true });
@@ -7504,7 +7518,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
             if (!file.endsWith('.json')) continue;
             const path = join(cacheDirectory, file);
             const manifest = JSON.parse(await readFile(path, 'utf8'));
-            if (manifest.schema !== 1 || !manifest.entries) continue;
+            if (![1, 2].includes(manifest.schema) || !manifest.entries) continue;
             for (const entry of Object.values(manifest.entries) as Array<{ hash: string }>) entry.hash = 'damaged';
             await writeFile(path, JSON.stringify(manifest)); damaged += 1;
           }
@@ -7875,6 +7889,119 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
     } finally { await rm(root, { recursive: true, force: true }); }
   });
+
+  it.each(['7.2', '8.5'].flatMap(phpVersion => ['onDemand', 'progressive'].map(indexingMode => ({ phpVersion, indexingMode }))))(
+    'keeps Composer-excluded callers out of cold References at PHP $phpVersion in $indexingMode', async ({ phpVersion, indexingMode }) => {
+      const root = await mkdtemp(join(tmpdir(), 'php-companion-excluded-reference-'));
+      try {
+        const src = join(root, 'src'); await mkdir(join(src, 'Skipped'), { recursive: true });
+        await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' }, 'exclude-from-classmap': ['/src/Skipped/'] } }));
+        const target = '<?php namespace App; class Target { public function ping(): int { return 1; } }';
+        const use = '<?php namespace App; function run(Target $target): int { return $target->ping(); }';
+        const hidden = '<?php namespace App; function hidden(Target $target): int { return $target->ping(); }';
+        const targetUri = pathToFileURL(join(src, 'Target.php')).toString(), useUri = pathToFileURL(join(src, 'Use.php')).toString();
+        await writeFile(join(src, 'Target.php'), target); await writeFile(join(src, 'Use.php'), use);
+        await writeFile(join(src, 'Skipped', 'Hidden.php'), hidden);
+        const runtime = resolve('../../dist');
+        server = spawn(process.execPath, [join(runtime, 'language-server.js'), '--stdio', '--parser-core-wasm', join(runtime, 'web-tree-sitter.wasm'), '--php-wasm', join(runtime, 'tree-sitter-php.wasm')], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        const send = (message: object): void => { server!.stdin.write(encode({ jsonrpc: '2.0', ...message })); };
+        send({ id: 245, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { phpVersion, indexingMode, cacheDirectory: join(root, '.cache') } } });
+        await output.waitFor(message => message.id === 245); send({ method: 'initialized', params: {} });
+        send({ method: 'textDocument/didOpen', params: { textDocument: { uri: targetUri, languageId: 'php', version: 1, text: target } } });
+        send({ id: 246, method: 'textDocument/references', params: { textDocument: { uri: targetUri },
+          position: lspPosition(target, target.indexOf('ping()') + 1), context: { includeDeclaration: true } } });
+        const response = await output.waitFor(message => message.id === 246); expect(response.error).toBeUndefined();
+        const location = (uri: string, text: string): object => ({ uri, range: {
+          start: lspPosition(text, text.indexOf('ping()')), end: lspPosition(text, text.indexOf('ping()') + 4),
+        } });
+        expect(response.result).toHaveLength(2);
+        expect(response.result).toContainEqual(location(targetUri, target));
+        expect(response.result).toContainEqual(location(useUri, use));
+        send({ id: 247, method: 'shutdown', params: null }); await output.waitFor(message => message.id === 247);
+        send({ method: 'exit', params: null }); await once(server, 'exit');
+      } finally { await rm(root, { recursive: true, force: true }); }
+    },
+  );
+
+  const verifyRepeatedReceiverReturns = async (phpVersion: string, indexingMode: string, pauseFinalization = false): Promise<void> => {
+      const root = await mkdtemp(join(tmpdir(), 'php-companion-repeated-return-'));
+      try {
+        const src = join(root, 'src'), vendor = join(root, 'vendor', 'acme', 'lib', 'src');
+        await mkdir(src); await mkdir(vendor, { recursive: true }); await mkdir(join(root, 'vendor', 'composer'));
+        await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+        await writeFile(join(root, 'composer.lock'), JSON.stringify({ packages: [{ name: 'acme/lib', autoload: { 'psr-4': { 'Lib\\': 'src/' } } }] }));
+        await writeFile(join(root, 'vendor', 'composer', 'installed.json'), JSON.stringify({ packages: [{ name: 'acme/lib', install_path: '../acme/lib' }] }));
+        const bag = '<?php namespace App; class Bag { public function get(): int { return 1; } }';
+        const response = '<?php namespace Lib; class Response { public \\App\\Bag $headers; public function own(): int { return $this->headers->get(); } }';
+        const nextResponse = response.replace('class Response', 'class NextResponse');
+        const parent = '<?php namespace App; class ParentEvent { public function getResponse(): \\Lib\\Response { return new \\Lib\\Response(); } }';
+        const changedParent = parent.replaceAll('\\Lib\\Response', '\\Lib\\NextResponse');
+        const bagUri = pathToFileURL(join(src, 'Bag.php')).toString();
+        const parentUri = pathToFileURL(join(src, 'ParentEvent.php')).toString();
+        const responseUri = pathToFileURL(join(vendor, 'Response.php')).toString();
+        const nextUri = pathToFileURL(join(vendor, 'NextResponse.php')).toString();
+        await writeFile(join(src, 'Bag.php'), bag); await writeFile(join(src, 'ParentEvent.php'), parent);
+        await writeFile(join(src, 'Event.php'), '<?php namespace App; class Event extends ParentEvent {}');
+        await writeFile(join(vendor, 'Response.php'), response); await writeFile(join(vendor, 'NextResponse.php'), nextResponse);
+        const callers = Array.from({ length: 24 }, (_, index) => {
+          const text = `<?php namespace App; function run${index}(${index % 2 ? 'Event' : 'EvEnt'} $event): int { $response = $event->${index % 2 ? 'getResponse' : 'GETRESPONSE'}(); return $response->headers->get(); }`;
+          const path = join(src, `Consumer${String(index).padStart(2, '0')}.php`);
+          return { path, text, uri: pathToFileURL(path).toString() };
+        });
+        await Promise.all(callers.map(caller => writeFile(caller.path, caller.text)));
+        server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        const send = (message: object): void => { server!.stdin.write(encode({ jsonrpc: '2.0', ...message })); };
+        send({ id: 250, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { phpVersion, indexingMode, testMode: true, experimentalReferenceClosure: true, cacheDirectory: join(root, '.cache'),
+            testPauseNextQueries: pauseFinalization ? ['indexSourceFinalization'] : [] } } });
+        await output.waitFor(message => message.id === 250);
+        send({ method: 'initialized', params: {} });
+        send({ method: 'textDocument/didOpen', params: { textDocument: { uri: bagUri, languageId: 'php', version: 1, text: bag } } });
+        const params = { textDocument: { uri: bagUri }, position: lspPosition(bag, bag.indexOf('get()') + 1), context: { includeDeclaration: false } };
+        const location = (uri: string, text: string): object => ({ uri, range: {
+          start: lspPosition(text, text.lastIndexOf('get()')), end: lspPosition(text, text.lastIndexOf('get()') + 3),
+        } });
+        if (pauseFinalization) await output.waitFor(message => message.method === 'window/logMessage'
+          && message.params.message === '[test-query-paused] method=indexSourceFinalization');
+        send({ id: 251, method: 'textDocument/references', params });
+        const cold = await output.waitFor(message => message.id === 251);
+        expect(cold.error).toBeUndefined();
+        expect(cold.result).toHaveLength(25);
+        for (const caller of callers) expect(cold.result).toContainEqual(location(caller.uri, caller.text));
+        expect(cold.result).toContainEqual(location(responseUri, response));
+        if (pauseFinalization) {
+          send({ id: 254, method: 'phpCompanion/testReleaseQuery', params: { method: 'indexSourceFinalization' } });
+          expect((await output.waitFor(message => message.id === 254)).result).toBe(true);
+          await output.waitFor(message => message.method === 'window/logMessage'
+            && message.params.message === `[test-index-finalization-completed] root=${root}`);
+        }
+        // A new pass must resolve the parent's current live native return type.
+        send({ method: 'textDocument/didOpen', params: { textDocument: { uri: parentUri, languageId: 'php', version: 1, text: changedParent } } });
+        send({ id: 252, method: 'textDocument/references', params });
+        const refreshed = await output.waitFor(message => message.id === 252);
+        expect(refreshed.error).toBeUndefined();
+        expect(refreshed.result).toHaveLength(26);
+        for (const caller of callers) expect(refreshed.result).toContainEqual(location(caller.uri, caller.text));
+        expect(refreshed.result).toContainEqual(location(responseUri, response));
+        expect(refreshed.result).toContainEqual(location(nextUri, nextResponse));
+        expect(await readFile(join(src, 'ParentEvent.php'), 'utf8')).toBe(parent);
+        send({ id: 253, method: 'shutdown', params: null }); await output.waitFor(message => message.id === 253);
+        send({ method: 'exit', params: null }); await once(server, 'exit');
+      } finally { await rm(root, { recursive: true, force: true }); }
+  };
+
+  it.each(['7.2', '8.5'].flatMap(phpVersion => ['onDemand', 'progressive'].map(indexingMode => ({ phpVersion, indexingMode }))))(
+    'hydrates repeated case-varied inherited receiver returns and refreshes changed return types at PHP $phpVersion in $indexingMode',
+    async ({ phpVersion, indexingMode }) => verifyRepeatedReceiverReturns(phpVersion, indexingMode),
+  );
+
+  it.each(['7.2', '8.5'])(
+    'retains hydrated vendor references after progressive source-cache finalization at PHP %s',
+    async phpVersion => verifyRepeatedReceiverReturns(phpVersion, 'progressive', true),
+  );
 
   it('hydrates loaded dependency property receivers before resolving cold method references', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-reference-loaded-receiver-'));
@@ -13741,7 +13868,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     expect(completionItems((await output.waitFor((message) => message.id === 155)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
     const magicSignature = magicSource.indexOf('$model->find(1)') + '$model->find('.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 156, method: 'textDocument/signatureHelp', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicSignature) } }));
-    expect((await output.waitFor((message) => message.id === 156)).result.signatures[0].label).toBe('find(int $id, string $label = null): User');
+    expect((await output.waitFor((message) => message.id === 156)).result.signatures[0].label).toBe("find(int $id, string $label = 'default'): User");
     const magicDefinition = magicSource.indexOf('owner->na') + 2;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 157, method: 'textDocument/definition', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, magicDefinition) } }));
     expect((await output.waitFor((message) => message.id === 157)).result).toHaveLength(1);
@@ -13750,7 +13877,7 @@ class Valid { #[\Symfony\Component\Routing\Attribute\Route('/implicit')] public 
     expect((await output.waitFor((message) => message.id === 167)).result).toHaveLength(1);
     const dynamicMethodArguments = magicSource.indexOf('$method}(1)') + '$method}('.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 170, method: 'textDocument/signatureHelp', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, dynamicMethodArguments) } }));
-    expect((await output.waitFor((message) => message.id === 170)).result.signatures[0].label).toBe('find(int $id, string $label = null): User');
+    expect((await output.waitFor((message) => message.id === 170)).result.signatures[0].label).toBe("find(int $id, string $label = 'default'): User");
     const dynamicAssignedChain = magicSource.indexOf('$dynamicResult->na') + '$dynamicResult->na'.length;
     server.stdin.write(encode({ jsonrpc: '2.0', id: 171, method: 'textDocument/completion', params: { textDocument: { uri: 'file:///Magic.php' }, position: lspPosition(magicSource, dynamicAssignedChain) } }));
     expect(completionItems((await output.waitFor((message) => message.id === 171)).result)).toContainEqual(expect.objectContaining({ label: 'name' }));
@@ -20565,7 +20692,126 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('retries an incomplete opted-in route snapshot on the next query', async () => {
+  it.each(['file', 'directory'])('reuses an input-proven incomplete route snapshot and invalidates watched and live $0 inputs', async (inputKind) => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-route-negative-cache-'));
+    try {
+      const support = join(root, 'support'); await mkdir(support);
+      const inputPath = join(support, 'lookup.php'), inputUri = pathToFileURL(inputPath).toString();
+      const uri = pathToFileURL(join(root, 'Use.php')).toString();
+      const source = "<?php namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } } namespace App { function run(\\Symfony\\Component\\Routing\\RouterInterface $router): void { $router->generate('proof.'); } }";
+      await writeFile(join(root, 'Use.php'), source); await writeFile(inputPath, '<?php return false;');
+      const provider = join(root, 'provider.mjs'), countPath = join(root, 'calls.txt'); await writeFile(countPath, '0');
+      const inputs = { inputEvidenceComplete: true,
+        inputUris: inputKind === 'file' ? [inputUri] : [],
+        inputDirectoryUris: inputKind === 'directory' ? [pathToFileURL(support).toString()] : [] };
+      await writeFile(provider, `import {readFile,writeFile} from 'node:fs/promises'; let body=''; for await (const part of process.stdin) body+=part;
+const request=JSON.parse(body), path=${JSON.stringify(inputPath)}, uri=${JSON.stringify(inputUri)};
+await writeFile(${JSON.stringify(countPath)},String(Number(await readFile(${JSON.stringify(countPath)},'utf8'))+1));
+const source=request.params.documents?.find(d=>d.uri===uri)?.source ?? await readFile(path,'utf8');
+const complete=source.includes('true'); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'proof.routes',generation:request.params.generation,complete,routes:[{name:'proof.one',path:'/one'}],...${JSON.stringify(inputs)}}}));`);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      const send = (message: object): void => { server!.stdin.write(encode({ jsonrpc: '2.0', ...message })); };
+      send({ id: 1220, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode: 'onDemand', bundledRouteProviders: [{ providerId: 'proof.routes',
+          command: process.execPath, args: [provider], timeoutMs: 1000, replacesStaticRoutes: true, cacheUntilInvalidated: true }] } } });
+      await output.waitFor(message => message.id === 1220); send({ method: 'initialized', params: {} });
+      send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
+      await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri);
+      const query = async (id: number): Promise<string[]> => {
+        send({ id, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, source.indexOf("'proof.'") + 7) } });
+        const response = await output.waitFor(message => message.id === id); expect(response.error).toBeUndefined();
+        return completionItems(response.result).map((item: { label: string }) => item.label);
+      };
+      expect(await query(1221)).toEqual([]);
+      const count = Number(await readFile(countPath, 'utf8'));
+      expect(await query(1222)).toEqual([]);
+      expect(Number(await readFile(countPath, 'utf8'))).toBe(count);
+      await output.waitFor(message => message.method === 'phpCompanion/symfonyRouteStatus' && message.params.available === false);
+      await writeFile(inputPath, '<?php return true;');
+      send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: inputUri, type: 2 }] } });
+      expect(await query(1223)).toEqual(['proof.one']);
+      expect(Number(await readFile(countPath, 'utf8'))).toBeGreaterThan(count);
+      // This imported PHP file has no Route/Kernel/Configurator spelling.
+      send({ method: 'textDocument/didOpen', params: { textDocument: { uri: inputUri, languageId: 'php', version: 1, text: '<?php return false;' } } });
+      expect(await query(1224)).toEqual([]);
+      send({ method: 'textDocument/didChange', params: { textDocument: { uri: inputUri, version: 2 }, contentChanges: [{ text: '<?php return true;' }] } });
+      expect(await query(1225)).toEqual(['proof.one']);
+      send({ method: 'textDocument/didChange', params: { textDocument: { uri: inputUri, version: 3 }, contentChanges: [{ text: '<?php return false;' }] } });
+      expect(await query(1226)).toEqual([]);
+      send({ method: 'textDocument/didClose', params: { textDocument: { uri: inputUri } } });
+      expect(await query(1227)).toEqual(['proof.one']);
+      expect(await readFile(inputPath, 'utf8')).toBe('<?php return true;');
+    } finally { await rm(root, { recursive: true, force: true }); }
+  });
+
+  it.each(['file', 'directory'].flatMap(inputKind => [false, true].flatMap(openComplete => [1, 2].map(depth => ({ inputKind, openComplete, depth })))))(
+    'uses already open newly discovered $inputKind route inputs with complete=$openComplete and depth=$depth', async ({ inputKind, openComplete, depth }) => {
+      const root = await mkdtemp(join(tmpdir(), 'php-companion-route-discovery-'));
+      try {
+        const support = join(root, 'support'); await mkdir(support);
+        const inputPath = join(support, 'lookup.php'), inputUri = pathToFileURL(inputPath).toString();
+        const nextSupport = join(root, 'next'); await mkdir(nextSupport);
+        const nextPath = join(nextSupport, 'lookup.php'), nextUri = pathToFileURL(nextPath).toString();
+        const source = "<?php namespace Symfony\\Component\\Routing { interface RouterInterface { public function generate(string $name): string; } } namespace App { function run(\\Symfony\\Component\\Routing\\RouterInterface $router): void { $router->generate('discovery.'); } }";
+        const sourcePath = join(root, 'Use.php'), uri = pathToFileURL(sourcePath).toString();
+        const diskSource = `<?php return ${!openComplete};`, openSource = `<?php return ${openComplete};`;
+        await writeFile(sourcePath, source); await writeFile(inputPath, diskSource); await writeFile(nextPath, diskSource);
+        const provider = join(root, 'provider.mjs'), requestsPath = join(root, 'requests.jsonl');
+        const inputs = { inputEvidenceComplete: true, inputUris: inputKind === 'file' ? [inputUri] : [],
+          inputDirectoryUris: inputKind === 'directory' ? [pathToFileURL(support).toString()] : [] };
+        const nextInputs = { inputEvidenceComplete: true, inputUris: inputKind === 'file' ? [inputUri, nextUri] : [],
+          inputDirectoryUris: inputKind === 'directory' ? [pathToFileURL(support).toString(), pathToFileURL(nextSupport).toString()] : [] };
+        await writeFile(provider, `import {readFile,appendFile} from 'node:fs/promises'; let body=''; for await(const part of process.stdin)body+=part;
+const request=JSON.parse(body), uri=${JSON.stringify(inputUri)};
+await appendFile(${JSON.stringify(requestsPath)},JSON.stringify(request.params)+'\\n');
+const first=request.params.documents?.find(d=>d.uri===uri), next=${depth}===2 && Boolean(first);
+const source=next ? request.params.documents?.find(d=>d.uri===${JSON.stringify(nextUri)})?.source ?? await readFile(${JSON.stringify(nextPath)},'utf8') : first?.source ?? await readFile(${JSON.stringify(inputPath)},'utf8');
+process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'discovery.routes',generation:request.params.generation,complete:source.includes('true'),routes:[{name:'discovery.one',path:'/one'}],...(next ? ${JSON.stringify(nextInputs)} : ${JSON.stringify(inputs)})}}));`);
+        server = spawn(process.execPath, [resolve('../../dist/language-server.js'), '--stdio',
+          '--parser-core-wasm', resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe' });
+        const output = messagesFrom(server);
+        const send = (message: object): void => { server!.stdin.write(encode({ jsonrpc: '2.0', ...message })); };
+        send({ id: 1230, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+          initializationOptions: { indexingMode: 'onDemand', bundledRouteProviders: [{ providerId: 'discovery.routes', command: process.execPath,
+            args: [provider], timeoutMs: 1000, replacesStaticRoutes: true, cacheUntilInvalidated: true }] } } });
+        await output.waitFor(message => message.id === 1230); send({ method: 'initialized', params: {} });
+        for (const document of [{ uri, text: source }, { uri: inputUri, text: openSource }, ...(depth === 2 ? [{ uri: nextUri, text: openSource }] : [])]) {
+          send({ method: 'textDocument/didOpen', params: { textDocument: { ...document, languageId: 'php', version: 1 } } });
+          await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params.uri === document.uri);
+        }
+        const query = async (id: number): Promise<string[]> => {
+          send({ id, method: 'textDocument/completion', params: { textDocument: { uri }, position: lspPosition(source, source.indexOf("'discovery.'") + 11) } });
+          const response = await output.waitFor(message => message.id === id); expect(response.error).toBeUndefined();
+          return completionItems(response.result).map((item: { label: string }) => item.label);
+        };
+        const expected = openComplete ? ['discovery.one'] : [];
+        expect(await query(1231)).toEqual(depth === 2 ? [] : expected);
+        const requests = (await readFile(requestsPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+        expect(requests.at(-1).documents?.find((document: { uri: string }) => document.uri === inputUri)?.source).toBe(openSource);
+        if (depth === 2) {
+          expect(requests).toHaveLength(2);
+          expect(requests.at(-1).documents?.some((document: { uri: string }) => document.uri === nextUri)).toBeFalsy();
+        }
+        expect(await query(1232)).toEqual(expected);
+        const finalRequests = (await readFile(requestsPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+        expect(finalRequests).toHaveLength(requests.length + (depth === 2 ? 1 : 0));
+        if (depth === 2) expect(finalRequests.at(-1).documents?.find((document: { uri: string }) => document.uri === nextUri)?.source).toBe(openSource);
+        expect(await query(1234)).toEqual(expected);
+        expect((await readFile(requestsPath, 'utf8')).trim().split('\n')).toHaveLength(finalRequests.length);
+        expect(await readFile(inputPath, 'utf8')).toBe(diskSource);
+        send({ id: 1233, method: 'shutdown', params: null }); await output.waitFor(message => message.id === 1233);
+        const exited = once(server, 'exit'); send({ method: 'exit', params: null }); await exited;
+      } finally { await rm(root, { recursive: true, force: true }); }
+    });
+
+  it.each([
+    { name: 'absent', inputs: {} },
+    { name: 'unproven', inputs: { inputEvidenceComplete: false, inputUris: [], inputDirectoryUris: [] } },
+    { name: 'empty', inputs: { inputEvidenceComplete: true, inputUris: [], inputDirectoryUris: [] } },
+    { name: 'invalid URI', inputs: { inputEvidenceComplete: true, inputUris: ['https://example.test/routes.php'], inputDirectoryUris: [] } },
+    { name: 'external URI', inputs: { inputEvidenceComplete: true, inputUris: ['file:///outside-workspace/routes.php'], inputDirectoryUris: [] } },
+  ])('retries an incomplete opted-in route snapshot on the next query with $name input evidence', async ({ inputs }) => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-incomplete-route-cache-'));
     try {
       const source = `<?php
@@ -20576,7 +20822,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const provider = join(root, 'route-provider.mjs');
       await writeFile(join(root, 'composer.json'), '{}'); await writeFile(join(root, 'Consumer.php'), source);
       await writeFile(statePath, JSON.stringify({ complete: false })); await writeFile(countPath, '0');
-      await writeFile(provider, `import {readFile,writeFile} from 'node:fs/promises'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const count=Number(await readFile(${JSON.stringify(countPath)},'utf8'))+1; await writeFile(${JSON.stringify(countPath)},String(count)); const state=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'recover.routes',generation:request.params.generation,complete:state.complete,routes:state.complete?[{name:'recover.one',path:'/one'}]:[]}}));`);
+      await writeFile(provider, `import {readFile,writeFile} from 'node:fs/promises'; let input=''; for await (const part of process.stdin) input+=part; const request=JSON.parse(input); const count=Number(await readFile(${JSON.stringify(countPath)},'utf8'))+1; await writeFile(${JSON.stringify(countPath)},String(count)); const state=JSON.parse(await readFile(${JSON.stringify(statePath)},'utf8')); process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{schema:1,providerId:'recover.routes',generation:request.params.generation,complete:state.complete,routes:state.complete?[{name:'recover.one',path:'/one'}]:[],...${JSON.stringify(inputs)}}}));`);
       server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
       const output = messagesFrom(server);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 1199, method: 'initialize', params: {

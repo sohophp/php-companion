@@ -1,0 +1,132 @@
+{
+  "verified": true,
+  "mode": "matrix",
+  "functionalQualified": true,
+  "allThreeMeasuredBudgetTypesQualified": true,
+  "qualified": true,
+  "parentMatrixQualification": true,
+  "parentDriverDoesNotGateColdTime": true,
+  "auditorAlsoChecksColdTimeAndExactWarmCacheBytes": true,
+  "groups": [
+    {
+      "files": 1000,
+      "rounds": 5,
+      "coldIndexMs": {
+        "samples": 5,
+        "p50": 2716.52,
+        "p95": 2777.31,
+        "max": 2777.31
+      },
+      "coldIndexBudgetMs": 8000,
+      "warmRestoreMs": {
+        "samples": 5,
+        "p50": 1882.09,
+        "p95": 2006.7,
+        "max": 2006.7
+      },
+      "wholeProcessRssMiB": {
+        "samples": 5,
+        "p50": 154.55,
+        "p95": 164.47,
+        "max": 164.47
+      },
+      "rssBudgetMiB": 384,
+      "warmCacheMiB": {
+        "samples": 5,
+        "p50": 5.476837158203125,
+        "p95": 5.476837158203125,
+        "max": 5.476837158203125
+      },
+      "warmCacheBudgetMiB": 64
+    },
+    {
+      "files": 10000,
+      "rounds": 5,
+      "coldIndexMs": {
+        "samples": 5,
+        "p50": 24105.25,
+        "p95": 24626.47,
+        "max": 24626.47
+      },
+      "coldIndexBudgetMs": 60000,
+      "warmRestoreMs": {
+        "samples": 5,
+        "p50": 16978.05,
+        "p95": 18220.3,
+        "max": 18220.3
+      },
+      "wholeProcessRssMiB": {
+        "samples": 5,
+        "p50": 372.49,
+        "p95": 528.18,
+        "max": 528.18
+      },
+      "rssBudgetMiB": 768,
+      "warmCacheMiB": {
+        "samples": 5,
+        "p50": 54.75083351135254,
+        "p95": 54.755117416381836,
+        "max": 54.755117416381836
+      },
+      "warmCacheBudgetMiB": 512
+    },
+    {
+      "files": 50000,
+      "rounds": 5,
+      "coldIndexMs": {
+        "samples": 5,
+        "p50": 117304.72,
+        "p95": 124225.16,
+        "max": 124225.16
+      },
+      "coldIndexBudgetMs": 300000,
+      "warmRestoreMs": {
+        "samples": 5,
+        "p50": 86871.91,
+        "p95": 93787.68,
+        "max": 93787.68
+      },
+      "wholeProcessRssMiB": {
+        "samples": 5,
+        "p50": 1371.32,
+        "p95": 1433.96,
+        "max": 1433.96
+      },
+      "rssBudgetMiB": 1536,
+      "warmCacheMiB": {
+        "samples": 5,
+        "p50": 273.7657279968262,
+        "p95": 273.7678470611572,
+        "max": 273.7678470611572
+      },
+      "warmCacheBudgetMiB": 2560
+    }
+  ],
+  "budgetFailures": [],
+  "frozenInputsUnchanged": 222,
+  "allOwnedProcessesGone": true,
+  "allOwnedFixtureRootsRemoved": true,
+  "originalFourLoadsSameProcessRetained": true,
+  "noForcedGcOrStageSplitting": true,
+  "sourceScriptSha256": "6d0b0e56e6f5f91e3737051891695356978f103f8bb28a6cc1e10e5aaa0232c1",
+  "auditorSha256": "e8f530ef80025ac24646b2d49228f202a2a7686733153ce4b986adcb1477dc50",
+  "stateEvidence": "/var/www/node/php-companion/.vscode-test/d1752-whole-process-cache-matrix-run.json",
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "openMajorItems": 26,
+  "scope": "Linux synthetic package API original four-stage whole-process cache sequence; excludes bundled LSP/UI, real projects and other platforms",
+  "observedAtUtc": "2026-10-10T20:48:08.790794+00:00",
+  "numberedFixtures": 166,
+  "families": 14,
+  "documentedAtUtc": "2026-10-10T20:59:22.477027+00:00",
+  "archive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1769-whole-process-cache-matrix-terminal-archive",
+    "files": 38,
+    "manifestSha256": "cd14beaa7c9e928eec451881ba60c22f607eb7d313fa995d7a8b8e99bad9ae44"
+  },
+  "driverExitCode": 0,
+  "driverTerminalToolChunk": "20354 collected in exec cell 4669",
+  "auditorTerminalToolChunk": "715715",
+  "normalRuntimeAssetsUnchanged": 8,
+  "priorHistoricalFailuresRetained": true
+}

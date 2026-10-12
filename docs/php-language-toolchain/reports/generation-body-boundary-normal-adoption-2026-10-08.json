@@ -1,0 +1,66 @@
+{
+  "recordedAtUtc": "2026-10-08T13:00:00.626735+00:00",
+  "normalSourceAdopted": true,
+  "normalFocusedQualified": true,
+  "fullSemanticCases": 23555,
+  "fullSemanticQualification": "Private full result reused only after exact normal/private source, tests and compiled semantic equality; new test formatting is whitespace-only and exact80 cases passed in normal source.",
+  "normalSemanticTargetCases": 80,
+  "normalProtocolCases": 56,
+  "normalProtocolRowsForNewCases": 80,
+  "baselineProductionIncorrectRows": 30,
+  "candidateNativeLintActualGeneratedEdits": 30,
+  "initialPrivateProgressivePreconditionFailedBeforeQueries": true,
+  "correctedProgressiveSourceReadyContractVerified": true,
+  "editorHostStatus": "prepared-not-started",
+  "normalFullLspStatus": "pending-current-build; prior1375 cases had one unproven20s timeout",
+  "expectedNormalFullLspFiles": 109,
+  "expectedNormalFullLspCases": 1377,
+  "originalFullLspFailurePreserved": true,
+  "originalThreePrivateSemanticTimeoutsPreserved": true,
+  "originalFullC3BodyPreserved": true,
+  "originalCanonicalAssertionsAndBudgetsPreserved": true,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "evidence": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d900-generation-body-candidate-source.json",
+      "sha256": "ccb4582916dabf7241e1edfa92db8b41d4644288a33bfe25bf8851a5b59be15f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d902-private-generation-full-semantic-audit.json",
+      "sha256": "18493a6b282f762aed901c0ed6b3c513104d5309254378b255981d086f6c78e3"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d904-private-generation-observed-semantic-audit.json",
+      "sha256": "02f84fc63e29565d24b97ed895eabcd86d478871326afde5af2e81c69efea2f1"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d905-generation-body-runtime-build.json",
+      "sha256": "bb62c0f805fbb9abed3d24a7f195dd97165bfc844757a5240affefb0aa65a70f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d906-private-test-lint-formatting.json",
+      "sha256": "8200597babe8aa645d84906f8b917c3f43c99a28a32a0c3435642f5b5e69de50"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d907-generation-body-production-result.json",
+      "sha256": "385b2422a48630e6f053aaaeb7afdf4a3895ace63b3fba55e254bb49adcc8a5a"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d908-generation-body-progressive-result.json",
+      "sha256": "1f930c3129420e2a041e08e2357438f52fac501dd295e032d272bcc75489b4ca"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d908-progressive-precondition-correction.json",
+      "sha256": "f7c5263e3d8d1b0e60e0177d2c19955c7306eedca2fc884cc1be7d43bda1fa79"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d909-generation-body-normal-adoption/adoption.json",
+      "sha256": "4ae2ad689ebb238e60431f8188bd33d2c14dea2c927675e3105bd3a28f6fe03f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d910-normal-generation-verification.json",
+      "sha256": "6913d5cef9ab8d2bd273812ad26973dcd4b8f29a5c40285991f20414df7d31cc"
+    }
+  ]
+}

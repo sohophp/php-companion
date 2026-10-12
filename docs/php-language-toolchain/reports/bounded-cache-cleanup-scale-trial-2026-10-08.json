@@ -1,0 +1,2347 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "decision": "bounded-cleanup-single-run-scale-failed-not-adopted",
+  "adopted": false,
+  "normalProductChanged": false,
+  "coreBundleSha256": "f026f9cd440f102d7b566850f8de5f16404ae2534619ccb62705205c012d9e46",
+  "candidateSourceHashes": {
+    "d372-bounded-cache-removal.mjs": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d",
+    "d375-entry-store.mjs": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba",
+    "d375-index.mjs": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26",
+    "d375-benchmark-entry-store.mjs": "d1102a15937d4691e74dfd2d66d482ee477547a7f7984dd6536a591fa54887f6",
+    "d353-owned-cache-lock.mjs": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+  },
+  "budgets": {
+    "hotQueryMs": 150,
+    "localDiagnosticsMs": 500,
+    "cancellationMs": 100,
+    "coldIndexMs": {
+      "files1000": 8000,
+      "files10000": 60000,
+      "files50000": 300000
+    },
+    "peakRssMb": {
+      "files1000": 384,
+      "files10000": 768,
+      "files50000": 1536
+    },
+    "warmCacheMb": {
+      "files1000": 64,
+      "files10000": 512,
+      "files50000": 2560
+    }
+  },
+  "budgetSource": "Current normal testkit R1_PERFORMANCE_BUDGETS; unchanged",
+  "runs": {
+    "1000": {
+      "status": "exited",
+      "parentPid": 935831,
+      "childPid": 935924,
+      "startedAtUtc": "2026-10-07T15:58:30.725135+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d375-benchmark-entry-store.mjs",
+        "1000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-1000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 9.812388343001658,
+      "finishedAtUtc": "2026-10-07T15:58:40.536144+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "42d293cb096d71d9c181be62bfefb4cb65ba995fb6ebf01a06660e371330ba24"
+    },
+    "10000": {
+      "status": "exited",
+      "parentPid": 936058,
+      "childPid": 936794,
+      "startedAtUtc": "2026-10-07T15:58:52.633086+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d375-benchmark-entry-store.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-10000-input.json",
+      "exitCode": 0,
+      "durationSeconds": 92.68050810899877,
+      "finishedAtUtc": "2026-10-07T16:00:25.312493+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "3275bc5bec3ff7aeb6f7be6da2f2a4b53e67a46b98ee3a0629e6e21425905349"
+    },
+    "50000": {
+      "status": "exited",
+      "parentPid": 938841,
+      "childPid": 938940,
+      "startedAtUtc": "2026-10-07T16:00:49.705728+00:00",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/d375-benchmark-entry-store.mjs",
+        "50000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-50000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 452.467372111998,
+      "finishedAtUtc": "2026-10-07T16:08:22.172128+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "21b8185c9c22fbdcfc2808f8d54ce556a30db2631ac097703e885abf30d7d96e"
+    }
+  },
+  "results": {
+    "1000": {
+      "schema": 1,
+      "files": 1000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 2439.84,
+        "parsed": 1000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 1614.99,
+        "parsed": 0,
+        "restored": 1000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6619,
+      "cache": {
+        "cold": {
+          "files": 1002,
+          "bytes": 5818880,
+          "mebibytes": 5.55
+        },
+        "warm": {
+          "files": 1002,
+          "bytes": 5818880,
+          "mebibytes": 5.55
+        },
+        "frozenBudgetMb": 64
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 140.91,
+        "warmPeakRssMb": 138.5,
+        "layerRecoveryPeakRssMb": 144.66,
+        "callableRecoveryPeakRssMb": 151.35,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 384,
+        "processPeakRssMb": 241.38,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 1000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 1999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "10000": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 22505.23,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 15687.27,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6971,
+      "cache": {
+        "cold": {
+          "files": 10002,
+          "bytes": 58174902,
+          "mebibytes": 55.48
+        },
+        "warm": {
+          "files": 10002,
+          "bytes": 58174902,
+          "mebibytes": 55.48
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 248.62,
+        "warmPeakRssMb": 277.37,
+        "layerRecoveryPeakRssMb": 453.51,
+        "callableRecoveryPeakRssMb": 517.71,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 517.71,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "50000": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 111304.93,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 76972.79,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6915,
+      "cache": {
+        "cold": {
+          "files": 50002,
+          "bytes": 290876894,
+          "mebibytes": 277.4
+        },
+        "warm": {
+          "files": 50002,
+          "bytes": 290876894,
+          "mebibytes": 277.4
+        },
+        "frozenBudgetMb": 2560
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 738.11,
+        "warmPeakRssMb": 761.19,
+        "layerRecoveryPeakRssMb": 1615.89,
+        "callableRecoveryPeakRssMb": 1503.31,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 1536,
+        "processPeakRssMb": 1615.89,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    }
+  },
+  "singleRunGates": {
+    "1000": {
+      "functional": true,
+      "coldLoadBudgetMs": 8000,
+      "coldLoadBudgetPassed": true,
+      "processRssBudgetPassed": true,
+      "warmCacheBudgetPassed": true,
+      "singleRunGatesPassed": true
+    },
+    "10000": {
+      "functional": true,
+      "coldLoadBudgetMs": 60000,
+      "coldLoadBudgetPassed": true,
+      "processRssBudgetPassed": true,
+      "warmCacheBudgetPassed": true,
+      "singleRunGatesPassed": true
+    },
+    "50000": {
+      "functional": true,
+      "coldLoadBudgetMs": 300000,
+      "coldLoadBudgetPassed": true,
+      "processRssBudgetPassed": false,
+      "warmCacheBudgetPassed": true,
+      "singleRunGatesPassed": false
+    }
+  },
+  "singleRunsPerScale": 1,
+  "fullFiveRunQualification": false,
+  "originalCacheChecksPassed": 17,
+  "cleanupBoundaryChecksPassed": 5,
+  "previousEightLockChecksNotRerunOrRecounted": true,
+  "priorReport": "/var/www/node/php-companion/docs/php-language-toolchain/reports/entry-cache-natural-gc-bounded-cleanup-trial-2026-10-07.json",
+  "priorReportSha256": "79d2509d97b444e00400f1fb76ac080e9c52a519b427132b7b0b0e644f6c5924",
+  "fullApiQualified": false,
+  "runtimeIntegrationQualified": false,
+  "platformMatrixQualified": false,
+  "completeApi": {
+    "runs": {
+      "d383-normal-index-full-api": {
+        "status": "exited",
+        "parentPid": 948873,
+        "childPid": 949149,
+        "startedAtUtc": "2026-10-07T16:08:41.481008+00:00",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          ".vscode-test/d382-normal-index-vitest.config.mjs",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=.vscode-test/d383-normal-index-full-api-result.json"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api-input.json",
+        "exitCode": 0,
+        "durationSeconds": 4.759888259002764,
+        "finishedAtUtc": "2026-10-07T16:08:46.239336+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "9cbc89c1ac98f1ac8bcf3f73e373e636e1c84dcaf35eb70d36337aa3dc5deaf0"
+      },
+      "d383-bounded-entry-full-api": {
+        "status": "exited",
+        "parentPid": 950331,
+        "childPid": 950425,
+        "startedAtUtc": "2026-10-07T16:09:14.170200+00:00",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          ".vscode-test/d382-index-api-vitest.config.mjs",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=.vscode-test/d383-bounded-entry-full-api-result.json"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d383-bounded-entry-full-api-input.json",
+        "exitCode": 1,
+        "durationSeconds": 5.085881229999359,
+        "finishedAtUtc": "2026-10-07T16:09:19.254882+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "1a4442056167ee28efc1620bfe20729a696c98ae4930b9a0b1facf8453d02b24"
+      }
+    },
+    "normalResult": {
+      "numTotalTestSuites": 7,
+      "numPassedTestSuites": 7,
+      "numFailedTestSuites": 0,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 52,
+      "numPassedTests": 52,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791389323105,
+      "success": true,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "DocumentDependencyGraph"
+              ],
+              "fullName": "DocumentDependencyGraph replaces document contributions without removing another declaration of the same node",
+              "status": "passed",
+              "title": "replaces document contributions without removing another declaration of the same node",
+              "duration": 3.9684139999999957,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "DocumentDependencyGraph"
+              ],
+              "fullName": "DocumentDependencyGraph returns deterministic snapshots and atomically rejects invalid replacements",
+              "status": "passed",
+              "title": "returns deterministic snapshots and atomically rejects invalid replacements",
+              "duration": 13.686087999999984,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389325907,
+          "endTime": 1791389325924.686,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/index/test/dependency.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "incremental document-key inverted index"
+              ],
+              "fullName": "incremental document-key inverted index replaces and removes document postings without disturbing shared keys",
+              "status": "passed",
+              "title": "replaces and removes document postings without disturbing shared keys",
+              "duration": 6.3704890000000205,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "incremental document-key inverted index"
+              ],
+              "fullName": "incremental document-key inverted index rejects oversized replacement atomically and validates limits",
+              "status": "passed",
+              "title": "rejects oversized replacement atomically and validates limits",
+              "duration": 1.1883289999999533,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries keeps Unicode case mappings and repeated mixed-case lookups consistent",
+              "status": "passed",
+              "title": "keeps Unicode case mappings and repeated mixed-case lookups consistent",
+              "duration": 5.610044000000016,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries separates symbol and named-argument candidates including comments",
+              "status": "passed",
+              "title": "separates symbol and named-argument candidates including comments",
+              "duration": 1.2753099999999904,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries never treats a symbol-only summary as proof that a named argument is absent",
+              "status": "passed",
+              "title": "never treats a symbol-only summary as proof that a named argument is absent",
+              "duration": 0.5512140000000727,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries rebuilds invalid payloads and reads incomplete summaries conservatively",
+              "status": "passed",
+              "title": "rebuilds invalid payloads and reads incomplete summaries conservatively",
+              "duration": 0.4134470000000192,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries preserves cold substring candidates after reload and treats oversized tokens as incomplete",
+              "status": "passed",
+              "title": "preserves cold substring candidates after reload and treats oversized tokens as incomplete",
+              "duration": 0.627760999999964,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index emits source snapshots without depending on a semantic consumer",
+              "status": "passed",
+              "title": "emits source snapshots without depending on a semantic consumer",
+              "duration": 19.587057999999956,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=1)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=1)",
+              "duration": 44.188626,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=128)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=128)",
+              "duration": 24.011836000000017,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=1)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=1)",
+              "duration": 24.35728400000005,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=128)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=128)",
+              "duration": 23.712850000000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index accounts for filtered files without preparing or emitting their source",
+              "status": "passed",
+              "title": "accounts for filtered files without preparing or emitting their source",
+              "duration": 10.315034000000082,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index keeps verified nonmatches outside candidate budgets while preserving inspected file counts",
+              "status": "passed",
+              "title": "keeps verified nonmatches outside candidate budgets while preserving inspected file counts",
+              "duration": 12.02176499999996,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index uses a batch inspector for large inventories and rejects missing metadata",
+              "status": "passed",
+              "title": "uses a batch inspector for large inventories and rejects missing metadata",
+              "duration": 552.6109149999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reports an incomplete candidate scan when matching sources exceed the read budget",
+              "status": "passed",
+              "title": "reports an incomplete candidate scan when matching sources exceed the read budget",
+              "duration": 14.005325999999968,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index retains unchanged cache entries for files omitted by a source prefilter",
+              "status": "passed",
+              "title": "retains unchanged cache entries for files omitted by a source prefilter",
+              "duration": 21.003513000000112,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reuses a caller-owned immutable Composer project snapshot",
+              "status": "passed",
+              "title": "reuses a caller-owned immutable Composer project snapshot",
+              "duration": 9.394311000000016,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index lets an adapter preserve its remote document URI scheme",
+              "status": "passed",
+              "title": "lets an adapter preserve its remote document URI scheme",
+              "duration": 8.41739900000016,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not emit a partial set when the file-count budget is exceeded",
+              "status": "passed",
+              "title": "does not emit a partial set when the file-count budget is exceeded",
+              "duration": 6.718319999999949,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index rejects invalid resource limits",
+              "status": "passed",
+              "title": "rejects invalid resource limits",
+              "duration": 5.080355000000054,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index marks a skipped oversized project source as project-incomplete",
+              "status": "passed",
+              "title": "marks a skipped oversized project source as project-incomplete",
+              "duration": 8.14460999999983,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index keeps project completeness while marking an oversized dependency as incomplete",
+              "status": "passed",
+              "title": "keeps project completeness while marking an oversized dependency as incomplete",
+              "duration": 19.558761000000004,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index indexes project sources first and deterministically truncates dependencies",
+              "status": "passed",
+              "title": "indexes project sources first and deterministically truncates dependencies",
+              "duration": 23.43267999999989,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reports cumulative dependency progress against the full planned file count",
+              "status": "passed",
+              "title": "reports cumulative dependency progress against the full planned file count",
+              "duration": 20.583136000000195,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index signals project completeness before dependency sources are discovered and indexed",
+              "status": "passed",
+              "title": "signals project completeness before dependency sources are discovered and indexed",
+              "duration": 19.001224999999977,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index can stop after the complete project phase for on-demand indexing",
+              "status": "passed",
+              "title": "can stop after the complete project phase for on-demand indexing",
+              "duration": 17.665983000000097,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prefetches source reads concurrently while preserving deterministic callback order",
+              "status": "passed",
+              "title": "prefetches source reads concurrently while preserving deterministic callback order",
+              "duration": 13.128803000000062,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares cold sources concurrently and commits them in path order while skipping warm cache hits",
+              "status": "passed",
+              "title": "prepares cold sources concurrently and commits them in path order while skipping warm cache hits",
+              "duration": 36.65280400000006,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index commits a ready source without waiting for later preparation while keeping the window bounded",
+              "status": "passed",
+              "title": "commits a ready source without waiting for later preparation while keeping the window bounded",
+              "duration": 10.587143000000196,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index stops ordered commits after cancellation with speculative preparations still in flight",
+              "status": "passed",
+              "title": "stops ordered commits after cancellation with speculative preparations still in flight",
+              "duration": 10.013449000000037,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares warm restores concurrently and commits them in path order with fallback",
+              "status": "passed",
+              "title": "prepares warm restores concurrently and commits them in path order with fallback",
+              "duration": 38.20454800000016,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index waits for deferred cache payloads before persisting ordered source entries",
+              "status": "passed",
+              "title": "waits for deferred cache payloads before persisting ordered source entries",
+              "duration": 33.28054799999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index bounds pending payload finalization to the read window (1)",
+              "status": "passed",
+              "title": "bounds pending payload finalization to the read window (1)",
+              "duration": 145.23708299999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index bounds pending payload finalization to the read window (3)",
+              "status": "passed",
+              "title": "bounds pending payload finalization to the read window (3)",
+              "duration": 137.30030699999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index cancels a blocked payload window without replacing the cache (1 files)",
+              "status": "passed",
+              "title": "cancels a blocked payload window without replacing the cache (1 files)",
+              "duration": 49.22497299999986,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index cancels a blocked payload window without replacing the cache (3 files)",
+              "status": "passed",
+              "title": "cancels a blocked payload window without replacing the cache (3 files)",
+              "duration": 52.53062799999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index continues after a payload finalizer rejects and persists only completed entries",
+              "status": "passed",
+              "title": "continues after a payload finalizer rejects and persists only completed entries",
+              "duration": 21.15659199999982,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index restores unchanged payloads and rebuilds a corrupt persistent cache",
+              "status": "passed",
+              "title": "restores unchanged payloads and rebuilds a corrupt persistent cache",
+              "duration": 21.783277,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails",
+              "status": "passed",
+              "title": "restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails",
+              "duration": 128.4024300000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index isolates malformed entry metadata and rebuilds unsupported cache versions",
+              "status": "passed",
+              "title": "isolates malformed entry metadata and rebuilds unsupported cache versions",
+              "duration": 87.56592799999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not rewrite a fully restored cache when source metadata is unchanged",
+              "status": "passed",
+              "title": "does not rewrite a fully restored cache when source metadata is unchanged",
+              "duration": 14.359437999999955,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index checks cached source hashes before restoring complete reference facts",
+              "status": "passed",
+              "title": "checks cached source hashes before restoring complete reference facts",
+              "duration": 18.159701999999925,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reads only cache-selected sources while restoring skipped files concurrently",
+              "status": "passed",
+              "title": "reads only cache-selected sources while restoring skipped files concurrently",
+              "duration": 16.684957000000395,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index rebuilds a cache entry when its restore adapter rejects the payload",
+              "status": "passed",
+              "title": "rebuilds a cache entry when its restore adapter rejects the payload",
+              "duration": 17.11496299999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not index files excluded from Composer classmaps",
+              "status": "passed",
+              "title": "does not index files excluded from Composer classmaps",
+              "duration": 12.140082000000348,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index stops during directory discovery before emitting a partial index",
+              "status": "passed",
+              "title": "stops during directory discovery before emitting a partial index",
+              "duration": 8.762956000000031,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "invalidates same-size content changes even when the timestamp is preserved",
+              "status": "passed",
+              "title": "invalidates same-size content changes even when the timestamp is preserved",
+              "duration": 27.91541099999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389323821,
+          "endTime": 1791389325622.9155,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/index/test/index.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "retains changes arriving during a drain and coalesces earlier events",
+              "status": "passed",
+              "title": "retains changes arriving during a drain and coalesces earlier events",
+              "duration": 3.4136849999999868,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "retains a failed event for retry without replacing a newer event",
+              "status": "passed",
+              "title": "retains a failed event for retry without replacing a newer event",
+              "duration": 2.0166110000000117,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389326173,
+          "endTime": 1791389326179.0166,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/packages/index/test/pending.test.ts"
+        }
+      ]
+    },
+    "candidateResult": {
+      "numTotalTestSuites": 7,
+      "numPassedTestSuites": 5,
+      "numFailedTestSuites": 2,
+      "numPendingTestSuites": 0,
+      "numTotalTests": 52,
+      "numPassedTests": 51,
+      "numFailedTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "snapshot": {
+        "added": 0,
+        "failure": false,
+        "filesAdded": 0,
+        "filesRemoved": 0,
+        "filesRemovedList": [],
+        "filesUnmatched": 0,
+        "filesUpdated": 0,
+        "matched": 0,
+        "total": 0,
+        "unchecked": 0,
+        "uncheckedKeysByFile": [],
+        "unmatched": 0,
+        "updated": 0,
+        "didUpdate": false
+      },
+      "startTime": 1791389355680,
+      "success": false,
+      "testResults": [
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "DocumentDependencyGraph"
+              ],
+              "fullName": "DocumentDependencyGraph replaces document contributions without removing another declaration of the same node",
+              "status": "passed",
+              "title": "replaces document contributions without removing another declaration of the same node",
+              "duration": 4.400120000000015,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "DocumentDependencyGraph"
+              ],
+              "fullName": "DocumentDependencyGraph returns deterministic snapshots and atomically rejects invalid replacements",
+              "status": "passed",
+              "title": "returns deterministic snapshots and atomically rejects invalid replacements",
+              "duration": 14.277958000000012,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389358831,
+          "endTime": 1791389358850.278,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/.vscode-test/d382-dependency-api.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [
+                "incremental document-key inverted index"
+              ],
+              "fullName": "incremental document-key inverted index replaces and removes document postings without disturbing shared keys",
+              "status": "passed",
+              "title": "replaces and removes document postings without disturbing shared keys",
+              "duration": 5.9918480000000045,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "incremental document-key inverted index"
+              ],
+              "fullName": "incremental document-key inverted index rejects oversized replacement atomically and validates limits",
+              "status": "passed",
+              "title": "rejects oversized replacement atomically and validates limits",
+              "duration": 1.2287599999999657,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries keeps Unicode case mappings and repeated mixed-case lookups consistent",
+              "status": "passed",
+              "title": "keeps Unicode case mappings and repeated mixed-case lookups consistent",
+              "duration": 5.566312999999923,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries separates symbol and named-argument candidates including comments",
+              "status": "passed",
+              "title": "separates symbol and named-argument candidates including comments",
+              "duration": 1.4752869999999803,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries never treats a symbol-only summary as proof that a named argument is absent",
+              "status": "passed",
+              "title": "never treats a symbol-only summary as proof that a named argument is absent",
+              "duration": 0.5929409999999962,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries rebuilds invalid payloads and reads incomplete summaries conservatively",
+              "status": "passed",
+              "title": "rebuilds invalid payloads and reads incomplete summaries conservatively",
+              "duration": 0.42901499999993575,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded source candidate summaries"
+              ],
+              "fullName": "bounded source candidate summaries preserves cold substring candidates after reload and treats oversized tokens as incomplete",
+              "status": "passed",
+              "title": "preserves cold substring candidates after reload and treats oversized tokens as incomplete",
+              "duration": 0.6413619999999582,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index emits source snapshots without depending on a semantic consumer",
+              "status": "passed",
+              "title": "emits source snapshots without depending on a semantic consumer",
+              "duration": 19.078228999999965,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=1)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=1)",
+              "duration": 58.266526,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=128)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=false, concurrency=128)",
+              "duration": 41.14657799999998,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=1)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=1)",
+              "duration": 37.79464599999994,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=128)",
+              "status": "passed",
+              "title": "prepares inspected small-project snapshots with colliding metadata (verify=true, concurrency=128)",
+              "duration": 36.19396399999994,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index accounts for filtered files without preparing or emitting their source",
+              "status": "passed",
+              "title": "accounts for filtered files without preparing or emitting their source",
+              "duration": 9.484858000000031,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index keeps verified nonmatches outside candidate budgets while preserving inspected file counts",
+              "status": "passed",
+              "title": "keeps verified nonmatches outside candidate budgets while preserving inspected file counts",
+              "duration": 12.559983000000102,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index uses a batch inspector for large inventories and rejects missing metadata",
+              "status": "passed",
+              "title": "uses a batch inspector for large inventories and rejects missing metadata",
+              "duration": 530.405585,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reports an incomplete candidate scan when matching sources exceed the read budget",
+              "status": "passed",
+              "title": "reports an incomplete candidate scan when matching sources exceed the read budget",
+              "duration": 12.945792999999867,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index retains unchanged cache entries for files omitted by a source prefilter",
+              "status": "passed",
+              "title": "retains unchanged cache entries for files omitted by a source prefilter",
+              "duration": 33.133030999999846,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reuses a caller-owned immutable Composer project snapshot",
+              "status": "passed",
+              "title": "reuses a caller-owned immutable Composer project snapshot",
+              "duration": 9.986302000000023,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index lets an adapter preserve its remote document URI scheme",
+              "status": "passed",
+              "title": "lets an adapter preserve its remote document URI scheme",
+              "duration": 9.197157000000061,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not emit a partial set when the file-count budget is exceeded",
+              "status": "passed",
+              "title": "does not emit a partial set when the file-count budget is exceeded",
+              "duration": 7.114102999999886,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index rejects invalid resource limits",
+              "status": "passed",
+              "title": "rejects invalid resource limits",
+              "duration": 4.450064999999995,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index marks a skipped oversized project source as project-incomplete",
+              "status": "passed",
+              "title": "marks a skipped oversized project source as project-incomplete",
+              "duration": 8.248448999999937,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index keeps project completeness while marking an oversized dependency as incomplete",
+              "status": "passed",
+              "title": "keeps project completeness while marking an oversized dependency as incomplete",
+              "duration": 18.832783000000063,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index indexes project sources first and deterministically truncates dependencies",
+              "status": "passed",
+              "title": "indexes project sources first and deterministically truncates dependencies",
+              "duration": 20.1828230000001,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reports cumulative dependency progress against the full planned file count",
+              "status": "passed",
+              "title": "reports cumulative dependency progress against the full planned file count",
+              "duration": 21.345516999999973,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index signals project completeness before dependency sources are discovered and indexed",
+              "status": "passed",
+              "title": "signals project completeness before dependency sources are discovered and indexed",
+              "duration": 19.06199800000013,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index can stop after the complete project phase for on-demand indexing",
+              "status": "passed",
+              "title": "can stop after the complete project phase for on-demand indexing",
+              "duration": 17.321181999999908,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prefetches source reads concurrently while preserving deterministic callback order",
+              "status": "passed",
+              "title": "prefetches source reads concurrently while preserving deterministic callback order",
+              "duration": 11.714493999999831,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares cold sources concurrently and commits them in path order while skipping warm cache hits",
+              "status": "passed",
+              "title": "prepares cold sources concurrently and commits them in path order while skipping warm cache hits",
+              "duration": 51.14424300000019,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index commits a ready source without waiting for later preparation while keeping the window bounded",
+              "status": "passed",
+              "title": "commits a ready source without waiting for later preparation while keeping the window bounded",
+              "duration": 14.52724000000012,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index stops ordered commits after cancellation with speculative preparations still in flight",
+              "status": "passed",
+              "title": "stops ordered commits after cancellation with speculative preparations still in flight",
+              "duration": 10.069327000000158,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index prepares warm restores concurrently and commits them in path order with fallback",
+              "status": "passed",
+              "title": "prepares warm restores concurrently and commits them in path order with fallback",
+              "duration": 48.47134200000005,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index waits for deferred cache payloads before persisting ordered source entries",
+              "status": "passed",
+              "title": "waits for deferred cache payloads before persisting ordered source entries",
+              "duration": 38.179386999999906,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index bounds pending payload finalization to the read window (1)",
+              "status": "passed",
+              "title": "bounds pending payload finalization to the read window (1)",
+              "duration": 163.09405300000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index bounds pending payload finalization to the read window (3)",
+              "status": "passed",
+              "title": "bounds pending payload finalization to the read window (3)",
+              "duration": 162.0337370000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index cancels a blocked payload window without replacing the cache (1 files)",
+              "status": "passed",
+              "title": "cancels a blocked payload window without replacing the cache (1 files)",
+              "duration": 59.854379999999765,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index cancels a blocked payload window without replacing the cache (3 files)",
+              "status": "passed",
+              "title": "cancels a blocked payload window without replacing the cache (3 files)",
+              "duration": 62.747927999999774,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index continues after a payload finalizer rejects and persists only completed entries",
+              "status": "failed",
+              "title": "continues after a payload finalizer rejects and persists only completed entries",
+              "duration": 30.183465999999953,
+              "failureMessages": [
+                "AssertionError: expected [ …(2) ] to deeply equal [ Array(1) ]\n    at /var/www/node/php-companion/.vscode-test/d382-index-api.test.ts:481:27\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+              ],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index restores unchanged payloads and rebuilds a corrupt persistent cache",
+              "status": "passed",
+              "title": "restores unchanged payloads and rebuilds a corrupt persistent cache",
+              "duration": 42.42715399999997,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails",
+              "status": "passed",
+              "title": "restores multi-batch Unicode cache payloads and preserves the prior cache when serialization fails",
+              "duration": 120.10937899999999,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index isolates malformed entry metadata and rebuilds unsupported cache versions",
+              "status": "passed",
+              "title": "isolates malformed entry metadata and rebuilds unsupported cache versions",
+              "duration": 222.3710460000002,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not rewrite a fully restored cache when source metadata is unchanged",
+              "status": "passed",
+              "title": "does not rewrite a fully restored cache when source metadata is unchanged",
+              "duration": 24.14940400000023,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index checks cached source hashes before restoring complete reference facts",
+              "status": "passed",
+              "title": "checks cached source hashes before restoring complete reference facts",
+              "duration": 34.40111100000013,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index reads only cache-selected sources while restoring skipped files concurrently",
+              "status": "passed",
+              "title": "reads only cache-selected sources while restoring skipped files concurrently",
+              "duration": 35.742661000000226,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index rebuilds a cache entry when its restore adapter rejects the payload",
+              "status": "passed",
+              "title": "rebuilds a cache entry when its restore adapter rejects the payload",
+              "duration": 31.299545999999737,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index does not index files excluded from Composer classmaps",
+              "status": "passed",
+              "title": "does not index files excluded from Composer classmaps",
+              "duration": 12.10463800000025,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [
+                "bounded project source index"
+              ],
+              "fullName": "bounded project source index stops during directory discovery before emitting a partial index",
+              "status": "passed",
+              "title": "stops during directory discovery before emitting a partial index",
+              "duration": 8.873705000000427,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "invalidates same-size content changes even when the timestamp is preserved",
+              "status": "passed",
+              "title": "invalidates same-size content changes even when the timestamp is preserved",
+              "duration": 41.10939300000018,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389356360,
+          "endTime": 1791389358529.1094,
+          "status": "failed",
+          "message": "",
+          "name": "/var/www/node/php-companion/.vscode-test/d382-index-api.test.ts"
+        },
+        {
+          "assertionResults": [
+            {
+              "ancestorTitles": [],
+              "fullName": "retains changes arriving during a drain and coalesces earlier events",
+              "status": "passed",
+              "title": "retains changes arriving during a drain and coalesces earlier events",
+              "duration": 3.9470339999999737,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            },
+            {
+              "ancestorTitles": [],
+              "fullName": "retains a failed event for retry without replacing a newer event",
+              "status": "passed",
+              "title": "retains a failed event for retry without replacing a newer event",
+              "duration": 2.32399300000003,
+              "failureMessages": [],
+              "meta": {},
+              "tags": []
+            }
+          ],
+          "startTime": 1791389359143,
+          "endTime": 1791389359149.324,
+          "status": "passed",
+          "message": "",
+          "name": "/var/www/node/php-companion/.vscode-test/d382-pending-api.test.ts"
+        }
+      ]
+    },
+    "caseIdentityAndMultiplicityPreserved": true,
+    "failures": [
+      {
+        "fullName": "bounded project source index continues after a payload finalizer rejects and persists only completed entries",
+        "failureMessages": [
+          "AssertionError: expected [ …(2) ] to deeply equal [ Array(1) ]\n    at /var/www/node/php-companion/.vscode-test/d382-index-api.test.ts:481:27\n    at file:///var/www/node/php-companion/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+        ]
+      }
+    ],
+    "fixturePreparation": {
+      "status": "prepared-not-executed",
+      "kind": "complete-index-api-private-fixtures",
+      "candidateChanged": false,
+      "originalTestsChanged": false,
+      "allThreeOriginalTestFilesIncluded": true,
+      "testAndSuiteIdentitiesPreserved": true,
+      "mainTestExactReverseToOriginal": true,
+      "sources": {
+        "/var/www/node/php-companion/packages/index/test/index.test.ts": "ff5e746d32959c6b1f1cc94d77a2874ae8a307d2cb270105fb9c794b1de204be",
+        "/var/www/node/php-companion/packages/index/test/dependency.test.ts": "8d421b47db4e67fd8433ff71c5311f01f85bd75434bf4c7a84a276387149aaae",
+        "/var/www/node/php-companion/packages/index/test/pending.test.ts": "2bbc5dbe6101a87058b6f9bbe639daabf273feb4c0d9c60d88481e53aaabd808"
+      },
+      "prepared": {
+        "/var/www/node/php-companion/.vscode-test/d382-index-api.test.ts": "393817e66afaf9e0b809fdd27672c88ccb33f1e3edca2195173531f1bf010cb1",
+        "/var/www/node/php-companion/.vscode-test/d382-dependency-api.test.ts": "ef7c928037388c2b3fbff21a1d017f8795c09928aacd69b7e0a023f629e36cbe",
+        "/var/www/node/php-companion/.vscode-test/d382-pending-api.test.ts": "38199eb50abb2eb6f56e03ac370c4d3d5c6ec35fa979916120fc340155c3e66c",
+        "/var/www/node/php-companion/.vscode-test/d382-index-api-vitest.config.mjs": "39220f8ac1b5c9801a24f9e8e7ee0b66f6e92196d37ebefba4194a714cd2f3f7",
+        "/var/www/node/php-companion/.vscode-test/d382-normal-index-vitest.config.mjs": "7750a2fa97a10e95f885a921399fe30192477b86d1a9b138bd1cbd0990934179"
+      },
+      "edits": [
+        {
+          "old": "mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes",
+          "new": "mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes, cp",
+          "count": 1
+        },
+        {
+          "old": "from '../src/index.js'",
+          "new": "from './d375-index.mjs'",
+          "count": 1
+        },
+        {
+          "old": "(await readdir(directory))[0]!",
+          "new": "(await readdir(directory)).find((name) => name.endsWith('.json'))!",
+          "count": 3
+        },
+        {
+          "old": "(await readdir(cache))[0]!",
+          "new": "(await readdir(cache)).find((name) => name.endsWith('.json'))!",
+          "count": 2
+        },
+        {
+          "old": "    const original = await readFile(cacheFile, 'utf8');",
+          "new": "    const original = await readFile(cacheFile, 'utf8');\n    const originalNames = await readdir(directory);\n    const originalGenerations = await readdir(cacheFile + '.entries');",
+          "count": 1
+        },
+        {
+          "old": "      expect(await readdir(directory)).toEqual([cacheFile.split(sep).at(-1)]);",
+          "new": "      expect(await readdir(directory)).toEqual(originalNames);\n      expect(await readdir(cacheFile + '.entries')).toEqual(originalGenerations);",
+          "count": 1
+        },
+        {
+          "old": "    const names = await readdir(directory); expect(names).toHaveLength(1);\n    const cacheFile = join(directory, names[0]!); const before = await readFile(cacheFile, 'utf8');",
+          "new": "    const names = await readdir(directory); expect(names).toHaveLength(2);\n    const manifestName = names.find((name) => name.endsWith('.json'))!;\n    expect(names.toSorted()).toEqual([manifestName, manifestName + '.entries'].sort());\n    const cacheFile = join(directory, manifestName); const before = await readFile(cacheFile, 'utf8');\n    const originalGenerations = await readdir(cacheFile + '.entries');",
+          "count": 1
+        },
+        {
+          "old": "    expect(await readdir(directory)).toEqual(names);",
+          "new": "    expect(await readdir(directory)).toEqual(names);\n    expect(await readdir(cacheFile + '.entries')).toEqual(originalGenerations);",
+          "count": 1
+        },
+        {
+          "old": "    const original = JSON.parse(await readFile(cacheFile, 'utf8'));",
+          "new": "    const original = JSON.parse(await readFile(cacheFile, 'utf8'));\n    const originalGeneration = join(cacheFile + '.entries', original.generation);\n    const generationBackup = join(root, 'original-generation-backup');\n    await cp(originalGeneration, generationBackup, { recursive: true });",
+          "count": 1
+        },
+        {
+          "old": "      await writeFile(cacheFile, JSON.stringify(manifest)); restored.length = 0; parsed.length = 0;",
+          "new": "      await cp(generationBackup, originalGeneration, { recursive: true });\n      await writeFile(cacheFile, JSON.stringify(manifest)); restored.length = 0; parsed.length = 0;",
+          "count": 1
+        },
+        {
+          "old": "for (const override of [{ schema: 2 }, { version: 'metadata-v0' }, { entries: [] }])",
+          "new": "for (const override of [{ schema: 3 }, { version: 'metadata-v0' }, { entries: [] }])",
+          "count": 1
+        }
+      ],
+      "diff": "--- /var/www/node/php-companion/packages/index/test/index.test.ts\n+++ /var/www/node/php-companion/.vscode-test/d382-index-api.test.ts\n@@ -1,9 +1,9 @@\n-import { mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes } from 'node:fs/promises';\n+import { mkdtemp, mkdir, readdir, readFile, rm, writeFile, stat, utimes, cp } from 'node:fs/promises';\n import { createHash } from 'node:crypto';\n import { tmpdir } from 'node:os';\n import { join, sep } from 'node:path';\n import { afterEach, describe, expect, it } from 'vitest';\n-import { DocumentKeyIndex, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision } from '../src/index.js';\n+import { DocumentKeyIndex, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision } from './d375-index.mjs';\n import { loadComposerProject } from '@php-companion/project';\n \n describe('incremental document-key inverted index', () => {\n@@ -438,8 +438,10 @@\n     const directory = join(root, 'cache');\n     await indexComposerSources(root, { onSource: ({ path }) => ({ path }),\n       cache: { directory, version: 'cancel-finalize-v1', restore: () => false } });\n-    const cacheFile = join(directory, (await readdir(directory))[0]!);\n+    const cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json'))!);\n     const original = await readFile(cacheFile, 'utf8');\n+    const originalNames = await readdir(directory);\n+    const originalGenerations = await readdir(cacheFile + '.entries');\n     await Promise.all(names.map((name) => writeFile(join(root!, 'src', `${name}.php`), `<?php class ${name} { public $changed; }`)));\n     let cancelled = false; let release: (() => void) | undefined;\n     let queued: (() => void) | undefined; const started = new Promise<void>((done) => { queued = done; });\n@@ -459,7 +461,8 @@\n         warnings: expect.arrayContaining(['Project indexing was cancelled.']) });\n       expect(analyzed).toEqual(['A.php']);\n       expect(await readFile(cacheFile, 'utf8')).toBe(original);\n-      expect(await readdir(directory)).toEqual([cacheFile.split(sep).at(-1)]);\n+      expect(await readdir(directory)).toEqual(originalNames);\n+      expect(await readdir(cacheFile + '.entries')).toEqual(originalGenerations);\n     } finally { cancelled = true; release!(); await running; }\n   });\n   it('continues after a payload finalizer rejects and persists only completed entries', async () => {\n@@ -498,7 +501,7 @@\n       restoredHash = source.hash; return (payload as { sourceLength?: number }).sourceLength === 19;\n     } }, onSource: () => { parsed += 1; } });\n     expect(second.cached).toBe(1); expect(parsed).toBe(0); expect(restoredHash).toBe(expectedHash);\n-    const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');\n+    const cacheFile = join(cache, (await readdir(cache)).find((name) => name.endsWith('.json'))!); await writeFile(cacheFile, '{broken');\n     const third = await indexComposerSources(root, { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: () => { parsed += 1; return {}; } });\n     expect(third.cached).toBe(0); expect(parsed).toBe(1); expect(third.warnings).toContain('Persistent index cache was unreadable and will be rebuilt.');\n   });\n@@ -512,8 +515,11 @@\n     const cache = { directory, version: 'batches-v1', restore: (value: unknown): boolean => { restored.push(value); return true; } };\n     const cold = await indexComposerSources(root, { cache, onSource: () => payload });\n     expect(cold).toMatchObject({ files: 3, cached: 0, complete: true, warnings: [] });\n-    const names = await readdir(directory); expect(names).toHaveLength(1);\n-    const cacheFile = join(directory, names[0]!); const before = await readFile(cacheFile, 'utf8');\n+    const names = await readdir(directory); expect(names).toHaveLength(2);\n+    const manifestName = names.find((name) => name.endsWith('.json'))!;\n+    expect(names.toSorted()).toEqual([manifestName, manifestName + '.entries'].sort());\n+    const cacheFile = join(directory, manifestName); const before = await readFile(cacheFile, 'utf8');\n+    const originalGenerations = await readdir(cacheFile + '.entries');\n     const warm = await indexComposerSources(root, { cache, onSource: () => { throw new Error('Must restore every payload'); } });\n     expect(warm).toMatchObject({ files: 3, cached: 3, complete: true, warnings: [] });\n     expect(restored).toEqual([payload, payload, payload]);\n@@ -523,6 +529,7 @@\n     expect(failed.warnings).toContain('Persistent index cache could not be written.');\n     expect(await readFile(cacheFile, 'utf8')).toBe(before);\n     expect(await readdir(directory)).toEqual(names);\n+    expect(await readdir(cacheFile + '.entries')).toEqual(originalGenerations);\n   });\n   it('isolates malformed entry metadata and rebuilds unsupported cache versions', async () => {\n     root = await mkdtemp(join(tmpdir(), 'php-companion-index-cache-metadata-'));\n@@ -536,19 +543,23 @@\n       restored.push(source.path); return true;\n     } }, onSource: ({ path }: { path: string }): { path: string } => { parsed.push(path); return { path }; } };\n     await indexComposerSources(root, options);\n-    const cacheFile = join(directory, (await readdir(directory))[0]!);\n+    const cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json'))!);\n     const original = JSON.parse(await readFile(cacheFile, 'utf8'));\n+    const originalGeneration = join(cacheFile + '.entries', original.generation);\n+    const generationBackup = join(root, 'original-generation-backup');\n+    await cp(originalGeneration, generationBackup, { recursive: true });\n     for (const mutation of [null, [], { ...original.entries[damagedPath], hash: 'invalid' },\n       { ...original.entries[damagedPath], size: -1 }, { ...original.entries[damagedPath], mtimeMs: 'invalid' },\n       { ...original.entries[damagedPath], ctimeMs: null }]) {\n       const manifest = structuredClone(original); manifest.entries[damagedPath] = mutation;\n+      await cp(generationBackup, originalGeneration, { recursive: true });\n       await writeFile(cacheFile, JSON.stringify(manifest)); restored.length = 0; parsed.length = 0;\n       const result = await indexComposerSources(root, options);\n       expect(result).toMatchObject({ files: 2, cached: 1, complete: true });\n       expect(restored).toEqual([intactPath]); expect(parsed).toEqual([damagedPath]);\n       expect(result.warnings).toContain(`Persistent index entry for ${damagedPath} was rejected and rebuilt.`);\n     }\n-    for (const override of [{ schema: 2 }, { version: 'metadata-v0' }, { entries: [] }]) {\n+    for (const override of [{ schema: 3 }, { version: 'metadata-v0' }, { entries: [] }]) {\n       await writeFile(cacheFile, JSON.stringify({ ...original, ...override })); restored.length = 0; parsed.length = 0;\n       const result = await indexComposerSources(root, options);\n       expect(result).toMatchObject({ files: 2, cached: 0, complete: true });\n@@ -565,7 +576,7 @@\n     await writeFile(join(root, 'src', 'User.php'), '<?php class User {}');\n     const options = { cache: { directory: cache, version: 'test-v1', restore: (): boolean => true }, onSource: (): { schema: number } => ({ schema: 1 }) };\n     await indexComposerSources(root, options);\n-    const cacheFile = join(cache, (await readdir(cache))[0]!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);\n+    const cacheFile = join(cache, (await readdir(cache)).find((name) => name.endsWith('.json'))!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);\n     const result = await indexComposerSources(root, options);\n     expect(result.cached).toBe(1); expect((await stat(cacheFile)).mtimeMs).toBe(fixed.getTime());\n   });\n@@ -578,7 +589,7 @@\n     await indexComposerSources(root, { cache, onSource: ({ source }) => ({ source }) });\n     await writeFile(path, '<?php class Team {}');\n     const information = await stat(path);\n-    const cacheFile = join(directory, (await readdir(directory))[0]!);\n+    const cacheFile = join(directory, (await readdir(directory)).find((name) => name.endsWith('.json'))!);\n     const manifest = JSON.parse(await readFile(cacheFile, 'utf8')) as { entries: Record<string, { mtimeMs: number; ctimeMs: number }> };\n     manifest.entries[path]!.mtimeMs = information.mtimeMs;\n     manifest.entries[path]!.ctimeMs = information.ctimeMs;\n",
+      "formatOnlyChanges": [
+        "Select the JSON manifest explicitly instead of the first directory entry.",
+        "Expect manifest plus its owned blob directory, preserve whole-directory no-staging comparison and additionally compare generation listings.",
+        "Restore saved immutable blobs before reusing a saved manifest in each metadata mutation, so pruning cannot turn intact entries into missing payloads.",
+        "Unsupported schema mutation changes 2 to 3 because schema 2 is now supported; all original assertions retained."
+      ],
+      "behaviorAssertionsUnchanged": "Cold finalizer-rejection test remains unmodified, including exact warnings and warm A/C restore plus B rebuild expectations. No behavioral assertions relaxed to suit candidate.",
+      "notYetQualified": [
+        "complete API result",
+        "product integration",
+        "five-round scale qualification",
+        "platform matrix"
+      ],
+      "normalBaselineConfigAddedBeforeAnyTestExecution": true
+    },
+    "initialPreparationFailure": {
+      "kind": "preparation-assertion-failure-before-output",
+      "exitCode": 1,
+      "expectedManifestSelectionOccurrences": 4,
+      "actualManifestSelectionOccurrences": 3,
+      "candidateChanged": false,
+      "originalTestsChanged": false,
+      "preparedTestCreatedBeforeFailure": false,
+      "correction": "Use actual three directory occurrences; no test assertion or candidate change.",
+      "initialPreparationSha256": "7ceaf27388851a2e3cf22703abbaa2ea936fd462ca7044ce8d0d60fce417a4a2"
+    },
+    "staticAudit": {
+      "schemaVersion": 1,
+      "kind": "read-only-full-api-contract-audit",
+      "testsExecuted": false,
+      "candidateChanged": false,
+      "sourceHashes": {
+        "packages/index/test/index.test.ts": "ff5e746d32959c6b1f1cc94d77a2874ae8a307d2cb270105fb9c794b1de204be",
+        ".vscode-test/d375-index.mjs": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26",
+        "packages/index/src/index.ts": "caff9d34193523598200e1c8df1ff62f14ee8d188483b016b344065f8c98e7be"
+      },
+      "priorFormatAssumptions": [
+        {
+          "line": 441,
+          "text": "const cacheFile = join(directory, (await readdir(directory))[0]!);"
+        },
+        {
+          "line": 501,
+          "text": "const cacheFile = join(cache, (await readdir(cache))[0]!); await writeFile(cacheFile, '{broken');"
+        },
+        {
+          "line": 515,
+          "text": "const names = await readdir(directory); expect(names).toHaveLength(1);"
+        },
+        {
+          "line": 539,
+          "text": "const cacheFile = join(directory, (await readdir(directory))[0]!);"
+        },
+        {
+          "line": 540,
+          "text": "const original = JSON.parse(await readFile(cacheFile, 'utf8'));"
+        },
+        {
+          "line": 551,
+          "text": "for (const override of [{ schema: 2 }, { version: 'metadata-v0' }, { entries: [] }]) {"
+        },
+        {
+          "line": 568,
+          "text": "const cacheFile = join(cache, (await readdir(cache))[0]!); const fixed = new Date('2001-02-03T04:05:06.000Z'); await utimes(cacheFile, fixed, fixed);"
+        },
+        {
+          "line": 581,
+          "text": "const cacheFile = join(directory, (await readdir(directory))[0]!);"
+        },
+        {
+          "line": 582,
+          "text": "const manifest = JSON.parse(await readFile(cacheFile, 'utf8')) as { entries: Record<string, { mtimeMs: number; ctimeMs: number }> };"
+        }
+      ],
+      "newFinding": {
+        "originalTest": "continues after a payload finalizer rejects and persists only completed entries",
+        "originalBehavior": "Cold indexing without a prior manifest omits only the rejected finalized entry and persists successful entries; next warm scan restores A and C and reparses B.",
+        "candidateBehavior": "All asynchronous finalization or serialization failures set cacheWriteFailed and prevent the complete publication.",
+        "classification": "Static public API compatibility concern; actual full-suite outcome not yet measured. Not a storage-format-only fixture assumption.",
+        "requiredAction": "Preserve the original complete API test and assertions; reproduce after scale terminal before changing candidate behavior. Keep prior-manifest transaction and serialization protections, do not weaken assertions to match candidate."
+      },
+      "next": "After original scale gate terminal, use format-only fixture adaptations with full original tests; include unchanged finalizer-rejection test."
+    }
+  },
+  "retainedFailures": {
+    "normal10kRssMiB": 920.54,
+    "normalControllerP95Ms": 157.74,
+    "priorPrivate50kRssMiB": 1762.08,
+    "diagnosticPrivate50kRssMiB": 1605.71
+  },
+  "scope": [
+    "Distinct private candidate changes only three owned directory cleanup calls; source matches prior 17+5 controls.",
+    "Original complete four-stage benchmark body, fixture sizes, assertions, corruptions, final recursive fixture cleanup and whole-process maxRSS preserved.",
+    "No forced GC, heap flags, instrumentation, process splitting, reduced budget or repeated run selected for a green result.",
+    "One full process per scale; larger scale only after prior functional/cold/RSS/cache gates pass.",
+    "Single runs do not establish five-round qualification, statistical improvement, full API or product integration.",
+    "All C1-C4/R4/P0-P9/F01-F14, advanced types/refactors, ordinary editing, versions/platforms/tool combinations/long sessions/human WSL remain open."
+  ],
+  "next": "Preserve original scale and complete API failures. Correct the cold-finalizer publication contract in a distinct private candidate while retaining all existing manifest/serialization safety protections; rerun original complete API and safety controls before any new scale matrix. Do not relax the existing test assertions or retry an equivalent candidate.",
+  "artifacts": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-1000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-1000-input.json",
+      "bytes": 731378,
+      "sha256": "17596888f15fea8329f6cbc643c8b5ddcf3e16b577731b9f00e29ce2e3018db2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-1000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-1000-run.json",
+      "bytes": 590,
+      "sha256": "31396295ad4cd05133b61fa3ed78156a4030d685490ac29b02d3525b3b756ff7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-1000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-1000.log",
+      "bytes": 1671,
+      "sha256": "42d293cb096d71d9c181be62bfefb4cb65ba995fb6ebf01a06660e371330ba24"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-10000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-10000-input.json",
+      "bytes": 731841,
+      "sha256": "d170c315f04a9a0c3b9efcb01ac534fb40271502c86f815db381df78a34c5387"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-10000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-10000-run.json",
+      "bytes": 592,
+      "sha256": "cd7f22cd591623a63725770ced7a1fbd7e62215088d4f1e17efe92da134ed6fe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-10000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-10000.log",
+      "bytes": 1686,
+      "sha256": "3275bc5bec3ff7aeb6f7be6da2f2a4b53e67a46b98ee3a0629e6e21425905349"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-50000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-50000-input.json",
+      "bytes": 731844,
+      "sha256": "a9fdcb5aec2fd623c75e22214b4572651376dabd5d3dbcca43fb51943b2ff4bc"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-50000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-50000-run.json",
+      "bytes": 591,
+      "sha256": "4b6059d504b48f1ae20113c044c79add6c7a2be450c0350b1601c9831f43c4af"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d379-bounded-entry-scale-50000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d379-bounded-entry-scale-50000.log",
+      "bytes": 1695,
+      "sha256": "21b8185c9c22fbdcfc2808f8d54ce556a30db2631ac097703e885abf30d7d96e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d378-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d378-run.py",
+      "bytes": 10933,
+      "sha256": "8dad70a1e1e7b0fd33edbd2fa4f3abb9c93268ab85d0744d972ba52e5569575d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d378-bounded-scale-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d378-bounded-scale-preparation.json",
+      "bytes": 1029,
+      "sha256": "bf043411f1ce0c72c3dadba436c4d8b4601a42159f8e8a6c9fb866affb8e5a21"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-preparation.json",
+      "bytes": 2765,
+      "sha256": "97e3ac3663c456f2c20f646abf4b13133b36cc03505d9c5ebf17af3165462205"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d372-bounded-cache-removal.mjs",
+      "bytes": 2782,
+      "sha256": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-store.mjs",
+      "bytes": 7820,
+      "sha256": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-index.mjs",
+      "bytes": 22104,
+      "sha256": "17ca38b5f1c2ccfbca8f024cd3c29dcd18b744c02e0cdf1e543a0b79f3534b26"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-benchmark-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-benchmark-entry-store.mjs",
+      "bytes": 15454,
+      "sha256": "d1102a15937d4691e74dfd2d66d482ee477547a7f7984dd6536a591fa54887f6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d353-owned-cache-lock.mjs",
+      "bytes": 4321,
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d360-benchmark-entry-store.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d360-benchmark-entry-store.mjs",
+      "bytes": 15454,
+      "sha256": "ff621a9673a5e737ed8394e31b089f9bb480d7cc85d8607de6b37735e3f6fe73"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d364-index-api-fixture-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d364-index-api-fixture-audit.json",
+      "bytes": 2730,
+      "sha256": "98ff772154d36bebac5dcf65edb7c0dfcf0d7ee2f1c3b31f7859dd7a084cba65"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d377-entry-memory-final-validation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d377-entry-memory-final-validation.json",
+      "bytes": 906,
+      "sha256": "f54c28ad7357f7a8432fa00c07c8387c4d55ee5a18a42b7f2f6017ce94ed7be3"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d380-record-bounded-scale.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d380-record-bounded-scale.py",
+      "bytes": 14838,
+      "sha256": "a28e678a4cd9cb2e06b7ab6c417be5f098a6c39916f434076af77a1dfd63d77b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-original-controls-input.json",
+      "bytes": 716329,
+      "sha256": "74453019b164f37af841054a539810101df40fbdbbd2d668237f5b1f5d428e5d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-original-controls-run.json",
+      "bytes": 704,
+      "sha256": "2ce9212b6ca73c0f96ddb052c3c4038094d143f6620e131933d2ac9a694bf8d9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-original-controls-result.json",
+      "bytes": 945,
+      "sha256": "feb75faf3187721ec07d3fa264872571e9fa3b900b57a6e4964d22f2b97bd4b6"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-original-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-original-controls.log",
+      "bytes": 879,
+      "sha256": "3878305edcccf334154551e5c81082e7feb5d1cb6b9d047d05ffdad6b29f8196"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-edge-controls-input.json",
+      "bytes": 716327,
+      "sha256": "6ae3efff1e9d0c5356d151b5aa475624d68ed37cf183c640c999cb0d7e8cc760"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-edge-controls-run.json",
+      "bytes": 699,
+      "sha256": "34abff73f57a7eb912cf56e737a50efe0909c5c06609a65b2f2dd7414cdfa765"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-edge-controls-result.json",
+      "bytes": 416,
+      "sha256": "84c351d42c3275dc770d50f26e481b60bc56001ba288a6c29fd65db2df4e2b7c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-edge-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-edge-controls.log",
+      "bytes": 417,
+      "sha256": "64f5228d433e412253002d93309b9b01bb7d7aada1e4b868779dd60b0b3455a7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-transaction-controls-input.json",
+      "bytes": 716341,
+      "sha256": "2f4d2e643e42a25c39def04f62c5c40f3a07a1a74d31dee588e603fe4f2978a9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-transaction-controls-run.json",
+      "bytes": 720,
+      "sha256": "cffb2e2d06993f32b1f41bcb0c8404b86417a81453a5bb7ba200fa0193d56e01"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-transaction-controls-result.json",
+      "bytes": 339,
+      "sha256": "def47d6d1e77eedaf6662db8e3ab77d1d92b3690f9a24f7ff049419248c5f967"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d375-entry-transaction-controls.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d375-entry-transaction-controls.log",
+      "bytes": 340,
+      "sha256": "3481a81b5224d68e27b4b8501dcfc651ca2b0b76d19dedbd30a461eb3f299439"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-boundaries-input.json",
+      "bytes": 715205,
+      "sha256": "b98200eef153c0bd901cff703213098ec3544c15fd26067694fd984dfccf91f9"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-boundaries-run.json",
+      "bytes": 578,
+      "sha256": "93f2b72e4ccb4bad9c0ff5408b621a86f6919d52824b94c88a7c23a98962f786"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-boundaries.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-boundaries.log",
+      "bytes": 469,
+      "sha256": "4ac18ce921afc25170372fe49fce3857ab98f8ee5dc14f36988b53b9504f84f8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-native-5000-input.json",
+      "bytes": 715218,
+      "sha256": "4dfcc8b1059c23678229c4314ba2a643e76d3ab90733afa5b898b8d9dab80b48"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-native-5000-run.json",
+      "bytes": 591,
+      "sha256": "91b626d2f101e9bf2ae0931b9cd768635eb7c2179139816216cf827280996c2e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-native-5000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-native-5000.log",
+      "bytes": 558,
+      "sha256": "a2a3abb6b6bcff730098cfa77e21553fbd4390150e3b45c85c06eb51e236bdb8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-bounded-5000-input.json",
+      "bytes": 715219,
+      "sha256": "3cd94b75defc28e24e3dfeeb6d357c7c3a33c415b233de523ce478109e46cf29"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-bounded-5000-run.json",
+      "bytes": 592,
+      "sha256": "d72276bcd5f6a6ca2d4a9b782f5da4f22c3ec3c1399da8d34a1ae5d78c71faaf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-bounded-5000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-bounded-5000.log",
+      "bytes": 785,
+      "sha256": "00302dde47ed59c03a3a523bf238636d84946d26c4f56370bf4a8377bc7bda69"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-negative-5000-input.json",
+      "bytes": 715220,
+      "sha256": "ddce9da30699b2c14d62c0db5e5af438b7a8c3078e4d06e6b337076a211bbb10"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-negative-5000-run.json",
+      "bytes": 595,
+      "sha256": "e863b7a37b2642ead6bece4a6224d6bffcdda6fbcb8734cb857f9af4feab3e6f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d374-cleanup-negative-5000.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d374-cleanup-negative-5000.log",
+      "bytes": 787,
+      "sha256": "c00fbc1ba798b2eb47637e3cd80bab635a3f9a8accf5084d6e9a0ebc516e9419"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-normal-index-full-api-input.json",
+      "bytes": 720097,
+      "sha256": "f70f103f14a58bd4934850ab45afc51763726ec2fb6ef8b116c3bb5df43013bf"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-normal-index-full-api-run.json",
+      "bytes": 731,
+      "sha256": "5be411523567e4125b5aec8487a51ddb04fd738c7468040371ae7a3853a8080e"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-normal-index-full-api-result.json",
+      "bytes": 18692,
+      "sha256": "3518a30a426c328b54ffcbbbce24397d0a4066e816229798b6945ba079eec3f8"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-normal-index-full-api.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-normal-index-full-api.log",
+      "bytes": 578,
+      "sha256": "9cbc89c1ac98f1ac8bcf3f73e373e636e1c84dcaf35eb70d36337aa3dc5deaf0"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-bounded-entry-full-api-input.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-bounded-entry-full-api-input.json",
+      "bytes": 720703,
+      "sha256": "316cff02ef972e4d006c0f7123acf96b21fb277487cf26c442b561e6ba4f8fe5"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-bounded-entry-full-api-run.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-bounded-entry-full-api-run.json",
+      "bytes": 730,
+      "sha256": "c2d7998ca49118924e56e15a10bca74c3f35c10898a5c501280f07637f4a854f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-bounded-entry-full-api-result.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-bounded-entry-full-api-result.json",
+      "bytes": 18985,
+      "sha256": "97b2da9340a3d2a1965a2fb4451ac83d7308596e22cea5e92e2a711d43f56e12"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-bounded-entry-full-api.log",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-bounded-entry-full-api.log",
+      "bytes": 7224,
+      "sha256": "1a4442056167ee28efc1620bfe20729a696c98ae4930b9a0b1facf8453d02b24"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d381-index-api-contract-audit.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d381-index-api-contract-audit.json",
+      "bytes": 2758,
+      "sha256": "ab7de469a3b2f3b0da8f138aa2b0002e3525e2c49f59363f6b894511812ad147"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-prepare-index-api.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-prepare-index-api.py",
+      "bytes": 5749,
+      "sha256": "b864e2f8ab1691afc2c9eb256fd5f643bb6ee665f2b5cea63f64040cdcbc7cbe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-prepare-index-api-initial.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-prepare-index-api-initial.py",
+      "bytes": 5749,
+      "sha256": "7ceaf27388851a2e3cf22703abbaa2ea936fd462ca7044ce8d0d60fce417a4a2"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-preparation-first-failure.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-preparation-first-failure.json",
+      "bytes": 468,
+      "sha256": "2cf1cdd06f225439861c8633b4eedbdb47edea3c72209ceb56b4d37aa544e23f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-index-api-preparation.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-index-api-preparation.json",
+      "bytes": 14142,
+      "sha256": "7609ae244c53f1554ae246787150aac1afd25c870a66b8d28a809511943fd36c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-index-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-index-api.test.ts",
+      "bytes": 53085,
+      "sha256": "393817e66afaf9e0b809fdd27672c88ccb33f1e3edca2195173531f1bf010cb1"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-dependency-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-dependency-api.test.ts",
+      "bytes": 1634,
+      "sha256": "ef7c928037388c2b3fbff21a1d017f8795c09928aacd69b7e0a023f629e36cbe"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-pending-api.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-pending-api.test.ts",
+      "bytes": 956,
+      "sha256": "38199eb50abb2eb6f56e03ac370c4d3d5c6ec35fa979916120fc340155c3e66c"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-index-api-vitest.config.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-index-api-vitest.config.mjs",
+      "bytes": 253,
+      "sha256": "39220f8ac1b5c9801a24f9e8e7ee0b66f6e92196d37ebefba4194a714cd2f3f7"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d382-normal-index-vitest.config.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d382-normal-index-vitest.config.mjs",
+      "bytes": 165,
+      "sha256": "7750a2fa97a10e95f885a921399fe30192477b86d1a9b138bd1cbd0990934179"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/d383-run.py",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/d383-run.py",
+      "bytes": 8896,
+      "sha256": "8b86cfd1492add89788c78f0f868f06367b3653fc8a25be6eb893b14447ee0e6"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/test/index.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/original-api-tests/index.test.ts",
+      "bytes": 52096,
+      "sha256": "ff5e746d32959c6b1f1cc94d77a2874ae8a307d2cb270105fb9c794b1de204be"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/test/dependency.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/original-api-tests/dependency.test.ts",
+      "bytes": 1618,
+      "sha256": "8d421b47db4e67fd8433ff71c5311f01f85bd75434bf4c7a84a276387149aaae"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/test/pending.test.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/original-api-tests/pending.test.ts",
+      "bytes": 940,
+      "sha256": "2bbc5dbe6101a87058b6f9bbe639daabf273feb4c0d9c60d88481e53aaabd808"
+    },
+    {
+      "source": "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/normal-baseline/scripts/benchmark-persistent-index.mjs",
+      "bytes": 14788,
+      "sha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/testkit/src/index.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/normal-baseline/packages/testkit/src/index.ts",
+      "bytes": 5979,
+      "sha256": "e97d56260533b2bf000ad71f0d2d87132bf1d418f57c3ac40d469913cb67eb39"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/testkit/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/normal-baseline/packages/testkit/dist/index.js",
+      "bytes": 5636,
+      "sha256": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/src/index.ts",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/normal-baseline/packages/index/src/index.ts",
+      "bytes": 24087,
+      "sha256": "caff9d34193523598200e1c8df1ff62f14ee8d188483b016b344065f8c98e7be"
+    },
+    {
+      "source": "/var/www/node/php-companion/packages/index/dist/index.js",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/normal-baseline/packages/index/dist/index.js",
+      "bytes": 23871,
+      "sha256": "e85942d00d51da71eba98e1fc4bf7864ee33667bfaed6655e4cdb12548532790"
+    },
+    {
+      "source": "/var/www/node/php-companion/docs/php-language-toolchain/reports/entry-cache-natural-gc-bounded-cleanup-trial-2026-10-07.json",
+      "path": "/var/www/node/php-companion/.vscode-test/d380-bounded-scale-evidence/entry-cache-natural-gc-bounded-cleanup-trial-2026-10-07.json",
+      "bytes": 190360,
+      "sha256": "79d2509d97b444e00400f1fb76ac080e9c52a519b427132b7b0b0e644f6c5924"
+    }
+  ]
+}

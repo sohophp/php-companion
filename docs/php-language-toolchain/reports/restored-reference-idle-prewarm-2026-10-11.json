@@ -1,0 +1,91 @@
+{
+  "auditedAtUtc": "2026-10-10T21:49:20.814609+00:00",
+  "qualified": true,
+  "scope": "Normal new bundle targeted persistent-reference regression, 62 related tests and original strict fixed-Winstar early-reload gate",
+  "normalBundleSha256": "b8a6df457165ab3dffa428dbc450ffa78ee987e9a987df2d5e30378fb989b53a",
+  "originalCheckerByteIdentical": true,
+  "controlledFailureThenPass": true,
+  "originalCrossProcessTestPassed": true,
+  "otherStdioTestsNotExecuted": 543,
+  "relatedTestsPassed": 62,
+  "projectInputs": 66079,
+  "strictToolInputs": 235,
+  "targetedInputs": 360,
+  "uniqueInputsVerified": 66440,
+  "phases": {
+    "cold": {
+      "references": 188,
+      "referencesMs": 16920,
+      "definitionMs": 28,
+      "locationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+      "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c"
+    },
+    "reload": {
+      "references": 188,
+      "referencesMs": 2035,
+      "definitionMs": 715,
+      "locationsSha256": "ade5ba8dc1cfbc3ff095d0148cd665b4654fa2588b84fe274f2fda79a02cb9be",
+      "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c"
+    }
+  },
+  "allObservedStrictProcessesGone": true,
+  "ownedCacheRemoved": true,
+  "sourceSelectionLatencyQualified": false,
+  "newFullLspQualified": false,
+  "fullSixModeMatrixQualified": false,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "archiveFiles": 46,
+  "archiveManifestSha256": "b940462e1256524518d789fc50e8fd93bb9f136c19193ca7d290ff62f7c44529",
+  "selectedReferenceCpuObservation": {
+    "auditedAtUtc": "2026-10-10T21:52:42.867439+00:00",
+    "terminalAuditQualified": true,
+    "performanceQualified": false,
+    "normalBundleSha256": "b8a6df457165ab3dffa428dbc450ffa78ee987e9a987df2d5e30378fb989b53a",
+    "cases": [
+      {
+        "prefix": "d1792",
+        "exitCode": 1,
+        "observedLanguageServers": 0,
+        "fixedInputMeasurementQualified": false,
+        "qualified": false,
+        "allObservedProcessesGone": true,
+        "ownedCacheRemoved": true
+      },
+      {
+        "prefix": "d1795",
+        "exitCode": 1,
+        "observedLanguageServers": 0,
+        "fixedInputMeasurementQualified": false,
+        "qualified": false,
+        "allObservedProcessesGone": true,
+        "ownedCacheRemoved": true
+      },
+      {
+        "prefix": "d1797",
+        "exitCode": 1,
+        "observedLanguageServers": 1,
+        "fixedInputMeasurementQualified": true,
+        "qualified": false,
+        "allObservedProcessesGone": true,
+        "ownedCacheRemoved": true
+      }
+    ],
+    "uniqueFrozenInputsVerified": 66318,
+    "queryMs": 3016,
+    "references": 188,
+    "definition": 1,
+    "logicalSourceUriSha256": "150426ceb9eece75caba3d1aee97d62cf354d015f1a0d532836bda444a94773c",
+    "profilesRetained": 7,
+    "mainThreadSamplesInQuery": 2583,
+    "clockAlignmentVerified": true,
+    "limits": [
+      "Two cwd preparation failures produced no LS query and are preserved separately.",
+      "Current CPU-observed cold References 3016ms still fails the original1000ms gate; reload was not executed.",
+      "Main-thread function/FS/idle samples guide a new investigation, not a unique proven cause, fix, or ordinary performance qualification."
+    ],
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "archiveFiles": 52
+  }
+}

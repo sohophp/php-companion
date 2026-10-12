@@ -1,0 +1,64 @@
+{
+  "recordedAtUtc": "2026-10-09T15:45:24.181613+00:00",
+  "engineBuildId": "75a09f181298e42df19158961ce9b61d34e9160c58172a0c53cebfc20597bf4f",
+  "recovery": {
+    "qualified": true,
+    "modes": [
+      "onDemand",
+      "experimental"
+    ],
+    "warmupPerMode": 100,
+    "editsPerMode": 1000
+  },
+  "ordinaryEditing": {
+    "correctnessPassed": 25,
+    "budgetPassed": 25,
+    "budgetMs": 150,
+    "maxAggregateP95Ms": 149.11
+  },
+  "productionScale": {
+    "qualified": false,
+    "passingRounds": 13,
+    "executedRounds": 14,
+    "plannedRounds": 15,
+    "failure": {
+      "files": 50000,
+      "round": 4,
+      "functionalPassed": true,
+      "failedGate": "warm hotQueries",
+      "completionP95Ms": 206.87779100000625,
+      "originalBudgetMs": 150,
+      "warmPeakRssMiB": 1166.29296875,
+      "lastRoundExecuted": false,
+      "causeProven": false
+    },
+    "scope": "Original progressive production-server cold/warm workload; direct-package four-load persistence remains separate"
+  },
+  "archives": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1397-publication-handoff-recovery-evidence/manifest.json",
+      "sha256": "c58745298f84d074a17dd229f22b6141e901c7281f44de935ad6b087804892ff"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1398-publication-handoff-ordinary-editing-evidence/manifest.json",
+      "sha256": "bacbd83d5d7a95fc21a2ebbec87df7d02f324e97394dcad6ac6367d0dad2df70"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d1399-publication-handoff-scale-failure-evidence/manifest.json",
+      "sha256": "7399a28950458a14cf6f246fd4aa1dc863816ec4b47525d4f4ae3ba9130623bd"
+    }
+  ],
+  "fullLspQualified": true,
+  "fourLinuxWorkflowsQualified": true,
+  "nativeWindowsOriginalC2Qualified": true,
+  "completeTwelveExtensionProfileQualified": true,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "remaining": [
+    "Cold first feedback and failed 50k warm completion P95; original scale qualification remains incomplete",
+    "Remaining platforms/modes/versions, long sessions and real WSL/manual acceptance",
+    "Full original C1-C4/R4 and P0-P9/F01-F14 contracts, fixtures, advanced abilities, refactors, packages and final deliverables"
+  ]
+}

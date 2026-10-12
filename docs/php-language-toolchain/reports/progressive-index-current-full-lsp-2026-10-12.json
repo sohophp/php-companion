@@ -1,0 +1,70 @@
+{
+  "auditedAtUtc": "2026-10-11T16:53:37.601822+00:00",
+  "terminalAuditQualified": true,
+  "fullCurrentLspQualified": true,
+  "normalBundleSha256": "552febd5536d4e070e1206e07ea0294ff6a3cd0b92bf5f7adca00a288ff21faf",
+  "files": 127,
+  "totalCases": 1542,
+  "passedCases": 1542,
+  "failedCases": 0,
+  "pendingCases": 0,
+  "todoCases": 0,
+  "failures": [],
+  "original1540IdentitiesPreserved": true,
+  "original1530IdentitiesPreserved": true,
+  "original1526IdentitiesPreserved": true,
+  "original1520IdentitiesPreserved": true,
+  "original1514IdentitiesPreserved": true,
+  "original1487IdentitiesPreserved": true,
+  "originalRetryCaseExpandedToFiveEvidenceVariants": true,
+  "addedCaseIdentities": 2,
+  "frozenInputsCheckedByRunner": 30158,
+  "targetedInputsRecheckedAtAudit": 620,
+  "frozenSymlinksRechecked": 184,
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/candidateWorker.js.map": "ad2db059c4311330acc30695b232a4188ff42aef72f22931c242791aa11711ad",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js.map": "6ec4800ee464762a40e1e051ead274a2d9f8bd0c385c7136bf4dd3d89ae9aed3",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "/var/www/node/php-companion/dist/extension.js": "9cf95914d1bd7abf85fc29118d2dd436062a4f198ecc25c52af806090f8e8e25",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "ae9d65ccf8774c587e0f807c00f22f07f7a4979def9e70649e37c175c10c5980",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "496cd74d759ef5e1550dfe1edfe057c8e9b6a28bc0f4057c5824862f73c7ba39",
+    "/var/www/node/php-companion/dist/language-server.js": "552febd5536d4e070e1206e07ea0294ff6a3cd0b92bf5f7adca00a288ff21faf",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "9e94c12af144b11009bf4e220b6c77dd9145f9149253984d918c0ed4e675e509",
+    "/var/www/node/php-companion/dist/extension.js.map": "831ba56af96f0669a10aa9e4993eb9c6588e249c44d3b5f6833329341eb54421",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js.map": "43f0d5ba3f38ca21c31bc1696c3425b87c85c627a5d5e529ac56c900901e35eb",
+    "/var/www/node/php-companion/dist/language-server.js.map": "71749765348f2f22dda48eb91943048aca445812335662c60d374e30d7e2632d"
+  },
+  "changedInputs": [],
+  "changedSymlinks": [],
+  "repositoryChanges": [],
+  "allOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    28079,
+    29580
+  ],
+  "constructorPhaseTraces": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d2245-current-full-lsp-constructor-traces/constructor-8.5.jsonl",
+      "sha256": "13ebb44a0677f4fc587d5c231beb2a9efee72be50f806c20ee2f27b9521ca17f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d2245-current-full-lsp-constructor-traces/constructor-7.2.jsonl",
+      "sha256": "ab4c541b182e574f33bec6deb6e63b11941aa694c18d6f17edb13bcb0565b424"
+    }
+  ],
+  "fullPerformanceQualified": false,
+  "fullEditorQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "archiveFilesRechecked": 303,
+  "fixtureIds": 177,
+  "fixtureFamilies": 14,
+  "uncheckedMajorRoadmapItems": 26,
+  "previousFullFailuresPreserved": [
+    "d2218-current-full-lsp-result.json",
+    "d2235-current-full-lsp-result.json"
+  ],
+  "originalFullFailureUniqueRootCauseProven": false
+}

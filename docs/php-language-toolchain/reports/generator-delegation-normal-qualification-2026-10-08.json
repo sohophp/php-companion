@@ -1,0 +1,556 @@
+{
+  "status": "normal-generator-delegation-qualified",
+  "recordedAtUtc": "2026-10-08T09:51:44.274222+00:00",
+  "normalSourceAdopted": true,
+  "profileUpdated": false,
+  "fullObjectiveComplete": false,
+  "semanticFiles": 161,
+  "semanticCases": 23391,
+  "rootUnitCases": 113,
+  "focusedProductionProtocolCases": 24,
+  "fullLsp": {
+    "status": "exited",
+    "parentPid": 2071113,
+    "startedAtUtc": "2026-10-08T09:15:43.828123+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+      "run",
+      "--reporter=json",
+      "--outputFile=/var/www/node/php-companion/.vscode-test/d815-normal-generator-full-lsp-result.json"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d815-normal-generator-full-lsp-input.json",
+    "normalSourceAdopted": true,
+    "fullObjectiveComplete": false,
+    "childPid": 2071183,
+    "exitCode": 0,
+    "durationSeconds": 2135.411316976999,
+    "finishedAtUtc": "2026-10-08T09:51:19.240481+00:00",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "logSha256": "4a2b55f7f69df947e686880f1664b2e681ac349accd8560d65b8cca915324a91",
+    "result": {
+      "success": true,
+      "numTotalTests": 1361,
+      "numPassedTests": 1361,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "caseMultiplicityPreserved": true,
+    "missingCases": [],
+    "extraCases": [],
+    "actualFiles": 105,
+    "resultSha256": "01f96f6c6b19cc1fde8471162d73a5dba35c173b588317cbd811d9881c8a8a9d",
+    "evidenceValid": true,
+    "qualified": true
+  },
+  "frozenInputCount": 18770,
+  "originalLspCases": 1357,
+  "newGeneratorLspCases": 4,
+  "originalFailedFullLsp": {
+    "status": "exited",
+    "parentPid": 2009315,
+    "startedAtUtc": "2026-10-08T08:27:41.209546+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/node_modules/vitest/vitest.mjs",
+      "run",
+      "--reporter=json",
+      "--outputFile=/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-result.json"
+    ],
+    "manifest": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-input.json",
+    "normalSourceAdopted": true,
+    "fullObjectiveComplete": false,
+    "childPid": 2009355,
+    "exitCode": 1,
+    "durationSeconds": 2144.2834167679976,
+    "finishedAtUtc": "2026-10-08T09:03:25.494015+00:00",
+    "changedInputs": [],
+    "changedSymlinks": [],
+    "repositoryChanges": [],
+    "logSha256": "250892137905e5b933795f423e7dd2ae06c0db033355b1a093dd374abe6c61fc",
+    "result": {
+      "success": false,
+      "numTotalTests": 1361,
+      "numPassedTests": 1360,
+      "numFailedTests": 1,
+      "numPendingTests": 0,
+      "numTodoTests": 0
+    },
+    "caseMultiplicityPreserved": true,
+    "missingCases": [],
+    "extraCases": [],
+    "actualFiles": 105,
+    "resultSha256": "7a01e90b00d8a41d089f5c2055f056297fec370655fc08771c8b7ec8c738fd7b",
+    "evidenceValid": true,
+    "qualified": false
+  },
+  "constructorObservationCorrected": true,
+  "constructorPositiveControlAdded": true,
+  "normalRuntimeFiles": [
+    {
+      "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+      "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+      "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/extension.js",
+      "sha256": "a6adaf30da16ebf929007994e64d5455a515c8421abc09912c0dde611059286c"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/language-server.js",
+      "sha256": "71640be8c91fd5688964b4a66c65a01021345b9369bbb046b4330f6cc9a048ff"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+      "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+    },
+    {
+      "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+    }
+  ],
+  "originalFullLinuxWorkflows": [
+    {
+      "name": "d778-generator-full-c3-onDemand",
+      "suite": "c3",
+      "mode": "onDemand",
+      "status": "exited",
+      "childPid": 1986031,
+      "command": [
+        "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+        "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+        "--evidence",
+        "/var/www/node/php-companion/.vscode-test/d778-generator-full-c3-onDemand-owned-display",
+        "--",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/dist-test/runTest.js"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 260.81480285500584,
+      "logSha256": "c091371c3e2784b013d9f43dbc111a3682dbe32ac3d4063b0746ea6f2a96d3a0",
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "changedRepositories": [],
+      "acceptanceProofExists": true,
+      "observerEvidence": [
+        {
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return \\debug_backtrace()[1]['class'] === C3MemberObserverSource::class ? $value + 1 : $value + 2;}}",
+          "helperVersion": 2
+        }
+      ],
+      "operatorEvidence": [
+        {
+          "name": "echo",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {echo new C3MemberObserverProbe(); return $value + 1;}} final class C3MemberObserverProbe {public function __toString(): string {return \\debug_backtrace()[2]['class'];}}"
+        },
+        {
+          "name": "clone",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return (clone new C3MemberObserverProbe())->result;}} final class C3MemberObserverProbe {public int $result=3; public function __clone() {$this->result=\\debug_backtrace()[2]['class'] === C3MemberObserverSource::class ? 3 : 4;}}"
+        },
+        {
+          "name": "isset",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return isset((new C3MemberObserverProbe())->result) ? 3 : 4;}} /** @property-read int $result */ final class C3MemberObserverProbe {public function __isset($name): bool {return \\debug_backtrace()[2]['class'] === C3MemberObserverSource::class;}}"
+        },
+        {
+          "name": "count",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return count(new C3MemberObserverProbe());}} final class C3MemberObserverProbe implements \\Countable {public function count(): int {return \\array_column(\\debug_backtrace(), 'class')[2] === C3MemberObserverSource::class ? 3 : 4;}}"
+        },
+        {
+          "name": "serialize",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(serialize(new C3MemberObserverProbe()), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __serialize(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+        },
+        {
+          "name": "json",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return json_encode(new C3MemberObserverProbe()) === json_encode(C3MemberObserverSource::class) ? 3 : 4;}} final class C3MemberObserverProbe implements \\JsonSerializable {public function jsonSerialize(): string {return \\array_column(\\debug_backtrace(), 'class')[2];}}"
+        },
+        {
+          "name": "debug",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(print_r(new C3MemberObserverProbe(), true), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __debugInfo(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+        }
+      ],
+      "generatorEvidence": [],
+      "qualified": true
+    },
+    {
+      "name": "d778-generator-full-c1-onDemand",
+      "suite": "c1",
+      "mode": "onDemand",
+      "status": "exited",
+      "childPid": 1994357,
+      "command": [
+        "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+        "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+        "--evidence",
+        "/var/www/node/php-companion/.vscode-test/d778-generator-full-c1-onDemand-owned-display",
+        "--",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/dist-test/runTest.js"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 118.53920424700482,
+      "logSha256": "c853014ea680b3fe97383ef5dfe3787d95032c900b39405db2c1fe9edd383732",
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "changedRepositories": [],
+      "acceptanceProofExists": true,
+      "observerEvidence": [],
+      "operatorEvidence": [],
+      "generatorEvidence": [],
+      "qualified": true
+    },
+    {
+      "name": "d778-generator-full-c2-onDemand",
+      "suite": "c2",
+      "mode": "onDemand",
+      "status": "exited",
+      "childPid": 1997883,
+      "command": [
+        "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+        "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+        "--evidence",
+        "/var/www/node/php-companion/.vscode-test/d778-generator-full-c2-onDemand-owned-display",
+        "--",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/dist-test/runTest.js"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 142.3224152490002,
+      "logSha256": "3e3d8314f2c22d133d5da69e26ce080bbd4d431232812114b80e9066302f6181",
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "changedRepositories": [],
+      "acceptanceProofExists": true,
+      "observerEvidence": [],
+      "operatorEvidence": [],
+      "generatorEvidence": [
+        [
+          {
+            "state": "result",
+            "version": 1,
+            "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Result>",
+            "mismatchLines": [
+              13
+            ]
+          },
+          {
+            "state": "other",
+            "version": 2,
+            "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Other>",
+            "mismatchLines": [
+              12
+            ]
+          },
+          {
+            "state": "array",
+            "version": 3,
+            "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, null>",
+            "mismatchLines": [
+              12,
+              13
+            ]
+          },
+          {
+            "state": "unknown",
+            "version": 4,
+            "signature": "delegated(): \\Generator",
+            "mismatchLines": []
+          },
+          {
+            "state": "result",
+            "version": 5,
+            "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Result>",
+            "mismatchLines": [
+              13
+            ]
+          },
+          {
+            "state": "unknown",
+            "version": 6,
+            "signature": "delegated(): \\Generator",
+            "mismatchLines": []
+          },
+          {
+            "state": "result",
+            "version": 7,
+            "signature": "delegated(): Generator<int, App\\Service\\C2GeneratorDelegation\\Item, mixed, App\\Service\\C2GeneratorDelegation\\Result>",
+            "mismatchLines": [
+              13
+            ]
+          }
+        ]
+      ],
+      "qualified": true
+    },
+    {
+      "name": "d778-generator-full-c3-progressive",
+      "suite": "c3",
+      "mode": "progressive",
+      "status": "exited",
+      "childPid": 2000516,
+      "command": [
+        "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+        "/var/www/node/php-companion/.vscode-test/d639-run-owned-display.py",
+        "--evidence",
+        "/var/www/node/php-companion/.vscode-test/d778-generator-full-c3-progressive-owned-display",
+        "--",
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/dist-test/runTest.js"
+      ],
+      "exitCode": 0,
+      "durationSeconds": 243.24968236900168,
+      "logSha256": "a87fa5e2e0d60a49cbdbe4b6e23d16bec2c81759a636ba6b098354a7b0916f79",
+      "changedInputs": [],
+      "changedSymlinks": [],
+      "changedRepositories": [],
+      "acceptanceProofExists": true,
+      "observerEvidence": [
+        {
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return \\debug_backtrace()[1]['class'] === C3MemberObserverSource::class ? $value + 1 : $value + 2;}}",
+          "helperVersion": 2
+        }
+      ],
+      "operatorEvidence": [
+        {
+          "name": "echo",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {echo new C3MemberObserverProbe(); return $value + 1;}} final class C3MemberObserverProbe {public function __toString(): string {return \\debug_backtrace()[2]['class'];}}"
+        },
+        {
+          "name": "clone",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return (clone new C3MemberObserverProbe())->result;}} final class C3MemberObserverProbe {public int $result=3; public function __clone() {$this->result=\\debug_backtrace()[2]['class'] === C3MemberObserverSource::class ? 3 : 4;}}"
+        },
+        {
+          "name": "isset",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return isset((new C3MemberObserverProbe())->result) ? 3 : 4;}} /** @property-read int $result */ final class C3MemberObserverProbe {public function __isset($name): bool {return \\debug_backtrace()[2]['class'] === C3MemberObserverSource::class;}}"
+        },
+        {
+          "name": "count",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return count(new C3MemberObserverProbe());}} final class C3MemberObserverProbe implements \\Countable {public function count(): int {return \\array_column(\\debug_backtrace(), 'class')[2] === C3MemberObserverSource::class ? 3 : 4;}}"
+        },
+        {
+          "name": "serialize",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(serialize(new C3MemberObserverProbe()), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __serialize(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+        },
+        {
+          "name": "json",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return json_encode(new C3MemberObserverProbe()) === json_encode(C3MemberObserverSource::class) ? 3 : 4;}} final class C3MemberObserverProbe implements \\JsonSerializable {public function jsonSerialize(): string {return \\array_column(\\debug_backtrace(), 'class')[2];}}"
+        },
+        {
+          "name": "debug",
+          "result": false,
+          "source": "<?php namespace App\\Service; final class C3MemberObserverSource {public static function moveObserverProof(int $value): int {return C3MemberObserverHelper::value($value);}}",
+          "target": "<?php namespace App\\Service; final class C3MemberObserverTarget {}",
+          "caller": "<?php namespace App\\Service; function c3MemberObserverCaller(): int {return C3MemberObserverSource::moveObserverProof(2);}",
+          "helper": "<?php namespace App\\Service; final class C3MemberObserverHelper {public static function value(int $value): int {return strpos(print_r(new C3MemberObserverProbe(), true), C3MemberObserverSource::class) !== false ? 3 : 4;}} final class C3MemberObserverProbe {public function __debugInfo(): array {return ['caller'=>\\array_column(\\debug_backtrace(), 'class')[2]];}}"
+        }
+      ],
+      "generatorEvidence": [],
+      "qualified": true
+    }
+  ],
+  "generatorSevenStateEditorWorkflowQualified": true,
+  "originalConsumerFixtureAssertionsAndCallOrderPreserved": true,
+  "firstProductionFailurePreserved": true,
+  "rejectedFixtureReorderingPreserved": true,
+  "nativeDelegationCases": 99,
+  "nativeLocalCallCases": 45,
+  "nativeVersions": [
+    "7.2",
+    "7.3",
+    "7.4",
+    "8.0",
+    "8.1",
+    "8.2",
+    "8.3",
+    "8.4",
+    "8.5"
+  ],
+  "ordinaryEditingRemeasured": false,
+  "historicalOrdinaryEditingCorrectRounds": 25,
+  "historicalOrdinaryEditingWithin150msRounds": 23,
+  "remaining": [
+    "C1-C4/R4",
+    "P0-P9/F01-F14",
+    "TSend and advanced type/control-flow coverage",
+    "general refactoring",
+    "ordinary editing budget",
+    "warm cache wait and 50k margin",
+    "other platforms/versions/tool combinations",
+    "long sessions and real WSL"
+  ],
+  "evidence": [
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d748-generator-delegation-native.json",
+      "sha256": "ec4928f00ddecbb95baeecc4739d7c8fd7a35737768d6e1c6d41f351acbc11f4"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d760-generator-full-semantic-run.json",
+      "sha256": "5ea1cf67490e51dadf617e571677b0d6ad309224a60cf4f69f41917d599c00c5"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d763-generator-production-qualification.json",
+      "sha256": "3df4ca709415272d88894df62fcc9dda959d31622d54770e40f55ab495ae69c2"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d764-generator-diagnostic.json",
+      "sha256": "545569e84255d4bd2c5a9f42570a4cb96a040287ee70bc9dff828c8ab6e94700"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d765-generator-consumer-order-preparation.json",
+      "sha256": "a54db3d411ee1a6878932d5ad30cf20bd5f0bcb6f5556252fa41cd39bf213b3f"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d766-generator-consumer-boundaries-result.json",
+      "sha256": "152a4f3752976ad295ba3690b09733b2a552bd1a7d13b581aa1b138076974bac"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d768-generator-local-call-preparation.json",
+      "sha256": "0dc8fe9c4368633bcc0cef2c95ce12674fefe419f89f82b857de5b6a551cc93e"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d769-generator-local-calls-result.json",
+      "sha256": "167d1e0588e65e326c33e6eb8d72e4d0ec402a7b60d486607f0b6f26dbcf4702"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d770-generator-local-call-native.json",
+      "sha256": "d8cfbab8690e4539c4e500d385c003960ff18ed95c921dd1bae9086d3ab392b7"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d771-generator-local-call-qualification.json",
+      "sha256": "1e3185084123b8f53d60c579d30bfd1726c979ab2812a9287f5806ff24a81f61"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d772-generator-host-qualification.json",
+      "sha256": "225003d10543625a164281726b96142f98cc2cfbe9f6150956b591b3737b1127"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d774-generator-normal-adoption/adoption.json",
+      "sha256": "f63898301d51489d1e07e038c0aa0bf4574f5727bb3eff6c0997b94a8a230d38"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d775-normal-generator-verification.json",
+      "sha256": "391efefc9bf285917816ec575ee270c0d024442ee4c8ca486740243c6b85c174"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d778-generator-host-qualification.json",
+      "sha256": "1e90c1f5525d8a763874580c86baca24dd741a7209a037e271d9f1018f87c73b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-input.json",
+      "sha256": "df7b097c33347e714b9c10dd6d4334223ad5c7ebfeca7437678aedd4b309cdfa"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-run.json",
+      "sha256": "8627f657d8e8be89ea57b68e1be7d4d81c346fcd03108833ca5ec418bf6e74a2"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d776-normal-generator-full-lsp-result.json",
+      "sha256": "7a01e90b00d8a41d089f5c2055f056297fec370655fc08771c8b7ec8c738fd7b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d777-generator-normal-qualification-pipeline.json",
+      "sha256": "761b59613a4a2ef544a9b00d14f884925807d15d788eb24996e27fa2a501d07b"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d812-constructor-history-diagnosis.json",
+      "sha256": "b051a3cd28eacad6f6732c4d022dafc2f2bceebbf81ba1a9712b877de14fe574"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d812-constructor-history-adoption.json",
+      "sha256": "91713c3af78cb1f0c2adb3e83ae161b3e38e52325f83fe655d36327c6e367806"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d813-normal-canonical-construction-result.json",
+      "sha256": "6fba01a8e1c723b33975c3b5bae0b5afc2a76596713b14d68d05db4bd900fed6"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d814-constructor-observation-document-validation.json",
+      "sha256": "89b1908b143d2bd4d2d7056352b422a078890cd6a10218e1c9abdc51ec1ebe39"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d815-normal-generator-full-lsp-input.json",
+      "sha256": "7d5b7d3a604a2980ff4f74f15a1a980fa7f97ae72efad6009f25286f42554a58"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d815-normal-generator-full-lsp-run.json",
+      "sha256": "ee4572a3bf289487c76f5689ab2881527648a5f5fb4391256a1e4dadff3fb079"
+    },
+    {
+      "path": "/var/www/node/php-companion/.vscode-test/d815-normal-generator-full-lsp-result.json",
+      "sha256": "01f96f6c6b19cc1fde8471162d73a5dba35c173b588317cbd811d9881c8a8a9d"
+    }
+  ]
+}

@@ -1,0 +1,2107 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "completed",
+  "decision": "encoded-facts-single-round-scale-passed-not-adopted",
+  "normalProductChanged": false,
+  "candidateAdopted": false,
+  "qualification": false,
+  "implementation": "Private source-built lossless encoded implementation facts. Full existing validators run before encoding. File facts and each callable are encoded separately; only actual fact reads decode. Metadata-only state access remains lazy. Inputs outside the checked ordinary JSON data-tree subset, including the tested shared, accessor, frozen-array and exotic cases, or encoding exceptions retain the original representation.",
+  "controls": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "qualification": false,
+    "buildOutputsEqualToNormal": 32,
+    "onlyChangedCompiledCode": "index.js",
+    "sourceReverseExact": true,
+    "originalContractAssertionsUnchanged": true,
+    "contracts": {
+      "total": 46,
+      "originalDeferredIsolationCases": 24,
+      "newStorageBoundaries": 22,
+      "initialFailureRetained": true,
+      "caseIdentityAndMultiplicityPreserved": true
+    },
+    "parity": {
+      "inputs": 95,
+      "comparisons": 2053,
+      "negativeChecks": 1958,
+      "inputCorpusUnchanged": true,
+      "snapshotUnchanged": true
+    },
+    "fullSemantic": {
+      "files": 146,
+      "passed": 22836,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "caseIdentityAndMultiplicityPreserved": true,
+      "privateEntryResolutionRequests": 143
+    },
+    "fullSemanticRun": {
+      "status": "exited",
+      "parentPid": 977376,
+      "childPid": 977483,
+      "startedAtUtc": "2026-10-07T16:46:10.345495+00:00",
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--config",
+        ".vscode-test/d405-full-semantic.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d405-full-semantic-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d405-full-semantic-input.json",
+      "exitCode": 0,
+      "durationSeconds": 402.3675544240032,
+      "finishedAtUtc": "2026-10-07T16:52:52.712034+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "03ee5850b7be67a49564b380fa339714867906bff8e717fb0eed850cb113aa74"
+    },
+    "benchmarkBodyEqualsPreviousCompleteCandidateExceptSemanticImport": true,
+    "currentNormalSourceSha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6",
+    "currentNormalDistSha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16",
+    "candidateSourceSha256": "670f6413b9b2923197dc99b8d57dae267ed5a66f4a93af0928119e211972ffb1",
+    "candidateDistSha256": "66ff5be8f03035c7fae20533ba31c4d66197ffe1199bf9ba3791d67270d7bf12",
+    "correctedCandidateSourceDiff": [
+      "--- normal-source\n",
+      "+++ private-lossless-encoded-facts\n",
+      "@@ -1210,6 +1210,92 @@\n",
+      " ",
+      " type ImplementationRange = Omit<SemanticCallableImplementationRecord, 'facts'>;",
+      " ",
+      "+// Private experiment: encode only lossless ordinary JSON trees after the",
+      "+// existing complete declaration, implementation and derived-layer validation.",
+      "+// Exotic or shared graphs keep the original representation and support domain.",
+      "+function losslessImplementationJsonTree(value: unknown): boolean {",
+      "+  const pending: unknown[] = [value]; const seen = new Set<object>();",
+      "+  while (pending.length) {",
+      "+    const current = pending.pop();",
+      "+    if (current === null || typeof current === 'string' || typeof current === 'boolean') continue;",
+      "+    if (typeof current === 'number') {",
+      "+      if (!Number.isFinite(current) || Object.is(current, -0)) return false;",
+      "+      continue;",
+      "+    }",
+      "+    if (!current || typeof current !== 'object' || seen.has(current)) return false;",
+      "+    seen.add(current);",
+      "+    const array = Array.isArray(current);",
+      "+    if (Object.getPrototypeOf(current) !== (array ? Array.prototype : Object.prototype) || 'toJSON' in current) return false;",
+      "+    const keys = Reflect.ownKeys(current);",
+      "+    if (array) {",
+      "+      const length = Object.getOwnPropertyDescriptor(current, 'length');",
+      "+      if (!length || !('value' in length) || !length.writable || length.enumerable || length.configurable",
+      "+        || keys.length !== (current as unknown[]).length + 1) return false;",
+      "+    }",
+      "+    for (const key of keys) {",
+      "+      if (typeof key !== 'string') return false;",
+      "+      if (array && key === 'length') continue;",
+      "+      if (array && (!/^(?:0|[1-9][0-9]*)$/.test(key) || Number(key) >= (current as unknown[]).length)) return false;",
+      "+      const descriptor = Object.getOwnPropertyDescriptor(current, key);",
+      "+      if (!descriptor || !('value' in descriptor) || !descriptor.enumerable || !descriptor.configurable || !descriptor.writable) return false;",
+      "+      pending.push(descriptor.value);",
+      "+    }",
+      "+  }",
+      "+  return true;",
+      "+}",
+      "+",
+      "+class EncodedImplementationFacts {",
+      "+  private serialized: string | undefined;",
+      "+  private decoded: SemanticImplementationFacts | undefined;",
+      "+  constructor(serialized: string) { this.serialized = serialized; }",
+      "+  read(): SemanticImplementationFacts {",
+      "+    if (!this.decoded) {",
+      "+      const decoded = JSON.parse(this.serialized!) as SemanticImplementationFacts;",
+      "+      this.decoded = decoded; this.serialized = undefined;",
+      "+    }",
+      "+    return this.decoded;",
+      "+  }",
+      "+}",
+      "+",
+      "+class EncodedCallableImplementation implements SemanticCallableImplementationRecord {",
+      "+  readonly identity: string;",
+      "+  readonly kind: SemanticCallableImplementationRecord['kind'];",
+      "+  readonly start: number;",
+      "+  readonly end: number;",
+      "+  private readonly storage: EncodedImplementationFacts;",
+      "+  constructor(record: SemanticCallableImplementationRecord, serialized: string) {",
+      "+    this.identity = record.identity; this.kind = record.kind;",
+      "+    this.start = record.start; this.end = record.end;",
+      "+    this.storage = new EncodedImplementationFacts(serialized);",
+      "+  }",
+      "+  get facts(): SemanticImplementationFacts { return this.storage.read(); }",
+      "+}",
+      "+",
+      "+class EncodedImplementationSnapshot implements SemanticImplementationSnapshot {",
+      "+  readonly uri: string;",
+      "+  readonly source: string;",
+      "+  readonly callables: SemanticCallableImplementationRecord[];",
+      "+  private readonly storage: EncodedImplementationFacts;",
+      "+  constructor(snapshot: SemanticImplementationSnapshot, serialized: string, callables: SemanticCallableImplementationRecord[]) {",
+      "+    this.uri = snapshot.uri; this.source = snapshot.source; this.callables = callables;",
+      "+    this.storage = new EncodedImplementationFacts(serialized);",
+      "+  }",
+      "+  get file(): SemanticImplementationFacts { return this.storage.read(); }",
+      "+}",
+      "+",
+      "+function encodedImplementationSnapshot(snapshot: SemanticImplementationSnapshot): SemanticImplementationSnapshot {",
+      "+  try {",
+      "+    if (!losslessImplementationJsonTree(snapshot)) return snapshot;",
+      "+    const serializedFile = JSON.stringify(snapshot.file);",
+      "+    const callables = snapshot.callables.map((record) => new EncodedCallableImplementation(record, JSON.stringify(record.facts)));",
+      "+    return new EncodedImplementationSnapshot(snapshot, serializedFile, callables);",
+      "+  } catch {",
+      "+    // Encoding must never add a new rejection or replace accepted state with",
+      "+    // a partially encoded snapshot. The existing representation remains valid.",
+      "+    return snapshot;",
+      "+  }",
+      "+}",
+      "+",
+      " interface DeferredImplementation {",
+      "   snapshot: SemanticImplementationSnapshot;",
+      "   loadedCallables: Set<string>;",
+      "@@ -1700,7 +1786,7 @@\n",
+      " ",
+      "   private deferredSemanticFile(file: SemanticFile, implementation: SemanticImplementationSnapshot): SemanticFile {",
+      "     const deferred: DeferredImplementation = {",
+      "-      snapshot: implementation,",
+      "+      snapshot: encodedImplementationSnapshot(implementation),",
+      "       loadedCallables: new Set(),",
+      "       fileFactsLoaded: false,",
+      "       facts: emptyImplementationFacts(),",
+      "@@ -1731,7 +1817,7 @@\n",
+      "     this.referenceResultCache.clear();",
+      "     deferred.fileFactsLoaded = true;",
+      "     const callables = deferred.snapshot.callables.filter((record) => deferred.loadedCallables.has(record.identity));",
+      "-    deferred.facts = mergedImplementationFacts({ ...deferred.snapshot, callables });",
+      "+    deferred.facts = mergedImplementationFacts({ uri: deferred.snapshot.uri, source: deferred.snapshot.source, file: deferred.snapshot.file, callables });",
+      "     this.controlFlowAssignments.set(uri, new Set(deferred.facts.controlFlowAssignments));",
+      "     if (callables.length !== deferred.snapshot.callables.length) return;",
+      "     this.deferredImplementations.delete(uri);"
+    ],
+    "scope": "Source-built private implementation only. Full original semantic cases pass with metadata-only access, focused hydration, snapshots, corruption checks, exotic-input fallback, source update/removal/disposal controls. No scale, runtime integration, platform or adoption qualification yet."
+  },
+  "restoredToolParity": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "qualification": false,
+    "inputs": 95,
+    "encodedRestores": 95,
+    "snapshots": 190,
+    "stateComparisons": 10580,
+    "counts": {
+      "completeMembers": {
+        "comparisons": 1165,
+        "nonempty": 46
+      },
+      "memberAt": {
+        "comparisons": 1165,
+        "nonempty": 37
+      },
+      "functionAt": {
+        "comparisons": 1165,
+        "nonempty": 6
+      },
+      "constantAt": {
+        "comparisons": 1165,
+        "nonempty": 0
+      },
+      "typeAt": {
+        "comparisons": 1165,
+        "nonempty": 93
+      },
+      "variableValueAt": {
+        "comparisons": 1165,
+        "nonempty": 82
+      },
+      "signatures": {
+        "comparisons": 1165,
+        "nonempty": 26
+      },
+      "references": {
+        "comparisons": 1165,
+        "nonempty": 451
+      },
+      "completeVariables": {
+        "comparisons": 1165,
+        "nonempty": 294
+      },
+      "unresolvedTypeReferences": {
+        "comparisons": 95,
+        "nonempty": 47
+      },
+      "undefinedVariables": {
+        "comparisons": 95,
+        "nonempty": 1
+      },
+      "missingRequiredArguments": {
+        "comparisons": 95,
+        "nonempty": 1
+      },
+      "incompatibleArguments": {
+        "comparisons": 95,
+        "nonempty": 5
+      },
+      "unknownNamedArguments": {
+        "comparisons": 95,
+        "nonempty": 0
+      },
+      "argumentOrderProblems": {
+        "comparisons": 95,
+        "nonempty": 1
+      },
+      "neverReturningCalls": {
+        "comparisons": 95,
+        "nonempty": 2
+      }
+    },
+    "inputHashes": [
+      {
+        "name": "test/extension/baseline/config/services.php",
+        "sha256": "6ff8c614854303b36f9d4114b897759d611c572cc53d313414107c7e17282c24"
+      },
+      {
+        "name": "test/extension/baseline/src/Broken.php",
+        "sha256": "7b5253afd991eecf9dc6042aff86c80e3195a1d51904cc33e994e3812cae2bf8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/ExportContract.php",
+        "sha256": "a8f2cd1134c000ca0cea17366863a6760da750176c7418e7255458f97b0aa55f"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Mailer.php",
+        "sha256": "a2c6450fb1d6888ba93947f7dc9f6847c3e2b18430068fab4bc2b32ceb1d403c"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/MessageHandler.php",
+        "sha256": "c16e090976572a8163b6da1e000526661c8bd234fdde0b1958d24b12d3711bc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/baseline/src/Contract/Traceable.php",
+        "sha256": "887bfb3b18078a2d3676283df588f2adf059d4491d6a0e951640943e9f7a3171"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BooleanLiteralBranchConsumer.php",
+        "sha256": "64cc1874ede6de22033b3ee9197848ad8e56a8e6574da9ef70243cf5654d7f42"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/BuiltinConsumer.php",
+        "sha256": "5f87ddc7d1ada19b9fe680f1fb836d830f65cd87edd07407b1080f29b9b2fc2d"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ClassConstantConsumer.php",
+        "sha256": "a27dd202f8402f65eb589437bd088f1690dc08a1c2f962ded2638a9cc01de400"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/CompletionConsumer.php",
+        "sha256": "fa60f8e125d1528912d5472297d374ff737ce17710901234ca35b535c4d7718f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ConstantConsumer.php",
+        "sha256": "89f4686e6d2389bccd684d3abfad8ac824a67bea00324bf28f8750dc3fb3d5e0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ContextualCallableConsumer.php",
+        "sha256": "38fbf53947a3447f7a661b7508997dfd42748ff4a2fc8ac850953962e9836840"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/EnumCaseConsumer.php",
+        "sha256": "a7a13308fc410625da8676bc6153c3382ee9264ca637653d5d7ba137af9d4bf5"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/LocalVarDocConsumer.php",
+        "sha256": "161983a4e6145e9e708669d9be841e8efe8de950f6b505430892aab706ba566e"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MatchExpressionConsumer.php",
+        "sha256": "629705d88979ca96ea6839b8ea2cca5293da7451f3a45997278b8211a6fb8214"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MemberDiagnosticConsumer.php",
+        "sha256": "1d31768de3b013d0caa51686a5fc64a2546f351526b3a63d088290589270cba0"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MessageHandlerConsumer.php",
+        "sha256": "e8f86ac01ce930dc8701f9f666011a9dffdc5ea2bde57e3b8162517c561f1073"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NativeAssertConsumer.php",
+        "sha256": "5dea7daf052756f9ba04d83b237524406e2e869b4cc8a426a86b294a19c90c48"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/NullCoalescingConsumer.php",
+        "sha256": "6e5ce33945dcb89e608a44b980f9a18f4af9c697bec1b09e92e4283962157547"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeConsumer.php",
+        "sha256": "4c229d7e6ff71fb2ca6569e1f45e777cf5c364f3335e6db24e4c1e622840ce97"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/OptimizeImports.php",
+        "sha256": "0b1599835e2a5ac0bccc11f4aa0a21d955945f693b387a663c0388d3cf5832eb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PromotedPropertyConsumer.php",
+        "sha256": "9983ecd9211a168e055740b63b0bd438674ed547ef0a729ff308fce15d644ff1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/PublicPropertyConsumer.php",
+        "sha256": "c9945402937cd47c4742bb329c0dcacbf1b3e00af1ea5fbb10f8b4e67963e447"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RouteConsumer.php",
+        "sha256": "70b2b529eda2d8be897874580636b72416c954d8769ad3824f74a70bbfd7c892"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TraitConstantConsumer.php",
+        "sha256": "4cf24c8470441f29a30d6d72648b077eeed863cb9610ff59bdcdc03c071fc688"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateComplementConsumer.php",
+        "sha256": "e4c777beae7750ac92c8c4ec336bd4e8d42a0b4ffa06aa5784b163d3138b62cb"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicateConsumer.php",
+        "sha256": "86e8826c3240830d9fe13444f5d37a54e62df5687be15c278ec8c9ad3813845a"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/TypePredicatePropertyConsumer.php",
+        "sha256": "a60981f60aacd2afe5cf6efa89dbbd6f88ce783fb7005dfc9f8afad984bee5d1"
+      },
+      {
+        "name": "test/extension/baseline/src/Controller/UserController.php",
+        "sha256": "8f5ca292ec2c76357573555df88b28235916fdcff39b2e3cdb92568f1f00a8db"
+      },
+      {
+        "name": "test/extension/baseline/src/Legacy/Duplicate.php",
+        "sha256": "dbcc1fc71e62f54e96a437ef3b34bb96cbc31580a19c49a417bb97800550dfe3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ActivityService.php",
+        "sha256": "dd26d70f4f8f6eeffbb05da3af46533c6a7f7326d1026d6cdf01a217341d3ed2"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AliasConsumer.php",
+        "sha256": "a21ec2a8758c22d04ae24aceaebc5afaf1be8821e8a3ce71f41215dd5dbe2a0c"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AlternateFeature.php",
+        "sha256": "61f9c96fbd8eb312cb02b1d12e0cabfb7107640fd3d9bdd45366a95a0b770420"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AssertionConsumer.php",
+        "sha256": "c21281cb94bd54ca1540ee42f73182c8ca12528763573f4cc5f88517feaafa46"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AttributeConsumer.php",
+        "sha256": "caff7cb51b5794c29d3b9648f4343b2faa53796f1fdcb26dabdddb92f8dc98ec"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/AutowiredConsumer.php",
+        "sha256": "1c618649ebc5559921b24ee900af237c554b0690957eba0d115b50bbf332b2cf"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/BaseService.php",
+        "sha256": "a17ea47bab402f76bb8e640e979b0b4950e604094f55939e640a36d2730c0617"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/CompletionService.php",
+        "sha256": "9e5bec91f3a41c7684764377ff27998e066e2d1170e8d6e3f5cf4a84ca2b3b19"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantBase.php",
+        "sha256": "e894ef70d985b190f7ec606449f13498f54b612526661e11dc9b8cf51d9d06f0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstantChild.php",
+        "sha256": "f949a7fb01b69261f89850504cd0b90f55cc022553ee80b9c134832ab7f44ece"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyState.php",
+        "sha256": "1f9d7a2d755445716fafd5c4c03a6d55905b6de1c6b19d3025dd33aa84c6f330"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructedReadonlyStateFactory.php",
+        "sha256": "cf4736e713a47cd37c52b46ac4f04cbdd3c6c3d8c81a5e8188bd34c700e8b069"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ConstructorTarget.php",
+        "sha256": "faf394105b07f7dfa1280c478047d54ef6966653afc5c6c5b48e015400aee2a7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ContainerConsumer.php",
+        "sha256": "c7e742cb8b1fb9c14a1c63359593b0ffec45adbeedc8597dbb2403d549157452"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ControlFlowDiagnostics.php",
+        "sha256": "e0048ae8a4c0c681febdb62e7280011084a336fec7bee72691718e2d4e127802"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DeliveryState.php",
+        "sha256": "8dca644f6ecfd5b4bb482a67a9387469c1c9e3c9eef90087340f147cd2660fbd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DiagnosticUnknowns.php",
+        "sha256": "275ec4887a351dcec054821182a82d73aa3798f7ff6aa80db1569c5eb2cf5b23"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DuplicateDeclarations.php",
+        "sha256": "13f8df32f7b58610e5943bd12db4e52d297627d1bc700705e0c9424347d627b5"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/DynamicProperties.php",
+        "sha256": "4aebfba2ad6586ccb63f0071f190ab0b660c36e05a746feb1eff20f9b13957aa"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ExportService.php",
+        "sha256": "d413c31e8dc6126b56f00a1545cbd70269a9dffd1d7fc9d87d1da61f825b1cc8"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/ImplicitNullable.php",
+        "sha256": "c30c3659af7c5a5993aa3ca6d130259dd6c712a1ac6a8f32db4343acc87fa6a0"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/InheritedConstructedReadonlyState.php",
+        "sha256": "8dcd1d5d0d7a3eb9ff5d88dc9289e34b668fd02e3370f9ada1d54f2404c176cd"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/Mailer.php",
+        "sha256": "a79da9ad57668491f24c620651e0c8187e0089fcd0429706a39c3d79ed374db7"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MessageHandler.php",
+        "sha256": "a61c7864a6d79c0b8b8de012739e96ac97ce0af797c471e0f12de7c8bb1613c4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MissingRunner.php",
+        "sha256": "21f4dda29694c9e1182e9685866b61c2414fa6c1377bca797bd258252c6d61b6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/OverrideTarget.php",
+        "sha256": "b00dd9711eecaa4f73729464a68f3b6cc0a4a19a360b9f92e694498b3671aaa4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PhpDocTypeConflicts.php",
+        "sha256": "429e84703c5653f758400c2c0e3f9d604081384e80f9ead8d6ff892d1e97c263"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyBase.php",
+        "sha256": "65d7697d049187586acfd95d38f19dcbf818956a9308f15061e8d89216ec17ce"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PromotedPropertyChild.php",
+        "sha256": "186149fed8f952161c1a801e3d672844c3bf1c37331ae0cdf015f712a74205ee"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyBase.php",
+        "sha256": "b0e330f5397d941e3fc9ea26fbb463abcb1349200381a81a3b5b15aaf988b1d3"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/PublicPropertyChild.php",
+        "sha256": "4dda8b116aa3881f7f34d723202080c9a00df20d6364c65e5e08d67ffe967a00"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/RunnerImplementation.php",
+        "sha256": "c5771b54e7ebb7157a67cf56bbbbdf8c5cde4932b4d60c81bdcfa7cf48240cb9"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/SharedFeature.php",
+        "sha256": "70229a25295e06860141d0f63c0b5dfcc7360cbc17f52d5f03e3e29abb85ded4"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/StrictScalarDiagnostics.php",
+        "sha256": "565d0d2896bda5c9f51f26cdb23d8e22dee882692a999c8b8384ae4ce7b139a6"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureChild.php",
+        "sha256": "44ae8b098d0610290c10774fccc61cce949d9ec07109c197f054d22df9b5cb71"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/TraitFeatureHost.php",
+        "sha256": "7c421ea8d45e8593571f54a431ac4fdbf32ccfba8d53738d8bb5b059da7af72f"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnresolvedSymbolConsumer.php",
+        "sha256": "e401c870e6828944e1a0b195a4e60c2f5564d2983afb000e0be12cea310c755b"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UnusedImport.php",
+        "sha256": "a25c4e299c42e2f42b2cefe493da173f32f00d65bfc8d73ab008af97b03d0570"
+      },
+      {
+        "name": "test/extension/baseline/src/Service/UserService.php",
+        "sha256": "d67ad3c62372f34c6d17714a9db462ea237bea59ef6d477ed29a7363ec0eed84"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/Constants.php",
+        "sha256": "549ccbb9721d8b2f0b6266d99c84006c43c43ec4a40dd48cfa5b1c4da0a62126"
+      },
+      {
+        "name": "test/extension/baseline/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/baseline/src/WrongNamespace.php",
+        "sha256": "811cfc4a0ca3459110f9b5db73414dab037fa07ff4b492e3ebbd159e665c8c51"
+      },
+      {
+        "name": "test/extension/fixture/src/Contract/Runner.php",
+        "sha256": "8cd9d298a7e0377095455942a480d0cc570d16c1ba49c074951227e9ea5d6929"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/ImportConsumer.php",
+        "sha256": "c0751102bbf57ce0658591840cdaa9b0068f920c52f646f21decbaca86a41f5f"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/MoveConsumer.php",
+        "sha256": "da4360d8b9501d4b4ae303c1de425bc2b14f23186c74a8b2136372348005e005"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/OptimizeConsumer.php",
+        "sha256": "a7bdfc9746c626d2ad602f04b084c72896b2a505f33d387ed65c88545c63f5cf"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/RunnerConsumer.php",
+        "sha256": "6c05cc6b35f89efaa6d13bb87410f5f33dddd3b4ecf5a66ac02a03d7ae48a841"
+      },
+      {
+        "name": "test/extension/fixture/src/Controller/UserController.php",
+        "sha256": "c898087392f3a6b729cd74afb337135f7d12e14f6305614a6f1146e8f94a2613"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/AliasConsumer.php",
+        "sha256": "08656bd93159df573cb19f7038ec80aaa2e4ae6d91fd0efd09d815ae1a5ccc9a"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/MovableService.php",
+        "sha256": "dd3186ef862e9d27251fe4f86c3759b47ba52b0c7fe2c15966d38724836817e9"
+      },
+      {
+        "name": "test/extension/fixture/src/Service/UserService.php",
+        "sha256": "dc3cb41bc0dc01561d93a90ee9bda650c8f3c731f9a08688de917abf174f4bcd"
+      },
+      {
+        "name": "test/extension/fixture/src/Support/LogsActivity.php",
+        "sha256": "ae50eefb630c2719dd35a76c9e21f68f0a723d83ac45475d0ab3e54d1d42d94b"
+      },
+      {
+        "name": "test/extension/pest-profile-fixture/tests/PestProfileTest.php",
+        "sha256": "cb5e164bd176f5595d6a60ced4287d70c0bd5e7ccd58692dbef053e5c4afa204"
+      },
+      {
+        "name": "test/extension/real-psr0/packages/legacy/src/Legacy/Component/Widget.php",
+        "sha256": "2902e3c0622197654d516d816d2fb670f0e5f1c90f11b2bed3514a6b61e77688"
+      },
+      {
+        "name": "test/extension/real-psr0/src/Consumer.php",
+        "sha256": "21c029366da7ec22d112d93eb7714eee63cd0091fad542bef06e6d47af61b22f"
+      },
+      {
+        "name": "scale-typical",
+        "sha256": "ddaab7987829e2e081cc42c49359de7085a5e6593edc3b40f424b0585b0af5d3"
+      },
+      {
+        "name": "nested-callables",
+        "sha256": "c836ab824f2f0ff41c0f27aed5de3f7c0ca3daf594912261ab866c9f18014741"
+      },
+      {
+        "name": "property-hooks",
+        "sha256": "e9e297e971e2dbf7d5ca62e275105c30a75f9aeb6725e6284bb6e23b00773ee5"
+      },
+      {
+        "name": "trait-alias",
+        "sha256": "a878f64b8940d4a1a402d10f0e91c517cf251af810fa3b1beb32ecff82f50e5e"
+      },
+      {
+        "name": "mixed-unfinished",
+        "sha256": "cd4a68a568bafe2ba9e94a4f4707c698a8ef654df2fba188670fd2a0133fc247"
+      }
+    ],
+    "snapshotUnchanged": true,
+    "explicitForcedGc": false,
+    "scope": "Bounded independent restored-workspace public query/diagnostic parity on the same original 95-input corpus. Up to 24 fact-derived offsets per file. Every restored input actually uses encoded storage before queries; full corpus is not a complete project, platform or performance qualification."
+  },
+  "initialEligibilityCause": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "initialEligibilityFailureConfirmed": true,
+    "correctedEligibilityConfirmed": true,
+    "observations": [
+      {
+        "label": "baseline",
+        "originalRepresentation": true,
+        "lengthWritable": false,
+        "storedConstructor": "Object"
+      },
+      {
+        "label": "initial",
+        "originalRepresentation": false,
+        "lengthWritable": true,
+        "storedConstructor": "EncodedImplementationSnapshot"
+      },
+      {
+        "label": "corrected",
+        "originalRepresentation": true,
+        "lengthWritable": false,
+        "storedConstructor": "Object"
+      }
+    ],
+    "scope": "Independent Node observation of the retained first failing empty-array descriptor case; avoids Vitest error formatting that attempted to assign an accessor property. This confirms an internal encoding eligibility boundary, not a normal-product regression or memory result."
+  },
+  "additionalToolPositives": {
+    "status": "passed",
+    "normalProductChanged": false,
+    "qualification": false,
+    "checks": [
+      "encoded restored global constant has an exact positive declaration result",
+      "encoded restored unknown named argument has an exact positive diagnostic",
+      "normal source update withdraws the now-missing constant",
+      "normal source update withdraws the corrected named-argument diagnostic"
+    ],
+    "inputUnchanged": true,
+    "scope": "Separate explicit positive/withdrawal fixture for the two methods whose original 95-input bounded cursor corpus produced only empty results. Not added to or substituted for that original corpus."
+  },
+  "scales": [
+    {
+      "status": "passed",
+      "functionalAssertionsPassed": true,
+      "normalProductChanged": false,
+      "candidateAdopted": false,
+      "scale": 1000,
+      "rounds": 1,
+      "qualification": false,
+      "explicitForcedGc": false,
+      "fullOriginalSequenceAndCleanup": true,
+      "gates": {
+        "rss": true,
+        "cache": true,
+        "cold": true
+      },
+      "profile": {
+        "schema": 1,
+        "files": 1000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 2543.39,
+          "parsed": 1000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 1766.81,
+          "parsed": 0,
+          "restored": 1000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.6947,
+        "cache": {
+          "cold": {
+            "files": 1002,
+            "bytes": 5817888,
+            "mebibytes": 5.55
+          },
+          "warm": {
+            "files": 1002,
+            "bytes": 5817888,
+            "mebibytes": 5.55
+          },
+          "frozenBudgetMb": 64
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 132.93,
+          "warmPeakRssMb": 136.35,
+          "layerRecoveryPeakRssMb": 140.38,
+          "callableRecoveryPeakRssMb": 144.38,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 384,
+          "processPeakRssMb": 144.63,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 1000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 1999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "run": {
+        "status": "exited",
+        "parentPid": 986423,
+        "childPid": 986505,
+        "startedAtUtc": "2026-10-07T16:59:56.675727+00:00",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d402-encoded-persistence.mjs",
+          "1000"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-1000-input.json",
+        "exitCode": 0,
+        "durationSeconds": 10.521646817003784,
+        "finishedAtUtc": "2026-10-07T17:00:07.196277+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "bbc491d5589dc05e95130a254e33c2618ee34cc433f40a5ad804f1f0541e6667"
+      },
+      "scope": "One complete private candidate round at this scale. Original functionality, frozen budgets, four loads, mutation callbacks, final recursive fixture cleanup and whole-process maxRSS preserved. Does not replace normal product failures or the original five-round/platform/runtime integration requirements."
+    },
+    {
+      "status": "passed",
+      "functionalAssertionsPassed": true,
+      "normalProductChanged": false,
+      "candidateAdopted": false,
+      "scale": 10000,
+      "rounds": 1,
+      "qualification": false,
+      "explicitForcedGc": false,
+      "fullOriginalSequenceAndCleanup": true,
+      "gates": {
+        "rss": true,
+        "cache": true,
+        "cold": true
+      },
+      "profile": {
+        "schema": 1,
+        "files": 10000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 22016.11,
+          "parsed": 10000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 16822.86,
+          "parsed": 0,
+          "restored": 10000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.7641,
+        "cache": {
+          "cold": {
+            "files": 10002,
+            "bytes": 58164402,
+            "mebibytes": 55.47
+          },
+          "warm": {
+            "files": 10002,
+            "bytes": 58164402,
+            "mebibytes": 55.47
+          },
+          "frozenBudgetMb": 512
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 226.02,
+          "warmPeakRssMb": 374.04,
+          "layerRecoveryPeakRssMb": 486.11,
+          "callableRecoveryPeakRssMb": 479.18,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 768,
+          "processPeakRssMb": 486.11,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 10000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 19999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "run": {
+        "status": "exited",
+        "parentPid": 986740,
+        "childPid": 986824,
+        "startedAtUtc": "2026-10-07T17:00:22.596105+00:00",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d402-encoded-persistence.mjs",
+          "10000"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-10000-input.json",
+        "exitCode": 0,
+        "durationSeconds": 93.03314548000344,
+        "finishedAtUtc": "2026-10-07T17:01:55.628210+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "b6d632a459c7f660a045168fba8b2e2d458956265bf721a6db9b6698cad8a10a"
+      },
+      "scope": "One complete private candidate round at this scale. Original functionality, frozen budgets, four loads, mutation callbacks, final recursive fixture cleanup and whole-process maxRSS preserved. Does not replace normal product failures or the original five-round/platform/runtime integration requirements."
+    },
+    {
+      "status": "passed",
+      "functionalAssertionsPassed": true,
+      "normalProductChanged": false,
+      "candidateAdopted": false,
+      "scale": 50000,
+      "rounds": 1,
+      "qualification": false,
+      "explicitForcedGc": false,
+      "fullOriginalSequenceAndCleanup": true,
+      "gates": {
+        "rss": true,
+        "cache": true,
+        "cold": true
+      },
+      "profile": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 108932.89,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 82347,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.7559,
+        "cache": {
+          "cold": {
+            "files": 50002,
+            "bytes": 290872402,
+            "mebibytes": 277.4
+          },
+          "warm": {
+            "files": 50002,
+            "bytes": 290872402,
+            "mebibytes": 277.4
+          },
+          "frozenBudgetMb": 2560
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 629.91,
+          "warmPeakRssMb": 1177.97,
+          "layerRecoveryPeakRssMb": 1370.1,
+          "callableRecoveryPeakRssMb": 1372.2,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536,
+          "processPeakRssMb": 1372.2,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "run": {
+        "status": "exited",
+        "parentPid": 987929,
+        "childPid": 988054,
+        "startedAtUtc": "2026-10-07T17:02:12.130476+00:00",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d402-encoded-persistence.mjs",
+          "50000"
+        ],
+        "manifest": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-50000-input.json",
+        "exitCode": 0,
+        "durationSeconds": 457.7269928309979,
+        "finishedAtUtc": "2026-10-07T17:09:49.856456+00:00",
+        "changedInputs": [],
+        "repositoryChanges": [],
+        "logSha256": "0150e2d2e9293595f8a8a2a06470dd0bd244ad048ffe20258e0010a8b4562820"
+      },
+      "scope": "One complete private candidate round at this scale. Original functionality, frozen budgets, four loads, mutation callbacks, final recursive fixture cleanup and whole-process maxRSS preserved. Does not replace normal product failures or the original five-round/platform/runtime integration requirements."
+    }
+  ],
+  "roundsPerScale": 1,
+  "historicalUnpairedWaitingCost": [
+    {
+      "scale": 1000,
+      "previousPrivateWarmMs": 1614.99,
+      "currentPrivateWarmMs": 1766.81,
+      "previousPrivateWholeProcessRssMiB": 241.38,
+      "currentPrivateWholeProcessRssMiB": 144.63,
+      "pairedOrStatisticalComparison": false
+    },
+    {
+      "scale": 10000,
+      "previousPrivateWarmMs": 15687.27,
+      "currentPrivateWarmMs": 16822.86,
+      "previousPrivateWholeProcessRssMiB": 517.71,
+      "currentPrivateWholeProcessRssMiB": 486.11,
+      "pairedOrStatisticalComparison": false
+    },
+    {
+      "scale": 50000,
+      "previousPrivateWarmMs": 76972.79,
+      "currentPrivateWarmMs": 82347,
+      "previousPrivateWholeProcessRssMiB": 1615.89,
+      "currentPrivateWholeProcessRssMiB": 1372.2,
+      "pairedOrStatisticalComparison": false
+    }
+  ],
+  "normalOpenBudgets": {
+    "controllerP95Ms": 157.74,
+    "controllerBudgetMs": 150,
+    "normalComplete10000RssMiB": 920.54,
+    "normal10000BudgetMiB": 768,
+    "previousPrivate50000RssMiB": 1615.89,
+    "private50000BudgetMiB": 1536
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d353-owned-cache-lock.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d353-owned-cache-lock.mjs",
+      "sha256": "4f4c4ee9fda8b63ade7a272032dca39fa22fc6f74a9ac76870808a24828771d9"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d372-bounded-cache-removal.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d372-bounded-cache-removal.mjs",
+      "sha256": "f68e839f541a4cff1c8fca4b269b24fbd8a54b17e4a3948fc4c588af90784d9d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d375-entry-store.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d375-entry-store.mjs",
+      "sha256": "ff6540f6b5315cca2efc841d1dfc10f15fb4b61090d942f2d4046f988b1389ba"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d385-index.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d385-index.mjs",
+      "sha256": "7d23dbccda802cd836a9715375bb6b559704de8ce359f9d4312a708bd32fa2ff"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d392-benchmark-finalizer.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d392-benchmark-finalizer.mjs",
+      "sha256": "666351eb81176df86aa2b9961b03f918e465847d7f5255edb1818cf90a39e40c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d398-restore-trace-final-validation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d398-restore-trace-final-validation.json",
+      "sha256": "0456fd283b7ad80ccde21e99240eeb0beae82235c3d3c47435171261575052bd"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionIdentifier.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionIdentifier.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionIdentifier.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionIdentifier.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionMatching.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionMatching.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionMatching.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionMatching.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTrivia.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTrivia.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTrivia.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTrivia.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTypeTail.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTypeTail.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTypeTail.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/completionTypeTail.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/index.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/index.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.d.ts.map",
+      "sha256": "91ee22ad5945c3d6bd6663b510c933aea541fee62a2de74e92233ea2ce08f35d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.js",
+      "sha256": "e4ae682a1a994e8af6a3276b01fa582d615f329b4cc65caf11c4eecea7282c16"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/index.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/index.js.map",
+      "sha256": "77e87f17cee8ee30a82650d9fd4754d16c80eb45089ee943960d7a1dbec5f6c2"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/nativeScalarInput.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/nativeScalarInput.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/nativeScalarInput.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/nativeScalarInput.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/phpDocNameBinding.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/phpDocNameBinding.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/phpDocNameBinding.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/phpDocNameBinding.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/quotedCompletion.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/quotedCompletion.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/quotedCompletion.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/dist/quotedCompletion.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/completionIdentifier.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionIdentifier.ts",
+      "sha256": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/completionMatching.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionMatching.ts",
+      "sha256": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/completionTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionTrivia.ts",
+      "sha256": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/completionTypeTail.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/completionTypeTail.ts",
+      "sha256": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/index.ts",
+      "sha256": "d86eade20b556a68eefdf80bc2e88f4725e16785734d59320c522f2742a3f8b6"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/nativeScalarInput.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/nativeScalarInput.ts",
+      "sha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/phpDocNameBinding.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/phpDocNameBinding.ts",
+      "sha256": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/src/quotedCompletion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/src/quotedCompletion.ts",
+      "sha256": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-baseline-semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-baseline-semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionIdentifier.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionIdentifier.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionIdentifier.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionMatching.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionMatching.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionMatching.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionMatching.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTrivia.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTrivia.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTrivia.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTypeTail.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTypeTail.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/completionTypeTail.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/index.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/index.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/index.d.ts.map",
+      "sha256": "223dbd724864fc249ba4566d063cd532402b406c383f4f196d51326c3580241a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/index.js",
+      "sha256": "c9397bf9737bc2105e5add5d7a73d9366294902ed819f58a71b0820cd3a774a1"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/index.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/index.js.map",
+      "sha256": "c794b605667d562ec60eba1a71e006a27d8aeb32b6fbe45a6d00ad467b0ed82e"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/nativeScalarInput.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/nativeScalarInput.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/phpDocNameBinding.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/quotedCompletion.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/quotedCompletion.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/dist/quotedCompletion.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/completionIdentifier.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/completionIdentifier.ts",
+      "sha256": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/completionMatching.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/completionMatching.ts",
+      "sha256": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/completionTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/completionTrivia.ts",
+      "sha256": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/completionTypeTail.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/completionTypeTail.ts",
+      "sha256": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/index.ts",
+      "sha256": "446791ba1cec22f89cc298f907a807059e8892a0d1b1205b445af86a918ff604"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/nativeScalarInput.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/nativeScalarInput.ts",
+      "sha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/phpDocNameBinding.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/phpDocNameBinding.ts",
+      "sha256": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/src/quotedCompletion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/src/quotedCompletion.ts",
+      "sha256": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-candidate-semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-candidate-semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-contract-baseline.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-contract-baseline.test.ts",
+      "sha256": "a7a2ce3055c2fd4a36870570d7fde79a2349e48c5f8ae283ba8a43b05c9b0e49"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-contract-candidate.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-contract-candidate.test.ts",
+      "sha256": "500c7dd684d4593d6ee55514f508f422d41136c0de186fa58aa7c6365e159161"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-encoded-generation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-encoded-generation.json",
+      "sha256": "61278309ced2527ae1a698013345db1084fe49e522ea82e1e7aa307c2962e86a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-encoded-parity.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-encoded-parity.mjs",
+      "sha256": "4df23321952809235b398e0d50289c9c9f5b1fedb93dd91a08949dc3a956285e"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-encoded-persistence.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-encoded-persistence.mjs",
+      "sha256": "db9ff8da4b946d7514b267daceb6dd126bbcb4dff360b6d4266ac7e5af4710d5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-encoded-storage.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-encoded-storage.test.ts",
+      "sha256": "ef745bfc84a48ad7dc24518c7cca71e2943ad858e80dde73da7dda15d7df5249"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-prepare-encoded-facts.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-prepare-encoded-facts.py",
+      "sha256": "743b73ae58348b0c792bc0125f86e3d277be71136970b8a8017cde290fa42673"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d399-vitest.config.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d399-vitest.config.mjs",
+      "sha256": "66f96280a22cdbb8fce59636c840bb9a3d55a5e9dcae0d1468da6bc097025d80"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-baseline-build-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-baseline-build-input.json",
+      "sha256": "fe6cef57fcde2cba4e0b4551f7c44956fd970e2085f2c9293a611911dce488e8"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-baseline-build-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-baseline-build-run.json",
+      "sha256": "932dd27bb132287ec0cc93688f2597f40b2518958bfc5b5aa761269210baa93a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-baseline-build.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-baseline-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-candidate-build-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-candidate-build-input.json",
+      "sha256": "47f910ddcbf7b91c52274474dfe86ad049b7fbf42b1b971497eb660bb665fa17"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-candidate-build-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-candidate-build-run.json",
+      "sha256": "9bf173407dbe8657425c963174f76ab2097a1d15a977aec9f808724d3e967ca4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-candidate-build.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-candidate-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d400-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d400-run.py",
+      "sha256": "b9b392f28c111c7c7723b0b68be4a4d9f8297328479a1d52c800dfb1e993441a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d401-encoded-contracts-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d401-encoded-contracts-input.json",
+      "sha256": "2e738f9a3f5ce500817418648fe1eac9100aeef4c9144159d514cb6672a4ab32"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d401-encoded-contracts-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d401-encoded-contracts-result.json",
+      "sha256": "045d7e0a883bc81f627eb77b4acff64b0b71b93e3c97bef976608107a23c93e3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d401-encoded-contracts-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d401-encoded-contracts-run.json",
+      "sha256": "70099d037d96946ccad0d1ae62a1b02799dc08ec8c4e8922b739c48ecdad93c5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d401-encoded-contracts.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d401-encoded-contracts.log",
+      "sha256": "a2fe27ffd851e8c44c06e685819d062b6b7e99d8d644316e254b905edbbf3c18"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d401-initial-build-audit-failure.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d401-initial-build-audit-failure.json",
+      "sha256": "323bea9a7b22555c473985bfd21a6f7544a8046980c9be5a7e7fd53cf543b646"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionIdentifier.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.d.ts",
+      "sha256": "07db83d2c17a24757f6a43eb912fad3aa1e3e12c16f1fb91997942748801c17a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.d.ts.map",
+      "sha256": "96a5fc166c53b45c0a34dc6bbbaab700b5ab6deed6a244aefc4f3be62443a94d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionIdentifier.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.js",
+      "sha256": "0550620b2554b56cfede3cd9fbf47c59746a301a4e6a1693794fdb4cbfcbfebc"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionIdentifier.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionIdentifier.js.map",
+      "sha256": "425add0a153c0ec9908574a41aa3cccb502da05ea0ae2e8875dc514b5643bacd"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionMatching.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.d.ts",
+      "sha256": "5c36c1508dce654506a5f7753ad35c079f06e9f87ac92a72c1769b746be00813"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionMatching.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.d.ts.map",
+      "sha256": "a6806399409136d9b7854c126f820400d797c580d33df3837f822a5413dca1f9"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionMatching.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.js",
+      "sha256": "d8903ef521e922fcf58464c0deafaa597f6e81fe7ce608236e336a38bb3599c3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionMatching.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionMatching.js.map",
+      "sha256": "7d6dc90883f6362107c3fc3e4502105865e258d0ba356fe5f553d3d4fa9fcf74"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTrivia.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.d.ts",
+      "sha256": "371baf3833f1c29f4ce4e81e343b8d10daa7931074484ed4cbfd37bf81d7fa7c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.d.ts.map",
+      "sha256": "2bfeb324108914d0ff2cd57951374b9f86181d471b0b819d55d826d420b24f5d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTrivia.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.js",
+      "sha256": "e6e6d44e91cc6a5e9b041a1e170643e8a51f304471868dc43775b029b45bef0a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTrivia.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTrivia.js.map",
+      "sha256": "be984ef0a64e655cfde25f64b8143f150d006428405e7266da3eeab51ae9edc7"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTypeTail.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.d.ts",
+      "sha256": "1b4c04841f7fec6b598e76054cd7ec9ced1ac2d397da7589863a7180a3d57f9b"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.d.ts.map",
+      "sha256": "88051af92c69f4c16bc4132bda766bb9ef4c6deeced93442182ee75b9443dbeb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTypeTail.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.js",
+      "sha256": "5313ce452b65565587684740424d7e1c9d102643a4a47f7eabc23716e6e1fae0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/completionTypeTail.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/completionTypeTail.js.map",
+      "sha256": "cdb91204a28ac6d4fbe27bd36d03acd02d14b9f609d4e825e5e45308b9b4e4a5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/index.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.d.ts",
+      "sha256": "d4d583f66d4bc4bae2681d32780002393652eb2917493e88db041b943f7e8c82"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/index.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.d.ts.map",
+      "sha256": "44af217697606845623447f8bbd6c4beb174d177edd8f2db25c9828169c94289"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.js",
+      "sha256": "66ff5be8f03035c7fae20533ba31c4d66197ffe1199bf9ba3791d67270d7bf12"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/index.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/index.js.map",
+      "sha256": "d51b5bb5c2fc6035731256f04cf8e4863eef283d219b518dacb84c2a65a47b76"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.d.ts",
+      "sha256": "80476c0d87cdff16daa265b448be8678debe4155ccfff6f5b73f08eb11720f44"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.d.ts.map",
+      "sha256": "48d581610deb04590643b51095dfd781a236563d85d53201d095b81a78576a08"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/nativeScalarInput.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.js",
+      "sha256": "3506896ae42bc032896e44a46c87b15defdc065875e47ef514c4b528384004b4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/nativeScalarInput.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/nativeScalarInput.js.map",
+      "sha256": "08936b2531b688dff38b447eb1fd44b7b142e8c96231352a3c8c56badfa31c70"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.d.ts",
+      "sha256": "7b6f3eef1bece49199bc85173955cc8a89ab0648b6adbf1a12e2934a3c87352c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.d.ts.map",
+      "sha256": "f100a8379f0b69643503fe7877dd4042a8bfd98a035a557de2b12d874378d9d6"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/phpDocNameBinding.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.js",
+      "sha256": "adf83f8ee885be51bd5a61b18b4d4d6bd009070fb62afa833a4409f2253b8692"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/phpDocNameBinding.js.map",
+      "sha256": "84643289416a1e07defea72c994b56bf2f1b7498aef54dd7e212ddc4203416cf"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/quotedCompletion.d.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.d.ts",
+      "sha256": "35dd51603be8e79d62e0dbdebc297fc43a89a2d6a28bedb6064be58985773d19"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.d.ts.map",
+      "sha256": "8cd67fc0cd463e9c03bc729b34e095cbb14c550c06067886eb56df50cf925553"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/quotedCompletion.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.js",
+      "sha256": "5d78a423f1469a1d5ef480628648d3df6634b9bee7c404f05802bf46ea5493e8"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/dist/quotedCompletion.js.map",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/dist/quotedCompletion.js.map",
+      "sha256": "f74456c4c904a2fe8f028412ff7ace2df47775d43d889c1cec1aaabfe22e4184"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/package.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/package.json",
+      "sha256": "1a6c71257682066b3c35b6670884b7302e180616549cb896771ab2668bf9bbdb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/completionIdentifier.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionIdentifier.ts",
+      "sha256": "41a1bf5efcb9cf92a3a29a6f320f726013db18228f9926c20cb6ef3c89a5a29d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/completionMatching.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionMatching.ts",
+      "sha256": "7f79dae0fca8e02a748a7ac0e99066266e4735244f9ff840ddf652b12916eac5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/completionTrivia.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionTrivia.ts",
+      "sha256": "cf33d74776fe4dc8769c6b30a4593f9d6e654953c7784160bd9d00d384891196"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/completionTypeTail.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/completionTypeTail.ts",
+      "sha256": "eb66d73d5dc5b5896a687f0cfdae785f5d0fbcccc47a8ea9ab54c9e8147ee9ec"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/index.ts",
+      "sha256": "670f6413b9b2923197dc99b8d57dae267ed5a66f4a93af0928119e211972ffb1"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/nativeScalarInput.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/nativeScalarInput.ts",
+      "sha256": "cd1e2c4289b77dd80c14437cfbf04535e2020c8e844dc72f6a982d2f646059d4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/phpDocNameBinding.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/phpDocNameBinding.ts",
+      "sha256": "8e25414908f19ee82c94b8f84cccc327b3fe9033985e6e137a5c5920a7a64dd0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/src/quotedCompletion.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/src/quotedCompletion.ts",
+      "sha256": "9f8a2d6e5025ab32c2950c0dd11bd0b315ae1917f9de6782e27f9e018568c97c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-candidate-semantic/tsconfig.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-candidate-semantic/tsconfig.json",
+      "sha256": "929bfb52b8ab2281fbc855f34f686211547459538f3b5f1f6a43abe698372a94"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-contract-baseline.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-contract-baseline.test.ts",
+      "sha256": "a7a2ce3055c2fd4a36870570d7fde79a2349e48c5f8ae283ba8a43b05c9b0e49"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-contract-candidate.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-contract-candidate.test.ts",
+      "sha256": "3dd616337e442b38567f2d558ca367e80c19cbdce8b6218a27e5bc4d7b3d63dd"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-correct-encoded-array.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-correct-encoded-array.py",
+      "sha256": "703966e0b13e51b4867c8ce281a4ff883c37499905b20a300aff72facf478f53"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-encoded-generation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-encoded-generation.json",
+      "sha256": "a0d9ba48c4795602d9fdd5434eab8e1ed71a13017f7a313733a5eee37d101a11"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-encoded-parity.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-encoded-parity.mjs",
+      "sha256": "233ddbe27f1de2c2e591af59e26e45d5654d016ab33cfe7f93fe527a5cf9a42a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-encoded-persistence.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-encoded-persistence.mjs",
+      "sha256": "047b0a9da84360f03ed117f5efcace7d85d4c21e51e7ac6f60684e722837c4b9"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-encoded-storage.test.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-encoded-storage.test.ts",
+      "sha256": "cd201a05ae045444b53f1feb058166291e6601faccc7b3b00558b9027509b428"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d402-vitest.config.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d402-vitest.config.mjs",
+      "sha256": "73e7e871206fe8b7d5150b0f890b5f94ff229d4a9d615b74667933faf926cd9b"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d403-audit-build.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d403-audit-build.py",
+      "sha256": "88b19962ce27aed14ab5f9709b731cd572fa912a8bf1733a2c370ac9889fdf4a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d403-candidate-build-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d403-candidate-build-input.json",
+      "sha256": "c60dd79ceb90e5abd829620faa7ef40484ac7675908f016a137b82b6ed8f8b58"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d403-candidate-build-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d403-candidate-build-run.json",
+      "sha256": "7cff5114a1908c6d1afe8b3c0a519cb85435750a518a08616e2c72c5dbac2105"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d403-candidate-build.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d403-candidate-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d403-encoded-build-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d403-encoded-build-audit.json",
+      "sha256": "5569cf512ecb4c2880f65f27ee30a09dd83ec0bf1b04d4f3c95ac6ef3c5b0eef"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d403-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d403-run.py",
+      "sha256": "aa9ca2954c890167563df9a41969cc0e21c9a8df198a8834f92233d0ff9cdd3f"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-contracts-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-contracts-input.json",
+      "sha256": "ca1fc43a02e432e5d7638bc33c9aca231d8321e50fac989c00a95ccb0f2e2d8e"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-contracts-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-contracts-result.json",
+      "sha256": "8877ee44767ab121c875e3cdc6a63dc6813216f0d853a700cea81d7fcccb4582"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-contracts-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-contracts-run.json",
+      "sha256": "2900c2d910edd26fc0fbb5f697c7332b26100d81632bef924d61ef8881163b3c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-contracts.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-contracts.log",
+      "sha256": "519311ce466b64c35adbf0662307df26f7df4e7e1751bc09edd6b8fbd6042f07"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-parity-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-parity-input.json",
+      "sha256": "faa24accf50da6c1e97a55d3cf6c43b3a5facfea8f0b0d5022712078d320e7f6"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-parity-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-parity-result.json",
+      "sha256": "9952b3d3e69f837bffe52bd558a05d968d81051811c572d84722ef950790232d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-parity-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-parity-run.json",
+      "sha256": "4e368277b8cd3d2f057384fa287183bac87ed3bac22be7558424487396150908"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d404-encoded-parity.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d404-encoded-parity.log",
+      "sha256": "cd49d4935fbaa59c829b52a7f76271aa9803a45b76e0eaeb24143de82021814f"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-full-semantic-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-full-semantic-input.json",
+      "sha256": "aee96cd94b8687098f5bfce7399226ba096d7ccdaaccc3cc37c096538a92eae3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-full-semantic-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-full-semantic-result.json",
+      "sha256": "3aa8f46abbd07c2679e718918a3547ad133a172fe02d7dee562b96b7f0062b72"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-full-semantic-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-full-semantic-run.json",
+      "sha256": "850bddc3dec31ae40eb2f6bb1ead7b3fa6b8129fee88555d03d8d8f300570e39"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-full-semantic.config.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-full-semantic.config.mjs",
+      "sha256": "c1a44b529b262a4b9d62ade4ae3da8199c5a2c2db536bf477adac1fd1bb8536f"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-full-semantic.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-full-semantic.log",
+      "sha256": "03ee5850b7be67a49564b380fa339714867906bff8e717fb0eed850cb113aa74"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-run.py",
+      "sha256": "4901e901dc37d2dd96d8253d9edf3d7a46e2ff04868372f1ff174640e88dc8a2"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d405-semantic-resolved-inputs.jsonl",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d405-semantic-resolved-inputs.jsonl",
+      "sha256": "87c4727d0561272e3079bc8c3af42fdb4ad3b103edd4b154b608e1f0a7c38dd4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d406-audit-encoded-controls.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d406-audit-encoded-controls.py",
+      "sha256": "c09712a189f58de51c5a89bd5b2271e9a58e7f16ec272abdbbfb8139034e5cfb"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d406-encoded-controls-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d406-encoded-controls-audit.json",
+      "sha256": "95b6d311ba4ec410b20f59abbd4c209943047d99fdbe87db302d10c5875454d6"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d407-encoded-tool-parity.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d407-encoded-tool-parity.mjs",
+      "sha256": "2ccbf4c991a1ecb85872c276494feb6fdfddac979680b510cf3a9324ac64ad88"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d407-encoded-tools-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d407-encoded-tools-input.json",
+      "sha256": "4782281f803ad8c27614b66d75ee8743570fe9df15f1379ca1a5858a983f1b1d"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d407-encoded-tools-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d407-encoded-tools-result.json",
+      "sha256": "ba88d63c8696b9a63c1eab058adab5cb5ae55f719bbc9abe8949e18d7411d420"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d407-encoded-tools-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d407-encoded-tools-run.json",
+      "sha256": "2da705f90bc66d69c62a9192d77d1ee9181ec13afb82d3d67c5f608aa8a78e2e"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d407-encoded-tools.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d407-encoded-tools.log",
+      "sha256": "2b67265f316983be0a7d83ba8b22a0b727700011661addb4d57fc7a15f582554"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d407-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d407-run.py",
+      "sha256": "74503948c470b9891871c6399b0d561034a17b03abd2fb0d915bee72a70e0d00"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-check-encoded-scale.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-check-encoded-scale.py",
+      "sha256": "a679c00ee00e4b908d9855209761a0a6d70b537555c9cdbef52a23b61136c4b0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-1000-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-1000-audit.json",
+      "sha256": "b6b296089289352cd9c15a21da4a2ed5ee8e8b376593e3192aa6e7abeca8be47"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-1000-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-1000-input.json",
+      "sha256": "45cb6c0e3d29712b447988ea98e189f4e2f7ebefb8f8397d84fbdc81ed8b9c9a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-1000-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-1000-run.json",
+      "sha256": "f3efe098971c05d94158882f248b5cddb0af7fbb04d314459ba33270fb9ce687"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-1000.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-1000.log",
+      "sha256": "bbc491d5589dc05e95130a254e33c2618ee34cc433f40a5ad804f1f0541e6667"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-10000-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-10000-audit.json",
+      "sha256": "c8c1250192f00433d4cf8e65563bd88e05696446e37bee70e51f18c7b2f26e09"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-10000-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-10000-input.json",
+      "sha256": "d67d4d7f3a53cc2bf76a26bd7201cf57a0eaabfd190bb4c1882983c1154a6753"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-10000-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-10000-run.json",
+      "sha256": "d5632fd536126dac2c6a3f99397bc9a98935eadb85bee294094abbaa55ee80cc"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-10000.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-10000.log",
+      "sha256": "b6d632a459c7f660a045168fba8b2e2d458956265bf721a6db9b6698cad8a10a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-50000-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-50000-audit.json",
+      "sha256": "a4bc5743cf87a4c3688febfbbb3a870208ab399668b8c2bb50e689b4ffb7905c"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-50000-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-50000-input.json",
+      "sha256": "a0e9a841d68528a9f386a69651af77e0db3ece2cd939fc1e5e3146c840fc8d77"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-50000-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-50000-run.json",
+      "sha256": "793d9c4d3a5d405cb9d0ee4965fdf67ef914311d1410bca9c588862c6b98a30e"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-encoded-scale-50000.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-encoded-scale-50000.log",
+      "sha256": "0150e2d2e9293595f8a8a2a06470dd0bd244ad048ffe20258e0010a8b4562820"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d408-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d408-run.py",
+      "sha256": "07232936be3aae42e9f4b5207dfaf91d0d7bf3d1f0968c5bb8cbb5953a6f2e0a"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-frozen-array-cause-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-frozen-array-cause-input.json",
+      "sha256": "79556a973a1f7e1e597439864a147f9388f484e347bbff08439e3527ffc5e1f5"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-frozen-array-cause-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-frozen-array-cause-result.json",
+      "sha256": "408f33030e4a0b246a7064cffbb65a3c2de5fadb16074e7de92aa8cf82381ced"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-frozen-array-cause-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-frozen-array-cause-run.json",
+      "sha256": "04758517b85c83cb17cb58d05ae78a2ca7f3e714dc05270925ab84304dbc32f7"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-frozen-array-cause.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-frozen-array-cause.log",
+      "sha256": "00689dd6aa50b327ad621e423789116ddd289cd64b3fdf8e9f4bd0f404da6c41"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-frozen-array-cause.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-frozen-array-cause.mjs",
+      "sha256": "08ba8d36b42d5f40d432344c888cc4c6658ee35d93e0ac2baead5307709515d3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-run.py",
+      "sha256": "790060cde7a5158a9545e461298b9cb13c8f63031fbfc42bf8c218576ce2e4d3"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-tool-positives-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-tool-positives-input.json",
+      "sha256": "f0dc9378ab6dd1517102908a5484a7da9bdb6c07bdc1ba1bd7b9076af37ada1e"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-tool-positives-result.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-tool-positives-result.json",
+      "sha256": "d2b9635d7e2d05aa348b32f0e6018a7f837fb42752254cf84920cde025f8f2e4"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-tool-positives-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-tool-positives-run.json",
+      "sha256": "002e87a9fc83c469858a4f130fda8a93d703c39db78b4d995640446a0551627f"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-tool-positives.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-tool-positives.log",
+      "sha256": "5996878ac681411fbf855b3294799b2dc466a8f89d08540c1e74db12a4ac94ce"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-tool-positives.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-tool-positives.mjs",
+      "sha256": "05c4ecd8bf9db3cd718e964748224f37f23cc276ea58121b472fba2587399ac9"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d409-tool-run.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d409-tool-run.py",
+      "sha256": "bb070f612b873c406d8fd9836768b70f733f0a646c454af7973d6538714203d0"
+    },
+    {
+      "path": ".vscode-test/d410-encoded-facts-evidence/d410-record-encoded-trial.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d410-record-encoded-trial.py",
+      "sha256": "0c17ea44c0d942769b9a21a20c82f8054ac200cc6137542b448d40d78d83cd1d"
+    }
+  ],
+  "artifactCount": 216,
+  "evidenceDirectory": ".vscode-test/d410-encoded-facts-evidence",
+  "limitations": [
+    "Single private round per scale does not satisfy the original five-round requirement.",
+    "Not integrated into the normal semantic source, Core bundle, installed Alpha Profile or VSIX.",
+    "Full current LSP, cache/index API integration, platform/version/tool-combination, long-session and real WSL gates remain required.",
+    "Historical performance/RSS failures remain recorded; unpaired single runs are not statistical improvement evidence.",
+    "The complete C1-C4/R4, P0-P9/F01-F14 objective remains open."
+  ],
+  "nextStep": "Audit encoding eligibility, waiting cost and integration boundaries before any adoption; retain full safety/validation semantics, then validate a source-integrated candidate with the complete original API/LSP/runtime and five-round performance gates."
+}

@@ -1,0 +1,2807 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "completed",
+  "decision": "native-candidate-original-complete-persistence-three-scales-five-rounds-passed-runtime-editing-and-waiting-cost-review-pending",
+  "nativeCompletePersistenceFiveRoundsQualified": true,
+  "qualification": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "normalProductChanged": false,
+  "candidateAdopted": false,
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false,
+  "packaged": false,
+  "published": false,
+  "audit": {
+    "status": "passed",
+    "auditedAtUtc": "2026-10-07T21:00:16.225481+00:00",
+    "nativeCompletePersistenceFiveRoundsQualified": true,
+    "files": [
+      1000,
+      10000,
+      50000
+    ],
+    "roundsPerScale": 5,
+    "completeProcesses": 15,
+    "distinctChildPids": 15,
+    "allSequential": true,
+    "inputCountPerRound": 7383,
+    "symlinkCountPerRound": 192,
+    "changedInputs": 0,
+    "changedSymlinks": 0,
+    "repositoryChanges": 0,
+    "newFixtureDirectoriesRemaining": 0,
+    "originalBenchmarkReverseExact": true,
+    "originalAssertionsAndBudgetsUnchanged": true,
+    "fullOriginalFourLoadsAndFinalCleanup": true,
+    "forcedGc": false,
+    "phaseSplitting": false,
+    "engineBuildId": "0ae42772dab6921d819c1e618eef1834d8d157a046dc6fd5658042da48973cb2",
+    "preparation": {
+      "status": "passed",
+      "workspace": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace",
+      "benchmark": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+      "benchmarkSha256": "b3b835923db41e94a34f0deea881b0989bbc90a6d1c7f55ec40d63c083eed5d3",
+      "originalBenchmark": "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+      "originalBenchmarkSha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef",
+      "prefix": "import assert from 'node:assert/strict';\nimport { createHash } from 'node:crypto';\n",
+      "fixtureHelperOriginal": "async function mutateCacheFile(cacheFile, mutate) {\n  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));\n  await mutate(persisted);\n  await writeFile(cacheFile, JSON.stringify(persisted));\n}",
+      "fixtureHelperAdapted": "async function mutateCacheFile(cacheFile, mutate) {\n  const persisted = JSON.parse(await readFile(cacheFile, 'utf8'));\n  if (persisted.schema === 2) {\n    assert.equal(typeof persisted.generation, 'string');\n    const entry = persisted.entries[sourcePath(0)];\n    assert.ok(entry && !Object.hasOwn(entry, 'payload'));\n    assert.match(entry.payloadHash, /^[a-f0-9]{64}$/u);\n    const bytes = await readFile(join(cacheFile + '.entries', persisted.generation, entry.payloadHash + '.json'));\n    assert.equal(bytes.length, entry.payloadBytes);\n    assert.equal(createHash('sha256').update(bytes).digest('hex'), entry.payloadHash);\n    const payload = JSON.parse(bytes.toString('utf8'));\n    await mutate({ entries: { [sourcePath(0)]: { payload } } });\n    const serialized = JSON.stringify(payload);\n    const hash = createHash('sha256').update(serialized).digest('hex');\n    const blob = join(cacheFile + '.entries', persisted.generation, hash + '.json');\n    try { await writeFile(blob, serialized, { flag: 'wx' }); }\n    catch (error) {\n      if (error.code !== 'EEXIST') throw error;\n      assert.equal(await readFile(blob, 'utf8'), serialized);\n    }\n    entry.payloadHash = hash;\n    entry.payloadBytes = Buffer.byteLength(serialized);\n  } else await mutate(persisted);\n  await writeFile(cacheFile, JSON.stringify(persisted));\n}",
+      "benchmarkReverseExact": true,
+      "originalImportsUnchanged": true,
+      "originalAssertionsAndBudgetsUnchanged": true,
+      "originalFourLoadsAndFinalCleanupPreserved": true,
+      "noForcedGcOrPhaseSplitting": true,
+      "probe": {
+        "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-performance-probe.mjs",
+        "sha256": "2ca42d7a3f67e2b9082f00c79f46ccac1a8bb8a752f5a77adf34b0c3320ba08d",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-performance-probe.mjs"
+        ],
+        "exitCode": 0,
+        "log": "/var/www/node/php-companion/.vscode-test/d452-native-performance-probe.log",
+        "logSha256": "297b904633207f496dbea5f7ec9d9e35400a47caceeb3029f29f4d206a167f53",
+        "result": {
+          "status": "passed",
+          "node": "v22.14.0",
+          "modules": [
+            {
+              "specifier": "../packages/index/dist/index.js",
+              "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/index/dist/index.js",
+              "sha256": "4a0575e81868005595799ee7a4942601050c79ba20417be7d5d02266ebbef277",
+              "exports": {
+                "DEFAULT_DOCUMENT_DEPENDENCY_GRAPH_LIMITS": "object",
+                "DEFAULT_DOCUMENT_KEY_INDEX_LIMITS": "object",
+                "DEFAULT_INDEX_LIMITS": "object",
+                "DocumentDependencyGraph": "function",
+                "DocumentKeyIndex": "function",
+                "PendingChanges": "function",
+                "createSourceCandidateSummary": "function",
+                "indexComposerSources": "function",
+                "sourceCandidateSummaryDecision": "function"
+              }
+            },
+            {
+              "specifier": "../packages/parser/dist/index.js",
+              "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/parser/dist/index.js",
+              "sha256": "73f4a87ba1e6c7bb370fc6996a2572721a5c09d98a312dd7a459e6884af753a9",
+              "exports": {
+                "PhpSyntaxParser": "function",
+                "controlFlowAssignmentStarts": "function",
+                "createIncrementalEdit": "function",
+                "defaultPhpParserPaths": "function",
+                "namespaceDeclarations": "function",
+                "phpNamespaceScopes": "function"
+              }
+            },
+            {
+              "specifier": "../packages/semantic/dist/index.js",
+              "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/semantic/dist/index.js",
+              "sha256": "da1abdcfa2886785f33ed5fd5d9f0f19809c5d1b50a62c59503e9ac47fa5522e",
+              "exports": {
+                "SemanticWorkspace": "function",
+                "completionIdentifierPrefix": "function",
+                "completionMatchRank": "function",
+                "quoteCompletionLiteral": "function"
+              }
+            },
+            {
+              "specifier": "../packages/language-server/dist/projectFacts.js",
+              "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/projectFacts.js",
+              "sha256": "a2b8226c6a65ed5c959b7e2ef2ceec8848d53c99832ccc22517da4739d4782ec",
+              "exports": {
+                "analyzeProjectPhpFileFacts": "function",
+                "compressCachedProjectPhpFile": "function",
+                "compressCachedSourceDeclaration": "function",
+                "createCachedProjectPhpFile": "function",
+                "decompressCachedProjectPhpFile": "function",
+                "restoreCachedProjectPhpFile": "function",
+                "restoreCachedSourceDeclaration": "function"
+              }
+            },
+            {
+              "specifier": "../packages/language-server/dist/callableFactsCache.js",
+              "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/language-server/dist/callableFactsCache.js",
+              "sha256": "00052f044587108591b44835fd92fbea3f3edc5c81a1c28de6acd02ab37029b0",
+              "exports": {
+                "CallableFactCache": "function",
+                "callableFactCachePath": "function"
+              }
+            },
+            {
+              "specifier": "../packages/testkit/dist/index.js",
+              "path": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/testkit/dist/index.js",
+              "sha256": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f",
+              "exports": {
+                "LspMessageDecoder": "function",
+                "PHP_VERSION_FIXTURES": "object",
+                "R1_PERFORMANCE_BUDGETS": "object",
+                "assertPerformanceBudget": "function",
+                "encodeLspMessage": "function",
+                "generatePhpComposerProject": "function",
+                "markedSource": "function",
+                "summarizeDurations": "function"
+              }
+            }
+          ],
+          "budgets": {
+            "hotQueryMs": 150,
+            "localDiagnosticsMs": 500,
+            "cancellationMs": 100,
+            "coldIndexMs": {
+              "files1000": 8000,
+              "files10000": 60000,
+              "files50000": 300000
+            },
+            "peakRssMb": {
+              "files1000": 384,
+              "files10000": 768,
+              "files50000": 1536
+            },
+            "warmCacheMb": {
+              "files1000": 64,
+              "files10000": 512,
+              "files50000": 2560
+            }
+          }
+        }
+      },
+      "runtimeFiles": [
+        {
+          "name": "extension.js",
+          "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950",
+          "bytes": 3301706
+        },
+        {
+          "name": "language-server.js",
+          "sha256": "520ea09b84f6f255db3b56ecea7f19848ffc782c1113f2ea2dcbc0e780cf2d04",
+          "bytes": 4263941
+        },
+        {
+          "name": "candidateWorker.js",
+          "sha256": "1efb2e17609524b0cbe7f3bb5d36c2a36d1052d85eabda5ca0158e3a07f79a34",
+          "bytes": 148852
+        },
+        {
+          "name": "portableCandidateSearchWorker.js",
+          "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+          "bytes": 3004
+        },
+        {
+          "name": "sourceStatWorker.js",
+          "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+          "bytes": 1098
+        },
+        {
+          "name": "builtinSnapshotWorker.js",
+          "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e",
+          "bytes": 130211
+        },
+        {
+          "name": "web-tree-sitter.wasm",
+          "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "bytes": 201037
+        },
+        {
+          "name": "tree-sitter-php.wasm",
+          "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "bytes": 1058041
+        }
+      ],
+      "engineBuildId": "0ae42772dab6921d819c1e618eef1834d8d157a046dc6fd5658042da48973cb2",
+      "roundsPerScale": 5,
+      "scales": [
+        1000,
+        10000,
+        50000
+      ],
+      "normalProductChanged": false,
+      "candidateAdopted": false,
+      "performanceQualified": false
+    },
+    "matrix": {
+      "status": "exited",
+      "parentPid": 1108381,
+      "startedAtUtc": "2026-10-07T20:11:39.658881+00:00",
+      "plannedScales": [
+        1000,
+        10000,
+        50000
+      ],
+      "plannedRoundsPerScale": 5,
+      "completedRounds": [
+        {
+          "name": "d454-native-persistence-1000-r1",
+          "status": "passed",
+          "files": 1000,
+          "round": 1,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-1000-r2",
+          "status": "passed",
+          "files": 1000,
+          "round": 2,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-1000-r3",
+          "status": "passed",
+          "files": 1000,
+          "round": 3,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-1000-r4",
+          "status": "passed",
+          "files": 1000,
+          "round": 4,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-1000-r5",
+          "status": "passed",
+          "files": 1000,
+          "round": 5,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-10000-r1",
+          "status": "passed",
+          "files": 10000,
+          "round": 1,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-10000-r2",
+          "status": "passed",
+          "files": 10000,
+          "round": 2,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-10000-r3",
+          "status": "passed",
+          "files": 10000,
+          "round": 3,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-10000-r4",
+          "status": "passed",
+          "files": 10000,
+          "round": 4,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-10000-r5",
+          "status": "passed",
+          "files": 10000,
+          "round": 5,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-50000-r1",
+          "status": "passed",
+          "files": 50000,
+          "round": 1,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-50000-r2",
+          "status": "passed",
+          "files": 50000,
+          "round": 2,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-50000-r3",
+          "status": "passed",
+          "files": 50000,
+          "round": 3,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-50000-r4",
+          "status": "passed",
+          "files": 50000,
+          "round": 4,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4-audit.json"
+        },
+        {
+          "name": "d454-native-persistence-50000-r5",
+          "status": "passed",
+          "files": 50000,
+          "round": 5,
+          "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5-audit.json"
+        }
+      ],
+      "completedScales": [
+        {
+          "files": 1000,
+          "status": "passed",
+          "summaryPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-five-rounds.json"
+        },
+        {
+          "files": 10000,
+          "status": "passed",
+          "summaryPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-five-rounds.json"
+        },
+        {
+          "files": 50000,
+          "status": "passed",
+          "summaryPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-five-rounds.json"
+        }
+      ],
+      "normalProductChanged": false,
+      "candidateAdopted": false,
+      "fullObjectiveComplete": false,
+      "currentRound": {
+        "name": "d454-native-persistence-50000-r5",
+        "files": 50000,
+        "round": 5,
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/.vscode-test/d453-run-native-performance.py",
+          "d454-native-persistence-50000-r5",
+          "50000",
+          "5"
+        ]
+      },
+      "exitCode": 0,
+      "finishedAtUtc": "2026-10-07T20:59:41.019008+00:00",
+      "durationSeconds": 2881.3598533979966
+    },
+    "phases": [
+      {
+        "status": "passed",
+        "files": 1000,
+        "rounds": 5,
+        "allOriginalFunctionalAssertionsPassed": true,
+        "allFrozenBudgetsPassed": true,
+        "summary": {
+          "files": 1000,
+          "rounds": 5,
+          "statistics": {
+            "coldMs": {
+              "samples": 5,
+              "p50": 2507.27,
+              "p95": 2616.38,
+              "maximum": 2616.38
+            },
+            "warmMs": {
+              "samples": 5,
+              "p50": 1727.63,
+              "p95": 1777.6,
+              "maximum": 1777.6
+            },
+            "warmToColdRatio": {
+              "samples": 5,
+              "p50": 0.6814,
+              "p95": 0.6941,
+              "maximum": 0.6941
+            },
+            "processPeakRssMiB": {
+              "samples": 5,
+              "p50": 160.05,
+              "p95": 167.38,
+              "maximum": 167.38
+            },
+            "coldSampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 145.05,
+              "p95": 147.78,
+              "maximum": 147.78
+            },
+            "warmSampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 137.27,
+              "p95": 142.48,
+              "maximum": 142.48
+            },
+            "layerRecoverySampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 147.03,
+              "p95": 153.39,
+              "maximum": 153.39
+            },
+            "callableRecoverySampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 158.96,
+              "p95": 166.92,
+              "maximum": 166.92
+            },
+            "warmCacheMiB": {
+              "samples": 5,
+              "p50": 5.55,
+              "p95": 5.55,
+              "maximum": 5.55
+            }
+          },
+          "budgets": {
+            "coldMs": 8000,
+            "rssMiB": 384,
+            "warmCacheMiB": 64
+          },
+          "percentileMethod": "Original testkit nearest rank; with five samples P95 equals maximum."
+        },
+        "roundAudits": [
+          {
+            "name": "d454-native-persistence-1000-r1",
+            "status": "passed",
+            "files": 1000,
+            "round": 1,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-1000-r2",
+            "status": "passed",
+            "files": 1000,
+            "round": 2,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-1000-r3",
+            "status": "passed",
+            "files": 1000,
+            "round": 3,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-1000-r4",
+            "status": "passed",
+            "files": 1000,
+            "round": 4,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-1000-r5",
+            "status": "passed",
+            "files": 1000,
+            "round": 5,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5-audit.json"
+          }
+        ],
+        "summaryCommand": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d453-summarize-native-performance.mjs"
+        ],
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "scope": "Five fresh complete original persistence processes on the unchanged native candidate; not general LSP/editor performance qualification."
+      },
+      {
+        "status": "passed",
+        "files": 10000,
+        "rounds": 5,
+        "allOriginalFunctionalAssertionsPassed": true,
+        "allFrozenBudgetsPassed": true,
+        "summary": {
+          "files": 10000,
+          "rounds": 5,
+          "statistics": {
+            "coldMs": {
+              "samples": 5,
+              "p50": 22173.48,
+              "p95": 23408.33,
+              "maximum": 23408.33
+            },
+            "warmMs": {
+              "samples": 5,
+              "p50": 16748.64,
+              "p95": 17172.21,
+              "maximum": 17172.21
+            },
+            "warmToColdRatio": {
+              "samples": 5,
+              "p50": 0.7366,
+              "p95": 0.7744,
+              "maximum": 0.7744
+            },
+            "processPeakRssMiB": {
+              "samples": 5,
+              "p50": 388.44,
+              "p95": 590.1,
+              "maximum": 590.1
+            },
+            "coldSampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 244.27,
+              "p95": 250.62,
+              "maximum": 250.62
+            },
+            "warmSampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 308.04,
+              "p95": 324,
+              "maximum": 324
+            },
+            "layerRecoverySampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 383.02,
+              "p95": 427.26,
+              "maximum": 427.26
+            },
+            "callableRecoverySampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 384.95,
+              "p95": 569.33,
+              "maximum": 569.33
+            },
+            "warmCacheMiB": {
+              "samples": 5,
+              "p50": 55.48,
+              "p95": 55.48,
+              "maximum": 55.48
+            }
+          },
+          "budgets": {
+            "coldMs": 60000,
+            "rssMiB": 768,
+            "warmCacheMiB": 512
+          },
+          "percentileMethod": "Original testkit nearest rank; with five samples P95 equals maximum."
+        },
+        "roundAudits": [
+          {
+            "name": "d454-native-persistence-10000-r1",
+            "status": "passed",
+            "files": 10000,
+            "round": 1,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-10000-r2",
+            "status": "passed",
+            "files": 10000,
+            "round": 2,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-10000-r3",
+            "status": "passed",
+            "files": 10000,
+            "round": 3,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-10000-r4",
+            "status": "passed",
+            "files": 10000,
+            "round": 4,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-10000-r5",
+            "status": "passed",
+            "files": 10000,
+            "round": 5,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5-audit.json"
+          }
+        ],
+        "summaryCommand": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d453-summarize-native-performance.mjs"
+        ],
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "scope": "Five fresh complete original persistence processes on the unchanged native candidate; not general LSP/editor performance qualification."
+      },
+      {
+        "status": "passed",
+        "files": 50000,
+        "rounds": 5,
+        "allOriginalFunctionalAssertionsPassed": true,
+        "allFrozenBudgetsPassed": true,
+        "summary": {
+          "files": 50000,
+          "rounds": 5,
+          "statistics": {
+            "coldMs": {
+              "samples": 5,
+              "p50": 108911.82,
+              "p95": 109845.13,
+              "maximum": 109845.13
+            },
+            "warmMs": {
+              "samples": 5,
+              "p50": 80198.43,
+              "p95": 84649.33,
+              "maximum": 84649.33
+            },
+            "warmToColdRatio": {
+              "samples": 5,
+              "p50": 0.7327,
+              "p95": 0.7854,
+              "maximum": 0.7854
+            },
+            "processPeakRssMiB": {
+              "samples": 5,
+              "p50": 1294.39,
+              "p95": 1523.31,
+              "maximum": 1523.31
+            },
+            "coldSampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 688.18,
+              "p95": 736.59,
+              "maximum": 736.59
+            },
+            "warmSampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 858.54,
+              "p95": 1351.47,
+              "maximum": 1351.47
+            },
+            "layerRecoverySampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 1254.59,
+              "p95": 1508.22,
+              "maximum": 1508.22
+            },
+            "callableRecoverySampledPeakRssMiB": {
+              "samples": 5,
+              "p50": 1198.56,
+              "p95": 1347.47,
+              "maximum": 1347.47
+            },
+            "warmCacheMiB": {
+              "samples": 5,
+              "p50": 277.39,
+              "p95": 277.41,
+              "maximum": 277.41
+            }
+          },
+          "budgets": {
+            "coldMs": 300000,
+            "rssMiB": 1536,
+            "warmCacheMiB": 2560
+          },
+          "percentileMethod": "Original testkit nearest rank; with five samples P95 equals maximum."
+        },
+        "roundAudits": [
+          {
+            "name": "d454-native-persistence-50000-r1",
+            "status": "passed",
+            "files": 50000,
+            "round": 1,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-50000-r2",
+            "status": "passed",
+            "files": 50000,
+            "round": 2,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-50000-r3",
+            "status": "passed",
+            "files": 50000,
+            "round": 3,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-50000-r4",
+            "status": "passed",
+            "files": 50000,
+            "round": 4,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4-audit.json"
+          },
+          {
+            "name": "d454-native-persistence-50000-r5",
+            "status": "passed",
+            "files": 50000,
+            "round": 5,
+            "audit": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5-audit.json"
+          }
+        ],
+        "summaryCommand": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d453-summarize-native-performance.mjs"
+        ],
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "scope": "Five fresh complete original persistence processes on the unchanged native candidate; not general LSP/editor performance qualification."
+      }
+    ],
+    "roundAudits": [
+      {
+        "status": "passed",
+        "files": 1000,
+        "round": 1,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2507.27,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 1631.55,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.6507,
+          "cache": {
+            "cold": {
+              "files": 1002,
+              "bytes": 5818880,
+              "mebibytes": 5.55
+            },
+            "warm": {
+              "files": 1002,
+              "bytes": 5818880,
+              "mebibytes": 5.55
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 147.78,
+            "warmPeakRssMb": 137.27,
+            "layerRecoveryPeakRssMb": 140.37,
+            "callableRecoveryPeakRssMb": 144.01,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 148.1,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1108434,
+          "childPid": 1108491,
+          "files": 1000,
+          "round": 1,
+          "startedAtUtc": "2026-10-07T20:11:44.996982+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "1000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1-input.json",
+          "exitCode": 0,
+          "durationSeconds": 9.93731062799634,
+          "finishedAtUtc": "2026-10-07T20:11:54.933242+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            0.96,
+            1.19,
+            1.42
+          ],
+          "logSha256": "edee5812b03862f65e6df2fa635d1148d9bada683698439a6344bd9c450c6a3e"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 1000,
+        "round": 2,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2488.95,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 1727.63,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.6941,
+          "cache": {
+            "cold": {
+              "files": 1002,
+              "bytes": 5817880,
+              "mebibytes": 5.55
+            },
+            "warm": {
+              "files": 1002,
+              "bytes": 5817880,
+              "mebibytes": 5.55
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 145.05,
+            "warmPeakRssMb": 142.48,
+            "layerRecoveryPeakRssMb": 153.39,
+            "callableRecoveryPeakRssMb": 166.92,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 167.38,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1108596,
+          "childPid": 1108631,
+          "files": 1000,
+          "round": 2,
+          "startedAtUtc": "2026-10-07T20:12:00.955310+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "1000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2-input.json",
+          "exitCode": 0,
+          "durationSeconds": 10.492518541999743,
+          "finishedAtUtc": "2026-10-07T20:12:11.446625+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.26,
+            1.24,
+            1.43
+          ],
+          "logSha256": "69f4a1bc9694c19746f27187537307a4488ac28918bdf06fc6884072ff088250"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 1000,
+        "round": 3,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2608.78,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 1777.6,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.6814,
+          "cache": {
+            "cold": {
+              "files": 1002,
+              "bytes": 5818880,
+              "mebibytes": 5.55
+            },
+            "warm": {
+              "files": 1002,
+              "bytes": 5818880,
+              "mebibytes": 5.55
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 141.09,
+            "warmPeakRssMb": 137.34,
+            "layerRecoveryPeakRssMb": 148.85,
+            "callableRecoveryPeakRssMb": 161.22,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 161.73,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1108808,
+          "childPid": 1108852,
+          "files": 1000,
+          "round": 3,
+          "startedAtUtc": "2026-10-07T20:12:17.610401+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "1000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3-input.json",
+          "exitCode": 0,
+          "durationSeconds": 10.561843827999837,
+          "finishedAtUtc": "2026-10-07T20:12:28.171564+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.2,
+            1.23,
+            1.42
+          ],
+          "logSha256": "42dc03fcdeb14dfa393f1cd8c8ed1ed36113d1ac1770e258762205b89a24803b"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 1000,
+        "round": 4,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2616.38,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 1746.26,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.6674,
+          "cache": {
+            "cold": {
+              "files": 1002,
+              "bytes": 5818880,
+              "mebibytes": 5.55
+            },
+            "warm": {
+              "files": 1002,
+              "bytes": 5818880,
+              "mebibytes": 5.55
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 136.2,
+            "warmPeakRssMb": 134.87,
+            "layerRecoveryPeakRssMb": 143.08,
+            "callableRecoveryPeakRssMb": 155.02,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 155.28,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1108957,
+          "childPid": 1108998,
+          "files": 1000,
+          "round": 4,
+          "startedAtUtc": "2026-10-07T20:12:34.166174+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "1000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4-input.json",
+          "exitCode": 0,
+          "durationSeconds": 10.194325980002759,
+          "finishedAtUtc": "2026-10-07T20:12:44.328323+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.32,
+            1.25,
+            1.43
+          ],
+          "logSha256": "9c58d21281aa227ddb1c00dd42bec1082a6570122b17f5a929df7d7ad7ae9bae"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 1000,
+        "round": 5,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 1000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 2459.33,
+            "parsed": 1000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 1682.3,
+            "parsed": 0,
+            "restored": 1000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.684,
+          "cache": {
+            "cold": {
+              "files": 1002,
+              "bytes": 5818380,
+              "mebibytes": 5.55
+            },
+            "warm": {
+              "files": 1002,
+              "bytes": 5818380,
+              "mebibytes": 5.55
+            },
+            "frozenBudgetMb": 64
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 147.58,
+            "warmPeakRssMb": 136.61,
+            "layerRecoveryPeakRssMb": 147.03,
+            "callableRecoveryPeakRssMb": 158.96,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 384,
+            "processPeakRssMb": 160.05,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 1000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 1999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1109107,
+          "childPid": 1109142,
+          "files": 1000,
+          "round": 5,
+          "startedAtUtc": "2026-10-07T20:12:50.339818+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "1000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5-input.json",
+          "exitCode": 0,
+          "durationSeconds": 10.368067470000824,
+          "finishedAtUtc": "2026-10-07T20:13:00.707139+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.36,
+            1.27,
+            1.43
+          ],
+          "logSha256": "91e057e52c4bb46bea1230052aac94ecb6ced628b1e21b625b7d551d1c5db384"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 10000,
+        "round": 1,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 10000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 22043.35,
+            "parsed": 10000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 16805.52,
+            "parsed": 0,
+            "restored": 10000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7624,
+          "cache": {
+            "cold": {
+              "files": 10002,
+              "bytes": 58174280,
+              "mebibytes": 55.48
+            },
+            "warm": {
+              "files": 10002,
+              "bytes": 58174280,
+              "mebibytes": 55.48
+            },
+            "frozenBudgetMb": 512
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 246.75,
+            "warmPeakRssMb": 324,
+            "layerRecoveryPeakRssMb": 375.15,
+            "callableRecoveryPeakRssMb": 381.04,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 768,
+            "processPeakRssMb": 384.58,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 10000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 19999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1109283,
+          "childPid": 1109319,
+          "files": 10000,
+          "round": 1,
+          "startedAtUtc": "2026-10-07T20:13:06.871442+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "10000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1-input.json",
+          "exitCode": 0,
+          "durationSeconds": 90.99455954899895,
+          "finishedAtUtc": "2026-10-07T20:14:37.865452+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.71,
+            1.42,
+            1.47
+          ],
+          "logSha256": "c676342337a3ce4f53919960c7f06bda2cc49734505bff708b22725e53e3abae"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 10000,
+        "round": 2,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 10000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 23408.33,
+            "parsed": 10000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 16748.64,
+            "parsed": 0,
+            "restored": 10000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7155,
+          "cache": {
+            "cold": {
+              "files": 10002,
+              "bytes": 58169910,
+              "mebibytes": 55.48
+            },
+            "warm": {
+              "files": 10002,
+              "bytes": 58169910,
+              "mebibytes": 55.48
+            },
+            "frozenBudgetMb": 512
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 250.62,
+            "warmPeakRssMb": 266.05,
+            "layerRecoveryPeakRssMb": 325.16,
+            "callableRecoveryPeakRssMb": 329.95,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 768,
+            "processPeakRssMb": 333.66,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 10000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 19999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1109954,
+          "childPid": 1109989,
+          "files": 10000,
+          "round": 2,
+          "startedAtUtc": "2026-10-07T20:14:43.876754+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "10000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2-input.json",
+          "exitCode": 0,
+          "durationSeconds": 93.98946029399667,
+          "finishedAtUtc": "2026-10-07T20:16:17.865195+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.62,
+            1.49,
+            1.49
+          ],
+          "logSha256": "fc51f29f6f3309e69580f76a16711f34042db821231087936155dec085914054"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 10000,
+        "round": 3,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 10000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 22173.48,
+            "parsed": 10000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 17172.21,
+            "parsed": 0,
+            "restored": 10000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7744,
+          "cache": {
+            "cold": {
+              "files": 10002,
+              "bytes": 58164402,
+              "mebibytes": 55.47
+            },
+            "warm": {
+              "files": 10002,
+              "bytes": 58164402,
+              "mebibytes": 55.47
+            },
+            "frozenBudgetMb": 512
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 242.71,
+            "warmPeakRssMb": 308.04,
+            "layerRecoveryPeakRssMb": 427.26,
+            "callableRecoveryPeakRssMb": 569.33,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 768,
+            "processPeakRssMb": 590.1,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 10000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 19999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1110631,
+          "childPid": 1110676,
+          "files": 10000,
+          "round": 3,
+          "startedAtUtc": "2026-10-07T20:16:23.780460+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "10000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3-input.json",
+          "exitCode": 0,
+          "durationSeconds": 93.32473473900609,
+          "finishedAtUtc": "2026-10-07T20:17:57.104378+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.73,
+            1.56,
+            1.52
+          ],
+          "logSha256": "4fdc4ca28adc121cee7d75843fe3224025fbb98445ef8f162de19b40137051d9"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 10000,
+        "round": 4,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 10000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 22063.59,
+            "parsed": 10000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 15958.95,
+            "parsed": 0,
+            "restored": 10000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7233,
+          "cache": {
+            "cold": {
+              "files": 10002,
+              "bytes": 58166902,
+              "mebibytes": 55.47
+            },
+            "warm": {
+              "files": 10002,
+              "bytes": 58166902,
+              "mebibytes": 55.47
+            },
+            "frozenBudgetMb": 512
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 244.27,
+            "warmPeakRssMb": 311.59,
+            "layerRecoveryPeakRssMb": 383.02,
+            "callableRecoveryPeakRssMb": 384.95,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 768,
+            "processPeakRssMb": 388.44,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 10000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 19999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1111279,
+          "childPid": 1111320,
+          "files": 10000,
+          "round": 4,
+          "startedAtUtc": "2026-10-07T20:18:03.148037+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "10000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4-input.json",
+          "exitCode": 0,
+          "durationSeconds": 89.04033863000222,
+          "finishedAtUtc": "2026-10-07T20:19:32.187747+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.92,
+            1.65,
+            1.55
+          ],
+          "logSha256": "f3d50350f822351f10583913e370eb0d23f87a68907b996d4d750d74a2029701"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 10000,
+        "round": 5,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 10000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 22656.57,
+            "parsed": 10000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 16687.85,
+            "parsed": 0,
+            "restored": 10000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7366,
+          "cache": {
+            "cold": {
+              "files": 10002,
+              "bytes": 58174902,
+              "mebibytes": 55.48
+            },
+            "warm": {
+              "files": 10002,
+              "bytes": 58174902,
+              "mebibytes": 55.48
+            },
+            "frozenBudgetMb": 512
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 234.82,
+            "warmPeakRssMb": 303.85,
+            "layerRecoveryPeakRssMb": 403.68,
+            "callableRecoveryPeakRssMb": 411.02,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 768,
+            "processPeakRssMb": 432.23,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 10000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 19999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1111825,
+          "childPid": 1111860,
+          "files": 10000,
+          "round": 5,
+          "startedAtUtc": "2026-10-07T20:19:38.104191+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "10000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5-input.json",
+          "exitCode": 0,
+          "durationSeconds": 90.94215686100506,
+          "finishedAtUtc": "2026-10-07T20:21:09.045737+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.3,
+            1.54,
+            1.52
+          ],
+          "logSha256": "e11a053ef0be914d7f8e1c9210f3c415cd6aebb0db4adfceafeac69822576c25"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 50000,
+        "round": 1,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 50000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 108911.82,
+            "parsed": 50000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 79341.25,
+            "parsed": 0,
+            "restored": 50000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7285,
+          "cache": {
+            "cold": {
+              "files": 50002,
+              "bytes": 290872402,
+              "mebibytes": 277.4
+            },
+            "warm": {
+              "files": 50002,
+              "bytes": 290872402,
+              "mebibytes": 277.4
+            },
+            "frozenBudgetMb": 2560
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 723.09,
+            "warmPeakRssMb": 858.54,
+            "layerRecoveryPeakRssMb": 1003.93,
+            "callableRecoveryPeakRssMb": 1052.25,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 1536,
+            "processPeakRssMb": 1057.71,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 50000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 99999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1112393,
+          "childPid": 1112438,
+          "files": 50000,
+          "round": 1,
+          "startedAtUtc": "2026-10-07T20:21:15.296366+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "50000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1-input.json",
+          "exitCode": 0,
+          "durationSeconds": 449.9613197360013,
+          "finishedAtUtc": "2026-10-07T20:28:45.256873+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.6,
+            1.55,
+            1.55
+          ],
+          "logSha256": "467d1c8a40307003d4520603987060fbeffa35cae62e4e009d6adb40f34370eb"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 50000,
+        "round": 2,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 50000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 107784.39,
+            "parsed": 50000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 84649.33,
+            "parsed": 0,
+            "restored": 50000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7854,
+          "cache": {
+            "cold": {
+              "files": 50002,
+              "bytes": 290858910,
+              "mebibytes": 277.38
+            },
+            "warm": {
+              "files": 50002,
+              "bytes": 290858910,
+              "mebibytes": 277.38
+            },
+            "frozenBudgetMb": 2560
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 640.39,
+            "warmPeakRssMb": 1281.8,
+            "layerRecoveryPeakRssMb": 1348.5,
+            "callableRecoveryPeakRssMb": 1347.47,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 1536,
+            "processPeakRssMb": 1348.5,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 50000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 99999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1114697,
+          "childPid": 1114748,
+          "files": 50000,
+          "round": 2,
+          "startedAtUtc": "2026-10-07T20:28:51.663759+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "50000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2-input.json",
+          "exitCode": 0,
+          "durationSeconds": 458.12748187500256,
+          "finishedAtUtc": "2026-10-07T20:36:29.790527+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.14,
+            1.33,
+            1.46
+          ],
+          "logSha256": "48816a8b5387250db60efdf0b4f03aa7f38a4e53ab4627927849ea765c6bf681"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 50000,
+        "round": 3,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 50000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 109455.09,
+            "parsed": 50000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 80198.43,
+            "parsed": 0,
+            "restored": 50000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7327,
+          "cache": {
+            "cold": {
+              "files": 50002,
+              "bytes": 290868410,
+              "mebibytes": 277.39
+            },
+            "warm": {
+              "files": 50002,
+              "bytes": 290868410,
+              "mebibytes": 277.39
+            },
+            "frozenBudgetMb": 2560
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 673.7,
+            "warmPeakRssMb": 823.63,
+            "layerRecoveryPeakRssMb": 835.84,
+            "callableRecoveryPeakRssMb": 1175.72,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 1536,
+            "processPeakRssMb": 1175.72,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 50000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 99999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1116986,
+          "childPid": 1117036,
+          "files": 50000,
+          "round": 3,
+          "startedAtUtc": "2026-10-07T20:36:37.233998+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "50000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3-input.json",
+          "exitCode": 0,
+          "durationSeconds": 455.110011701996,
+          "finishedAtUtc": "2026-10-07T20:44:12.343253+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.8,
+            1.48,
+            1.48
+          ],
+          "logSha256": "f8e495343a743fd6252cc1fdbdde2aba6201eb780de74c81910b4e3276ff662a"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 50000,
+        "round": 4,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 50000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 108766.73,
+            "parsed": 50000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 81319.41,
+            "parsed": 0,
+            "restored": 50000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7476,
+          "cache": {
+            "cold": {
+              "files": 50002,
+              "bytes": 290852902,
+              "mebibytes": 277.38
+            },
+            "warm": {
+              "files": 50002,
+              "bytes": 290852902,
+              "mebibytes": 277.38
+            },
+            "frozenBudgetMb": 2560
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 688.18,
+            "warmPeakRssMb": 1351.47,
+            "layerRecoveryPeakRssMb": 1508.22,
+            "callableRecoveryPeakRssMb": 1198.56,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 1536,
+            "processPeakRssMb": 1523.31,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 50000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 99999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1119540,
+          "childPid": 1119585,
+          "files": 50000,
+          "round": 4,
+          "startedAtUtc": "2026-10-07T20:44:18.699616+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "50000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4-input.json",
+          "exitCode": 0,
+          "durationSeconds": 455.8935266029948,
+          "finishedAtUtc": "2026-10-07T20:51:54.592459+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.43,
+            1.48,
+            1.5
+          ],
+          "logSha256": "cb8d08fe6157e269f049e1035c5cd9b03c2cfad481ea28d99cc96facf5fdd18c"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      },
+      {
+        "status": "passed",
+        "files": 50000,
+        "round": 5,
+        "functionalAssertionsPassed": true,
+        "gates": {
+          "rss": true,
+          "cache": true,
+          "cold": true
+        },
+        "profile": {
+          "schema": 1,
+          "files": 50000,
+          "runtime": "v22.14.0",
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "cold": {
+            "durationMs": 109845.13,
+            "parsed": 50000,
+            "restored": 0,
+            "doctrineParsed": 1
+          },
+          "warm": {
+            "durationMs": 79265.62,
+            "parsed": 0,
+            "restored": 50000,
+            "doctrineParsed": 0
+          },
+          "warmToColdRatio": 0.7216,
+          "cache": {
+            "cold": {
+              "files": 50002,
+              "bytes": 290882680,
+              "mebibytes": 277.41
+            },
+            "warm": {
+              "files": 50002,
+              "bytes": 290882680,
+              "mebibytes": 277.41
+            },
+            "frozenBudgetMb": 2560
+          },
+          "loadMemory": {
+            "coldPeakRssMb": 736.59,
+            "warmPeakRssMb": 764.27,
+            "layerRecoveryPeakRssMb": 1254.59,
+            "callableRecoveryPeakRssMb": 1294.39,
+            "sampledIntervalMs": 10,
+            "frozenScalePeakRssMb": 1536,
+            "processPeakRssMb": 1294.39,
+            "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+            "processRssBudgetPassed": true
+          },
+          "exactness": {
+            "transitiveDependencyRestored": true,
+            "derivedFactInvalidated": true,
+            "doctrineFactsRestored": true,
+            "callableFactsRestored": 3,
+            "deferredImplementations": 50000,
+            "implementationsLoadedByQuery": 4,
+            "callableImplementationsLoadedByFocusedQuery": [
+              "benchmark\\consumer::inspect"
+            ],
+            "callableImplementationRecords": 99999,
+            "corruptLayerReparsedFiles": 1,
+            "corruptCallableReparsedFiles": 1,
+            "completionAfterLayerRecovery": true,
+            "completionAfterCallableRecovery": true,
+            "constructorFactsAfterRecovery": true
+          }
+        },
+        "run": {
+          "status": "exited",
+          "parentPid": 1121807,
+          "childPid": 1121858,
+          "files": 50000,
+          "round": 5,
+          "startedAtUtc": "2026-10-07T20:52:00.796001+00:00",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+            "50000",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/web-tree-sitter.wasm",
+            "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/dist/tree-sitter-php.wasm"
+          ],
+          "manifest": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5-input.json",
+          "exitCode": 0,
+          "durationSeconds": 456.9149073909939,
+          "finishedAtUtc": "2026-10-07T20:59:37.710181+00:00",
+          "changedInputs": [],
+          "changedSymlinks": [],
+          "repositoryChanges": [],
+          "newFixtureDirectoriesRemaining": [],
+          "loadAverageAfter": [
+            1.03,
+            1.4,
+            1.49
+          ],
+          "logSha256": "28df1bdac9343a2973dcd699766a1f6a17bd11dcfa84b8aea2670858efbe2f89"
+        },
+        "fullOriginalSequenceAndCleanup": true,
+        "explicitForcedGc": false,
+        "phaseSplitting": false,
+        "normalProductChanged": false,
+        "candidateAdopted": false,
+        "qualification": false
+      }
+    ],
+    "normalProductChanged": false,
+    "candidateAdopted": false,
+    "fullPerformanceQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "priorReports": [
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-source-runtime-integration-2026-10-08.json",
+      "sha256": "fac2bae3ce2c3ec935fc053afc368437004e697dcf842b345e1ad791e921a08f",
+      "artifactCount": 237,
+      "archivedAndOriginalHashesVerified": true
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-full-lsp-2026-10-08.json",
+      "sha256": "c4867fa07e1d9943028ef96af61933a6c77f1eb01d4660d1183d5c2e52ee86ba",
+      "artifactCount": 235,
+      "archivedAndOriginalHashesVerified": true
+    },
+    {
+      "path": "docs/php-language-toolchain/reports/native-cache-linux-hosts-2026-10-08.json",
+      "sha256": "69692fb5fc9475b4b6784bf40d82739004ffb573b6756b08ebad48eea4e38ecb",
+      "artifactCount": 1565,
+      "archivedAndOriginalHashesVerified": true
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d426-runtime-build-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d426-runtime-build-audit.json",
+      "sha256": "c5dc5c75fab5fa1892bf42538fdb5ebcc971add6e2812b20f514aab6a3b2735d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d431-integrated-workspace/packages/testkit/dist/index.js",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/testkit/dist/index.js",
+      "sha256": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d431-integrated-workspace/packages/testkit/src/index.ts",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/packages/testkit/src/index.ts",
+      "sha256": "e97d56260533b2bf000ad71f0d2d87132bf1d418f57c3ac40d469913cb67eb39"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d431-integrated-workspace/scripts/d452-native-performance-probe.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-performance-probe.mjs",
+      "sha256": "2ca42d7a3f67e2b9082f00c79f46ccac1a8bb8a752f5a77adf34b0c3320ba08d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d452-native-persistence.mjs",
+      "sha256": "b3b835923db41e94a34f0deea881b0989bbc90a6d1c7f55ec40d63c083eed5d3"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d431-integrated-workspace/scripts/d453-summarize-native-performance.mjs",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d431-integrated-workspace/scripts/d453-summarize-native-performance.mjs",
+      "sha256": "471990d7a4cdf6a286106aa2250ba2a54cb7c5448d0ec525f98446d0e01f5891"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d451-native-hosts-final-validation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d451-native-hosts-final-validation.json",
+      "sha256": "62057e86a080f6001225ad0bd6abde371cfc4db6eadb4c97413b699777814461"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d452-native-performance-preparation.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d452-native-performance-preparation.json",
+      "sha256": "77f08f11a629fb27599fea46d7954fd3948350917d2ec633b7ae18eda0f0e783"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d452-native-performance-probe.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d452-native-performance-probe.log",
+      "sha256": "297b904633207f496dbea5f7ec9d9e35400a47caceeb3029f29f4d206a167f53"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d452-prepare-native-performance.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d452-prepare-native-performance.py",
+      "sha256": "a9d39651b6c5e00bf61e6e5215d00833bdef069c6d48a4cfd627d25b288bc65a"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d453-audit-native-performance.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d453-audit-native-performance.py",
+      "sha256": "38f50e51482e7b49cdcfc4ebb3fd7648480f9cf44b33f7327b5fce76b91c35f0"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d453-run-native-performance.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d453-run-native-performance.py",
+      "sha256": "85644f83e1199e69055c0f92972c0545e5f1b54392c09dd07b6b4e71a460095b"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-five-rounds.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-five-rounds.json",
+      "sha256": "697ccc4cf5942efafe17b8c9ba5dd0edda4ff38b3241f4f7d741965b65a2ac81"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r1-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1-audit.json",
+      "sha256": "6eebc3911bda9eabd14a00b68b184e669d04562e71b985178a5d0a93e87e811c"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r1-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1-input.json",
+      "sha256": "765e79e6098767fca9852b60dea4a64770b1dbc77096762871d1e2af6b711f1c"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r1-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1-run.json",
+      "sha256": "652a63e75b278fa76a720c744456d57a1916abc072d994605b0352a1906bdbab"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r1.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r1.log",
+      "sha256": "edee5812b03862f65e6df2fa635d1148d9bada683698439a6344bd9c450c6a3e"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r2-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2-audit.json",
+      "sha256": "e04e1661245e40be0886f023ba67349e827f5ed47262f896ef2ed912d5383eca"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r2-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2-input.json",
+      "sha256": "d2b94f558a4b33d0ec0a073d408c0bf48c88b7cad9febadb3fcb31ecb94cfb4d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r2-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2-run.json",
+      "sha256": "30ce21a2c429894469bb2acbb703c82a923868f3ea2bf3d3b940eb07157d21e7"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r2.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r2.log",
+      "sha256": "69f4a1bc9694c19746f27187537307a4488ac28918bdf06fc6884072ff088250"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r3-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3-audit.json",
+      "sha256": "aaebca59aa382e08ccff9f5a1cb1ae97acac01047f8c83bdf36276a67dc77192"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r3-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3-input.json",
+      "sha256": "e81e8fcf9cf51595056698e62b832ce475ec0fd620f2f5aea309f2b139105183"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r3-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3-run.json",
+      "sha256": "cfb06c0bbb464287a440e9bf3359215fbb0cb9814f3b401ab2dfe21293ec0b57"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r3.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r3.log",
+      "sha256": "42dc03fcdeb14dfa393f1cd8c8ed1ed36113d1ac1770e258762205b89a24803b"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r4-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4-audit.json",
+      "sha256": "3645f7ee6f26ed64a05538101ded79abd442efc70347e9d9913bfd96d7efa8c8"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r4-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4-input.json",
+      "sha256": "0549a8bbdb10a9411ad6d33d2df76806861c057ba0dbb1e91256106070a67bb0"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r4-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4-run.json",
+      "sha256": "a18d45ad667d8758c7b0ea02c97b09de4bffe76abe555f0cd158743eaf3beade"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r4.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r4.log",
+      "sha256": "9c58d21281aa227ddb1c00dd42bec1082a6570122b17f5a929df7d7ad7ae9bae"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r5-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5-audit.json",
+      "sha256": "167f0ea48d53bbb0331d3933520f77faeecfeefb79061bbafa391ba1f4625beb"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r5-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5-input.json",
+      "sha256": "4ba4c736b2d7f24d9b41535f2d293998d479035cc51c9a82c551e7cabd804a6f"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r5-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5-run.json",
+      "sha256": "254122c4c991957aaf1b850114f6dfe356d6d1822b210009a6499b471096799d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-1000-r5.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-1000-r5.log",
+      "sha256": "91e057e52c4bb46bea1230052aac94ecb6ced628b1e21b625b7d551d1c5db384"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-five-rounds.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-five-rounds.json",
+      "sha256": "9caceb53970ed000dfe07ea826472693b134580c5439a1212f9d2bbd81e3a029"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r1-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1-audit.json",
+      "sha256": "e196445d9bb0b187f55e00cb1fc6701a95be6a3bbdea1388cd4721e84d04b4b9"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r1-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1-input.json",
+      "sha256": "83442da678d37878dfd301deb605dc8c8c9bb38ce22e07e66f448d693da8d14b"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r1-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1-run.json",
+      "sha256": "c88b9d98ea305c48f3d3241b08f3b028849129e792d505d29655df1d4c10072b"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r1.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r1.log",
+      "sha256": "c676342337a3ce4f53919960c7f06bda2cc49734505bff708b22725e53e3abae"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r2-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2-audit.json",
+      "sha256": "42b77b1bcacd3713d73a5178fa5b659f899cdbcb078897c7c141a31db606af72"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r2-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2-input.json",
+      "sha256": "ff2381f91f6a23004f3c4dead7384089283830e00d1c81186585b18558ef320f"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r2-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2-run.json",
+      "sha256": "4716b1fc4ab209392021656aedb780a8d554f5ca396bd1442a9569ad95c485ef"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r2.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r2.log",
+      "sha256": "fc51f29f6f3309e69580f76a16711f34042db821231087936155dec085914054"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r3-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3-audit.json",
+      "sha256": "0906b687725bde0d5007b72be2d8f355814ed0fccb91b2f90a827f7b4b24abcf"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r3-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3-input.json",
+      "sha256": "d4e2c209e7e8aa10eb03c6722572ac9d2ca12a2ef25f8b24aa73e0b7562a6183"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r3-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3-run.json",
+      "sha256": "b8a8f445f87e68a25e5ced9e0aab7a1645a0066b2ec9689a269b961d361c394d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r3.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r3.log",
+      "sha256": "4fdc4ca28adc121cee7d75843fe3224025fbb98445ef8f162de19b40137051d9"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r4-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4-audit.json",
+      "sha256": "885df0cb750ad55cf30717f5c2e0dd42e72936944ba7f7921adea541e062475c"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r4-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4-input.json",
+      "sha256": "770ae6d724d738811e2c5b90a05163e066f22f7f100195f8956942b913f8b861"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r4-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4-run.json",
+      "sha256": "c95cdde277e811d9d080916245bf52fe547a312beb5d82caa616a489148e8d25"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r4.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r4.log",
+      "sha256": "f3d50350f822351f10583913e370eb0d23f87a68907b996d4d750d74a2029701"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r5-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5-audit.json",
+      "sha256": "df6bbeca313093f056226f612806fa161b031a6f4bb0afa87dbab895417ac540"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r5-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5-input.json",
+      "sha256": "3e41072ee6402bd82652dc87fd933ff2666eccaa3b3aaa365d72802a4f6d9cd0"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r5-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5-run.json",
+      "sha256": "2e9ba2d3a1be39cdf72e6ff94c69aa83076e1230fb14565645a8a7c475e77e45"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-10000-r5.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-10000-r5.log",
+      "sha256": "e11a053ef0be914d7f8e1c9210f3c415cd6aebb0db4adfceafeac69822576c25"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-five-rounds.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-five-rounds.json",
+      "sha256": "4f877a6114ec13e7cd8f115809647b04fa65746c842721249d713adf4134f858"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r1-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1-audit.json",
+      "sha256": "d9cafe3196ee877c55109f594b5dccfa882ae291261cb4f75e5b81a3d3f2297d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r1-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1-input.json",
+      "sha256": "917ac216474f69fd115b8c7a275785e9bc1b7358a87d1ca31f3561add99294f4"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r1-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1-run.json",
+      "sha256": "fea4dce0fb0d28616d6d69ac006f8a59406e350371f7261eaa7eabe2ebb9f792"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r1.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r1.log",
+      "sha256": "467d1c8a40307003d4520603987060fbeffa35cae62e4e009d6adb40f34370eb"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r2-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2-audit.json",
+      "sha256": "712b0e10d0bff3bcd2ebc4dbc41b1003c5eab5e82dad8f310973159a51ef9c9f"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r2-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2-input.json",
+      "sha256": "d8eff8a88f98a6d30d5f50a55e4ae04214c5c86107f14fb4710cfa268a2e9a4d"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r2-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2-run.json",
+      "sha256": "75d398c57a974ace853aabbf35302ecde011b27d04f19884fc2b956369f34db2"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r2.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r2.log",
+      "sha256": "48816a8b5387250db60efdf0b4f03aa7f38a4e53ab4627927849ea765c6bf681"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r3-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3-audit.json",
+      "sha256": "98fe9c3713e8bb80d415613029710ef5f014baf00f46a70b40d9c404c2938a89"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r3-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3-input.json",
+      "sha256": "fcb76d08be88c291c96380fe1a76698b76b56cd9231aba1a534634cb82464c8e"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r3-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3-run.json",
+      "sha256": "a847c8c8ff6eee7835cefe44bf534aad184d36ae704f8dee0d4f70a29fc23bfe"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r3.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r3.log",
+      "sha256": "f8e495343a743fd6252cc1fdbdde2aba6201eb780de74c81910b4e3276ff662a"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r4-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4-audit.json",
+      "sha256": "6f34435ab003c2037165e8f29c3fd9908cec6b51d70a241bebbf0dd268e6c6ca"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r4-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4-input.json",
+      "sha256": "475c55fc4bb974bba0c8b547ca4e8665d99f0078044e1b8fb54a26f5952650e5"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r4-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4-run.json",
+      "sha256": "047f0234c09d30b124f1371a114b68d863c38ac2361a8dbc0debf8a1ae12b24e"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r4.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r4.log",
+      "sha256": "cb8d08fe6157e269f049e1035c5cd9b03c2cfad481ea28d99cc96facf5fdd18c"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r5-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5-audit.json",
+      "sha256": "59c543eb0f27234472951954ca2160282b615f2382b95680ca6e3f1e768fc056"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r5-input.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5-input.json",
+      "sha256": "bd0c0bb69c64788d3c561a192f445a72ff9912d551c54613a8244fa1db147ba5"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r5-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5-run.json",
+      "sha256": "3480868c7e421d3c66083468f847fa2f646af454d6ca499c78e627e89f832e8f"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-persistence-50000-r5.log",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-persistence-50000-r5.log",
+      "sha256": "28df1bdac9343a2973dcd699766a1f6a17bd11dcfa84b8aea2670858efbe2f89"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-native-three-scale-five-rounds-run.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-native-three-scale-five-rounds-run.json",
+      "sha256": "f6ae7567cb086b42e2a8168855c3f4aac7104bb93c735613da59b0b46558d3f3"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d454-run-native-five-rounds.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d454-run-native-five-rounds.py",
+      "sha256": "08d8a7b57da701ed423ae4b0ae467450d24a26b9bcf4ad92f0e715739078ff75"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d455-audit-native-five-rounds.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d455-audit-native-five-rounds.py",
+      "sha256": "7e3c045ac90e04c715f4b5889e8d12e9500f95f3a04ff6f92487812f81c61d65"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d455-native-five-rounds-audit.json",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d455-native-five-rounds-audit.json",
+      "sha256": "0e5b5549548beb24b46e36c92b485e3f9d56173fe3518148ee2ce1920d0db9fc"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/d456-record-native-five-rounds.py",
+      "originalPath": "/var/www/node/php-companion/.vscode-test/d456-record-native-five-rounds.py",
+      "sha256": "71a40dd445ce09ab778792cc42e5a295e6961ab1109073fb1d8bae6192f09c38"
+    },
+    {
+      "path": ".vscode-test/d456-native-five-round-evidence/normal-inputs/scripts/benchmark-persistent-index.mjs",
+      "originalPath": "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+      "sha256": "914df37d4d0b1c435a66eb8435faa80da87efa61f8f8b52b34b1beb213f92aef"
+    }
+  ],
+  "artifactCount": 81,
+  "evidenceDirectory": ".vscode-test/d456-native-five-round-evidence",
+  "historicalScaleEvidenceInherited": false,
+  "normalOpenBudgets": {
+    "controllerP95Ms": 157.74,
+    "controllerBudgetMs": 150,
+    "normalComplete10000RssMiB": 920.54,
+    "normal10000BudgetMiB": 768
+  },
+  "limitations": [
+    "Qualification covers the original complete direct-package persistence benchmark at three scales, five new complete processes per scale, on this Linux machine only.",
+    "The benchmark imports the exact native candidate index/semantic compilation and unchanged private parser/projectFacts/CallableFactCache/testkit; it does not execute the Language Server bundle or an editor during measurement.",
+    "Complete original LSP and Linux C1/C2/C3 were independently qualified on the same unchanged source/runtime before these measurements; their timings/RSS are not inferred from this benchmark.",
+    "Whole-process maxRSS includes fixture creation, cold/warm/layer-corrupt/callable-corrupt loads, cache mutation and original recursive final cleanup; per-phase interval samples are reported separately.",
+    "Testkit nearest-rank P95 over five observations equals maximum; every round and all nine phase statistics remain available.",
+    "Fresh deterministic fixture directories do not constitute a flushed operating-system disk-cache benchmark.",
+    "Warm restore is measured but has no separate original hard budget; historical normal 10k approximately 6.20-second single sample is unpaired and not a statistical comparison.",
+    "Ordinary editing, first usable protocol result, actual server/workers memory, full platform/mode/tool matrix and long sessions still require evidence.",
+    "Normal product remains unchanged; original 157.74/150 ms Controller and 920.54/768 MiB normal 10k failures remain open.",
+    "No adoption, installation or publication; complete C1-C4/R4, P0-P9/F01-F14 and human WSL objective remains active."
+  ],
+  "nextStep": "Inspect warm-restore waiting cost and validate ordinary editing plus actual server/worker performance on the unchanged candidate before deciding product adoption; preserve the original budgets and full acceptance scope."
+}

@@ -1,0 +1,857 @@
+{
+  "date": "2026-10-08",
+  "auditedAtUtc": "2026-10-08T00:09:04.462975+00:00",
+  "normalOriginalLinuxC1C2C3Qualified": true,
+  "engineBuildId": "334bbde8765179037043c4d9fbf0614609b857474ae6821052164b380fee2c21",
+  "cases": [
+    {
+      "suite": "c1",
+      "durationSeconds": 103.64811527800339,
+      "inputCount": 18881,
+      "proof": {
+        "status": "passed",
+        "suite": "original-full-c1",
+        "originalAssertionsUnchanged": true,
+        "runtime": {
+          "suite": "c1",
+          "platform": "linux",
+          "node": "v24.21.0",
+          "execPath": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "vscode": "1.140.0",
+          "flags": {
+            "PHP_COMPANION_TEST_C1_COLD_WARM_ROUNDS": "0",
+            "PHP_COMPANION_TEST_C1_DEBUG_PORT": "36855",
+            "PHP_COMPANION_TEST_C1_ONLY": "1",
+            "PHP_COMPANION_TEST_C1_RUNTIME_PHP": "/opt/remi/php72/root/usr/bin/php",
+            "PHP_COMPANION_TEST_C1_RUNTIME_VERSION": "7.2.34",
+            "PHP_COMPANION_TEST_C1_SOURCE_CLASSMAP": "1",
+            "PHP_COMPANION_TEST_C1_UI": "1"
+          },
+          "extensionPath": "/var/www/node/php-companion",
+          "engineBuildId": "334bbde8765179037043c4d9fbf0614609b857474ae6821052164b380fee2c21",
+          "assets": [
+            {
+              "path": "/var/www/node/php-companion/dist/extension.js",
+              "realpath": "/var/www/node/php-companion/dist/extension.js",
+              "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/language-server.js",
+              "realpath": "/var/www/node/php-companion/dist/language-server.js",
+              "sha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/candidateWorker.js",
+              "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+              "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+              "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+              "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "realpath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "realpath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+            }
+          ],
+          "initialSettings": {
+            "phpVersion": "auto",
+            "indexingMode": "onDemand"
+          }
+        },
+        "settings": {
+          "phpVersion": "auto",
+          "indexingMode": "onDemand"
+        },
+        "lifecycle": {
+          "unexpectedCloses": 0,
+          "restartFailures": 0,
+          "pendingVersionRefreshes": 0,
+          "restarting": false,
+          "scheduled": false
+        },
+        "actualLanguageServerChildren": [
+          {
+            "pid": 1271452,
+            "argv": [
+              "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+              "/var/www/node/php-companion/dist/language-server.js",
+              "--parser-core-wasm",
+              "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "--php-wasm",
+              "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "--stdio",
+              "--clientProcessId=1268000"
+            ]
+          }
+        ]
+      },
+      "selection": {
+        "suite": "c1",
+        "requestedSuite": "/var/www/node/php-companion/dist-test/suite/c1",
+        "observedSuite": "/var/www/node/php-companion/.vscode-test/d511-observed-normal-host.cjs",
+        "developmentPaths": [
+          "/var/www/node/php-companion"
+        ],
+        "editor": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "launchArgs": [
+          "/tmp/php-companion-extension-2nRj8c/c1.code-workspace",
+          "--disable-extensions",
+          "--user-data-dir=/tmp/php-companion-extension-2nRj8c/profile-user-data",
+          "--remote-debugging-port=36855"
+        ]
+      },
+      "evidenceFiles": [
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/acceptance-proof.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/runtime-proof.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/suite-selection.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/c1.code-workspace",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/sharedprocess.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/network-shared.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/agenthost.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/telemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/userDataSync.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/terminal.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/main.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/editSessions.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/agentHostTelemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/remoteTunnelService.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/mcpGateway.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/notebook.rendering.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/views.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/textModelChanges.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/renderer.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/network.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/extHostTelemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/exthost.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.git/Git.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.github/GitHub.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/output_20261008T080140/agentSessionsOutput.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/output_20261008T080140/tasks.log"
+      ]
+    },
+    {
+      "suite": "c2",
+      "durationSeconds": 94.11805120199278,
+      "inputCount": 18881,
+      "proof": {
+        "status": "passed",
+        "suite": "original-full-c2",
+        "originalAssertionsUnchanged": true,
+        "runtime": {
+          "suite": "c2",
+          "platform": "linux",
+          "node": "v24.21.0",
+          "execPath": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "vscode": "1.140.0",
+          "flags": {
+            "PHP_COMPANION_TEST_C2_ONLY": "1"
+          },
+          "extensionPath": "/var/www/node/php-companion",
+          "engineBuildId": "334bbde8765179037043c4d9fbf0614609b857474ae6821052164b380fee2c21",
+          "assets": [
+            {
+              "path": "/var/www/node/php-companion/dist/extension.js",
+              "realpath": "/var/www/node/php-companion/dist/extension.js",
+              "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/language-server.js",
+              "realpath": "/var/www/node/php-companion/dist/language-server.js",
+              "sha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/candidateWorker.js",
+              "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+              "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+              "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+              "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "realpath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "realpath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+            }
+          ],
+          "initialSettings": {
+            "phpVersion": "8.5",
+            "indexingMode": "onDemand"
+          }
+        },
+        "settings": {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand"
+        },
+        "lifecycle": {
+          "unexpectedCloses": 0,
+          "restartFailures": 0,
+          "pendingVersionRefreshes": 0,
+          "restarting": false,
+          "scheduled": false
+        },
+        "actualLanguageServerChildren": [
+          {
+            "pid": 1272622,
+            "argv": [
+              "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+              "/var/www/node/php-companion/dist/language-server.js",
+              "--parser-core-wasm",
+              "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "--php-wasm",
+              "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "--stdio",
+              "--clientProcessId=1272207"
+            ]
+          }
+        ]
+      },
+      "selection": {
+        "suite": "c2",
+        "requestedSuite": "/var/www/node/php-companion/dist-test/suite/c2",
+        "observedSuite": "/var/www/node/php-companion/.vscode-test/d511-observed-normal-host.cjs",
+        "developmentPaths": [
+          "/var/www/node/php-companion"
+        ],
+        "editor": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "launchArgs": [
+          "/tmp/php-companion-extension-Xemo2z",
+          "--disable-extensions",
+          "--user-data-dir=/tmp/php-companion-extension-Xemo2z/profile-user-data"
+        ]
+      },
+      "evidenceFiles": [
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/acceptance-proof.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/runtime-proof.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/suite-selection.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/sharedprocess.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/network-shared.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/agenthost.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/telemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/userDataSync.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/terminal.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/main.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/editSessions.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/agentHostTelemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/remoteTunnelService.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/mcpGateway.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/notebook.rendering.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/views.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/textModelChanges.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/renderer.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/network.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/extHostTelemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/exthost.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.git/Git.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.github/GitHub.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/output_20261008T080335/agentSessionsOutput.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/output_20261008T080335/tasks.log"
+      ]
+    },
+    {
+      "suite": "c3",
+      "durationSeconds": 212.98550406598952,
+      "inputCount": 18881,
+      "proof": {
+        "status": "passed",
+        "suite": "original-full-c3",
+        "originalAssertionsUnchanged": true,
+        "runtime": {
+          "suite": "c3",
+          "platform": "linux",
+          "node": "v24.21.0",
+          "execPath": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+          "vscode": "1.140.0",
+          "flags": {
+            "PHP_COMPANION_TEST_C3_INDEXING_MODE": "onDemand",
+            "PHP_COMPANION_TEST_C3_ONLY": "1"
+          },
+          "extensionPath": "/var/www/node/php-companion",
+          "engineBuildId": "334bbde8765179037043c4d9fbf0614609b857474ae6821052164b380fee2c21",
+          "assets": [
+            {
+              "path": "/var/www/node/php-companion/dist/extension.js",
+              "realpath": "/var/www/node/php-companion/dist/extension.js",
+              "sha256": "2933f028b4c73acf5daf77e4e0e173fd7f5c26586b8cb76c533790d9d41a5af9"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/language-server.js",
+              "realpath": "/var/www/node/php-companion/dist/language-server.js",
+              "sha256": "0c99a34f3c659e5fd0a3dc1ae7267dab4d225c9d1ccefe9e2d54eaebd5157326"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/candidateWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/candidateWorker.js",
+              "sha256": "b7452f7236b1de53feac48373267861f92803952f181d7396e682ecbc3985299"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js",
+              "sha256": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/sourceStatWorker.js",
+              "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+              "realpath": "/var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+              "sha256": "f0a1f2053b5b20814fda036b0b6359e58b0ec9eb4df964066cc2e2213271de69"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "realpath": "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+            },
+            {
+              "path": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "realpath": "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+            }
+          ],
+          "initialSettings": {
+            "phpVersion": "8.5",
+            "indexingMode": "onDemand"
+          }
+        },
+        "settings": {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand"
+        },
+        "lifecycle": {
+          "unexpectedCloses": 0,
+          "restartFailures": 0,
+          "pendingVersionRefreshes": 0,
+          "restarting": false,
+          "scheduled": false
+        },
+        "actualLanguageServerChildren": [
+          {
+            "pid": 1274609,
+            "argv": [
+              "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+              "/var/www/node/php-companion/dist/language-server.js",
+              "--parser-core-wasm",
+              "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+              "--php-wasm",
+              "/var/www/node/php-companion/dist/tree-sitter-php.wasm",
+              "--stdio",
+              "--clientProcessId=1274209"
+            ]
+          }
+        ]
+      },
+      "selection": {
+        "suite": "c3",
+        "requestedSuite": "/var/www/node/php-companion/dist-test/suite/c3",
+        "observedSuite": "/var/www/node/php-companion/.vscode-test/d511-observed-normal-host.cjs",
+        "developmentPaths": [
+          "/var/www/node/php-companion",
+          "/var/www/node/php-companion/packages/php-companion-symfony"
+        ],
+        "editor": "/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "launchArgs": [
+          "/tmp/php-companion-extension-8xtPrA",
+          "--disable-extensions",
+          "--user-data-dir=/tmp/php-companion-extension-8xtPrA/profile-user-data"
+        ]
+      },
+      "evidenceFiles": [
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/acceptance-proof.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/runtime-proof.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/suite-selection.json",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/sharedprocess.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/network-shared.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/agenthost.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/telemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/userDataSync.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/terminal.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/main.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/editSessions.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/agentHostTelemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/remoteTunnelService.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/mcpGateway.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/notebook.rendering.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/views.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/textModelChanges.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/renderer.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/fileWatcher.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/network.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/extHostTelemetry.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/exthost.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.git/Git.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.github/GitHub.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/sohophp.php-companion/SoPHP.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/output_20261008T080520/agentSessionsOutput.log",
+        "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/output_20261008T080520/tasks.log"
+      ]
+    }
+  ],
+  "artifacts": {
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-run.json": {
+      "sha256": "b0e6fb57279772deab1959914e6d0ef817a1fd83060877ecfe6b73fdfeb9ebe8",
+      "sizeBytes": 741
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-input.json": {
+      "sha256": "5ebeabb3e03aa8322529b31dbe14cb069ef56d8569d3dc4a5b639ec99ca1d09f",
+      "sizeBytes": 3039082
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1.log": {
+      "sha256": "b4dfbb342546bee0827127888dd7e4f3f39ba171143a836ef5a4beb56684ebc8",
+      "sizeBytes": 31995
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/acceptance-proof.json": {
+      "sha256": "57abd6142eb86397b53500debf199e1efbb1c7037a1e6a1fe4b39fafc9b5c853",
+      "sizeBytes": 3684
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/runtime-proof.json": {
+      "sha256": "1c5fb9a7a02575bdd97c4126d2e19cc1e985d458b370739f19199d74bdfbae65",
+      "sizeBytes": 2733
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/suite-selection.json": {
+      "sha256": "fd2336729b488faa7c75a21d9a70cccd4ee5b5a379212d726b6fafc9b141c71e",
+      "sizeBytes": 557
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/c1.code-workspace": {
+      "sha256": "0201cfbc4156782f6dabbfc5a4c2b08e49785730591f29861728d0acea209c74",
+      "sizeBytes": 244
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/sharedprocess.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/network-shared.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/agenthost.log": {
+      "sha256": "25c7e3a7b4e251f196a02b954fa0563b242488e62b8aaabc667cc93f4e5eda08",
+      "sizeBytes": 4327
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/telemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/userDataSync.log": {
+      "sha256": "138ccfad17b8286e4db129f5be3325dfd688573db6989698003ce52c66098aa3",
+      "sizeBytes": 162
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/terminal.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/main.log": {
+      "sha256": "c1928e4b2e9628ee26d8c4119c6550eeaf4e45cbe7da849aec7edfb14f5b00d0",
+      "sizeBytes": 1314
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/editSessions.log": {
+      "sha256": "eec69b29f2dd7de48a3a47997788a04d88e5ab250a81df1e0c53c3f00d6727ff",
+      "sizeBytes": 131
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/agentHostTelemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/remoteTunnelService.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/mcpGateway.log": {
+      "sha256": "b4ea67875229a1eaad23d24e2a1cbcdf2ff378dcd57ee07fdae5d316e19160e5",
+      "sizeBytes": 63
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/notebook.rendering.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/views.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/textModelChanges.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/renderer.log": {
+      "sha256": "f812db06c221c81866f33ef968ae45086b7dd5637698fee587e8596210059607",
+      "sizeBytes": 32616
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/network.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/extHostTelemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/exthost.log": {
+      "sha256": "25a2f62a7551dcb3e0e78c45fccf1af403a9ddd8cc1c673cb768d5a1ab62a972",
+      "sizeBytes": 10076
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.github-authentication/GitHub Authentication.log": {
+      "sha256": "f137ecab8ef371933103767a9881f04f1591aabe22480d2245448326febf9fb9",
+      "sizeBytes": 5637
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.git/Git.log": {
+      "sha256": "9d9c9061869029952f40f6448d1e8143c948ab7dc097470ffa0b44cf5182367e",
+      "sizeBytes": 22780
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.github/GitHub.log": {
+      "sha256": "6077d873bb809dc17232c5fe9aef31c6eb4fe1f73daece305e2d5b5060ddc766",
+      "sizeBytes": 47
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/sohophp.php-companion/SoPHP.log": {
+      "sha256": "5226d0fe3e7e6fb46114690387ae6338ebc4ab254b5a29be5d3d83a4748d055a",
+      "sizeBytes": 269472
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/exthost/vscode.json-language-features/JSON Language Server.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/output_20261008T080140/agentSessionsOutput.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c1-evidence/host-logs/php-companion-extension-2nRj8c/logs/20261008T080136/window1/output_20261008T080140/tasks.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-run.json": {
+      "sha256": "4b6d7186ae7d61b91e41bf486c02e6b550a7f30c2a7ba87b4d4eaec0af386e1d",
+      "sizeBytes": 740
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-input.json": {
+      "sha256": "82aa6b551654c12e403e72b2b245e54d9076efecd89c6c23cc29c47e4f634460",
+      "sizeBytes": 3038968
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2.log": {
+      "sha256": "70d20ab347b1bd5d204984304a483ae6ddc00eb24209d5cf3d3ae0ce77f08312",
+      "sizeBytes": 27434
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/acceptance-proof.json": {
+      "sha256": "e90aadb94d22bfeb77609ec643b2bad198478546e21c61b754ea48bb05aab5fe",
+      "sizeBytes": 3351
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/runtime-proof.json": {
+      "sha256": "d14eaa0fa61c6edaf179e8bedec574c5ea16a0dcadc74a6764df087e9ab9c1ad",
+      "sizeBytes": 2413
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/suite-selection.json": {
+      "sha256": "9ba8426c9d77e10939074f49904304f9356de2658552c019cdef06767dc2e462",
+      "sizeBytes": 502
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/sharedprocess.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/network-shared.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/agenthost.log": {
+      "sha256": "a7608e5a2f0337f4cdf90f73377aea81abb4a60516be23672f80dc9afaa6f3bc",
+      "sizeBytes": 3967
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/telemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/userDataSync.log": {
+      "sha256": "7a4c14951416d307e9d35cdb20878cbee1719169ea6fb8bc4100408c5feaf0ea",
+      "sizeBytes": 162
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/terminal.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/main.log": {
+      "sha256": "b88a9689dfb08f36141be67ceb871b35a3a03cd4af1453a5f7c15c1156057a7f",
+      "sizeBytes": 1314
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/editSessions.log": {
+      "sha256": "d0bd3752ada43d544b55d535d6df47fff7dd4bf739258264f5af4921089f51a0",
+      "sizeBytes": 131
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/agentHostTelemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/remoteTunnelService.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/mcpGateway.log": {
+      "sha256": "f82b928cd4e02671f91ce0d4fb29dda74a5834054190cc7c1902b1941a41dab4",
+      "sizeBytes": 63
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/notebook.rendering.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/views.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/textModelChanges.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/renderer.log": {
+      "sha256": "cbb1c06ea688ea20d21110b1a23113e426811fec3fc4d5374aaa49feb70c0297",
+      "sizeBytes": 29016
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/network.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/extHostTelemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/exthost.log": {
+      "sha256": "50edb7eb811c10125b0c9f8be966bc1376a0b57c666bf392e1596cffbab4d055",
+      "sizeBytes": 5105
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.github-authentication/GitHub Authentication.log": {
+      "sha256": "c9c3d19cd22b0f6dd877794debf039a560517dccec669fd1bc6a9d91a9932ff0",
+      "sizeBytes": 5637
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.git/Git.log": {
+      "sha256": "b98a569447564a7ab1c59d7ff84e0f25cf4b3d1c03789bbf45ce173fcbbea57f",
+      "sizeBytes": 13138
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.github/GitHub.log": {
+      "sha256": "c4756c9c18489286dbb0461a3082a7c6fad0709705b206f4ce99e09ca4554836",
+      "sizeBytes": 47
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/sohophp.php-companion/SoPHP.log": {
+      "sha256": "0da7eea53163fd6d50932d4d9cdfce4d64e47ed1dad5d924b6279677cafc0164",
+      "sizeBytes": 148673
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/exthost/vscode.json-language-features/JSON Language Server.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/output_20261008T080335/agentSessionsOutput.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c2-evidence/host-logs/php-companion-extension-Xemo2z/logs/20261008T080331/window1/output_20261008T080335/tasks.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-run.json": {
+      "sha256": "9c1c8fed36a47f750778352d89686f4bf06af2f9d5a9f0bdb5660a0c675242e2",
+      "sizeBytes": 741
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-input.json": {
+      "sha256": "c8d8c9d3bbbb1b4a0b555dfe600b0745cd3f497b1eb2afe3f181404c982470eb",
+      "sizeBytes": 3039023
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3.log": {
+      "sha256": "482192d25350749d16565c60afb4999b3d303e9b1e0f516949027763fc9ffcb5",
+      "sizeBytes": 104512
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/acceptance-proof.json": {
+      "sha256": "bb5b164a2d2e2e4c3d7fb377b77b6ef12f4b600594500027c4c9aea5c59ee9ab",
+      "sizeBytes": 3408
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/runtime-proof.json": {
+      "sha256": "b71abfca783df26355f4317996bf02c2408101ccc15364017b6fcfd1deddfc72",
+      "sizeBytes": 2468
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/suite-selection.json": {
+      "sha256": "5f867c7dc4cd26224acf0481ef40a2b88b9bf56e84ab68c3d020fb68775a1750",
+      "sizeBytes": 568
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/sharedprocess.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/network-shared.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/agenthost.log": {
+      "sha256": "4f8e6bf5dbfbc8c12cdc9959aa4231ea2c54aeacfff47bd102f871d90513c771",
+      "sizeBytes": 3970
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/telemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/userDataSync.log": {
+      "sha256": "3d623ccc6e112a3c2eea18ba160aea560d45e98739ab644edabd3340149ce477",
+      "sizeBytes": 162
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/terminal.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/main.log": {
+      "sha256": "d4c53b02c8f0b4d0b43c4ddfcee12b8cc6f7381710f78b94bb76a796c7238286",
+      "sizeBytes": 1314
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/editSessions.log": {
+      "sha256": "29d0ceedaa07c09f85be848110f38d9ddcf12c519beb3f76fa9e2240b516453e",
+      "sizeBytes": 131
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/agentHostTelemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/remoteTunnelService.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/mcpGateway.log": {
+      "sha256": "4de025901935e8f2779b9424ef17ced1df6b79ee26599d0c6328e9247a732011",
+      "sizeBytes": 63
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/notebook.rendering.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/views.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/textModelChanges.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/renderer.log": {
+      "sha256": "982bf3c42ff77685a10b9a3906ea103c34b9056f4fd5ac28c507951098ead96a",
+      "sizeBytes": 115508
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/fileWatcher.log": {
+      "sha256": "0ab31b5f4b10c65d53cc4f957ab7ab86e7815eb388958e22df1b48f06b883389",
+      "sizeBytes": 327
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/network.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/extHostTelemetry.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/exthost.log": {
+      "sha256": "a35d16b7ca14a7cee83deb3773abb5dae453d293c2ab3fd166cbc92a12120deb",
+      "sizeBytes": 9430
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.github-authentication/GitHub Authentication.log": {
+      "sha256": "69903c33730ed48bbf97064edb4773cc011cb646dbeced8a5b9db66bcb497c21",
+      "sizeBytes": 5637
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.git/Git.log": {
+      "sha256": "fa05272a26c14ec8d387b71621aa0f345e8defd9fdcb5cf7c5541a1144a859e7",
+      "sizeBytes": 58234
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.github/GitHub.log": {
+      "sha256": "805080709653ea39488444fcb86b03b48f74a22786b98be1cd063fe04e1050e1",
+      "sizeBytes": 47
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/sohophp.php-companion/SoPHP.log": {
+      "sha256": "dbbdc9556533b60a07c304b5501dbe5361ebb4d3b1177a47c67fcbc0ddbb45b9",
+      "sizeBytes": 285921
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/exthost/vscode.json-language-features/JSON Language Server.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/output_20261008T080520/agentSessionsOutput.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-c3-evidence/host-logs/php-companion-extension-8xtPrA/logs/20261008T080517/window1/output_20261008T080520/tasks.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sizeBytes": 0
+    },
+    "/var/www/node/php-companion/.vscode-test/d510-prepare-tree-only-host.py": {
+      "sha256": "44eba8f586570cb80f1f81a5969fdc690ffe894203ab65cee32fe7f7daf79adb",
+      "sizeBytes": 2504
+    },
+    "/var/www/node/php-companion/.vscode-test/d510-normal-tree-only-host-preparation.json": {
+      "sha256": "44a7faa6bab1e8122956c088985f58e9e3f1bfbafd118824960d3404408e9ff2",
+      "sizeBytes": 572252
+    },
+    "/var/www/node/php-companion/.vscode-test/d511-run-normal-host.py": {
+      "sha256": "4d714c1a4237c055298bbf39fd297d91b572445996689f118392e7a23a849f9b",
+      "sizeBytes": 7830
+    },
+    "/var/www/node/php-companion/.vscode-test/d511-normal-host-observer.cjs": {
+      "sha256": "7a73bad6bf93ad709374961c1a21335f8135afc412cde287a3e3a09adecc45ca",
+      "sizeBytes": 3108
+    },
+    "/var/www/node/php-companion/.vscode-test/d511-observed-normal-host.cjs": {
+      "sha256": "2d821c7645c22c75debc3439852472abdd45b7fe0c0acae092cd283115dec695",
+      "sizeBytes": 5691
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-run-normal-host-matrix.py": {
+      "sha256": "5782c7afc013d8f38c8af32470116ec48046ba14b81e8f92e60805d78b72dd86",
+      "sizeBytes": 2378
+    },
+    "/var/www/node/php-companion/.vscode-test/d512-normal-tree-only-full-host-matrix.json": {
+      "sha256": "2cc57e46173bb3ac9d339bb0ea19c2bb6fda81f490b70f38b76b9778a73f4b10",
+      "sizeBytes": 2013
+    },
+    "/var/www/node/php-companion/.vscode-test/d505-normal-full-lsp-final-validation.json": {
+      "sha256": "8eba5351ba3102dd528a56b2111cc54b96c835e46684d8cb2ece797ac3b177a1",
+      "sizeBytes": 515
+    }
+  },
+  "compiledTestJsFiles": 83,
+  "originalTestSourceAndCompiledOutputsByteExact": true,
+  "independentCompilationReused": true,
+  "ordinaryEditingQualified": false,
+  "ordinaryEditingWithinBudgetRuns": 23,
+  "ordinaryEditingCorrectRuns": 25,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "scope": "The three original full Linux workflows only. C1 main PHP8.5 plus separate actual7.2 runtime; C2 Core-only; C3 Core+Symfony; onDemand. No complete version/platform/tool-combination, packaged VSIX or human qualification.",
+  "next": "Evaluate the private semantic surface-comparison hypothesis for the remaining PHP7.2 editing cost, retaining all original budgets and the full goal."
+}

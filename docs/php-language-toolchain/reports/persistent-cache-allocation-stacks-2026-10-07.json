@@ -1,0 +1,1943 @@
+{
+  "schemaVersion": 1,
+  "milestone": "D303-D304",
+  "date": "2026-10-07",
+  "qualification": false,
+  "productChanged": false,
+  "coreBundleSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+  "sourceCommit": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+  "inputCount": 4237,
+  "changedInputs": [],
+  "allocationAnalysis": {
+    "schemaVersion": 1,
+    "qualification": false,
+    "kind": "sampled-allocation-stacks",
+    "run": {
+      "status": "exited",
+      "parentPid": 658703,
+      "childPid": 658840,
+      "startedAtUtc": "2026-10-07T12:28:22.660800+00:00",
+      "command": [
+        "env",
+        "SOPHP_ALLOCATION_DIRECTORY=/var/www/node/php-companion/.vscode-test/d303-allocation-profile",
+        "node",
+        ".vscode-test/d303-allocation-diagnostic.mjs",
+        "10000"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d303-allocation-input.json",
+      "exitCode": 1,
+      "durationSeconds": 45.04619812599776,
+      "finishedAtUtc": "2026-10-07T12:29:07.705676+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "56da51f77199cb4d3a701428d08586831bfa39742d326f3b803624c10c9ee35a"
+    },
+    "manifest": {
+      "schema": 1,
+      "qualification": false,
+      "explicitForcedGc": false,
+      "heapSnapshots": false,
+      "node": "v22.14.0",
+      "v8": "12.4.254.21-node.22",
+      "options": {
+        "samplingInterval": 65536,
+        "includeObjectsCollectedByMajorGC": true,
+        "includeObjectsCollectedByMinorGC": true
+      },
+      "maximumProfileBytes": 33554432,
+      "startedAtUtc": "2026-10-07T12:28:23.204Z",
+      "expiresAtUtc": "2026-10-09T12:28:23.204Z",
+      "interpretation": "Statistical sampled allocation attribution including collected objects. Not exact allocated bytes, simultaneous retained memory, RSS or timing qualification.",
+      "status": "captured",
+      "bytes": 2665665,
+      "sampleCount": 55759,
+      "finishedAtUtc": "2026-10-07T12:29:07.657Z"
+    },
+    "profileSha256": "a3ba8396d8bdb9b8dee10e68d400a2bdff93b8974aa10771cfb785ecdf3733a3",
+    "profileBytes": 2665665,
+    "nodes": 1200,
+    "samples": 55759,
+    "sumNodeSelfSize": 4519299304,
+    "sumSampleSize": 4509831672,
+    "exclusiveGroups": {
+      "other-including-async-runtime": 1789599064,
+      "fixture-generation": 31226672,
+      "index-cache-serialization": 360176904,
+      "semantic-declaration-restore": 1145132400,
+      "payload-validation-restore": 232352776,
+      "other-index-callback-and-processing": 554860176,
+      "benchmark-cache-mutation": 405951312
+    },
+    "inclusiveSelectedFunctions": {
+      "load": 198808,
+      "generatePhpComposerProject": 31226672,
+      "commitCache": 360176904,
+      "update": 853890056,
+      "createCachedProjectPhpFile": 71642400,
+      "restoreDeclaration": 1145132400,
+      "restoreCachedProjectPhpFile": 232352776,
+      "snapshotForPersistence": 48006912,
+      "indexComposerSources": 554860176,
+      "mutateCacheFile": 405951312
+    },
+    "topExclusiveFunctions": [
+      {
+        "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+        "function": "indexComposerSources",
+        "line": 40,
+        "column": 43,
+        "selfSize": 456737392
+      },
+      {
+        "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+        "function": "mutateCacheFile",
+        "line": 103,
+        "column": 31,
+        "selfSize": 405951312
+      },
+      {
+        "url": "node:string_decoder",
+        "function": "write",
+        "line": 94,
+        "column": 47,
+        "selfSize": 286107272
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/language-server/dist/projectFacts.js",
+        "function": "recordChecksum",
+        "line": 34,
+        "column": 24,
+        "selfSize": 270549968
+      },
+      {
+        "url": "file:///var/www/node/php-companion/node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/web-tree-sitter.js",
+        "function": "unmarshalNode",
+        "line": 1195,
+        "column": 23,
+        "selfSize": 219525400
+      },
+      {
+        "url": "",
+        "function": "add",
+        "line": 0,
+        "column": 0,
+        "selfSize": 217310536
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "validDeferredImplementation",
+        "line": 1181,
+        "column": 37,
+        "selfSize": 213225184
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+        "function": "commitCache",
+        "line": 376,
+        "column": 25,
+        "selfSize": 180124544
+      },
+      {
+        "url": "node:buffer",
+        "function": "createFromString",
+        "line": 474,
+        "column": 26,
+        "selfSize": 171920088
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "restoreDeclaration",
+        "line": 2701,
+        "column": 23,
+        "selfSize": 151049232
+      },
+      {
+        "url": "",
+        "function": "sort",
+        "line": 0,
+        "column": 0,
+        "selfSize": 149434568
+      },
+      {
+        "url": "",
+        "function": "Set",
+        "line": 0,
+        "column": 0,
+        "selfSize": 129979432
+      },
+      {
+        "url": "",
+        "function": "next",
+        "line": 0,
+        "column": 0,
+        "selfSize": 110997528
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "implementationSnapshot",
+        "line": 1024,
+        "column": 32,
+        "selfSize": 90997200
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "deferredSemanticFile",
+        "line": 1547,
+        "column": 25,
+        "selfSize": 90502680
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+        "function": "indexCandidate",
+        "line": 224,
+        "column": 28,
+        "selfSize": 84528160
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "semanticFileSnapshot",
+        "line": 1115,
+        "column": 30,
+        "selfSize": 83155184
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+        "function": "parseDocument",
+        "line": 436,
+        "column": 18,
+        "selfSize": 70477728
+      },
+      {
+        "url": "",
+        "function": "Map",
+        "line": 0,
+        "column": 0,
+        "selfSize": 60291312
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "deferredReferenceCandidateKeys",
+        "line": 1165,
+        "column": 40,
+        "selfSize": 51070160
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+        "function": "visitNode",
+        "line": 879,
+        "column": 27,
+        "selfSize": 46813376
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+        "function": "parse",
+        "line": 393,
+        "column": 10,
+        "selfSize": 45314824
+      },
+      {
+        "url": "node:path",
+        "function": "resolve",
+        "line": 1180,
+        "column": 10,
+        "selfSize": 44972096
+      },
+      {
+        "url": "",
+        "function": "flatMap",
+        "line": 0,
+        "column": 0,
+        "selfSize": 35603824
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "",
+        "line": 1831,
+        "column": 52,
+        "selfSize": 34689520
+      },
+      {
+        "url": "node:path",
+        "function": "join",
+        "line": 1261,
+        "column": 7,
+        "selfSize": 29638240
+      },
+      {
+        "url": "",
+        "function": "Promise",
+        "line": 0,
+        "column": 0,
+        "selfSize": 29515040
+      },
+      {
+        "url": "",
+        "function": "set",
+        "line": 0,
+        "column": 0,
+        "selfSize": 28380416
+      },
+      {
+        "url": "",
+        "function": "then",
+        "line": 0,
+        "column": 0,
+        "selfSize": 27228280
+      },
+      {
+        "url": "",
+        "function": "values",
+        "line": 0,
+        "column": 0,
+        "selfSize": 22552832
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "updateSource",
+        "line": 1801,
+        "column": 17,
+        "selfSize": 20609712
+      },
+      {
+        "url": "node:internal/fs/promises",
+        "function": "readFileHandle",
+        "line": 511,
+        "column": 30,
+        "selfSize": 20274544
+      },
+      {
+        "url": "",
+        "function": "push",
+        "line": 0,
+        "column": 0,
+        "selfSize": 19409216
+      },
+      {
+        "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+        "function": "validImplementationFacts",
+        "line": 1058,
+        "column": 34,
+        "selfSize": 19344488
+      },
+      {
+        "url": "node:internal/fs/utils",
+        "function": "getStatsFromBinding",
+        "line": 552,
+        "column": 29,
+        "selfSize": 18856192
+      }
+    ],
+    "topSelfStacks": [
+      {
+        "selfSize": 456671352,
+        "nodeId": 159,
+        "group": "other-index-callback-and-processing",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexComposerSources",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 39,
+            "columnNumber": 42
+          }
+        ]
+      },
+      {
+        "selfSize": 405951312,
+        "nodeId": 1105,
+        "group": "benchmark-cache-mutation",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "mutateCacheFile",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 102,
+            "columnNumber": 30
+          }
+        ]
+      },
+      {
+        "selfSize": 285745680,
+        "nodeId": 860,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "readFileHandle",
+            "scriptId": "85",
+            "url": "node:internal/fs/promises",
+            "lineNumber": 510,
+            "columnNumber": 29
+          },
+          {
+            "functionName": "write",
+            "scriptId": "87",
+            "url": "node:string_decoder",
+            "lineNumber": 93,
+            "columnNumber": 46
+          }
+        ]
+      },
+      {
+        "selfSize": 213225184,
+        "nodeId": 874,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "validDeferredImplementation",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1180,
+            "columnNumber": 36
+          }
+        ]
+      },
+      {
+        "selfSize": 194403384,
+        "nodeId": 898,
+        "group": "payload-validation-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreCachedProjectPhpFile",
+            "scriptId": "162",
+            "url": "file:///var/www/node/php-companion/packages/language-server/dist/projectFacts.js",
+            "lineNumber": 123,
+            "columnNumber": 43
+          },
+          {
+            "functionName": "recordChecksum",
+            "scriptId": "162",
+            "url": "file:///var/www/node/php-companion/packages/language-server/dist/projectFacts.js",
+            "lineNumber": 33,
+            "columnNumber": 23
+          }
+        ]
+      },
+      {
+        "selfSize": 180124544,
+        "nodeId": 763,
+        "group": "index-cache-serialization",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "commitCache",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 375,
+            "columnNumber": 24
+          }
+        ]
+      },
+      {
+        "selfSize": 151049232,
+        "nodeId": 872,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          }
+        ]
+      },
+      {
+        "selfSize": 90502680,
+        "nodeId": 900,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "deferredSemanticFile",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1546,
+            "columnNumber": 24
+          }
+        ]
+      },
+      {
+        "selfSize": 86554560,
+        "nodeId": 773,
+        "group": "index-cache-serialization",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "commitCache",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 375,
+            "columnNumber": 24
+          },
+          {
+            "functionName": "writeFile",
+            "scriptId": "85",
+            "url": "node:internal/fs/promises",
+            "lineNumber": 233,
+            "columnNumber": 11
+          },
+          {
+            "functionName": "fsCall",
+            "scriptId": "85",
+            "url": "node:internal/fs/promises",
+            "lineNumber": 450,
+            "columnNumber": 21
+          },
+          {
+            "functionName": "writeFile",
+            "scriptId": "85",
+            "url": "node:internal/fs/promises",
+            "lineNumber": 1188,
+            "columnNumber": 24
+          },
+          {
+            "functionName": "from",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 297,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "fromString",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 479,
+            "columnNumber": 19
+          },
+          {
+            "functionName": "fromStringFast",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 446,
+            "columnNumber": 23
+          },
+          {
+            "functionName": "createFromString",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 473,
+            "columnNumber": 25
+          }
+        ]
+      },
+      {
+        "selfSize": 85097768,
+        "nodeId": 1130,
+        "group": "index-cache-serialization",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "commitCache",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 375,
+            "columnNumber": 24
+          },
+          {
+            "functionName": "writeFile",
+            "scriptId": "85",
+            "url": "node:internal/fs/promises",
+            "lineNumber": 1188,
+            "columnNumber": 24
+          },
+          {
+            "functionName": "from",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 297,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "fromString",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 479,
+            "columnNumber": 19
+          },
+          {
+            "functionName": "fromStringFast",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 446,
+            "columnNumber": 23
+          },
+          {
+            "functionName": "createFromString",
+            "scriptId": "24",
+            "url": "node:buffer",
+            "lineNumber": 473,
+            "columnNumber": 25
+          }
+        ]
+      },
+      {
+        "selfSize": 83155184,
+        "nodeId": 873,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "semanticFileSnapshot",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1114,
+            "columnNumber": 29
+          }
+        ]
+      },
+      {
+        "selfSize": 70531688,
+        "nodeId": 542,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "createSnapshot",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2467,
+            "columnNumber": 18
+          },
+          {
+            "functionName": "implementationSnapshot",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1023,
+            "columnNumber": 31
+          }
+        ]
+      },
+      {
+        "selfSize": 69992968,
+        "nodeId": 892,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "sort",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 55921480,
+        "nodeId": 252,
+        "group": "other-index-callback-and-processing",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexComposerSources",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 39,
+            "columnNumber": 42
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          }
+        ]
+      },
+      {
+        "selfSize": 54049640,
+        "nodeId": 991,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "add",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 52310424,
+        "nodeId": 549,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "update",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1789,
+            "columnNumber": 10
+          },
+          {
+            "functionName": "updateSource",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1800,
+            "columnNumber": 16
+          },
+          {
+            "functionName": "parse",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 392,
+            "columnNumber": 9
+          },
+          {
+            "functionName": "parseDocument",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 435,
+            "columnNumber": 17
+          }
+        ]
+      },
+      {
+        "selfSize": 51070160,
+        "nodeId": 875,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "deferredReferenceCandidateKeys",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1164,
+            "columnNumber": 39
+          }
+        ]
+      },
+      {
+        "selfSize": 49961608,
+        "nodeId": 876,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "deferredReferenceCandidateKeys",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1164,
+            "columnNumber": 39
+          },
+          {
+            "functionName": "add",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 43281624,
+        "nodeId": 548,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "update",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1789,
+            "columnNumber": 10
+          },
+          {
+            "functionName": "updateSource",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1800,
+            "columnNumber": 16
+          },
+          {
+            "functionName": "parse",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 392,
+            "columnNumber": 9
+          }
+        ]
+      },
+      {
+        "selfSize": 37876608,
+        "nodeId": 583,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "createCachedProjectPhpFile",
+            "scriptId": "162",
+            "url": "file:///var/www/node/php-companion/packages/language-server/dist/projectFacts.js",
+            "lineNumber": 111,
+            "columnNumber": 42
+          },
+          {
+            "functionName": "recordChecksum",
+            "scriptId": "162",
+            "url": "file:///var/www/node/php-companion/packages/language-server/dist/projectFacts.js",
+            "lineNumber": 33,
+            "columnNumber": 23
+          }
+        ]
+      },
+      {
+        "selfSize": 33315920,
+        "nodeId": 550,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "update",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1789,
+            "columnNumber": 10
+          },
+          {
+            "functionName": "updateSource",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1800,
+            "columnNumber": 16
+          },
+          {
+            "functionName": "parse",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 392,
+            "columnNumber": 9
+          },
+          {
+            "functionName": "parseDocument",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 435,
+            "columnNumber": 17
+          },
+          {
+            "functionName": "visitNode",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 878,
+            "columnNumber": 26
+          }
+        ]
+      },
+      {
+        "selfSize": 33137608,
+        "nodeId": 881,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "Set",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 31709720,
+        "nodeId": 887,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "replace",
+            "scriptId": "167",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/inverted.js",
+            "lineNumber": 19,
+            "columnNumber": 11
+          },
+          {
+            "functionName": "add",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 30210520,
+        "nodeId": 936,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "Set",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "add",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 28606680,
+        "nodeId": 160,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          }
+        ]
+      },
+      {
+        "selfSize": 26696376,
+        "nodeId": 552,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "update",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1789,
+            "columnNumber": 10
+          },
+          {
+            "functionName": "updateSource",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1800,
+            "columnNumber": 16
+          },
+          {
+            "functionName": "parse",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 392,
+            "columnNumber": 9
+          },
+          {
+            "functionName": "parseDocument",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 435,
+            "columnNumber": 17
+          },
+          {
+            "functionName": "visitNode",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 878,
+            "columnNumber": 26
+          },
+          {
+            "functionName": "get namedChildren",
+            "scriptId": "171",
+            "url": "file:///var/www/node/php-companion/node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/web-tree-sitter.js",
+            "lineNumber": 940,
+            "columnNumber": 19
+          },
+          {
+            "functionName": "unmarshalNode",
+            "scriptId": "171",
+            "url": "file:///var/www/node/php-companion/node_modules/.pnpm/web-tree-sitter@0.26.11/node_modules/web-tree-sitter/web-tree-sitter.js",
+            "lineNumber": 1194,
+            "columnNumber": 22
+          }
+        ]
+      },
+      {
+        "selfSize": 25539720,
+        "nodeId": 561,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "createSnapshot",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2467,
+            "columnNumber": 18
+          },
+          {
+            "functionName": "implementationSnapshot",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1023,
+            "columnNumber": 31
+          },
+          {
+            "functionName": "sort",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 24722392,
+        "nodeId": 556,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "update",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1789,
+            "columnNumber": 10
+          },
+          {
+            "functionName": "updateSource",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1800,
+            "columnNumber": 16
+          },
+          {
+            "functionName": "map",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1830,
+            "columnNumber": 51
+          }
+        ]
+      },
+      {
+        "selfSize": 24261992,
+        "nodeId": 579,
+        "group": "other-including-async-runtime",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "update",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1789,
+            "columnNumber": 10
+          },
+          {
+            "functionName": "updateSource",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1800,
+            "columnNumber": 16
+          },
+          {
+            "functionName": "parse",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 392,
+            "columnNumber": 9
+          },
+          {
+            "functionName": "parseDocument",
+            "scriptId": "158",
+            "url": "file:///var/www/node/php-companion/packages/parser/dist/index.js",
+            "lineNumber": 435,
+            "columnNumber": 17
+          },
+          {
+            "functionName": "next",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      },
+      {
+        "selfSize": 23765976,
+        "nodeId": 959,
+        "group": "semantic-declaration-restore",
+        "stack": [
+          {
+            "functionName": "(root)",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          {
+            "functionName": "indexCandidate",
+            "scriptId": "157",
+            "url": "file:///var/www/node/php-companion/packages/index/dist/index.js",
+            "lineNumber": 223,
+            "columnNumber": 27
+          },
+          {
+            "functionName": "restore",
+            "scriptId": "94",
+            "url": "file:///var/www/node/php-companion/.vscode-test/d303-allocation-diagnostic.mjs",
+            "lineNumber": 89,
+            "columnNumber": 72
+          },
+          {
+            "functionName": "restoreDeclaration",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 2700,
+            "columnNumber": 22
+          },
+          {
+            "functionName": "validDeferredImplementation",
+            "scriptId": "165",
+            "url": "file:///var/www/node/php-companion/packages/semantic/dist/index.js",
+            "lineNumber": 1180,
+            "columnNumber": 36
+          },
+          {
+            "functionName": "sort",
+            "scriptId": "0",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          }
+        ]
+      }
+    ],
+    "benchmark": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 19856.38,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6271,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3158,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57269357,
+          "mebibytes": 54.62
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57269357,
+          "mebibytes": 54.62
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 350.36,
+        "warmPeakRssMb": 418.38,
+        "layerRecoveryPeakRssMb": 600.71,
+        "callableRecoveryPeakRssMb": 731.3,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 826.66,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "rawLogPrefix": "",
+    "rawLogSuffix": "\n",
+    "boundaries": [
+      "Sampling includes collected objects, is statistical and does not prove exact allocated bytes or simultaneous live objects.",
+      "Exclusive groups use the available synchronous call stack. Async boundaries may lose caller identity; uncategorized allocations remain explicit.",
+      "Inclusive function totals overlap and must not be added together.",
+      "Profiler overhead changes timing and memory. Original uninstrumented 1003.52/768 MiB and ordinary editing 150.30/150 ms failures remain open.",
+      "No product, benchmark, assertion, file-count, four-load sequence or budget changes."
+    ]
+  },
+  "artifacts": [
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-run.json",
+      "sha256": "83179ab9d3ad2912f7a34c0e7a23ac25482abbf700e71b4e0a19be9bea016959"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-input.json",
+      "sha256": "36a40aa2406a34ba1b1ba253a9b48bd98e7fb5d0295cc24eaa94abb75c1fead1"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation.log",
+      "sha256": "56da51f77199cb4d3a701428d08586831bfa39742d326f3b803624c10c9ee35a"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-diagnostic.mjs",
+      "sha256": "b518dcd194becb67fc1aca86306e6e31b2f2bf3fbf8dd613bd4af423517e17c2"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-generation.json",
+      "sha256": "a7f9cd6c7b57663eb0af8a87545ca47985f74abee0bdd8ffcec45743cf926c7c"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-prepare-allocation.py",
+      "sha256": "41b6b9799d4e939542a7e85ca6684e06c569db6b2913ffede51ab8c0cb7c67a8"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-run.py",
+      "sha256": "d943cebcbb18c9b4e0645ecb6240f9c753b39098c76571ec269e0114d9baaf3f"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-analyze-allocation.py",
+      "sha256": "d338263d3d19ea08c495e3eabba145c3925203bbaf72ca069166a3df4bb00db5"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-profiler.mjs",
+      "sha256": "af550ce373429df27063c9fd855ff84d30d27b19fd4f29c6da4415b66e9e0b01"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-probe.json",
+      "sha256": "70a11249280d0f2a8e2509d393e47f56dab557aa21d08a759bb85f658191a048"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/d303-allocation-analysis.json",
+      "sha256": "4a32f75fadceb6b6a0165e888d9a7d7576b53f898956a5f2581723d4b4d8271f"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/capture.json",
+      "sha256": "e25587e379de544868821ed528f1257a5a9985f8fafe5494100b34476449d4f7"
+    },
+    {
+      "path": ".vscode-test/d304-allocation-evidence/complete.heapprofile",
+      "sha256": "a3ba8396d8bdb9b8dee10e68d400a2bdff93b8974aa10771cfb785ecdf3733a3"
+    }
+  ],
+  "decision": "Investigate declaration restore allocation, first through a private validator parity/allocation trial. Keep all integrity, range ownership, ordering, callable identity and corruption checks. Do not change storage format or add GC to production.",
+  "boundaries": [
+    "The available allocation samples support multiple transient allocation sources, not one proven RSS cause.",
+    "indexComposerSources self allocation cannot be attributed exclusively to JSON.parse; async fs/decoder stacks lose the original caller.",
+    "Benchmark corruption mutations are mandatory original operations and remain inside the same-process RSS budget.",
+    "Original 1003.52/768 MiB and ordinary editing 150.30/150 ms failures remain open.",
+    "All original C1-C4/R4/P0-P9/F01-F14 scope remains open; no candidate packaging, Profile update, commit, push or publication."
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "recordedAtUtc": "2026-10-09T05:33:55.782436+00:00",
+  "engineBuildId": "2b81c109358f16bc9b811be464f3dc25fb04a9f29e7a551ed13aafeb3c2eb294",
+  "normalAssets": {
+    "/var/www/node/php-companion/dist/extension.js": "1a7dd6c6376a6cd3075d9f62c916845afec40c8d059f8e79c8b5f14e3875b651",
+    "/var/www/node/php-companion/dist/language-server.js": "1177fea231e47c5d44bfa7cff3906e5f341cf0ca353e4cbfb79670bb64e1ff8b",
+    "/var/www/node/php-companion/dist/candidateWorker.js": "b68243f255b0631ec1f5ce14836ea807453d66bb93184de794b73dc59975828a",
+    "/var/www/node/php-companion/dist/portableCandidateSearchWorker.js": "3b6de10394c22763bec7ce0a1baac14e2b1c7e5b99931898b9bf9acbb255e19a",
+    "/var/www/node/php-companion/dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "/var/www/node/php-companion/dist/builtinSnapshotWorker.js": "c26aa4550070f1895cafefedd5a565d168be6c21088067acba397080cd0206a7",
+    "/var/www/node/php-companion/dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "/var/www/node/php-companion/dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+  },
+  "fullLsp": {
+    "files": 114,
+    "passed": 1438,
+    "failed": 0,
+    "pending": 0,
+    "todo": 0,
+    "audit": "/var/www/node/php-companion/.vscode-test/d1197-parser-owner-full-lsp-run.json",
+    "auditSha256": "440d77aab8c09287004dc3405184b67f91a7f90009b3fcb7257c00e325b3a48f",
+    "allOriginalCaseIdentitiesAndMultiplicitiesPreserved": true
+  },
+  "editor": {
+    "allFourOriginalLinuxFlowsPassed": true,
+    "qualificationReused": false,
+    "audit": "/var/www/node/php-companion/.vscode-test/d1198-parser-owner-editor-qualification.json",
+    "auditSha256": "eff7fe17166d21135d181819bbe0d582777baa4b4aa61e538cb58bdfb349c826",
+    "generatorReturnFlowStates": [
+      {
+        "state": "partial",
+        "version": 1,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      },
+      {
+        "state": "total",
+        "version": 2,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result>",
+        "mismatchLines": [
+          12,
+          18
+        ]
+      },
+      {
+        "state": "finally",
+        "version": 3,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Other>",
+        "mismatchLines": [
+          11,
+          17
+        ]
+      },
+      {
+        "state": "unknown",
+        "version": 4,
+        "signature": "inner(bool $flag): \\Generator",
+        "mismatchLines": []
+      },
+      {
+        "state": "partial",
+        "version": 5,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      },
+      {
+        "state": "unknown",
+        "version": 6,
+        "signature": "inner(bool $flag): \\Generator",
+        "mismatchLines": []
+      },
+      {
+        "state": "partial",
+        "version": 7,
+        "signature": "inner(bool $flag): Generator<int, App\\Service\\C2GeneratorReturnFlow\\Item, mixed, App\\Service\\C2GeneratorReturnFlow\\Result|null>",
+        "mismatchLines": [
+          11,
+          12,
+          18
+        ]
+      }
+    ],
+    "generationBoundaryObservations": 80
+  },
+  "semanticCasesPassed": 23673,
+  "rootUnitCasesPassed": 113,
+  "targetCasesPassed": 8,
+  "parserCasesPassed": 172,
+  "targetedProductionProtocolCasesPassed": 17,
+  "normalFullProfile": {
+    "audit": "/var/www/node/php-companion/.vscode-test/d1195-parser-owner-profile-run.json",
+    "sha256": "bd77a59c6adcd58c29ed1aa057ea2a1bcb17dc69a23368a223ecd44f71fc6d84",
+    "scalarP95Ms": 82,
+    "unionP95Ms": 95,
+    "originalBudgetMs": 150,
+    "compositeFeedbackQualified": true,
+    "firstColdHoverMs": 1381
+  },
+  "normalValidation": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1194-parser-owner-validation.json",
+    "sha256": "9bb2eddf12f9656558c24101d42b979403e14f8abae761f69b29b07332fc29d0"
+  },
+  "priorSourceEvidence": {
+    "path": "/var/www/node/php-companion/docs/php-language-toolchain/reports/parser-containing-type-normal-adoption-2026-10-09.json",
+    "sha256": "26bba5a24de680cfe9c0b399ac10b84a8ef1c7ecdc1f2d4bfb558506fd655113"
+  },
+  "priorArchive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d1196-parser-owner-adoption-evidence/manifest.json",
+    "sha256": "aa6a9a3a1ab334a76aa4debdbca9d289c623f4cd60e42683c903a17e6b9e55b1"
+  },
+  "fullLspQualified": true,
+  "fourLinuxWorkflowsQualified": true,
+  "compositeFeedbackQualified": true,
+  "nativeWindowsQualified": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1200-parser-owner-qualified-evidence/manifest.json",
+  "remaining": [
+    "First cold Hover and remaining original full-performance budgets",
+    "Current engine original five-round ordinary edits, production scales and recovery",
+    "Cold first hover, native Windows / WSL Remote / long sessions / human acceptance",
+    "All remaining original C1-C4/R4, P0-P9/F01-F14 requirements"
+  ]
+}

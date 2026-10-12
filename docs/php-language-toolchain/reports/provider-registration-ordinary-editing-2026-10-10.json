@@ -1,0 +1,253 @@
+{
+  "recordedAtUtc": "2026-10-10T05:12:25.437822+00:00",
+  "engineBuildId": "9b13e6ac4981157269f5dfec8637e2ee2eb30352d50cb9080cd2aef04c6d2fef",
+  "qualified": true,
+  "allOriginal25RunsExecuted": true,
+  "actualServers": 25,
+  "allOriginalProcessesGone": true,
+  "checkedProcessIds": [
+    771632,
+    771719,
+    771730,
+    771791,
+    771805,
+    771872,
+    771883,
+    771937,
+    771948,
+    772005,
+    772016,
+    772062,
+    772073,
+    772141,
+    772152,
+    772211,
+    772222,
+    772275,
+    772289,
+    772349,
+    772360,
+    772402,
+    772413,
+    772473,
+    772484,
+    772550,
+    772561,
+    772609,
+    772620,
+    772695,
+    772706,
+    772749,
+    772760,
+    772828,
+    772839,
+    772905,
+    772916,
+    772970,
+    772981,
+    773050,
+    773061,
+    773103,
+    773114,
+    773180,
+    773191,
+    773247,
+    773258,
+    773320,
+    773331,
+    773398,
+    773409
+  ],
+  "frozenInputsChecked": 31354,
+  "frozenInputsUnchanged": true,
+  "maximumHotP95Ms": 147.83,
+  "originalBudgetMs": 150,
+  "performanceFailuresPreserved": true,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "realWslAcceptance": false,
+  "profileUpdated": false,
+  "manifest": "/var/www/node/php-companion/.vscode-test/d1557-provider-readiness-ordinary-evidence/manifest.json",
+  "manifestSha256": "76cdd22e396fd0c90b1a2ac4c4622728fdac398df57f45f7192e57e7ed1ce5e9",
+  "archivedFiles": 64,
+  "frozenLinksChecked": 185,
+  "queriesPerRun": 100,
+  "roundsPerCase": 5,
+  "caseResults": [
+    {
+      "label": "fixed-7.2",
+      "round": 1,
+      "p95Ms": 133.28,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 1,
+      "p95Ms": 126.06,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 1,
+      "p95Ms": 83.91,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 1,
+      "p95Ms": 135.56,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 1,
+      "p95Ms": 65.68,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 2,
+      "p95Ms": 121.55,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 2,
+      "p95Ms": 120.14,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 2,
+      "p95Ms": 95.51,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 2,
+      "p95Ms": 133.69,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 2,
+      "p95Ms": 62.23,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 3,
+      "p95Ms": 123.28,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 3,
+      "p95Ms": 115.25,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 3,
+      "p95Ms": 92.99,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 3,
+      "p95Ms": 147.83,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 3,
+      "p95Ms": 66.83,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 4,
+      "p95Ms": 139.78,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 4,
+      "p95Ms": 125.52,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 4,
+      "p95Ms": 108.24,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 4,
+      "p95Ms": 138.99,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 4,
+      "p95Ms": 67,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-7.2",
+      "round": 5,
+      "p95Ms": 118.31,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "round": 5,
+      "p95Ms": 120.8,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-data-service",
+      "round": 5,
+      "p95Ms": 103.33,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "round": 5,
+      "p95Ms": 138.3,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    },
+    {
+      "label": "real-blog-controller",
+      "round": 5,
+      "p95Ms": 65.95,
+      "correctnessPassed": true,
+      "budgetPassed": true
+    }
+  ]
+}

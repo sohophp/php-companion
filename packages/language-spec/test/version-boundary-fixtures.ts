@@ -1,0 +1,25 @@
+export const VERSION_BOUNDARY_FIXTURES = [
+  { name: 'lowercase octal', source: '<?php $x=/*@*/0o755;', feature: 'explicit octal literal', minimum: '8.1', length: 5, valid: true },
+  { name: 'uppercase octal', source: '<?php $x=/*@*/0O755;', feature: 'explicit octal literal', minimum: '8.1', length: 5, valid: true },
+  { name: 'separated octal', source: '<?php $x=/*@*/0o7_55;', feature: 'explicit octal literal', minimum: '8.1', length: 6, valid: true },
+  { name: 'function parameters', source: '<?php function f($x/*@*/, /* comma, */) {}', feature: 'trailing comma in parameters', minimum: '8.0', length: 1, valid: true },
+  { name: 'method parameters', source: '<?php class C { function f($x/*@*/,) {} }', feature: 'trailing comma in parameters', minimum: '8.0', length: 1, valid: true },
+  { name: 'closure parameters', source: '<?php $f=function($x/*@*/,) {};', feature: 'trailing comma in parameters', minimum: '8.0', length: 1, valid: true },
+  { name: 'arrow parameters', source: '<?php $f=fn($x/*@*/,)=>$x;', feature: 'trailing comma in parameters', minimum: '8.0', length: 1, valid: true },
+  { name: 'closure captures', source: '<?php $x=1; $f=function() use ($x/*@*/,) {};', feature: 'trailing comma in closure captures', minimum: '8.0', length: 1, valid: true },
+  { name: 'reference captures', source: '<?php $x=1; $f=function() use (&$x/*@*/, /* comma, */) {};', feature: 'trailing comma in closure captures', minimum: '8.0', length: 1, valid: true },
+  { name: 'non-capturing catch', source: '<?php try {} /*@*/catch (Exception) {}', feature: 'non-capturing catch', minimum: '8.0', length: 5, valid: true },
+  { name: 'union catch', source: '<?php try {} /*@*/catch (Exception|Error) {}', feature: 'non-capturing catch', minimum: '8.0', length: 5, valid: true },
+  { name: 'body variable is not capture', source: '<?php try {} /*@*/catch (Exception) { $e=1; }', feature: 'non-capturing catch', minimum: '8.0', length: 5, valid: true },
+  { name: 'uppercase catch with comment', source: '<?php try {} /*@*/CATCH (Exception /* comment */) {}', feature: 'non-capturing catch', minimum: '8.0', length: 5, valid: true },
+  { name: 'legacy octal', source: '<?php $x=0755;', feature: '', minimum: '', length: 0, valid: true },
+  { name: 'ordinary parameter commas', source: '<?php function f($x, $y="a,b") {}', feature: '', minimum: '', length: 0, valid: true },
+  { name: 'ordinary captures', source: '<?php $x=1; $y=2; $f=function() use ($x,$y) {};', feature: '', minimum: '', length: 0, valid: true },
+  { name: 'capturing catch', source: '<?php try {} catch (Exception /* note */ $e) {}', feature: '', minimum: '', length: 0, valid: true },
+  { name: 'inert source text', source: '<?php /* 0o755 function f($x,) catch(Exception) */ $s="0o755";', feature: '', minimum: '', length: 0, valid: true },
+  { name: 'unfinished parameters', source: '<?php function f($x,', feature: '', minimum: '', length: 0, valid: false },
+  { name: 'unfinished catch header', source: '<?php try {} catch (Exception', feature: '', minimum: '', length: 0, valid: false },
+  { name: 'unfinished octal', source: '<?php $x=0o;', feature: '', minimum: '', length: 0, valid: false },
+] as const;
+
+export const BOUNDARY_FEATURES: readonly string[] = ['explicit octal literal', 'trailing comma in parameters', 'trailing comma in closure captures', 'non-capturing catch'];

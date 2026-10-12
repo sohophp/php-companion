@@ -1,0 +1,39 @@
+{
+  "diagnosticOnly": true,
+  "normalPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "normalBaselineEngine": "700d58bc2ce94a6103b517e495de9d7b67b688640a63c55b01bdc4a915439166",
+  "observedServerSha256": "7d650ac9fcd3347b9aaff2dcfe6cc70571de355cf6e41832596635a6ddad2e9d",
+  "diagnosticWorkflowOriginal": true,
+  "terminalOwnershipVerified": true,
+  "frozenInputsUnchanged": true,
+  "measurementScope": "First original consumer Hover after the unsaved service changes from string to int; initial string feedback already verified. Not activation-to-first-usable latency.",
+  "samples": 861,
+  "sampleDurationMs": 1224.54,
+  "sourceChanged": true,
+  "sourceSha256": "887d02ad3c36e21fc6151f6861bd6fd9929b61b12f50bc813f04055f71ee8c95",
+  "newControlTests": 4,
+  "oldControlPassed": 2,
+  "oldControlFailed": 2,
+  "targetedPassed": 68,
+  "scopeIdReadsBefore": 13201,
+  "scopeCount": 161,
+  "scopeReadBudget": 483,
+  "sourceQualificationPending": true,
+  "artifacts": {
+    ".vscode-test/d1438-cold-workspace-profile-run.json": "a683a55ebe841798105fba2e971a244d9a7b6394c8a2c7d3e63654a8c7dab1d8",
+    ".vscode-test/d1441-cold-workspace-cpu-mapped.json": "f84414b622066bf8e545b8bd3df61bc7557671d0beebeaf7a0ab72691379dcd9",
+    ".vscode-test/d1442-cold-workspace-cpu-evidence/manifest.json": "d36e0dca37a257559642bd3da75be9719b87f9ec2e20e34c7fdc893d89afd6a9",
+    ".vscode-test/d1443-scope-lookup-red.json": "b7f4d7670f96fcb3217c509459be1a9fa72c4aa7018ca8b877ba39caac0b7619",
+    ".vscode-test/d1444-scope-lookup-red.json": "425c306fc731acdc740cc5a68973156758712f2db12f23c50cdedf422a5fc46f",
+    ".vscode-test/d1445-scope-lookup-green.json": "e7d16f840100357bf3263b2e1970f759cca30e13f5213d8901efc5c638454976"
+  },
+  "limits": [
+    "Inspector and CPU sampling alter scheduling; no performance acceptance.",
+    "Scope is the first original consumer Hover after the unsaved service changes from string to int, with concurrent background work; it is not activation-to-first-usable latency.",
+    "Background work can overlap this interval; asynchronous ancestry may be lost.",
+    "Inclusive totals overlap and must not be summed or treated as request latency.",
+    "This diagnostic locates CPU cost overlapping the measured builtin wait; it does not qualify normal performance or identify all first-feedback causes."
+  ]
+}

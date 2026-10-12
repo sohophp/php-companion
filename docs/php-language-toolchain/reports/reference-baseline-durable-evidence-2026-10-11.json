@@ -1,0 +1,133 @@
+{
+  "qualified": true,
+  "scope": "Optional durable diagnostic evidence in the reference CLI; subprocess unit controls only, not real PHP/LSP qualification",
+  "tests": 6,
+  "testsExitCode": 0,
+  "testsTerminalToolChunk": "759fb9",
+  "scopedLintExitCode": 0,
+  "lintTerminalToolChunk": "6277f7",
+  "sourceVerification": {
+    "verified": true,
+    "originalCheckerByteExactAfterRemovingOptionalEvidenceCode": true,
+    "originalFailedRealProbeSourceRecoverable": true,
+    "originalExpectedCountAndBothFullHashesUnchanged": true,
+    "beforeSha256": "d8ed865b2c5b413e37400047b7b1549cb79a60069e3d4380e5e2d8dd77d803bb",
+    "afterSha256": "4eecff5862be7c5fd3470d3d1818184fbc2c54510d6016c1ab110ea0476a91cf",
+    "testsSha256": "4e4cbabd3a65ebe4454a853a6801b8e62b6d952067db056ed39862809c2c9e7a",
+    "tests": 6,
+    "testsExitCode": 0,
+    "testsTerminalToolChunk": "90686 collected",
+    "lintExitCode": 0,
+    "fullObjectiveComplete": false
+  },
+  "originalExpectedCountAndHashesRetained": true,
+  "defaultBehaviorRetained": true,
+  "originalCheckerRestoresByteExactly": true,
+  "flags": [
+    "PHP_COMPANION_REFERENCE_EVIDENCE_DIR"
+  ],
+  "evidenceIncludes": [
+    "phase stdout JSONL",
+    "phase stderr",
+    "complete raw reference locations when available",
+    "phase benchmark exit code/PID/workspace/server entry"
+  ],
+  "failedReloadDoesNotReuseColdLocations": true,
+  "evidenceMustBeOutsideAuditedWorkspace": true,
+  "newDestinationPerInvocation": true,
+  "originalTemporaryCacheCleanupRetained": true,
+  "normalRuntimeAssetsUnchanged": 8,
+  "packageDistJsUnchanged": 209,
+  "projectBaselineComparison": {
+    "baselineCommit": "15fef7b7d5d00bff8a7cdd2e967638100db68712",
+    "observedCurrentCommit": "9d92adbc983811c5f98d9f79eb0ef04526266a51",
+    "composerLockVersionChanges": [
+      {
+        "package": "league/commonmark",
+        "baseline": "2.10.0",
+        "observedCurrent": "2.10.3"
+      },
+      {
+        "package": "psalm/plugin-phpunit",
+        "baseline": null,
+        "observedCurrent": "0.19.5"
+      },
+      {
+        "package": "psalm/plugin-symfony",
+        "baseline": null,
+        "observedCurrent": "v5.3.0"
+      },
+      {
+        "package": "sohophp/sofinder",
+        "baseline": "v1.3.0",
+        "observedCurrent": "v1.4.0"
+      },
+      {
+        "package": "sohophp/sofinder-core",
+        "baseline": "v1.3.0",
+        "observedCurrent": "v1.4.0"
+      },
+      {
+        "package": "sohophp/sofinder-http",
+        "baseline": "v1.3.0",
+        "observedCurrent": "v1.4.0"
+      },
+      {
+        "package": "sohophp/sofinder-s3",
+        "baseline": "v1.3.0",
+        "observedCurrent": "v1.4.0"
+      },
+      {
+        "package": "sohophp/sofinder-symfony",
+        "baseline": "v1.3.0",
+        "observedCurrent": "v1.4.0"
+      },
+      {
+        "package": "symfony/expression-language",
+        "baseline": null,
+        "observedCurrent": "v7.4.18"
+      }
+    ],
+    "httpFoundationVersionUnchanged": true,
+    "noOldVendorByteIdentityClaim": true
+  },
+  "realProjectMismatchStillUnqualified": true,
+  "original188MismatchNotReexecuted": true,
+  "concurrentJobsVerified": {
+    "d1749-persistence-scale-matrix-run.json": {
+      "status": "running",
+      "pid": 1823171,
+      "live": true
+    },
+    "d1752-whole-process-cache-matrix-run.json": {
+      "status": "waiting-for-fresh-worker-matrix",
+      "pid": 1825851,
+      "live": true
+    },
+    "d1746-long-session-driver.json": {
+      "status": "running",
+      "pid": 1815025,
+      "live": true
+    }
+  },
+  "longSessionForcedExitRecoveryObserved": {
+    "kind": "forced-process-exit",
+    "previousPid": 1815052,
+    "replacementPid": 1835782,
+    "recoveryMs": 3844.953945999965,
+    "unsavedBufferReopenedExactly": true,
+    "firstQueryCorrect": true,
+    "diskUnchanged": true
+  },
+  "longSessionStillRunning": true,
+  "multiHourQualification": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "numberedFixtures": 166,
+  "families": 14,
+  "openMajorItems": 26,
+  "archive": "/var/www/node/php-companion/.vscode-test/d1760-reference-evidence-archive",
+  "archiveFiles": 11,
+  "archiveManifestSha256": "460ec4f1eef132284d9567ccd780b5df628a7ee58d15f419f85eeeeac2cfc518",
+  "auditedAtUtc": "2026-10-10T19:48:12.761840+00:00"
+}

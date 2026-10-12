@@ -1,0 +1,60 @@
+{
+  "normalEngine": "3f89e5fd0533bb5455f6967503e666592b6202e7b4f478679962bf7eb02798e3",
+  "sourceQualified": true,
+  "fullLspQualified": true,
+  "fourLinuxOriginalWorkflowsQualified": true,
+  "nativeWindowsOriginalC2Qualified": true,
+  "normalFullTwelveExtensionProfileQualified": true,
+  "semanticNormalRerunPassed": 23708,
+  "lspFiles": 116,
+  "lspPassed": 1458,
+  "rootUnitPassed": 113,
+  "directFunctionProtocolPassed": 48,
+  "parser": {
+    "passed": 186,
+    "rerun": false,
+    "exactInputIdentityReuse": true
+  },
+  "languageSpec": {
+    "passed": 320,
+    "rerun": false,
+    "exactInputIdentityReuse": true
+  },
+  "scalarFeedbackP95Ms": 74,
+  "unionFeedbackP95Ms": 124,
+  "firstScalarFeedbackMs": 1081,
+  "firstPostEditConsumerHoverMs": 974,
+  "measurementIsActivationToFirstUsable": false,
+  "fullPerformanceQualified": false,
+  "currentEditingRecoveryQualified": false,
+  "currentOrdinaryEditingQualified": false,
+  "currentProductionScaleQualified": false,
+  "currentDirectPackagePersistenceQualified": false,
+  "profileUpdated": false,
+  "packaged": false,
+  "committed": false,
+  "pushed": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "artifacts": {
+    ".vscode-test/d1446-scope-lookup-source-validation.json": "c4406fa7cd9b9c859f7312bffc3904d626f0a0c60fadab8cc44769e2e47effa4",
+    ".vscode-test/d1449-scope-lookup-full-lsp-run.json": "9a4b897cb4e15f0bc7a570a6700920c6c9501fa9449e389aeb61ee66395abd4b",
+    ".vscode-test/d1451-scope-lookup-editor-qualification.json": "b106631d0390a9d2cfa541c4d2d45e44fe0d1e4ca67429a791fad1770d1473e8",
+    ".vscode-test/d1453-scope-lookup-profile-run.json": "93cde33307d6cd02c13d4868facb7bc06778269c94faa2d540685b4c792482cb",
+    ".vscode-test/d1455-native-c2-audit.json": "f62771b2323f286af1450478587f719b734813d2e77686ee820fdafbfd59e195",
+    ".vscode-test/d1456-scope-lookup-native-pipeline.json": "299098b56f99bf83ed455eb7d1971d209aba6a93baaa70f5dd884e6992d9ebaf",
+    ".vscode-test/d1462-native-c2-terminal-audit.json": "f8d534f3569da1c652a3e8ff5f073c8595d471397f1dc32519e21b56eda39a9c",
+    ".vscode-test/d1450-scope-lookup-source-evidence/manifest.json": "4d356e6810bad356d12ebe73fb1644b915609f5fdd4cc7fb643c60e6d83d5bb0",
+    ".vscode-test/d1452-scope-lookup-lsp-evidence/manifest.json": "7a781a567bd2bf477dde777e9fe7ded45a29c86a02051c6f42e34d96a441e7d2",
+    ".vscode-test/d1457-scope-lookup-editor-evidence/manifest.json": "61d4ecd56fe6e7571e4d050728ad57c9e6bad203ec40cc8656cba6858d43f3cd",
+    ".vscode-test/d1458-scope-lookup-profile-evidence/manifest.json": "d287d42953a325fc253b91a4ae114df99e78ef333bd02156c699619fa46e9f1c",
+    ".vscode-test/d1448-dependency-metadata-audit.json": "aa0b1d25efb026ce3b212b9c6b2f6afdc7cc9d35961737461db3b77e8071c554",
+    ".vscode-test/d1447-scope-lookup-full-lsp-run.json": "d0c6f9c24d23f26b722d1a8a7209d83c4c8be0968bf4f73f703d6e3f5270c009"
+  },
+  "remainingScope": [
+    "Original C1-C4/R4, P0-P9/F01-F14 scope",
+    "Current engine independent recovery/editing/scale/persistence gates",
+    "Remaining first-feedback wait and genuine activation-to-first-usable measurement",
+    "Other PHP versions/platforms/modes, real projects, long sessions and human Windows/WSL Remote acceptance"
+  ]
+}

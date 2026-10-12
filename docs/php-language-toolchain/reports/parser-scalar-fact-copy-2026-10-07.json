@@ -1,0 +1,1640 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestones": "D292-D297",
+  "decision": "retain-existing-scalar-copy-extension-for-complete-regression; ordinary-editing-budget-still-failed",
+  "generation": {
+    "baselinePath": "/var/www/node/php-companion/.vscode-test/d286-fact-copy-evidence/original-parser-dist.mjs",
+    "baselineSha256": "758b538c482139f9e568c1227a4bc5e0dc4e7ce12e1c372e7681d08c9397437b",
+    "candidateSha256": "73f4a87ba1e6c7bb370fc6996a2572721a5c09d98a312dd7a459e6884af753a9",
+    "sourceSha256": "f9418cd4fa39df041a6e14366c6a2a461439be39a9c8672f255f17f711fedbb8",
+    "coreSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+    "scope": "Only variableReferences and returns use the existing compile-time scalar-only cloneFlatFact; nested facts still use structuredClone. No universal graph copier or serialization cache."
+  },
+  "baselineOwnershipTests": {
+    "success": true,
+    "numTotalTests": 158,
+    "numPassedTests": 158,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "parserTests": {
+    "success": true,
+    "numTotalTests": 158,
+    "numPassedTests": 158,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "semanticTests": {
+    "success": true,
+    "numTotalTests": 22826,
+    "numPassedTests": 22826,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTodoTests": 0
+  },
+  "semanticFiles": 146,
+  "parity": {
+    "status": "passed",
+    "scope": "Private parser fact-copy parity and cache ownership only; not editor latency or complete parser/semantic/LSP qualification.",
+    "fixtures": 127,
+    "existingPhpFixtures": 90,
+    "comparisons": 1524,
+    "isolationChecks": 762,
+    "parsedFactsTreesErrorsRangesAndUndefinedEqual": true
+  },
+  "runs": {
+    "d292-flat-record-isolation-baseline": {
+      "status": "exited",
+      "parentPid": 590842,
+      "childPid": 590934,
+      "startedAtUtc": "2026-10-07T11:24:02.815146+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d292-flat-record-isolation-baseline-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d292-flat-record-isolation-baseline-input.json",
+      "exitCode": 0,
+      "durationSeconds": 2.5132140929999878,
+      "finishedAtUtc": "2026-10-07T11:24:05.327180+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "862026e1e1080e19c5948e7318cdbba2aa1a86c570944bdae8c1ca15716d76f1"
+    },
+    "d293-flat-record-parser-tests": {
+      "status": "exited",
+      "parentPid": 591327,
+      "childPid": 591475,
+      "startedAtUtc": "2026-10-07T11:24:44.299475+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d293-flat-record-parser-tests-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d293-flat-record-parser-tests-input.json",
+      "exitCode": 0,
+      "durationSeconds": 2.397616605998337,
+      "finishedAtUtc": "2026-10-07T11:24:46.695876+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "ee3636af79d061d35f80d13416015928a21eebd38c3115d46d655672c591fae3"
+    },
+    "d293-flat-record-parity": {
+      "status": "exited",
+      "parentPid": 591920,
+      "childPid": 592061,
+      "startedAtUtc": "2026-10-07T11:25:33.234420+00:00",
+      "command": [
+        "env",
+        "SOPHP_FLAT_RECORD_PARITY_REPORT=/var/www/node/php-companion/.vscode-test/d293-flat-record-parity-result.json",
+        "node",
+        ".vscode-test/d293-flat-record-parity.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d293-flat-record-parity-input.json",
+      "exitCode": 0,
+      "durationSeconds": 9.273042061002343,
+      "finishedAtUtc": "2026-10-07T11:25:42.506221+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "7869945ca9ee89f1afe595685d770defd11ad31e6252ef57e3da05111183d6d9"
+    },
+    "d295-flat-record-semantic-full": {
+      "status": "exited",
+      "parentPid": 594625,
+      "childPid": 594712,
+      "startedAtUtc": "2026-10-07T11:30:49.224964+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d295-flat-record-semantic-full-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d295-flat-record-semantic-full-input.json",
+      "exitCode": 0,
+      "durationSeconds": 70.71301968699845,
+      "finishedAtUtc": "2026-10-07T11:31:59.936817+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "bad80ca1e829451dc5e5ffca94fffd9af955b37a053c39a1f06fc5e801f5ce06"
+    },
+    "d296-flat-record-c1": {
+      "status": "exited",
+      "parentPid": 596994,
+      "childPid": 597134,
+      "startedAtUtc": "2026-10-07T11:32:10.705539+00:00",
+      "command": [
+        "env",
+        "PHP_COMPANION_TEST_C1_ONLY=1",
+        "PHP_COMPANION_TEST_C1_UI=1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP=/opt/remi/php72/root/usr/bin/php",
+        "PHP_COMPANION_TEST_VSCODE_EXECUTABLE=/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR=/var/www/node/php-companion/.vscode-test/d296-c1-failures",
+        "D152_HOST_LOG_ARCHIVE=/var/www/node/php-companion/.vscode-test/d296-c1-log-archive",
+        "NODE_OPTIONS=--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs",
+        "node",
+        "scripts/run-extension-test.mjs",
+        "./dist-test/runTest.js"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d296-flat-record-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 104.06944742899941,
+      "finishedAtUtc": "2026-10-07T11:33:54.772926+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "77a17524786febd2b5077ba0d201e257731982a334e9b4be7c2dab5e57a92b5d"
+    },
+    "d297-flat-record-twig-precision": {
+      "status": "exited",
+      "parentPid": 600326,
+      "childPid": 600404,
+      "startedAtUtc": "2026-10-07T11:34:04.798705+00:00",
+      "command": [
+        "env",
+        "TWIG_PLUS_TEST_PHP_CORE_PATH=/var/www/node/php-companion",
+        "TWIG_PLUS_TEST_PHP_SYMFONY_PATH=/var/www/node/php-companion/packages/php-companion-symfony",
+        "TWIG_PLUS_TEST_VSCODE_EXECUTABLE=/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "TWIG_PLUS_PHP_DEFINITION_REPORT=/var/www/node/php-companion/.vscode-test/d297-flat-record-twig-precision-result.json",
+        "xvfb-run",
+        "-a",
+        "node",
+        "packages/vscode/test/extension/runPhpContextTest.js"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d297-flat-record-twig-precision-input.json",
+      "exitCode": 0,
+      "durationSeconds": 16.646083114999783,
+      "finishedAtUtc": "2026-10-07T11:34:21.443288+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "1bbf2a3f78403b2ade4b4c0f406cd3b76ecc71be2e4c4d0f0fc69b34f41eb867"
+    }
+  },
+  "ordinaryEditing": [
+    {
+      "status": "exited",
+      "parentPid": 580236,
+      "startedAtUtc": "2026-10-07T11:13:18.996039+00:00",
+      "node": {
+        "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+        "version": "v22.14.0"
+      },
+      "head": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+      "worktreeStatus": " M docs/php-language-toolchain/acceptance.md\n M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n M packages/language-server/test/shutdown-version-refresh-stdio.test.ts\n M packages/semantic/src/index.ts\n?? .changeset/progressive-controller-contexts.md\n?? .changeset/shared-deferred-accessors.md\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.json\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a6e9f650-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a6e9f650-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/parser-fact-copy-prototype-2026-10-07.json\n?? docs/php-language-toolchain/reports/parser-fact-copy-prototype-2026-10-07.md\n?? docs/php-language-toolchain/reports/persistent-cache-memory-diagnostic-2026-10-07.json\n?? docs/php-language-toolchain/reports/persistent-cache-memory-diagnostic-2026-10-07.md\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.json\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/reference-selection-warning-triage-2026-10-07.json\n?? docs/php-language-toolchain/reports/reference-selection-warning-triage-2026-10-07.md\n?? docs/php-language-toolchain/reports/semantic-deferred-allocation-2026-10-07.json\n?? docs/php-language-toolchain/reports/semantic-deferred-allocation-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.md\n?? packages/language-server/test/controller-context-progressive-stdio.test.ts\n?? packages/semantic/test/deferred-implementation-isolation.test.ts\n",
+      "coreBundleSha256": "a6e9f6502f27c39697ed6f6b815ee42dfd4206cecc389f5ed48085998ac48506",
+      "inputCount": 5442,
+      "inputsDigest": "d183a58982688b0edd3d05cf82b72dc854eb4dcb0bafae528257b8cb044cad15",
+      "externalInputHashes": {
+        "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "/tmp/sophp-d74-declaration-edit-zv4y4wcp/composer.json": "cea789276c58625c4d03724af8120f41f74a104e9d888849c08de6d931d2114c",
+        "/var/www/php/8.5/winstar2024/composer.json": "8873b8535cabbf5e709bbc9dfc0e810acf7d0f195b526dfaec4a9733a350ba0b",
+        "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+        "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6"
+      },
+      "hotQueryBudgetMs": 150,
+      "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.28",
+      "loadAverageAtStart": [
+        0.31,
+        1.01,
+        2.09
+      ],
+      "roundsPerCase": 100,
+      "cases": [
+        {
+          "label": "fixed-7.2",
+          "version": "7.2",
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "aExpected": "shapePickZ",
+          "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "bExpected": "shapePickA",
+          "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+          "sourceBytes": 242801,
+          "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickZ",
+            "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickA",
+            "100"
+          ],
+          "childPid": 580431,
+          "exitCode": 0,
+          "durationSeconds": 13.648491899999499,
+          "stdoutSha256": "74121378c1df30ab90fcf327aac7222a4f25fd034f1a868001a43497e902a0ee",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 353.32,
+            "all": {
+              "p50Ms": 110.24,
+              "p95Ms": 138.44,
+              "maxMs": 353.32
+            },
+            "a": {
+              "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickZ",
+              "p50Ms": 104.93,
+              "p95Ms": 138.44,
+              "maxMs": 353.32,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickA",
+              "p50Ms": 113.01,
+              "p95Ms": 139.47,
+              "maxMs": 221.58,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 225.58
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 311.7
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 357.46
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        },
+        {
+          "label": "fixed-8.5",
+          "version": "8.5",
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "aExpected": "shapePickZ",
+          "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "bExpected": "shapePickA",
+          "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+          "sourceBytes": 242801,
+          "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickZ",
+            "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickA",
+            "100"
+          ],
+          "childPid": 580523,
+          "exitCode": 0,
+          "durationSeconds": 13.622205826002755,
+          "stdoutSha256": "ed08a409746b0426fb867708d382690ff9684787592267158f9d4cb13eccfb6d",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 201.43,
+            "all": {
+              "p50Ms": 109.16,
+              "p95Ms": 141.6,
+              "maxMs": 201.43
+            },
+            "a": {
+              "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickZ",
+              "p50Ms": 113.78,
+              "p95Ms": 141.67,
+              "maxMs": 201.43,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickA",
+              "p50Ms": 100.22,
+              "p95Ms": 141.6,
+              "maxMs": 198.82,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 255.29
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 331.58
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 368.41
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        },
+        {
+          "label": "real-data-service",
+          "version": "8.5",
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+          "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "aExpected": "sophpPerfValueZ",
+          "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "bExpected": "sophpPerfValueA",
+          "sourceKind": "existing real project file; appended input remains unsaved only",
+          "sourceBytes": 82773,
+          "sourceSha256": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/var/www/php/8.5/winstar2024",
+            "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueZ",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueA",
+            "100"
+          ],
+          "childPid": 580721,
+          "exitCode": 0,
+          "durationSeconds": 10.91340849900007,
+          "stdoutSha256": "8e7997b7ccc1cfdea056fb6de060d19ab012431ccb2e581992eee210e3fe6556",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/var/www/php/8.5/winstar2024",
+            "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 264.06,
+            "all": {
+              "p50Ms": 69.89,
+              "p95Ms": 106.79,
+              "maxMs": 264.06
+            },
+            "a": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueZ",
+              "p50Ms": 69.55,
+              "p95Ms": 97.85,
+              "maxMs": 264.06,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueA",
+              "p50Ms": 70.25,
+              "p95Ms": 115.36,
+              "maxMs": 162.1,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 265.88
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 309.46
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 350.24
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        },
+        {
+          "label": "real-large-controller",
+          "version": "8.5",
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "aExpected": "sophpPerfValueZ",
+          "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "bExpected": "sophpPerfValueA",
+          "sourceKind": "existing real project file; appended input remains unsaved only",
+          "sourceBytes": 46144,
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/var/www/php/8.5/winstar2024",
+            "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueZ",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueA",
+            "100"
+          ],
+          "childPid": 580831,
+          "exitCode": 0,
+          "durationSeconds": 16.275966565001,
+          "stdoutSha256": "04bf33792b443bc85b243b07da710a199b2fd4647fe1ed8333217a4407788d25",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/var/www/php/8.5/winstar2024",
+            "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 235.52,
+            "all": {
+              "p50Ms": 131.79,
+              "p95Ms": 168.58,
+              "maxMs": 235.52
+            },
+            "a": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueZ",
+              "p50Ms": 131.27,
+              "p95Ms": 168.58,
+              "maxMs": 235.52,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueA",
+              "p50Ms": 132.56,
+              "p95Ms": 169.76,
+              "maxMs": 176.6,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 232.58
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 434.66
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 408.61
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": false
+        },
+        {
+          "label": "real-blog-controller",
+          "version": "8.5",
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+          "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "aExpected": "sophpPerfValueZ",
+          "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "bExpected": "sophpPerfValueA",
+          "sourceKind": "existing real project file; appended input remains unsaved only",
+          "sourceBytes": 13815,
+          "sourceSha256": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/var/www/php/8.5/winstar2024",
+            "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueZ",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueA",
+            "100"
+          ],
+          "childPid": 580923,
+          "exitCode": 0,
+          "durationSeconds": 8.209696108999196,
+          "stdoutSha256": "774b67311430895c3014eeba5b5f0487082aa11e9a314125bf50837b236b0fdf",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/var/www/php/8.5/winstar2024",
+            "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 133.2,
+            "all": {
+              "p50Ms": 53.4,
+              "p95Ms": 71.15,
+              "maxMs": 133.2
+            },
+            "a": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueZ",
+              "p50Ms": 55.6,
+              "p95Ms": 71.35,
+              "maxMs": 133.2,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueA",
+              "p50Ms": 53.15,
+              "p95Ms": 71.15,
+              "maxMs": 76.06,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 217.2
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 261.04
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 296.89
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        }
+      ],
+      "qualified": false,
+      "scope": "Current a6e9f650 pre-fact-copy ordinary baseline; private parser candidate is not installed. Normal production Core with same-file dynamic-property diagnostics enabled; fresh Composer and real-project hashes; previous D202 baseline is retained and is comparable only where external inputs match; original production-bundle serial unsaved-edit plus immediate completion benchmark, no CPU profiler/forced GC/testMode. Two configured PHP-version controls and three read-only real-project files, 100 requests each including first query; first and P50/P95/max reported separately. onDemand only; not UI latency, diagnostic/hover/definition qualification, whole-project or long-session/per-platform acceptance. External RSS samples are not retained heap or 50k-cache qualification.",
+      "finishedAtUtc": "2026-10-07T11:14:21.731954+00:00",
+      "changedInputs": [],
+      "changedExternalInputs": [],
+      "nodeUnchanged": true,
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "correctnessCaptured": true
+    },
+    {
+      "status": "exited",
+      "parentPid": 592333,
+      "startedAtUtc": "2026-10-07T11:26:09.853377+00:00",
+      "node": {
+        "path": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "sha256": "1abce2374a485bddae3c27b17a3e3143e2780232026e627c4fe74ddde3f380a1",
+        "version": "v22.14.0"
+      },
+      "head": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+      "worktreeStatus": " M docs/php-language-toolchain/acceptance.md\n M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n M packages/language-server/test/shutdown-version-refresh-stdio.test.ts\n M packages/parser/src/index.ts\n M packages/parser/test/parser.test.ts\n M packages/semantic/src/index.ts\n?? .changeset/progressive-controller-contexts.md\n?? .changeset/shared-deferred-accessors.md\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.json\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a6e9f650-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a6e9f650-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/parser-fact-copy-normal-editing-trial-2026-10-07.json\n?? docs/php-language-toolchain/reports/parser-fact-copy-normal-editing-trial-2026-10-07.md\n?? docs/php-language-toolchain/reports/parser-fact-copy-prototype-2026-10-07.json\n?? docs/php-language-toolchain/reports/parser-fact-copy-prototype-2026-10-07.md\n?? docs/php-language-toolchain/reports/persistent-cache-memory-diagnostic-2026-10-07.json\n?? docs/php-language-toolchain/reports/persistent-cache-memory-diagnostic-2026-10-07.md\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.json\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/reference-selection-warning-triage-2026-10-07.json\n?? docs/php-language-toolchain/reports/reference-selection-warning-triage-2026-10-07.md\n?? docs/php-language-toolchain/reports/semantic-deferred-allocation-2026-10-07.json\n?? docs/php-language-toolchain/reports/semantic-deferred-allocation-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.md\n?? packages/language-server/test/controller-context-progressive-stdio.test.ts\n?? packages/semantic/test/deferred-implementation-isolation.test.ts\n",
+      "coreBundleSha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b",
+      "inputCount": 5444,
+      "inputsDigest": "b7370b372b6e39e8bbe24b89a6a023ceb36546647daffe2944f84c899f9209e1",
+      "externalInputHashes": {
+        "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+        "/tmp/sophp-d74-declaration-edit-zv4y4wcp/composer.json": "cea789276c58625c4d03724af8120f41f74a104e9d888849c08de6d931d2114c",
+        "/var/www/php/8.5/winstar2024/composer.json": "8873b8535cabbf5e709bbc9dfc0e810acf7d0f195b526dfaec4a9733a350ba0b",
+        "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+        "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6"
+      },
+      "hotQueryBudgetMs": 150,
+      "platform": "Linux-5.15.167.4-microsoft-standard-WSL2-x86_64-with-glibc2.28",
+      "loadAverageAtStart": [
+        0.55,
+        0.86,
+        1.6
+      ],
+      "roundsPerCase": 100,
+      "cases": [
+        {
+          "label": "fixed-7.2",
+          "version": "7.2",
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "aExpected": "shapePickZ",
+          "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "bExpected": "shapePickA",
+          "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+          "sourceBytes": 242801,
+          "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickZ",
+            "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickA",
+            "100"
+          ],
+          "childPid": 592476,
+          "exitCode": 0,
+          "durationSeconds": 13.531826557999011,
+          "stdoutSha256": "7c85c820199193d6a6d87a5f6888cf0a6e93675be8767f20c3e47a2fcdd653cd",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 437.43,
+            "all": {
+              "p50Ms": 108.29,
+              "p95Ms": 149.15,
+              "maxMs": 437.43
+            },
+            "a": {
+              "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickZ",
+              "p50Ms": 111.53,
+              "p95Ms": 143.14,
+              "maxMs": 437.43,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickA",
+              "p50Ms": 102.12,
+              "p95Ms": 150.21,
+              "maxMs": 206.84,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 237.54
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 325.92
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 346.6
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        },
+        {
+          "label": "fixed-8.5",
+          "version": "8.5",
+          "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+          "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+          "a": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "aExpected": "shapePickZ",
+          "b": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+          "bExpected": "shapePickA",
+          "sourceKind": "unchanged historical 242801-byte synthetic fixture",
+          "sourceBytes": 242801,
+          "sourceSha256": "7c2b86d10cc3ab037eb5ad5704287c25460da3f3fc2f63c63d9f7b068c5aa479",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickZ",
+            "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+            "shapePickA",
+            "100"
+          ],
+          "childPid": 592553,
+          "exitCode": 0,
+          "durationSeconds": 13.090912167997885,
+          "stdoutSha256": "dd9546585295d421f1090f46674549d3bbd9fbf92e8a3c97c1ac7fe2dfb8ab0e",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/tmp/sophp-d74-declaration-edit-zv4y4wcp",
+            "file": "/tmp/sophp-d74-declaration-edit-zv4y4wcp/src/Editing.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 334.41,
+            "all": {
+              "p50Ms": 98.82,
+              "p95Ms": 131.76,
+              "maxMs": 334.41
+            },
+            "a": {
+              "fragment": "/** @param array{enabled:bool} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickZ",
+              "p50Ms": 95.69,
+              "p95Ms": 125.89,
+              "maxMs": 334.41,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "/** @param array{enabled:string} $config */ function send(array $config):void{} send(['enabled'=>shapePick{{cursor}}]); function unfinished(",
+              "expected": "shapePickA",
+              "p50Ms": 101.87,
+              "p95Ms": 132.1,
+              "maxMs": 166.58,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 232.81
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 348.68
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 399.71
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        },
+        {
+          "label": "real-data-service",
+          "version": "8.5",
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+          "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "aExpected": "sophpPerfValueZ",
+          "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "bExpected": "sophpPerfValueA",
+          "sourceKind": "existing real project file; appended input remains unsaved only",
+          "sourceBytes": 82773,
+          "sourceSha256": "78c257b58d5fe2881684dd7832deb0e3a6521b12fdf6edcdba3bc4ccfb288f22",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/var/www/php/8.5/winstar2024",
+            "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueZ",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueA",
+            "100"
+          ],
+          "childPid": 592755,
+          "exitCode": 0,
+          "durationSeconds": 10.077187437000248,
+          "stdoutSha256": "b8475f35e8902347a29461c14f3bbb379a9470be56bc1d188ad1875f1e87a68d",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/var/www/php/8.5/winstar2024",
+            "file": "/var/www/php/8.5/winstar2024/src/Modules/LocalLanguages/Service/ISO3166.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 186.08,
+            "all": {
+              "p50Ms": 65.07,
+              "p95Ms": 90.59,
+              "maxMs": 186.08
+            },
+            "a": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueZ",
+              "p50Ms": 66.61,
+              "p95Ms": 94.89,
+              "maxMs": 186.08,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueA",
+              "p50Ms": 64.62,
+              "p95Ms": 90.59,
+              "maxMs": 133.67,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 246.71
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 298.92
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 338.84
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        },
+        {
+          "label": "real-large-controller",
+          "version": "8.5",
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "aExpected": "sophpPerfValueZ",
+          "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "bExpected": "sophpPerfValueA",
+          "sourceKind": "existing real project file; appended input remains unsaved only",
+          "sourceBytes": 46144,
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/var/www/php/8.5/winstar2024",
+            "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueZ",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueA",
+            "100"
+          ],
+          "childPid": 592826,
+          "exitCode": 0,
+          "durationSeconds": 15.433383118001075,
+          "stdoutSha256": "9ec6fc3703ebb99ece02e42247bd5bb0c909f139b403b3977cd5833a022d6dab",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/var/www/php/8.5/winstar2024",
+            "file": "/var/www/php/8.5/winstar2024/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 236.77,
+            "all": {
+              "p50Ms": 123.37,
+              "p95Ms": 150.3,
+              "maxMs": 236.77
+            },
+            "a": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueZ",
+              "p50Ms": 123.45,
+              "p95Ms": 148.24,
+              "maxMs": 236.77,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueA",
+              "p50Ms": 123.15,
+              "p95Ms": 151.64,
+              "maxMs": 154.3,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 244.72
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 375.41
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 514.16
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": false
+        },
+        {
+          "label": "real-blog-controller",
+          "version": "8.5",
+          "root": "/var/www/php/8.5/winstar2024",
+          "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+          "a": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "aExpected": "sophpPerfValueZ",
+          "b": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+          "bExpected": "sophpPerfValueA",
+          "sourceKind": "existing real project file; appended input remains unsaved only",
+          "sourceBytes": 13815,
+          "sourceSha256": "e1219716be95671f0b33cd8baacc37f3206c8b82fd986ac6d1701f3f03b6fce6",
+          "status": "exited",
+          "command": [
+            "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+            "scripts/benchmark-project-completion.mjs",
+            "/var/www/php/8.5/winstar2024",
+            "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueZ",
+            "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+            "sophpPerfValueA",
+            "100"
+          ],
+          "childPid": 592923,
+          "exitCode": 0,
+          "durationSeconds": 7.892444550001528,
+          "stdoutSha256": "7c8e89a0aa3b0e878dbfbf5b17c4a19c7f09286d134f5bb9be34a210b1d10515",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "result": {
+            "root": "/var/www/php/8.5/winstar2024",
+            "file": "/var/www/php/8.5/winstar2024/src/Modules/Blog/Controller/BlogController.php",
+            "serverEntry": "/var/www/node/php-companion/dist/language-server.js",
+            "rounds": 100,
+            "expectFirst": true,
+            "expectEmptyForDash": false,
+            "sharedCandidates": true,
+            "resolveDetails": false,
+            "firstMs": 156.98,
+            "all": {
+              "p50Ms": 51.59,
+              "p95Ms": 73.57,
+              "maxMs": 156.98
+            },
+            "a": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:bool} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueZ",
+              "p50Ms": 50.51,
+              "p95Ms": 71.14,
+              "maxMs": 156.98,
+              "incomplete": 50
+            },
+            "b": {
+              "fragment": "function sophpPerfValueA(): string { return 'value'; } function sophpPerfValueZ(): bool { return true; } /** @param array{enabled:string} $config */ function sophpPerfSend(array $config):void{} sophpPerfSend(['enabled'=>sophpPerfValue{{cursor}}]); function sophpPerfUnfinished(",
+              "expected": "sophpPerfValueA",
+              "p50Ms": 53.43,
+              "p95Ms": 74.36,
+              "maxMs": 79.16,
+              "incomplete": 50
+            },
+            "memory": {
+              "collectedGc": false,
+              "metric": "process RSS; not retained heap",
+              "samples": [
+                {
+                  "round": 1,
+                  "rssMiB": 232.6
+                },
+                {
+                  "round": 50,
+                  "rssMiB": 279.8
+                },
+                {
+                  "round": 100,
+                  "rssMiB": 297.41
+                }
+              ]
+            },
+            "readOnly": true,
+            "diskUnchanged": true
+          },
+          "budgetPassed": true
+        }
+      ],
+      "qualified": false,
+      "scope": "Normally built scalar-record fast-path candidate for variableReferences and returns only; original five cases and 150 ms budget unchanged. Normal candidate Core with same-file dynamic-property diagnostics enabled; fresh Composer and real-project hashes; previous D202 baseline is retained and is comparable only where external inputs match; original production-bundle serial unsaved-edit plus immediate completion benchmark, no CPU profiler/forced GC/testMode. Two configured PHP-version controls and three read-only real-project files, 100 requests each including first query; first and P50/P95/max reported separately. onDemand only; not UI latency, diagnostic/hover/definition qualification, whole-project or long-session/per-platform acceptance. External RSS samples are not retained heap or 50k-cache qualification.",
+      "finishedAtUtc": "2026-10-07T11:27:09.967461+00:00",
+      "changedInputs": [],
+      "changedExternalInputs": [],
+      "nodeUnchanged": true,
+      "headUnchanged": true,
+      "worktreeUnchanged": true,
+      "correctnessCaptured": true
+    }
+  ],
+  "ordinaryEditingSummary": [
+    {
+      "label": "fixed-7.2",
+      "baseline": {
+        "p50Ms": 110.24,
+        "p95Ms": 138.44,
+        "maxMs": 353.32
+      },
+      "candidate": {
+        "p50Ms": 108.29,
+        "p95Ms": 149.15,
+        "maxMs": 437.43
+      },
+      "baselinePassed": true,
+      "candidatePassed": true
+    },
+    {
+      "label": "fixed-8.5",
+      "baseline": {
+        "p50Ms": 109.16,
+        "p95Ms": 141.6,
+        "maxMs": 201.43
+      },
+      "candidate": {
+        "p50Ms": 98.82,
+        "p95Ms": 131.76,
+        "maxMs": 334.41
+      },
+      "baselinePassed": true,
+      "candidatePassed": true
+    },
+    {
+      "label": "real-data-service",
+      "baseline": {
+        "p50Ms": 69.89,
+        "p95Ms": 106.79,
+        "maxMs": 264.06
+      },
+      "candidate": {
+        "p50Ms": 65.07,
+        "p95Ms": 90.59,
+        "maxMs": 186.08
+      },
+      "baselinePassed": true,
+      "candidatePassed": true
+    },
+    {
+      "label": "real-large-controller",
+      "baseline": {
+        "p50Ms": 131.79,
+        "p95Ms": 168.58,
+        "maxMs": 235.52
+      },
+      "candidate": {
+        "p50Ms": 123.37,
+        "p95Ms": 150.3,
+        "maxMs": 236.77
+      },
+      "baselinePassed": false,
+      "candidatePassed": false
+    },
+    {
+      "label": "real-blog-controller",
+      "baseline": {
+        "p50Ms": 53.4,
+        "p95Ms": 71.15,
+        "maxMs": 133.2
+      },
+      "candidate": {
+        "p50Ms": 51.59,
+        "p95Ms": 73.57,
+        "maxMs": 156.98
+      },
+      "baselinePassed": true,
+      "candidatePassed": true
+    }
+  ],
+  "twigPrecision": {
+    "vscodeVersion": "1.140.0",
+    "status": "passed",
+    "checks": [
+      "explicit PHP 8.5 target setting",
+      "plain exact render key",
+      "namespace exact render key",
+      "plain exact getter",
+      "namespace exact getter",
+      "plain person completion",
+      "plain name completion",
+      "namespace person completion",
+      "namespace name completion",
+      "unsaved PHP source shift",
+      "unsaved namespace source shift",
+      "PHP source Undo",
+      "PHP source Redo",
+      "unsaved source never wrote disk",
+      "no PHP target for unknown receiver",
+      "no PHP target for string",
+      "no PHP target for comment",
+      "no PHP target for HTML",
+      "no PHP target for filter",
+      "no PHP target for local receiver",
+      "cross-language Rename applies once",
+      "cross-language Rename Undo",
+      "cross-language Rename Redo",
+      "post-Rename source precision",
+      "cross-language Rename never wrote disk"
+    ]
+  },
+  "originalTwigFilesPreserved": {
+    "packages/parser/src/hybridAst.ts": true,
+    "packages/parser/test/hybridAst.test.ts": true,
+    "packages/vscode/test/extension/suite/index.js": true,
+    "tests/integration/vscodeIntegration.test.ts": true
+  },
+  "staticAndBuild": {
+    "typecheckExitCode": 0,
+    "lintExitCode": 0,
+    "parserBuildExitCode": 0,
+    "coreBuildExitCode": 0,
+    "recordedTerminalToolSessions": {
+      "typecheck": 11528,
+      "lint": 91578,
+      "normalBuild": 1522
+    }
+  },
+  "fullCurrentLspQualification": "pending; old a6e9f650 full regression had one warning failure with unproven cause",
+  "archive": ".vscode-test/d297-flat-record-evidence",
+  "artifacts": [
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d292-flat-record-isolation-baseline-input.json",
+      "sha256": "4be0a65aa79fbf287c1ffcb64f9394e838b619d86822339b71fe7fb226575a28"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d292-flat-record-isolation-baseline-run.json",
+      "sha256": "cf1970424787ccdc73f7f870c85a4d5b6addedf2a0873d3747189760f5e6fd3e"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d292-flat-record-isolation-baseline-result.json",
+      "sha256": "c8055b4c077314da22e163039051c1bd3b915512a42baa3c3c71bfd847ad8295"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d292-flat-record-isolation-baseline.log",
+      "sha256": "862026e1e1080e19c5948e7318cdbba2aa1a86c570944bdae8c1ca15716d76f1"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parser-tests-input.json",
+      "sha256": "d5dfd8b0c5504fd134fa60f2b17e58c4a29a67ee30af30304aaf29aff57522f8"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parser-tests-run.json",
+      "sha256": "8d93b8afa69f23262d380fad0e7ce276ec4a445be84c049eeff7e6e90599e1dc"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parser-tests-result.json",
+      "sha256": "966a60cbae3b1ed496d40455d845ef157a6986071135d306d991f8a59cb9a8bb"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parser-tests.log",
+      "sha256": "ee3636af79d061d35f80d13416015928a21eebd38c3115d46d655672c591fae3"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parity-input.json",
+      "sha256": "aba044efed324c697fea159920c10f9d78bc81f4a6cfa509056ac7c792cb45f5"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parity-run.json",
+      "sha256": "04531c4ce3212232cf5222084d3e9e5e7b05976cb1a7014d72a3e765f9494e3b"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parity-result.json",
+      "sha256": "0e912cf53c398f718866384a43789564eeb85ccd6ed91ef2ada4d6fb4dd6a86d"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parity.log",
+      "sha256": "7869945ca9ee89f1afe595685d770defd11ad31e6252ef57e3da05111183d6d9"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d295-flat-record-semantic-full-input.json",
+      "sha256": "1f4dfec6767affd1ab27dad09ba6d610d02203279850b1ab43d1a203d2aa8480"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d295-flat-record-semantic-full-run.json",
+      "sha256": "600e719c1f558638aa449b23fc8079061c2384a2f7bc7346522c59caf9573327"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d295-flat-record-semantic-full-result.json",
+      "sha256": "f6248343ef3f0ab55951092d14bfed9a5675648b915cfe4cd68d1a4aa032d62c"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d295-flat-record-semantic-full.log",
+      "sha256": "bad80ca1e829451dc5e5ffca94fffd9af955b37a053c39a1f06fc5e801f5ce06"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d296-flat-record-c1-input.json",
+      "sha256": "3c6c89d71c1bdc6b2776f93651d897dc86bc30952468ebc708aefa149d77af3f"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d296-flat-record-c1-run.json",
+      "sha256": "879ef94c031940b0bde3d93567b92ee89733a5d7693128daec0a38ea25034ca8"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d296-flat-record-c1.log",
+      "sha256": "77a17524786febd2b5077ba0d201e257731982a334e9b4be7c2dab5e57a92b5d"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d297-flat-record-twig-precision-input.json",
+      "sha256": "c65684f56b852ab167129564a93cd94ecfcfd69b30e6bba5564d7bde37372dce"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d297-flat-record-twig-precision-run.json",
+      "sha256": "ce4d5c54f2a78aa2f9472b1642cfbad9917505aacc34b4d47db093d459254430"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d297-flat-record-twig-precision-result.json",
+      "sha256": "dbc81f805f4169fe5b87ad16e23b7b6a84ad07143ebbaacb1a4078970e2fb062"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d297-flat-record-twig-precision.log",
+      "sha256": "1bbf2a3f78403b2ade4b4c0f406cd3b76ecc71be2e4c4d0f0fc69b34f41eb867"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d292-flat-record-observations.json",
+      "sha256": "8f4ba330e7c02e13edaa30a9fa27df70f5c2c1702b028ea7c0ef25e9047e3204"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-generation.json",
+      "sha256": "6535678d49dcba6d4302ea6c8d39ebd105f7ccdde5b811b099e92a5b38a4296f"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-flat-record-parity.mjs",
+      "sha256": "298ce9d7aa703fcd058daf6b380fc13b968b807343d9d621ba5fd0ff8372f4ad"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-run.py",
+      "sha256": "1f7c49d385288a830917ec90235afb1897bde1d28556a5760438c115bac7215a"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d282-run.py",
+      "sha256": "be434f0c36a50567a3edfb580dfb917ecb372d9826387b3850eff3d0ff4fdf88"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-parser-typecheck.log",
+      "sha256": "38ac890c60e7f38d59ddfb410325cdfb5fca83c9411765c5481754e01c021630"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-parser-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-parser-build.log",
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d293-core-build.log",
+      "sha256": "ac08fc738fda8bdcfbd9139aea3053ae6702be3f0f18b99908d8ccf6cf5fd44c"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing-run.json",
+      "sha256": "229cb89559f80e34830c153421365e9219a031b02319659eec1ea74b92b19454"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/fixed-8.5.stdout",
+      "sha256": "ed08a409746b0426fb867708d382690ff9684787592267158f9d4cb13eccfb6d"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/d289-current-project-editing.py",
+      "sha256": "939d170b0edb6d7558b88f8374d7d96e85fb3ab41187dfe4fb4f24ceb13c5c54"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/real-data-service.stdout",
+      "sha256": "8e7997b7ccc1cfdea056fb6de060d19ab012431ccb2e581992eee210e3fe6556"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/d289-current-project-editing-run.json",
+      "sha256": "229cb89559f80e34830c153421365e9219a031b02319659eec1ea74b92b19454"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/real-blog-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/fixed-7.2.stdout",
+      "sha256": "74121378c1df30ab90fcf327aac7222a4f25fd034f1a868001a43497e902a0ee"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/fixed-7.2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/real-large-controller.stdout",
+      "sha256": "04bf33792b443bc85b243b07da710a199b2fd4647fe1ed8333217a4407788d25"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/real-blog-controller.stdout",
+      "sha256": "774b67311430895c3014eeba5b5f0487082aa11e9a314125bf50837b236b0fdf"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/real-large-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/benchmark-project-completion.mjs",
+      "sha256": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/real-data-service.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/fixed-8.5.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d289-current-project-editing/input-snapshot.json",
+      "sha256": "54de1ce6cdf5948eb14aad9cd595109dd6381d6a7b9a8d543eb72e52ea3c1edc"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing-run.json",
+      "sha256": "af1571b44c921c975a9788cd2cd6c47c25a7c870544c3d48e6433a1fa49bdb26"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/fixed-8.5.stdout",
+      "sha256": "dd9546585295d421f1090f46674549d3bbd9fbf92e8a3c97c1ac7fe2dfb8ab0e"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/real-data-service.stdout",
+      "sha256": "b8475f35e8902347a29461c14f3bbb379a9470be56bc1d188ad1875f1e87a68d"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/real-blog-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/d294-flat-record-project-editing.py",
+      "sha256": "0a1a67dce2870f098e9a456f5eecaa3742c3de9161f4500a8e8821d1a6c46d44"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/fixed-7.2.stdout",
+      "sha256": "7c85c820199193d6a6d87a5f6888cf0a6e93675be8767f20c3e47a2fcdd653cd"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/fixed-7.2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/d294-flat-record-project-editing-run.json",
+      "sha256": "af1571b44c921c975a9788cd2cd6c47c25a7c870544c3d48e6433a1fa49bdb26"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/real-large-controller.stdout",
+      "sha256": "9ec6fc3703ebb99ece02e42247bd5bb0c909f139b403b3977cd5833a022d6dab"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/real-blog-controller.stdout",
+      "sha256": "7c8e89a0aa3b0e878dbfbf5b17c4a19c7f09286d134f5bb9be34a210b1d10515"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/real-large-controller.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/benchmark-project-completion.mjs",
+      "sha256": "c0d4c4a70c75ddc848740fba2907466e8c7f4a4ca08b71a608174944eefbc4f1"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/real-data-service.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/fixed-8.5.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d294-flat-record-project-editing/input-snapshot.json",
+      "sha256": "6a6d374d4573e5b6d1b9ee64773828ed5dde823f4ec60bc989c97eeee75a0bee"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/parser/src/index.ts",
+      "sha256": "f9418cd4fa39df041a6e14366c6a2a461439be39a9c8672f255f17f711fedbb8"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/parser/test/parser.test.ts",
+      "sha256": "ecaeca45f76a03ccdf4239936e4f770cd83cd16a55b435fc06229f31ec807bfa"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/parser/dist/index.js",
+      "sha256": "73f4a87ba1e6c7bb370fc6996a2572721a5c09d98a312dd7a459e6884af753a9"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/parser/dist/index.js.map",
+      "sha256": "4d2526a1cdeb895935e4a46a56b537d522b7040d616f8631805836ff960adc8e"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/parser/dist/index.d.ts",
+      "sha256": "39585578d18772be71638c84e95bfae6ca7e3abf61450f52ae07389c990dc3c8"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/parser/dist/index.d.ts.map",
+      "sha256": "66a479927154dbc3f9fb37b39db44b690b31db984275ede15de279aec4750ee6"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/packages/semantic/dist/index.js",
+      "sha256": "1b7ec969dd081459d74bba631b365d2b50d775e003535a13a52e7add3decf045"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/dist/language-server.js",
+      "sha256": "079ffa1b1a9b7077e77e3ee190925cbe802f2b7b2a2e3d0eb06f4f8caa47542b"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/dist/extension.js",
+      "sha256": "613ac90a9f8548d913e835e469c60bc0800753d0a057a72e1ace016a15c90950"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/dist/candidateWorker.js",
+      "sha256": "0ffff7d9e378e15b2f28937a31828098be898d937670ef832befe188fd852cd0"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/candidate/dist/builtinSnapshotWorker.js",
+      "sha256": "295749d1dd297a5c87dbca499b7b33410e309e7cdb9e2e95e73bdfc0bd4b987e"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/original-parser-dist.mjs",
+      "sha256": "758b538c482139f9e568c1227a4bc5e0dc4e7ce12e1c372e7681d08c9397437b"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/d297-record-flat-facts.py",
+      "sha256": "e36c01fb62bef15e0d560204a3f699437f704e4eed4a11e4f525d59e57aa3484"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/c1.code-workspace",
+      "sha256": "6435570d8820a18e69f0281c6b6348edae4ce2f48675c03bd931255f701e6669"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/sharedprocess.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/network-shared.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/agenthost.log",
+      "sha256": "302de98f9dc2bc0032fea303e4e83257b460e322a8b5ee61f81686d8434637f7"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/telemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/userDataSync.log",
+      "sha256": "d8b1a003ef2666a7496cc136c5425a505dbe306fa39c992f19e24f40964f4def"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/terminal.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/main.log",
+      "sha256": "5ad3010df80c065fcef4a9b3e57bbeb547ffea1f28f2bf2b6a063a65ddcfadb7"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/editSessions.log",
+      "sha256": "f1412253089218b74523fe6f7a360037fedb36b065d9d7e4a0d3403b6c3aa144"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/agentHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/remoteTunnelService.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/mcpGateway.log",
+      "sha256": "d2a00a4f1d5e4450027e02a69e66df8ba3ebaef4b4fedc02b89ee57525403720"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/notebook.rendering.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/views.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/textModelChanges.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/renderer.log",
+      "sha256": "7d9c7392e85921ac8eba8bad3481903db91f1f478c1f0a9fa05c18dce44ee5b0"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/network.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/output_20261007T193219/agentSessionsOutput.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/output_20261007T193219/tasks.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/extHostTelemetry.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/exthost.log",
+      "sha256": "a2082a95c9d774b9e14be1e650e1972bd574bb90f7c5b90becbd5f1c05db31e4"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/vscode.github-authentication/GitHub Authentication.log",
+      "sha256": "92b606f3aae4ba76793eb4a6e90a505e6d57ba95e46e3859a8f08398e9bac7d9"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/vscode.git/Git.log",
+      "sha256": "c1015f6ee78b9be68a99160edfbf85db414e1c72c3f8cb499765a58959e502f1"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/vscode.github/GitHub.log",
+      "sha256": "8ae60c2141314bbeece6df053eb83178af5dea3c0a612790db2dd78206f8388e"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/sohophp.php-companion/SoPHP.log",
+      "sha256": "507847cc31dc480caee561122162f521af8c098c1ccd88e33e4a30d65bce68fd"
+    },
+    {
+      "path": ".vscode-test/d297-flat-record-evidence/c1-host-logs/php-companion-extension-huLZup/logs/20261007T193215/window1/exthost/vscode.json-language-features/JSON Language Server.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "boundaries": [
+    "Only variableReferences and returns now use the existing compile-time scalar-only copier. All nested records retain structuredClone. No graph copier, serialization cache, per-version branch or benchmark special case.",
+    "Strengthened ownership assertions already passed all 158 tests before the production edit; they protect existing behavior, not an original functional bug.",
+    "Ordinary benchmark keeps all five original cases, 100 serial unsaved edits per case including first query, exact commands/source/Composer/Node and 150 ms threshold. Each variant ran once; no statistical speedup claim.",
+    "All five cases are correct and four meet budget. Controller P95 168.58 -> 150.30 ms still fails; PHP 7.2 control 138.44 -> 149.15 ms worsens but stays under its unchanged threshold. Maxima and first results retained.",
+    "Normal complete C1 and actual Core/Symfony/Twig precision host are separate evidence; neither is real WSL manual or full platform/tool-combination acceptance.",
+    "Old universal graph-copy candidate and its PHP 7.2 failure remain archived and withdrawn. Historical full-LSP warnings/timeouts and the uninstrumented 1003.52/768 MiB failure remain unresolved; no new scale-memory qualification.",
+    "No package/Profile update, commit, push or release. All C1-C4/R4/P0-P9/F01-F14 requirements remain active."
+  ]
+}

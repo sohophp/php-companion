@@ -1,0 +1,686 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-07",
+  "milestones": "D278-D283",
+  "decision": "retain-allocation-reduction-scale-rss-still-fails",
+  "coreBundleSha256": "a6e9f6502f27c39697ed6f6b815ee42dfd4206cecc389f5ed48085998ac48506",
+  "semanticDistSha256": "1b7ec969dd081459d74bba631b365d2b50d775e003535a13a52e7add3decf045",
+  "sourceSha256": "0ffc442a0f61106a711d98d9da3c1c5d2c155241adc7dcb6993e696cc965acef",
+  "repositories": {
+    "/var/www/node/php-companion": {
+      "head": "4c324d0cb2eb2e0508e2abfb9231d581a48a44ed",
+      "status": " M docs/php-language-toolchain/acceptance.md\n M docs/php-language-toolchain/future-core-plan.md\n M packages/language-server/src/server.ts\n M packages/semantic/src/index.ts\n?? .changeset/progressive-controller-contexts.md\n?? .changeset/shared-deferred-accessors.md\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.json\n?? docs/php-language-toolchain/reports/cache-entry-storage-experiment-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-0680ad5a-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.json\n?? docs/php-language-toolchain/reports/core-a8b50922-full-regression-2026-10-07.md\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.json\n?? docs/php-language-toolchain/reports/php-twig-automatic-lifecycle-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-controller-contexts-2026-10-07.md\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/progressive-twig-context-original-failure-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-consumption-2026-10-07.md\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.json\n?? docs/php-language-toolchain/reports/twig-definition-original-failure-2026-10-07.md\n?? packages/language-server/test/controller-context-progressive-stdio.test.ts\n?? packages/semantic/test/deferred-implementation-isolation.test.ts\n"
+    },
+    "/var/www/node/twig-plus": {
+      "head": "c3d1aa5323f621a71d8055e12b3578b0a1866e4b",
+      "status": " M packages/language-server/src/index.ts\n M packages/language-server/src/projectContexts.ts\n M packages/language-server/test/projectContexts.test.ts\n M packages/parser/src/hybridAst.ts\n M packages/parser/src/templateCompletion.ts\n M packages/parser/test/hybridAst.test.ts\n M packages/vscode/test/extension/suite/index.js\n M tests/integration/languageServerIntegration.test.ts\n M tests/integration/vscodeIntegration.test.ts\n?? docs/reports/php-context-automatic-lifecycle-2026-10-07.md\n?? docs/reports/php-context-definitions-2026-10-07.md\n?? packages/vscode/test/extension/runPhpContextTest.js\n?? packages/vscode/test/extension/suite/phpContextDefinitions.js\n?? packages/vscode/test/extension/suite/phpContextLifecycle.js\n?? tests/helpers/\n?? tests/integration/phpContextDefinitions.test.ts\n?? tests/integration/phpContextNamespaces.test.ts\n"
+    }
+  },
+  "runs": {
+    "d278-accessor-isolation-baseline": {
+      "status": "exited",
+      "parentPid": 483269,
+      "childPid": 483574,
+      "startedAtUtc": "2026-10-07T10:03:36.463604+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "test/deferred-implementation-isolation.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d278-accessor-isolation-baseline-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d278-accessor-isolation-baseline-input.json",
+      "exitCode": 0,
+      "durationSeconds": 4.380087720999654,
+      "finishedAtUtc": "2026-10-07T10:03:40.842547+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "945d7a7b7f9a9c53041c5083a140695663dfa262e2dec2437f7a53c036648953"
+    },
+    "d279-semantic-accessor-full": {
+      "status": "exited",
+      "parentPid": 492485,
+      "childPid": 492556,
+      "startedAtUtc": "2026-10-07T10:09:02.027424+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d279-semantic-accessor-full-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d279-semantic-accessor-full-input.json",
+      "exitCode": 0,
+      "durationSeconds": 75.91243050600315,
+      "finishedAtUtc": "2026-10-07T10:10:17.938936+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "115fd1e2b968bfe1a4202bb79353be83ee105838efa3e06ee77920a4e44c1a99"
+    },
+    "d279-semantic-accessor-lint": {
+      "status": "exited",
+      "parentPid": 492836,
+      "childPid": 492907,
+      "startedAtUtc": "2026-10-07T10:09:06.903756+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "packages/semantic/src/index.ts",
+        "packages/semantic/test/deferred-implementation-isolation.test.ts"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d279-semantic-accessor-lint-input.json",
+      "exitCode": 1,
+      "durationSeconds": 14.888633267000841,
+      "finishedAtUtc": "2026-10-07T10:09:21.791405+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "cf6c68a9d82c15a87a48f240b293c5ad426da61d15b543b8b7d2bef4a7c693c4"
+    },
+    "d279-deferred-getter-count": {
+      "status": "exited",
+      "parentPid": 493458,
+      "childPid": 493567,
+      "startedAtUtc": "2026-10-07T10:09:30.251003+00:00",
+      "command": [
+        "env",
+        "SOPHP_GETTER_COUNT_REPORT=/var/www/node/php-companion/.vscode-test/d279-deferred-getter-count-result.json",
+        "node",
+        ".vscode-test/d277-deferred-getter-count.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d279-deferred-getter-count-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.955259202997695,
+      "finishedAtUtc": "2026-10-07T10:09:31.189993+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "433b83939c5b190a61a575d2ac27f1010493b2ae0e0465553b39abafd803ac22"
+    },
+    "d280-semantic-accessor-full": {
+      "status": "exited",
+      "parentPid": 497445,
+      "childPid": 497587,
+      "startedAtUtc": "2026-10-07T10:11:04.957688+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/d280-semantic-accessor-full-result.json"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d280-semantic-accessor-full-input.json",
+      "exitCode": 0,
+      "durationSeconds": 72.87773966599707,
+      "finishedAtUtc": "2026-10-07T10:12:17.834380+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "21958c7702fa53901dfe5f8d32ff7d7e57de31bc388f1da1793f32204e3bdb7d"
+    },
+    "d280-semantic-accessor-lint": {
+      "status": "exited",
+      "parentPid": 497446,
+      "childPid": 497581,
+      "startedAtUtc": "2026-10-07T10:11:04.938949+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "eslint",
+        "packages/semantic/src/index.ts",
+        "packages/semantic/test/deferred-implementation-isolation.test.ts"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d280-semantic-accessor-lint-input.json",
+      "exitCode": 0,
+      "durationSeconds": 8.625229753000895,
+      "finishedAtUtc": "2026-10-07T10:11:13.563037+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "d280-semantic-isolation-typecheck": {
+      "status": "exited",
+      "parentPid": 500191,
+      "childPid": 500256,
+      "startedAtUtc": "2026-10-07T10:11:49.955134+00:00",
+      "command": [
+        "pnpm",
+        "exec",
+        "tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
+        "--strict",
+        "--noUncheckedIndexedAccess",
+        "--skipLibCheck",
+        "packages/semantic/test/deferred-implementation-isolation.test.ts"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d280-semantic-isolation-typecheck-input.json",
+      "exitCode": 0,
+      "durationSeconds": 9.962237097002799,
+      "finishedAtUtc": "2026-10-07T10:11:59.915565+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "d281-deferred-getter-count": {
+      "status": "exited",
+      "parentPid": 501580,
+      "childPid": 501651,
+      "startedAtUtc": "2026-10-07T10:12:35.876423+00:00",
+      "command": [
+        "env",
+        "SOPHP_GETTER_COUNT_REPORT=/var/www/node/php-companion/.vscode-test/d281-deferred-getter-count-result.json",
+        "node",
+        ".vscode-test/d277-deferred-getter-count.mjs"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d281-deferred-getter-count-input.json",
+      "exitCode": 0,
+      "durationSeconds": 0.39522770199982915,
+      "finishedAtUtc": "2026-10-07T10:12:36.270003+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "433b83939c5b190a61a575d2ac27f1010493b2ae0e0465553b39abafd803ac22"
+    },
+    "d281-current-cache-10000": {
+      "status": "exited",
+      "parentPid": 501696,
+      "childPid": 501761,
+      "startedAtUtc": "2026-10-07T10:12:41.425649+00:00",
+      "command": [
+        "node",
+        "scripts/benchmark-persistent-index.mjs",
+        "10000",
+        "dist/web-tree-sitter.wasm",
+        "dist/tree-sitter-php.wasm"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d281-current-cache-10000-input.json",
+      "exitCode": 1,
+      "durationSeconds": 42.863067640002555,
+      "finishedAtUtc": "2026-10-07T10:13:24.287501+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "0411305f472825388c1c8473007d7460afe70fed67136e5f51233c1098312968"
+    },
+    "d282-c1": {
+      "status": "exited",
+      "parentPid": 513582,
+      "childPid": 514018,
+      "startedAtUtc": "2026-10-07T10:16:21.974831+00:00",
+      "command": [
+        "env",
+        "PHP_COMPANION_TEST_C1_ONLY=1",
+        "PHP_COMPANION_TEST_C1_UI=1",
+        "PHP_COMPANION_TEST_C1_RUNTIME_PHP=/opt/remi/php72/root/usr/bin/php",
+        "PHP_COMPANION_TEST_VSCODE_EXECUTABLE=/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "PHP_COMPANION_TEST_FAILURE_LOG_DIR=/var/www/node/php-companion/.vscode-test/d282-c1-failures",
+        "D152_HOST_LOG_ARCHIVE=/var/www/node/php-companion/.vscode-test/d282-c1-log-archive",
+        "NODE_OPTIONS=--require=/var/www/node/php-companion/.vscode-test/d152-preserve-host-logs.cjs",
+        "node",
+        "scripts/run-extension-test.mjs",
+        "./dist-test/runTest.js"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d282-c1-input.json",
+      "exitCode": 0,
+      "durationSeconds": 119.09905198200067,
+      "finishedAtUtc": "2026-10-07T10:18:21.072606+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "038d31b8eea17eb5e8e7afb955343c9740565727a0de210b243d751d823ac71e"
+    },
+    "d283-twig-precision": {
+      "status": "exited",
+      "parentPid": 523403,
+      "childPid": 523481,
+      "startedAtUtc": "2026-10-07T10:19:31.066420+00:00",
+      "command": [
+        "env",
+        "TWIG_PLUS_TEST_PHP_CORE_PATH=/var/www/node/php-companion",
+        "TWIG_PLUS_TEST_PHP_SYMFONY_PATH=/var/www/node/php-companion/packages/php-companion-symfony",
+        "TWIG_PLUS_TEST_VSCODE_EXECUTABLE=/var/www/node/php-companion/.vscode-test/vscode-linux-x64-1.140.0/code",
+        "TWIG_PLUS_PHP_DEFINITION_REPORT=/var/www/node/php-companion/.vscode-test/d283-twig-precision-result.json",
+        "xvfb-run",
+        "-a",
+        "node",
+        "packages/vscode/test/extension/runPhpContextTest.js"
+      ],
+      "manifest": "/var/www/node/php-companion/.vscode-test/d283-twig-precision-input.json",
+      "exitCode": 0,
+      "durationSeconds": 16.22366388700175,
+      "finishedAtUtc": "2026-10-07T10:19:47.289067+00:00",
+      "changedInputs": [],
+      "repositoryChanges": [],
+      "logSha256": "58014994501207b6ebf78997b1739649bf84ef2cf385f0421bbb6c10e2b6653f"
+    }
+  },
+  "results": {
+    "d278-accessor-isolation-baseline": {
+      "numTotalTests": 2,
+      "numPassedTests": 2,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "d279-semantic-accessor-full": {
+      "numTotalTests": 22826,
+      "numPassedTests": 22826,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "d279-deferred-getter-count": {
+      "kind": "allocation-shape-observation-only",
+      "files": 128,
+      "executedWorkspacePhp": false,
+      "deferredFiles": 128,
+      "accessorDescriptors": 1536,
+      "distinctGetterFunctions": 12,
+      "distinctFunctionsByField": {
+        "typeReferences": 1,
+        "assignments": 1,
+        "rawNames": 1,
+        "memberAccesses": 1,
+        "calls": 1,
+        "scopes": 1,
+        "variableReferences": 1,
+        "returns": 1,
+        "narrowings": 1,
+        "syntaxErrors": 1,
+        "commentRanges": 1,
+        "stringRanges": 1
+      },
+      "scope": "Counts actual function identities; does not estimate bytes, force GC, take heap snapshots or establish scale RSS/latency.",
+      "status": "observed"
+    },
+    "d280-semantic-accessor-full": {
+      "numTotalTests": 22826,
+      "numPassedTests": 22826,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "success": true
+    },
+    "d281-deferred-getter-count": {
+      "kind": "allocation-shape-observation-only",
+      "files": 128,
+      "executedWorkspacePhp": false,
+      "deferredFiles": 128,
+      "accessorDescriptors": 1536,
+      "distinctGetterFunctions": 12,
+      "distinctFunctionsByField": {
+        "typeReferences": 1,
+        "assignments": 1,
+        "rawNames": 1,
+        "memberAccesses": 1,
+        "calls": 1,
+        "scopes": 1,
+        "variableReferences": 1,
+        "returns": 1,
+        "narrowings": 1,
+        "syntaxErrors": 1,
+        "commentRanges": 1,
+        "stringRanges": 1
+      },
+      "scope": "Counts actual function identities; does not estimate bytes, force GC, take heap snapshots or establish scale RSS/latency.",
+      "status": "observed"
+    },
+    "d281-current-cache-10000": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 19337.34,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6133.21,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3172,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57274849,
+          "mebibytes": 54.62
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57274849,
+          "mebibytes": 54.62
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 298.11,
+        "warmPeakRssMb": 375.14,
+        "layerRecoveryPeakRssMb": 744.57,
+        "callableRecoveryPeakRssMb": 1003.52,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 1003.52,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "d283-twig-precision": {
+      "vscodeVersion": "1.140.0",
+      "status": "passed",
+      "checks": [
+        "explicit PHP 8.5 target setting",
+        "plain exact render key",
+        "namespace exact render key",
+        "plain exact getter",
+        "namespace exact getter",
+        "plain person completion",
+        "plain name completion",
+        "namespace person completion",
+        "namespace name completion",
+        "unsaved PHP source shift",
+        "unsaved namespace source shift",
+        "PHP source Undo",
+        "PHP source Redo",
+        "unsaved source never wrote disk",
+        "no PHP target for unknown receiver",
+        "no PHP target for string",
+        "no PHP target for comment",
+        "no PHP target for HTML",
+        "no PHP target for filter",
+        "no PHP target for local receiver",
+        "cross-language Rename applies once",
+        "cross-language Rename Undo",
+        "cross-language Rename Redo",
+        "post-Rename source precision",
+        "cross-language Rename never wrote disk"
+      ]
+    }
+  },
+  "c1Observations": {
+    "C1 no-crash lifecycle": {
+      "unexpectedCloses": 0,
+      "restartFailures": 0,
+      "pendingVersionRefreshes": 0,
+      "restarting": false,
+      "scheduled": false
+    },
+    "C1 visible PHP suggestion after typing": {
+      "samplesMs": [
+        282,
+        266,
+        268,
+        266,
+        259,
+        258
+      ],
+      "inputSamplesMs": [
+        95,
+        35,
+        41,
+        28,
+        41,
+        95
+      ],
+      "phaseEpochMs": [
+        {
+          "started": 1791368256801,
+          "input": 1791368256895,
+          "visible": 1791368257083
+        },
+        {
+          "started": 1791368257585,
+          "input": 1791368257620,
+          "visible": 1791368257851
+        },
+        {
+          "started": 1791368258061,
+          "input": 1791368258103,
+          "visible": 1791368258329
+        },
+        {
+          "started": 1791368258523,
+          "input": 1791368258552,
+          "visible": 1791368258789
+        },
+        {
+          "started": 1791368259394,
+          "input": 1791368259436,
+          "visible": 1791368259653
+        },
+        {
+          "started": 1791368259900,
+          "input": 1791368259995,
+          "visible": 1791368260158
+        }
+      ],
+      "medianMs": 266,
+      "maxMs": 282,
+      "labels": [
+        "renderVisible5App\\C1\\UiTarget5::renderVisible5(): void"
+      ],
+      "serverCompletionMs": [
+        3.1226630000019213,
+        2.7835679999989225,
+        5.177556000002369,
+        2.893350999991526,
+        2.367150000005495,
+        2.465937999993912
+      ]
+    },
+    "C1 visible cross-namespace type suggestion after typing": {
+      "samplesMs": [
+        282,
+        250,
+        232,
+        311,
+        255,
+        298
+      ],
+      "inputSamplesMs": [
+        25,
+        26,
+        31,
+        63,
+        28,
+        33
+      ],
+      "medianMs": 269,
+      "maxMs": 311,
+      "labels": [
+        "C1VisibleType5ProbeApp\\C1\\External\\C1VisibleType5Probe"
+      ]
+    },
+    "C1 visible vendor suggestion after typing": {
+      "samplesMs": [
+        212,
+        272,
+        218,
+        280,
+        250,
+        264
+      ],
+      "inputSamplesMs": [
+        34,
+        39,
+        31,
+        32,
+        36,
+        89
+      ],
+      "phaseEpochMs": [
+        {
+          "started": 1791368265051,
+          "input": 1791368265086,
+          "visible": 1791368265263
+        },
+        {
+          "started": 1791368265462,
+          "input": 1791368265501,
+          "visible": 1791368265733
+        },
+        {
+          "started": 1791368267036,
+          "input": 1791368267068,
+          "visible": 1791368267254
+        },
+        {
+          "started": 1791368267485,
+          "input": 1791368267517,
+          "visible": 1791368267764
+        },
+        {
+          "started": 1791368267964,
+          "input": 1791368267999,
+          "visible": 1791368268213
+        },
+        {
+          "started": 1791368268419,
+          "input": 1791368268508,
+          "visible": 1791368268683
+        }
+      ],
+      "medianMs": 257,
+      "maxMs": 280,
+      "labels": [
+        "vendorVisible5Acme\\C1\\Bulk\\UiVendorTarget5::vendorVisible5(): void"
+      ]
+    },
+    "C1 Language Client round trip (12 samples, ms)": {
+      "median": 7,
+      "max": 14
+    }
+  },
+  "baseline": {
+    "cache": {
+      "schema": 1,
+      "files": 10000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 18084.27,
+        "parsed": 10000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 6338.78,
+        "parsed": 0,
+        "restored": 10000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.3505,
+      "cache": {
+        "cold": {
+          "files": 2,
+          "bytes": 57266357,
+          "mebibytes": 54.61
+        },
+        "warm": {
+          "files": 2,
+          "bytes": 57266357,
+          "mebibytes": 54.61
+        },
+        "frozenBudgetMb": 512
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 317.5,
+        "warmPeakRssMb": 435.43,
+        "layerRecoveryPeakRssMb": 774.99,
+        "callableRecoveryPeakRssMb": 1007.95,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 768,
+        "processPeakRssMb": 1007.95,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": false
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 10000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 19999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "getterCount": {
+      "kind": "allocation-shape-observation-only",
+      "files": 128,
+      "executedWorkspacePhp": false,
+      "deferredFiles": 128,
+      "accessorDescriptors": 1536,
+      "distinctGetterFunctions": 1536,
+      "distinctFunctionsByField": {
+        "typeReferences": 128,
+        "assignments": 128,
+        "rawNames": 128,
+        "memberAccesses": 128,
+        "calls": 128,
+        "scopes": 128,
+        "variableReferences": 128,
+        "returns": 128,
+        "narrowings": 128,
+        "syntaxErrors": 128,
+        "commentRanges": 128,
+        "stringRanges": 128
+      },
+      "scope": "Counts actual function identities; does not estimate bytes, force GC, take heap snapshots or establish scale RSS/latency.",
+      "status": "observed"
+    }
+  },
+  "archive": {
+    "path": "/var/www/node/php-companion/.vscode-test/d283-semantic-deferred-evidence",
+    "files": 88,
+    "manifestSha256": "1e96af7f3ee28d5d662ce3ae4cb5f0009d34ce568e20307c3ac39fd03444a999"
+  },
+  "boundaries": [
+    "The two isolation tests passed before the optimization; they are behavioral protection, not an original functional failure.",
+    "First candidate full semantic run passed; original no-this-alias lint failure and exact frozen source retained. Final static factory passed full semantic, lint and test typecheck.",
+    "Getter identities count allocations, not bytes or the cause of the remaining RSS failure.",
+    "Original unmodified 10k benchmark retained all four phases and assertions in one process, with no forced GC or changed limits.",
+    "Old and new 10k runs are each a fresh independent fixture; no statistical speedup or RSS improvement claimed.",
+    "Raw benchmark uses the new compiled semantic package; its then-old root Core bundle is not its semantic implementation.",
+    "Normal root Core build, full C1 and three-extension precision host tested separately. Complete new Core LSP remains pending.",
+    "No VSIX packaging, user Profile change, commit, push or publication. All original C1-C4/R4/P0-P9/F01-F14 scope remains active."
+  ]
+}
