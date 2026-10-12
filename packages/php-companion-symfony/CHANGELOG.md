@@ -1,8 +1,11 @@
 # Changelog
 
-## 0.4.13 - unreleased candidate
+## 0.4.13 - 2026-10-12
 
-- Align the standalone Symfony extension with SoPHP Core and Open Source Pack 0.4.13; framework ownership and supported operations are unchanged.
+- Align with SoPHP Core and Open Source Pack 0.4.13.
+- Cancel superseded container-provider work and share current service/event facts without retaining stale snapshots.
+- Refresh controller-to-template context generations and discovered open route inputs, including unsaved PHP/configuration edits.
+- Keep static route probes bounded and avoid unnecessary parser facts for route-free source files.
 
 ## 0.4.12 - 2026-09-27
 

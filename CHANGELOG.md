@@ -1,11 +1,13 @@
 # Changelog
 
-## 0.4.13 - unreleased candidate
+## 0.4.13 - 2026-10-12
 
-- Continue grouped class, function, and constant imports through nested namespace segments, keeping completion edits inside the active group.
-- Preserve grouped function and constant import syntax when accepting completion, including an existing closing brace.
-- Refresh grouped symbol suggestions after unsaved function or constant changes, and restore disk-backed suggestions when the buffer closes.
-- Freeze the first stable supported scope with the 10-member Open Source Pack. The final `WorkspaceEdit.createFile` fallback still has a known Redo limitation; supported staged moves retain their verified Undo/Redo behavior.
+- Improve Generator send, delegated yield and return inference, multiline PHPDoc types, callable parameters and bounded control-flow assertions.
+- Diagnose floating-point numeric separators, explicit octal literals, parameter/capture trailing commas and non-capturing catch at their supported PHP versions; report malformed octal prefixes and reject unsafe signature edits until syntax is repaired.
+- Keep Definitions, References and Symfony facts current across unsaved edits, reopening and concurrent provider refresh; cancel superseded provider work and avoid publishing results during shutdown.
+- Strengthen parameter-order and static-member move previews, side-effect checks, input validation, failure cleanup and generated-body boundaries.
+- Reduce parser, semantic and index work with bounded caches, lazy facts, deferred validation and on-demand candidate workers; invalidate older semantic caches when error facts change.
+- Preserve the aligned Core, Symfony and 10-member Open Source Pack. R4, real WSL UI acceptance and the complete performance/platform matrix remain in progress; complex-controller diagnostic latency and the final createFile fallback Redo path remain known limits.
 
 ## 0.4.12 - 2026-09-27
 
