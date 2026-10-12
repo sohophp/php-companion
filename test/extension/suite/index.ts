@@ -4527,7 +4527,7 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
     }, `Self-hosted language server did not navigate ${splSymbol} to the builtin document`);
   }
   for (const [call, expected] of [['class_implements(\\ArrayIterator::class)', 'array<class-string, class-string>|false'],
-    ['iterator_apply(', '?array $args'],
+    ['iterator_apply(', 'array<array-key, mixed>|null $args = null'],
     ['iterator_count(', 'Traversable|array $iterator'],
     ['spl_autoload_functions()', 'list<callable>'], ['spl_classes()', 'array<class-string, class-string>'],
     ['spl_object_hash(', 'string'], ['spl_object_id(', 'int']] as const) {
