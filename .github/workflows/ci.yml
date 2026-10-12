@@ -86,7 +86,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     env:
-      PHP_COMPANION_TEST_LOG_DIR: ${{ runner.temp }}/php-companion-extension-logs
+      PHP_COMPANION_TEST_LOG_DIR: .vscode-test/ci-extension-logs
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -105,7 +105,7 @@ jobs:
         with:
           name: extension-host-logs-${{ runner.os }}-${{ runner.arch }}
           if-no-files-found: ignore
-          path: ${{ runner.temp }}/php-companion-extension-logs
+          path: .vscode-test/ci-extension-logs
 
   open-source-profile:
     name: Open Source Profile (${{ matrix.os }})
