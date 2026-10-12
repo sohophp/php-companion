@@ -2307,7 +2307,7 @@ export async function run(): Promise<void> {
   const magicSignature = await vscode.commands.executeCommand<vscode.SignatureHelp>(
     'vscode.executeSignatureHelpProvider', assertionConsumerUri, assertionConsumer.positionAt(magicArgumentOffset), '(',
   );
-  assert.strictEqual(magicSignature?.signatures[0]?.label, 'find(int $id, string $label = null): MagicProfile',
+  assert.strictEqual(magicSignature?.signatures[0]?.label, "find(int $id, string $label = 'default'): MagicProfile",
     'A PHPDoc magic method did not expose its documented signature');
   const magicOverloadArgumentOffset = assertionConsumer.getText().indexOf('$magicRepository->locate(1)') + '$magicRepository->locate('.length;
   const magicOverloadSignature = await vscode.commands.executeCommand<vscode.SignatureHelp>(

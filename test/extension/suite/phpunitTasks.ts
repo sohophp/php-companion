@@ -1,9 +1,15 @@
 import * as assert from 'node:assert';
+import { execFileSync } from 'node:child_process';
 import * as vscode from 'vscode';
 
 export async function verifyPhpunitTasks(
   workspace: vscode.WorkspaceFolder, php: string, phpunit: string,
 ): Promise<void> {
+  const expectedRuntime = JSON.parse(execFileSync(php, [
+    '-d', 'auto_prepend_file=', '-d', 'auto_append_file=', '-r',
+    'echo json_encode(["binary" => PHP_BINARY, "version" => PHP_VERSION]);',
+  ], { encoding: 'utf8', timeout: 3_000 })) as { binary: string; version: string };
+  assert.ok(expectedRuntime.binary && expectedRuntime.version, 'The configured PHP command did not identify its runtime');
   const directory = vscode.Uri.joinPath(workspace.uri, 'tests', 'tasks with spaces');
   const testUri = vscode.Uri.joinPath(directory, 'ProfileTaskTest.php');
   const markerUri = vscode.Uri.joinPath(workspace.uri, 'phpunit-task-runtime.jsonl');
@@ -64,7 +70,8 @@ final class ProfileTaskTest extends PHPUnit\\Framework\\TestCase {
   assert.deepStrictEqual(witnesses.map(row => row.value), [42, 41, 42]);
   for (const witness of witnesses) {
     assert.strictEqual(witness.cwd, workspace.uri.fsPath); assert.strictEqual(witness.sapi, 'cli');
-    assert.strictEqual(witness.binary, php); assert.match(witness.version, /^\d+\.\d+\.\d+/u);
+    assert.strictEqual(witness.binary, expectedRuntime.binary);
+    assert.strictEqual(witness.version, expectedRuntime.version); assert.match(witness.version, /^\d+\.\d+\.\d+/u);
     assert.ok(witness.pid > 0);
   }
   assert.ok(!vscode.tasks.taskExecutions.some(item => results.some(row => item.task.name === `SoPHP Profile PHPUnit ${row.scenario}`)),
