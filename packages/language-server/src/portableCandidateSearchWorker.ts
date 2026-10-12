@@ -6,6 +6,7 @@ import { isAutoloadPathExcluded, type ComposerProject } from '@php-companion/pro
 interface QueueEntry { path: string; ancestors: readonly string[]; root: boolean; }
 export interface PortableCandidateSearchInput {
   roots: string[]; names: string[]; project: ComposerProject; maxFiles: number; deadline: number; cancelled: SharedArrayBuffer;
+  identifierBoundaries?: boolean;
 }
 
 /** Runs on a worker so synchronous reads do not pause the language server. Undefined means no complete proof. */
@@ -16,7 +17,7 @@ export function scanPortableCandidates(input: PortableCandidateSearchInput): str
   // Match the ASCII identifier boundaries used by the native candidate search.
   // Non-ASCII neighbours stay conservative candidates for semantic validation.
   const names = input.names.map(name => name.toLowerCase());
-  const identifiers = names.length && names.every(name => /^[a-z_][a-z0-9_]*$/u.test(name))
+  const identifiers = input.identifierBoundaries && names.length && names.every(name => /^[a-z_][a-z0-9_]*$/u.test(name))
     ? new RegExp(`(?:^|[^a-z0-9_])(?:${names.join('|')})(?![a-z0-9_])`, 'u') : undefined;
   const cancelled = new Int32Array(input.cancelled);
   let files = 0; let bytes = 0;

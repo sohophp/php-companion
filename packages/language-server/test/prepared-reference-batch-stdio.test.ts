@@ -1,15 +1,15 @@
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/src/index.js';
 
 const cases = ['7.2', '8.5'].flatMap(phpVersion => ['progressive', 'experimental'].map(indexingMode => ({ phpVersion, indexingMode })));
 it.each(cases)('bounds prepared reads and preserves a newly opened buffer and cancellation at PHP $phpVersion in $indexingMode', async ({ phpVersion, indexingMode }) => {
-  const root = await mkdtemp(join(tmpdir(), 'sophp-prepared-batch-'));
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'sophp-prepared-batch-')));
   const src = join(root, 'src'); await mkdir(src);
   await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
   const contract = '<?php namespace App; interface Target { public function refreshSnapshot(): void; }';
@@ -30,7 +30,7 @@ const original = fsp.readFile, originalCallback = fs.readFile; let active = 0, p
 const thread = require('node:worker_threads').threadId;
 const saveStats = () => { const temp = stats + '.' + process.pid + '.' + thread; fs.writeFileSync(temp, JSON.stringify({ active, peak })); fs.renameSync(temp, stats); };
 const arm = ${JSON.stringify(arm)}, held = ${JSON.stringify(held)}, release = ${JSON.stringify(release)}, stats = ${JSON.stringify(stats)};
-const observed = path => fs.existsSync(arm) && typeof path === 'string' && path.startsWith(${JSON.stringify(src + '/')}) && path.endsWith('.php');
+const observed = path => fs.existsSync(arm) && typeof path === 'string' && path.startsWith(${JSON.stringify(src + sep)}) && path.endsWith('.php');
 const observeRead = async (path, read) => {
   const control = JSON.parse(fs.readFileSync(arm, 'utf8'));
   active++; peak = Math.max(peak, active); saveStats();

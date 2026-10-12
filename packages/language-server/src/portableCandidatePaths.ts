@@ -7,13 +7,13 @@ export interface CandidatePaths { paths: Set<string>; startedAt: number; }
 
 /** A bounded fallback when ripgrep is unavailable. Worker failure never supplies negative evidence. */
 export async function portableCandidatePaths(roots: readonly string[], names: readonly string[], project: ComposerProject,
-  shouldContinue: () => boolean, maxFiles: number, timeoutMs = 8_000): Promise<CandidatePaths | undefined> {
+  shouldContinue: () => boolean, maxFiles: number, timeoutMs = 8_000, identifierBoundaries = false): Promise<CandidatePaths | undefined> {
   if (!shouldContinue()) return undefined;
   const startedAt = Date.now();
   const cancelled = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT);
   const flag = new Int32Array(cancelled);
   const input: PortableCandidateSearchInput = {
-    roots: [...roots], names: [...names], project, maxFiles, deadline: Date.now() + timeoutMs, cancelled,
+    roots: [...roots], names: [...names], project, maxFiles, deadline: Date.now() + timeoutMs, cancelled, identifierBoundaries,
   };
   const workerPath = resolve(dirname(process.argv[1] ?? ''), 'portableCandidateSearchWorker.js');
   return new Promise((done) => {

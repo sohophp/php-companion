@@ -34,8 +34,19 @@ describe('portable candidate path search', () => {
     await writeFile(quoted, "<?php const NAME = 'get';");
     await writeFile(unicode, "<?php const NAME = 'αget';");
     await writeFile(join(src, 'Noise.php'), '<?php function getSomething() {} function forget() {} function _get() {} $get2 = 1;');
-    const request = input(root, src, 10); request.names = ['get'];
+    const request = input(root, src, 10); request.names = ['get']; request.identifierBoundaries = true;
     expect(scanPortableCandidates(request)?.sort()).toEqual([target, quoted, unicode].map(path => resolve(path)).sort());
+  });
+
+  it('preserves substring candidates for type and namespace completion prefixes', async () => {
+    root = await mkdtemp(join(tmpdir(), 'sophp-portable-prefixes-'));
+    const target = join(root, 'Catalog.php');
+    await writeFile(target, '<?php namespace RootImportNamespace; class OrderService {}');
+    const request = input(root, root, 10);
+    for (const prefix of ['RootImportName', 'Ord']) {
+      request.names = [prefix];
+      expect(scanPortableCandidates(request)).toEqual([resolve(target)]);
+    }
   });
 
   it('withholds negative evidence when the walk exceeds a file budget or is cancelled', async () => {

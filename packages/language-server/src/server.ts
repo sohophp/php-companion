@@ -3568,7 +3568,7 @@ async function preparedReferenceCandidatesUnchanged(workspace: SemanticWorkspace
       : await ripgrepCandidatePaths(project, normalizedNames, referenceRipgrepMode === 'system' ? '/usr/bin/rg' : 'rg',
         false, 1, undefined, indexLimits.maxFiles + 1, true);
     const candidates = searched?.complete ? searched : await portableCandidatePaths(sourceRoots,
-      normalizedNames, project, current, Math.max(50_000, indexLimits.maxFiles));
+      normalizedNames, project, current, Math.max(50_000, indexLimits.maxFiles), 8_000, true);
     if (!candidates || !current()) return false;
     const projectPaths = new Map<string, boolean>();
     const projectPath = (path: string): boolean => {

@@ -1,15 +1,15 @@
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/src/index.js';
 
 const cases = ['7.2', '8.5'].flatMap(phpVersion => ['progressive', 'experimental'].map(indexingMode => ({ phpVersion, indexingMode })));
 async function verifyIdentifierBoundaries(phpVersion: string, indexingMode: string, search: 'system' | 'portable' = 'system'): Promise<void> {
-  const root = await mkdtemp(join(tmpdir(), 'sophp-prepared-fresh-references-'));
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'sophp-prepared-fresh-references-')));
   await mkdir(join(root, 'src/Contract'), { recursive: true });
   await mkdir(join(root, 'src/Controller'), { recursive: true });
   await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -41,7 +41,7 @@ async function verifyIdentifierBoundaries(phpVersion: string, indexingMode: stri
   const arm = join(root, 'observe'), reads = join(root, 'reads.jsonl'), preload = join(root, 'observe-read.cjs');
   await writeFile(preload, `const fs = require('node:fs'), fsp = require('node:fs/promises');
 const original = fs.readFile, originalPromise = fsp.readFile;
-const arm = ${JSON.stringify(arm)}, log = ${JSON.stringify(reads)}, sourceRoot = ${JSON.stringify(join(root, 'src') + '/')};
+const arm = ${JSON.stringify(arm)}, log = ${JSON.stringify(reads)}, sourceRoot = ${JSON.stringify(join(root, 'src') + sep)};
 const observe = path => { if (typeof path === 'string' && path.startsWith(sourceRoot) && path.endsWith('.php') && fs.existsSync(arm)) fs.appendFileSync(log, JSON.stringify({ path, pid: process.pid }) + '\\n'); };
 fs.readFile = function(path, ...args) { observe(path); return original.call(this, path, ...args); };
 fsp.readFile = function(path, ...args) { observe(path); return originalPromise.call(this, path, ...args); };`);

@@ -14295,6 +14295,12 @@ namespace Second {
       expect(completionItems((await output.waitFor((message) => message.id === 39)).result)).toEqual(expect.arrayContaining([
         expect.objectContaining({ label: 'App\\Service', detail: 'App\\Service', textEdit: expect.objectContaining({ newText: 'App\\Service' }) }),
       ]));
+      const originalBundleOffset = consumer.indexOf('Mailer $bundleMailer') + 3;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 162, method: 'textDocument/hover', params: { textDocument: { uri: consumerUri }, position: lspPosition(consumer, originalBundleOffset) } }));
+      expect((await output.waitFor((message) => message.id === 162)).result).toMatchObject({ contents: { value: expect.stringContaining('(compiled)') } });
+      const originalBundleMember = consumer.indexOf('->del') + '->del'.length;
+      server.stdin.write(encode({ jsonrpc: '2.0', id: 163, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(consumer, originalBundleMember) } }));
+      expect(completionItems((await output.waitFor((message) => message.id === 163)).result)).toMatchObject([{ label: 'deliver' }]);
       const definitionSource = consumer.replace('App\\Serv', 'App\\Service');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didChange', params: { textDocument: { uri: consumerUri, version: 2 }, contentChanges: [{ text: definitionSource }] } }));
       await output.waitFor((message) => message.method === 'textDocument/publishDiagnostics' && message.params.uri === consumerUri && message.params.version === 2);
@@ -14387,12 +14393,15 @@ namespace Second {
       expect((await output.waitFor((message) => message.id === 60)).result).toMatchObject({ contents: { value: expect.not.stringContaining('Symfony autowiring') } });
       const bundleOffset = definitionSource.indexOf('Mailer $bundleMailer') + 3;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 62, method: 'textDocument/hover', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleOffset) } }));
-      expect((await output.waitFor((message) => message.id === 62)).result).toMatchObject({ contents: { value: expect.stringContaining('(compiled)') } });
+      // Unsaved PHP snapshots invalidate compiled-container evidence, while
+      // ordinary class navigation remains available from the current source.
+      expect((await output.waitFor((message) => message.id === 62)).result).toMatchObject({ contents: { value: expect.not.stringContaining('(compiled)') } });
+      expect(await readFile(join(root, 'src', 'Consumer.php'), 'utf8')).toBe(consumer);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 63, method: 'textDocument/definition', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleOffset) } }));
       expect((await output.waitFor((message) => message.id === 63)).result).toMatchObject([{ uri: pathToFileURL(servicePath).toString() }]);
       const bundleMember = definitionSource.indexOf('->del') + '->del'.length;
       server.stdin.write(encode({ jsonrpc: '2.0', id: 65, method: 'textDocument/completion', params: { textDocument: { uri: consumerUri }, position: lspPosition(definitionSource, bundleMember) } }));
-      expect(completionItems((await output.waitFor((message) => message.id === 65)).result)).toMatchObject([{ label: 'deliver' }]);
+      expect(completionItems((await output.waitFor((message) => message.id === 65)).result)).toEqual([]);
       await writeFile(servicesPath, 'services: {}\n');
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: pathToFileURL(servicesPath).toString(), type: 2 }] } }));
       await new Promise((resolvePromise) => setTimeout(resolvePromise, 500));
