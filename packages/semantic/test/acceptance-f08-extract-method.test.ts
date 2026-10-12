@@ -6,7 +6,8 @@ import { SemanticWorkspace } from '../src/index.js';
 const fixture = (name: string): string => readFileSync(new URL(`./fixtures/acceptance/${name}.php`, import.meta.url), 'utf8');
 const selection = (source: string): [number, number] => {
   const start = source.indexOf('if ($enabled)');
-  const end = source.indexOf('\n\n        return $label;', start);
+  const trailingReturn = /\r?\n\r?\n {8}return \$label;/.exec(source.slice(start));
+  const end = trailingReturn ? start + trailingReturn.index : -1;
   return [start, end];
 };
 
@@ -21,8 +22,7 @@ describe('F08 Extract Method acceptance fixtures', () => {
   });
   afterAll(() => { workspace.dispose(); parser.dispose(); });
 
-  it('F08-EM-01 extracts a complete branch output and preserves its type', () => {
-    const source = fixture('f08-extract-method-valid');
+  function verifyExtraction(source: string): void {
     workspace.update(uri, source, true);
     const plan = workspace.extractMethod(uri, ...selection(source));
     expect(plan).toMatchObject({ output: 'label', parameters: ['enabled'] });
@@ -36,6 +36,17 @@ describe('F08 Extract Method acceptance fixtures', () => {
     workspace.update(uri, edited, true);
     const use = edited.indexOf('return $label;');
     expect(workspace.variableValueAt(uri, use + 'return '.length + 2)?.type).toBe('string');
+  }
+
+  it('F08-EM-01 extracts a complete branch output and preserves its type', () => {
+    verifyExtraction(fixture('f08-extract-method-valid'));
+  });
+
+  it('F08-EM-01 preserves CRLF selection offsets, generated syntax and output type', () => {
+    verifyExtraction(fixture('f08-extract-method-valid').replace(/\r?\n/g, '\r\n'));
+    const counterexample = fixture('f08-extract-method-counterexample').replace(/\r?\n/g, '\r\n');
+    workspace.update(uri, counterexample, true);
+    expect(workspace.extractMethod(uri, ...selection(counterexample))).toBeUndefined();
   });
 
   it('F08-EM-02 refuses a legal partial branch output with no initial value', () => {

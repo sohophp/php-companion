@@ -50,7 +50,6 @@ async function main(): Promise<void> {
     throw new Error('C3 project noise requires first-import-only mode and an integer from 0 to 8,000.');
   }
   const routeStatusOnly = process.env.PHP_COMPANION_TEST_ROUTE_STATUS_ONLY === '1';
-  const symfonyContextOnly = process.env.PHP_COMPANION_TEST_SYMFONY_CONTEXT_ONLY === '1';
   const c3OpenSourceProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE === '1';
   const c3PhpunitPairProfile = c3Only && process.env.PHP_COMPANION_TEST_C3_PHPUNIT_PAIR_PROFILE === '1';
   const docblockerOnly = process.env.PHP_COMPANION_TEST_DOCBLOCKER_ONLY === '1';
@@ -263,8 +262,7 @@ async function main(): Promise<void> {
           `--extensions-dir=${resolve(docblockerExtensionsDir!)}`,
           `--user-data-dir=${resolve(docblockerUserDataDir!)}`,
         ] : []),
-        ...((c1Only || c2Only || c3Only || routeStatusOnly || symfonyContextOnly)
-          && !c1OpenSourceProfile && !c2OpenSourceProfile && !c3OpenSourceProfile && !c3PhpunitPairProfile
+        ...(!docblockerOnly && !c1OpenSourceProfile && !c2OpenSourceProfile && !c3OpenSourceProfile && !c3PhpunitPairProfile
           ? [`--user-data-dir=${join(fixture, 'profile-user-data')}`] : []),
         ...(c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile || c3PhpunitPairProfile ? [
           `--extensions-dir=${resolve(process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR!)}`,

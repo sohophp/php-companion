@@ -95,7 +95,7 @@ throw new RuntimeException('SoPHP intentional format-on-save failure');
           witness = JSON.parse(await readText(markerUri)) as typeof witness;
           assert.ok(witness);
           assert.strictEqual(witness.message, 'SoPHP intentional format-on-save failure');
-          assert.strictEqual(witness.config, configUri.fsPath);
+          assert.strictEqual(vscode.Uri.file(witness.config).fsPath, configUri.fsPath);
           assert.match(witness.phpVersion, /^\d+\.\d+\.\d+/u); assert.ok(witness.phpBinary);
           await vscode.workspace.fs.writeFile(configUri, originalConfig);
         }

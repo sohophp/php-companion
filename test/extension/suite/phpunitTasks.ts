@@ -69,7 +69,7 @@ final class ProfileTaskTest extends PHPUnit\\Framework\\TestCase {
   assert.strictEqual(witnesses.length, 3);
   assert.deepStrictEqual(witnesses.map(row => row.value), [42, 41, 42]);
   for (const witness of witnesses) {
-    assert.strictEqual(witness.cwd, workspace.uri.fsPath); assert.strictEqual(witness.sapi, 'cli');
+    assert.strictEqual(vscode.Uri.file(witness.cwd).fsPath, workspace.uri.fsPath); assert.strictEqual(witness.sapi, 'cli');
     assert.strictEqual(witness.binary, expectedRuntime.binary);
     assert.strictEqual(witness.version, expectedRuntime.version); assert.match(witness.version, /^\d+\.\d+\.\d+/u);
     assert.ok(witness.pid > 0);

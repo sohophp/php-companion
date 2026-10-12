@@ -484,6 +484,13 @@ async function waitForAsync(predicate: () => Promise<boolean>, message: string |
 
 function normalizedNewlines(value: string): string { return value.replaceAll('\r\n', '\n'); }
 
+async function applyGuardedGeneration(action: vscode.CodeAction | undefined, message: string): Promise<void> {
+  assert.ok(action?.command, 'Generation must expose its guarded preview command');
+  assert.strictEqual(action.command.command, 'phpCompanion.applyPreviewedExtract');
+  assert.strictEqual(await vscode.commands.executeCommand(action.command.command,
+    ...action.command.arguments ?? [], { testPreviewAction: async (): Promise<'apply'> => 'apply' }), true, message);
+}
+
 async function verifyLocalizedDiagnostics(workspace: vscode.WorkspaceFolder): Promise<void> {
   const uri = vscode.Uri.joinPath(workspace.uri, 'src', 'IncompleteDiagnostic.php');
   await vscode.workspace.fs.writeFile(uri, Buffer.from('<?php\nclass IncompleteDiagnostic { public function'));
@@ -3198,11 +3205,11 @@ export async function run(): Promise<void> {
       'vscode.executeCodeActionProvider', missingRunnerUri,
       new vscode.Range(missingRunner.positionAt(missingRunnerOffset), missingRunner.positionAt(missingRunnerOffset + 'MissingRunner'.length)),
     );
-    implementAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Implement 1 interface method');
-    return Boolean(implementAction?.edit);
+    implementAction = actions.find((action): action is vscode.CodeAction => 'kind' in action && action.title === 'Implement 1 interface method');
+    return implementAction?.command?.command === 'phpCompanion.applyPreviewedExtract';
   }, 'Self-hosted language server did not offer the missing interface method action');
   await vscode.window.showTextDocument(missingRunner);
-  assert.ok(await vscode.workspace.applyEdit(implementAction!.edit!), 'Implement interface methods edit could not be applied');
+  await applyGuardedGeneration(implementAction, 'Implement interface methods edit could not be applied');
   assert.ok(normalizedNewlines(missingRunner.getText()).includes("public function run(): void\n    {\n        throw new \\LogicException('Not implemented.');"), 'Generated interface method did not preserve the declared signature');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !missingRunner.getText().includes('LogicException'), 'Implement interface methods could not be undone as one editor operation');
@@ -3216,11 +3223,11 @@ export async function run(): Promise<void> {
       'vscode.executeCodeActionProvider', constructorUri,
       new vscode.Range(constructorDocument.positionAt(constructorOffset), constructorDocument.positionAt(constructorOffset + 'ConstructorTarget'.length)),
     );
-    constructorAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Generate constructor for 1 property');
-    return Boolean(constructorAction?.edit);
+    constructorAction = actions.find((action): action is vscode.CodeAction => 'kind' in action && action.title === 'Generate constructor for 1 property');
+    return constructorAction?.command?.command === 'phpCompanion.applyPreviewedExtract';
   }, 'Self-hosted language server did not offer safe constructor generation');
   await vscode.window.showTextDocument(constructorDocument);
-  assert.ok(await vscode.workspace.applyEdit(constructorAction!.edit!), 'Constructor generation edit could not be applied');
+  await applyGuardedGeneration(constructorAction, 'Constructor generation edit could not be applied');
   assert.ok(constructorDocument.getText().includes('public function __construct(string $name)'), 'Generated constructor did not preserve the property type');
   assert.ok(!constructorDocument.getText().includes('$limit = $limit'), 'Generated constructor included a property that already has a default');
   await vscode.commands.executeCommand('undo');
@@ -3235,10 +3242,10 @@ export async function run(): Promise<void> {
       'vscode.executeCodeActionProvider', constructorUri,
       new vscode.Range(constructorDocument.positionAt(constructorOffset), constructorDocument.positionAt(constructorOffset + 'ConstructorTarget'.length)),
     );
-    accessorAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Generate 2 property accessors');
-    return Boolean(accessorAction?.edit);
+    accessorAction = actions.find((action): action is vscode.CodeAction => 'kind' in action && action.title === 'Generate 2 property accessors');
+    return accessorAction?.command?.command === 'phpCompanion.applyPreviewedExtract';
   }, 'Self-hosted language server did not offer safe accessor generation');
-  assert.ok(await vscode.workspace.applyEdit(accessorAction!.edit!), 'Accessor generation edit could not be applied');
+  await applyGuardedGeneration(accessorAction, 'Accessor generation edit could not be applied');
   for (const signature of ['getName(): string', 'setName(string $name): void', 'getLimit(): int', 'setLimit(int $limit): void']) {
     assert.ok(constructorDocument.getText().includes(signature), `Generated accessors omitted ${signature}`);
   }
@@ -3254,11 +3261,11 @@ export async function run(): Promise<void> {
       'vscode.executeCodeActionProvider', overrideUri,
       new vscode.Range(overrideDocument.positionAt(overrideOffset), overrideDocument.positionAt(overrideOffset + 'OverrideTarget'.length)),
     );
-    overrideAction = actions.find((action): action is vscode.CodeAction => 'edit' in action && action.title === 'Override App\\Service\\BaseService::label');
-    return Boolean(overrideAction?.edit) && !actions.some((action) => action.title.includes('fixed'));
+    overrideAction = actions.find((action): action is vscode.CodeAction => 'kind' in action && action.title === 'Override App\\Service\\BaseService::label');
+    return overrideAction?.command?.command === 'phpCompanion.applyPreviewedExtract' && !actions.some((action) => action.title.includes('fixed'));
   }, 'Self-hosted language server did not offer only the safe Override candidate');
   await vscode.window.showTextDocument(overrideDocument);
-  assert.ok(await vscode.workspace.applyEdit(overrideAction!.edit!), 'Override edit could not be applied');
+  await applyGuardedGeneration(overrideAction, 'Override edit could not be applied');
   assert.ok(normalizedNewlines(overrideDocument.getText()).includes("public function label(string $prefix = ''): string\n    {\n        return parent::label($prefix);"), 'Override did not preserve and forward the parent signature');
   await vscode.commands.executeCommand('undo');
   await waitFor(() => !overrideDocument.getText().includes('parent::label'), 'Override could not be undone as one editor operation');
@@ -3835,7 +3842,7 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
       return definitions.some((location) => location.uri.scheme === 'php-companion-builtin');
     }, `Self-hosted language server did not navigate ${metadataSymbol} to the builtin document`);
   }
-  for (const [call, expected] of [['stat($path)', 'array|false'], ['realpath_cache_get()', 'key: int'],
+  for (const [call, expected] of [['stat($path)', 'mode: int'], ['realpath_cache_get()', 'key: int'],
     ['disk_free_space($path)', 'float|false'], ['readlink($path)', 'string|false'],
     ["tempnam($path, 'php')", 'string|false']] as const) {
     const signatureOffset = builtinConsumer.getText().indexOf(call) + call.length - 1;
@@ -3843,7 +3850,13 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
       const signature = await vscode.commands.executeCommand<vscode.SignatureHelp>(
         'vscode.executeSignatureHelpProvider', builtinConsumerUri, builtinConsumer.positionAt(signatureOffset), ',',
       );
-      return signature?.signatures.length === 1 && signature.signatures[0]?.label.includes(expected);
+      const label = signature?.signatures[0]?.label;
+      if (signature?.signatures.length !== 1 || !label?.includes(expected)) return false;
+      if (call !== 'stat($path)') return true;
+      const statKeys = [...Array.from({ length: 13 }, (_, index) => String(index)), 'dev', 'ino', 'mode', 'nlink',
+        'uid', 'gid', 'rdev', 'size', 'atime', 'mtime', 'ctime', 'blksize', 'blocks'];
+      return /\bfalse(?:\||$)/u.test(label) && statKeys.every(key =>
+        new RegExp(`[,\\{]\\s*${key}:\\s*int(?:,|\\})`, 'u').test(label));
     }, `Self-hosted language server did not expose ${expected} for ${call}`);
   }
   for (const streamSymbol of ['feof', 'fflush', 'fgetc', 'fgetcsv', 'fgets', 'file', 'flock',
