@@ -1963,7 +1963,7 @@ function inspect(Sink $sink, ?Sink $optional): void {
     expect(returnItems[0]?.textEdit?.newText).toBe('return ');
   });
   it('keeps the declaration family separate from callable and constant completions', async () => {
-    const uri = 'file:///OrderService.php';
+    const uri = pathToFileURL(resolve('OrderService.php')).toString();
     server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
     const output = messagesFrom(server);
     server.stdin.write(encode({ jsonrpc: '2.0', id: 1, method: 'initialize', params: {
