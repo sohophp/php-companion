@@ -1862,6 +1862,17 @@ function uniqueSymfonyParameterRegistration(root: string, parameterId: string): 
   const unique = [...new Map(matches.map((parameter) => [`${parameter.uri}:${parameter.start}:${parameter.end}`, parameter])).values()];
   return unique.length === 1 ? unique[0] : undefined;
 }
+async function symfonyAutowireForQuery(document: TextDocument, offset: number, workspace: SemanticWorkspace,
+  cancelled: () => boolean): Promise<SymfonyAutowireResolution | undefined> {
+  const root = rootForUri(document.uri);
+  const parameter = workspace.constructorParameterAt(document.uri, offset)
+    ?? workspace.requiredMethodParameterAt(document.uri, offset) ?? workspace.requiredPropertyAt(document.uri, offset);
+  if (root && parameter?.typeFqcns.length
+    && semanticProviders.filter(provider => provider.replacesContainerServices).length === 1
+    && !await ensureSymfonyContainerFactsForQuery(root, cancelled)) return undefined;
+  return cancelled() ? undefined : symfonyAutowireAt(document, offset, workspace);
+}
+
 function symfonyAutowireAt(document: TextDocument, offset: number, workspace: SemanticWorkspace): SymfonyAutowireResolution | undefined {
   const root = rootForUri(document.uri); if (!root || !projectCompleteRoots.has(root)) return undefined;
   const parameter = workspace.constructorParameterAt(document.uri, offset) ?? workspace.requiredMethodParameterAt(document.uri, offset) ?? workspace.requiredPropertyAt(document.uri, offset);
@@ -8124,7 +8135,9 @@ connection.onHover(async ({ textDocument, position }, token) => {
   if (!currentQueryDocument(document, token, queryVersion)) return null;
   const service = serviceReference && symfonyServiceCatalog(rootForUri(document.uri)).find((candidate) => candidate.id === serviceReference.value);
   if (service) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony service** \`${service.id}\`\n\n\`class ${service.className}\`` } };
-  const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, offset, workspace) : undefined;
+  const autowired = document.languageId === 'php' ? await symfonyAutowireForQuery(document, offset, workspace,
+    () => !currentQueryDocument(document, token, queryVersion)) : undefined;
+  if (!currentQueryDocument(document, token, queryVersion)) return null;
   if (autowired) return { contents: { kind: MarkupKind.Markdown, value: `**Symfony autowiring**\n\nService \`${autowired.serviceId}\` injects \`${autowired.className}\` (${autowired.kind.replace('-', ' ')}).` } };
   recordTestQueryDuration('hoverFrameworkContext', frameworkStarted);
   if (serviceRoot && document.languageId === 'php') {
@@ -8213,7 +8226,9 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
     if (!currentQueryDocument(document, token, queryVersion)) return [];
     return target ? [{ uri: service.uri, range: { start: target.positionAt(service.start), end: target.positionAt(service.end) } }] : [];
   }
-  const autowired = document.languageId === 'php' ? symfonyAutowireAt(document, document.offsetAt(position), workspace) : undefined;
+  const autowired = document.languageId === 'php' ? await symfonyAutowireForQuery(document, document.offsetAt(position), workspace,
+    () => !currentQueryDocument(document, token, queryVersion)) : undefined;
+  if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (autowired) {
     const implementation = workspace.typeByFqcn(autowired.className);
     if (implementation) {

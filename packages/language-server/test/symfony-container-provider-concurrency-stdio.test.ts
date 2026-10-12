@@ -46,15 +46,19 @@ const position = (source: string, offset: number): { line: number; character: nu
   const lines = source.slice(0, offset).split('\n');
   return { line: lines.length - 1, character: lines.at(-1)!.length };
 };
-async function fixture(phpVersion: string, indexingMode: string, testMode = false): Promise<{
+async function fixture(phpVersion: string, indexingMode: string, testMode = false, autowire = false): Promise<{
   root: string; server: ChildProcessWithoutNullStreams; client: ReturnType<typeof clientFor>; stop: () => Promise<void>; calls: () => Promise<any[]>; hold: () => Promise<void>; release: () => Promise<void>;
 }> {
   const root = await mkdtemp(join(tmpdir(), 'sophp-service-definition-'));
   await mkdir(join(root, 'src')); await mkdir(join(root, 'config'));
   await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
   await writeFile(join(root, 'src', 'Mailer.php'), '<?php namespace App; class Mailer {}');
-  await writeFile(join(root, 'src', 'Consumer.php'), '<?php namespace App; class Consumer { public function run(): void {} }');
-  const config = 'parameters:\n  app.mode: test\nservices:\n  app.mailer: { class: App\\Mailer }\n  App\\Mailer: { alias: app.mailer }\n';
+  await writeFile(join(root, 'src', 'Consumer.php'), autowire
+    ? '<?php namespace App; class Consumer { public function __construct(private Mailer $mailer) {} }'
+    : '<?php namespace App; class Consumer { public function run(): void {} }');
+  if (autowire) await writeFile(join(root, 'src', 'OtherMailer.php'), '<?php namespace App; class OtherMailer extends Mailer {}');
+  const config = 'parameters:\n  app.mode: test\nservices:\n  app.mailer: { class: App\\Mailer }\n  App\\Mailer: { alias: app.mailer }\n'
+    + (autowire ? '  app.other: { class: App\\OtherMailer }\n  App\\Consumer: { class: App\\Consumer, autowire: true }\n' : '');
   await writeFile(join(root, 'config', 'services.yaml'), `imports:\n  - { resource: extra.php }\n${config}`);
   await writeFile(join(root, 'config', 'extra.php'), '<?php return [];');
   const callsPath = join(root, 'provider-calls.jsonl'), holdPath = join(root, 'hold'), releasePath = join(root, 'release');
@@ -341,3 +345,45 @@ it.each(['7.2','8.5'])('physically stops the owned container provider during shu
     await exit;await f.stop();
   }
 });
+
+
+it.each(['experimental', 'progressive', 'onDemand'].flatMap(mode => ['hover', 'definition'].map(query => ({ mode, query }))))(
+  'autowire queries wait for current held container facts ($mode/$query)', async ({ mode, query }) => {
+    const f = await fixture('8.5', mode, false, true);
+    try {
+      const uri = pathToFileURL(join(f.root, 'src', 'Consumer.php')).toString();
+      const source = await readFile(join(f.root, 'src', 'Consumer.php'), 'utf8');
+      expect(await definition(f, uri, 0).result).toHaveLength(1);
+      f.client.send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: source } } });
+      await until(async () => f.client.messages.some(message => message.method === 'textDocument/publishDiagnostics'
+        && message.params.uri === uri && message.params.version === 1));
+      const params = { textDocument: { uri }, position: position(source, source.indexOf('Mailer $mailer') + 2) };
+      const prime = await f.client.request('textDocument/' + query, params);
+      if (query === 'hover') expect(prime?.contents?.value, JSON.stringify(prime)).toContain('injects `App\\Mailer`');
+      else expect(prime).toEqual([expect.objectContaining({ uri: pathToFileURL(join(f.root, 'src', 'Mailer.php')).toString() })]);
+      await f.hold();
+      const before = (await f.calls()).length;
+      const yamlUri = pathToFileURL(join(f.root, 'config', 'services.yaml')).toString();
+      const diskConfig = await readFile(join(f.root, 'config', 'services.yaml'), 'utf8');
+      const changed = diskConfig.replace('App\\Mailer: { alias: app.mailer }', 'App\\Mailer: { alias: app.other }');
+      expect(changed).not.toBe(diskConfig);
+      f.client.send({ method: 'phpCompanion/frameworkDocumentSnapshots', params: { complete: true, documents: [
+        { uri: yamlUri, languageId: 'yaml', snapshotVersion: 'new', source: changed },
+      ] } });
+      const pending = f.client.start('textDocument/' + query, params);
+      let settled = false; void pending.result.then(() => { settled = true; });
+      await until(async () => (await f.calls()).slice(before).some(call => call.held
+        && call.request.params.documents.some((document: any) => document.uri === yamlUri && document.source === changed)));
+      const ordinary = await f.client.request('textDocument/hover', {
+        textDocument: { uri }, position: position(source, source.indexOf('class Consumer') + 8),
+      });
+      expect(ordinary?.contents?.value).toContain('Consumer');
+      expect(settled).toBe(false);
+      await f.release();
+      const result = await pending.result;
+      if (query === 'hover') expect(result?.contents?.value).toContain('injects `App\\OtherMailer`');
+      else expect(result).toEqual([expect.objectContaining({ uri: pathToFileURL(join(f.root, 'src', 'OtherMailer.php')).toString() })]);
+      expect(await readFile(join(f.root, 'config', 'services.yaml'), 'utf8')).toBe(diskConfig);
+    } finally { await f.release(); await f.stop(); }
+  },
+);

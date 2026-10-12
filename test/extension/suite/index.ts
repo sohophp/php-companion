@@ -2784,9 +2784,8 @@ export async function run(): Promise<void> {
     ) ?? [];
     lastAutowireHover = hovers;
     return hovers.flatMap((hover) => hover.contents).some((content) => (typeof content === 'string' ? content : content.value).includes('Symfony autowiring'));
-  }, 'Self-hosted language server did not expose the proven Symfony autowiring target').catch((error: unknown) => {
-    throw new Error(`${String(error)}; last hover: ${JSON.stringify(lastAutowireHover)}`);
-  });
+  }, () => `Self-hosted language server did not expose the proven Symfony autowiring target; last hover: ${JSON.stringify(
+    lastAutowireHover.flatMap(hover => hover.contents).map(content => typeof content === 'string' ? content : content.value))}`);
   const mailerUri = vscode.Uri.joinPath(workspace.uri, 'src', 'Service', 'Mailer.php');
   await waitForAsync(async () => {
     const definitions = await vscode.commands.executeCommand<vscode.Location[]>(
