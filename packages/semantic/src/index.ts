@@ -20179,7 +20179,7 @@ export class SemanticWorkspace {
     try {
       // Omitted optional & outputs cannot replace a caller binding. Unknown
       // unpacking, duplicate names and unmapped arguments still lack a proof.
-      const valueArguments = (parameters: ParsedParameter[]): boolean => {
+      const valueArguments = (parameters: ParsedParameter[], ignoreReferences = false): boolean => {
         let positional = 0; let named = false; const used = new Set<string>();
         const mapped = call.arguments.every((argument) => {
           if (argument.unpacked || named && !argument.name) return false;
@@ -20187,7 +20187,8 @@ export class SemanticWorkspace {
             ? parameters.find(item => item.name === argument.name)
             : parameters[positional++] ?? (parameters.at(-1)?.variadic ? parameters.at(-1) : undefined);
           if (argument.name) named = true;
-          if (!parameter || parameter.byReference || used.has(parameter.name) && (Boolean(argument.name) || !parameter.variadic)) return false;
+          if (!parameter || !ignoreReferences && parameter.byReference
+            || used.has(parameter.name) && (Boolean(argument.name) || !parameter.variadic)) return false;
           used.add(parameter.name); return true;
         });
         return mapped && parameters.every(parameter => used.has(parameter.name)
@@ -20199,6 +20200,11 @@ export class SemanticWorkspace {
           this.namespaceAt(file, call.start), call.start);
         const declarations = this.functionDeclarations(name);
         result = declarations.length === 1 && valueArguments(declarations[0]!.item.parameters);
+        if (declarations.length > 1 && declarations[0]!.file.uri.startsWith('php-companion-builtin:')
+          && declarations.every(declaration => declaration.file.uri === declarations[0]!.file.uri)) {
+          const applicable = declarations.filter(declaration => valueArguments(declaration.item.parameters, true));
+          result = applicable.length > 0 && applicable.every(declaration => valueArguments(declaration.item.parameters));
+        }
       } else {
         const signature = this.signatureForParsedCall(file, call);
         if (signature?.kind === 'method' && !signature.synthetic) {

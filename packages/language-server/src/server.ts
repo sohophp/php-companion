@@ -1865,8 +1865,14 @@ function uniqueSymfonyParameterRegistration(root: string, parameterId: string): 
 async function symfonyAutowireForQuery(document: TextDocument, offset: number, workspace: SemanticWorkspace,
   cancelled: () => boolean): Promise<SymfonyAutowireResolution | undefined> {
   const root = rootForUri(document.uri);
+  const facts = root ? completeContainerFactsByRoot.get(root) : undefined;
+  if (!root || semanticProviders.filter(provider => provider.replacesContainerServices).length !== 1
+    || facts?.revision === containerFactsRevision && facts.generation === indexingGeneration) {
+    return cancelled() ? undefined : symfonyAutowireAt(document, offset, workspace);
+  }
   const parameter = workspace.constructorParameterAt(document.uri, offset)
-    ?? workspace.requiredMethodParameterAt(document.uri, offset) ?? workspace.requiredPropertyAt(document.uri, offset);
+    ?? (workspace.methodParameterAt(document.uri, offset) ? workspace.requiredMethodParameterAt(document.uri, offset) : undefined)
+    ?? workspace.requiredPropertyAt(document.uri, offset);
   if (root && parameter?.typeFqcns.length
     && semanticProviders.filter(provider => provider.replacesContainerServices).length === 1
     && !await ensureSymfonyContainerFactsForQuery(root, cancelled)) return undefined;

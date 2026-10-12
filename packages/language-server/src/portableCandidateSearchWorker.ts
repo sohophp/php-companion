@@ -13,7 +13,11 @@ export function scanPortableCandidates(input: PortableCandidateSearchInput): str
   const queue: QueueEntry[] = input.roots.map((path) => ({ path: resolve(path), ancestors: [], root: true }));
   const matches = new Set<string>();
   const inspectedFiles = new Set<string>();
-  const names = input.names.map((name) => name.toLowerCase());
+  // Match the ASCII identifier boundaries used by the native candidate search.
+  // Non-ASCII neighbours stay conservative candidates for semantic validation.
+  const names = input.names.map(name => name.toLowerCase());
+  const identifiers = names.length && names.every(name => /^[a-z_][a-z0-9_]*$/u.test(name))
+    ? new RegExp(`(?:^|[^a-z0-9_])(?:${names.join('|')})(?![a-z0-9_])`, 'u') : undefined;
   const cancelled = new Int32Array(input.cancelled);
   let files = 0; let bytes = 0;
   const withinBounds = (): boolean => Atomics.load(cancelled, 0) === 0 && Date.now() <= input.deadline;
@@ -50,7 +54,7 @@ export function scanPortableCandidates(input: PortableCandidateSearchInput): str
     bytes += source.byteLength - info.size;
     if (source.byteLength > 4 * 1024 * 1024 || bytes > 512 * 1024 * 1024) return undefined;
     const text = source.toString('utf8').toLowerCase();
-    if (names.some((name) => text.includes(name))) matches.add(resolve(entry.path));
+    if (identifiers ? identifiers.test(text) : names.some(name => text.includes(name))) matches.add(resolve(entry.path));
   }
   return [...matches];
 }

@@ -8,7 +8,7 @@ import { expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/src/index.js';
 
 const cases = ['7.2', '8.5'].flatMap(phpVersion => ['progressive', 'experimental'].map(indexingMode => ({ phpVersion, indexingMode })));
-it.each(cases)('preserves short identifier boundaries and disk-only changes at PHP $phpVersion in $indexingMode', async ({ phpVersion, indexingMode }) => {
+async function verifyIdentifierBoundaries(phpVersion: string, indexingMode: string, search: 'system' | 'portable' = 'system'): Promise<void> {
   const root = await mkdtemp(join(tmpdir(), 'sophp-prepared-fresh-references-'));
   await mkdir(join(root, 'src/Contract'), { recursive: true });
   await mkdir(join(root, 'src/Controller'), { recursive: true });
@@ -88,7 +88,7 @@ fsp.readFile = function(path, ...args) { observe(path); return originalPromise.c
   try {
     await request('initialize', { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
       initializationOptions: { phpVersion, indexingMode, experimentalReferenceSourceOnly: indexingMode === 'experimental',
-        experimentalRipgrepCandidates: 'system', testMode: true, testDisablePersistentReferences: true,
+        experimentalRipgrepCandidates: search, testMode: true, testDisablePersistentReferences: true,
         cacheDirectory: join(root, 'cache') } });
     send({ method: 'initialized', params: {} });
     if (indexingMode === 'progressive' || indexingMode === 'experimental') await waitFor(message => message.method === 'window/logMessage'
@@ -156,4 +156,9 @@ fsp.readFile = function(path, ...args) { observe(path); return originalPromise.c
     if (server.exitCode === null) { server.kill(); await exited; }
     await rm(root, { recursive: true, force: true });
   }
-}, 20_000);
+}
+
+it.each(cases)('preserves short identifier boundaries and disk-only changes at PHP $phpVersion in $indexingMode',
+  async ({ phpVersion, indexingMode }) => verifyIdentifierBoundaries(phpVersion, indexingMode), 20_000);
+it.each(cases)('preserves portable short identifier boundaries and disk-only changes at PHP $phpVersion in $indexingMode',
+  async ({ phpVersion, indexingMode }) => verifyIdentifierBoundaries(phpVersion, indexingMode, 'portable'), 20_000);

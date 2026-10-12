@@ -1,5 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile, rm, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -42,7 +42,7 @@ async function until(match: () => Promise<boolean>): Promise<void> {
 }
 
 it.each([['7.2', 'one'], ['8.5', 'one'], ['7.2', 'all'], ['8.5', 'all']] as const)('shares concurrent Controller scans at PHP %s with %s cancelled callers', async (phpVersion, cancellation) => {
-  const root = await mkdtemp(join(tmpdir(), 'sophp-controller-concurrency-')); let server: ChildProcessWithoutNullStreams | undefined;
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'sophp-controller-concurrency-'))); let server: ChildProcessWithoutNullStreams | undefined;
   let output: ReturnType<typeof outputFor> | undefined;
   try {
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
@@ -86,7 +86,7 @@ it.each([['7.2', 'one'], ['8.5', 'one'], ['7.2', 'all'], ['8.5', 'all']] as cons
 });
 
 it.each(['7.2', '8.5'])('retains Controller preparation for unchanged watcher events at PHP %s', async phpVersion => {
-  const root = await mkdtemp(join(tmpdir(), 'sophp-controller-noop-watch-')); let server: ChildProcessWithoutNullStreams | undefined;
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'sophp-controller-noop-watch-'))); let server: ChildProcessWithoutNullStreams | undefined;
   let output: ReturnType<typeof outputFor> | undefined;
   try {
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));

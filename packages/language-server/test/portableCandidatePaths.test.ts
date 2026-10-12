@@ -26,6 +26,18 @@ describe('portable candidate path search', () => {
     expect(scanPortableCandidates(input(root, src, 10))).toEqual([resolve(target)]);
   });
 
+  it('preserves short identifier boundaries and conservative quoted or Unicode candidates', async () => {
+    root = await mkdtemp(join(tmpdir(), 'sophp-portable-boundaries-'));
+    const src = join(root, 'src'); await mkdir(src);
+    const target = join(src, 'Target.php'), quoted = join(src, 'Quoted.php'), unicode = join(src, 'Unicode.php');
+    await writeFile(target, '<?php $target->GET();');
+    await writeFile(quoted, "<?php const NAME = 'get';");
+    await writeFile(unicode, "<?php const NAME = 'αget';");
+    await writeFile(join(src, 'Noise.php'), '<?php function getSomething() {} function forget() {} function _get() {} $get2 = 1;');
+    const request = input(root, src, 10); request.names = ['get'];
+    expect(scanPortableCandidates(request)?.sort()).toEqual([target, quoted, unicode].map(path => resolve(path)).sort());
+  });
+
   it('withholds negative evidence when the walk exceeds a file budget or is cancelled', async () => {
     root = await mkdtemp(join(tmpdir(), 'sophp-portable-candidates-limit-'));
     const src = join(root, 'src'); await mkdir(src);
