@@ -103,7 +103,7 @@
     "benchmark:persistence": "pnpm build:packages && node scripts/benchmark-persistent-index.mjs",
     "audit:workspace": "pnpm build:packages && node scripts/audit-real-workspace.mjs",
     "audit:real-cache": "pnpm build:packages && node scripts/audit-real-cache.mjs",
-    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm package:all && pnpm verify:vsix",
+    "check": "pnpm typecheck && pnpm lint && pnpm verify:packages && pnpm test && pnpm package:all && pnpm verify:vsix",
     "check:component-boundaries": "node scripts/check-component-boundaries.mjs",
     "test:component-boundaries": "node --test scripts/test/check-component-boundaries.test.mjs",
     "check:public-contracts": "node scripts/check-public-contracts.mjs",

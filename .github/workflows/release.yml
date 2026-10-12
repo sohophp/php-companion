@@ -38,8 +38,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
-      - run: pnpm test
       - run: pnpm verify:packages
+      - run: pnpm test
       - run: node scripts/benchmark-editing.mjs 1000 100 > editing-resilience-Linux-X64.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
